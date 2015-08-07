@@ -1,0 +1,79 @@
+<?php
+namespace Morpho\Core;
+
+use Morpho\Base\NotImplementedException;
+use Morpho\Db\Db;
+
+class SettingManager {
+    protected $db;
+
+    private $cache = [];
+
+    const TABLE_NAME = 'setting';
+
+    public function __construct(Db $db) {
+        $this->db = $db;
+    }
+
+    public function setDb(Db $db) {
+        $this->db = $db;
+    }
+
+    public function delete() {
+        throw new NotImplementedException();
+        unset($this->cache[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @param string $moduleName
+     * @return mixed Returns non false value if setting with $name exists.
+     */
+    public function get($name, $moduleName) {
+        if (isset($this->cache[$name])) {
+            return $this->cache[$name];
+        }
+        $value = $this->db->selectCell(
+            'value FROM ' . self::TABLE_NAME . ' AS s
+                INNER JOIN module AS m
+             ON s.moduleId = m.id
+             WHERE s.name = ? AND m.name = ?',
+            [$name, $moduleName]
+        );
+        return unserialize($value);
+    }
+
+    public function set($name, $value, $moduleName) {
+        if (empty($name)) {
+            throw new \UnexpectedValueException("Empty setting name");
+        }
+        if (empty($moduleName)) {
+            throw new \UnexpsectedValueException("Empty module name");
+        }
+        $row = $this->db->selectRow(
+            's.name, m.id AS moduleId
+            FROM `module` AS m
+            LEFT JOIN ' . self::TABLE_NAME . ' AS s
+                ON s.moduleId = m.id AND s.name = ?
+            WHERE m.name = ?',
+            [$name, $moduleName]
+        );
+        if (!$row) {
+            throw new \LogicException("Unable to select module ID");
+        }
+        $moduleId = $row['moduleId'];
+        if (null !== $row['name']) {
+            $this->db->updateRows(
+                self::TABLE_NAME,
+                ['value' => serialize($value)],
+                ['name' => $name, 'moduleId' => $moduleId]
+            );
+        } else {
+            $this->db->insertRow(
+                self::TABLE_NAME,
+                ['name' => $name, 'value' => serialize($value), 'moduleId' => $moduleId]
+            );
+        }
+        $this->cache[$name] = $value;
+    }
+}

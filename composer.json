@@ -1,0 +1,70 @@
+{
+    "name": "morpho/framework",
+    "description": "PHP 7 framework to build PHP applications: web-sites, web-application, command-line applications.",
+    "type": "library",
+    "license": [
+        "Apache-2.0"
+    ],
+    "keywords": [
+        "morpho",
+        "framework",
+        "mvc",
+        "rest",
+        "restful",
+        "core",
+        "module",
+    ],
+    "require": {
+        "php": "7.0.*",
+        "ext-curl": "*",
+        "ext-date": "*",
+        "ext-dom": "*",
+        "ext-gd": "*",
+        "ext-hash": "*",
+        "ext-iconv": "*",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-mcrypt": "*",
+        "ext-openssl": "*",
+        "ext-pcre": "*",
+        "ext-pdo_mysql": "*",
+        "ext-tokenizer": "*",
+        "ext-xml": "*",
+        "nikic/php-parser": "dev-master",
+        "nikic/fast-route": "dev-master",
+        "zendframework/zend-http": "dev-master",
+        "zendframework/zend-uri": "dev-master",
+        "zendframework/zend-filter": "dev-master",
+        "zendframework/zend-json": "dev-master",
+        "zendframework/zend-log": "dev-master",
+        "zendframework/zend-mail": "dev-master",
+        "zendframework/zend-stdlib": "dev-master",
+        "zendframework/zend-validator": "dev-master",
+    },
+    "require-dev": {
+        "phpunit/phpunit": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "Morpho": "lib",
+            "Board": "lib"
+        },
+        "files": [
+            "lib/Morpho/Base/autoload.php",
+            "lib/Morpho/Debug/autoload.php",
+            "lib/Morpho/Error/autoload.php",
+            "lib/Morpho/Core/autoload.php"
+        ]
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.x-dev"
+        }
+    }
+}
