@@ -1,0 +1,57 @@
+<?php
+namespace MorphoTest\Xml;
+
+use Morpho\Test\TestCase;
+
+class XmlToolTest extends TestCase {
+    public function testToXmlDoc() {
+        $data = array(
+            'student_info' => array(
+                'total_stud' => 500,
+                0 => array(
+                    'student' => array(
+                        'id' => 1,
+                        'name' => 'abc',
+                        'address' => array(
+                            'city' => 'Pune',
+                            'zip' => 411006,
+                        ),
+                    ),
+                ),
+                1 => array(
+                    'student' => array(
+                        'id' => 2,
+                        'name' => 'xyz',
+                        'address' => array(
+                            'city' => 'Mumbai',
+                            'zip' => 400906,
+                        ),
+                    ),
+                ),
+            ),
+        );
+        $expected = <<<'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<student_info>
+  <total_stud>500</total_stud>
+  <student>
+    <id>1</id>
+    <name>abc</name>
+    <address>
+      <city>Pune</city>
+      <zip>411006</zip>
+    </address>
+  </student>
+  <student>
+    <id>2</id>
+    <name>xyz</name>
+    <address>
+      <city>Mumbai</city>
+      <zip>400906</zip>
+    </address>
+  </student>
+</student_info>
+XML;
+        $this->assertEquals(trim($expected), trim(\Morpho\Xml\XmlTool::toXmlDoc($data)->saveXml()));
+    }
+}
