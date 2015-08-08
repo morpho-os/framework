@@ -117,7 +117,7 @@ abstract class Theme extends Module {
         }
         if ($throwExIfNotFound) {
             throw new \RuntimeException(
-                "Unable to detect an absolute file path for the path '$relOrAbsFilePath', searched in paths: '"
+                "Unable to detect an absolute file path for the path '$relOrAbsFilePath', searched in paths:\n'"
                 . implode(PATH_SEPARATOR, $this->basePaths) . "'."
             );
         }

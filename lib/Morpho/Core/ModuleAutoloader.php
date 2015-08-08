@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Core;
 
-use Morpho\Loader\FileClassMapAutoloader;
+use Morpho\Base\FileClassMapAutoloader;
 use Morpho\Fs\Directory;
 
 class ModuleAutoloader extends FileClassMapAutoloader implements \IteratorAggregate {

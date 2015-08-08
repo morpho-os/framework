@@ -1,11 +1,10 @@
 <?php
-namespace Morpho\Web\Router;
+namespace Morpho\Web;
 
 use PhpParser\NodeTraverser;
 use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;
 use PhpParser;
-use Morpho\Web\Request;
 use Morpho\Fs\Directory;
 
 class RouteInfoProvider extends PhpParser\NodeVisitorAbstract {

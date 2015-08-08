@@ -24,7 +24,6 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     /**
-     * @return string
      * @throws EmptyPropertyException
      */
     public function getName(): string {

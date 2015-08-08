@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Morpho\Web;
 
 use Morpho\Core\Controller as BaseController;
@@ -169,11 +171,7 @@ class Controller extends BaseController {
         return $this->asJsonOrHtml(array_merge((array)$data, ['error' => true]));
     }
 
-    /**
-     * @param bool $clear
-     * @return array
-     */
-    protected function getMessages(bool $clear = true) {
+    protected function getMessages(bool $clear = true): array {
         $messenger = $this->serviceManager->get('messenger');
         $messages = $messenger->toArray();
         if ($clear) {

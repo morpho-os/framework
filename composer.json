@@ -12,7 +12,7 @@
         "rest",
         "restful",
         "core",
-        "module",
+        "module"
     ],
     "require": {
         "php": "7.0.*",
@@ -41,7 +41,7 @@
         "zendframework/zend-log": "dev-master",
         "zendframework/zend-mail": "dev-master",
         "zendframework/zend-stdlib": "dev-master",
-        "zendframework/zend-validator": "dev-master",
+        "zendframework/zend-validator": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master"

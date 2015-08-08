@@ -12,6 +12,7 @@ use Morpho\Web\MenuItem;
 class RouterTest extends DbTestCase {
     public function setUp() {
         $this->markTestIncomplete();
+
         parent::setUp();
         $db = $this->createDb();
         $db->dropTables(['menu_item', 'menu', 'route', 'file']);
@@ -690,9 +691,10 @@ OUT;
         return 'morpho-test-web-router-test';
     }
 }
-
+/*
 class MyRouter extends Router {
     public function generatePatterns(array $uriParts) {
         return parent::generatePatterns($uriParts);
     }
 }
+*/

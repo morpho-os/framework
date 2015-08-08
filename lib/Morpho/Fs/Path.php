@@ -12,7 +12,7 @@ class Path {
         || (isset($path[1]) && $path[1] === ':');
     }
 
-    public static function findRootDirPath($dirPath = null, $throwEx = true) {
+    public static function detectBaseProjectDirPath($dirPath = null, $throwEx = true) {
         if (null === $dirPath) {
             $dirPath = __DIR__;
         }

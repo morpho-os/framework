@@ -11,7 +11,7 @@ class ArrayIterator extends \ArrayIterator {
     }
 
     public function clear() {
-        for ($this->rewind(); $this->valid(); $this->offsetUnset($this->key())) ;
+        for ($this->rewind(); $this->valid(); $this->offsetUnset($this->key()));
     }
 
     public function isEmpty() {

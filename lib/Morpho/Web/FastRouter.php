@@ -9,7 +9,7 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
 
-class FastRouter extends BaseRouter {
+class FastRouter extends Router {
     public function route($request) {
         $uri = $this->getNormalizedUri($request);
         if ($this->handleHomeUri($request, $uri)) {
