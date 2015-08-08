@@ -22,9 +22,8 @@ class PhpErrorException extends \ErrorException {
             E_DEPRECATED => 'E_DEPRECATED',
             E_USER_DEPRECATED => 'E_USER_DEPRECATED',
         );
-        $s = preg_replace("/^(exception '[^']+')/si", '\1 (' . $levels[$severity] . ')', $s);
 
-        return $s;
+        return preg_replace('/^(' . preg_quote(get_class($this), '/') . ')/si', '\1 (' . $levels[$severity] . ')', $s);
     }
 }
 

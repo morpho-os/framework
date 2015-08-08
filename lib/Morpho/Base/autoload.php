@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-
 function unpackArgs(array $args): array {
     return count($args) === 1 && is_array($args[0])
         ? $args[0]

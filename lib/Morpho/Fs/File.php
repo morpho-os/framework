@@ -1,60 +1,72 @@
 <?php
+declare(strict_types=1);
+
 namespace Morpho\Fs;
 
+use Morpho\Base\ArrayTool;
+
 class File extends Entry {
-    public static function read($filePath, array $options = array()) {
-        $options += array(
+    public static function read(string $filePath, array $options = []): string {
+        if (!is_file($filePath)) {
+            throw new FileNotFoundException($filePath);
+        }
+
+        $options = ArrayTool::handleOptions($options, [
             'lock' => false,
             'offset' => -1,
             'length' => null,
             'useIncludePath' => false,
             'context' => null,
             'binary' => true,
-        );
-        if (!is_file($filePath)) {
-            throw new FileNotFoundException($filePath);
-        }
-        // @TODO: Add handling of $options.
+            'handleBom' => true
+        ]);
+
         $content = @file_get_contents($filePath, $options['useIncludePath']);
+
         if (false === $content) {
             throw new IoException("Unable to read the '$filePath' file.");
         }
+
         if ($options['binary']) {
             return $content;
         }
+
         // Handle BOM.
-        if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+        if ($options['handleBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
             return substr($content, 3);
         }
 
         return $content;
     }
 
-    public static function readAsArray($filePath) {
+    public static function readAsArray(string $filePath): array {
         return file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 
     /**
      * Shortcut for the write() method that appends $content to the file.
      */
-    public static function append($filePath, $content, array $options) {
-        $options['append'] = true;
+    public static function append(string $filePath, string $content, array $options) {
+        $options = ArrayTool::handleOptions($options, ['append' => true]);
         self::write($filePath, $content, $options);
     }
 
-    /**
-     * @return $filePath
-     */
-    public static function write($filePath, $content, array $options = array()) {
+    public static function write(string $filePath, string $content, array $options = []): string {
         if (empty($filePath)) {
             throw new IoException("The file path is empty.");
         }
-        $options += array(
+
+        $options = ArrayTool::handleOptions($options, [
             'useIncludePath' => false,
             'lock' => true,
             'append' => false,
             'context' => null,
-        );
+            'mode' => 0644,
+            'dirMode' => 0755,
+        ]);
+
+        Directory::create(dirname($filePath), $options['dirMode']);
+
         $flags = 0;
         if ($options['append']) {
             $flags |= FILE_APPEND;
@@ -65,16 +77,18 @@ class File extends Entry {
         if ($options['useIncludePath']) {
             $flags |= FILE_USE_INCLUDE_PATH;
         }
-        Directory::create(dirname($filePath));
         $result = @file_put_contents($filePath, $content, $flags, $options['context']);
+
         if (!$result) {
             throw new IoException("Unable to write to the file '$filePath'.");
         }
 
+        chmod($filePath, $options['mode']);
+
         return $filePath;
     }
 
-    public static function truncate($filePath) {
+    public static function truncate(string $filePath) {
         $handle = @fopen($filePath, 'w');
         if (false === $handle) {
             throw new IoException("Unable to open the file '$filePath' for writing.");
@@ -82,20 +96,13 @@ class File extends Entry {
         fclose($handle);
     }
 
-    public static function delete($filePath) {
+    public static function delete(string $filePath) {
         if (!@unlink($filePath)) {
             throw new FileNotFoundException("Unable to delete the file '$filePath.'");
         }
     }
 
-    /**
-     * @param string $sourceFilePath
-     * @param string $targetFilePath
-     * @param bool $overwrite
-     * @param bool $skipIfExists
-     * @return string A new path of the copied file.
-     */
-    public static function copy($sourceFilePath, $targetFilePath, $overwrite = false, $skipIfExists = false) {
+    public static function copy(string $sourceFilePath, string $targetFilePath, bool $overwrite = false, bool $skipIfExists = false): string {
         if (!is_dir(dirname($targetFilePath))) {
             Directory::create(dirname($targetFilePath));
         }
@@ -116,13 +123,7 @@ class File extends Entry {
         return $targetFilePath;
     }
 
-    /**
-     * @param $sourceFilePath
-     * @param $targetFilePath
-     * @return string A new destination of moved file path.
-     * @throws IoException
-     */
-    public static function move($sourceFilePath, $targetFilePath) {
+    public static function move(string $sourceFilePath, string $targetFilePath): string {
         Directory::create(dirname($targetFilePath));
         if (!@rename($sourceFilePath, $targetFilePath)) {
             throw new IoException("Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
@@ -132,12 +133,12 @@ class File extends Entry {
         return $targetFilePath;
     }
 
-    public static function uniquePath($filePath, $numberAttemps = 10000) {
+    public static function uniquePath(string $filePath, int $numberOfAttempts = 10000): string {
         $uniquePath = $filePath;
-        for ($i = 0; is_file($uniquePath) && $i < $numberAttemps; $i++) {
+        for ($i = 0; is_file($uniquePath) && $i < $numberOfAttempts; $i++) {
             $uniquePath = $filePath . '-' . $i;
         }
-        if ($i == $numberAttemps && is_file($uniquePath)) {
+        if ($i == $numberOfAttempts && is_file($uniquePath)) {
             throw new IoException("Unable to generate unique path for file '$filePath' (tried $i times).");
         }
 

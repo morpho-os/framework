@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Morpho\Base;
 
-abstract class Autoloader implements IAutoloader {
-    public function autoload(string $class) {
+abstract class Autoloader {
+    public function autoload(string $class): bool {
         $filePath = $this->findFilePath($class);
         if ($filePath) {
             requireFile($filePath);
@@ -20,17 +20,22 @@ abstract class Autoloader implements IAutoloader {
         return false;
     }
 
+    /**
+     * @return null
+     */
     public function register(bool $prepend = false) {
         spl_autoload_register([$this, 'autoload'], true, $prepend);
-
-        return $this;
     }
 
     public function unregister() {
         spl_autoload_unregister([$this, 'autoload']);
     }
-}
 
+    /**
+     * @return string|null The path if found, false otherwise
+     */
+    abstract public function findFilePath(string $class);
+}
 
 /**
  * Scope isolated include.

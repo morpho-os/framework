@@ -79,7 +79,7 @@ class RequestTest extends TestCase {
         $this->assertNull($request->getGet('foo', false));
     }
 
-    public function dataForGetRequestArgsArray() {
+    public function dataForGetData() {
         return [
             [
                 'GET',
@@ -91,9 +91,9 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForGetRequestArgsArray
+     * @dataProvider dataForGetData
      */
-    public function testGetRequestArgsArray($httpMethod) {
+    public function testGetData($httpMethod) {
         $_SERVER['REQUEST_METHOD'] = $httpMethod;
         $request = new Request();
 
@@ -101,7 +101,7 @@ class RequestTest extends TestCase {
 
         $this->assertEquals(
             ['non' => null, 'foo' => ['bar' => 'baz']],
-            $request->getArgs(['foo', 'non'])
+            $request->getData(['foo', 'non'])
         );
     }
 }

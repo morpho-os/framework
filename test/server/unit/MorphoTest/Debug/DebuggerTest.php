@@ -15,17 +15,17 @@ class DebuggerTest extends TestCase {
         if (Environment::isXdebugEnabled()) {
             ?>
 
-            array(1) {
-            'foo' => string(3) "bar"
-            }
-            <?php
+array(1) {
+  'foo' => string(3) "bar"
+}
+<?php
         } else {
             ?>
 
-            array(1) {
-            ["foo"] => string(3) "bar"
-            }
-            <?php
+array(1) {
+  ["foo"] => string(3) "bar"
+}
+<?php
         }
         $expected = ob_get_clean();
         $this->assertEquals($expected, $this->debugger->varToString(['foo' => 'bar']));
@@ -39,8 +39,8 @@ class DebuggerTest extends TestCase {
         ob_start();
         ?>
 
-        Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
-        <?php
+Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
+<?php
         $expected = ob_get_clean();
         $this->assertEquals($expected, $this->debugger->calledAt());
     }
