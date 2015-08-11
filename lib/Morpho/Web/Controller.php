@@ -35,26 +35,26 @@ class Controller extends BaseController {
 
         $this->beforeEach();
 
-        $viewVars = [];
+        $actionResult = [];
         $method = $action . 'Action';
         if (method_exists($this, $method)) {
-            $viewVars = $this->$method();
-            if (null === $viewVars) {
-                $viewVars = [];
+            $actionResult = $this->$method();
+            if (null === $actionResult) {
+                $actionResult = [];
             }
         }
 
         $this->afterEach();
 
-        if (is_string($viewVars)) {
+        if (is_string($actionResult)) {
             $this->request->getResponse()
-                ->setContent($viewVars);
+                ->setContent($actionResult);
         } elseif ($this->shouldRenderView()) {
             $this->request->getResponse()
                 ->setContent(
                     $this->renderView(
                         isset($this->viewVars['name']) ? $this->viewVars['name'] : $action,
-                        $viewVars
+                        $actionResult // $actionResult is view vars.
                     )
                 );
         }
@@ -140,35 +140,27 @@ class Controller extends BaseController {
     }
 
     /**
-     * @return string
-     */
-    protected function messagesAsJson() {
-        return $this->asJson($this->getMessages());
-    }
-
-    /**
      * @param mixed
-     * @return string
      */
-    protected function asJson($data) {
+    protected function asJson($data): string {
         $this->request->getResponse()
             ->getHeaders()
             ->addHeaderLine('Content-Type', 'application/json');
         return Json::encode($data);
     }
 
-    protected function asJsonOrHtml($data) {
-        return $this->request->isAjax()
-            ? $this->asJson($data)
-            : $data;
-    }
-
     protected function success($data = null) {
-        return $this->asJsonOrHtml(array_merge((array)$data, ['success' => true]));
+        return $this->normalize($data, 'success');
     }
 
     protected function error($data = null) {
-        return $this->asJsonOrHtml(array_merge((array)$data, ['error' => true]));
+        return $this->normalize($data, 'error');
+    }
+
+    private function normalize($data, $key) {
+        return is_scalar($data)
+            ? [$key => (string) $data]
+            : array_merge((array)$data, [$key => true]);
     }
 
     protected function getMessages(bool $clear = true): array {

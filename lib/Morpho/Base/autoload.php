@@ -286,3 +286,11 @@ function deleteDups($string, string $chars, bool $isCharClass = true) {
 
     return preg_replace($regexp, '\1', $string);
 }
+
+function filterStringArgs($string, array $args, callable $filterFn): string {
+    $fromToMap = [];
+    foreach ($args as $key => $value) {
+        $fromToMap['{' . $key . '}'] = $filterFn($value);
+    }
+    return strtr($string, $fromToMap);
+}

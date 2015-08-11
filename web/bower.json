@@ -1,0 +1,11 @@
+{
+  "name": "Morpho",
+  "version": "0.0.1",
+  "license": "Apache2",
+  "private": true,
+  "dependencies": {
+    "jquery": "latest",
+    "bootstrap-stylus": "latest",
+    "es5-shim": "latest"
+  }
+}

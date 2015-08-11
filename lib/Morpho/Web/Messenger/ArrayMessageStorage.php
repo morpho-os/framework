@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Web\View;
+namespace Morpho\Web\Messenger;
 
 use Morpho\Base\ArrayIterator;
 

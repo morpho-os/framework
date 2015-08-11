@@ -4,7 +4,6 @@ namespace Morpho\Web;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\HtmlParser;
-use Morpho\Web\View\MessengerPlugin;
 use Morpho\Web\View\PhpTemplateEngine;
 
 class ServiceManager extends BaseServiceManager {
@@ -43,7 +42,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function createMessengerService() {
-        return new MessengerPlugin();
+        return new Messenger();
     }
 
     protected function createPathManagerService() {

@@ -1,3 +1,15 @@
+# @TODO
+/site/*
+
+# Generated files:
+/bin/*
+
+# composer's files.
 /vendor
-/bin/phpunit
 /composer.lock
+
+# bower
+bower_components
+
+# npm
+node_modules

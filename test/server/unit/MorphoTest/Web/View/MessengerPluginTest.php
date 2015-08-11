@@ -4,30 +4,11 @@ namespace MorphoTest\Web\View;
 use Morpho\Test\TestCase;
 use Morpho\Web\View\IMessageStorage;
 use Morpho\Web\View\MessengerPlugin;
-use Morpho\Base\ArrayIterator;
 
 class MessengerPluginTest extends TestCase {
     public function setUp() {
-        $this->messenger = new MessengerPlugin();
-        $this->messenger->setMessageStorage(new MessageStorage([]));
-    }
-
-    public function testCount() {
-        $this->assertInstanceOf('\Countable', $this->messenger);
-
-        $this->assertEquals(0, count($this->messenger));
-
-        $this->messenger->addErrorMessage("Unknown error has been occurred, please power-off of your machine");
-
-        $this->assertEquals(1, count($this->messenger));
-
-        $this->messenger->addWarningMessage("A new warning has been occurred again.");
-
-        $this->assertEquals(2, count($this->messenger));
-
-        $this->messenger->clearMessages();
-
-        $this->assertEquals(0, count($this->messenger));
+        $this->messengerPlugin = new MessengerPlugin();
+        $this->messengerPlugin->setMessageStorage(new MessageStorage([]));
     }
 
     public function testRenderPageMessagesWithoutEscaping() {
@@ -64,38 +45,6 @@ OUT;
 OUT;
         $actual = $this->messenger->renderPageMessages();
         $this->assertHtmlEquals($expected, $actual);
-    }
-
-    public function testHasMessages() {
-        $this->assertFalse($this->messenger->hasErrorMessages());
-        $this->messenger->addErrorMessage("Some error.");
-        $this->assertTrue($this->messenger->hasErrorMessages());
-
-        $this->assertFalse($this->messenger->hasWarningMessages());
-        $this->messenger->addWarningMessage("Some error.");
-        $this->assertTrue($this->messenger->hasWarningMessages());
-    }
-
-    public function testToArray() {
-        $this->messenger->addSuccessMessage('Hello {0} and welcome', ...['<b>Name</b>']);
-        $this->messenger->addWarningMessage('Bar');
-        $this->assertEquals(
-            [
-                MessengerPlugin::SUCCESS => [
-                    [
-                        'message' => 'Hello {0} and welcome',
-                        'args' => ['<b>Name</b>'],
-                    ],
-                ],
-                MessengerPlugin::WARNING => [
-                    [
-                        'message' => 'Bar',
-                        'args' => [],
-                    ],
-                ],
-            ],
-            $this->messenger->toArray()
-        );
     }
 }
 

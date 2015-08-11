@@ -4,4 +4,4 @@ Morpho is **PHP 7** framework to build PHP applications: web-sites, web-applicat
 
 ## License
 
-License is Apache 2.
+License is Apache-2.0.

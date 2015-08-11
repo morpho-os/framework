@@ -94,7 +94,7 @@ abstract class ModuleManager extends Node {
         }
     }
 
-    public function install(string $moduleName) {
+    public function installModule(string $moduleName) {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
@@ -106,7 +106,7 @@ abstract class ModuleManager extends Node {
         $this->rebuildEvents($moduleName);
     }
 
-    public function uninstall(string $moduleName) {
+    public function uninstallModule(string $moduleName) {
         throw new NotImplementedException();
         /*
         $db = $this->db;
@@ -128,10 +128,10 @@ abstract class ModuleManager extends Node {
         */
     }
 
-    public function enable(string $moduleName) {
+    public function enableModule(string $moduleName) {
         $db = $this->db;
         if ($db->selectBool('id FROM module WHERE name = ? AND status = ?', [$moduleName, self::ENABLED])) {
-            throw new \LogicException("Can't enable the already enabled module '$moduleName'");
+            throw new \LogicException("The module '$moduleName' is already enabled");
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
@@ -143,7 +143,7 @@ abstract class ModuleManager extends Node {
         $this->rebuildEvents($moduleName);
     }
 
-    public function disable(string $moduleName) {
+    public function disableModule(string $moduleName) {
         $db = $this->db;
         $exists = (bool)$db->selectCell('id FROM module WHERE name = ? AND status = ?', [$moduleName, self::DISABLED]);
         if (!$exists) {
@@ -167,20 +167,20 @@ abstract class ModuleManager extends Node {
     public function listModules($state): array {
         $modules = [];
         if ($state & self::ENABLED) {
-            $modules = array_merge($modules, array_values($this->listEnabled()));
+            $modules = array_merge($modules, array_values($this->listEnabledModules()));
         }
         if ($state & self::DISABLED) {
-            $modules = array_merge($modules, $this->listDisabled());
+            $modules = array_merge($modules, $this->listDisabledModules());
         }
         if ($state & self::UNINSTALLED) {
-            $modules = array_merge($modules, $this->listUninstalled());
+            $modules = array_merge($modules, $this->listUninstalledModules());
         }
 
         return $modules;
     }
 
     public function rebuildEvents($moduleName = null) {
-        $modules = null !== $moduleName ? [$moduleName] : $this->listEnabled();
+        $modules = null !== $moduleName ? [$moduleName] : $this->listEnabledModules();
         foreach ($modules as $moduleName) {
             $moduleId = $this->getModuleIdByName($moduleName);
             $this->db->query("DELETE FROM event WHERE moduleId = ?", [$moduleId]);
@@ -190,27 +190,31 @@ abstract class ModuleManager extends Node {
         }
     }
 
-    public function isModuleEnabled(string $moduleName): bool {
-        return in_array($moduleName, $this->listEnabled());
+    public function isEnabledModule(string $moduleName): bool {
+        return in_array($moduleName, $this->listEnabledModules(), true);
     }
 
-    public function isModuleDisabled(string $moduleName): bool {
-        return in_array($moduleName, $this->listDisabled());
+    public function isDisabledModule(string $moduleName): bool {
+        return in_array($moduleName, $this->listDisabledModules(), true);
     }
 
-    public function isModuleUninstalled(string $moduleName): bool {
-        return in_array($moduleName, $this->listUninstalled());
+    public function isUninstalledModule(string $moduleName): bool {
+        return in_array($moduleName, $this->listUninstalledModules(), true);
     }
 
-    public function listAll(): array {
-        return $this->fallbackMode ? [] : array_merge($this->listUninstalled(), $this->listInstalled());
+    public function isInstalledModule(string $moduleName): bool {
+        return in_array($moduleName, $this->listInstalledModules(), true);
     }
 
-    public function listInstalled(): array {
-        return $this->fallbackMode ? [] : array_merge($this->listEnabled(), $this->listDisabled());
+    public function listAllModules(): array {
+        return $this->fallbackMode ? [] : array_merge($this->listUninstalledModules(), $this->listInstalledModules());
     }
 
-    public function listUninstalled() {
+    public function listInstalledModules(): array {
+        return $this->fallbackMode ? [] : array_merge($this->listEnabledModules(), $this->listDisabledModules());
+    }
+
+    public function listUninstalledModules() {
         // @TODO: Resolve dependencies automatically.
         if ($this->fallbackMode) {
             $exclude = [];
@@ -240,16 +244,16 @@ abstract class ModuleManager extends Node {
         return $modules;
     }
 
-    public function listEnabled(): array {
+    public function listEnabledModules(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectMap('id, name FROM module WHERE status = 1 ORDER BY name, weight');
+            : $this->db->selectMap('id, name FROM module WHERE status = ? ORDER BY name, weight', [self::ENABLED]);
     }
 
-    public function listDisabled(): array {
+    public function listDisabledModules(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectMap('id, name FROM module WHERE status = 0 ORDER BY name, weight');
+            : $this->db->selectMap('id, name FROM module WHERE status = ? ORDER BY name, weight', [self::DISABLED]);
     }
 
     protected function getModuleIdByName(string $moduleName) {
@@ -285,9 +289,9 @@ abstract class ModuleManager extends Node {
             FROM event e
             INNER JOIN module m
                 ON e.moduleId = m.id
-            WHERE m.status = '1'
+            WHERE m.status = ?
             ORDER BY e.priority DESC, m.weight ASC, m.name ASC";
-            $lines = $this->db->selectRows($sql);
+            $lines = $this->db->selectRows($sql, [self::ENABLED]);
             foreach ((array)$lines as $line) {
                 $this->eventHandlers[$line['eventName']][] = $line;
             }
