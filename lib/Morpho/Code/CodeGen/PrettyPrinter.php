@@ -23,7 +23,6 @@ class PrettyPrinter extends BasePrettyPrinter {
         return parent::pStmts($nodes, $indent);
     }
 
-    // @codingStandardsIgnoreStart
     public function pStmt_Class(Stmt\Class_ $node) {
         return ($this->stmtPrinted ? "\n" : "") . parent::pStmt_Class($node);
     }
@@ -47,8 +46,6 @@ class PrettyPrinter extends BasePrettyPrinter {
         $this->preprocessNodes($stmts);
         return $this->pStmts($stmts, false);
     }
-
-    // @codingStandardsIgnoreEnd
 
     protected static function format($php) {
         $php = preg_replace('~^<\?php\n\s+~si', "<?php\n", $php);

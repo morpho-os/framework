@@ -27,7 +27,6 @@ class PhpErrorException extends \ErrorException {
     }
 }
 
-// @codingStandardsIgnoreStart
 class CoreErrorException extends PhpErrorException {
 }
 
@@ -72,4 +71,3 @@ class UserNoticeException extends UserWarningException {
 
 class UserDeprecatedException extends UserNoticeException {
 }
-// @codingStandardsIgnoreEnd

@@ -30,7 +30,6 @@ class Controller extends BaseController {
         $request->isDispatched(false);
     }
 
-    // @codingStandardsIgnoreStart
     protected function redirectToAction($action, $httpMethod = null, $controller = null, $module = null, array $params = null, array $args = null, array $options = null) {
         if (null === $controller) {
             $controller = $this->request->getControllerName();
@@ -47,8 +46,6 @@ class Controller extends BaseController {
 
         $this->redirectToUri($uri, $args, $options);
     }
-
-    // @codingStandardsIgnoreEnd
 
     protected function redirectToUri($uri = null, array $params = null, array $args = null, array $options = null, $httpStatusCode = null) {
         $response = $this->request->getResponse();

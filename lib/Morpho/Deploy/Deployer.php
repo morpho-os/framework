@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 namespace Morpho\Deploy;
 
 use Morpho\Fs\Directory;

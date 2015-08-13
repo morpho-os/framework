@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 use Morpho\Fs\Path;
 
 if (!defined('BASE_DIR_PATH')) {

@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 namespace Morpho\Web\View;
 
 use Morpho\Base\NotImplementedException;

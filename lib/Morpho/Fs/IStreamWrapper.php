@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 namespace Morpho\Fs;
 
 /**

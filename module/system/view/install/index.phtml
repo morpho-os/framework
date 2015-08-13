@@ -1,0 +1,125 @@
+<h1>Installation</h1>
+
+<div>
+    <form id="install-form" method="post" class="form-horizontal" action="/install">
+        <fieldset>
+            <legend>MySQL database configuration</legend>
+
+            <div class="form-group">
+                <label class="control-label col-lg-2">Database</label>
+
+                <div class="col-lg-2">
+                    <input type="text" name="db" class="form-control" id="db" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-lg-2">User</label>
+
+                <div class="col-lg-2">
+                    <input type="text" name="user" value="root" class="form-control" id="user" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-lg-2">Password</label>
+
+                <div class="col-lg-2">
+                    <input type="password" name="password" class="form-control" autocomplete="off" id="password">
+                </div>
+            </div>
+
+            <div class="form-group" id="host-port-group">
+                <label class="control-label col-lg-2">Host and Port</label>
+
+                <div class="col-lg-2">
+                    <input type="text" name="host" value="127.0.0.1" class="form-control" placeholder="host">
+                </div>
+                <div class="col-lg-1">
+                    <input type="text" name="port" value="3306" class="form-control" placeholder="port">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-offset-2 col-lg-10">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="dropTables" value="1" id="drop-tables"> Drop all tables in the
+                        '<span id="target-db"></span>' database.
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-offset-2 col-lg-10">
+                    <button type="submit" class="btn btn-default" style="margin-top: 1.5em; display: block;" id="install">
+                        Install
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<script>
+$(function () {
+    'use strict';
+
+    var InstallForm = (function (_Form) {
+        _inherits(InstallForm, _Form);
+
+        function InstallForm() {
+            _classCallCheck(this, InstallForm);
+
+            _get(Object.getPrototypeOf(InstallForm.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        _createClass(InstallForm, [{
+            key: '_bindHandlers',
+            value: function _bindHandlers() {
+                this._bindDbChangeHandler();
+                _get(Object.getPrototypeOf(InstallForm.prototype), '_bindHandlers', this).call(this);
+            }
+        }, {
+            key: '_bindDbChangeHandler',
+            value: function _bindDbChangeHandler() {
+                var self = this;
+                this._getDbNameEl().on('keyup change blur', function () {
+                    self._setTargetDbElText(self._getDbName());
+                });
+            }
+        }, {
+            key: '_getDbNameEl',
+            value: function _getDbNameEl() {
+                return this._el.find('#db');
+            }
+        }, {
+            key: '_getDbName',
+            value: function _getDbName() {
+                return this._getDbNameEl().val();
+            }
+        }, {
+            key: '_setTargetDbElText',
+            value: function _setTargetDbElText(text) {
+                this._getTargetDbEl().text(text);
+            }
+        }, {
+            key: '_getTargetDbEl',
+            value: function _getTargetDbEl() {
+                return this._el.find('#target-db');
+            }
+        }, {
+            key: '_handleSuccessfulResponse',
+            value: function _handleSuccessfulResponse(responseData) {
+                if (!responseData.redirect) {
+                    this._unknownError();
+                } else {
+                    redirectToHome();
+                }
+            }
+        }]);
+
+        return InstallForm;
+    })(Form);
+
+    var form = new InstallForm('#install-form');
+});
+</script>

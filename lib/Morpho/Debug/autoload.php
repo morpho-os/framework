@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 use Morpho\Debug\Debugger;
 
 require_once __DIR__ . '/Trace.php';

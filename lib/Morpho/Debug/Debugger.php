@@ -301,7 +301,6 @@ class Debugger {
             $output
         );
         if ($wrapOutput) {
-            // @codingStandardsIgnoreStart
             $html = <<<'OUT'
 <script>
 window.onload = function () {
@@ -325,7 +324,6 @@ window.onload = function () {
     </div>
 </div>
 OUT;
-            // @codingStandardsIgnoreEnd
             return str_replace(['{{output}}'], $output, $html);
         }
 
