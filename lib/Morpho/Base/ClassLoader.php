@@ -133,28 +133,24 @@ class ClassLoader extends Autoloader {
      * Should the include be used during class search?
      *
      * @param $useIncludePath bool|null
-     * @return bool|null
      */
-    public function useIncludePath($useIncludePath = null) {
+    public function useIncludePath($useIncludePath = null): bool {
         if (null !== $useIncludePath) {
             $this->useIncludePath = $useIncludePath;
-        } else {
-            return $this->useIncludePath;
         }
+        return $this->useIncludePath;
     }
 
     /**
      * Should class lookup fail if not found in the current class map?
      *
      * @param $classMapAuthoritative bool|null
-     * @return bool|null
      */
-    public function isClassMapAuthoritative($classMapAuthoritative = null) {
+    public function isClassMapAuthoritative($classMapAuthoritative = null): bool {
         if (null !== $classMapAuthoritative) {
             $this->classMapAuthoritative = $classMapAuthoritative;
-        } else {
-            return $this->classMapAuthoritative;
         }
+        return $this->classMapAuthoritative;
     }
 
     public function findFilePath(string $class) {

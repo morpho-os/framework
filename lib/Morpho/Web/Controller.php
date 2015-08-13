@@ -4,74 +4,8 @@ declare(strict_types=1);
 namespace Morpho\Web;
 
 use Morpho\Core\Controller as BaseController;
-use Zend\Json\Json;
 
 class Controller extends BaseController {
-    private $viewVars = [];
-
-    /**
-     * @param string $name
-     * @return string
-    public function renderWidget($name)
-     * {
-     * return $this->renderView($this->getViewPath($name) . '-widget');
-     * }
-     */
-
-    /**
-     * @param $request
-     * @throws \LogicException
-     */
-    public function dispatch($request) {
-        $this->viewVars = [];
-
-        $this->request = $request;
-
-        $action = $request->getActionName();
-
-        if (empty($action)) {
-            throw new \LogicException();
-        }
-
-        $this->beforeEach();
-
-        $actionResult = [];
-        $method = $action . 'Action';
-        if (method_exists($this, $method)) {
-            $actionResult = $this->$method();
-            if (null === $actionResult) {
-                $actionResult = [];
-            }
-        }
-
-        $this->afterEach();
-
-        if (is_string($actionResult)) {
-            $this->request->getResponse()
-                ->setContent($actionResult);
-        } elseif ($this->shouldRenderView()) {
-            $this->request->getResponse()
-                ->setContent(
-                    $this->renderView(
-                        isset($this->viewVars['name']) ? $this->viewVars['name'] : $action,
-                        $actionResult // $actionResult is view vars.
-                    )
-                );
-        }
-    }
-
-    protected function beforeEach() {
-        //$this->autoDecodeRequestJson();
-        /*
-        $request = $this->request;
-        $header = $request->getHeader('Content-Type');
-        if (false !== $header && false !== stripos($header->getFieldValue(), 'application/json')) {
-            $data = Json::decode($request->getContent());
-            $request->replace((array) $data);
-        }
-        */
-    }
-
     protected function forwardToAction($action, $controller = null, $module = null, array $params = null) {
         $request = $this->request;
 
@@ -137,16 +71,6 @@ class Controller extends BaseController {
             $this->addSuccessMessage($successMessage);
         }
         return $this->redirectToUri('/');
-    }
-
-    /**
-     * @param mixed
-     */
-    protected function asJson($data): string {
-        $this->request->getResponse()
-            ->getHeaders()
-            ->addHeaderLine('Content-Type', 'application/json');
-        return Json::encode($data);
     }
 
     protected function success($data = null) {
@@ -217,41 +141,7 @@ class Controller extends BaseController {
     }
 
     protected function setLayout($name) {
-        $this->viewVars['layout'] = $name;
-    }
-
-    protected function setView($name) {
-        $this->viewVars['name'] = $name;
-    }
-
-    protected function setViewVars(array $vars) {
-        $this->viewVars['instanceVars'] = $vars;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function shouldRenderView() {
-        return $this->request->isDispatched();
-    }
-
-    /**
-     * @param $viewName
-     * @param array $viewVars
-     * @return string
-     */
-    protected function renderView($viewName, array $viewVars = []) {
-        $viewVars['node'] = $this;
-        return $this->trigger(
-            'render',
-            array_merge(
-                [
-                    'name' => $viewName,
-                    'vars' => $viewVars
-                ],
-                $this->viewVars
-            )
-        );
+        $this->setSpecialViewVar('layout', $name);
     }
 
     protected function getUserManager() {

@@ -1,8 +1,11 @@
 <?php
+declare(strict_types=1);
+
 namespace Morpho\Web;
 
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
+use Zend\Json\Json;
 
 abstract class Theme extends Module {
     protected $suffix = '.phtml';
@@ -31,34 +34,36 @@ abstract class Theme extends Module {
 
     /**
      * @param bool|null $flag
-     * @return bool
      */
-    public function isLayoutRendered($flag = null) {
+    public function isLayoutRendered($flag = null): bool {
         if ($flag !== null) {
             $this->isLayoutRendered = $flag;
         }
         return $this->isLayoutRendered;
     }
 
-    /**
-     * @param string $viewPath
-     * @return bool
-     */
-    public function canRender($viewPath) {
+    public function canRender(string $viewPath): bool {
         return false !== $this->getAbsoluteFilePath($viewPath, false);
     }
 
     /**
      * @Listen render 100
-     * @param $event
-     * @return string
      */
-    public function render(array $event) {
+    public function render(array $event): string {
         $args = $event[1];
         $vars = $args['vars'];
+
+        $request = $this->serviceManager->get('request');
+        if ($request->isAjax()) {
+            $request->getResponse()
+                ->getHeaders()
+                ->addHeaderLine('Content-Type', 'application/json');
+            return Json::encode($vars);
+        }
         if (isset($args['layout'])) {
             $this->layout = dasherize($args['layout']);
         }
+        $vars['node'] = $args['node'];
         return $this->renderFile(
             dasherize($vars['node']->getName()) . '/' . dasherize($args['name']),
             $vars,
@@ -71,6 +76,15 @@ abstract class Theme extends Module {
      * @param $event
      */
     public function beforeDispatch(array $event) {
+        //$this->autoDecodeRequestJson();
+        /*
+        $request = $this->request;
+        $header = $request->getHeader('Content-Type');
+        if (false !== $header && false !== stripos($header->getFieldValue(), 'application/json')) {
+            $data = Json::decode($request->getContent());
+            $request->replace((array) $data);
+        }
+        */
         if (!$this->themeDirAdded) {
             $this->addBasePath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
             $this->themeDirAdded = true;
@@ -100,11 +114,14 @@ abstract class Theme extends Module {
         }
     }
 
-    public function addBasePath($path) {
+    public function addBasePath(string $path) {
         array_unshift($this->basePaths, $path);
     }
 
-    protected function getAbsoluteFilePath($relOrAbsFilePath, $throwExIfNotFound = true) {
+    /**
+     * @return bool|string
+     */
+    protected function getAbsoluteFilePath(string $relOrAbsFilePath, bool $throwExIfNotFound = true) {
         $relOrAbsFilePath .= $this->suffix;
         if (Path::isAbsolute($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
             return $relOrAbsFilePath;
@@ -130,7 +147,7 @@ abstract class Theme extends Module {
         ]);
     }
 
-    protected function renderFile($path, array $vars, array $instanceVars = null) {
+    protected function renderFile($path, array $vars, array $instanceVars = null): string {
         $templateEngine = $this->getTemplateEngine();
         if (null !== $instanceVars) {
             $templateEngine->mergeVars($instanceVars);

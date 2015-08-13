@@ -56,7 +56,7 @@ class Request extends BaseRequest {
         return $this->content;
     }
 
-    public function getData($name = null, bool $trim = true) {
+    public function getArgs($name = null, bool $trim = true) {
         return $this->{'get' . $this->getMethod()}($name, $trim);
     }
 
