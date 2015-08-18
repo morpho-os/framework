@@ -5,6 +5,7 @@ namespace Morpho\Db;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Base\NotImplementedException;
+use function Morpho\Base\some;
 
 class Db {
     private $db;
@@ -24,6 +25,10 @@ class Db {
         );
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+    }
+
+    public function sql() {
+        return new SqlQuery();
     }
 
     public function selectRows(string $sql, array $args = []): array {

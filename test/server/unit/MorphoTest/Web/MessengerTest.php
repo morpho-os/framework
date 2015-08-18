@@ -1,8 +1,9 @@
 <?php
-namespace MorphoTest\Web\View;
+namespace MorphoTest\Web;
 
 use Morpho\Test\TestCase;
 use Morpho\Base\ArrayIterator;
+use Morpho\Web\Messenger;
 use Morpho\Web\Messenger\IMessageStorage;
 
 class MessengerTest extends TestCase {
@@ -44,13 +45,13 @@ class MessengerTest extends TestCase {
         $this->messenger->addWarningMessage('Bar');
         $this->assertEquals(
             [
-                MessengerPlugin::SUCCESS => [
+                Messenger::SUCCESS => [
                     [
                         'message' => 'Hello {0} and welcome',
                         'args' => ['<b>Name</b>'],
                     ],
                 ],
-                MessengerPlugin::WARNING => [
+                Messenger::WARNING => [
                     [
                         'message' => 'Bar',
                         'args' => [],

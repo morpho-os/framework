@@ -1,15 +1,17 @@
 <?php
+declare(strict_types=1);
+
 namespace Morpho\Fs;
 
 use Morpho\Base\NotImplementedException;
-use DirectoryIterator;
 use Morpho\Base\ArrayTool;
+use DirectoryIterator;
 
 class Directory extends Entry {
     const FILE = 0x01;
     const DIR = 0x02;
 
-    public static function move($sourceDirPath, $targetDirPath) {
+    public static function move(string $sourceDirPath, string $targetDirPath) {
         self::copy($sourceDirPath, $targetDirPath);
         self::delete($sourceDirPath);
     }
@@ -57,10 +59,9 @@ class Directory extends Entry {
      * @param string|\Closure $processor
      * @param array $options
      *
-     * @throws IoException
-     * @return array Returns an array of paths.
+     * @return An array of paths.
      */
-    public static function listEntries($dirPaths, $processor = null, array $options = []) {
+    public static function listEntries($dirPaths, $processor = null, array $options = []): array {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
             throw new IoException();
         }
@@ -158,7 +159,7 @@ class Directory extends Entry {
         return self::listEntries($dirPath, $processor, $options);
     }
 
-    public static function listLinks($dirPath, $processor = null) {
+    public static function listLinks(string $dirPath, $processor = null) {
         throw new NotImplementedException(__METHOD__);
     }
 
@@ -168,9 +169,8 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
-     * @return array
      */
-    public static function listBrokenLinks($dirPath, $processor = null) {
+    public static function listBrokenLinks($dirPath, $processor = null): array {
         $brokenLinkPaths = [];
         foreach (Directory::listEntries($dirPath, $processor) as $path) {
             if (is_link($path)) {
@@ -183,20 +183,18 @@ class Directory extends Entry {
         return $brokenLinkPaths;
     }
 
-    /**
-     * @return string
-     */
-    public static function tmpDirPath() {
+    public static function tmpDirPath(): string {
         return Path::normalize(sys_get_temp_dir());
     }
 
     /**
-     * @param string $dirPath Relative path that will be combined with system temp path.
-     * @param int $mode
-     * @return string Path to the created directory.
+     * @return Path to the created directory.
      */
-    public static function createTmpDir($dirPath, $mode = 0755) {
-        return self::create(Path::combine(self::tmpDirPath(), $dirPath), $mode);
+    public static function createTmpDir(string $relativeDirPath, int $mode = 0755): string {
+        return self::create(
+            Path::combine(self::tmpDirPath(), $relativeDirPath),
+            $mode
+        );
     }
 
     /**
@@ -206,14 +204,9 @@ class Directory extends Entry {
      * You should be extremely careful with this method as it has the
      * potential to erase everything that the current user has access to.
      *
-     * The source for this method was found in the eZ Components, ezcBaseFile::removeRecursive() method,
-     * after that it adopted (changed) to match our needs.
-     *
-     * @param string $dirPath
-     * @param bool $deleteSelf
-     * @throws IoException
+     * The base for this method was taken from the eZ Components, ezcBaseFile::removeRecursive()
      */
-    public static function delete($dirPath, $deleteSelf = true) {
+    public static function delete(string $dirPath, bool $deleteSelf = true) {
         self::ensureDirExists($dirPath);
 
         $sourceDirPath = realpath($dirPath);
@@ -293,13 +286,9 @@ class Directory extends Entry {
     }
 
     /**
-     * @param string $dirPath
-     * @param int $mode
-     * @param bool $recursive
-     * @throws IoException
-     * @return string Path of created directory.
+     * @return Path to the created directory.
      */
-    public static function create($dirPath, $mode = 0755, $recursive = true) {
+    public static function create(string $dirPath, int $mode = 0755, bool $recursive = true) {
         if (empty($dirPath)) {
             throw new IoException("The directory path is empty.");
         }
@@ -326,11 +315,11 @@ class Directory extends Entry {
         return $dirPath;
     }
 
-    public static function isEntry($path) {
+    public static function isEntry(string $path): bool {
         return is_file($path) || is_dir($path) || is_link($path);
     }
 
-    private static function ensureDirExists($dirPath) {
+    private static function ensureDirExists(string $dirPath) {
         if (!is_dir($dirPath) || empty($dirPath)) {
             throw new IoException("The '$dirPath' directory does not exist.");
         }

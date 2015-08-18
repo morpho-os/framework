@@ -2,6 +2,7 @@
 namespace Morpho\Web\View;
 
 use Morpho\Base\ArrayTool;
+use function Morpho\Base\escapeHtml;
 
 class TagRenderer {
     public static function openTag($tagName, array $attributes = array(), $isXml = false) {

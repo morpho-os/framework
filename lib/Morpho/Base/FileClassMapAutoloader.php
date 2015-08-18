@@ -59,7 +59,7 @@ class FileClassMapAutoloader extends Autoloader {
             return require $this->mapFilePath;
         }
         $classDiscoverer = new ClassDiscoverer();
-        $map = $classDiscoverer->getClassesForDir($this->searchDirPaths, $this->regexp);
+        $map = $classDiscoverer->getClassesForDir($this->searchDirPaths, $this->regexp, ['followSymlinks' => true]);
         if ($useCache) {
             File::write($this->mapFilePath, '<?php return ' . var_export($map, true) . ';');
         }

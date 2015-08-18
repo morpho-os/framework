@@ -10,6 +10,12 @@ class DbTest extends DbTestCase {
         $this->db->deleteAllTables();
     }
 
+    public function testSqlReturnsUniqueInstance() {
+        $sql1 = $this->db->sql();
+        $this->assertInstanceOf('Morpho\Db\SqlQuery', $sql1);
+        $this->assertNotSame($this->db->sql(), $sql1);
+    }
+
     public function testGetTableDefinitionForNonExistingTable() {
         $this->setExpectedException('\RuntimeException', "The table 'foo' does not exist");
         $this->db->getTableDefinition('foo');

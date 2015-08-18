@@ -13,6 +13,49 @@ class RequestTest extends TestCase {
         return $data;
     }
 
+    public function testUri_EmptyUri() {
+        $this->markTestIncomplete();
+        /*
+        $request = $this->createRequestMock();
+        $request->expects($this->any())
+            ->method('getRequestUri')
+            ->will($this->returnValue('/foo/bar/baz?one=1&two=2'));
+        $pathManager = new PathManager($request, $this->createSiteManager());
+        $this->assertEquals('/foo/bar/baz?one=1&two=2', $pathManager->uri());
+        */
+    }
+
+    public function testUri_RelativeUri() {
+        $this->markTestIncomplete();
+        /*
+        $request = $this->createRequestMock();
+        $request->expects($this->any())
+            ->method('getBaseUri')
+            ->will($this->returnValue('/base/path'));
+        $pathManager = new PathManager($request, $this->createSiteManager());
+        $expectedUri = '/base/path/foo/bar/baz?one=1&two=2#fragment';
+        $this->assertEquals($expectedUri, $pathManager->uri('foo/bar/baz?one=1&two=2#fragment'));
+        $this->assertEquals($expectedUri, $pathManager->uri('/foo/bar/baz?one=1&two=2#fragment'));
+        */
+    }
+
+    public function testUri_AbsoluteUri() {
+        $this->markTestIncomplete();
+        /*
+        $request = $this->createRequestMock();
+        $request->expects($this->once())
+            ->method('getUri')
+            ->will($this->returnCallback(function () {
+                return new UriMock();
+            }));
+        $request->expects($this->once())
+            ->method('getBaseUri')
+            ->will($this->returnValue('/base/path'));
+        $pathManager = new PathManager($request, $this->createSiteManager());
+        $this->assertEquals('https://subdomain.domain.com/base/path/foo/bar', $pathManager->uri('foo/bar', null, null, ['absolute' => true]));
+        */
+    }
+
     /**
      * @dataProvider dataForIsHttpMethod
      */
@@ -105,3 +148,15 @@ class RequestTest extends TestCase {
         );
     }
 }
+
+/*
+class UriMock {
+    public function getScheme() {
+        return 'https';
+    }
+
+    public function getHost() {
+        return 'subdomain.domain.com';
+    }
+}
+*/

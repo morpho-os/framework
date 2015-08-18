@@ -2,6 +2,7 @@
 namespace Morpho\Pager;
 
 use Morpho\Base\Node;
+use function Morpho\Base\uniqueName;
 
 class Pager extends Node {
     protected $items = array();

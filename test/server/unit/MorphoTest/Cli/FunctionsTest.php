@@ -1,11 +1,11 @@
 <?php
 namespace MorphoTest\Cli;
 
-require_once LIB_DIR_PATH . '/Morpho/Cli/shell-functions.php';
+require_once LIB_DIR_PATH . '/Morpho/Cli/functions.php';
 
 use Morpho\Test\TestCase;
 
-class ShellFunctionsTest extends TestCase {
+class FunctionsTest extends TestCase {
     public function testPrintLnSingle() {
         ob_start();
         printLn("Printed");

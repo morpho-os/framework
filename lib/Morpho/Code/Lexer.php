@@ -4,23 +4,19 @@ namespace Morpho\Code;
 /**
  * The base code for Lexer found at: https://github.com/nikic/Phlexy/blob/master/lib/Phlexy/Lexer/Stateless/Simple.php
  */
-class Lexer extends CompilerPhase {
+class Lexer implements ICompilerPhase {
     protected $regexToToken;
 
-    public function __construct(array $regexToToken, $additionalModifiers = 'i') {
-        $this->regexToToken = array();
+    public function __construct(array $regexToToken, string $additionalModifiers = 'i') {
+        $this->regexToToken = [];
         foreach ($regexToToken as $regex => $token) {
             $regex = '~' . str_replace('~', '\~', $regex) . '~A' . $additionalModifiers;
             $this->regexToToken[$regex] = $token;
         }
     }
 
-    /**
-     * @param string $string
-     * @return array
-     */
-    public function run($string) {
-        $tokens = array();
+    public function run(string $string): array {
+        $tokens = [];
 
         $offset = 0;
         $line = 1;
@@ -34,9 +30,9 @@ class Lexer extends CompilerPhase {
 
                 unset($matches[0]);
                 if (!empty($matches)) {
-                    $tokens[] = array($token, $line, $matchedString, $matches);
+                    $tokens[] = [$token, $line, $matchedString, $matches];
                 } else {
-                    $tokens[] = array($token, $line, $matchedString);
+                    $tokens[] = [$token, $line, $matchedString];
                 }
 
                 $offset += strlen($matchedString);

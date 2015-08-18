@@ -1,8 +1,8 @@
 <?php
 namespace Morpho\Web;
 
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Di\{IServiceManager, IServiceManagerAware};
+use function Morpho\Base\{classify, dasherize, head};
 use Morpho\Fs\Path;
 
 /**

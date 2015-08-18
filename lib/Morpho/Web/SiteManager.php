@@ -82,10 +82,6 @@ class SiteManager extends Object {
         return $this->getCurrentSite()->getConfig();
     }
 
-    public function getSiteDirPath($dirName = null) {
-        return $this->getCurrentSite()->getDirPath($dirName);
-    }
-
     public function setAllSiteDirPath($dirPath) {
         $this->allSiteDirPath = Path::normalize($dirPath);
 
@@ -112,7 +108,7 @@ class SiteManager extends Object {
         }
         // @TODO: Change logic: list all dirs, cache list, search in list.
         return (new HostNameValidator())->isValid($siteName)
-        && is_dir($this->getAllSiteDirPath() . '/' . $siteName);
+            && is_dir($this->getAllSiteDirPath() . '/' . $siteName);
     }
 
     protected function createSite($siteName) {

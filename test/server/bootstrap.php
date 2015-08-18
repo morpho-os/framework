@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('UTC');
 
-//$autoloader = require __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 (new \Morpho\Base\ClassLoader())
     ->addPrefixToFilePathMapping('MorphoTest', __DIR__ . '/unit')
     ->register();

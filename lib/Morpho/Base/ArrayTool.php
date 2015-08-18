@@ -70,26 +70,22 @@ class ArrayTool {
      * @return array
      * @throws \RuntimeException
      */
-    public static function toKeyed(array $matrix, $key, $drop = false) {
+    public static function toKeyed(array $matrix, $keyForIndex, bool $drop = false): array {
         $result = [];
         foreach ($matrix as $row) {
-            if (!isset($row[$key])) {
+            if (!isset($row[$keyForIndex])) {
                 throw new \RuntimeException();
             }
-            $k = $row[$key];
+            $k = $row[$keyForIndex];
             if ($drop) {
-                unset($row[$key]);
+                unset($row[$keyForIndex]);
             }
             $result[$k] = $row;
         }
         return $result;
     }
 
-    /**
-     * @param array $array
-     * @return array
-     */
-    public static function camelizeKeys(array $array) {
+    public static function camelizeKeys(array $array): array {
         $result = [];
         foreach ($array as $key => $value) {
             $result[camelize($key)] = $value;
@@ -98,11 +94,7 @@ class ArrayTool {
         return $result;
     }
 
-    /**
-     * @param array $array
-     * @return array
-     */
-    public static function underscoreKeys(array $array) {
+    public static function underscoreKeys(array $array): array {
         $result = [];
         foreach ($array as $key => $value) {
             $result[underscore($key)] = $value;
@@ -111,12 +103,7 @@ class ArrayTool {
         return $result;
     }
 
-    /**
-     * @param array $options
-     * @param array $defaultOptions
-     * @return array
-     */
-    public static function handleOptions(array $options, array $defaultOptions) {
+    public static function handleOptions(array $options, array $defaultOptions): array {
         if (count($options) > 0) {
             self::ensureHasOnlyKeys($options, array_keys($defaultOptions));
             return array_merge($defaultOptions, $options);
@@ -124,11 +111,6 @@ class ArrayTool {
         return $defaultOptions;
     }
 
-    /**
-     * @param array $actual
-     * @param array $requiredKeys
-     * @param array $allowedKeys
-     */
     public static function checkItems(array $actual, array $requiredKeys, array $allowedKeys) {
         self::checkRequiredItems($actual, $requiredKeys);
         // The $requiredKeys is always subset of the $allowedKeys, allow don't enumerate the same item keys twice.
@@ -143,8 +125,9 @@ class ArrayTool {
     public static function ensureHasOnlyKeys(array $actual, array $allowedKeys) {
         $diff = array_diff_key($actual, array_flip($allowedKeys));
         if (count($diff)) {
-            throw new \RuntimeException("Not allowed items are present.");
+            throw new \RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
         }
+        return $actual;
     }
 
     /**

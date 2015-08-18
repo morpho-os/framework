@@ -34,7 +34,7 @@ class ServiceManager extends BaseServiceManager {
     protected function createTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
-        $templateEngine->setCacheDirPath($this->get('pathManager')->getCacheDirPath());
+        $templateEngine->setCacheDirPath($this->get('siteManager')->getCurrentSite()->getCacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->attach(new Compiler())
             ->attach(new HtmlParser($this));
@@ -43,10 +43,6 @@ class ServiceManager extends BaseServiceManager {
 
     protected function createMessengerService() {
         return new Messenger();
-    }
-
-    protected function createPathManagerService() {
-        return new PathManager($this->get('siteManager'));
     }
 
     protected function createAccessManagerService() {

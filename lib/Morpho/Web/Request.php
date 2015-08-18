@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Morpho\Web;
 
 use Morpho\Base\NotImplementedException;
+use function Morpho\Base\trimMore;
 use Morpho\Core\Request as BaseRequest;
 use Morpho\Fs\Path;
 use Zend\Http\Headers;

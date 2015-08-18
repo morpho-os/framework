@@ -2,6 +2,7 @@
 namespace Morpho\Fs;
 
 use Morpho\Base\SecurityException;
+use function Morpho\Base\unpackArgs;
 
 class Path {
     const BASE64_URI_REGEXP = '[A-Za-z0-9+\\-_]';
@@ -33,7 +34,7 @@ class Path {
             }
             return null;
         }
-        return str_replace('\\', '/', $rootDirPath);
+        return self::normalize($rootDirPath);
     }
 
     public static function assertSafe($filePath) {

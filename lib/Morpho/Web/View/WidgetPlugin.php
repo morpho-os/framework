@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web\View;
 
+use function Morpho\Base\escapeHtml;
 use Morpho\Base\NotImplementedException;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;

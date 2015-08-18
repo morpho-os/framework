@@ -1,14 +1,14 @@
 <?php
 namespace Morpho\Web\View;
 
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use function Morpho\Base\{dasherize, escapeHtml, filterStringArgs};
+use Morpho\Di\{IServiceManager, IServiceManagerAware};
 
 class MessengerPlugin implements \Countable, IServiceManagerAware {
     private $serviceManager;
 
     public function count() {
-        return $this->serviceManager->get('messenger')->count();
+        return $this->getMessenger()->count();
     }
 
     public function __invoke() {
@@ -17,7 +17,7 @@ class MessengerPlugin implements \Countable, IServiceManagerAware {
 
     public function renderPageMessages() {
         $html = '';
-        $messenger = $this->serviceManager->get('messenger');
+        $messenger = $this->getMessenger();
         if ($this->count()) {
             $renderedMessages = [];
             foreach ($messenger->toArray() as $type => $messages) {
@@ -27,6 +27,10 @@ class MessengerPlugin implements \Countable, IServiceManagerAware {
         }
         $messenger->clearMessages();
         return $html;
+    }
+
+    public function setServiceManager(IServiceManager $serviceManager) {
+        $this->serviceManager = $serviceManager;
     }
 
     protected function wrapPageMessages($messages) {
@@ -65,7 +69,7 @@ class MessengerPlugin implements \Countable, IServiceManagerAware {
         . '</div>';
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
+    protected function getMessenger() {
+        return $this->serviceManager->get('messenger');
     }
 }

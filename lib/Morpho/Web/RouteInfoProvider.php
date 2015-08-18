@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web;
 
+use function Morpho\Base\last;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;

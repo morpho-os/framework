@@ -2,10 +2,9 @@
 namespace Morpho\Core;
 
 use Morpho\Base\Environment;
-use Morpho\Di\ServiceManager as BaseServiceManager;
+use Morpho\Di\{ServiceManager as BaseServiceManager, IServiceManagerAware};
 use Morpho\Error\ErrorHandler;
 use Morpho\Db\Db;
-use Morpho\Di\IServiceManagerAware;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;

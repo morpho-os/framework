@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Xml;
 
+use function Morpho\Base\escapeHtml;
 use Morpho\Fs\File;
 use RuntimeException;
 use InvalidArgumentException;

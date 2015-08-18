@@ -63,8 +63,8 @@ class FastRouter extends Router {
         CodeTool::varToPhp($dispatchData, $cacheFilePath);
     }
 
-    private function getCacheFilePath() {
-        return $this->serviceManager->get('pathManager')->getCacheDirPath() . '/routes.php';
+    protected function getCacheFilePath() {
+        return $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath() . '/routes.php';
     }
 
     public function assemble($action, $httpMethod, $controller, $module, $params) {

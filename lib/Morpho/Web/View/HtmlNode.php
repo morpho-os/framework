@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web\View;
 
+use function Morpho\Base\htmlId;
 use Morpho\Base\Node;
 use Morpho\Base\ItemNotSetException;
 

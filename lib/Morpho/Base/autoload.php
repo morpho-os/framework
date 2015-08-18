@@ -1,4 +1,6 @@
 <?php
+namespace Morpho\Base;
+
 function unpackArgs(array $args): array {
     return count($args) === 1 && is_array($args[0])
         ? $args[0]
@@ -293,4 +295,10 @@ function filterStringArgs($string, array $args, callable $filterFn): string {
         $fromToMap['{' . $key . '}'] = $filterFn($value);
     }
     return strtr($string, $fromToMap);
+}
+
+function shorten($text, $length) {
+    return strlen($text) <= $length
+        ? $text
+        : substr($text, 0, -3) . '...';
 }

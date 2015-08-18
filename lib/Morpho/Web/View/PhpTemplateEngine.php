@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web\View;
 
+use function Morpho\Base\htmlId;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
 

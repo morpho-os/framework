@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Morpho\Web;
 
+use function Morpho\Base\dasherize;
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
 use Zend\Json\Json;

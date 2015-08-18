@@ -28,7 +28,7 @@ abstract class Application {
 
             $request->getResponse()->send();
         } catch (\Throwable $e) {
-            $exitCode = $this->handleErrorOrException($e, $serviceManager ?: null);
+            $exitCode = $this->handleErrorOrException($e, $serviceManager ?? null);
         }
 
         return $exitCode;

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Morpho\Base;
 
 abstract class Object {
@@ -14,20 +16,20 @@ abstract class Object {
         }
     }
 
-    public function toArray() {
+    public function toArray(): array {
         return $this->getProperties();
     }
 
-    public function fromArray($data) {
+    public function fromArray(array $data) {
         $this->setProperties($data);
     }
 
-    public function getNamespace($useFqn = false) {
+    public function getNamespace(bool $useFqn = false): string {
         $class = get_class($this);
         return ($useFqn ? '\\' : '') . substr($class, 0, strrpos($class, '\\'));
     }
 
-    public function getClassDirPath() {
+    public function getClassDirPath(): string {
         if (null === $this->classDirPath) {
             $this->classDirPath = dirname($this->getClassFilePath());
         }
@@ -35,35 +37,34 @@ abstract class Object {
         return $this->classDirPath;
     }
 
-    public function getClassFilePath() {
+    public function getClassFilePath(): string {
         return str_replace('\\', '/', $this->reflect()->getFileName());
     }
 
-    protected function setProperties($data) {
-        foreach (array_intersect_key($data, $this->getNamesOfProperties()) as $name => $value) {
+    protected function setProperties(array $data) {
+        $propNames = $this->getNamesOfProperties();
+        ArrayTool::ensureHasOnlyKeys($data, $propNames);
+        foreach ($data as $name => $value) {
             $this->setProperty($name, $value);
         }
 
         return $this;
     }
 
-    protected function getProperties() {
-        $result = array();
+    protected function getProperties(): array {
+        $result = [];
         foreach ($this->getNamesOfProperties() as $name) {
             $result[$name] = $this->$name;
         }
         return $result;
     }
 
-    protected function setProperty($name, $value) {
+    protected function setProperty(string $name, $value) {
         $this->$name = $value;
         $this->properties[$name] = $name;
     }
 
-    /**
-     * @return \ReflectionObject
-     */
-    protected function reflect() {
+    protected function reflect(): \ReflectionObject {
         // @TODO: Do we need to cache here?
         if (null === $this->reflectedObject) {
             $this->reflectedObject = new \ReflectionObject($this);
@@ -72,7 +73,7 @@ abstract class Object {
         return $this->reflectedObject;
     }
 
-    protected function getNamesOfProperties() {
+    protected function getNamesOfProperties(): array {
         if (null === $this->properties) {
             $properties = $this->reflect()->getProperties(
                 \ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED

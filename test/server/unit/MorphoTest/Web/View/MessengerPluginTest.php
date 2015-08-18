@@ -1,18 +1,27 @@
 <?php
 namespace MorphoTest\Web\View;
 
+use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\View\IMessageStorage;
+use Morpho\Web\Messenger;
+use Morpho\Web\Messenger\IMessageStorage;
 use Morpho\Web\View\MessengerPlugin;
+use Morpho\Base\ArrayIterator;
 
 class MessengerPluginTest extends TestCase {
     public function setUp() {
+        $this->messenger = new Messenger();
+        $this->messenger->setMessageStorage(new MessageStorage());
+        $serviceManager = new ServiceManager();
+        $serviceManager->set('messenger', $this->messenger);
+
         $this->messengerPlugin = new MessengerPlugin();
-        $this->messengerPlugin->setMessageStorage(new MessageStorage([]));
+        $this->messengerPlugin->setServiceManager($serviceManager);
     }
 
     public function testRenderPageMessagesWithoutEscaping() {
         $this->messenger->addWarningMessage("<strong>Important</strong> warning.");
+
         $expected = <<<OUT
 <div id="page-messages">
     <div class="messages warning">
@@ -25,8 +34,7 @@ class MessengerPluginTest extends TestCase {
     </div>
 </div>
 OUT;
-        $actual = $this->messenger->renderPageMessages();
-        $this->assertHtmlEquals($expected, $actual);
+        $this->assertHtmlEquals($expected, $this->messengerPlugin->renderPageMessages());
     }
 
     public function testRenderPageMessagesWithEscaping() {
@@ -43,8 +51,7 @@ OUT;
     </div>
 </div>
 OUT;
-        $actual = $this->messenger->renderPageMessages();
-        $this->assertHtmlEquals($expected, $actual);
+        $this->assertHtmlEquals($expected, $this->messengerPlugin->renderPageMessages());
     }
 }
 
