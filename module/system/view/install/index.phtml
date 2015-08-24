@@ -63,60 +63,38 @@
 $(function () {
     'use strict';
 
-    var InstallForm = (function (_Form) {
-        _inherits(InstallForm, _Form);
-
+    var InstallForm = (function (_super) {
+        __extends(InstallForm, _super);
         function InstallForm() {
-            _classCallCheck(this, InstallForm);
-
-            _get(Object.getPrototypeOf(InstallForm.prototype), 'constructor', this).apply(this, arguments);
+            _super.apply(this, arguments);
         }
-
-        _createClass(InstallForm, [{
-            key: '_bindHandlers',
-            value: function _bindHandlers() {
-                this._bindDbChangeHandler();
-                _get(Object.getPrototypeOf(InstallForm.prototype), '_bindHandlers', this).call(this);
+        InstallForm.prototype._registerEventHandlers = function () {
+            var _this = this;
+            _super.prototype._registerEventHandlers.call(this);
+            this._getDbNameEl().on('keyup change blur', function () {
+                _this._setTargetDbElText(_this._getDbName());
+            });
+        };
+        InstallForm.prototype._getDbNameEl = function () {
+            return this._el.find('#db');
+        };
+        InstallForm.prototype._getDbName = function () {
+            return this._getDbNameEl().val();
+        };
+        InstallForm.prototype._setTargetDbElText = function (text) {
+            this._getTargetDbEl().text(text);
+        };
+        InstallForm.prototype._getTargetDbEl = function () {
+            return this._el.find('#target-db');
+        };
+        InstallForm.prototype._handleSuccessfulResponse = function (responseData) {
+            if (!responseData.redirect) {
+                alert('Invalid response was received');
             }
-        }, {
-            key: '_bindDbChangeHandler',
-            value: function _bindDbChangeHandler() {
-                var self = this;
-                this._getDbNameEl().on('keyup change blur', function () {
-                    self._setTargetDbElText(self._getDbName());
-                });
+            else {
+                redirectToHome();
             }
-        }, {
-            key: '_getDbNameEl',
-            value: function _getDbNameEl() {
-                return this._el.find('#db');
-            }
-        }, {
-            key: '_getDbName',
-            value: function _getDbName() {
-                return this._getDbNameEl().val();
-            }
-        }, {
-            key: '_setTargetDbElText',
-            value: function _setTargetDbElText(text) {
-                this._getTargetDbEl().text(text);
-            }
-        }, {
-            key: '_getTargetDbEl',
-            value: function _getTargetDbEl() {
-                return this._el.find('#target-db');
-            }
-        }, {
-            key: '_handleSuccessfulResponse',
-            value: function _handleSuccessfulResponse(responseData) {
-                if (!responseData.redirect) {
-                    this._unknownError();
-                } else {
-                    redirectToHome();
-                }
-            }
-        }]);
-
+        };
         return InstallForm;
     })(Form);
 

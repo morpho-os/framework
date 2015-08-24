@@ -79,6 +79,12 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         );
     }
 
+    /*@TODO
+    public function absoluteUri() {
+        retunr $this->serviceManager->get('request')->get
+    }
+    */
+
     public function uriWithRedirectTo($relativeUri, $redirectToUri) {
         return $this->serviceManager
             ->get('request')

@@ -7,7 +7,7 @@ use Morpho\Code\ClassDiscoverer;
 use Morpho\Fs\File;
 
 class FileClassMapAutoloader extends Autoloader {
-    protected $regexp;
+    protected $processor;
 
     protected $searchDirPaths;
 
@@ -20,12 +20,12 @@ class FileClassMapAutoloader extends Autoloader {
     /**
      * @param string|null $mapFilePath
      * @param array|string $searchDirPaths
-     * @param string|\Closure $regexp
+     * @param string|\Closure $processor
      */
-    public function __construct($mapFilePath, $searchDirPaths, $regexp = null, bool $useCache = true) {
+    public function __construct($mapFilePath, $searchDirPaths, $processor = null, bool $useCache = true) {
         $this->mapFilePath = $mapFilePath;
         $this->searchDirPaths = $searchDirPaths;
-        $this->regexp = $regexp;
+        $this->processor = $processor;
         $this->useCache = $useCache;
     }
 
@@ -59,7 +59,7 @@ class FileClassMapAutoloader extends Autoloader {
             return require $this->mapFilePath;
         }
         $classDiscoverer = new ClassDiscoverer();
-        $map = $classDiscoverer->getClassesForDir($this->searchDirPaths, $this->regexp, ['followSymlinks' => true]);
+        $map = $classDiscoverer->getClassesForDir($this->searchDirPaths, $this->processor, ['followSymlinks' => true]);
         if ($useCache) {
             File::write($this->mapFilePath, '<?php return ' . var_export($map, true) . ';');
         }

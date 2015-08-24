@@ -27,7 +27,7 @@ class InstallController extends Controller {
             $this->install($dbConfig, $dropTables);
             $res = ['redirect' => true];
         } catch (\Exception $e) {
-            return $this->error($e);
+            return $this->error((string) $e);
         }
 
         return $this->success($res);
@@ -37,7 +37,7 @@ class InstallController extends Controller {
         try {
             $this->tryInitSession();
         } catch (\Exception $e) {
-            return $this->error($e);
+            return $this->error((string) $e);
         }
         return $this->success();
     }

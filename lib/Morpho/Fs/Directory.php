@@ -16,13 +16,10 @@ class Directory extends Entry {
         self::delete($sourceDirPath);
     }
 
-    /**
-     * @param $sourceDirPath
-     * @param $targetDirPath
-     * @param string|\Closure $processor
-     */
-    public static function copy($sourceDirPath, $targetDirPath, $processor = null) {
+    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null) {
+        // @TODO: Handle $options
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
+        // @TODO: Handle dots and relative paths: '..', '.' a
         self::ensureDirExists($sourceDirPath);
         if (!is_dir($sourceDirPath)) {
             throw new IoException("Source path must be a directory.");
@@ -34,6 +31,7 @@ class Directory extends Entry {
         if (is_dir($targetDirPath)) {
             $targetDirPath .= '/' . basename($sourceDirPath);
         }
+
         $targetDirPath = self::create($targetDirPath, self::mode($sourceDirPath));
 
         $paths = self::listEntries(
@@ -57,9 +55,6 @@ class Directory extends Entry {
     /**
      * @param array|string $dirPaths
      * @param string|\Closure $processor
-     * @param array $options
-     *
-     * @return An array of paths.
      */
     public static function listEntries($dirPaths, $processor = null, array $options = []): array {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
@@ -125,11 +120,8 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
-     * @param array $options
-     *
-     * @return array Returns an array of paths.
      */
-    public static function listDirs($dirPath, $processor = null, array $options = []) {
+    public static function listDirs($dirPath, $processor = null, array $options = []): array {
         $options['type'] = self::DIR;
         if (is_string($processor)) {
             $regexp = $processor;
@@ -150,16 +142,13 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
-     * @param array $options
-     *
-     * @return array Returns an array of paths.
      */
-    public static function listFiles($dirPath, $processor = null, array $options = []) {
+    public static function listFiles($dirPath, $processor = null, array $options = []): array {
         $options['type'] = self::FILE;
         return self::listEntries($dirPath, $processor, $options);
     }
 
-    public static function listLinks(string $dirPath, $processor = null) {
+    public static function listLinks(string $dirPath, $processor = null): array {
         throw new NotImplementedException(__METHOD__);
     }
 
@@ -254,11 +243,8 @@ class Directory extends Entry {
     /**
      * Generates unique path for directory if the directory with
      * the given path already exists.
-     * @param string $dirPath
-     * @param int $numberOfAttempts
-     * @return string
      */
-    public static function uniquePath($dirPath, $numberOfAttempts = 1000) {
+    public static function uniquePath(string $dirPath, int $numberOfAttempts = 1000): string {
         $uniquePath = $dirPath;
         for ($i = 0; is_dir($uniquePath) && $i < $numberOfAttempts; $i++) {
             $uniquePath = $dirPath . '-' . $i;
@@ -270,13 +256,7 @@ class Directory extends Entry {
         return $uniquePath;
     }
 
-    /**
-     * @param string $dirPath
-     * @param int $mode
-     * @param bool $recursive
-     * @return string
-     */
-    public static function recreate($dirPath, $mode = 0755, $recursive = true) {
+    public static function recreate(string $dirPath, int $mode = 0755, bool $recursive = true): string {
         if (is_dir($dirPath)) {
             self::delete($dirPath);
         }
@@ -285,10 +265,7 @@ class Directory extends Entry {
         return $dirPath;
     }
 
-    /**
-     * @return Path to the created directory.
-     */
-    public static function create(string $dirPath, int $mode = 0755, bool $recursive = true) {
+    public static function create(string $dirPath, int $mode = 0755, bool $recursive = true): string {
         if (empty($dirPath)) {
             throw new IoException("The directory path is empty.");
         }

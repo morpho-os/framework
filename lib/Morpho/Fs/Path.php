@@ -7,13 +7,13 @@ use function Morpho\Base\unpackArgs;
 class Path {
     const BASE64_URI_REGEXP = '[A-Za-z0-9+\\-_]';
 
-    public static function isAbsolute($path) {
+    public static function isAbsolute(string $path): bool {
         return $path !== ''
         && ($path[0] === '/' || $path[0] === '\\')
         || (isset($path[1]) && $path[1] === ':');
     }
 
-    public static function detectBaseProjectDirPath($dirPath = null, $throwEx = true) {
+    public static function detectBaseProjectDirPath($dirPath = null, bool $throwEx = true): string {
         if (null === $dirPath) {
             $dirPath = __DIR__;
         }
@@ -43,14 +43,14 @@ class Path {
         }
     }
 
-    public static function isNormalized($path) {
+    public static function isNormalized(string $path): string {
         if (false !== strpos($path, '\\') || false !== strpos($path, '..')) {
             return false;
         }
         return substr($path, -1, 1) !== '/';
     }
 
-    public static function normalize($path) {
+    public static function normalize(string $path): string {
         $path = str_replace('\\', '/', $path);
         if ($path === '/') {
             return $path;
@@ -58,7 +58,7 @@ class Path {
         return rtrim($path, '/');
     }
 
-    public static function combine(...$paths) {
+    public static function combine(...$paths): string {
         $paths = unpackArgs($paths);
 
         $result = [];
@@ -86,12 +86,7 @@ class Path {
             : implode('/', $result);
     }
 
-    /**
-     * @param $path string
-     * @param bool $normalize
-     * @return string
-     */
-    public static function toAbsolute($path, $normalize = true) {
+    public static function toAbsolute(string $path, bool $normalize = true): string {
         $absPath = realpath($path);
         if (false === $absPath) {
             throw new IoException("Unable to detect absolute path for the '$path' path.");
@@ -99,12 +94,7 @@ class Path {
         return $normalize ? self::normalize($absPath) : $absPath;
     }
 
-    /**
-     * @param $basePath string
-     * @param $path string
-     * @return string
-     */
-    public static function toRelative($basePath, $path) {
+    public static function toRelative(string $basePath, string $path): string {
         $path = static::normalize($path);
         $basePath = static::normalize($basePath);
 
@@ -133,10 +123,8 @@ class Path {
     /**
      * @see http://tools.ietf.org/html/rfc4648#section-5
      * @see http://php.net/base64_encode#103849
-     * @param string $uri
-     * @return string
      */
-    public static function base64Encode($uri) {
+    public static function base64Encode(string $uri): string {
         return rtrim(
             strtr(
                 base64_encode($uri),
@@ -147,11 +135,7 @@ class Path {
         );
     }
 
-    /**
-     * @param string $uri
-     * @return string
-     */
-    public static function base64Decode($uri) {
+    public static function base64Decode(string $uri): string {
         return base64_decode(
             str_pad(
                 strtr($uri, '-_', '+/'),

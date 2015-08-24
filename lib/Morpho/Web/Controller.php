@@ -71,17 +71,11 @@ class Controller extends BaseController {
     }
 
     protected function success($data = null) {
-        return $this->normalize($data, 'success');
+        return ['success' => $data ?: true];
     }
 
     protected function error($data = null) {
-        return $this->normalize($data, 'error');
-    }
-
-    private function normalize($data, $key) {
-        return is_scalar($data)
-            ? [$key => (string) $data]
-            : array_merge((array)$data, [$key => true]);
+        return ['error' => $data ?: true];
     }
 
     protected function getMessages(bool $clear = true): array {

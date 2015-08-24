@@ -5,6 +5,16 @@ use Morpho\Test\TestCase;
 use Morpho\Base\ArrayTool;
 
 class ArrayToolTest extends TestCase {
+    public function testUnset() {
+        $this->assertEquals([], ArrayTool::unset([], 'some'));
+        $this->assertEquals(['one' => 'first-val'], ArrayTool::unset(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
+        $this->assertEquals(['one'], ArrayTool::unset(['one', 'two'], 'two'));
+        $this->assertEquals(['one', 'two'], ArrayTool::unset(['one', 'two'], 'some'));
+        $obj1 = new \stdClass();
+        $obj2 = new \stdClass();
+        $this->assertEquals([$obj2], ArrayTool::unset([$obj1, $obj2], $obj1));
+    }
+
     public function dataForInit() {
         return [
             [
@@ -178,80 +188,7 @@ class ArrayToolTest extends TestCase {
         );
     }
 
-    public function dataForCheckItems_Valid() {
-        return [
-            [
-                ['foo' => 1],
-                [],
-                ['foo'],
-            ],
-            [
-                ['foo' => 1],
-                ['foo'],
-                [],
-            ],
-            [
-                ['foo' => 1, 'bar' => 2, 'baz' => 3],
-                ['foo', 'baz'],
-                ['bar'],
-            ],
-            [
-                ['foo' => 1, 'baz' => '2'],
-                ['foo'],
-                ['foo', 'baz', 'bar']
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForCheckItems_Valid
-     */
-    public function testCheckItems_Valid($actual, $requiredKeys, $allowedKeys) {
-        ArrayTool::checkItems($actual, $requiredKeys, $allowedKeys);
-    }
-
-    public function dataForCheckItems_RequiredItemsMissing() {
-        return [
-            [
-                ['foo' => 1],
-                ['foo', 'bar'],
-                [],
-            ],
-            [
-                ['bar' => 1],
-                ['bar', 'baz'],
-                ['foo', 'bar', 'baz'],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForCheckItems_RequiredItemsMissing
-     */
-    public function testCheckItems_RequiredItemsMissing($actual, $requiredKeys, $allowedKeys) {
-        $this->setExpectedException('\RuntimeException', 'Required items are missing.');
-        ArrayTool::checkItems($actual, $requiredKeys, $allowedKeys);
-    }
-
-    public function dataForCheckItems_NotAllowedItemsPresent() {
-        return [
-            [
-                ['bar' => 1, 'foo' => 2],
-                ['foo'],
-                ['baz'],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForCheckItems_NotAllowedItemsPresent
-     */
-    public function testCheckItems_NotAllowedItemsPresent($actual, $requiredKeys, $allowedKeys) {
-        $this->setExpectedException('\RuntimeException', 'Not allowed items are present.');
-        ArrayTool::checkItems($actual, $requiredKeys, $allowedKeys);
-    }
-
-    public function dataForCheckRequiredItems_Invalid() {
+    public function dataForEnsureHasRequiredItems_Invalid() {
         return [
             [
                 ['foo' => 1, 'baz' => 2],
@@ -269,14 +206,14 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCheckRequiredItems_Invalid
+     * @dataProvider dataForEnsureHasRequiredItems_Invalid
      */
-    public function testCheckRequiredItems_Invalid($actual, $requiredKeys) {
-        $this->setExpectedException('\RuntimeException', 'Required items are missing.');
-        ArrayTool::checkRequiredItems($actual, $requiredKeys);
+    public function testEnsureHasRequiredItems_Invalid($actual, $requiredKeys) {
+        $this->setExpectedException('\RuntimeException', 'Required items are missing');
+        ArrayTool::ensureHasRequiredItems($actual, $requiredKeys);
     }
 
-    public function dataForCheckRequiredItems_Valid() {
+    public function dataForEnsureHasRequiredItems_Valid() {
         return [
             [
                 ['foo' => 1, 'bar' => 2],
@@ -294,10 +231,10 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCheckRequiredItems_Valid
+     * @dataProvider dataForEnsureHasRequiredItems_Valid
      */
-    public function testCheckRequiredItems_Valid($actual, $requiredKeys) {
-        ArrayTool::checkRequiredItems($actual, $requiredKeys);
+    public function testEnsureHasRequiredItems_Valid($actual, $requiredKeys) {
+        ArrayTool::ensureHasRequiredItems($actual, $requiredKeys);
     }
 
     public function dataForEnsureHasOnlyKeys_Invalid() {
@@ -305,10 +242,12 @@ class ArrayToolTest extends TestCase {
             [
                 ['foo' => '1', 'something' => 2],
                 ['foo', 'bar', 'baz'],
+                ['something'],
             ],
             [
                 ['foo' => '2', 'bar' => 2, 'baz' => 3, 'something' => 4],
                 ['foo', 'bar', 'baz'],
+                ['something'],
             ],
         ];
     }
@@ -316,8 +255,8 @@ class ArrayToolTest extends TestCase {
     /**
      * @dataProvider dataForEnsureHasOnlyKeys_Invalid
      */
-    public function testCheckAllowed_Invalid($actual, $allowedKeys) {
-        $this->setExpectedException('\RuntimeException', 'Not allowed items are present.');
+    public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
+        $this->setExpectedException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
         ArrayTool::ensureHasOnlyKeys($actual, $allowedKeys);
     }
 
@@ -383,7 +322,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testHandleOptionsThrowsExceptionWhenDefaultOptionsAreMissing() {
-        $this->setExpectedException('\RuntimeException', "Not allowed items are present.");
+        $this->setExpectedException('\RuntimeException', "Not allowed items are present: foo");
         ArrayTool::handleOptions(['foo' => 'bar'], ['one' => 1]);
     }
 

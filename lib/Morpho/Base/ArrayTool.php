@@ -2,18 +2,14 @@
 namespace Morpho\Base;
 
 class ArrayTool {
-    public static function filterByKeys(array $arr, array $keys) {
+    public static function filterByKeys(array $arr, array $keys): array {
         return array_intersect_key($arr, array_flip(array_values($keys)));
     }
 
     /**
      * Symmetrical difference.
-     *
-     * @param array $a
-     * @param array $b
-     * @return array
      */
-    public static function symmetricDiff(array $a, array $b) {
+    public static function symmetricDiff(array $a, array $b): array {
         $diffA = array_diff_assoc($a, $b);
         $diffB = array_diff_assoc($b, $a);
         foreach ($diffB as $key => $value) {
@@ -22,7 +18,7 @@ class ArrayTool {
         return $diffA;
     }
 
-    public static function flatten(array $arr) {
+    public static function flatten(array $arr): array {
         $result = [];
         foreach ($arr as $val) {
             if (is_array($val)) {
@@ -111,41 +107,25 @@ class ArrayTool {
         return $defaultOptions;
     }
 
-    public static function checkItems(array $actual, array $requiredKeys, array $allowedKeys) {
-        self::checkRequiredItems($actual, $requiredKeys);
-        // The $requiredKeys is always subset of the $allowedKeys, allow don't enumerate the same item keys twice.
-        self::ensureHasOnlyKeys($actual, array_unique(array_merge($requiredKeys, $allowedKeys)));
-    }
-
-    /**
-     * @param array $actual
-     * @param array $allowedKeys
-     * @throws \RuntimeException
-     */
-    public static function ensureHasOnlyKeys(array $actual, array $allowedKeys) {
-        $diff = array_diff_key($actual, array_flip($allowedKeys));
+    public static function ensureHasOnlyKeys(array $arr, array $allowedKeys) {
+        $diff = array_diff_key($arr, array_flip($allowedKeys));
         if (count($diff)) {
             throw new \RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
         }
-        return $actual;
+        return $arr;
     }
 
-    /**
-     * @param array $actual
-     * @param array $requiredKeys
-     * @throws \RuntimeException
-     */
-    public static function checkRequiredItems(array $actual, array $requiredKeys) {
-        $intersection = array_intersect_key(array_flip($requiredKeys), $actual);
+    public static function ensureHasRequiredItems(array $arr, array $requiredKeys) {
+        $intersection = array_intersect_key(array_flip($requiredKeys), $arr);
         if (count($intersection) != count($requiredKeys)) {
-            throw new \RuntimeException("Required items are missing.");
+            throw new \RuntimeException("Required items are missing");
         }
     }
 
     /**
      * Unsets all items of array with $key recursively.
      */
-    public static function unsetRecursive(array &$arr, $key) {
+    public static function unsetRecursive(array &$arr, $key): array {
         unset($arr[$key]);
         foreach (array_keys($arr) as $k) {
             if (is_array($arr[$k])) {
@@ -156,10 +136,16 @@ class ArrayTool {
         return $arr;
     }
 
-    /**
-     * @return string A hash of array.
-     */
-    public static function getHash(array $array) {
-        return md5(json_encode($array));
+    public static function unset(array $arr, $val, bool $strict = true, bool $resetKeys = true): array {
+        $key = array_search($val, $arr, $strict);
+        $hasNumericKeys = array_key_exists(0, $arr);
+        if (false !== $key) {
+            unset($arr[$key]);
+        }
+        return $resetKeys && $hasNumericKeys ? array_values($arr) : $arr;
+    }
+
+    public static function getHash(array $arr): string {
+        return md5(json_encode($arr));
     }
 }

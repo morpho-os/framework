@@ -96,16 +96,14 @@ class Db {
     }
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
-        throw new NotImplementedException();
-/*
-        $whereExpr = is_array($whereCondition)
-            ? $this->andSql($this->namedPlaceholders($whereCondition))
-            : $whereCondition;
-        $sql = 'DELETE FROM ' . $this->quoteName($tableName)
-            . ' WHERE ' . $whereExpr;
+        if (is_array($whereCondition) && count($whereCondition)) {
+            $whereConditionArgs = array_values($whereCondition);
+            $whereCondition = $this->andSql($this->namedPlaceholders($whereCondition));
+        }
+        $sql = 'DELETE FROM ' . $this->quoteIdentifier($tableName)
+            . (!empty($whereCondition) ? ' WHERE ' . $whereCondition : '');
         $stmt = $this->query($sql, $whereConditionArgs);
         return $stmt->rowCount();
-*/
     }
 
     public function updateRow(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null) {
