@@ -98,46 +98,40 @@ abstract class ModuleManager extends Node {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->getChild($moduleName);
-                $db->insertRow($this->tableName, ['name' => $module->getName(), 'status' => self::DISABLED]);
-                $module->install($db);
+                $db->insertRow($this->tableName, ['name' => $moduleName, 'status' => self::DISABLED]);
+                $this->getChild($moduleName)
+                    ->install($db);
             }
         );
         $this->rebuildEvents($moduleName);
     }
 
     public function uninstallModule(string $moduleName) {
-        throw new NotImplementedException();
-        /*
         $db = $this->db;
-        $exists = $db->selectBool('id FROM module WHERE name = ? AND status = 0', [$moduleName]);
+        $exists = $db->selectBool("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED]);
         if (!$exists) {
             throw new \LogicException("Can't uninstall the module '$moduleName', only disabled modules can be uninstalled");
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                d($moduleName);
-                /*
-                $module = $this->get($moduleName);
-                $db->deleteEntity($module);
-
-                $module->uninstall($db);
+                $db->deleteRows($this->tableName, ['name' => $moduleName]);
+                $this->getChild($moduleName)
+                    ->uninstall($db);
             }
         );
         $this->rebuildEvents($moduleName);
-        */
     }
 
     public function enableModule(string $moduleName) {
         $db = $this->db;
-        if ($db->selectBool('id FROM module WHERE name = ? AND status = ?', [$moduleName, self::ENABLED])) {
+        if ($db->selectBool("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])) {
             throw new \LogicException("The module '$moduleName' is already enabled");
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $db->updateRow('module', ['status' => self::ENABLED], ['name' => $moduleName]);
-                $module = $this->getChild($moduleName);
-                $module->enable($db);
+                $db->updateRow($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
+                $this->getChild($moduleName)
+                    ->enable($db);
             }
         );
         $this->rebuildEvents($moduleName);
@@ -145,20 +139,15 @@ abstract class ModuleManager extends Node {
 
     public function disableModule(string $moduleName) {
         $db = $this->db;
-        $exists = (bool)$db->selectCell('id FROM module WHERE name = ? AND status = ?', [$moduleName, self::DISABLED]);
+        $exists = (bool)$db->selectCell("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED]);
         if (!$exists) {
             throw new \LogicException("Can't disable the module '$moduleName', only enabled modules can be disabled");
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                throw new NotImplementedException();
-                /*
-                $module = $this->get($moduleName);
-                $module->isEnabled(false);
-                $db->saveEntity($module);
-
-                $module->disable($db);
-                */
+                $db->updateRow($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
+                $this->getChild($moduleName)
+                    ->disable($db);
             }
         );
         $this->rebuildEvents($moduleName);
@@ -224,7 +213,7 @@ abstract class ModuleManager extends Node {
                 'Bootstrap',
             ];
         } else {
-            $exclude = $this->db->selectColumn('name FROM module ORDER BY name');
+            $exclude = $this->db->selectColumn("name FROM $this->tableName ORDER BY name");
             $modules = [];
         }
         $moduleAutoloader = $this->getModuleAutoloader();
@@ -247,13 +236,13 @@ abstract class ModuleManager extends Node {
     public function listEnabledModules(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectMap('id, name FROM module WHERE status = ? ORDER BY name, weight', [self::ENABLED]);
+            : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::ENABLED]);
     }
 
     public function listDisabledModules(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectMap('id, name FROM module WHERE status = ? ORDER BY name, weight', [self::DISABLED]);
+            : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED]);
     }
 
     protected function getModuleIdByName(string $moduleName) {
@@ -287,7 +276,7 @@ abstract class ModuleManager extends Node {
             $this->eventHandlers = [];
             $sql = "e.name as eventName, e.method, m.name AS moduleName
             FROM event e
-            INNER JOIN module m
+            INNER JOIN $this->tableName m
                 ON e.moduleId = m.id
             WHERE m.status = ?
             ORDER BY e.priority DESC, m.weight ASC, m.name ASC";

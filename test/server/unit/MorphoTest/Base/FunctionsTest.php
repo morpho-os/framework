@@ -2,15 +2,40 @@
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
+use function Morpho\Base\{uniqueName, deleteDups, unescape, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn};
 
-class StringFnsTest extends TestCase {
+class FunctionsTest extends TestCase {
     public function setUp() {
-        $this->markTestIncomplete();
-        resetState();
+        //resetState();
     }
 
     public function tearDown() {
-        resetState();
+        //resetState();
+    }
+
+    public function testWriteLnSingle() {
+        ob_start();
+        writeLn("Printed");
+        $this->assertEquals("Printed\n", ob_get_clean());
+    }
+
+    public function testWriteLnMultiple() {
+        ob_start();
+        writeLn("bee", "ant");
+        $this->assertEquals("bee\nant\n", ob_get_clean());
+    }
+
+    public function testShorten() {
+        $this->assertEquals('foo...', shorten('foobarb', 6));
+        $this->assertEquals('foobar', shorten('foobar', 6));
+        $this->assertEquals('fooba',  shorten('fooba', 6));
+        $this->assertEquals('foob',   shorten('foob', 6));
+        $this->assertEquals('foo',    shorten('foo'), 6);
+        $this->assertEquals('fo',     shorten('fo'), 6);
+        $this->assertEquals('f',      shorten('f'), 6);
+        $this->assertEquals('',       shorten(''), 6);
+
+        $this->assertEquals('foob!!', shorten('foobarb', 6, '!!'));
     }
 
     public function testUniqueName() {
@@ -24,14 +49,14 @@ class StringFnsTest extends TestCase {
         $this->assertEquals('a', deleteDups('aaa', 'a'));
     }
 
-    public function testEscapeAndUnescape() {
+    public function testEscapeHtmlAndUnescapeHtml() {
         $original = '<h1>Hello</h1>';
-        $text = escape($original);
+        $text = escapeHtml($original);
         $this->assertEquals('&lt;h1&gt;Hello&lt;/h1&gt;', $text);
-        $this->assertEquals($original, unescape($text));
+        $this->assertEquals($original, unescapeHtml($text));
     }
 
-    public function testTrim() {
+    public function testTrimMore() {
         $t = array(
             '  ff  ',
             ' foo ' => array(
@@ -44,9 +69,9 @@ class StringFnsTest extends TestCase {
                 'bar',
             ),
         );
-        $this->assertEquals($expected, trim($t, '-'));
+        $this->assertEquals($expected, trimMore($t, '-'));
 
-        $this->assertEquals('ff', trim('__ ff  ', '_'));
+        $this->assertEquals('ff', trimMore('__ ff  ', '_'));
     }
 
     public function testLast() {
@@ -152,9 +177,9 @@ class StringFnsTest extends TestCase {
         $this->assertEquals('foo-bar-1', htmlId('FooBar'));
     }
 
-    protected function assertCommon($method) {
-        $callback = array('\Morpho\Base\String', $method);
-        $this->assertEquals('foobar', call_user_func($callback, 'foobar'));
-        $this->assertEquals('foobar', call_user_func($callback, "&\tf\no<>o\x00`bar"));
+    protected function assertCommon($fn) {
+        $fn = 'Morpho\Base\\' . $fn;
+        $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
+        $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
     }
 }

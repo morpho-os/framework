@@ -24,9 +24,9 @@ abstract class Object {
         $this->setProperties($data);
     }
 
-    public function getNamespace(bool $useFqn = false): string {
+    public function getNamespace(): string {
         $class = get_class($this);
-        return ($useFqn ? '\\' : '') . substr($class, 0, strrpos($class, '\\'));
+        return substr($class, 0, strrpos($class, '\\'));
     }
 
     public function getClassDirPath(): string {

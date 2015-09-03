@@ -34,7 +34,7 @@ abstract class Router implements IServiceManagerAware {
 
     abstract public function rebuildRoutes(...$args);
 
-    abstract public function assemble($action, $httpMethod, $controller, $module, $params);
+    abstract public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null);
 
     protected function buildRoutesMeta(...$args) {
         if (count($args) !== 1) {

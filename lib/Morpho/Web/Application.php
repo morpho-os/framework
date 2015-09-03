@@ -3,33 +3,47 @@ declare(strict_types=1);
 
 namespace Morpho\Web;
 
-use Morpho\Core\{Application as BaseApplication, ServiceManager as BaseServiceManager};
+use Morpho\Core\Application as BaseApplication;
+use Morpho\Di\IServiceManager;
 
 class Application extends BaseApplication {
-    protected function createServiceManager(): BaseServiceManager {
+    protected function createServiceManager(): IServiceManager {
         $siteManager = new SiteManager();
         $siteConfig = $siteManager->getSiteConfig();
         $services = [
             'app' => $this,
             'siteManager' => $siteManager,
         ];
-        $serviceManager = isset($siteConfig['serviceManager'])
-            ? new $siteConfig['serviceManager']($siteConfig, $services)
-            : new ServiceManager($siteConfig, $services);
+        if (isset($siteConfig['serviceManager'])) {
+            $serviceManager = $siteConfig['serviceManager']($siteConfig, $services);
+        } else {
+            $serviceManager = new ServiceManager($siteConfig, $services);
+        }
         return $serviceManager;
     }
 
-    protected function handleErrorOrException(\Throwable $e, BaseServiceManager $serviceManager  = null): int {
-        /*
-        // @TODO: Try detect the current mode, if production don't show the error
-        if ($serviceManager) {
-            $serviceManager->get('errorHandler')
-                ->handleThrowable($e);
-        }
-        */
+    protected function handleException(\Exception $e, IServiceManager $serviceManager = null) {
         while (@ob_end_flush());
-        echo '<pre>' . htmlspecialchars((string) $e, ENT_QUOTES, 'utf-8') . '</pre>';
-        $exitCode = (int) $e->getCode();
-        return $exitCode !== 0 ? $exitCode : 1;
+        $isDevMode = $this->isDevMode();
+        $showFailure = function ($e) use ($isDevMode) {
+            if ($isDevMode) {
+                echo htmlspecialchars((string) $e, ENT_QUOTES);
+            }
+        };
+        $showFailure($e);
+        try {
+            $this->logException($e, $serviceManager, $isDevMode);
+        } catch (\Exception $e) {
+            $showFailure($e);
+        }
+    }
+
+    protected function logException(\Exception $e, IServiceManager $serviceManager = null, bool $isDevMode) {
+        // @TODO
+    }
+
+    protected function isDevMode(): bool {
+        // @TODO
+        return true;
     }
 }

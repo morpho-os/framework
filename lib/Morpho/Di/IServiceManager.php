@@ -2,7 +2,9 @@
 namespace Morpho\Di;
 
 interface IServiceManager {
-    public function get($id);
+    public function get(string $id);
 
-    public function set($id, $service);
+    public function set(string $id, $service);
+
+    //public function setFactory(string $serviceId, $factory);
 }

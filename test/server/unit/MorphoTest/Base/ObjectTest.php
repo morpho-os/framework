@@ -40,7 +40,7 @@ class ObjectTest extends TestCase {
      * @dataProvider dataForToArray
      */
     public function testFromArray($object) {
-        $object->fromArray(['publicProp' => 'foo', 'protectedProp' => 'bar', 'privateProp' => 'baz']);
+        $object->fromArray(['publicProp' => 'foo', 'protectedProp' => 'bar']);
         $this->assertEquals(['publicProp' => 'foo', 'protectedProp' => 'bar'], $object->toArray());
         $this->assertEquals('three', $object->getPrivateProp());
     }
@@ -51,7 +51,7 @@ class ObjectTest extends TestCase {
      */
     public function testSetPropertiesThroughConstructor($object) {
         $class = get_class($object);
-        $object = new $class(['publicProp' => 'foo', 'protectedProp' => 'bar', 'privateProp' => 'baz']);
+        $object = new $class(['publicProp' => 'foo', 'protectedProp' => 'bar']);
         $this->assertEquals(['publicProp' => 'foo', 'protectedProp' => 'bar'], $object->toArray());
         $this->assertEquals('three', $object->getPrivateProp());
     }

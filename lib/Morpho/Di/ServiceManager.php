@@ -2,28 +2,39 @@
 namespace Morpho\Di;
 
 class ServiceManager implements IServiceManager {
-    protected $loading = array();
+    protected $services = [];
 
-    protected $services = array();
+    protected $aliases = [];
 
-    protected $aliases = array();
+    //protected $factories = [];
 
-    protected $invokable = array();
+    private $loading = [];
 
-    public function set($id, $service) {
-        $isInvokable = is_object($service) && method_exists($service, '__invoke');
-        $id = strtolower($id);
-        if ($isInvokable) {
-            $this->invokable[$id] = $service;
-        } else {
-            $this->services[$id] = $service;
+    public function __construct(array $services = null) {
+        if (null !== $services) {
+            foreach ($services as $id => $service) {
+                $this->set($id, $service);
+            }
+        }
+    }
+
+    /*
+    public function setFactory(string $serviceId, $factory) {
+        $this->factories[$serviceId] = $factory;
+    }
+    */
+
+    public function set(string $id, $service) {
+        $this->services[strtolower($id)] = $service;
+        if ($service instanceof IServiceManagerAware) {
+            $service->setServiceManager($this);
         }
     }
 
     /**
      * This method uses logic found in the Symfony\Component\DependencyInjection\Container::get().
      */
-    public function get($id) {
+    public function get(string $id) {
         $id = strtolower($id);
 
         while (isset($this->aliases[$id])) {
@@ -43,14 +54,14 @@ class ServiceManager implements IServiceManager {
                 )
             );
         }
-
-        if (isset($this->invokable[$id])) {
-            $service = $this->createFromInvokable($id);
-        } else {
-            $service = $this->createFromMethod($id);
+        $this->loading[$id] = true;
+        try {
+            $this->services[$id] = $service = $this->createService($id);
+        } catch (\Exception $e) {
+            unset($this->loading[$id]);
+            throw $e;
         }
-
-        $this->services[$id] = $service;
+        unset($this->loading[$id]);
 
         return $service;
     }
@@ -59,58 +70,36 @@ class ServiceManager implements IServiceManager {
         $this->aliases = $aliases;
     }
 
-    public function setAlias($alias, $name) {
+    public function setAlias(string $alias, string $name) {
         $this->aliases[$alias] = $name;
     }
 
-    protected function createFromInvokable($id) {
-        if (!isset($this->invokable[$id])) {
-            throw new ServiceNotFoundException($id);
-        }
-
-        $this->loading[$id] = true;
-
-        try {
-            $this->beforeCreate($id);
-            $service = $this->invokable[$id]->__invoke($this);
-            $this->afterCreate($service, $id);
-        } catch (\Exception $e) {
-            unset($this->loading[$id]);
-            throw $e;
-        }
-
-        unset($this->loading[$id]);
-
-        return $service;
+    protected function beforeCreate(string $id) {
+        // Do nothing by default.
     }
 
-    protected function createFromMethod($id) {
-        $method = 'create' . $id . 'Service';
-        if (!method_exists($this, $method)) {
-            throw new ServiceNotFoundException($id);
+    protected function afterCreate(string $id, $service) {
+        if ($service instanceof IServiceManagerAware) {
+            $service->setServiceManager($this);
         }
+    }
 
-        $this->loading[$id] = true;
-
-        try {
+    protected function createService($id) {
+        /*
+        if (isset($this->factories[$id])) {
+            $this->beforeCreate($id);
+            $service = $this->factories[$id]();
+            $this->afterCreate($id, $service);
+        } else {
+        }
+        */
+        $method = 'create' . $id . 'Service';
+        if (method_exists($this, $method)) {
             $this->beforeCreate($id);
             $service = $this->$method();
-            $this->afterCreate($service, $id);
-        } catch (\Exception $e) {
-            unset($this->loading[$id]);
-            throw $e;
+            $this->afterCreate($id, $service);
+            return $service;
         }
-
-        unset($this->loading[$id]);
-
-        return $service;
-    }
-
-    protected function beforeCreate($id) {
-        // Do nothing by default.
-    }
-
-    protected function afterCreate($service, $id) {
-        // Do nothing by default.
+        throw new ServiceNotFoundException($id);
     }
 }

@@ -3,16 +3,23 @@ declare(strict_types=1);
 
 namespace Morpho\Core;
 
+use Morpho\Di\IServiceManager;
+
 abstract class Application {
-    public static function main(array $config = []): int {
-        return (new static($config))->run();
+    /**
+     * @return mixed
+     */
+    public static function main(array $config = []) {
+        $_this = new static($config);
+        return $_this->returnResult(
+            $_this->run()
+        );
     }
 
     /**
-     * @return int Returns code == 0 on success and code != 0 on error.
+     * @return mixed Returns true on success and any value !== true on error.
      */
-    public function run(): int {
-        $exitCode = 0;
+    public function run() {
         try {
             $serviceManager = $this->createServiceManager();
 
@@ -27,14 +34,30 @@ abstract class Application {
             $serviceManager->get('dispatcher')->dispatch($request);
 
             $request->getResponse()->send();
-        } catch (\Throwable $e) {
-            $exitCode = $this->handleErrorOrException($e, $serviceManager ?? null);
-        }
 
-        return $exitCode;
+            return true;
+        } catch (\Exception $e) {
+            return $this->handleException($e, $serviceManager ?? null);
+        }
     }
 
-    abstract protected function createServiceManager(): ServiceManager;
+    abstract protected function createServiceManager(): IServiceManager;
 
-    abstract protected function handleErrorOrException(\Throwable $e, ServiceManager $serviceManager  = null): int;
+    /**
+     * Handles exception and returns any value associated with it, it must be !== true.
+     *
+     * @return mixed
+     */
+    abstract protected function handleException(\Exception $e, IServiceManager $serviceManager = null);
+
+    /**
+     * Returns result optionally applying some transformations. By default does't apply any transformation and
+     * returns the result as is.
+     *
+     * @param mixed $result
+     * @return mixed
+     */
+    protected function returnResult($result) {
+        return $result;
+    }
 }

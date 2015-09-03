@@ -1,12 +1,31 @@
 <?php
 namespace MorphoTest\Di;
 
+use Morpho\Di\IServiceManager;
+use Morpho\Di\IServiceManagerAware;
 use Morpho\Test\TestCase;
 use Morpho\Di\ServiceManager;
 
 class ServiceManagerTest extends TestCase {
     public function setUp() {
         $this->serviceManager = new MyServiceManager;
+    }
+
+    public function testConstructor_SetsServiceManagerIfServiceImplementsServiceManagerInterface() {
+        $service = new class implements IServiceManagerAware {
+            private $serviceManager;
+
+            public function setServiceManager(IServiceManager $serviceManager) {
+                $this->serviceManager = $serviceManager;
+            }
+
+            public function isServiceManagerSet() {
+                return $this->serviceManager instanceof IServiceManager;
+            }
+        };
+        $this->assertFalse($service->isServiceManagerSet());
+        new ServiceManager(['foo' => $service]);
+        $this->assertTrue($service->isServiceManagerSet());
     }
 
     public function testCanDetectCircularReference() {
@@ -21,9 +40,10 @@ class ServiceManagerTest extends TestCase {
         $this->assertInstanceOf('\stdClass', $obj1);
     }
 
-    public function testCanInstanciateFromInvokable() {
+    /*
+    public function testCanInstantiateFromFactory() {
         $called = false;
-        $this->serviceManager->set('router', function (\Morpho\Di\ServiceManager $serviceManager) use (&$called) {
+        $this->serviceManager->setFactory('router', function () use (&$called) {
             $called = true;
             return new \stdClass();
         });
@@ -31,6 +51,7 @@ class ServiceManagerTest extends TestCase {
         $this->assertInstanceOf('\stdClass', $this->serviceManager->get('router'));
         $this->assertTrue($called);
     }
+    */
 
     public function testThrowsExceptionWhenServiceNotFound() {
         $this->setExpectedException('\Morpho\Di\ServiceNotFoundException');

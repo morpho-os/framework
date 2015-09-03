@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace Morpho\Web;
 
-use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\Core\Request as BaseRequest;
 use Morpho\Fs\Path;
+use Zend\Validator\Hostname as HostNameValidator;
 use Zend\Http\Headers;
-use Zend\Uri\Http as HttpUri;
 
 /**
  * Some chunks of code for this class was taken from the Request class
@@ -27,15 +26,13 @@ class Request extends BaseRequest {
     const PATCH_METHOD = 'PATCH';
     const PROPFIND_METHOD = 'PROPFIND';
 
-    protected $uri;
-
     protected $headers;
-
-    protected $baseRelUri;
 
     protected $method;
 
     protected $content;
+
+    private $uri;
 
     private static $allMethods = [
         self::OPTIONS_METHOD,
@@ -104,47 +101,26 @@ class Request extends BaseRequest {
         return false !== $header && $header->getFieldValue() == 'XMLHttpRequest';
     }
 
-    public function getBaseRelativeUri(): string {
-        if (null === $this->baseRelUri) {
-            $this->baseRelUri = '/' . trim(dirname($_SERVER['SCRIPT_NAME']), '/');
-        }
-        return $this->baseRelUri;
+    public function prependUriWithBasePath(string $uri): string {
+        return Uri::hasAuthority($uri)
+            ? $uri
+            : Path::combine($this->currentUri()->getBasePath(), $uri);
     }
 
-    public function getRelativeUri($relUri = null, array $params = null, array $args = null) {
-        if (null !== $params) {
-            throw new NotImplementedException();
-        }
-
-        $paths = [];
-        if (null === $relUri) {
-            $paths[] = $this->getUri()->getPath();
-        } else {
-            $paths[] = $this->getBaseRelativeUri();
-            $paths[] = $relUri;
-        }
-
-        $newRelUri = Path::combine($paths);
-
-        if (null !== $args) {
-            $uriClone = clone $this->getUri();
-            $uriClone->setQuery($args);
-            $uriClone->setPath($newRelUri);
-            return $uriClone->__toString();
-        }
-
-        return $newRelUri;
-    }
-
-    public function setUri($uri) {
-        $this->uri = is_string($uri) ? new HttpUri($uri) : $uri;
-    }
-
-    public function getUri(): HttpUri {
+    /**
+     * Returns URI that can be changed without changing original URI (clone).
+     *
+     * @param string|array|null $queryArgs
+     */
+    public function currentUri(): Uri {
         if (null === $this->uri) {
-            $this->uri = new HttpUri($_SERVER['REQUEST_URI']);
+            $this->initUri();
         }
-        return $this->uri;
+        return clone $this->uri;
+    }
+
+    public function setCurrentUri(Uri $uri) {
+        $this->uri = $uri;
     }
 
     public function setMethod(string $method): self {
@@ -263,5 +239,87 @@ class Request extends BaseRequest {
         }
         $this->headers = $hdrs = new Headers();
         $hdrs->addHeaders($headers);
+    }
+
+    /**
+     * This method uses chunks of code found in the \Zend\Http\PhpEnvironment\Request::setServer() method.
+     */
+    protected function initUri() {
+        $uri = new Uri();
+
+        if ((!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+            $scheme = 'https';
+        } else {
+            $scheme = 'http';
+        }
+        $uri->setScheme($scheme);
+
+        // URI host & port
+        $host = null;
+        $port = null;
+
+        // Set the host
+        if ($this->getHeaders()->get('host')) {
+            $host = $this->getHeaders()->get('host')->getFieldValue();
+
+            // works for regname, IPv4 & IPv6
+            if (preg_match('|\:(\d+)$|', $host, $matches)) {
+                $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
+                $port = (int) $matches[1];
+            }
+
+            // set up a validator that check if the hostname is legal (not spoofed)
+            $hostnameValidator = new HostnameValidator([
+                'allow'       => HostnameValidator::ALLOW_ALL,
+                'useIdnCheck' => false,
+                'useTldCheck' => false,
+            ]);
+            // If invalid. Reset the host & port
+            if (!$hostnameValidator->isValid($host)) {
+                $host = null;
+                $port = null;
+            }
+        }
+
+        if (!$host && isset($_SERVER['SERVER_NAME'])) {
+            $host = $_SERVER['SERVER_NAME'];
+            if (isset($_SERVER['SERVER_PORT'])) {
+                $port = (int) $_SERVER['SERVER_PORT'];
+            }
+            // Check for missinterpreted IPv6-Address
+            // Reported at least for Safari on Windows
+            if (isset($_SERVER['SERVER_ADDR']) && preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
+                $host = '[' . $_SERVER['SERVER_ADDR'] . ']';
+                if ($port . ']' == substr($host, strrpos($host, ':')+1)) {
+                    // The last digit of the IPv6-Address has been taken as port
+                    // Unset the port so the default port can be used
+                    $port = null;
+                }
+            }
+        }
+        $uri->setHost($host);
+        $uri->setPort($port);
+
+        // URI path
+        $requestUri = $_SERVER['REQUEST_URI'];
+        if (($qpos = strpos($requestUri, '?')) !== false) {
+            $requestUri = substr($requestUri, 0, $qpos);
+        }
+
+        $uri->setPath($requestUri);
+
+        // URI query
+        if (isset($_SERVER['QUERY_STRING'])) {
+            $uri->setQuery($_SERVER['QUERY_STRING']);
+        }
+
+        $uri->setBasePath($this->detectBasePath());
+
+        $this->uri = $uri;
+    }
+
+    protected function detectBasePath(): string {
+        return '/' . trim(dirname($_SERVER['SCRIPT_NAME']), '/');
     }
 }

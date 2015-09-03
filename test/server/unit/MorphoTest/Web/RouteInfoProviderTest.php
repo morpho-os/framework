@@ -1,8 +1,8 @@
 <?php
-namespace MorphoTest\Web\Router;
+namespace MorphoTest\Web;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\Router\RouteInfoProvider;
+use Morpho\Web\RouteInfoProvider;
 
 class RouteInfoProviderTest extends TestCase {
     public function testBuildMetaForControllersInFile() {

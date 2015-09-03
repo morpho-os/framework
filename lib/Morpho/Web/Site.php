@@ -23,20 +23,21 @@ class Site {
 
     private $webDirPath;
 
-    const CONFIG_FILE_NAME = 'config.php';
+    const CONFIG_FILE_NAME          = 'config.php';
+    const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
-    public function __construct(array $options = array()) {
+    public function __construct(array $options = []) {
         ArrayTool::ensureHasOnlyKeys($options, ['dirPath', 'name']);
         foreach ($options as $name => $value) {
             $this->$name = $value;
         }
     }
-    
+
     public function setDirPath(string $dirPath) {
         $this->dirPath = $dirPath;
     }
     
-    public function getDirPath() {
+    public function getDirPath(): string {
         return $this->dirPath;
     }
 
@@ -44,7 +45,7 @@ class Site {
         $this->name = $name;
     }
 
-    public function getName() {
+    public function getName(): string {
         return $this->name;
     }
 
@@ -52,7 +53,7 @@ class Site {
         $this->cacheDirPath = Path::normalize($dirPath);
     }
 
-    public function getCacheDirPath() {
+    public function getCacheDirPath(): string {
         if (null === $this->cacheDirPath) {
             $this->cacheDirPath = $this->getDirPath() . '/' . CACHE_DIR_NAME;
         }
@@ -63,7 +64,7 @@ class Site {
         $this->configDirPath = Path::normalize($dirPath);
     }
 
-    public function getConfigDirPath() {
+    public function getConfigDirPath(): string {
         if (null === $this->configDirPath) {
             $this->configDirPath = $this->getDirPath() . '/' . CONFIG_DIR_NAME;
         }
@@ -74,7 +75,7 @@ class Site {
         $this->logDirPath = Path::normalize($dirPath);
     }
 
-    public function getLogDirPath() {
+    public function getLogDirPath(): string {
         if (null === $this->logDirPath) {
             $this->logDirPath = $this->getDirPath() . '/' . LOG_DIR_NAME;
         }
@@ -85,7 +86,7 @@ class Site {
         $this->uploadDirPath = Path::normalize($dirPath);
     }
 
-    public function getUploadDirPath() {
+    public function getUploadDirPath(): string {
         if (null === $this->uploadDirPath) {
             $this->uploadDirPath = $this->getDirPath() . '/' . UPLOAD_DIR_NAME;
         }
@@ -96,14 +97,14 @@ class Site {
         $this->webDirPath = Path::normalize($dirPath);
     }
 
-    public function getWebDirPath() {
+    public function getWebDirPath(): string {
         if (null === $this->webDirPath) {
             $this->webDirPath = WEB_DIR_PATH;
         }
         return $this->webDirPath;
     }
 
-    public function isFallbackConfigUsed() {
+    public function isFallbackConfigUsed(): bool {
         if (null === $this->isFallbackConfigUsed) {
             throw new \LogicException('eThe loadConfig() must be called first');
         }
@@ -114,7 +115,7 @@ class Site {
         $this->config = $config;
     }
 
-    public function getConfig() {
+    public function getConfig(): array {
         if (null === $this->config) {
             $this->config = $this->loadConfig();
         }
@@ -122,15 +123,18 @@ class Site {
         return $this->config;
     }
 
-    public function getConfigFilePath() {
+    public function getConfigFilePath(): string {
         return $this->getConfigDirPath() . '/' . self::CONFIG_FILE_NAME;
     }
 
-    protected function loadConfig() {
+    public function getFallbackConfigFilePath(): string {
+        return $this->getConfigDirPath() . '/' . self::FALLBACK_CONFIG_FILE_NAME;
+    }
+
+    protected function loadConfig(): array {
         $filePath = $this->getConfigFilePath();
         if (!file_exists($filePath) || !is_readable($filePath)) {
-            /* . (PHP_SAPI == 'cli' ? 'cli-' : '')*/
-            $filePath = dirname($filePath) . '/fallback.php';
+            $filePath = $this->getFallbackConfigFilePath();
             $this->isFallbackConfigUsed = true;
         } else {
             $this->isFallbackConfigUsed = false;

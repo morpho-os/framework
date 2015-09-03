@@ -6,7 +6,7 @@ namespace Morpho\Web;
 use Morpho\Core\Controller as BaseController;
 
 class Controller extends BaseController {
-    protected function forwardToAction($action, $controller = null, $module = null, array $params = null) {
+    protected function forwardToAction(string $action, string $controller = null, string $module = null, array $params = null) {
         $request = $this->request;
 
         if (null === $module) {
@@ -21,16 +21,13 @@ class Controller extends BaseController {
             ->setActionName($action);
 
         if (null !== $params) {
-            $request->clearParams();
-            foreach ($params as $name => $value) {
-                $request->setParam($name, $value);
-            }
+            $request->setParams($params);
         }
 
         $request->isDispatched(false);
     }
 
-    protected function redirectToAction($action, $httpMethod = null, $controller = null, $module = null, array $params = null, array $args = null, array $options = null) {
+    protected function redirectToAction(string $action, string $httpMethod = null, string $controller = null, string $module = null, array $params = null) {
         if (null === $controller) {
             $controller = $this->request->getControllerName();
         }
@@ -40,34 +37,41 @@ class Controller extends BaseController {
         if (null === $httpMethod) {
             $httpMethod = Request::GET_METHOD;
         }
-        $uri = $this->serviceManager
-            ->get('router')
-            ->assemble($action, $httpMethod, $controller, $module, $params);
-
-        $this->redirectToUri($uri, $args, $options);
+        $this->redirectToUri(
+            $this->serviceManager
+                ->get('router')
+                ->assemble($action, $httpMethod, $controller, $module, $params)
+        );
     }
 
-    protected function redirectToUri($uri = null, array $params = null, array $args = null, array $options = null, $httpStatusCode = null) {
+    protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
         $response = $this->request->getResponse();
         $response->redirect(
-            $this->request->getRelativeUri($uri, $params, $args, $options),
+            $this->request->prependUriWithBasePath($uri),
             true,
             $httpStatusCode
         );
     }
 
-    protected function redirectToSelf($successMessage = null) {
+    protected function redirectToSelf(string $successMessage = null, $queryArgs, string $fragment = null) {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
-        $this->redirectToUri($this->request->getUri()->getPath());
+        $uri = $this->request->currentUri();
+        if ($queryArgs) {
+            $uri->setQuery($queryArgs);
+        }
+        if ($fragment) {
+            $uri->setFragment($fragment);
+        }
+        $this->redirectToUri($uri->__toString());
     }
 
-    protected function redirectToHome($successMessage = null) {
+    protected function redirectToHome(string $successMessage = null) {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
-        return $this->redirectToUri('/');
+        $this->redirectToUri('/');
     }
 
     protected function success($data = null) {
@@ -87,15 +91,15 @@ class Controller extends BaseController {
         return $messages;
     }
 
-    protected function addSuccessMessage($message, ...$args) {
+    protected function addSuccessMessage(string $message, ...$args) {
         $this->serviceManager->get('messenger')->addSuccessMessage($message, ...$args);
     }
 
-    protected function addErrorMessage($message, ...$args) {
+    protected function addErrorMessage(string $message, ...$args) {
         $this->serviceManager->get('messenger')->addErrorMessage($message, ...$args);
     }
 
-    protected function addWarningMessage($message, ...$args) {
+    protected function addWarningMessage(string $message, ...$args) {
         $this->serviceManager->get('messenger')->addWarningMessage($message, ...$args);
     }
 
@@ -115,23 +119,19 @@ class Controller extends BaseController {
         return $this->request->getParam($name);
     }
 
-    public function getArg($name, $trim = true) {
-        return $this->request->getArg($name, $trim);
-    }
-
-    public function getArgs($name = null, $trim = true) {
+    public function getArgs($name = null, bool $trim = true) {
         return $this->request->getArgs($name, $trim);
     }
 
-    protected function getPost($name = null, $trim = true) {
+    protected function getPost($name = null, bool $trim = true) {
         return $this->request->getPost($name, $trim);
     }
 
-    protected function getGet($name = null, $trim = true) {
+    protected function getGet($name = null, bool $trim = true) {
         return $this->request->getGet($name, $trim);
     }
 
-    protected function setLayout($name) {
+    protected function setLayout(string $name) {
         $this->setSpecialViewVar('layout', $name);
     }
 

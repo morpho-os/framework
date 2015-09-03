@@ -61,12 +61,12 @@ class Directory extends Entry {
             throw new IoException();
         }
         $options = ArrayTool::handleOptions(
-            $options,
             [
                 'recursive' => true,
                 'followSymlinks' => false,
                 'type' => self::FILE | self::DIR,
-            ]
+            ],
+            $options
         );
 
         if (is_string($processor)) {

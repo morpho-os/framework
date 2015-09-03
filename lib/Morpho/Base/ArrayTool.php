@@ -2,12 +2,24 @@
 namespace Morpho\Base;
 
 class ArrayTool {
+    public static function cartesianProduct(...$arrs) {
+        // @TODO
+        throw new NotImplementedException();
+    }
+
     public static function filterByKeys(array $arr, array $keys): array {
         return array_intersect_key($arr, array_flip(array_values($keys)));
     }
 
     /**
-     * Symmetrical difference.
+     * Union for sets.
+     */
+    public static function union(...$arr): array {
+        return array_unique(array_merge(...$arr));
+    }
+
+    /**
+     * Symmetrical difference for two sets.
      */
     public static function symmetricDiff(array $a, array $b): array {
         $diffA = array_diff_assoc($a, $b);
@@ -99,12 +111,12 @@ class ArrayTool {
         return $result;
     }
 
-    public static function handleOptions(array $options, array $defaultOptions): array {
-        if (count($options) > 0) {
-            self::ensureHasOnlyKeys($options, array_keys($defaultOptions));
-            return array_merge($defaultOptions, $options);
+    public static function handleOptions(array $defaultOptions, array $options = null): array {
+        if (null === $options || count($options) === 0) {
+            return $defaultOptions;
         }
-        return $defaultOptions;
+        self::ensureHasOnlyKeys($options, array_keys($defaultOptions));
+        return array_merge($defaultOptions, $options);
     }
 
     public static function ensureHasOnlyKeys(array $arr, array $allowedKeys) {

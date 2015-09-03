@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Web\View;
 
-use function Morpho\Base\htmlId;
+use function Morpho\Base\{htmlId, camelize};
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
 
@@ -27,68 +27,9 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         );
     }
 
-    public function textField($name, $value = null, array $attributes = null) {
-        $attributes = (array)$attributes;
-        $attributes += [
-            'class' => 'form-control',
-        ];
-        return TagRenderer::renderSingle(
-            'input',
-            [
-                'name' => $name,
-                'value' => $value,
-                'type' => 'text',
-            ] + $attributes
-        );
-    }
-
-    public function submitButton($text, $name = null, $value = null, array $attributes = null) {
-        return $this->button($text, $name, $value, ['type' => 'submit'] + (array)$attributes);
-    }
-
-    public function button($text, $name = null, $value = null, array $attributes = null) {
-        if (null === $name) {
-            $name = camelize($text);
-        }
-        $attributes = (array)$attributes;
-        $attributes['name'] = $name;
-        if (null !== $value) {
-            $attributes['value'] = $value;
-        }
-
-        $attributes += ['type' => 'button'];
-
-        $attributes['class'] = 'btn btn-default';
-
-        if (!isset($attributes['id'])) {
-            $attributes['id'] = htmlId($name);
-        }
-
-        return TagRenderer::render('button', $attributes, $text);
-    }
-
-    public function link($uri, $text, array $attributes = [], array $args = null, array $options = []) {
-        $attributes['href'] = $this->serviceManager->get('request')->getRelativeUri($uri, null, $args, $options);
+    public function link(string $uri, string $text, array $attributes = []): string {
+        $attributes['href'] = $this->serviceManager->get('request')->prependUriWithBasePath($uri);
         return TagRenderer::render('a', $attributes, $text);
-    }
-
-    public function uriWithRedirectToSelf($relativeUri) {
-        return $this->uriWithRedirectTo(
-            $relativeUri,
-            $this->serviceManager->get('request')->getRelativeUri()
-        );
-    }
-
-    /*@TODO
-    public function absoluteUri() {
-        retunr $this->serviceManager->get('request')->get
-    }
-    */
-
-    public function uriWithRedirectTo($relativeUri, $redirectToUri) {
-        return $this->serviceManager
-            ->get('request')
-            ->getRelativeUri($relativeUri, null, ['redirect' => $redirectToUri]);
     }
 
     public function copyright($brand, $startYear = null) {

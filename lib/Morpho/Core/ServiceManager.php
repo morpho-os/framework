@@ -9,12 +9,8 @@ use Morpho\Db\Db;
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;
 
-    public function __construct(array $config, $services = null) {
-        if (null !== $services) {
-            foreach ($services as $id => $service) {
-                $this->set($id, $service);
-            }
-        }
+    public function __construct(array $config = null, array $services = null) {
+        parent::__construct($services);
         $this->config = $config;
         $this->setAliases(['dispatcher' => 'modulemanager']);
     }
@@ -49,11 +45,5 @@ abstract class ServiceManager extends BaseServiceManager {
 
     protected function createSettingManagerService() {
         return new SettingManager($this->get('db'));
-    }
-
-    protected function afterCreate($service, $id) {
-        if ($service instanceof IServiceManagerAware) {
-            $service->setServiceManager($this);
-        }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace MorphoTest\Core;
 
+use Morpho\Core\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
 use Morpho\Core\Module;
@@ -11,9 +12,8 @@ use Morpho\Web\Controller;
 class ModuleManagerTest extends DbTestCase {
     public function setUp() {
         $db = $this->createDb();
-        $db->dropAllTables(['module', 'module_event']);
-        $db->createTableForClass('\Morpho\Core\Module');
-        $db->createTableForClass('\Morpho\Core\Event');
+        $db->deleteAllTables(['module', 'module_event']);
+        $this->createDbTables($db);
     }
 
     public function testFallbackMode() {
@@ -27,14 +27,26 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager = $this->createModuleManager();
 
         $moduleName = 'error-handling-test-module';
-        $module = $moduleManager->add(new ErrorHandlingTestModule(['name' => $moduleName]));
-        $request = $this->mock('\Morpho\Web\Request');
-        $request->expects($this->any())
-            ->method('getModuleName')
-            ->will($this->returnValue($moduleName));
-        $request->expects($this->any())
-            ->method('getControllerName')
-            ->will($this->returnValue('error-handling-test-controller'));
+        $module = $moduleManager->addChild(new ErrorHandlingTestModule(['name' => $moduleName]));
+
+        $request = new class($moduleName, 'error-handling-test-controller') extends Request {
+            public function __construct($moduleName, $controllerName) {
+                $this->moduleName = $moduleName;
+                $this->controllerName = $controllerName;
+            }
+
+            public function getModuleName() {
+                return $this->moduleName;
+            }
+
+            public function getControllerName() {
+                return $this->controllerName;
+            }
+
+            public function createResponse() {
+
+            }
+        };
 
         $moduleManager->on('dispatchError', [$module, 'errorListener']);
 
@@ -75,11 +87,11 @@ class ModuleManagerTest extends DbTestCase {
         $moduleClass = $moduleName . '\\Module';
         $module = new $moduleClass(['name' => $moduleName]);
 
-        $moduleManager->add($module);
+        $moduleManager->addChild($module);
 
         $this->assertFalse($module->isInstallCalled());
 
-        $moduleManager->install($moduleName);
+        $moduleManager->installModule($moduleName);
 
         $this->assertTrue($module->isInstallCalled());
 
@@ -101,7 +113,7 @@ class ModuleManagerTest extends DbTestCase {
         // 3. Enable the module and check for changes.
         $this->assertFalse($module->isEnableCalled());
 
-        $moduleManager->enable($moduleName);
+        $moduleManager->enableModule($moduleName);
 
         $this->assertTrue($module->isEnableCalled());
 
@@ -122,7 +134,7 @@ class ModuleManagerTest extends DbTestCase {
         // 4. Disable the module and check for changes.
         $this->assertFalse($module->isDisableCalled());
 
-        $moduleManager->disable($moduleName);
+        $moduleManager->disableModule($moduleName);
 
         $this->assertTrue($module->isDisableCalled());
 
@@ -143,7 +155,7 @@ class ModuleManagerTest extends DbTestCase {
         // 5. Uninstall the module and check for changes.
         $this->assertFalse($module->isUninstallCalled());
 
-        $moduleManager->uninstall($moduleName);
+        $moduleManager->uninstallModule($moduleName);
 
         $this->assertTrue($module->isUninstallCalled());
 
@@ -160,23 +172,6 @@ class ModuleManagerTest extends DbTestCase {
         );
     }
 
-    public function testListDisabledModulesModuleHasId() {
-        $db = $this->createDb();
-        $moduleManager = $this->createModuleManager($db);
-        $moduleName = 'foo';
-        $module = new \MorphoTest\Core\ModuleManagerTest\My\Module(['name' => $moduleName]);
-        $moduleManager->add($module);
-        $moduleManager->install($moduleName);
-        $moduleManager->enable($moduleName);
-        $moduleManager->disable($moduleName);
-        $moduleId = $module->getId();
-        $this->assertNotEmpty($moduleId);
-        $moduleManager = $this->createModuleManager($db);
-        $this->assertEquals(['foo'], $moduleManager->listModules(ModuleManager::DISABLED));
-        $this->assertEquals($moduleId, $moduleManager->get($moduleName)->getId());
-        $this->assertFalse($moduleManager->get($moduleName)->isEnabled());
-    }
-
     public function testInterfaces() {
         $moduleManager = $this->createModuleManager();
         $this->assertInstanceOf('\Morpho\Base\Node', $moduleManager);
@@ -187,30 +182,47 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager = $this->createModuleManager();
         $moduleName = 'my-module';
         $module = new \MorphoTest\Core\ModuleManagerTest\My\Module(['name' => $moduleName]);
-        $moduleManager->add($module);
-        $request = $this->mock('\Morpho\Web\Request');
-        $request->expects($this->any())
-            ->method('getModuleName')
-            ->will($this->returnValue($moduleName));
+        $moduleManager->addChild($module);
+
         $controllerName = 'my-controller';
-        $request->expects($this->any())
-            ->method('getControllerName')
-            ->will($this->returnValue($controllerName));
-        $this->assertFalse($module->get($controllerName)->isDispatchCalled());
+
+        $request = new class($moduleName, $controllerName) extends Request {
+            public function __construct($moduleName, $controllerName) {
+                $this->moduleName = $moduleName;
+                $this->controllerName = $controllerName;
+            }
+
+            public function getModuleName() {
+                return $this->moduleName;
+            }
+
+            public function getControllerName() {
+                return $this->controllerName;
+            }
+
+            public function createResponse() {
+
+            }
+        };
+
+        $this->assertFalse($module->getChild($controllerName)->isDispatchCalled());
 
         $moduleManager->dispatch($request);
 
-        $this->assertTrue($module->get($controllerName)->isDispatchCalled());
+        $this->assertTrue($module->getChild($controllerName)->isDispatchCalled());
     }
 
     private function createModuleManager(Db $db = null, $moduleAutoloader = null) {
-        $moduleManager = new MyModuleManager($db ?: $this->mock('\Morpho\Db\Db'));
+        $moduleManager = new MyModuleManager($db ?: $this->createDb());
         $serviceManager = new ServiceManager();
         if (null !== $moduleAutoloader) {
             $serviceManager->set('moduleAutoloader', $moduleAutoloader);
         }
         $moduleManager->setServiceManager($serviceManager);
         return $moduleManager;
+    }
+    private function createDbTables(Db $db) {
+        $db->createTables(\System\Module::getTableDefinitions());
     }
 }
 

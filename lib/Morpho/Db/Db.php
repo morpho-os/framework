@@ -10,24 +10,26 @@ use function Morpho\Base\some;
 class Db {
     private $db;
 
-    public function __construct(array $config) {
-        $dsn = isset($config['dsn'])
-            ? $config['dsn']
-            : $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';charset=UTF8';
-        $this->db = $db = new \PDO(
-            $dsn,
-            isset($config['user'])
-                ? $config['user']
-                : '',
-            isset($config['password'])
-                ? $config['password']
-                : ''
-        );
+    public function __construct($configOrConnection) {
+        $this->db = $db = $configOrConnection instanceof \PDO
+            ? $configOrConnection
+            : static::createConnection($configOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
     }
 
-    public function sql() {
+    public static function createConnection(array $config): \PDO {
+        $dsn = isset($config['dsn'])
+            ? $config['dsn']
+            : $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';charset=UTF8';
+        return new \PDO(
+            $dsn,
+            isset($config['user']) ? $config['user'] : '',
+            isset($config['password']) ? $config['password'] : ''
+        );
+    }
+
+    public function sqlQuery() {
         return new SqlQuery();
     }
 

@@ -13,8 +13,12 @@ class CommandResult {
         $this->exitCode = $exitCode;
     }
 
-    public function isSuccessful(): bool {
-        return $this->exitCode === 0;
+    public function isError(): bool {
+        return $this->exitCode !== Environment::SUCCESS_EXIT_CODE;
+    }
+
+    public function getExitCode(): int {
+        return $this->exitCode;
     }
 
     public function __toString(): string {

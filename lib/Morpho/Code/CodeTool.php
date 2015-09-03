@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Code;
 
+use Morpho\Base\ArrayTool;
 use Morpho\Fs\File;
 use SebastianBergmann\Exporter\Exporter;
 
@@ -13,7 +14,9 @@ class CodeTool {
     /**
      * @return string
      */
-    public static function varToPhp($var, $filePath = null, $stripNumericKeys = true) {
+    public static function varToPhp($var, $filePath = null, $stripNumericKeys = true, array $options = null) {
+        $options = ArrayTool::handleOptions(['mode' => 0400], (array) $options);
+
         $php = preg_replace(
                 array(
                     '~=>\s+array~si',
@@ -38,7 +41,7 @@ class CodeTool {
             $php
         );
         if (null !== $filePath) {
-            File::write($filePath, "<?php\nreturn " . $php);
+            File::write($filePath, "<?php\nreturn " . $php, $options);
         }
 
         return $php;

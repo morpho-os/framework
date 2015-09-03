@@ -11,15 +11,18 @@ class File extends Entry {
             throw new FileNotFoundException($filePath);
         }
 
-        $options = ArrayTool::handleOptions($options, [
-            'lock' => false,
-            'offset' => -1,
-            'length' => null,
-            'useIncludePath' => false,
-            'context' => null,
-            'binary' => true,
-            'handleBom' => true
-        ]);
+        $options = ArrayTool::handleOptions(
+            [
+                'lock' => false,
+                'offset' => -1,
+                'length' => null,
+                'useIncludePath' => false,
+                'context' => null,
+                'binary' => true,
+                'handleBom' => true
+            ],
+            $options
+        );
 
         $content = @file_get_contents($filePath, $options['useIncludePath']);
 
@@ -47,7 +50,7 @@ class File extends Entry {
      * Shortcut for the write() method that appends $content to the file.
      */
     public static function append(string $filePath, string $content, array $options) {
-        $options = ArrayTool::handleOptions($options, ['append' => true]);
+        $options = ArrayTool::handleOptions(['append' => true], $options);
         self::write($filePath, $content, $options);
     }
 
@@ -56,14 +59,17 @@ class File extends Entry {
             throw new IoException("The file path is empty.");
         }
 
-        $options = ArrayTool::handleOptions($options, [
-            'useIncludePath' => false,
-            'lock' => true,
-            'append' => false,
-            'context' => null,
-            'mode' => 0644,
-            'dirMode' => 0755,
-        ]);
+        $options = ArrayTool::handleOptions(
+            [
+                'useIncludePath' => false,
+                'lock' => true,
+                'append' => false,
+                'context' => null,
+                'mode' => 0644,
+                'dirMode' => 0755,
+            ],
+            $options
+        );
 
         Directory::create(dirname($filePath), $options['dirMode']);
 

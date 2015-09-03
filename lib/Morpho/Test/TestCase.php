@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Test;
 
+use Morpho\Base\Environment;
 use Morpho\Fs\Directory;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
@@ -109,8 +110,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         date_default_timezone_set(self::TIMEZONE);
     }
 
-    protected function randomString()
-    {
+    protected function randomString() {
         return md5(uniqid(microtime(true)));
+    }
+
+    protected function initCliEnv() {
+        Environment::initServerVarsForCli();
     }
 }

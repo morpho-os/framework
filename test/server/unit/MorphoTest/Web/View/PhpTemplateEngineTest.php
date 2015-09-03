@@ -1,26 +1,25 @@
 <?php
 namespace MorphoTest\Web\View;
 
+use Morpho\Web\ServiceManager;
 use Morpho\Test\TestCase;
+use Morpho\Web\Uri;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\PluginManager;
 use Morpho\Web\View\HtmlParser;
 use Morpho\Web\View\Compiler;
+use Morpho\Web\Request;
 
 class PhpTemplateEngineTest extends TestCase {
     public function setUp() {
         $this->engine = new PhpTemplateEngine();
-        $serviceManager = new \Morpho\Web\ServiceManager([]);
-        $pathManager = $this->mock('\Morpho\Web\PathManager');
-        $pathManager->expects($this->any())
-            ->method('uri')
-            ->will($this->returnCallback(function ($val) {
-                return '/base/path' . $val;
-            }));
-        $serviceManager->set('pathManager', $pathManager);
+        $this->initCliEnv();
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
         $this->engine->attach($compiler);
+        $request = new Request();
+        $request->setCurrentUri((new Uri())->setBasePath('/base/path'));
+        $serviceManager = new ServiceManager(null, ['request' => $request]);
         $this->engine->attach(new HtmlParser($serviceManager));
         $this->engine->setCacheDirPath($this->getTmpDirPath());
         $this->engine->useCache(false);
@@ -59,34 +58,34 @@ class PhpTemplateEngineTest extends TestCase {
         );
     }
 
-    public function testNotClosedLink() {
+    public function testFilter_NotClosedLink() {
         $this->assertEquals('<a href="', $this->engine->filter('<a href="'));
     }
 
-    public function testAbsLink() {
+    public function testFilter_AbsLink() {
         $this->assertEquals(
             '<a href="/base/path/my/link">Link text</a>',
             $this->engine->filter('<a href="/my/link">Link text</a>')
         );
     }
 
-    public function testMultipleAbsLinks() {
+    public function testFilter_MultipleAbsLinks() {
         $this->assertEquals(
             '<a href="/base/path/my/link">Link text</a><a href="/base/path/my1/link1">Link text 1</a>',
             $this->engine->filter('<a href="/my/link">Link text</a><a href="/my1/link1">Link text 1</a>')
         );
     }
 
-    public function testRelLink() {
+    public function testFilter_RelLink() {
         $html = '<a href="foo/bar">Link text</a>';
         $this->assertEquals($html, $this->engine->filter($html));
     }
 
-    public function testEscapesVars() {
+    public function testFilter_EscapesVars() {
         $this->assertRegExp('~^<h1>\s*<\?php\s+echo htmlspecialchars\(\$var, ENT_QUOTES\);\s+\?>\s*</h1>$~si', $this->engine->filter('<h1><?= $var ?></h1>'));
     }
 
-    public function testPrintDoesntEscapeVars() {
+    public function testFilter_PrintDoesNotEscapeVars() {
         $php = "<?php print '<div><span>Text</span></div>'; ?>";
         $expected = '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~';
         $this->assertRegexp($expected, $this->engine->filter($php));
@@ -94,7 +93,7 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertRegexp($expected, $this->engine->filter('<?php print("<div><span>Text</span></div>");'));
     }
 
-    public function testThrowsSyntaxError() {
+    public function testFilter_ThrowsSyntaxError() {
         $php = '<?php some invalid code; ?>';
         $this->setExpectedException('\PhpParser\Error');
         $this->engine->filter($php);

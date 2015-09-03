@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Morpho\Base;
 
 function unpackArgs(array $args): array {
@@ -219,7 +221,7 @@ function sanitize($string, $allowedCharacters, bool $deleteDups = true) {
 }
 
 function escapeHtml($text): string {
-    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
 }
 
 /**
@@ -238,6 +240,7 @@ function unescapeHtml($text): string {
  *
  * @return string|array
  */
+const TRIM_CHARS = " \t\n\r\x00\x0B";
 function trimMore($string, $charlist = null) {
     if (is_array($string)) {
         foreach ($string as $k => $v) {
@@ -245,7 +248,7 @@ function trimMore($string, $charlist = null) {
         }
         return $string;
     }
-    return trim($string, $charlist . " \t\n\r\x00\x0B");
+    return trim((string) $string, $charlist . TRIM_CHARS);
 }
 
 function head($string, $separator) {
@@ -297,8 +300,14 @@ function filterStringArgs($string, array $args, callable $filterFn): string {
     return strtr($string, $fromToMap);
 }
 
-function shorten($text, $length) {
-    return strlen($text) <= $length
-        ? $text
-        : substr($text, 0, -3) . '...';
+const SHORTEN_TAIL = '...';
+const SHORTEN_LENGTH = 30;
+function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): string {
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    if (null === $tail) {
+        $tail = SHORTEN_TAIL;
+    }
+    return substr($text, 0, $length - strlen($tail)) . $tail;
 }

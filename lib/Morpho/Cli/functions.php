@@ -9,10 +9,10 @@ function escapeEachArg(array $args): array {
     return array_map('escapeshellarg', $args);
 }
 
-function cmd(string $cmd, array $args = null): CommandResult {
+function cmd(string $cmd/*, \Closure $args = null*/): CommandResult {
     ob_start();
     passthru(
-        $cmd . (null !== $args && count($args) ? ' ' . implode(' ', $args) : ''),
+        $cmd,// . (null !== $args ? ' ' . implode(' ', $args()) : ''),
         $exitCode
     );
     return new CommandResult(trim(ob_get_clean()), $exitCode);

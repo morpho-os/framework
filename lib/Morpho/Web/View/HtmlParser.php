@@ -1,7 +1,6 @@
 <?php
 namespace Morpho\Web\View;
 
-use Morpho\Fs\Path;
 use Morpho\Web\ServiceManager;
 
 class HtmlParser extends HtmlSemiParser {
@@ -26,7 +25,7 @@ class HtmlParser extends HtmlSemiParser {
 
     protected function tagA($tag) {
         if (isset($tag['href'][0]) && $tag['href'][0] === '/') {
-            $tag['href'] = $this->serviceManager->get('request')->getRelativeUri($tag['href']);
+            $tag['href'] = $this->prependUriWithBasePath($tag['href']);
             return $tag;
         }
     }
@@ -60,7 +59,7 @@ class HtmlParser extends HtmlSemiParser {
         if (isset($tag['action'])) {
             $uri = $tag['action'];
             if (isset($uri[0]) && $uri[0] == '/') {
-                $tag['action'] = $this->serviceManager->get('request')->getRelativeUri($uri);
+                $tag['action'] = $this->prependUriWithBasePath($uri);
             }
         }
         return $tag;
@@ -68,16 +67,20 @@ class HtmlParser extends HtmlSemiParser {
 
     protected function renderScripts() {
         $html = [];
-        $request = $this->serviceManager->get('request');
         $scripts = $this->scripts;
         ksort($scripts, SORT_NUMERIC);
         foreach ($scripts as $scriptTag) {
             if (isset($scriptTag['src'])) {
-                $scriptTag['src'] = $request->getRelativeUri($scriptTag['src']);
+                $scriptTag['src'] = $this->prependUriWithBasePath($scriptTag['src']);
             }
             $html[] = $this->makeTag($scriptTag);
         }
         $this->scripts = [];
         return implode("\n", $html);
+    }
+
+    protected function prependUriWithBasePath(string $uri): string {
+        return $this->serviceManager->get('request')
+            ->prependUriWithBasePath($uri);
     }
 }

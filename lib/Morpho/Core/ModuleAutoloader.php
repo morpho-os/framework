@@ -18,8 +18,9 @@ class ModuleAutoloader extends FileClassMapAutoloader implements \IteratorAggreg
                         $moduleName = head(Path::toRelative(MODULE_DIR_PATH, $path), '/');
                         return false === strpos($path, MODULE_DIR_PATH . '/' . $moduleName . '/vendor');
                     }
+                    return true;
                 }
-                return true;
+                return preg_match('/\.php$/', $path);
             },
             $useCache
         );

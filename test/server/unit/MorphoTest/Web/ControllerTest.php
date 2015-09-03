@@ -1,27 +1,31 @@
 <?php
 namespace MorphoTest\Web;
 
-use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
+use Morpho\Web\ServiceManager;
+use Morpho\Web\SiteManager;
+use Morpho\Web\Uri;
 
 class ControllerTest extends TestCase {
+    public function setUp() {
+        $this->initCliEnv();
+    }
+
     public function testRedirectToUri() {
         $controller = new MyController();
-        $serviceManager = new ServiceManager();
         $request = new Request();
-        $request->setBaseUri('');
+        $uri = new Uri();
+        $uri->setBasePath('/some/base/path');
+        $request->setCurrentUri($uri);
         $response = $this->mock('\Morpho\Web\Response');
         $response->expects($this->once())
             ->method('redirect')
-            ->with($this->equalTo('/system/module/list'));
+            ->with($this->equalTo('/some/base/path/system/module/list'));
         $request->setResponse($response);
-        $serviceManager->set('pathManager', function () use ($request) {
-            return new \Morpho\Web\PathManager($request, $this->mock('\Morpho\Web\SiteManager'));
-        });
+        $serviceManager = new ServiceManager(null, ['siteManager' => new SiteManager()]);
         $controller->setServiceManager($serviceManager);
-
         $controller->setRequest($request);
 
         $controller->doRedirectToUri();
@@ -45,26 +49,27 @@ class ControllerTest extends TestCase {
     public function testRedirectToAction() {
         $controller = new MyOtherController();
 
-        $this->assertNull($controller->redirectArgs);
         $serviceManager = new ServiceManager();
+
+        $this->assertNull($controller->redirectArgs);
         $actionName = 'redirect-here';
         $controllerName = 'my-some';
         $moduleName = 'morpho-test';
-        $params = ['p1' => 'v1'];
         $httpMethod = Request::POST_METHOD;
-        $serviceManager->set('router', function () use ($actionName, $httpMethod, $controllerName, $moduleName, $params) {
-            $router = $this->mock('\Morpho\Web\Router');
-            $router->expects($this->once())
-                ->method('assemble')
-                ->with($this->equalTo($actionName), $this->equalTo($httpMethod), $this->equalTo($controllerName), $this->equalTo($moduleName), $this->equalTo($params))
-                ->will($this->returnValue("/$moduleName/$controllerName/$actionName/" . key($params) . '/' . current($params)));
-            return $router;
-        });
+
+        $router = $this->mock('\Morpho\Web\Router');
+        $router->expects($this->once())
+            ->method('assemble')
+            ->with($this->equalTo($actionName), $this->equalTo($httpMethod), $this->equalTo($controllerName), $this->equalTo($moduleName), $this->equalTo(['foo' => 'bar']))
+            ->will($this->returnValue("/$moduleName/$controllerName/$actionName/foo/bar"));
+        $serviceManager->set('router', $router);
+
         $controller->setServiceManager($serviceManager);
-        $controller->doRedirectToAction($actionName, $httpMethod, $controllerName, $moduleName, $params, ['foo' => 'bar']);
+
+        $controller->doRedirectToAction($actionName, $httpMethod, $controllerName, $moduleName, ['foo' => 'bar']);
 
         $this->assertEquals(
-            ["/$moduleName/$controllerName/$actionName/p1/v1", ['foo' => 'bar'], null],
+            ["/$moduleName/$controllerName/$actionName/foo/bar"],
             $controller->redirectArgs
         );
     }
@@ -87,7 +92,7 @@ class MyOtherController extends Controller {
         parent::redirectToAction(...$args);
     }
 
-    protected function redirectToUri($uri = null, array $params = null, array $args = null, array $options = null, $code = null) {
+    protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
         $this->redirectArgs = func_get_args();
     }
 }

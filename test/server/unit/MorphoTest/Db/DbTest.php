@@ -11,9 +11,9 @@ class DbTest extends DbTestCase {
     }
 
     public function testSqlReturnsUniqueInstance() {
-        $sql1 = $this->db->sql();
+        $sql1 = $this->db->sqlQuery();
         $this->assertInstanceOf('Morpho\Db\SqlQuery', $sql1);
-        $this->assertNotSame($this->db->sql(), $sql1);
+        $this->assertNotSame($this->db->sqlQuery(), $sql1);
     }
 
     public function testGetTableDefinitionForNonExistingTable() {

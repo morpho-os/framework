@@ -1,8 +1,8 @@
 <?php
-namespace MorphoTest\Loader;
+namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
-use Morpho\Loader\FileClassMapAutoloader;
+use Morpho\Base\FileClassMapAutoloader;
 
 class FileClassMapAutoloaderTest extends TestCase {
     public function tearDown() {
@@ -22,7 +22,7 @@ class FileClassMapAutoloaderTest extends TestCase {
 
         $class = __CLASS__ . '\\Foo';
         $this->assertFalse($autoloader->autoload($class . 'Invalid'));
-        $this->assertEquals($class, $autoloader->autoload($class));
+        $this->assertTrue($autoloader->autoload($class));
         $this->assertTrue(file_exists($mapFilePath));
 
         $autoloader->clearMap();
@@ -44,7 +44,7 @@ class FileClassMapAutoloaderTest extends TestCase {
 
         $autoloader = new FileClassMapAutoloader($mapFilePath, $dirPath);
         $autoloader->useCache(false);
-        $this->assertEquals($class, $autoloader->autoload($class));
+        $this->assertTrue($autoloader->autoload($class));
 
         $this->assertFalse(file_exists($mapFilePath));
     }

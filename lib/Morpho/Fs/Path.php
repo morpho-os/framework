@@ -43,7 +43,7 @@ class Path {
         }
     }
 
-    public static function isNormalized(string $path): string {
+    public static function isNormalized(string $path): bool {
         if (false !== strpos($path, '\\') || false !== strpos($path, '..')) {
             return false;
         }
@@ -64,10 +64,13 @@ class Path {
         $result = [];
         $i = 0;
         foreach ($paths as $path) {
+            $path = (string) $path;
             if ($path === '') {
                 continue;
             }
+
             $path = str_replace('\\', '/', $path);
+
             if (!$i) {
                 if ($path[0] === '/') {
                     $result[] = '';

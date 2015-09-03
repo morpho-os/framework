@@ -1,17 +1,16 @@
 <?php
 namespace MorphoTest\Core;
 
+use Morpho\Base\ArrayTool;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\SettingManager;
 
 class SettingManagerTest extends DbTestCase {
     public function setUp() {
         $db = $this->createDb();
-        $db->dropTables(['module', 'setting']);
-        $db->createTableForClasses([
-            '\Morpho\Core\Module',
-            '\Morpho\Core\Setting',
-        ]);
+        $moduleNames = ['module', 'setting'];
+        $db->deleteAllTables($moduleNames);
+        $db->createTables(ArrayTool::filterByKeys(\System\Module::getTableDefinitions(), $moduleNames));
         $this->settingManager = new SettingManager($db);
         $moduleName = 'foo';
         $db->insertRow('module', ['name' => $moduleName, 'status' => 1, 'weight' => 0]);

@@ -11,8 +11,6 @@ class Environment extends Object {
 
     protected $isCliEnv = false;
 
-    protected $serverVars = array();
-
     protected $startSession = false;
 
     protected static $initialized = false;
@@ -38,13 +36,12 @@ class Environment extends Object {
             throw new \RuntimeException("The environment was already initialized.");
         }
 
-        if (PHP_VERSION_ID < 50600) {
+        /*
+        if (PHP_VERSION_ID < 70000) {
             die('PHP version must be >= 5.6');
         }
+        */
 
-        if (PHP_SAPI === 'cli') {
-            $this->initCli();
-        }
         $this->initErrorLevel();
         $this->initDate();
         $this->initServerVars();
@@ -55,11 +52,25 @@ class Environment extends Object {
         static::$initialized = true;
     }
 
-    public function initCli(array $options = []) {
-        if ($this->isCliEnv && static::isCli()) {
-            die('Access denied.');
+    public function initErrorLevel() {
+        error_reporting($this->getErrorLevel());
+        ini_set('display_errors', $this->displayErrors);
+    }
+
+    public static function initDate() {
+        ini_set('date.timezone', self::TIMEZONE);
+    }
+
+    public static function initServerVars() {
+        if (static::isCli()) {
+            static::initServerVarsForCli();
+        } else {
+            static::initServerVarsForWeb();
         }
-        $defaultOptions = array(
+    }
+
+    public static function initServerVarsForCli(array $serverVars = []) {
+        $defaultServerVars = array(
             'HTTP_HOST' => 'localhost',
             'SCRIPT_NAME' => null,
             'REMOTE_ADDR' => '127.0.0.1',
@@ -68,21 +79,12 @@ class Environment extends Object {
             'SERVER_SOFTWARE' => null,
             'HTTP_USER_AGENT' => null,
             'SERVER_PROTOCOL' => 'HTTP/1.0',
+            'REQUEST_URI' => '',
         );
-        $options += $defaultOptions;
-        $_SERVER += $options;
+        $_SERVER += $serverVars + $defaultServerVars;
     }
 
-    public function initErrorLevel() {
-        error_reporting($this->getErrorLevel());
-        ini_set('display_errors', $this->displayErrors);
-    }
-
-    public function initDate() {
-        ini_set('date.timezone', self::TIMEZONE);
-    }
-
-    public function initServerVars() {
+    public static function initServerVarsForWeb(array $serverVars = []) {
         if (!isset($_SERVER['HTTP_REFERER'])) {
             $_SERVER['HTTP_REFERER'] = '';
         }
@@ -98,7 +100,7 @@ class Environment extends Object {
             $_SERVER['HTTP_HOST'] = '';
         }
 
-        $defaults = array(
+        $defaultServerVars = array(
             'SCRIPT_NAME' => null,
             'REMOTE_ADDR' => '127.0.0.1',
             'REQUEST_METHOD' => 'GET',
@@ -106,7 +108,7 @@ class Environment extends Object {
             'SERVER_SOFTWARE' => null,
             'HTTP_USER_AGENT' => null,
         );
-        $_SERVER = $this->serverVars + $_SERVER + $defaults;
+        $_SERVER += $serverVars + $defaultServerVars;
     }
 
     public function initSession() {
@@ -128,7 +130,7 @@ class Environment extends Object {
         }
     }
 
-    public function initLocale() {
+    public static function initLocale() {
         //setlocale(LC_ALL, 'C');
         //$enc = self::ENCODING;
         ini_set('default_charset', self::ENCODING);
@@ -136,18 +138,18 @@ class Environment extends Object {
         //iconv_set_encoding('internal_encoding', $enc); // Not actual since PHP_VERSION_ID >= 50600
     }
 
-    public function initFs() {
+    public static function initFs() {
         // @TODO: Ensure that we need do this.
         umask(0);
     }
 
     /**
-     * @TODO: Refactore of this method.
+     * @TODO: Refactor this method.
      *
      * @param bool $asBytes
      * @return int|string Returns max upload file size in bytes or as string with suffix.
      */
-    public function getMaxUploadFileSize($asBytes = true) {
+    public static function getMaxUploadFileSize($asBytes = true) {
         $maxSizeIni = ini_get('post_max_size');
         $maxSize = Converter::toBytes($maxSizeIni);
         $uploadMaxSizeIni = ini_get('upload_max_filesize');
