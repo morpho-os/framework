@@ -99,7 +99,7 @@ abstract class Router implements IServiceManagerAware {
     }
 
     protected function getNormalizedUri($request) {
-        $uri = Path::normalize($request->getUri()->getPath());
+        $uri = Path::normalize($request->getUriPath());
         return $uri === '' ? '/' : $uri;
     }
 

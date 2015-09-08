@@ -6,31 +6,30 @@ use Morpho\Fs\File;
 use SebastianBergmann\Exporter\Exporter;
 
 class CodeTool {
-    public static function exportVar($var, $short = false) {
+    public static function prettyPrintVar($var, bool $short = false): string {
         $exporter = new Exporter();
         return $short ? $exporter->shortenedExport($var) : $exporter->export($var);
     }
 
-    /**
-     * @return string
-     */
-    public static function varToPhp($var, $filePath = null, $stripNumericKeys = true, array $options = null) {
-        $options = ArrayTool::handleOptions(['mode' => 0400], (array) $options);
+    public static function varToPhp($var, string $filePath = null, bool $stripNumericKeys = true, array $options = null): string {
+        $options = ArrayTool::handleOptions(['mode' => 0600], (array) $options);
 
         $php = preg_replace(
-                array(
+                [
                     '~=>\s+array~si',
                     '~array \(~si',
-                ),
-                array(
+                ],
+                [
                     '=> array',
                     'array(',
-                ),
+                ],
                 var_export($var, true)
             ) . ';';
+
         if ($stripNumericKeys) {
             $php = preg_replace('~^(\s+)\d+.*=> ~mi', '\\1', $php);
         }
+
         // Reindent code: replace 2 spaces -> 4 spaces.
         $php = preg_replace_callback(
             '~^\s+~m',
@@ -40,6 +39,7 @@ class CodeTool {
             },
             $php
         );
+
         if (null !== $filePath) {
             File::write($filePath, "<?php\nreturn " . $php, $options);
         }
@@ -47,7 +47,7 @@ class CodeTool {
         return $php;
     }
 
-    public static function stripComments($source) {
+    public static function stripComments(string $source): string {
         $output = '';
         foreach (token_get_all($source) as $token) {
             if (is_string($token)) {

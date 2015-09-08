@@ -45,9 +45,14 @@ class Controller extends BaseController {
     }
 
     protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
-        $response = $this->request->getResponse();
+        $request = $this->request;
+        if ($request->hasGet('redirect')) {
+            $uri = (new Uri($request->getGet('redirect')))->removeQueryArg('redirect')->__toString();
+        }
+        $response = $request->getResponse();
         $response->redirect(
-            $this->request->prependUriWithBasePath($uri),
+            $request->currentUri()
+                ->prependWithBasePath($uri),
             true,
             $httpStatusCode
         );

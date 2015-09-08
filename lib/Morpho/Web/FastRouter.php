@@ -67,7 +67,7 @@ class FastRouter extends Router {
         return $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath() . '/routes.php';
     }
 
-    public function assemble($action, $httpMethod, $controller, $module) {
+    public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null) {
         throw new NotImplementedException();
     }
 }

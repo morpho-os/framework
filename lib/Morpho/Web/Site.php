@@ -21,7 +21,7 @@ class Site {
 
     private $uploadDirPath;
 
-    private $webDirPath;
+    private $publicDirPath;
 
     const CONFIG_FILE_NAME          = 'config.php';
     const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
@@ -93,15 +93,15 @@ class Site {
         return $this->uploadDirPath;
     }
 
-    public function setWebDirPath(string $dirPath) {
-        $this->webDirPath = Path::normalize($dirPath);
+    public function setPublicDirPath(string $dirPath) {
+        $this->publicDirPath = Path::normalize($dirPath);
     }
 
-    public function getWebDirPath(): string {
-        if (null === $this->webDirPath) {
-            $this->webDirPath = WEB_DIR_PATH;
+    public function getPublicDirPath(): string {
+        if (null === $this->publicDirPath) {
+            $this->publicDirPath = PUBLIC_DIR_PATH;
         }
-        return $this->webDirPath;
+        return $this->publicDirPath;
     }
 
     public function isFallbackConfigUsed(): bool {

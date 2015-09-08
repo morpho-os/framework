@@ -60,16 +60,16 @@ class Deployer {
 
     private static function processWebDir($frameworkBaseDirPath, $baseDirPath, $io) {
         $dirPaths = Directory::listDirs(
-            $frameworkBaseDirPath . '/' . WEB_DIR_NAME . '/' . MODULE_DIR_NAME,
+            $frameworkBaseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME,
             null,
             ['recursive' => false]
         );
         foreach ($dirPaths as $sourceDirPath) {
             $moduleDirName = basename($sourceDirPath);
-            $targetDirPath = $baseDirPath . '/' . WEB_DIR_NAME . '/' . MODULE_DIR_NAME . '/' . $moduleDirName;
+            $targetDirPath = $baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME . '/' . $moduleDirName;
             if (is_dir($targetDirPath)) {
                 $io->write(
-                    "Deleting the old '" . WEB_DIR_NAME . '/' . MODULE_DIR_NAME . '/' . $moduleDirName . "' directory... ",
+                    "Deleting the old '" . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME . '/' . $moduleDirName . "' directory... ",
                     false
                 );
                 Directory::delete($targetDirPath);
@@ -88,11 +88,11 @@ class Deployer {
             MODULE_DIR_NAME . '/.htaccess',
         ];
         foreach ($filePaths as $filePath) {
-            $targetFilePath = $baseDirPath . '/' . WEB_DIR_NAME . '/' . $filePath;
+            $targetFilePath = $baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . $filePath;
             if (!is_file($targetFilePath)) {
-                $io->write("Copying the '" . WEB_DIR_NAME . '/' . $filePath . "' file... ", false);
+                $io->write("Copying the '" . PUBLIC_DIR_NAME . '/' . $filePath . "' file... ", false);
                 File::copy(
-                    $frameworkBaseDirPath . '/' . WEB_DIR_NAME . '/' . $filePath,
+                    $frameworkBaseDirPath . '/' . PUBLIC_DIR_NAME . '/' . $filePath,
                     $targetFilePath,
                     false,
                     true

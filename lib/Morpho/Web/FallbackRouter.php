@@ -3,7 +3,7 @@ namespace Morpho\Web;
 
 class FallbackRouter {
     public function route($request) {
-        $path = rtrim($request->uri()->getPath(), '/');
+        $path = rtrim($request->currentUri()->getPath(), '/');
         $parts = array_slice(array_filter(explode('/', $path)), 0, 9);
         $routes = [
             'GET' => ['check-env'],

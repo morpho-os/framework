@@ -5,7 +5,6 @@ namespace Morpho\Web;
 
 use function Morpho\Base\trimMore;
 use Morpho\Core\Request as BaseRequest;
-use Morpho\Fs\Path;
 use Zend\Validator\Hostname as HostNameValidator;
 use Zend\Http\Headers;
 
@@ -58,6 +57,10 @@ class Request extends BaseRequest {
         return $this->{'get' . $this->getMethod()}($name, $trim);
     }
 
+    public function hasPost(string $name) {
+        return isset($_POST[$name]);
+    }
+
     public function getPost($name = null, bool $trim = true) {
         if (null === $name) {
             return $trim ? trimMore($_POST) : $_POST;
@@ -75,6 +78,10 @@ class Request extends BaseRequest {
         return isset($_POST[$name])
             ? $_POST[$name]
             : null;
+    }
+
+    public function hasGet(string $name) {
+        return isset($_GET[$name]);
     }
 
     public function getGet($name = null, bool $trim = true) {
@@ -101,12 +108,6 @@ class Request extends BaseRequest {
         return false !== $header && $header->getFieldValue() == 'XMLHttpRequest';
     }
 
-    public function prependUriWithBasePath(string $uri): string {
-        return Uri::hasAuthority($uri)
-            ? $uri
-            : Path::combine($this->currentUri()->getBasePath(), $uri);
-    }
-
     /**
      * Returns URI that can be changed without changing original URI (clone).
      *
@@ -121,6 +122,13 @@ class Request extends BaseRequest {
 
     public function setCurrentUri(Uri $uri) {
         $this->uri = $uri;
+    }
+
+    public function getUriPath(): string {
+        if (null === $this->uri) {
+            $this->initUri();
+        }
+        return $this->uri->getPath();
     }
 
     public function setMethod(string $method): self {

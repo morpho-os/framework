@@ -14,6 +14,18 @@ class RequestTest extends TestCase {
         $this->assertNotSame($this->request->currentUri(), $this->request->currentUri());
     }
 
+    public function testHasGet() {
+        $this->assertFalse($this->request->hasGet('some'));
+        $_GET['some'] = 'ok';
+        $this->assertTrue($this->request->hasGet('some'));
+    }
+
+    public function hasPost() {
+        $this->assertFalse($this->request->hasPost('some'));
+        $_POST['some'] = 'ok';
+        $this->assertTrue($this->request->hasPost('some'));
+    }
+
     public function testCurrentUri_HasValidComponents() {
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
         $_SERVER['HTTP_HOST'] = 'blog.example.com:8042';

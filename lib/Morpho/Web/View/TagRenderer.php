@@ -35,7 +35,7 @@ class TagRenderer {
         return self::render($tagName, $attributes, null, $options);
     }
 
-    public static function render($tagName, array $attributes = null, $text = null, array $options = []) {
+    public static function render($tagName, array $attributes = null, $text = null, array $options = null) {
         $options = ArrayTool::handleOptions(
             [
                 'escapeText' => true,
@@ -43,7 +43,7 @@ class TagRenderer {
                 'isXml' => null,
                 'eol' => true,
             ],
-            $options
+            (array) $options
         );
         $output = self::openTag($tagName, (array)$attributes, $options['isXml']);
         if (!$options['isSingle']) {

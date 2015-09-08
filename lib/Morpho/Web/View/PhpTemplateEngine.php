@@ -3,7 +3,7 @@ namespace Morpho\Web\View;
 
 use function Morpho\Base\{htmlId, camelize};
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Di\IServiceManagerAware;use Morpho\Web\Uri;
 
 class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected $serviceManager;
@@ -27,9 +27,18 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         );
     }
 
-    public function link(string $uri, string $text, array $attributes = []): string {
-        $attributes['href'] = $this->serviceManager->get('request')->prependUriWithBasePath($uri);
-        return TagRenderer::render('a', $attributes, $text);
+    public function uriWithRedirectToSelf($uri): string {
+        $currentUri = $this->currentUri();
+        $relativeRef = $currentUri->relativeRef();
+        return $currentUri->parse($currentUri->prependWithBasePath($uri))
+            ->appendQueryArgs(['redirect' => $relativeRef])
+            ->__toString();
+    }
+
+    public function link(string $uri, string $text, array $attributes = [], array $options = null): string {
+        $attributes['href'] = $this->currentUri()
+            ->prependWithBasePath($uri);
+        return TagRenderer::render('a', $attributes, $text, $options);
     }
 
     public function copyright($brand, $startYear = null) {
@@ -64,5 +73,11 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;
+    }
+
+    protected function currentUri(): Uri {
+        return $this->serviceManager
+            ->get('request')
+            ->currentUri();
     }
 }

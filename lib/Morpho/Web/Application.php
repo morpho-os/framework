@@ -15,7 +15,7 @@ class Application extends BaseApplication {
             'siteManager' => $siteManager,
         ];
         if (isset($siteConfig['serviceManager'])) {
-            $serviceManager = $siteConfig['serviceManager']($siteConfig, $services);
+            $serviceManager = new $siteConfig['serviceManager']($siteConfig, $services);
         } else {
             $serviceManager = new ServiceManager($siteConfig, $services);
         }
@@ -27,7 +27,7 @@ class Application extends BaseApplication {
         $isDevMode = $this->isDevMode();
         $showFailure = function ($e) use ($isDevMode) {
             if ($isDevMode) {
-                echo htmlspecialchars((string) $e, ENT_QUOTES);
+                echo '<pre>' . htmlspecialchars((string) $e, ENT_QUOTES) . '</pre>';
             }
         };
         $showFailure($e);

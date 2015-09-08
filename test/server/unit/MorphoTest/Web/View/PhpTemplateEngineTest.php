@@ -21,6 +21,7 @@ class PhpTemplateEngineTest extends TestCase {
         $request->setCurrentUri((new Uri())->setBasePath('/base/path'));
         $serviceManager = new ServiceManager(null, ['request' => $request]);
         $this->engine->attach(new HtmlParser($serviceManager));
+        $this->engine->setServiceManager($serviceManager);
         $this->engine->setCacheDirPath($this->getTmpDirPath());
         $this->engine->useCache(false);
         $this->setDefaultTimezone();
@@ -39,6 +40,10 @@ class PhpTemplateEngineTest extends TestCase {
         $path = $this->getTestDirPath() . '/non-existing.phtml';
         $this->setExpectedException('\RuntimeException', 'The file \'' . $path . '\' was not found.');
         $this->engine->renderFile($path);
+    }
+
+    public function testLink_FullUriWithAttributes() {
+        $this->assertEquals('<a foo="bar" href="http://example.com/base/path/some/path?arg=val">Link text</a>', $this->engine->link('http://example.com/base/path/some/path?arg=val', 'Link text', ['foo' => 'bar'], ['eol' => false]));
     }
 
     public function testCopyright() {

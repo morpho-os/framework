@@ -47,11 +47,11 @@ class SiteTest extends TestCase {
         $this->assertEquals($newDirPath, $this->site->$getter());
     }
 
-    public function testWebDirPathAccessors() {
-        $this->assertEquals(WEB_DIR_PATH, $this->site->getWebDirPath());
-        $newWebDirPath = '/new/web/dir';
-        $this->site->setWebDirPath($newWebDirPath);
-        $this->assertEquals($newWebDirPath, $this->site->getWebDirPath());
+    public function testPublicDirPathAccessors() {
+        $this->assertEquals(PUBLIC_DIR_PATH, $this->site->getPublicDirPath());
+        $newPublicDirPath = '/new/public/dir';
+        $this->site->setPublicDirPath($newPublicDirPath);
+        $this->assertEquals($newPublicDirPath, $this->site->getPublicDirPath());
     }
 
     public function testDirPathAccessors() {
