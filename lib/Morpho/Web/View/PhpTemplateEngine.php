@@ -3,7 +3,8 @@ namespace Morpho\Web\View;
 
 use function Morpho\Base\{htmlId, camelize};
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;use Morpho\Web\Uri;
+use Morpho\Di\IServiceManagerAware;
+use Morpho\Web\Uri;
 
 class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected $serviceManager;

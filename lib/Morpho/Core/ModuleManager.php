@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Morpho\Core;
 
-use Morpho\Base\{NotImplementedException, Node as BaseNode};
+use Morpho\Base\{NotImplementedException, Node as BaseNode, IEventManager};
 use Morpho\Db\Db;
 
-abstract class ModuleManager extends Node {
+abstract class ModuleManager extends Node implements IEventManager {
     const ENABLED     = 0x1;  // 001 (installed enabled)
     const DISABLED    = 0x2;  // 010 (installed disabled)
     const UNINSTALLED = 0x4;  // 100 (uninstalled (not installed))
@@ -70,9 +70,9 @@ abstract class ModuleManager extends Node {
         } while (false === $request->isDispatched());
     }
 
-    public function on(string $event, callable $handler) {
+    public function on(string $eventName, callable $handler) {
         $this->initEventHandlers();
-        $this->eventHandlers[$event][] = $handler;
+        $this->eventHandlers[$eventName][] = $handler;
     }
 
     public function trigger(string $eventName, array $args = null) {

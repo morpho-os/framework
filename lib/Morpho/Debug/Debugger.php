@@ -20,7 +20,7 @@ class Debugger {
 
     private static $class;
 
-    public function dumpType($obj) {
+    public function type($obj) {
         $this->dump(is_object($obj) ? get_class($obj) : gettype($obj));
     }
 

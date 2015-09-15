@@ -47,4 +47,97 @@ class Module extends BaseModule {
             throw $exception;
         }
     }
+
+    public static function getTableDefinitions(): array {
+        return [
+            /*
+            'file' => [
+                'columns' => [
+                    'id' => [
+                        'type' => 'pk',
+                    ],
+                    'path' => [
+                        'type' => 'varchar',
+                    ],
+                    'type' => [
+                        'type' => 'varchar',
+                        'length' => 10,
+                    ],
+                ],
+                'indexes' => [
+                    'path',
+                    'type',
+                ],
+            ],
+            */
+            'module' => [
+                'columns' => [
+                    'id' => [
+                        'type' => 'pk'
+                    ],
+                    'name' => [
+                        'type' => 'varchar',
+                    ],
+                    'status' => [
+                        'type' => 'int',
+                    ],
+                    'weight' => [
+                        'type' => 'int',
+                    ],
+                ],
+                'indexes' => [
+                    'name',
+                ],
+            ],
+            //'controller' =>
+            'event' => [
+                'columns' => [
+                    'name' => [
+                        'type' => 'varchar',
+                    ],
+                    'priority' => [
+                        'type' => 'integer',
+                    ],
+                    'method' => [
+                        'type' => 'varchar',
+                    ],
+                    'moduleId' => [
+                        'type' => 'integer',
+                        'unsigned' => true,
+                    ],
+                ],
+                'fks' => [
+                    [
+                        'childColumn' => 'moduleId',
+                        'parentTable' => 'module',
+                        'parentColumn' => 'id',
+                    ],
+                ],
+            ],
+            'setting' => [
+                'columns' => [
+                    'id' => [
+                        'type' => 'pk',
+                    ],
+                    'name' => [
+                        'type' => 'varchar',
+                    ],
+                    'value' => [
+                        'type' => 'text',
+                    ],
+                    'moduleId' => [
+                        'type' => 'int',
+                        'unsigned' => 'true',
+                    ],
+                ],
+                'fks' => [
+                    [
+                        'childColumn' => 'moduleId',
+                        'parentTable' => 'module',
+                        'parentColumn' => 'id',
+                    ]
+                ],
+            ],
+        ];
+    }
 }

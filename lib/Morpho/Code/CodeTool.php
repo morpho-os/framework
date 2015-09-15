@@ -12,7 +12,7 @@ class CodeTool {
     }
 
     public static function varToPhp($var, string $filePath = null, bool $stripNumericKeys = true, array $options = null): string {
-        $options = ArrayTool::handleOptions(['mode' => 0600], (array) $options);
+        $options = ArrayTool::handleOptions((array) $options, ['mode' => 0600]);
 
         $php = preg_replace(
                 [

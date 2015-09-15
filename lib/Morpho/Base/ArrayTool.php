@@ -111,7 +111,7 @@ class ArrayTool {
         return $result;
     }
 
-    public static function handleOptions(array $defaultOptions, array $options = null): array {
+    public static function handleOptions(array $options, array $defaultOptions): array {
         if (null === $options || count($options) === 0) {
             return $defaultOptions;
         }

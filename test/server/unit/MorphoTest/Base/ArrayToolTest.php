@@ -292,18 +292,18 @@ class ArrayToolTest extends TestCase {
         return [
             [
                 ['foo' => 'my-default'],
-                ['foo' => 'my-default'],
                 [],
+                ['foo' => 'my-default'],
             ],
             [
                 ['foo' => 'my-option'],
-                ['foo' => 'my-default'],
                 ['foo' => 'my-option'],
+                ['foo' => 'my-default'],
             ],
             [
                 ['foo' => 'my-option'],
-                ['foo' => 'my-default'],
                 ['foo' => 'my-option'],
+                ['foo' => 'my-default'],
             ],
         ];
     }
@@ -311,19 +311,19 @@ class ArrayToolTest extends TestCase {
     /**
      * @dataProvider dataForHandleOptions
      */
-    public function testHandleOptions($expected, $defaultOptions, $options) {
+    public function testHandleOptions($expected, $options, $defaultOptions) {
         $this->assertEquals(
             $expected,
             ArrayTool::handleOptions(
-                $defaultOptions,
-                $options
+                $options,
+                $defaultOptions
             )
         );
     }
 
     public function testHandleOptionsThrowsExceptionWhenDefaultOptionsAreMissing() {
         $this->setExpectedException('\RuntimeException', "Not allowed items are present: foo");
-        ArrayTool::handleOptions(['one' => 1], ['foo' => 'bar']);
+        ArrayTool::handleOptions(['foo' => 'bar'], ['one' => 1]);
     }
 
     public function testUnsetRecursive() {

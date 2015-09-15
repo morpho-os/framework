@@ -12,6 +12,7 @@ class File extends Entry {
         }
 
         $options = ArrayTool::handleOptions(
+            $options,
             [
                 'lock' => false,
                 'offset' => -1,
@@ -20,8 +21,7 @@ class File extends Entry {
                 'context' => null,
                 'binary' => true,
                 'handleBom' => true
-            ],
-            $options
+            ]
         );
 
         $content = @file_get_contents($filePath, $options['useIncludePath']);
@@ -50,7 +50,7 @@ class File extends Entry {
      * Shortcut for the write() method that appends $content to the file.
      */
     public static function append(string $filePath, string $content, array $options) {
-        $options = ArrayTool::handleOptions(['append' => true], $options);
+        $options = ArrayTool::handleOptions($options, ['append' => true]);
         self::write($filePath, $content, $options);
     }
 
@@ -60,6 +60,7 @@ class File extends Entry {
         }
 
         $options = ArrayTool::handleOptions(
+            $options,
             [
                 'useIncludePath' => false,
                 'lock' => true,
@@ -67,8 +68,7 @@ class File extends Entry {
                 'context' => null,
                 'mode' => 0644,
                 'dirMode' => 0755,
-            ],
-            $options
+            ]
         );
 
         Directory::create(dirname($filePath), $options['dirMode']);
