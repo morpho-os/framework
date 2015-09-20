@@ -4,11 +4,14 @@ namespace MorphoTest\Web;
 use Morpho\Test\TestCase;
 use Morpho\Web\SiteManager;
 use Morpho\Web\Site;
-use Morpho\Validator\TrueValidator;
 
 class SiteManagerTest extends TestCase {
     public function setUp() {
-        $this->siteManager = new SiteManager(['exitOnInvalidSite' => false]);
+        $this->siteManager = new class() extends SiteManager {
+            protected function exit(string $message) {
+                $this->exitMessage = $message;
+            }
+        };
         $this->siteManager->setAllSitesDirPath($this->getTestDirPath());
         $this->siteManager->useMultiSiting(true);
     }
@@ -19,21 +22,15 @@ class SiteManagerTest extends TestCase {
         $this->assertSame($site, $this->siteManager->getCurrentSite());
     }
 
-    public function testSetSite_SiteNameValidation_ValidSiteName() {
-        $this->siteManager->setSiteNameValidator(new TrueValidator());
-        $site = new Site(['name' => 'foo']);
-        $this->siteManager->setSite($site);
-    }
-
     public function testSetSite_SiteNameValidation_ThrowsExceptionForEmptySiteName() {
         $site = new Site(['name' => '']);
-        $this->setExpectedException('\RuntimeException', "Invalid site name '' was provided.");
         $this->siteManager->setSite($site);
+        $this->assertEquals("Invalid site name '' was provided.", $this->siteManager->exitMessage);
     }
 
     public function testGetSite_ThrowsExceptionForNonExistingSiteName() {
-        $this->setExpectedException('\RuntimeException', "Invalid site name 'nonexistent' was provided.");
         $this->siteManager->getSite('nonexistent');
+        $this->assertEquals("Invalid site name 'nonexistent' was provided.", $this->siteManager->exitMessage);
     }
 
     public function dataForGetCurrentSite_ExistingSite() {
@@ -79,6 +76,6 @@ class SiteManagerTest extends TestCase {
 
     public function testReturnsDefaultSiteWhenMultiSitingDisabled() {
         $this->siteManager->useMultiSiting(false);
-        $this->assertEquals(SiteManager::DEFAULT_SITE, $this->siteManager->getCurrentSiteName());
+        $this->assertEquals('my-default', $this->siteManager->getCurrentSiteName());
     }
 }

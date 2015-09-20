@@ -10,6 +10,32 @@ class DbTest extends DbTestCase {
         $this->db->deleteAllTables();
     }
 
+    public function testLastInsertId_ForNonAutoincrementCol() {
+        $this->db->createTable('foo', [
+            'columns' => [
+                'some' => [
+                    'type' => 'varchar'
+                ]
+            ]
+        ]);
+        $this->db->insertRow('foo', ['some' => 'test']);
+        $this->assertEquals('0', $this->db->lastInsertId());
+        $this->assertEquals('0', $this->db->lastInsertId('some'));
+    }
+
+    public function testLastInsertId_ForAutoincrementCol() {
+        $this->db->createTable('foo', [
+            'columns' => [
+                'some' => [
+                    'type' => 'pk'
+                ]
+            ]
+        ]);
+        $this->db->insertRow('foo', ['some' => '']);
+        $this->assertEquals('1', $this->db->lastInsertId());
+        $this->assertEquals('1', $this->db->lastInsertId('some'));
+    }
+
     public function testSqlReturnsUniqueInstance() {
         $sql1 = $this->db->sqlQuery();
         $this->assertInstanceOf('Morpho\Db\SqlQuery', $sql1);

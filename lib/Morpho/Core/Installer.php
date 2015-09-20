@@ -8,7 +8,7 @@ use Composer\Script\CommandEvent;
 
 require_once __DIR__ . '/../Core/autoload.php';
 
-class Deployer {
+class Installer {
     public static function postInstall(CommandEvent $event) {
         self::initDirectories($event);
     }

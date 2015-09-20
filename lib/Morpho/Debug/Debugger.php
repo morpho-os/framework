@@ -12,7 +12,7 @@ use Morpho\Base\NotImplementedException;
  *     xdebug.var_display_max_depth=-1
  */
 class Debugger {
-    protected $skippedFrames = array();
+    protected $ignoredFrames = array();
 
     protected $isHtmlMode;
 
@@ -93,7 +93,10 @@ class Debugger {
         echo $output;
     }
 
-    public function varExport($var, $stripNumericKeys = true) {
+    /**
+     * Improved version of the var_export
+     */
+    public function varExport($var, bool $return = false, bool $stripNumericKeys = true) {
         $php = preg_replace(
                 [
                     '~=>\s+array~si',
@@ -118,15 +121,20 @@ class Debugger {
             $php
         );
 
-        $output = $this->formatLine($php);
-        $output .= $this->calledAt();
+        $output = $this->formatLine($php)
+            . $this->calledAt();
+
         if ($this->isHtmlMode()) {
             $output = $this->formatHtml($output);
         }
-        exit($output);
+
+        if ($return) {
+            return $output;
+        }
+        echo $output;
     }
 
-    public function dumpToFile($filePath, ...$args) {
+    public function logToFile($filePath, ...$args) {
         $oldHtmlMode = $this->isHtmlMode;
         $this->isHtmlMode(false);
         ob_start();
@@ -141,7 +149,7 @@ class Debugger {
         return $result !== false;
     }
 
-    public function varToString($var, $fix = true) {
+    public function varToString($var, $fix = true): string {
         ob_start();
         var_dump($var);
         $output = trim(ob_get_clean());
@@ -152,11 +160,11 @@ class Debugger {
         return $this->formatLine($output);
     }
 
-    public function traceToString() {
+    public function traceToString(): string {
         return $this->formatLine(new Trace());
     }
 
-    public function calledAt() {
+    public function calledAt(): string {
         $frame = $this->findCallerFrame();
         return $this->formatLine("Debugger called at [{$frame['filePath']}:{$frame['line']}]");
     }
@@ -202,9 +210,8 @@ class Debugger {
 
     /**
      * @param bool|null $flag
-     * @return bool
      */
-    public function isHtmlMode($flag = null) {
+    public function isHtmlMode($flag = null): bool {
         if (null !== $flag) {
             $this->isHtmlMode = $flag;
         } elseif (null === $this->isHtmlMode) {
@@ -219,8 +226,8 @@ class Debugger {
         return $this->isHtmlMode;
     }
 
-    public function skipCaller($filePath, $lineNumber = null) {
-        $this->skippedFrames[] = array('filePath' => $filePath, 'line' => $lineNumber);
+    public function ignoreCaller(string $filePath, int $lineNumber = null): self {
+        $this->ignoredFrames[] = array('filePath' => $filePath, 'line' => $lineNumber);
 
         return $this;
     }
@@ -251,11 +258,11 @@ class Debugger {
     }
 
     protected function findCallerFrame() {
-        // @TODO: Move isSkippedFrame to Trace::skipFrame(), then call Trace::toArray()
+        // @TODO: Move isIgnoredFrame to Trace::ignoreFrame(), then call Trace::toArray()
         $trace = (new Trace())->toArray();
         do {
             $frame = array_shift($trace);
-        } while ($frame && (!isset($frame['line']) || $this->isSkippedFrame($frame)));
+        } while ($frame && (!isset($frame['line']) || $this->isIgnoredFrame($frame)));
 
         return $frame;
     }
@@ -266,10 +273,10 @@ class Debugger {
      * @param Frame $frame
      * @return bool
      */
-    protected function isSkippedFrame(Frame $frame) {
-        foreach ($this->skippedFrames as $frameToSkip) {
-            if ($frame['filePath'] == $frameToSkip['filePath']
-                && (is_null($frameToSkip['line']) || $frame['line'] == $frameToSkip['line'])
+    protected function isIgnoredFrame(Frame $frame) {
+        foreach ($this->ignoredFrames as $frameToIgnore) {
+            if ($frame['filePath'] == $frameToIgnore['filePath']
+                && (is_null($frameToIgnore['line']) || $frame['line'] == $frameToIgnore['line'])
             ) {
                 return true;
             }
@@ -330,10 +337,7 @@ OUT;
         return $output;
     }
 
-    /**
-     * @return bool
-     */
-    protected function isPhpFormatEnabled() {
+    protected function isPhpFormatEnabled(): bool {
         return ini_get('html_errors')
         && ini_get('xdebug.default_enable')
         && ini_get('xdebug.overload_var_dump');
@@ -342,6 +346,7 @@ OUT;
     protected function errorHandler($level, $message, $filePath, $line, $context) {
         if ($level & error_reporting()) {
             try {
+                // @TODO: Sync with PHP 7.
                 $types = array(
                     E_ERROR => 'Error',
                     E_WARNING => 'Warning',

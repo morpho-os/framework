@@ -12,14 +12,14 @@ require_once __DIR__ . '/Debugger.php';
 function d(...$args) {
     $debugger = Debugger::getInstance();
     return count($args)
-        ? $debugger->skipCaller(__FILE__, __LINE__)->dump(...$args)
+        ? $debugger->ignoreCaller(__FILE__, __LINE__)->dump(...$args)
         : $debugger;
 }
 
 function dd() {
-    exit(Debugger::getInstance()->skipCaller(__FILE__)->dump());
+    exit(Debugger::getInstance()->ignoreCaller(__FILE__)->dump());
 }
 
 function dt() {
-    exit(Debugger::getInstance()->skipCaller(__FILE__)->trace());
+    exit(Debugger::getInstance()->ignoreCaller(__FILE__)->trace());
 }

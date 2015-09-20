@@ -36,8 +36,8 @@ abstract class Application {
             $request->getResponse()->send();
 
             return true;
-        } catch (\Exception $e) {
-            return $this->handleException($e, $serviceManager ?? null);
+        } catch (\Throwable $e) {
+            return $this->handleFailure($e, $serviceManager ?? null);
         }
     }
 
@@ -48,7 +48,7 @@ abstract class Application {
      *
      * @return mixed
      */
-    abstract protected function handleException(\Exception $e, IServiceManager $serviceManager = null);
+    abstract protected function handleFailure(\Throwable $e, IServiceManager $serviceManager = null);
 
     /**
      * Returns result optionally applying some transformations. By default does't apply any transformation and

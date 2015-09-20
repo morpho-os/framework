@@ -8,10 +8,10 @@ use Morpho\Base\NotImplementedException;
 use function Morpho\Base\some;
 
 class Db {
-    private $db;
+    private $conn;
 
     public function __construct($configOrConnection) {
-        $this->db = $db = $configOrConnection instanceof \PDO
+        $this->conn = $db = $configOrConnection instanceof \PDO
             ? $configOrConnection
             : static::createConnection($configOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -32,7 +32,7 @@ class Db {
     public function sqlQuery() {
         return new SqlQuery();
     }
-
+    
     public function selectRows(string $sql, array $args = []): array {
         return $this->fetchRows('SELECT ' . $sql, $args);
     }
@@ -96,6 +96,10 @@ class Db {
         $sql .= implode(', ', $this->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $this->positionalPlaceholders($row)) . ')';
         $this->query($sql, array_values($row));
     }
+    
+    public function lastInsertId($seqName = null): string {
+        return $this->conn->lastInsertId($seqName);
+    }
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
         if (is_array($whereCondition) && count($whereCondition)) {
@@ -132,20 +136,20 @@ class Db {
 
     public function query(string $sql, array $args = null): \PDOStatement {
         if ($args) {
-            $stmt = $this->db->prepare($sql);
+            $stmt = $this->conn->prepare($sql);
             $stmt->execute($args);
             return $stmt;
         }
-        return $this->db->query($sql);
+        return $this->conn->query($sql);
     }
 
     public function transaction(callable $transaction) {
-        $this->db->beginTransaction();
+        $this->conn->beginTransaction();
         try {
             $result = $transaction($this);
-            $this->db->commit();
+            $this->conn->commit();
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->conn->rollBack();
             throw $e;
         }
         return $result;

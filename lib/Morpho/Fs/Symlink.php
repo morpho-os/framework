@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Fs;
 
-class Symlink {
+class Symlink extends Entry {
     public static function create($linkPath, $targetPath) {
         Directory::create(dirname($linkPath));
         if (!@symlink($targetPath, $linkPath)) {

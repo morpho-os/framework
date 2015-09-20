@@ -1,13 +1,10 @@
 <?php
 namespace Morpho\Web;
 
-use Morpho\Code\CodeTool;
 use Morpho\Di\{IServiceManager, IServiceManagerAware};
 use Morpho\Fs\Directory;
 use Morpho\Fs\Path;
 use Morpho\Base\Object;
-use Zend\Validator\ValidatorInterface as IValidator;
-use Morpho\Base\ArrayTool;
 
 class SiteManager extends Object implements IServiceManagerAware {
     protected $currentSiteName;
@@ -16,11 +13,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     protected $sites = [];
 
-    protected $siteNameValidator;
-
-    protected $exitOnInvalidSite = true;
-
-    protected $useMultiSiting = false;
+    protected $useMultiSiting;
 
     protected $serviceManager;
 
@@ -28,16 +21,19 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     private $siteNames;
 
-    const DEFAULT_SITE = 'default';
-    const SITE_NAMES_FILE_NAME = 'site-names.php';
+    private $config;
+
+    const CONFIG_FILE_NAME = 'config.php';
 
     /**
      * @param null|bool $flag
-     * @return bool Returns current value of multi-siting.
      */
     public function useMultiSiting($flag = null): bool {
         if (null !== $flag) {
             $this->useMultiSiting = $flag;
+        }
+        if (null === $this->useMultiSiting) {
+            $this->useMultiSiting = (bool) $this->getConfig()['useMultiSiting'];
         }
         return $this->useMultiSiting;
     }
@@ -104,16 +100,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->allSitesDirPath;
     }
 
-    public function setSiteNameValidator(IValidator $validator) {
-        $this->siteNameValidator = $validator;
-
-        return $this;
-    }
-
     public function isValidSiteName($siteName) {
-        if (null !== $this->siteNameValidator) {
-            return $this->siteNameValidator->isValid($siteName);
-        }
         return in_array($siteName, $this->listSiteNames(), true);
     }
 
@@ -141,21 +128,18 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     protected function checkSiteName($siteName) {
         if (!$this->isValidSiteName($siteName)) {
-            $this->doExit("Invalid site name '$siteName' was provided.");
+            $this->exit("Invalid site name '$siteName' was provided.");
         }
     }
 
-    protected function doExit($message) {
-        if (!$this->exitOnInvalidSite) {
-            throw new \RuntimeException($message);
-        }
+    protected function exit(string $message) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
         exit("<h2>Bad request (400).</h2>");
     }
 
     protected function discoverCurrentSiteName() {
-        if (!$this->useMultiSiting) {
-            return self::DEFAULT_SITE;
+        if (!$this->useMultiSiting()) {
+            return $this->getConfig()['defaultSite'];
         }
         $siteName = null;
         if (!empty($_SERVER['HTTP_HOST'])) {
@@ -166,19 +150,19 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $siteName;
     }
 
+    protected function getConfig() {
+        if (null === $this->config) {
+            $this->config = require $this->getAllSitesDirPath() . '/' . self::CONFIG_FILE_NAME;
+        }
+        return $this->config;
+    }
+
     protected function listSiteNames(): array {
         if (!$this->siteNames) {
-            $allSitesDirPath = $this->getAllSitesDirPath();
-            $cacheFilePath = $allSitesDirPath . '/' . self::SITE_NAMES_FILE_NAME;
-            if (file_exists($cacheFilePath)) {
-                $this->siteNames = require $cacheFilePath;
-            } else {
-                $this->siteNames = $siteNames = array_map(
-                    'basename',
-                    Directory::listDirs($allSitesDirPath, null, ['recursive' => false])
-                );
-                CodeTool::varToPhp($siteNames, $cacheFilePath, true, ['mode' => 0400]);
-            }
+            $this->siteNames = $this->getConfig()['sites'] ?? array_map(
+                'basename',
+                Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])
+            );
         }
         return $this->siteNames;
     }

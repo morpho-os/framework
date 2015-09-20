@@ -61,43 +61,53 @@
 </div>
 <script>
 $(function () {
-    'use strict';
+    //'use strict';
+    var __extends = (this && this.__extends) || function (d, b) {
+            for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    (function (System) {
+        var Install;
+        (function (Install) {
+            var InstallForm = (function (_super) {
+                __extends(InstallForm, _super);
+                function InstallForm() {
+                    _super.apply(this, arguments);
+                }
+                InstallForm.prototype.registerEventHandlers = function () {
+                    var _this = this;
+                    _super.prototype.registerEventHandlers.call(this);
+                    this.getDbNameEl().on('keyup change blur', function () {
+                        _this.setTargetDbElText(_this.getDbName());
+                    });
+                };
+                InstallForm.prototype.getDbNameEl = function () {
+                    return this.el.find('#db');
+                };
+                InstallForm.prototype.getDbName = function () {
+                    return this.getDbNameEl().val();
+                };
+                InstallForm.prototype.setTargetDbElText = function (text) {
+                    this.getTargetDbEl().text(text);
+                };
+                InstallForm.prototype.getTargetDbEl = function () {
+                    return this.el.find('#target-db');
+                };
+                InstallForm.prototype.handleSuccessfulResponse = function (responseData) {
+                    if (!responseData.redirect) {
+                        alert('Invalid response was received');
+                    }
+                    else {
+                        System.redirectToHome();
+                    }
+                };
+                return InstallForm;
+            })(System.Form);
+            Install.InstallForm = InstallForm;
+        })(Install = System.Install || (System.Install = {}));
+    })(System || (System = {}));
 
-    var InstallForm = (function (_super) {
-        __extends(InstallForm, _super);
-        function InstallForm() {
-            _super.apply(this, arguments);
-        }
-        InstallForm.prototype._registerEventHandlers = function () {
-            var _this = this;
-            _super.prototype._registerEventHandlers.call(this);
-            this._getDbNameEl().on('keyup change blur', function () {
-                _this._setTargetDbElText(_this._getDbName());
-            });
-        };
-        InstallForm.prototype._getDbNameEl = function () {
-            return this._el.find('#db');
-        };
-        InstallForm.prototype._getDbName = function () {
-            return this._getDbNameEl().val();
-        };
-        InstallForm.prototype._setTargetDbElText = function (text) {
-            this._getTargetDbEl().text(text);
-        };
-        InstallForm.prototype._getTargetDbEl = function () {
-            return this._el.find('#target-db');
-        };
-        InstallForm.prototype._handleSuccessfulResponse = function (responseData) {
-            if (!responseData.redirect) {
-                alert('Invalid response was received');
-            }
-            else {
-                redirectToHome();
-            }
-        };
-        return InstallForm;
-    })(Form);
-
-    var form = new InstallForm('#install-form');
+    var form = new System.Install.InstallForm('#install-form');
 });
 </script>

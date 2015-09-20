@@ -22,23 +22,27 @@ class Application extends BaseApplication {
         return $serviceManager;
     }
 
-    protected function handleException(\Exception $e, IServiceManager $serviceManager = null) {
+    protected function handleFailure(\Throwable $e, IServiceManager $serviceManager = null) {
         while (@ob_end_flush());
+
         $isDevMode = $this->isDevMode();
+
         $showFailure = function ($e) use ($isDevMode) {
             if ($isDevMode) {
                 echo '<pre>' . htmlspecialchars((string) $e, ENT_QUOTES) . '</pre>';
             }
         };
+
         $showFailure($e);
+
         try {
-            $this->logException($e, $serviceManager, $isDevMode);
-        } catch (\Exception $e) {
+            $this->logFailure($e, $serviceManager, $isDevMode);
+        } catch (\Throwable $e) {
             $showFailure($e);
         }
     }
 
-    protected function logException(\Exception $e, IServiceManager $serviceManager = null, bool $isDevMode) {
+    protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null, bool $isDevMode) {
         // @TODO
     }
 
