@@ -14,7 +14,7 @@ class ExceptionHandler implements IExceptionHandler {
             throw new \LogicException();
         }
         foreach ($listeners as $listener) {
-            $this->listeners[] = $listener;
+            $this->attachListener($listener);
         }
     }
 
@@ -39,7 +39,11 @@ class ExceptionHandler implements IExceptionHandler {
         }
     }
 
-    public function attach($handler) {
-        $this->listeners[] = $handler;
+    public function attachListener(IExceptionEventListener $handler, $prepend = false) {
+        if ($prepend) {
+            array_unshift($this->listeners, $handler);
+        } else {
+            $this->listeners[] = $handler;
+        }
     }
 }

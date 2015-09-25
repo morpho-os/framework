@@ -3,6 +3,8 @@ namespace MorphoTest\Error;
 
 use Morpho\Error\HandlerManager;
 
+require_once __DIR__ . '/BaseErrorHandlerTest.php';
+
 class HandlerManagerTest extends BaseErrorHandlerTest {
     public function testIsRegistered() {
         $callback = array($this, 'myHandler');
@@ -14,7 +16,7 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         }
     }
 
-    public function testGetAllDontChangesCurrentHandlers() {
+    public function testGetAllDoesNotChangeCurrentHandlers() {
         $this->assertEquals(1, count(HandlerManager::getAll('error')));
         $this->assertEquals(0, count(HandlerManager::getAll('exception')));
         $this->assertEquals(1, count(HandlerManager::getAll('error')));
@@ -49,9 +51,9 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         $this->assertEquals($this->prevErrorHandler, HandlerManager::getCurrent(HandlerManager::ERROR));
     }
 
-    public function testAllMethodsThrowsExceptionIfInvalidHandlerTypeProvided() {
+    public function testThrowsExceptionIfInvalidHandlerTypeProvided() {
         $class = '\Morpho\Error\HandlerManager';
-        $methods = get_class_methods($class);
+        $methods = array_diff(get_class_methods($class), ['getAllExceptionHandlers', 'getAllErrorHandlers']);
         $callback = array($this, 'myHandler');
         foreach ($methods as $method) {
             try {

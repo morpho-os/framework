@@ -47,25 +47,24 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     public function handleError($severity, $message, $filePath, $line, $context) {
         if ($severity & error_reporting()) {
-            $exception = ErrorTool::errorToException($severity, $message, $filePath, $line, $context);
-            throw $exception;
+            throw self::errorToException($severity, $message, $filePath, $line, $context);
         }
     }
 
+    /**
+     * @TODO: Can it be deleted?
+     */
     public function handleFatalError() {
         $error = error_get_last();
         if ($this->fatalErrorHandlerActive
             && $error
-            && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_PARSE])
-        ) {
-            d($error);
-            /*
-            //$exception = new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
-            //$this->handleException($exception);
+            && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+            $this->handleException(
+                self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null)
+            );
             if ($this->exitOnFatalError) {
                 exit();
             }
-            */
         }
     }
 
@@ -89,5 +88,33 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
             $this->exitOnFatalError = (bool)$flag;
         }
         return $this->exitOnFatalError;
+    }
+
+    public static function errorToException($severity, $message, $filePath, $line, $context) {
+        $class = self::getExceptionClass($severity);
+        return new $class($message, 0, $severity, $filePath, $line);
+    }
+
+    private static function getExceptionClass($severity) {
+        $levels = array(
+            E_ERROR => 'ErrorException',
+            E_WARNING => 'WarningException',
+            E_PARSE => 'ParseException',
+            E_NOTICE => 'NoticeException',
+            E_CORE_ERROR => 'CoreErrorException',
+            E_CORE_WARNING => 'CoreWarningException',
+            E_COMPILE_ERROR => 'CompileErrorException',
+            E_COMPILE_WARNING => 'CompileWarningException',
+            E_USER_ERROR => 'UserErrorException',
+            E_USER_WARNING => 'UserWarningException',
+            E_USER_NOTICE => 'UserNoticeException',
+            E_STRICT => 'StrictException',
+            E_RECOVERABLE_ERROR => 'RecoverableErrorException',
+            E_DEPRECATED => 'DeprecatedException',
+            E_USER_DEPRECATED => 'UserDeprecatedException',
+        );
+        $class = __NAMESPACE__ . '\\' . $levels[$severity];
+
+        return $class;
     }
 }

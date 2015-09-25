@@ -4,6 +4,7 @@ namespace MorphoTest\Error;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\HandlerManager;
 use Morpho\Error\ExceptionEvent;
+use Morpho\Error\IExceptionEventListener;
 
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
@@ -55,30 +56,122 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->assertBoolAccessor([$this->createErrorHandler(false), 'exitOnFatalError'], true);
     }
 
-    public function testHandleErrorConvertsErrorToException() {
+    public function dataForTestHandleError_ConvertsErrorToException() {
+        return [
+            [
+                E_USER_ERROR,
+                'UserErrorException'
+            ],
+            [
+                E_USER_WARNING,
+                'UserWarningException',
+            ],
+            [
+                E_USER_NOTICE,
+                'UserNoticeException',
+            ],
+            [
+                E_USER_DEPRECATED,
+                'UserDeprecatedException',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForTestHandleError_ConvertsErrorToException
+     */
+    public function testHandleError_ConvertsErrorToException($severity, $expectedErrorClass) {
         $errorHandler = $this->createErrorHandler();
         $errorHandler->register();
 
         try {
-            trigger_error("My message", E_USER_WARNING);
+            trigger_error("My message", $severity);
             $this->fail();
-        } catch (\Morpho\Error\UserWarningException $ex) {
+        } catch (\ErrorException $ex) {
+            $this->assertInstanceOf('Morpho\\Error\\' . $expectedErrorClass, $ex);
         }
-        $this->assertEquals(__LINE__ - 4, $ex->getLine());
+        $this->assertEquals(__LINE__ - 5, $ex->getLine());
         $this->assertEquals("My message", $ex->getMessage());
         $this->assertEquals(__FILE__, $ex->getFile());
-        $this->assertEquals(E_USER_WARNING, $ex->getSeverity());
+        $this->assertEquals($severity, $ex->getSeverity());
     }
 
-    public function testErrorSuppressOperator() {
-        $errorHandler = $this->createErrorHandler();
-        $errorHandler->register();
+    public function dataForErrorToException() {
+        return [
+            [
+                E_ERROR,
+                'ErrorException',
+            ],
+            [
+                E_WARNING,
+                'WarningException',
+            ],
+            [
+                E_PARSE,
+                'ParseException',
+            ],
+            [
+                E_NOTICE,
+                'NoticeException',
+            ],
+            [
+                E_CORE_ERROR,
+                'CoreErrorException',
+            ],
+            [
+                E_CORE_WARNING,
+                'CoreWarningException',
+            ],
+            [
+                E_COMPILE_ERROR,
+                'CompileErrorException',
+            ],
+            [
+                E_COMPILE_WARNING,
+                'CompileWarningException',
+            ],
+            [
+                E_USER_ERROR,
+                'UserErrorException',
+            ],
+            [
+                E_USER_WARNING,
+                'UserWarningException',
+            ],
+            [
+                E_USER_NOTICE,
+                'UserNoticeException',
+            ],
+            [
+                E_STRICT,
+                'StrictException',
+            ],
+            [
+                E_RECOVERABLE_ERROR,
+                'RecoverableErrorException',
+            ],
+            [
+                E_DEPRECATED,
+                'DeprecatedException',
+            ],
+            [
+                E_USER_DEPRECATED,
+                'UserDeprecatedException',
+            ],
+        ];
+    }
 
-        $errorHandler->attach(function (\Exception $exception) {
-            $this->fail();
-        });
-
-        @trigger_error("My message");
+    /**
+     * @dataProvider dataForErrorToException
+     */
+    public function testErrorToException($severity, $class) {
+        $message = 'some';
+        $lineNo = __LINE__;
+        $exception = ErrorHandler::errorToException($severity, $message, __FILE__, $lineNo, null);
+        $this->assertInstanceOf('Morpho\\Error\\' . $class, $exception);
+        $this->assertEquals($message, $exception->getMessage());
+        $this->assertEquals(__FILE__, $exception->getFile());
+        $this->assertEquals($lineNo, $exception->getLine());
     }
 
     private function createErrorHandler($init = true) {

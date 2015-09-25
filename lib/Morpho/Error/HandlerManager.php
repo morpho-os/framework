@@ -50,6 +50,14 @@ class HandlerManager {
         } while ($handler && $handler !== $callback);
     }
 
+    public static function getAllExceptionHandlers() {
+        return self::getAll(self::EXCEPTION);
+    }
+
+    public static function getAllErrorHandlers() {
+        return self::getAll(self::ERROR);
+    }
+
     public static function getAll($handlerType) {
         self::checkType($handlerType);
 
