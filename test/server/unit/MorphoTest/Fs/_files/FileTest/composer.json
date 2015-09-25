@@ -1,0 +1,9 @@
+{
+    "require": {
+        "php": "7.0.*",
+        "ext-curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "dev-master"
+    }
+}

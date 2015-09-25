@@ -4,8 +4,12 @@ declare(strict_types=1);
 namespace Morpho\Fs;
 
 use Morpho\Base\ArrayTool;
+use Zend\Json\Json;
 
 class File extends Entry {
+    /**
+     * Reads file as string.
+     */
     public static function read(string $filePath, array $options = []): string {
         if (!is_file($filePath)) {
             throw new FileNotFoundException($filePath);
@@ -42,18 +46,41 @@ class File extends Entry {
         return $content;
     }
 
+    /**
+     * Returns non empty lines from file as array.
+     */
     public static function readAsArray(string $filePath): array {
         return file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 
     /**
-     * Shortcut for the write() method that appends $content to the file.
+     * Returns decoded json file's content.
      */
-    public static function append(string $filePath, string $content, array $options) {
-        $options = ArrayTool::handleOptions($options, ['append' => true]);
-        self::write($filePath, $content, $options);
+    public static function readJson(string $filePath, bool $asArray = true) {
+        return Json::decode(self::read($filePath), $asArray ? Json::TYPE_ARRAY : Json::TYPE_OBJECT);
     }
 
+    /**
+     * Writes json to the file and returns the file path.
+     */
+    public static function writeJson(string $filePath, $json): string {
+        return self::write($filePath, Json::encode($json, false, ['prettyPrint' => true]));
+    }
+
+    /**
+     * Appends content to the file and returns the file path.
+     */
+    public static function append(string $filePath, string $content, array $options): string {
+        return self::write(
+            $filePath,
+            $content,
+            ArrayTool::handleOptions($options, ['append' => true])
+        );
+    }
+
+    /**
+     * Writes string to file.
+     */
     public static function write(string $filePath, string $content, array $options = []): string {
         if (empty($filePath)) {
             throw new IoException("The file path is empty.");
@@ -66,12 +93,8 @@ class File extends Entry {
                 'lock' => true,
                 'append' => false,
                 'context' => null,
-                'mode' => 0644,
-                'dirMode' => 0755,
             ]
         );
-
-        Directory::create(dirname($filePath), $options['dirMode']);
 
         $flags = 0;
         if ($options['append']) {
@@ -89,11 +112,12 @@ class File extends Entry {
             throw new IoException("Unable to write to the file '$filePath'.");
         }
 
-        chmod($filePath, $options['mode']);
-
         return $filePath;
     }
 
+    /**
+     * Truncates the file to zero length.
+     */
     public static function truncate(string $filePath) {
         $handle = @fopen($filePath, 'w');
         if (false === $handle) {
@@ -102,13 +126,22 @@ class File extends Entry {
         fclose($handle);
     }
 
+    /**
+     * Deletes the file.
+     */
     public static function delete(string $filePath) {
         if (!@unlink($filePath)) {
             throw new FileNotFoundException("Unable to delete the file '$filePath.'");
         }
     }
 
+    /**
+     * Copies the source file to target directory of file and returns target.
+     */
     public static function copy(string $sourceFilePath, string $targetFilePath, bool $overwrite = false, bool $skipIfExists = false): string {
+        if (!is_file($sourceFilePath)) {
+            throw new IoException("Unable to copy: the source '$sourceFilePath' is not a file");
+        }
         if (!is_dir(dirname($targetFilePath))) {
             Directory::create(dirname($targetFilePath));
         }
@@ -129,6 +162,10 @@ class File extends Entry {
         return $targetFilePath;
     }
 
+    /**
+     * @TODO: Add support directory for the $targetFilePath
+     * Moves the source file to the target file and returns the target.
+     */
     public static function move(string $sourceFilePath, string $targetFilePath): string {
         Directory::create(dirname($targetFilePath));
         if (!@rename($sourceFilePath, $targetFilePath)) {
@@ -139,6 +176,9 @@ class File extends Entry {
         return $targetFilePath;
     }
 
+    /**
+     * Returns unique path for the file. Does not support concurrent access to the same directory.
+     */
     public static function uniquePath(string $filePath, int $numberOfAttempts = 10000): string {
         $uniquePath = $filePath;
         for ($i = 0; is_file($uniquePath) && $i < $numberOfAttempts; $i++) {

@@ -290,6 +290,7 @@ class PathTest extends TestCase {
     }
 
     public function testGetExtension() {
+        // @see http://habrahabr.ru/post/37753/
         $this->markTestIncomplete();
     }
 }

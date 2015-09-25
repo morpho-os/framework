@@ -5,6 +5,29 @@ use Morpho\Fs\File;
 use Morpho\Test\TestCase;
 
 class FileTest extends TestCase {
+    public function testReadJson() {
+        $tmpDirPath = $this->createTmpDir();
+        $targetFilePath = $this->copyFile($this->getTestDirPath() . '/composer.json', $tmpDirPath);
+
+        $this->assertEquals([
+            'require' => [
+                'php' => '7.0.*',
+                'ext-curl' => '*',
+            ],
+            'require-dev' => [
+                'phpunit/phpunit' => 'dev-master',
+            ],
+        ], File::readJson($targetFilePath));
+    }
+
+    public function testWriteJson() {
+        $targetFilePath = $this->createTmpDir() . '/composer.json';
+        $this->assertTrue(!is_file($targetFilePath));
+        $dataToWrite = ['ping' => 'pong'];
+        $this->assertEquals($targetFilePath, File::writeJson($targetFilePath, $dataToWrite));
+        $this->assertEquals($dataToWrite, File::readJson($targetFilePath));
+    }
+
     public function testDelete() {
         $targetFilePath = $this->getTmpDirPath() . '/' . basename(__FILE__);
         File::copy(__FILE__, $targetFilePath);
@@ -59,6 +82,12 @@ class FileTest extends TestCase {
 
         $this->assertFileExists($outFilePath);
         $this->assertEquals(filesize(__FILE__), filesize($outFilePath));
+    }
+
+    public function testCopy_IfSourceIsDirThrowsException() {
+        $sourceFilePath = $this->getTestDirPath();
+        $this->setExpectedException('\Morpho\Fs\IoException', "Unable to copy: the source '$sourceFilePath' is not a file");
+        File::copy($sourceFilePath, $this->getTmpDirPath());
     }
 
     public function testWrite() {
@@ -127,7 +156,7 @@ class FileTest extends TestCase {
     }
 
     public function testMode() {
-        if (DIRECTORY_SEPARATOR != '\\') {
+        if (DIRECTORY_SEPARATOR !== '\\') {
             $this->markTestSkipped();
         }
         $this->assertEquals(0666, File::mode(__FILE__));
@@ -155,10 +184,5 @@ class FileTest extends TestCase {
     public function testReadBinary() {
         $content = File::read($this->getTestDirPath() . '/binary.jpg');
         $this->assertEquals("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01", substr($content, 0, 16));
-    }
-
-    public function testGetExtension() {
-        // @see http://habrahabr.ru/post/37753/
-        $this->markTestIncomplete();
     }
 }
