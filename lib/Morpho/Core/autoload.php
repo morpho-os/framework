@@ -33,3 +33,5 @@ const APP_NS = 'App';
 
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
+
+const CONFIG_FILE_NAME = 'config.php';

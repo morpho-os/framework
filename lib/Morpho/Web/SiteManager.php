@@ -23,7 +23,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     private $config;
 
-    const CONFIG_FILE_NAME = 'config.php';
+    const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
 
     /**
      * @param null|bool $flag

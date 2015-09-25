@@ -7,13 +7,11 @@ use Morpho\Di\IServiceManager;
 
 abstract class Application {
     /**
-     * @return mixed
+     * @return mixed Returns true on success and any value !== true on error.
      */
     public static function main(array $config = []) {
-        $_this = new static($config);
-        return $_this->returnResult(
-            $_this->run()
-        );
+        return (new static($config))
+            ->run();
     }
 
     /**
@@ -37,27 +35,11 @@ abstract class Application {
 
             return true;
         } catch (\Throwable $e) {
-            return $this->handleFailure($e, $serviceManager ?? null);
+            $this->logFailure($e, $serviceManager ?? null);
         }
     }
 
     abstract protected function createServiceManager(): IServiceManager;
 
-    /**
-     * Handles exception and returns any value associated with it, it must be !== true.
-     *
-     * @return mixed
-     */
-    abstract protected function handleFailure(\Throwable $e, IServiceManager $serviceManager = null);
-
-    /**
-     * Returns result optionally applying some transformations. By default does't apply any transformation and
-     * returns the result as is.
-     *
-     * @param mixed $result
-     * @return mixed
-     */
-    protected function returnResult($result) {
-        return $result;
-    }
+    abstract protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null);
 }

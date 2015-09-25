@@ -9,10 +9,25 @@ function escapeEachArg(array $args): array {
     return array_map('escapeshellarg', $args);
 }
 
-function cmd(string $cmd/*, \Closure $args = null*/): CommandResult {
+function argString(array $args): string {
+    return implode(' ', escapeEachArg($args));
+}
+
+/**
+ * Runs command with additional check for error.
+ */
+function cmdEx(string $command, $args = null): CommandResult {
+    $result = cmd($command, $args);
+    if ($result->isError()) {
+        throw new CliException();
+    }
+    return $result;
+}
+
+function cmd(string $command, array $args = null): CommandResult {
     ob_start();
     passthru(
-        $cmd,// . (null !== $args ? ' ' . implode(' ', $args()) : ''),
+        $command . (null !== $args ? ' ' . argString($args) : ''),
         $exitCode
     );
     return new CommandResult(trim(ob_get_clean()), $exitCode);

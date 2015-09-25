@@ -22,32 +22,20 @@ class Application extends BaseApplication {
         return $serviceManager;
     }
 
-    protected function handleFailure(\Throwable $e, IServiceManager $serviceManager = null) {
+    protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null) {
         while (@ob_end_flush());
 
-        $isDevMode = $this->isDevMode();
-
-        $showFailure = function ($e) use ($isDevMode) {
-            if ($isDevMode) {
-                echo '<pre>' . htmlspecialchars((string) $e, ENT_QUOTES) . '</pre>';
+        if (null !== $serviceManager) {
+            try {
+                // Last chance handler.
+                $serviceManager->get('errorHandler')
+                    ->handleException($e);
+            } catch (\Throwable $e) {
+                if (!headers_sent()) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                }
+                die("Unable to handle request, please contact site's support.");
             }
-        };
-
-        $showFailure($e);
-
-        try {
-            $this->logFailure($e, $serviceManager, $isDevMode);
-        } catch (\Throwable $e) {
-            $showFailure($e);
         }
-    }
-
-    protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null, bool $isDevMode) {
-        // @TODO
-    }
-
-    protected function isDevMode(): bool {
-        // @TODO
-        return true;
     }
 }

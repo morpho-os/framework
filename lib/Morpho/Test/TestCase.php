@@ -3,6 +3,7 @@ namespace Morpho\Test;
 
 use Morpho\Base\Environment;
 use Morpho\Fs\Directory;
+use Morpho\Fs\File;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
     const EPS = 0.000000001;
@@ -38,7 +39,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
             }
         }
     }
-
     /*
     protected function initSession()
     {
@@ -51,13 +51,13 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     }
     */
 
-    protected function getTestDirPath() {
+    protected function getTestDirPath(): string {
         $classFilePath = $this->getClassFilePath();
 
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
     }
 
-    protected function getClassFilePath() {
+    protected function getClassFilePath(): string {
         if (!isset($this->classFilePath)) {
             $this->classFilePath = str_replace('\\', '/', (new \ReflectionObject($this))->getFileName());
         }
@@ -65,10 +65,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         return $this->classFilePath;
     }
 
-    /**
-     * @return string
-     */
-    protected function createTmpDir($dirName = null) {
+    protected function createTmpDir($dirName = null): string {
         $tmpDirPath = $this->getTmpDirPath() . '/' . md5(uniqid('', true));
         $this->tmpDirPaths[] = $tmpDirPath;
         $tmpDirPath .= null !== $dirName ? '/' . $dirName : '';
@@ -79,11 +76,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         return Directory::create($tmpDirPath);
     }
 
-    /**
-     * @return string Returns OS temp directory.
-     */
-    protected function getTmpDirPath() {
+    protected function getTmpDirPath(): string {
         return Directory::tmpDirPath();
+    }
+
+    protected function copyFile($srcFilePath, $targetFilePath): string {
+        return File::copy($srcFilePath, $targetFilePath);
     }
 
     protected function getNamespace($useFqn = false) {

@@ -23,7 +23,7 @@ class Site {
 
     private $publicDirPath;
 
-    const CONFIG_FILE_NAME          = 'config.php';
+    const CONFIG_FILE_NAME          = CONFIG_FILE_NAME;
     const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
     public function __construct(array $options = []) {
