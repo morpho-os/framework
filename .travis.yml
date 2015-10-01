@@ -1,6 +1,6 @@
 language: php
 php:
-    - hhvm
+    #    - hhvm
     - 7.0
 
 services:
