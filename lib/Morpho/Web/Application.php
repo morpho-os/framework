@@ -31,7 +31,6 @@ class Application extends BaseApplication {
                 $serviceManager->get('errorHandler')
                     ->handleException($e);
             } catch (\Throwable $e) {
-                d((string) $e);
                 if (!headers_sent()) {
                     header('HTTP/1.1 500 Internal Server Error');
                 }
