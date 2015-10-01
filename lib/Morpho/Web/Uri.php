@@ -98,4 +98,8 @@ class Uri extends BaseUri {
         }
         return Path::combine($basePath, $uri);
     }
+
+    public static function encode(string $uri): string {
+        return str_replace('%2F', '/', rawurlencode($uri));
+    }
 }

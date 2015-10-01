@@ -3,8 +3,6 @@ namespace Morpho\Core;
 
 use Morpho\Base\Environment;
 use Morpho\Di\{ServiceManager as BaseServiceManager, IServiceManagerAware};
-use Morpho\Error\DumpListener;
-use Morpho\Error\ErrorHandler;
 use Morpho\Db\Db;
 
 abstract class ServiceManager extends BaseServiceManager {
@@ -18,10 +16,6 @@ abstract class ServiceManager extends BaseServiceManager {
 
     protected function createEnvironmentService() {
         return new Environment();
-    }
-
-    protected function createErrorHandlerService() {
-        return new ErrorHandler([new DumpListener()]);
     }
 
     protected function createDbService() {

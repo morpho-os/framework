@@ -5,6 +5,8 @@ use Morpho\Base\ArrayTool;
 use Morpho\Fs\Path;
 
 class Site {
+    private $useDebug;
+
     private $name;
 
     private $dirPath;
@@ -23,8 +25,17 @@ class Site {
 
     private $publicDirPath;
 
+    private $mode;
+
+    private $configFileName = self::CONFIG_FILE_NAME;
+
     const CONFIG_FILE_NAME          = CONFIG_FILE_NAME;
     const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
+
+    const DEV_MODE        = 'dev';
+    const STAGING_MODE    = 'staging';
+    const PRODUCTION_MODE = 'production';
+    const TESTING_MODE    = 'testing';
 
     public function __construct(array $options = []) {
         ArrayTool::ensureHasOnlyKeys($options, ['dirPath', 'name']);
@@ -47,6 +58,53 @@ class Site {
 
     public function getName(): string {
         return $this->name;
+    }
+
+    public function isDebug(bool $flag = null): bool {
+        if (null !== $flag) {
+            $this->useDebug = $flag;
+        } elseif (null === $this->useDebug) {
+            $this->useDebug = $this->getConfig()['isDebug'];
+        }
+        return $this->useDebug;
+    }
+
+    public function setMode(string $mode) {
+        $this->mode = $mode;
+    }
+
+    public function getMode(): string {
+        if (null === $this->mode) {
+            $this->mode = $this->getConfig()['mode'];
+        }
+        return $this->mode;
+    }
+
+    public function isProductionMode(): bool {
+        return $this->getMode() === self::PRODUCTION_MODE;
+    }
+
+    public function isDevMode(): bool {
+        return $this->getMode() === self::DEV_MODE;
+    }
+
+    public function isStagingMode(): bool {
+        return $this->getMode() === self::STAGING_MODE;
+    }
+
+    public function isTestingMode(): bool {
+        return $this->getMode() === self::TESTING_MODE;
+    }
+
+    /**
+     * Returns true if site is not in any of mode (TESTING | PRODUCTION | STAGING | DEV).
+     */
+    public function isCustomMode(): bool {
+        return !in_array(
+            $this->mode,
+            [self::PRODUCTION_MODE, self::STAGING_MODE, self::TESTING_MODE, self::DEV_MODE],
+            true
+        );
     }
 
     public function setCacheDirPath(string $dirPath) {
@@ -123,8 +181,16 @@ class Site {
         return $this->config;
     }
 
+    public function setConfigFileName(string $fileName) {
+        $this->configFileName = $fileName;
+    }
+
+    public function getConfigFileName(): string {
+        return $this->configFileName;
+    }
+
     public function getConfigFilePath(): string {
-        return $this->getConfigDirPath() . '/' . self::CONFIG_FILE_NAME;
+        return $this->getConfigDirPath() . '/' . $this->configFileName;
     }
 
     public function getFallbackConfigFilePath(): string {

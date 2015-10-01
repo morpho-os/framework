@@ -24,7 +24,7 @@ class PriceFilter extends Filter {
     }
 
     private static function isFloat($value) {
-        // ['+'|'-'] [digit* '.'] digit+ [('e'|'E') ['+'|'-'] digit+]
+        // @TODO: ['+'|'-'] [digit* '.'] digit+ [('e'|'E') ['+'|'-'] digit+]
         return (bool)preg_match('{^[-+]?[0-9]+(?:\.[0-9]*)?$}is', $value);
     }
 }

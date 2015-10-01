@@ -9,7 +9,7 @@ class HttpToolTest extends TestCase {
         $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'] = null;
     }
 
-    public function testGetIpWithoutProxy() {
+    public function testGetIp_WithoutCheckProxy() {
         $clientIp = '192.168.0.1';
 
         $_SERVER['REMOTE_ADDR'] = $clientIp;
@@ -17,7 +17,40 @@ class HttpToolTest extends TestCase {
         $this->assertEquals($clientIp, HttpTool::getIp(false));
     }
 
-    public function testGetIpCanReturnFullProxyIp() {
+    public function dataForGetIp_WithoutProxy_IpV6() {
+        return [
+            [
+                '::1',
+            ],
+            [
+                '0000:0000:0000:0000:0000:0000:0000:0001',
+            ],
+            [
+                '2001:0db8:0000:0042:0000:8a2e:0370:7334',
+            ],
+            [
+                '2001:db8::ff00:42:8329',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForGetIp_WithoutProxy_IpV6
+     */
+    public function testGetIp_WithoutProxy_IpV6($ip) {
+        $_SERVER['REMOTE_ADDR'] = $ip;
+        $this->assertEquals($ip, HttpTool::getIp(false));
+    }
+
+    /**
+     * @dataProvider dataForGetIp_WithoutProxy_IpV6
+     */
+    public function testGetIP_WithProxy_IpV6($ip) {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = $ip;
+        $this->assertEquals($ip, HttpTool::getIp(true));
+    }
+
+    public function testGetIp_WithCheckProxy_CanReturnFullProxyIp() {
         $proxyIp = '192.168.0.1, 10.0.0.1';
 
         $_SERVER['HTTP_X_FORWARDED_FOR'] = $proxyIp;
@@ -25,7 +58,7 @@ class HttpToolTest extends TestCase {
         $this->assertEquals($proxyIp, HttpTool::getIp(true));
     }
 
-    public function testGetIpCanReturnProxyIpByIndex() {
+    public function testGetIp_WithCheckProxy_CanReturnProxyIpByIndex() {
         $index = -2;
 
         $ip = '192.168.0.1';
@@ -35,13 +68,7 @@ class HttpToolTest extends TestCase {
         $this->assertEquals($ip, HttpTool::getIp(true, $index));
     }
 
-    public function testThrowExceptionForEmptyIp() {
-        $this->assertThrowsIpExceptionFor(true, 0);
-        $this->assertThrowsIpExceptionFor(true, -1);
-        $this->assertThrowsIpExceptionFor(true, 1);
-    }
-
-    public function testGetIpProxyBounds() {
+    public function testGetIp_WithCheckProxy_ProxyBounds() {
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1, 10.0.0.1';
 
         $this->assertEquals('127.0.0.1', HttpTool::getIp(true, -100));
@@ -62,36 +89,8 @@ class HttpToolTest extends TestCase {
         $this->assertEquals('192.168.0.1', HttpTool::getIp(true, 100));
     }
 
-    public function testGetIpThrowsExceptionWhenListOfIpsEmpty() {
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = ',';
-        $this->assertThrowsIpExceptionFor(true, 0);
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = ' , ,  , ';
-        $this->assertThrowsIpExceptionFor(true, 0);
-    }
-
-    public function testGetIpCanReturnIpWhenSomeIpNotEmpty() {
+    public function testGetIp_WithCheckProxy_CanReturnIpWhenSomeIpNotEmpty() {
         $_SERVER['HTTP_X_FORWARDED_FOR'] = ' , , 192.168.0.1  , ';
         $this->assertEquals('192.168.0.1', HttpTool::getIp(true, 2));
-    }
-
-    public function testGetIpThrowsExceptionWhenProxyIpEmpty() {
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = null;
-        $_SERVER['REMOTE_ADDR'] = '10.0.0.1';
-        $this->assertThrowsIpExceptionFor(true, null);
-    }
-
-    public function testGetIpThrowsExceptionWhenIpEmpty() {
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '10.0.0.1';
-        $_SERVER['REMOTE_ADDR'] = null;
-        $this->assertThrowsIpExceptionFor(false, null);
-    }
-
-    private function assertThrowsIpExceptionFor($checkProxy, $index) {
-        try {
-            HttpTool::getIp($checkProxy, $index);
-            $this->fail();
-        } catch (\RuntimeException $ex) {
-            $this->assertEquals('Unable to detect of the IP address.', $ex->getMessage());
-        }
     }
 }

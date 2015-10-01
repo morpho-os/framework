@@ -97,10 +97,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
     protected function assertBoolAccessor(callable $callback, $initialValue) {
         $this->assertSame($initialValue, $callback());
-        $this->assertTrue($callback(true));
-        $this->assertTrue($callback());
-        $this->assertFalse($callback(false));
-        $this->assertFalse($callback());
+        $this->assertTrue($callback(true), 'Returns the passed true');
+        $this->assertTrue($callback(), 'Returns the previous value that was set: true');
+        $this->assertFalse($callback(false), 'Returns the passed false');
+        $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
     protected function setDefaultTimezone() {
