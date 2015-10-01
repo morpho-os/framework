@@ -50,7 +50,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Morpho": "lib",
+            "Morpho": "lib"
         },
         "files": [
             "lib/Morpho/Base/autoload.php",
@@ -63,7 +63,7 @@
     "config": {
         "bin-dir": "bin"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "extra": {
         "branch-alias": {
             "dev-master": "0.x-dev"
