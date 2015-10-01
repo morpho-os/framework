@@ -4,7 +4,6 @@ namespace MorphoTest\Error;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\HandlerManager;
 use Morpho\Error\ExceptionEvent;
-use Morpho\Error\IExceptionEventListener;
 
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
@@ -35,17 +34,20 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     public function testRegisterAndUnregister() {
         $errorHandler = $this->createErrorHandler();
         $oldDisplayErrors = ini_get('display_errors');
+        $oldDisplayStartupErrors = ini_get('display_startup_errors');
         $this->assertInstanceOf('\Morpho\Error\ErrorHandler', $errorHandler->register());
         $expected = [$errorHandler, 'handleError'];
         $this->assertEquals($expected, HandlerManager::getCurrent(HandlerManager::ERROR));
         $expected = [$errorHandler, 'handleException'];
         $this->assertEquals($expected, HandlerManager::getCurrent(HandlerManager::EXCEPTION));
         $this->assertEquals(0, ini_get('display_errors'));
+        $this->assertEquals(0, ini_get('display_startup_errors'));
 
         $errorHandler->unregister();
         $this->assertEquals($this->prevErrorHandler, HandlerManager::getCurrent(HandlerManager::ERROR));
         $this->assertEquals($this->prevExceptionHandler, HandlerManager::getCurrent(HandlerManager::EXCEPTION));
         $this->assertEquals($oldDisplayErrors, ini_get('display_errors'));
+        $this->assertEquals($oldDisplayStartupErrors, ini_get('display_startup_errors'));
     }
 
     public function testRegisterAsFatalErrorHandler() {

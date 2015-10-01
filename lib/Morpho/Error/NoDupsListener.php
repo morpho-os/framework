@@ -5,7 +5,7 @@ namespace Morpho\Error;
  * Basic idea and code was found at:
  * @link https://github.com/DmitryKoterov/debug_errorhook.
  */
-class NoDupsListener implements IExceptionEventListener {
+class NoDupsListener implements IExceptionListener {
     const DEFAULT_PERIOD = 300;  // 5 min.
     const ERROR_FILE_EXT = ".error";
     const GC_PROBABILITY = 0.01;
@@ -18,19 +18,13 @@ class NoDupsListener implements IExceptionEventListener {
 
     protected $gcExecuted = false;
 
-
-    /**
-     * @param IExceptionEventListener $listener
-     * @param string $lockFileDirPath
-     * @param int $period Period in seconds.
-     */
-    public function __construct(IExceptionEventListener $listener, $lockFileDirPath = null, $period = null) {
+    public function __construct(IExceptionListener $listener, string $lockFileDirPath = null, int $periodSec = null) {
         if (null === $lockFileDirPath) {
             $lockFileDirPath = $this->getDefaultLockFileDirPath();
         }
         $this->lockFileDirPath = $this->initLockFileDir($lockFileDirPath);
 
-        $this->period = null !== $period ? $period : self::DEFAULT_PERIOD;
+        $this->period = null !== $periodSec ? $periodSec : self::DEFAULT_PERIOD;
         $this->listener = $listener;
     }
 

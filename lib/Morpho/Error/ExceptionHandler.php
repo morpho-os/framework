@@ -39,7 +39,7 @@ class ExceptionHandler implements IExceptionHandler {
         }
     }
 
-    public function attachListener(IExceptionEventListener $handler, $prepend = false) {
+    public function attachListener(IExceptionListener $handler, $prepend = false) {
         if ($prepend) {
             array_unshift($this->listeners, $handler);
         } else {

@@ -6,7 +6,7 @@ interface IExceptionHandler {
 
     public function unregister();
 
-    public function attachListener(IExceptionEventListener $listener, $prepend = false);
+    public function attachListener(IExceptionListener $listener, $prepend = false);
 
     public function handleException(\Throwable $e);
 }

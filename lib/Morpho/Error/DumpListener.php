@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Error;
 
-class DumpListener implements IExceptionEventListener {
+class DumpListener implements IExceptionListener {
     public function onException(\Throwable $exception) {
         $exAsString = $exception->__toString();
 

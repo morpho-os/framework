@@ -36,11 +36,11 @@
         "ext-xml": "*",
         "nikic/php-parser": "dev-master",
         "nikic/fast-route": "dev-master",
+        "monolog/monolog": "dev-master",
         "zendframework/zend-http": "dev-master",
         "zendframework/zend-uri": "dev-master",
         "zendframework/zend-filter": "dev-master",
         "zendframework/zend-json": "dev-master",
-        "zendframework/zend-log": "dev-master",
         "zendframework/zend-mail": "dev-master",
         "zendframework/zend-stdlib": "dev-master",
         "zendframework/zend-validator": "dev-master"
@@ -51,7 +51,6 @@
     "autoload": {
         "psr-0": {
             "Morpho": "lib",
-            "Board": "lib"
         },
         "files": [
             "lib/Morpho/Base/autoload.php",

@@ -11,25 +11,25 @@ namespace Morpho\Error;
 class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     private $exitOnFatalError = true;
 
-    private $iniDisplayErrors = false;
-
     private $registerAsFatalErrorHandler = true;
 
     private $fatalErrorHandlerActive = false;
 
     private $oldIniDisplayErrors;
+    private $oldIniDisplayStartupErrors;
 
     public function register() {
         parent::register();
 
-        $this->oldIniDisplayErrors = ini_set('display_errors', (int)$this->iniDisplayErrors);
-
-        HandlerManager::register(HandlerManager::ERROR, array($this, 'handleError'));
+        HandlerManager::register(HandlerManager::ERROR, [$this, 'handleError']);
 
         if ($this->registerAsFatalErrorHandler) {
-            register_shutdown_function(array($this, 'handleFatalError'));
+            register_shutdown_function([$this, 'handleFatalError']);
             $this->fatalErrorHandlerActive = true;
         }
+
+        $this->oldIniDisplayErrors = ini_set('display_errors', 0);
+        $this->oldIniDisplayStartupErrors = ini_set('display_startup_errors', 0);
 
         return $this;
     }
@@ -37,12 +37,13 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     public function unregister() {
         parent::unregister();
 
-        ini_set('display_errors', $this->oldIniDisplayErrors);
-
-        HandlerManager::unregister(HandlerManager::ERROR, array($this, 'handleError'));
+        HandlerManager::unregister(HandlerManager::ERROR, [$this, 'handleError']);
 
         // There is no unregister_shutdown_function(), so we emulate it via flag.
         $this->fatalErrorHandlerActive = false;
+
+        ini_set('display_errors', $this->oldIniDisplayErrors);
+        ini_set('display_startup_errors', $this->oldIniDisplayStartupErrors);
     }
 
     public function handleError($severity, $message, $filePath, $line, $context) {
@@ -58,7 +59,8 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         $error = error_get_last();
         if ($this->fatalErrorHandlerActive
             && $error
-            && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+            && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])
+        ) {
             $this->handleException(
                 self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null)
             );
@@ -70,51 +72,47 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     /**
      * @param bool|null $flag
-     * @return bool
      */
-    public function registerAsFatalErrorHandler($flag = null) {
+    public function registerAsFatalErrorHandler($flag = null): bool {
         if (null !== $flag) {
-            $this->registerAsFatalErrorHandler = (bool)$flag;
+            $this->registerAsFatalErrorHandler = (bool) $flag;
         }
         return $this->registerAsFatalErrorHandler;
     }
 
     /**
      * @param bool|null $flag
-     * @return bool
      */
-    public function exitOnFatalError($flag = null) {
+    public function exitOnFatalError($flag = null): bool {
         if (null !== $flag) {
-            $this->exitOnFatalError = (bool)$flag;
+            $this->exitOnFatalError = (bool) $flag;
         }
         return $this->exitOnFatalError;
     }
 
-    public static function errorToException($severity, $message, $filePath, $line, $context) {
+    public static function errorToException($severity, $message, $filePath, $line, $context): \ErrorException {
         $class = self::getExceptionClass($severity);
         return new $class($message, 0, $severity, $filePath, $line);
     }
 
-    private static function getExceptionClass($severity) {
-        $levels = array(
-            E_ERROR => 'ErrorException',
-            E_WARNING => 'WarningException',
-            E_PARSE => 'ParseException',
-            E_NOTICE => 'NoticeException',
-            E_CORE_ERROR => 'CoreErrorException',
-            E_CORE_WARNING => 'CoreWarningException',
-            E_COMPILE_ERROR => 'CompileErrorException',
-            E_COMPILE_WARNING => 'CompileWarningException',
-            E_USER_ERROR => 'UserErrorException',
-            E_USER_WARNING => 'UserWarningException',
-            E_USER_NOTICE => 'UserNoticeException',
-            E_STRICT => 'StrictException',
+    private static function getExceptionClass($severity): string {
+        $levels = [
+            E_ERROR             => 'ErrorException',
+            E_WARNING           => 'WarningException',
+            E_PARSE             => 'ParseException',
+            E_NOTICE            => 'NoticeException',
+            E_CORE_ERROR        => 'CoreErrorException',
+            E_CORE_WARNING      => 'CoreWarningException',
+            E_COMPILE_ERROR     => 'CompileErrorException',
+            E_COMPILE_WARNING   => 'CompileWarningException',
+            E_USER_ERROR        => 'UserErrorException',
+            E_USER_WARNING      => 'UserWarningException',
+            E_USER_NOTICE       => 'UserNoticeException',
+            E_STRICT            => 'StrictException',
             E_RECOVERABLE_ERROR => 'RecoverableErrorException',
-            E_DEPRECATED => 'DeprecatedException',
-            E_USER_DEPRECATED => 'UserDeprecatedException',
-        );
-        $class = __NAMESPACE__ . '\\' . $levels[$severity];
-
-        return $class;
+            E_DEPRECATED        => 'DeprecatedException',
+            E_USER_DEPRECATED   => 'UserDeprecatedException',
+        ];
+        return __NAMESPACE__ . '\\' . $levels[$severity];
     }
 }
