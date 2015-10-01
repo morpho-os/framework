@@ -12,7 +12,7 @@ before_script:
     - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
-    - composer selfupdate && composer install --dev
+    - composer selfupdate && composer install
     - phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
 
 matrix:
