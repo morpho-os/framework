@@ -339,8 +339,8 @@ OUT;
 
     protected function isPhpFormatEnabled(): bool {
         return ini_get('html_errors')
-        && ini_get('xdebug.default_enable')
-        && ini_get('xdebug.overload_var_dump');
+            && ini_get('xdebug.default_enable')
+            && ini_get('xdebug.overload_var_dump');
     }
 
     protected function errorHandler($level, $message, $filePath, $line, $context) {

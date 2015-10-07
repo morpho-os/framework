@@ -5,10 +5,6 @@ class Environment extends Object {
     const ENCODING = 'UTF-8';
     const TIMEZONE = 'UTC';
 
-    protected $errorLevel = E_ALL | E_STRICT;
-
-    protected $displayErrors = true;
-
     protected $isCliEnv = false;
 
     protected $startSession = false;
@@ -42,7 +38,7 @@ class Environment extends Object {
         }
         */
 
-        $this->initErrorLevel();
+        $this->initErrorSettings();
         $this->initDate();
         $this->initServerVars();
         $this->initSession();
@@ -52,9 +48,9 @@ class Environment extends Object {
         static::$initialized = true;
     }
 
-    public function initErrorLevel() {
-        error_reporting($this->getErrorLevel());
-        ini_set('display_errors', $this->displayErrors);
+    public function initErrorSettings() {
+        error_reporting(E_ALL | E_STRICT);
+        ini_set('display_errors', 0);
     }
 
     public static function initDate() {
@@ -144,6 +140,27 @@ class Environment extends Object {
     }
 
     /**
+     * Returns true if the ini setting with the $name can be interpreted as true.
+     */
+    public static function isIniSet(string $name): bool {
+        return self::iniToBool(ini_get($name));
+    }
+
+    /**
+     * Converts any value that can be used in the ini configs to the bool value.
+     */
+    public static function iniToBool($value): bool {
+        // Basic idea found here: php.net/ini_get.
+        static $map = [
+            // true values:
+            'on' => true, 'true' => true, 'yes' => true,
+            // false values:
+            'off' => false, 'false' => false, 'no' => false,
+        ];
+        return $map[strtolower($value)] ?? (bool) $value;
+    }
+
+    /**
      * @TODO: Refactor this method.
      *
      * @param bool $asBytes
@@ -159,9 +176,5 @@ class Environment extends Object {
             $maxSizeIni = $uploadMaxSizeIni;
         }
         return $asBytes ? $maxSize : $maxSizeIni;
-    }
-
-    protected function getErrorLevel() {
-        return $this->errorLevel;
     }
 }

@@ -300,7 +300,7 @@ class Module extends \Morpho\Core\Module {
         return $this->disableCalled;
     }
 
-    protected function tryLoad(string $name) {
+    protected function tryLoadChild(string $name) {
         if ($name === 'my-controller') {
             return new MyController(['name' => 'my-controller']);
         }

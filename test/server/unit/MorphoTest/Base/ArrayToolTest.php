@@ -5,14 +5,23 @@ use Morpho\Test\TestCase;
 use Morpho\Base\ArrayTool;
 
 class ArrayToolTest extends TestCase {
-    public function testUnset() {
+    public function testUnset_Cases() {
         $this->assertEquals([], ArrayTool::unset([], 'some'));
+        $this->assertEquals([], ArrayTool::unset([], null));
+    }
+
+    public function testUnset_StringKeys() {
         $this->assertEquals(['one' => 'first-val'], ArrayTool::unset(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
-        $this->assertEquals(['one'], ArrayTool::unset(['one', 'two'], 'two'));
-        $this->assertEquals(['one', 'two'], ArrayTool::unset(['one', 'two'], 'some'));
+    }
+
+    public function testUnset_IntKeys() {
         $obj1 = new \stdClass();
         $obj2 = new \stdClass();
-        $this->assertEquals([$obj2], ArrayTool::unset([$obj1, $obj2], $obj1));
+        $this->assertEquals([$obj2], array_values(ArrayTool::unset([$obj1, $obj2], $obj1)));
+
+        $this->assertEquals(['one', 'two'], array_values(ArrayTool::unset(['one', 'two'], 'some')));
+
+        $this->assertEquals(['one'], array_values(ArrayTool::unset(['one', 'two'], 'two')));
     }
 
     public function dataForInit() {

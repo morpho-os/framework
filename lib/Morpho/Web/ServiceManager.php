@@ -19,6 +19,7 @@ use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
+use Morpho\Base\Environment;
 
 class ServiceManager extends BaseServiceManager {
     public function createRouterService() {
@@ -63,14 +64,14 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function createErrorHandlerService() {
-        $logger = $this->get('logger');
+        $logger = $this->createLogger('error');
+
+        if (Environment::isIniSet('log_errors') && !empty(ini_get('error_log'))) {
+            $logger->pushHandler(new ErrorLogHandler());
+        }
 
         $siteManager = $this->get('siteManager');
         $site = $siteManager->getCurrentSite();
-
-        if (!empty(ini_get('error_log'))) {
-            $logger->pushHandler(new ErrorLogHandler());
-        }
 
         if ($site->isProductionMode()) {
             // @TODO: Change subject (a new MailHandler may be required for that).
@@ -79,38 +80,38 @@ class ServiceManager extends BaseServiceManager {
             );
         }
 
-        $handler = $this->createStreamHandlerForLogger(
-            $site->getLogDirPath() . '/' . $site->getMode() . '-error.log'
+        $logger->pushHandler(
+            $this->createStreamHandlerForLogger(
+                $site->getLogDirPath() . '/' . $site->getMode() . '-error.log',
+                Logger::NOTICE
+            )
         );
-        $logger->pushHandler($handler);
 
-        $listener = new LogListener($logger);
-        if ($this->get('siteManager')->getCurrentSite()->isDevMode()) {
-            $listener = new CompositeListener(
-                [
-                    $listener,
-                    new DumpListener()
-                ]
-            );
+        $listeners = [];
+
+        $listeners[] = $site->isDebug()
+            ? new LogListener($logger)
+            : new NoDupsListener(new LogListener($logger));
+
+        if ($site->isDevMode() || $site->isDebug()) {
+            $listeners[] = new DumpListener();
         }
-        return new ErrorHandler([new NoDupsListener($listener)]);
+
+        return new ErrorHandler($listeners);
     }
 
     protected function createLoggerService() {
-        $logger = new Logger('default');
+        $logger = $this->createLogger('default');
 
         $site = $this->get('siteManager')->getCurrentSite();
-
         if ($site->isDebug()) {
             $logger->pushHandler(
-                $this->createStreamHandlerForLogger($site->getLogDirPath() . '/' . $site->getMode() . '-debug.log')
+                $this->createStreamHandlerForLogger(
+                    $site->getLogDirPath() . '/' . $site->getMode() . '-debug.log',
+                    Logger::DEBUG
+                )
             );
         }
-
-        $logger->pushProcessor(new WebProcessor())
-            ->pushProcessor(new MemoryUsageProcessor())
-            ->pushProcessor(new MemoryPeakUsageProcessor())
-            ->pushProcessor(new IntrospectionProcessor());
 
         return $logger;
     }
@@ -119,11 +120,19 @@ class ServiceManager extends BaseServiceManager {
         return $this->get('siteManager')->isFallbackMode();
     }
 
-    protected function createStreamHandlerForLogger($filePath) {
-        $handler = new StreamHandler($filePath);
+    protected function createStreamHandlerForLogger($filePath, $logLevel) {
+        $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
-            new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n")
+            new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)
         );
         return $handler;
+    }
+
+    protected function createLogger(string $name): Logger {
+        return (new Logger($name))
+            ->pushProcessor(new WebProcessor())
+            ->pushProcessor(new MemoryUsageProcessor())
+            ->pushProcessor(new MemoryPeakUsageProcessor())
+            ->pushProcessor(new IntrospectionProcessor());
     }
 }

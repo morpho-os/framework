@@ -11,6 +11,6 @@ class LogListener implements IExceptionListener {
     }
 
     public function onException(\Throwable $exception) {
-        $this->logger->emergency($exception->__toString(), ['exception' => $exception]);
+        $this->logger->emergency($exception, ['exception' => $exception]);
     }
 }

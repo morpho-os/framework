@@ -84,7 +84,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
             $name = $child->getName();
         }
 
-        return isset($this->children[$name]) || $this->isLoadable($name);
+        return isset($this->children[$name]) || $this->isChildLoadable($name);
     }
 
     /**
@@ -96,7 +96,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     public function getChild(string $name): Node {
         if (!isset($this->children[$name])) {
-            $node = $this->tryLoad($name);
+            $node = $this->tryLoadChild($name);
             if (!$node) {
                 throw new ObjectNotFoundException(
                     "Unable to load a node with the '$name' name, check that class exists."
@@ -211,15 +211,15 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return count($this->children);
     }
 
-    protected function tryLoad(string $name) {
-        if ($this->isLoadable($name)) {
+    protected function tryLoadChild(string $name) {
+        if ($this->isChildLoadable($name)) {
             $class = $this->loadable[$name];
             return (new $class())->setName($name);
         }
         return false;
     }
 
-    protected function isLoadable(string $name): bool {
+    protected function isChildLoadable(string $name): bool {
         return isset($this->loadable[$name]);
     }
 }

@@ -19,7 +19,7 @@ class ArrayTool {
     }
 
     /**
-     * Symmetrical difference for two sets.
+     * Symmetrical difference of the two sets: ($a \ $b) ∪ ($b \ $a)
      */
     public static function symmetricDiff(array $a, array $b): array {
         $diffA = array_diff_assoc($a, $b);
@@ -148,13 +148,12 @@ class ArrayTool {
         return $arr;
     }
 
-    public static function unset(array $arr, $val, bool $strict = true, bool $resetKeys = true): array {
+    public static function unset(array $arr, $val, bool $strict = true): array {
         $key = array_search($val, $arr, $strict);
-        $hasNumericKeys = array_key_exists(0, $arr);
         if (false !== $key) {
             unset($arr[$key]);
         }
-        return $resetKeys && $hasNumericKeys ? array_values($arr) : $arr;
+        return $arr;
     }
 
     public static function getHash(array $arr): string {

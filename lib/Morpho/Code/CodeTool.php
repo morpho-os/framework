@@ -1,7 +1,6 @@
 <?php
 namespace Morpho\Code;
 
-use Morpho\Fs\File;
 use SebastianBergmann\Exporter\Exporter;
 
 class CodeTool {
@@ -10,7 +9,8 @@ class CodeTool {
         return $short ? $exporter->shortenedExport($var) : $exporter->export($var);
     }
 
-    public static function varToPhp($var, string $filePath = null, bool $stripNumericKeys = true): string {
+    public static function varToPhp($var, bool $stripNumericKeys = true): string {
+        // @TODO: Replace with Formatter::format().
         $php = preg_replace(
                 [
                     '~=>\s+array~si',
@@ -36,10 +36,6 @@ class CodeTool {
             },
             $php
         );
-
-        if (null !== $filePath) {
-            File::write($filePath, "<?php\nreturn " . $php);
-        }
 
         return $php;
     }

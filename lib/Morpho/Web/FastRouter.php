@@ -60,7 +60,7 @@ class FastRouter extends Router {
         }
 
         $dispatchData = $routeCollector->getData();
-        CodeTool::varToPhp($dispatchData, $cacheFilePath);
+        File::write(CodeTool::varToPhp($dispatchData), $cacheFilePath);
     }
 
     protected function getCacheFilePath() {

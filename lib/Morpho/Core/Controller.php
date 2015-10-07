@@ -70,7 +70,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->getParent('ModuleManager')->trigger($event, $args);
     }
 
-    protected function nameToClass(string $name): string {
+    protected function childNameToClass(string $name): string {
         return $name;
     }
 

@@ -15,8 +15,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     private $fatalErrorHandlerActive = false;
 
-    private $oldIniDisplayErrors;
-    private $oldIniDisplayStartupErrors;
+    private $oldIniSettings = null;
 
     public function register() {
         parent::register();
@@ -28,8 +27,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
             $this->fatalErrorHandlerActive = true;
         }
 
-        $this->oldIniDisplayErrors = ini_set('display_errors', 0);
-        $this->oldIniDisplayStartupErrors = ini_set('display_startup_errors', 0);
+        $this->setIniSettings();
 
         return $this;
     }
@@ -42,8 +40,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         // There is no unregister_shutdown_function(), so we emulate it via flag.
         $this->fatalErrorHandlerActive = false;
 
-        ini_set('display_errors', $this->oldIniDisplayErrors);
-        ini_set('display_startup_errors', $this->oldIniDisplayStartupErrors);
+        $this->restoreIniSettings();
     }
 
     public function handleError($severity, $message, $filePath, $line, $context) {
@@ -95,7 +92,23 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return new $class($message, 0, $severity, $filePath, $line);
     }
 
-    private static function getExceptionClass($severity): string {
+    protected function setIniSettings() {
+        $oldIniSettings = [];
+        $oldIniSettings['display_errors'] = ini_set('display_errors', 0);
+        // @TODO: Do we need set the 'display_startup_errors'?
+        $oldIniSettings['display_startup_errors'] = ini_set('display_startup_errors', 0);
+        $this->oldIniSettings = $oldIniSettings;
+    }
+
+    protected function restoreIniSettings() {
+        if (null === $this->oldIniSettings) {
+            return;
+        }
+        ini_set('display_errors', $this->oldIniSettings['display_errors']);
+        ini_set('display_startup_errors', $this->oldIniSettings['display_startup_errors']);
+    }
+
+    protected static function getExceptionClass($severity): string {
         $levels = [
             E_ERROR             => 'ErrorException',
             E_WARNING           => 'WarningException',

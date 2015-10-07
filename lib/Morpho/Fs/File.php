@@ -93,6 +93,7 @@ class File extends Entry {
                 'lock' => true,
                 'append' => false,
                 'context' => null,
+                'mode' => 0644,
             ]
         );
 
@@ -107,7 +108,6 @@ class File extends Entry {
             $flags |= FILE_USE_INCLUDE_PATH;
         }
         $result = @file_put_contents($filePath, $content, $flags, $options['context']);
-
         if (!$result) {
             throw new IoException("Unable to write to the file '$filePath'.");
         }

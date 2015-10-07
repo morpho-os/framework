@@ -16,7 +16,7 @@ class Repo extends Node {
         return $this->getDb()->selectRows($sql, $args);
     }
 
-    protected function nameToClass(string $name): string {
+    protected function childNameToClass(string $name): string {
         return $name;
     }
 
