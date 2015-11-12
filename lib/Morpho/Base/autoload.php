@@ -9,29 +9,44 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function every(callable $predicate, array $arr): bool {
-    foreach ($arr as $v) {
-        if (!$predicate($v)) {
+function all(callable $predicate, array $arr): bool {
+    foreach ($arr as $key => $value) {
+        if (!$predicate($value, $key)) {
             return false;
         }
     }
     return true;
 }
 
-function some(callable $predicate, array $arr): bool {
-    foreach ($arr as $v) {
-        if ($predicate($v)) {
+function any(callable $predicate, array $arr): bool {
+    foreach ($arr as $key => $value) {
+        if ($predicate($value, $key)) {
             return true;
         }
     }
     return false;
 }
 
-function quote($string, string $quoteChar): string {
-    return $quoteChar . $string . $quoteChar;
+/**
+ * Array filter with changed/fixed order of arguments.
+ */
+function filter(callable $filter, array $arr, bool $resetKeys = true, int $flags = 0): array {
+    $arr = array_filter($arr, $filter, $flags);
+    return $resetKeys ? array_values($arr) : $arr;
 }
 
-function writeLn(...$messages) {
+/**
+ * $fn has type (mixed $prev, mixed $cur): mixed
+ */
+function fold(callable $fn, array $arr, $initial = null) {
+    return array_reduce($arr, $fn, $initial);
+}
+
+function wrap($string, string $wrapper): string {
+    return $wrapper . $string . $wrapper;
+}
+
+function printLn(...$messages) {
     echo implode("\n", $messages) . "\n";
 }
 
@@ -252,6 +267,7 @@ function trimMore($string, $charlist = null) {
 }
 
 function head($string, $separator) {
+    // @TODO: Handle arrays too
     $pos = strpos($string, $separator);
     return false === $pos
         ? $string
@@ -259,6 +275,7 @@ function head($string, $separator) {
 }
 
 function last($string, $separator) {
+    // @TODO: Handle arrays too
     $pos = strrpos($string, $separator);
     return false === $pos
         ? $string
@@ -266,6 +283,7 @@ function last($string, $separator) {
 }
 
 function init($string, $separator) {
+    // @TODO: Handle arrays too
     $pos = strrpos($string, $separator);
     return false === $pos
         ? $string
@@ -273,23 +291,24 @@ function init($string, $separator) {
 }
 
 function tail($string, $separator) {
+    // @TODO: Handle arrays too
     throw new NotImplementedException();
 }
 
 /**
  * Removes duplicated characters from the string.
  *
- * @param $string Source string with duplicated characters.
- * @param $chars Either a set of characters to use in character class or a regexp pattern that must match
- *                      all duplicated characters that must be removed.
- * @return string String with removed duplicates.
+ * @param string|int     $string Source string with duplicated characters.
+ * @param string         $chars  Either a set of characters to use in character class or a reg-exp pattern that must match
+ *                               all duplicated characters that must be removed.
+ * @return string                String with removed duplicates.
  */
 function deleteDups($string, string $chars, bool $isCharClass = true) {
-    $regexp = $isCharClass
+    $regExp = $isCharClass
         ? '/([' . preg_quote($chars, '/') . '])+/si'
         : "/($chars)+/si";
 
-    return preg_replace($regexp, '\1', $string);
+    return preg_replace($regExp, '\1', $string);
 }
 
 function filterStringArgs($string, array $args, callable $filterFn): string {
@@ -310,4 +329,26 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
         $tail = SHORTEN_TAIL;
     }
     return substr($text, 0, $length - strlen($tail)) . $tail;
+}
+
+function normalizeEols(string $s): string {
+    $res = preg_replace('~\r\n?~s', "\n", $s);
+    if (null === $res) {
+        throw new \RuntimeException("Unable to replace EOL");
+    }
+    return $res;
+}
+
+/**
+ * @param mixed $data
+ */
+function jsonEncode($data): string {
+    return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+}
+
+/**
+ * @return mixed
+ */
+function jsonDecode(string $json) {
+    return json_decode($json, true);
 }

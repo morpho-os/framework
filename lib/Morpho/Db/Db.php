@@ -5,7 +5,7 @@ namespace Morpho\Db;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Base\NotImplementedException;
-use function Morpho\Base\some;
+use function Morpho\Base\any;
 
 class Db {
     private $conn;
@@ -18,9 +18,9 @@ class Db {
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
     }
 
-    public static function createConnection(array $config): \PDO {
-        $dsn = isset($config['dsn'])
-            ? $config['dsn']
+    public static function createConnection($config): \PDO {
+        $dsn = is_string($config)
+            ? $config
             : $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';charset=UTF8';
         return new \PDO(
             $dsn,
@@ -56,7 +56,7 @@ class Db {
     }
 
     public function selectBool(string $sql, array $args = []): bool {
-        return (bool)$this->selectCell($sql, $args);
+        return (bool) $this->selectCell($sql, $args);
     }
 
     public function selectMap(string $sql, array $args = []): array {
@@ -155,6 +155,14 @@ class Db {
         return $result;
     }
 
+    public function useDb(string $dbName) {
+        $this->query('USE ?', [$dbName]);
+    }
+
+    public function createDb(string $dbName) {
+        $this->query('CREATE DATABASE ?', [$dbName]);
+    }
+
     public function createTables(array $tableDefinitions) {
         foreach ($tableDefinitions as $tableName => $tableDefinition) {
             $this->createTable($tableName, $tableDefinition);
@@ -248,7 +256,7 @@ class Db {
         });
     }
 
-    public function listTables() {
+    public function listTables(): array {
         return $this->fetchColumn("SHOW TABLES");
     }
 
@@ -258,6 +266,10 @@ class Db {
 
     public function renameColumn() {
         throw new NotImplementedException();
+    }
+
+    public function listDatabases(): array {
+        return $this->fetchColumn("SHOW DATABASES");
     }
 
     public static function quoteIdentifier($name) {
@@ -306,7 +318,7 @@ class Db {
     }
 
     protected function isOneOfTypes($type, array $types) {
-        return some(
+        return any(
             function ($expectedType) use ($type) {
                 return $this->typesEqual($type, $expectedType);
             },

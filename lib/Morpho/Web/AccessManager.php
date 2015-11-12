@@ -25,6 +25,7 @@ class AccessManager {
     }
 
     protected function hashPassword($pass) {
+        // @TODO: Use Identity\PasswordManager.
         return password_hash($pass, PASSWORD_DEFAULT);
     }
 }

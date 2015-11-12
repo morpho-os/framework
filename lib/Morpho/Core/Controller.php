@@ -103,6 +103,9 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->parent->getName();
     }
 
+    /**
+     * @return \Morpho\Db\Db
+     */
     protected function getDb() {
         return $this->serviceManager->get('db');
     }

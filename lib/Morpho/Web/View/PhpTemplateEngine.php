@@ -17,7 +17,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->plugins[$name];
     }
 
-    public function hiddenField($name, $value, array $attributes = null) {
+    public function hiddenInput($name, $value, array $attributes = null) {
         return TagRenderer::renderSingle(
             'input',
             [
@@ -63,7 +63,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function escapeHtml($value) {
+    protected static function escapeHtml($value) {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 

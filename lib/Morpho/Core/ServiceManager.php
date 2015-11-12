@@ -19,7 +19,8 @@ abstract class ServiceManager extends BaseServiceManager {
     }
 
     protected function createDbService() {
-        return new Db($this->config['db']);
+        $dbConfig = $this->config['db'];
+        return new Db(isset($dbConfig['dsn']) ? $dbConfig['dsn'] : $dbConfig);
     }
 
     abstract protected function createModuleManagerService();

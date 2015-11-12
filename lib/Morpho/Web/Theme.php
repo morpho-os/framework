@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Morpho\Web;
 
-use function Morpho\Base\dasherize;
+use function Morpho\Base\{dasherize, jsonEncode};
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
-use Zend\Json\Json;
 
 abstract class Theme extends Module {
     protected $suffix = '.phtml';
@@ -59,7 +58,7 @@ abstract class Theme extends Module {
             $request->getResponse()
                 ->getHeaders()
                 ->addHeaderLine('Content-Type', 'application/json');
-            return Json::encode($vars);
+            return jsonEncode($vars);
         }
         if (isset($args['layout'])) {
             $this->layout = dasherize($args['layout']);

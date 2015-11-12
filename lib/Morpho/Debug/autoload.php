@@ -7,7 +7,7 @@ require_once __DIR__ . '/Debugger.php';
 
 /**
  * @param $args
- * @return mixed
+ * @return void|Debugger
  */
 function d(...$args) {
     $debugger = Debugger::getInstance();

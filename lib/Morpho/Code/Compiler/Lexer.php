@@ -1,8 +1,9 @@
 <?php
-namespace Morpho\Code;
+namespace Morpho\Code\Compiler;
 
 /**
  * The base code for Lexer found at: https://github.com/nikic/Phlexy/blob/master/lib/Phlexy/Lexer/Stateless/Simple.php
+ * Related article can be found at: http://nikic.github.io/2011/10/23/Improving-lexing-performance-in-PHP.html
  */
 class Lexer implements ICompilerPhase {
     protected $regexToToken;

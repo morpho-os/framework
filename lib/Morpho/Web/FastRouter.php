@@ -47,6 +47,7 @@ class FastRouter extends Router {
             foreach ($routeMeta['controllers'] as $controllerMeta) {
                 foreach ($controllerMeta['actions'] as $actionMeta) {
                     if (preg_match('~[^\w/-]~si', $actionMeta['uri'])) {
+                        // @TODO
                         d($actionMeta);
                     }
                     $handler = [
@@ -60,7 +61,7 @@ class FastRouter extends Router {
         }
 
         $dispatchData = $routeCollector->getData();
-        File::write(CodeTool::varToPhp($dispatchData), $cacheFilePath);
+        CodeTool::writeVarToFile($dispatchData, $cacheFilePath);
     }
 
     protected function getCacheFilePath() {

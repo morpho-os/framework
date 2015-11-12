@@ -12,9 +12,9 @@ use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Logger\WebProcessor;
 use Morpho\Web\View\Compiler;
-use Morpho\Web\View\HtmlParser;
+use Morpho\Web\View\HtmlParserPost;
+use Morpho\Web\View\HtmlParserPre;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Error\CompositeListener;
 use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\LogListener;
@@ -43,8 +43,9 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine = new PhpTemplateEngine();
         $templateEngine->setCacheDirPath($this->get('siteManager')->getCurrentSite()->getCacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
-        $templateEngine->attach(new Compiler())
-            ->attach(new HtmlParser($this));
+        $templateEngine->attach(new HtmlParserPre($this))
+            ->attach(new Compiler())
+            ->attach(new HtmlParserPost($this));
         return $templateEngine;
     }
 

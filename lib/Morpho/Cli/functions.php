@@ -3,7 +3,20 @@ declare(strict_types=1);
 
 namespace Morpho\Cli;
 
-use function Morpho\Base\writeLn;
+use function Morpho\Base\{printLn, jsonDecode};
+use Morpho\Base\NotImplementedException;
+
+function printOk() {
+    printLn("OK");
+}
+
+function printError(string $string) {
+    fwrite(STDERR, $string);
+}
+
+function printErrorLn(string $string) {
+    printError($string . "\n");
+}
 
 function escapeEachArg(array $args): array {
     return array_map('escapeshellarg', $args);
@@ -13,13 +26,17 @@ function argString(array $args): string {
     return implode(' ', escapeEachArg($args));
 }
 
+function args(): ArgsHandler {
+    return new ArgsHandler();
+}
+
 /**
  * Runs command with additional check for error.
  */
 function cmdEx(string $command, $args = null): CommandResult {
     $result = cmd($command, $args);
     if ($result->isError()) {
-        throw new CliException();
+        throw new CliException((string) $result, $result->getExitCode());
     }
     return $result;
 }
@@ -34,10 +51,12 @@ function cmd(string $command, array $args = null): CommandResult {
 }
 
 function cmdJson(string $cmd, array $args = null): string {
-    return json_decode(
-        cmd($cmd, $args),
-        true
-    );
+    return jsonDecode(cmd($cmd, $args));
+}
+
+function pipe(array $commands) {
+    // @TODO:
+    throw new NotImplementedException();
 }
 
 function askYesNo($question) {
@@ -49,7 +68,7 @@ function askYesNo($question) {
         } elseif ($answer === 'n' || $answer === 'N') {
             return false;
         } else {
-            writeLn("Please answer: y, Y, n, N");
+            printLn("Please answer: y, Y, n, N");
         }
     } while (true);
 }

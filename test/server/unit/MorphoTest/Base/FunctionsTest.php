@@ -2,7 +2,7 @@
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
-use function Morpho\Base\{uniqueName, deleteDups, unescape, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn};
+use function Morpho\Base\{uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, printLn, normalizeEols};
 
 class FunctionsTest extends TestCase {
     public function setUp() {
@@ -13,15 +13,19 @@ class FunctionsTest extends TestCase {
         //resetState();
     }
 
-    public function testWriteLnSingle() {
+    public function testNormalizeEols() {
+        $this->markTestIncomplete();
+    }
+
+    public function testPrintLnSingle() {
         ob_start();
-        writeLn("Printed");
+        printLn("Printed");
         $this->assertEquals("Printed\n", ob_get_clean());
     }
 
-    public function testWriteLnMultiple() {
+    public function testPrintLnMultiple() {
         ob_start();
-        writeLn("bee", "ant");
+        printLn("bee", "ant");
         $this->assertEquals("bee\nant\n", ob_get_clean());
     }
 

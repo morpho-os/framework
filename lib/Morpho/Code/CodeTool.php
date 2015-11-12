@@ -1,12 +1,17 @@
 <?php
 namespace Morpho\Code;
 
+use Morpho\Fs\File;
 use SebastianBergmann\Exporter\Exporter;
 
 class CodeTool {
     public static function prettyPrintVar($var, bool $short = false): string {
         $exporter = new Exporter();
         return $short ? $exporter->shortenedExport($var) : $exporter->export($var);
+    }
+
+    public static function writeVarToFile($var, string $filePath, bool $stripNumericKeys = true) {
+        File::write($filePath, '<?php return ' . self::varToPhp($var, $stripNumericKeys));
     }
 
     public static function varToPhp($var, bool $stripNumericKeys = true): string {

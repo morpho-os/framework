@@ -11,8 +11,12 @@ class Repo extends Node {
     protected function insertRow(array $row) {
         return $this->getDb()->insertRow($this->tableName, $row);
     }
+
+    protected function selectBool(string $sql, array $args = []): bool {
+        return $this->getDb()->selectBool($sql, $args);
+    }
     
-    protected function selectRows($sql, array $args = []): array {
+    protected function selectRows(string $sql, array $args = []): array {
         return $this->getDb()->selectRows($sql, $args);
     }
 

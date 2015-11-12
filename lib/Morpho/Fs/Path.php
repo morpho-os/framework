@@ -13,32 +13,8 @@ class Path {
         || (isset($path[1]) && $path[1] === ':');
     }
 
-    public static function detectBaseProjectDirPath($dirPath = null, bool $throwEx = true): string {
-        if (null === $dirPath) {
-            $dirPath = __DIR__;
-        }
-        $rootDirPath = null;
-        do {
-            $path = $dirPath . '/vendor/composer/ClassLoader.php';
-            if (is_file($path)) {
-                $rootDirPath = $dirPath;
-                break;
-            } else {
-                $chunks = explode(DIRECTORY_SEPARATOR, $dirPath, -1);
-                $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
-            }
-        } while ($chunks);
-        if (null === $rootDirPath) {
-            if ($throwEx) {
-                throw new \RuntimeException("Unable to find path of root directory.");
-            }
-            return null;
-        }
-        return self::normalize($rootDirPath);
-    }
-
-    public static function assertSafe($filePath) {
-        if (false !== strpos($filePath, "\x00") || false !== strpos($filePath, '..')) {
+    public static function assertSafe(string $path) {
+        if (false !== strpos($path, "\x00") || false !== strpos($path, '..')) {
             throw new SecurityException("Invalid file path was detected.");
         }
     }
@@ -115,12 +91,12 @@ class Path {
         return (string)substr($path, strlen($basePath) + 1);
     }
 
-    public static function nameWithoutExt($path) {
+    public static function nameWithoutExt(string $path): string {
         return pathinfo($path, PATHINFO_FILENAME);
     }
 
-    public static function nameWithNewExt($path, $ext) {
-        return pathinfo($path, PATHINFO_FILENAME) . '.' . $ext;
+    public static function nameWithNewExt(string $path, string $ext): string {
+        return self::nameWithoutExt($path) . '.' . $ext;
     }
 
     /**

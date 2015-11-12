@@ -4,9 +4,10 @@ namespace MorphoTest\Web\View;
 use Morpho\Web\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
+use Morpho\Web\View\HtmlParserPost;
+use Morpho\Web\View\HtmlParserPre;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\PluginManager;
-use Morpho\Web\View\HtmlParser;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\Request;
 
@@ -16,11 +17,12 @@ class PhpTemplateEngineTest extends TestCase {
         $this->initCliEnv();
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
-        $this->engine->attach($compiler);
         $request = new Request();
         $request->setCurrentUri((new Uri())->setBasePath('/base/path'));
         $serviceManager = new ServiceManager(null, ['request' => $request]);
-        $this->engine->attach(new HtmlParser($serviceManager));
+        $this->engine->attach(new HtmlParserPre($serviceManager))
+            ->attach($compiler)
+            ->attach(new HtmlParserPost($serviceManager));
         $this->engine->setServiceManager($serviceManager);
         $this->engine->setCacheDirPath($this->getTmpDirPath());
         $this->engine->useCache(false);

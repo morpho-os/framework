@@ -2,9 +2,10 @@
 namespace MorphoTest\Xml;
 
 use Morpho\Test\TestCase;
+use Morpho\Xml\XmlTool;
 
 class XmlToolTest extends TestCase {
-    public function testToXmlDoc() {
+    public function testArrayToDomDoc() {
         $data = array(
             'student_info' => array(
                 'total_stud' => 500,
@@ -52,6 +53,6 @@ class XmlToolTest extends TestCase {
   </student>
 </student_info>
 XML;
-        $this->assertEquals(trim($expected), trim(\Morpho\Xml\XmlTool::toXmlDoc($data)->saveXml()));
+        $this->assertEquals(trim($expected), trim(XmlTool::arrayToDomDoc($data)->saveXml()));
     }
 }

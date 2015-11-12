@@ -1,51 +1,44 @@
 <?php
 namespace Morpho\Xml;
 
-use DOMXPath;
-use DOMNodeList;
-use RuntimeException;
-
 class XPathQuery {
     private $xPath;
 
     public function __construct(\DOMDocument $doc) {
-        $this->xPath = new DOMXPath($doc);
+        $this->xPath = new \DOMXPath($doc);
     }
 
     /**
      * @TODO: More effective algorithm.
      * @return null|DOMNode The first DOMNode that matches the XPath query or null if no matching node is found.
      */
-    public function single($xpath, $contextNode = null) {
-        return $this->all($xpath, $contextNode)->item(0);
+    public function single(string $xPath, $contextNode = null) {
+        return $this->all($xPath, $contextNode)->head();
     }
 
-    /**
-     * @return DOMNodeList A list of nodes matching the XPath query.
-     */
-    public function all($xpath, $contextNode = null) {
-        $nodeList = $this->xpath($xpath, $contextNode);
-        if (!$nodeList instanceof DOMNodeList) {
-            throw new RuntimeException('Unable to select DOMNodeList, consider to use the xpath() method instead.');
+    public function all(string $xPath, $contextNode = null): XPathResult {
+        $nodeList = $this->xPath($xPath, $contextNode);
+        if (!$nodeList instanceof \DOMNodeList) {
+            throw new \RuntimeException('Unable to select DOMNodeList, consider to use the xPath() method instead.');
         }
 
-        return $nodeList;
+        return new XPathResult($nodeList);
     }
 
-    public function xpath($xpath, $contextNode = null) {
+    public function xPath(string $xPath, $contextNode = null) {
         if (null !== $contextNode) {
-            $result = $this->xPath->evaluate($xpath, $contextNode);
+            $result = $this->xPath->evaluate($xPath, $contextNode);
         } else {
-            $result = $this->xPath->evaluate($xpath);
+            $result = $this->xPath->evaluate($xPath);
         }
         if (false === $result) {
-            throw new RuntimeException("The XPath expression '$xpath' is not valid.");
+            throw new \RuntimeException("The XPath expression '$xPath' is not valid.");
         }
 
         return $result;
     }
 
-    public function getXpath($node) {
+    public function getXPath($node) {
         /*
         @TODO
         if ($node instanceof SimpleXMLElement) {
@@ -67,9 +60,9 @@ class XPathQuery {
         */
     }
 
-    public function position($xpath) {
-        $xpath = "count($xpath/preceding-sibling::*)+1";
+    public function position($xPath) {
+        $xpath = "count($xPath/preceding-sibling::*)+1";
 
-        return $this->xpath($xpath);
+        return $this->xpath($xPath);
     }
 }

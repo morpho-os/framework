@@ -7,12 +7,20 @@ class ArrayTool {
         throw new NotImplementedException();
     }
 
+    public static function permutations(array $arr, int $n, bool $allowDups = false): array {
+        throw new NotImplementedException();
+    }
+
+    public static function combinations(array $arr, int $n, bool $allowDups = false): array {
+        throw new NotImplementedException();
+    }
+
     public static function filterByKeys(array $arr, array $keys): array {
         return array_intersect_key($arr, array_flip(array_values($keys)));
     }
 
     /**
-     * Union for sets.
+     * Union for sets, for difference use array_diff(), for intersection use array_intersect().
      */
     public static function union(...$arr): array {
         return array_unique(array_merge(...$arr));
@@ -43,6 +51,7 @@ class ArrayTool {
     }
 
     public static function head(array $list) {
+        // @TODO: Move to the \Base
         if (!count($list)) {
             throw new \UnexpectedValueException("Empty list");
         }
@@ -50,6 +59,7 @@ class ArrayTool {
     }
 
     public static function tail(array $list) {
+        // @TODO: Move to the \Base
         if (!count($list)) {
             throw new \UnexpectedValueException("Empty list");
         }
@@ -58,6 +68,7 @@ class ArrayTool {
     }
 
     public static function last(array $list) {
+        // @TODO: Move to the \Base
         if (!count($list)) {
             throw new \UnexpectedValueException("Empty list");
         }
@@ -65,6 +76,7 @@ class ArrayTool {
     }
 
     public static function init(array $list) {
+        // @TODO: Move to the \Base
         if (!count($list)) {
             throw new \UnexpectedValueException("Empty list");
         }

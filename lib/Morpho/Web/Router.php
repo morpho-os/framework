@@ -36,7 +36,11 @@ abstract class Router implements IServiceManagerAware {
 
     abstract public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null);
 
-    protected function buildRoutesMeta(...$args) {
+    public function dumpRoutes(): array {
+        return $this->buildRoutesMeta(MODULE_DIR_PATH);
+    }
+
+    protected function buildRoutesMeta(...$args): array {
         if (count($args) !== 1) {
             throw new \LogicException("Invalid number of arguments");
         }

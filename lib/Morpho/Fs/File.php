@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace Morpho\Fs;
 
 use Morpho\Base\ArrayTool;
-use Zend\Json\Json;
+use Morpho\Base\NotImplementedException;
+use function Morpho\Base\{jsonDecode, jsonEncode};
 
 class File extends Entry {
     /**
@@ -54,17 +55,33 @@ class File extends Entry {
     }
 
     /**
-     * Returns decoded json file's content.
+     * @return mixed Returns decoded json file's content.
      */
-    public static function readJson(string $filePath, bool $asArray = true) {
-        return Json::decode(self::read($filePath), $asArray ? Json::TYPE_ARRAY : Json::TYPE_OBJECT);
+    public static function readJson(string $filePath) {
+        return jsonDecode(self::read($filePath));
     }
 
     /**
      * Writes json to the file and returns the file path.
      */
     public static function writeJson(string $filePath, $json): string {
-        return self::write($filePath, Json::encode($json, false, ['prettyPrint' => true]));
+        return self::write($filePath, jsonEncode($json));
+    }
+
+    public static function readCsv(string $filePath): \Generator {
+        $handle = fopen(__DIR__, "r");
+        if (!$handle) {
+            throw new IoException("Unable to read the '$filePath' file");
+        }
+        // @TODO: Handle second argument
+        while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            yield $row;
+        }
+        fclose($handle);
+    }
+
+    public static function writeCsv(string $filePath) {
+        throw new NotImplementedException(__METHOD__);
     }
 
     /**
@@ -113,6 +130,13 @@ class File extends Entry {
         }
 
         return $filePath;
+    }
+
+    /**
+     * Has the same effect as truncate but should be used in different situation/context.
+     */
+    public static function createEmpty(string $filePath) {
+        self::truncate($filePath);
     }
 
     /**
@@ -189,5 +213,9 @@ class File extends Entry {
         }
 
         return $uniquePath;
+    }
+
+    public static function filterLines(callable $filter, string $filePath): \Generator {
+        throw new NotImplementedException(__METHOD__);
     }
 }

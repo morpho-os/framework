@@ -8,38 +8,34 @@ class HandlerManager {
     const ERROR = 'error';
     const EXCEPTION = 'exception';
 
-    public static function callCurrent($handlerType, $args = array()) {
-        $handler = self::getCurrent($handlerType);
-        if (null !== $handler) {
-            call_user_func_array($handler, $args);
-        }
-    }
-
     /**
      * @param $handlerType
      * @param callable $callback
      * @return bool
      */
-    public static function isRegistered($handlerType, callable $callback) {
+    public static function isRegistered(string $handlerType, callable $callback) {
         return in_array($callback, self::getAll($handlerType));
     }
 
-    public static function register($handlerType, callable $callback) {
-        self::checkType($handlerType);
-        $previousHandler = call_user_func('set_' . $handlerType . '_handler', $callback);
-
-        return $previousHandler;
+    /**
+     * @return callable|null
+     */
+    public static function register(string $handlerType, callable $callback) {
+        if ($handlerType === self::ERROR) {
+            return set_error_handler($callback);
+        } elseif ($handlerType === self::EXCEPTION) {
+            return set_exception_handler($callback);
+        }
+        self::invalidHandlerTypeException($handlerType);
     }
 
     /**
-     * @param string $handlerType
      * @param callable|null $callback
      *     If null all handlers will be deleted. If callback
      *     was provided then all handlers before will be deleted that are
      *     above in the inner PHP stack of handlers.
-     * @return void
      */
-    public static function unregister($handlerType, callable $callback = null) {
+    public static function unregister(string $handlerType, callable $callback = null) {
         self::checkType($handlerType);
 
         $method = 'restore_' . $handlerType . '_handler';
@@ -50,6 +46,14 @@ class HandlerManager {
         } while ($handler && $handler !== $callback);
     }
 
+    public static function getExceptionHandler() {
+        return self::getCurrent(self::EXCEPTION);
+    }
+
+    public static function getErrorHandler() {
+        return self::getCurrent(self::ERROR);
+    }
+
     public static function getAllExceptionHandlers() {
         return self::getAll(self::EXCEPTION);
     }
@@ -58,13 +62,13 @@ class HandlerManager {
         return self::getAll(self::ERROR);
     }
 
-    public static function getAll($handlerType) {
+    public static function getAll(string $handlerType) {
         self::checkType($handlerType);
 
         $unregisterMethod = 'restore_' . $handlerType . '_handler';
         $registerMethod = 'set_' . $handlerType . '_handler';
 
-        $handlers = array();
+        $handlers = [];
 
         do {
             $handler = self::getCurrent($handlerType);
@@ -87,7 +91,7 @@ class HandlerManager {
      * @param string $handlerType
      * @return callable|null
      */
-    public static function getCurrent($handlerType) {
+    public static function getCurrent(string $handlerType) {
         self::checkType($handlerType);
 
         $currentHandler = call_user_func('set_' . $handlerType . '_handler', array(__CLASS__, __FUNCTION__));
@@ -96,9 +100,13 @@ class HandlerManager {
         return $currentHandler;
     }
 
-    private static function checkType($handlerType) {
-        if (!in_array($handlerType, array(self::ERROR, self::EXCEPTION))) {
-            throw new \InvalidArgumentException("Invalid handler type was provided '$handlerType'.");
+    private static function checkType(string $handlerType) {
+        if (!in_array($handlerType, [self::ERROR, self::EXCEPTION], true)) {
+            self::invalidHandlerTypeException($handlerType);
         }
+    }
+
+    private static function invalidHandlerTypeException(string $handlerType) {
+        throw new \InvalidArgumentException("Invalid handler type was provided '$handlerType'.");
     }
 }

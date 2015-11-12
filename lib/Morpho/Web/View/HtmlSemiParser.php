@@ -20,12 +20,12 @@ class HtmlSemiParser extends BaseFilter {
     /**
      * Containers, whose bodies are not parsed by the library.
      */
-    protected $ignoredTags = array('script', 'iframe', 'textarea', 'select', 'title');
+    protected $ignoredTags = [];//array('script', 'iframe', 'textarea', 'select', 'title');
     protected $skipIgnoredTags = true;
 
-    private $tagHandlers = array();
-    private $containerHandlers = array();
-    private $sp_precachers = array();
+    private $tagHandlers = [];
+    private $containerHandlers = [];
+    private $sp_precachers = [];
 
     private $replaceHash; // unique hash to replace all the tags
     private $spIgnored;
@@ -72,7 +72,7 @@ class HtmlSemiParser extends BaseFilter {
     public function attachTagHandler($tagName, callable $handler, $atFront = false) {
         $tagName = strtolower($tagName);
         if (!isset($this->tagHandlers[$tagName])) {
-            $this->tagHandlers[$tagName] = array();
+            $this->tagHandlers[$tagName] = [];
         }
         if (!$atFront) {
             array_push($this->tagHandlers[$tagName], $handler);
@@ -94,7 +94,7 @@ class HtmlSemiParser extends BaseFilter {
     public function attachContainerHandler($tagName, $handler, $atFront = false) {
         $tagName = strtolower($tagName);
         if (!isset($this->containerHandlers[$tagName])) {
-            $this->containerHandlers[$tagName] = array();
+            $this->containerHandlers[$tagName] = [];
         }
         if (!$atFront) {
             array_push($this->containerHandlers[$tagName], $handler);
@@ -108,29 +108,29 @@ class HtmlSemiParser extends BaseFilter {
             if (0 === strpos($method, $this->tagHandlerPrefix)) {
                 $this->attachTagHandler(
                     substr($method, strlen($this->tagHandlerPrefix)),
-                    array($obj, $method),
+                    [$obj, $method],
                     $atFront
                 );
             }
             if (0 === strpos($method, $this->containerHandlerPrefix)) {
                 $this->attachContainerHandler(
                     substr($method, strlen($this->containerHandlerPrefix)),
-                    array($obj, $method),
+                    [$obj, $method],
                     $atFront
                 );
             }
         }
         // Add object precacher & post-processors if present.
         if (!isset($this->selfAdd)) {
-            $pNames = array(
+            $pNames = [
                 'preCacheTags' => 'sp_precachers',
-            );
+            ];
             foreach ($pNames as $pname => $var) {
                 if (method_exists($obj, $pname)) {
                     if (!$atFront) {
-                        array_push($this->$var, array($obj, $pname));
+                        array_push($this->$var, [$obj, $pname]);
                     } else {
-                        array_unshift($this->$var, array($obj, $pname));
+                        array_unshift($this->$var, [$obj, $pname]);
                     }
                 }
             }
@@ -148,7 +148,7 @@ class HtmlSemiParser extends BaseFilter {
         $reTagIn = $this->regexpTagIn;
 
         // Remove ignored container bodies from the string.
-        $this->spIgnored = array();
+        $this->spIgnored = [];
         if ($this->skipIgnoredTags) {
             $reIgnoredNames = join("|", $this->ignoredTags);
             $reIgnored = "{(<($reIgnoredNames) (?> \s+ $reTagIn)? >) (.*?) (</\\2>)}six";
@@ -159,23 +159,23 @@ class HtmlSemiParser extends BaseFilter {
             ini_set('pcre.backtrack_limit', 1024 * 1024 * 10);
             $html = preg_replace_callback(
                 $reIgnored,
-                array($this, "ignoredTagsToHash"),
+                [$this, "ignoredTagsToHash"],
                 $html
             );
             ini_set('pcre.backtrack_limit', $oldLimit);
         }
-        $sp_ignored = array(
+        $sp_ignored = [
             $this->spIgnored,
             array_keys($this->spIgnored),
-            array_values($this->spIgnored)
-        );
+            array_values($this->spIgnored),
+        ];
         unset($this->spIgnored);
 
         // Replace tags and containers.
         $hashlen = strlen($this->replaceHash) + 10;
         $reTagNames = join("|", array_keys($this->tagHandlers));
         $reConNames = join("|", array_keys($this->containerHandlers));
-        $infos = array();
+        $infos = [];
         // (? >...) [without space] is much faster than (?:...) in this case.
         if ($this->tagHandlers) {
             $infos["tagHandlers"] = "/( <($reTagNames) (?> (\s+ $reTagIn) )? > () )/isx";
@@ -186,8 +186,8 @@ class HtmlSemiParser extends BaseFilter {
         foreach ($infos as $src => $re) {
             // Split buffer into tags.
             $chunks = preg_split($re, $html, 0, PREG_SPLIT_DELIM_CAPTURE);
-            $textParts = array($chunks[0]); // unparsed text parts
-            $foundTags = array(); // found tags
+            $textParts = [$chunks[0]]; // unparsed text parts
+            $foundTags = []; // found tags
             for ($i = 1, $n = count($chunks); $i < $n; $i += 5) {
                 // $i points to sequential tag (or container) subchain.
                 $tOrig = $chunks[$i]; // - original tag text
@@ -197,7 +197,7 @@ class HtmlSemiParser extends BaseFilter {
                 $tFollow = $chunks[$i + 4]; // - following unparsed text block
 
                 // Add tag to array for precaching.
-                $tag = array();
+                $tag = [];
                 $this->parseAttrib($tAttr, $tag);
                 $tag['_orig'] = $tOrig;
                 $tag['_tagName'] = $tName;
@@ -321,7 +321,7 @@ class HtmlSemiParser extends BaseFilter {
         foreach ($this->sp_precachers as $pk) {
             // call_user_func() does not support &-parameters
             // while allow_call_time_pass_reference=false
-            call_user_func_array($pk, array(&$foundTags));
+            call_user_func_array($pk, [&$foundTags]);
         }
     }
 
@@ -381,7 +381,7 @@ class HtmlSemiParser extends BaseFilter {
         $names = $regs[1];
         $checks = $regs[2];
         $values = $regs[3];
-        $attr = array();
+        $attr = [];
         for ($i = 0, $c = count($names); $i < $c; $i++) {
             $name = strtolower($names[$i]);
             if (!@$checks[$i]) {

@@ -1,8 +1,9 @@
 <?php
+use Morpho\Core\Application;
 use Morpho\Fs\Path;
 
 if (!defined('BASE_DIR_PATH')) {
-    define('BASE_DIR_PATH', Path::detectBaseProjectDirPath(__DIR__));
+    define('BASE_DIR_PATH', Application::detectBaseDirPath(__DIR__));
 }
 if (!Path::isNormalized(BASE_DIR_PATH)) {
     throw new \RuntimeException("The 'BASE_DIR_PATH' must be normalized: replace backslashes with forward slashes and remove the last right slash.");

@@ -5,7 +5,7 @@ use Morpho\Test\TestCase;
 use Morpho\Code\CodeTool;
 
 class CodeToolTest extends TestCase {
-    public function testVarToPhp_ClosuresToFile() {
+    public function testVar_ClosuresToFile() {
         $this->markTestIncomplete();
         $php = CodeTool::varToPhp(function () {
             echo "OK";

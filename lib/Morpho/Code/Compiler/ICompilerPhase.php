@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Code;
+namespace Morpho\Code\Compiler;
 
 interface ICompilerPhase {
 
