@@ -46,7 +46,7 @@ function wrap($string, string $wrapper): string {
     return $wrapper . $string . $wrapper;
 }
 
-function printLn(...$messages) {
+function writeLn(...$messages) {
     echo implode("\n", $messages) . "\n";
 }
 

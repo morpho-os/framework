@@ -39,8 +39,8 @@ class HtmlParserPost extends HtmlParser {
             if ($compile) {
                 $this->runTsc($inOutFilePaths[0], $inOutFilePaths[1]);
             }
-            //$text[] = implode("\n", filter($removeRefs, File::readAsArray($inOutFilePaths[1])));
-            $text[] = file_get_contents($inOutFilePaths[1]);
+            $text[] = implode("\n", filter($removeRefs, File::readAsArray($inOutFilePaths[1])));
+            //$text[] = file_get_contents($inOutFilePaths[1]);
         }
         $scriptTag['_text'] = implode("\n", $text) . $tag['_text'];
         $scriptTag['_tagName'] = 'script';
@@ -48,8 +48,9 @@ class HtmlParserPost extends HtmlParser {
     }
 
     protected function runTsc(string $inFilePath, string $outFilePath) {
-        // Note: the node and tsc must be in $PATH.
-        cmdEx('PATH=$PATH:/usr/local/bin tsc --removeComments --noImplicitAny --suppressImplicitAnyIndexErrors --noEmitOnError --newLine LF --out ' . escapeshellarg($outFilePath) . ' ' . escapeshellarg($inFilePath));
+        // Note: node and tsc must be in $PATH.
+        // @TODO: Take into account the $outFilePath
+        cmdEx('PATH=$PATH:/opt/nodejs/v4.0.0/bin tsc --removeComments --noImplicitAny --suppressImplicitAnyIndexErrors --noEmitOnError --newLine LF ' . escapeshellarg($inFilePath));
     }
 
     protected function containerBody($tag) {

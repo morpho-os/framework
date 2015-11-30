@@ -10,6 +10,7 @@ use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\ServiceManager as BaseServiceManager;
+use Morpho\Identity\UserManager;
 use Morpho\Logger\WebProcessor;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\HtmlParserPost;
@@ -51,10 +52,6 @@ class ServiceManager extends BaseServiceManager {
 
     protected function createMessengerService() {
         return new Messenger();
-    }
-
-    protected function createAccessManagerService() {
-        return new AccessManager($this->get('session'), $this->get('db'));
     }
 
     protected function createModuleManagerService() {
@@ -115,6 +112,10 @@ class ServiceManager extends BaseServiceManager {
         }
 
         return $logger;
+    }
+
+    public function createUserManagerService() {
+        return new UserManager($this->get('db'), $this->get('session'));
     }
 
     protected function isFallbackMode() {

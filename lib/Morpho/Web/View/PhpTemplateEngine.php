@@ -28,6 +28,10 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         );
     }
 
+    public function IsGuestUser() {
+        return $this->serviceManager->get('userManager')->isGuestUser();
+    }
+
     public function uriWithRedirectToSelf($uri): string {
         $currentUri = $this->currentUri();
         $relativeRef = $currentUri->relativeRef();

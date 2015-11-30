@@ -3,19 +3,19 @@ declare(strict_types=1);
 
 namespace Morpho\Cli;
 
-use function Morpho\Base\{printLn, jsonDecode};
+use function Morpho\Base\{writeLn, jsonDecode};
 use Morpho\Base\NotImplementedException;
 
-function printOk() {
-    printLn("OK");
+function writeOk() {
+    writeLn("OK");
 }
 
-function printError(string $string) {
+function writeError(string $string) {
     fwrite(STDERR, $string);
 }
 
-function printErrorLn(string $string) {
-    printError($string . "\n");
+function writeErrorLn(string $string) {
+    writeError($string . "\n");
 }
 
 function escapeEachArg(array $args): array {
@@ -68,7 +68,7 @@ function askYesNo($question) {
         } elseif ($answer === 'n' || $answer === 'N') {
             return false;
         } else {
-            printLn("Please answer: y, Y, n, N");
+            writeLn("Please answer: y, Y, n, N");
         }
     } while (true);
 }

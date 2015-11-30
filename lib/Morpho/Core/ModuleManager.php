@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Morpho\Core;
 
-use Morpho\Base\{NotImplementedException, Node as BaseNode, IEventManager};
+use function Morpho\Base\classify;
+use Morpho\Base\IEventManager;
 use Morpho\Db\Db;
 
 abstract class ModuleManager extends Node implements IEventManager {
@@ -86,6 +87,9 @@ abstract class ModuleManager extends Node implements IEventManager {
                         $handler['method']
                     ];
                 }
+                if (!is_callable($handler)) {
+                    continue;
+                }
                 $result = call_user_func($handler, $event);
                 if (null !== $result) {
                     return $result;
@@ -162,7 +166,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         foreach ($modules as $moduleName) {
             $moduleId = $this->getModuleIdByName($moduleName);
             $this->db->query("DELETE FROM event WHERE moduleId = ?", [$moduleId]);
-            foreach ($this->getEventsOfModule($this->getChild($moduleName), $moduleId) as $event) {
+            foreach ($this->getEvents($this->getChild($moduleName), $moduleId) as $event) {
                 $this->db->insertRow('event', array_merge($event, ['moduleId' => $moduleId]));
             }
         }
@@ -226,7 +230,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $moduleAutoloader = $this->getModuleAutoloader();
         foreach ($moduleAutoloader as $class => $path) {
-            if (substr($class, -(strlen(MODULE_SUFFIX) + 1)) !== '\\' . MODULE_SUFFIX) {
+            $isModuleClass = substr($class, -strlen(MODULE_SUFFIX)) === MODULE_SUFFIX;
+            if (!$isModuleClass) {
                 continue;
             }
             $moduleName = $this->classToName($class);
@@ -260,7 +265,6 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected function childNameToClass(string $moduleName): string {
         return $moduleName . '\\' . MODULE_SUFFIX;
     }
-
     protected function classToName(string $class): string {
         $suffixLength = strlen(MODULE_SUFFIX);
         if (substr($class, -$suffixLength) !== MODULE_SUFFIX) {
@@ -295,7 +299,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    protected function getEventsOfModule(Module $module): array {
+    protected function getEvents(Module $module): array {
         $rClass = new \ReflectionClass($module);
         $rClasses = [$rClass];
         while ($rClass = $rClass->getParentClass()) {

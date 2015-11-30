@@ -43,9 +43,9 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         $this->restoreIniSettings();
     }
 
-    public function handleError($severity, $message, $filePath, $line, $context) {
+    public function handleError($severity, $message, $filePath, $lineNo, $context) {
         if ($severity & error_reporting()) {
-            throw self::errorToException($severity, $message, $filePath, $line, $context);
+            throw self::errorToException($severity, $message, $filePath, $lineNo, $context);
         }
     }
 
@@ -87,9 +87,9 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return $this->exitOnFatalError;
     }
 
-    public static function errorToException($severity, $message, $filePath, $line, $context): \ErrorException {
+    public static function errorToException($severity, $message, $filePath, $lineNo, $context): \ErrorException {
         $class = self::getExceptionClass($severity);
-        return new $class($message, 0, $severity, $filePath, $line);
+        return new $class($message, 0, $severity, $filePath, $lineNo);
     }
 
     protected function setIniSettings() {

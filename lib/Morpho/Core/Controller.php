@@ -62,10 +62,6 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->request;
     }
 
-    protected function getAccessManager() {
-        return $this->serviceManager->get('accessManager');
-    }
-
     protected function trigger(string $event, array $args = null) {
         return $this->getParent('ModuleManager')->trigger($event, $args);
     }
