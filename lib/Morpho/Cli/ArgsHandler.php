@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Cli;
 
-use function Morpho\Base\{filter, all, any, fold};
+use function Morpho\Base\{filter, all, any, reduce};
 use Morpho\Code\Compiler\Lexer;
 
 class ArgsHandler {
@@ -110,7 +110,7 @@ class ArgsHandler {
         };
 
         $extractValues = function (array $args) {
-            return fold(function ($prev, $cur) {
+            return reduce(function ($prev, $cur) {
                 $prev[] = $cur['value'];
                 return $prev;
             }, $args, []);

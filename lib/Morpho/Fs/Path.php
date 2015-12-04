@@ -91,12 +91,38 @@ class Path {
         return (string)substr($path, strlen($basePath) + 1);
     }
 
-    public static function nameWithoutExt(string $path): string {
-        return pathinfo($path, PATHINFO_FILENAME);
+    public static function normalizeExt(string $ext): string {
+        return ltrim($ext, '.');
     }
 
-    public static function nameWithNewExt(string $path, string $ext): string {
-        return self::nameWithoutExt($path) . '.' . $ext;
+    public static function baseName(string $path): string {
+        $parts = explode('/', self::normalize($path));
+        $fileName = array_pop($parts);
+        $ext = self::ext($fileName);
+        return !empty($ext) ? basename($fileName, '.' . $ext) : $fileName;
+    }
+
+    public static function fileName(string $path): string {
+        return pathinfo($path, PATHINFO_BASENAME);
+    }
+
+    public static function ext(string $path): string {
+        $fileName = self::fileName($path);
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        return substr($fileName, 0, 1) === '.' && strlen($ext) === strlen($fileName) - 1  // $fileName starts with dot?
+            ? ''
+            : $ext;
+    }
+
+    public static function newExt(string $path, string $ext): string {
+        $parts = explode('/', self::normalize($path));
+        $fileName = array_pop($parts);
+        $oldExt = self::ext($fileName);
+        $baseName = !empty($oldExt) ? basename($fileName, '.' . $oldExt) : $fileName;
+        $newExt = !empty($ext) ? '.' . ltrim($ext, '.') : '';
+        return count($parts)
+            ? implode('/', $parts) . '/' . $baseName . $newExt
+            : $baseName . $newExt;
     }
 
     /**

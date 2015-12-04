@@ -38,12 +38,16 @@ function filter(callable $filter, array $arr, bool $resetKeys = true, int $flags
 /**
  * $fn has type (mixed $prev, mixed $cur): mixed
  */
-function fold(callable $fn, array $arr, $initial = null) {
+function reduce(callable $fn, array $arr, $initial = null) {
     return array_reduce($arr, $fn, $initial);
 }
 
 function wrap($string, string $wrapper): string {
     return $wrapper . $string . $wrapper;
+}
+
+function quotes($string): string {
+    return "'$string'";
 }
 
 function writeLn(...$messages) {

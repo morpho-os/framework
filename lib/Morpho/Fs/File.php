@@ -11,13 +11,13 @@ class File extends Entry {
     /**
      * Reads file as string.
      */
-    public static function read(string $filePath, array $options = []): string {
+    public static function read(string $filePath, array $options = null): string {
         if (!is_file($filePath)) {
             throw new FileNotFoundException($filePath);
         }
 
         $options = ArrayTool::handleOptions(
-            $options,
+            (array) $options,
             [
                 'lock' => false,
                 'offset' => -1,
@@ -84,47 +84,30 @@ class File extends Entry {
         throw new NotImplementedException(__METHOD__);
     }
 
+    public static function prepend(string $filePath, string $content, array $readOptions = null, array $writeOptions = null): string {
+        $writeOptions['append'] = false;
+        return self::write(
+            $filePath,
+            $content . self::read($filePath, $readOptions),
+            $writeOptions
+        );
+    }
+
     /**
      * Appends content to the file and returns the file path.
      */
-    public static function append(string $filePath, string $content, array $options): string {
-        return self::write(
-            $filePath,
-            $content,
-            ArrayTool::handleOptions($options, ['append' => true])
-        );
+    public static function append(string $filePath, string $content, array $options = null): string {
+        return self::write($filePath, $content, ArrayTool::handleOptions((array) $options, ['append' => true]));
     }
 
     /**
      * Writes string to file.
      */
-    public static function write(string $filePath, string $content, array $options = []): string {
+    public static function write(string $filePath, string $content, array $options = null): string {
         if (empty($filePath)) {
             throw new IoException("The file path is empty.");
         }
-
-        $options = ArrayTool::handleOptions(
-            $options,
-            [
-                'useIncludePath' => false,
-                'lock' => true,
-                'append' => false,
-                'context' => null,
-                'mode' => 0644,
-            ]
-        );
-
-        $flags = 0;
-        if ($options['append']) {
-            $flags |= FILE_APPEND;
-        }
-        if ($options['lock']) {
-            $flags |= LOCK_EX;
-        }
-        if ($options['useIncludePath']) {
-            $flags |= FILE_USE_INCLUDE_PATH;
-        }
-        $result = @file_put_contents($filePath, $content, $flags, $options['context']);
+        $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array) $options), $options['context']);
         if (!$result) {
             throw new IoException("Unable to write to the file '$filePath'.");
         }
@@ -217,5 +200,29 @@ class File extends Entry {
 
     public static function filterLines(callable $filter, string $filePath): \Generator {
         throw new NotImplementedException(__METHOD__);
+    }
+
+    protected static function filePutContentsOptionsToFlags(array $options): int {
+        $options = ArrayTool::handleOptions(
+            $options,
+            [
+                'useIncludePath' => false,
+                'lock' => true,
+                'append' => false,
+                'context' => null,
+                'mode' => 0644,
+            ]
+        );
+        $flags = 0;
+        if ($options['append']) {
+            $flags |= FILE_APPEND;
+        }
+        if ($options['lock']) {
+            $flags |= LOCK_EX;
+        }
+        if ($options['useIncludePath']) {
+            $flags |= FILE_USE_INCLUDE_PATH;
+        }
+        return $flags;
     }
 }

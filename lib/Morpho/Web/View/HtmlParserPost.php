@@ -20,8 +20,8 @@ class HtmlParserPost extends HtmlParser {
         $filesToCompile = [];
         $compile = false;
         foreach (array_map('trim', explode(',', $tag['src'])) as $fileName) {
-            $inFilePath = $inDirPath . '/' . Path::nameWithNewExt($fileName, 'ts');
-            $outFilePath = $outDirPath . '/' . Path::nameWithNewExt($inFilePath, 'js');
+            $inFilePath = $inDirPath . '/' . Path::newExt($fileName, 'ts');
+            $outFilePath = $outDirPath . '/' . Path::newExt($inFilePath, 'js');
             if (!is_file($inFilePath)) {
                 throw new \RuntimeException("The '$inFilePath' does not exist");
             }

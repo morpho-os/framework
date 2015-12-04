@@ -156,7 +156,6 @@ class Debugger {
         if ($fix) {
             $output = preg_replace('~\s*=>\s*~si', ' => ', $output);
         }
-
         return $this->formatLine($output);
     }
 

@@ -155,6 +155,10 @@ class Db {
         return $result;
     }
 
+    public function inTransaction(): bool {
+        return $this->conn->inTransaction();
+    }
+
     public function useDb(string $dbName) {
         $this->query('USE ?', [$dbName]);
     }

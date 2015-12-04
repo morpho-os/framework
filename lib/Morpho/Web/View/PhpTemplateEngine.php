@@ -28,7 +28,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         );
     }
 
-    public function IsGuestUser() {
+    public function isGuestUser() {
         return $this->serviceManager->get('userManager')->isGuestUser();
     }
 
