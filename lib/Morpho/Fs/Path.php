@@ -5,8 +5,6 @@ use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
 
 class Path {
-    const BASE64_URI_REGEXP = '[A-Za-z0-9+\\-_]';
-
     public static function isAbsolute(string $path): bool {
         return $path !== ''
         && ($path[0] === '/' || $path[0] === '\\')
@@ -91,63 +89,38 @@ class Path {
         return (string)substr($path, strlen($basePath) + 1);
     }
 
-    public static function normalizeExt(string $ext): string {
-        return ltrim($ext, '.');
+    public static function ext(string $path): string {
+        return pathinfo($path, PATHINFO_EXTENSION);
     }
 
-    public static function baseName(string $path): string {
-        $parts = explode('/', self::normalize($path));
-        $fileName = array_pop($parts);
-        $ext = self::ext($fileName);
-        return !empty($ext) ? basename($fileName, '.' . $ext) : $fileName;
+    public static function nameWithoutExt(string $path): string {
+        return pathinfo($path, PATHINFO_FILENAME);
     }
 
     public static function fileName(string $path): string {
         return pathinfo($path, PATHINFO_BASENAME);
     }
 
-    public static function ext(string $path): string {
-        $fileName = self::fileName($path);
-        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        return substr($fileName, 0, 1) === '.' && strlen($ext) === strlen($fileName) - 1  // $fileName starts with dot?
-            ? ''
-            : $ext;
+    public static function normalizeExt(string $ext): string {
+        return ltrim($ext, '.');
     }
 
     public static function newExt(string $path, string $ext): string {
         $parts = explode('/', self::normalize($path));
         $fileName = array_pop($parts);
-        $oldExt = self::ext($fileName);
-        $baseName = !empty($oldExt) ? basename($fileName, '.' . $oldExt) : $fileName;
-        $newExt = !empty($ext) ? '.' . ltrim($ext, '.') : '';
+        if (!empty($ext)) {
+            $ext = '.' . self::normalizeExt($ext);
+            $extLength = strlen($ext);
+            if (substr($path, -$extLength) === $ext) {
+                $baseName = substr($fileName, 0, -$extLength);
+            } else {
+                $baseName = self::nameWithoutExt($fileName);
+            }
+        } else {
+            $baseName = self::nameWithoutExt($fileName);
+        }
         return count($parts)
-            ? implode('/', $parts) . '/' . $baseName . $newExt
-            : $baseName . $newExt;
-    }
-
-    /**
-     * @see http://tools.ietf.org/html/rfc4648#section-5
-     * @see http://php.net/base64_encode#103849
-     */
-    public static function base64Encode(string $uri): string {
-        return rtrim(
-            strtr(
-                base64_encode($uri),
-                '+/',
-                '-_'
-            ),
-            '='
-        );
-    }
-
-    public static function base64Decode(string $uri): string {
-        return base64_decode(
-            str_pad(
-                strtr($uri, '-_', '+/'),
-                strlen($uri) % 4,
-                '=',
-                STR_PAD_RIGHT
-            )
-        );
+            ? implode('/', $parts) . '/' . $baseName . $ext
+            : $baseName . $ext;
     }
 }

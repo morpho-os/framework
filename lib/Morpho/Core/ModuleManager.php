@@ -228,13 +228,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             $exclude = $this->db->selectColumn("name FROM $this->tableName ORDER BY name");
             $modules = [];
         }
-        $moduleAutoloader = $this->getModuleAutoloader();
-        foreach ($moduleAutoloader as $class => $path) {
-            $isModuleClass = substr($class, -strlen(MODULE_SUFFIX)) === MODULE_SUFFIX;
-            if (!$isModuleClass) {
-                continue;
-            }
-            $moduleName = $this->classToName($class);
+        foreach ($this->getModuleClassLoader() as $moduleName => $dirPath) {
             if (in_array($moduleName, $exclude)) {
                 continue;
             }
@@ -242,7 +236,6 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $modules[] = $moduleName;
             }
         }
-
         return $modules;
     }
 
@@ -258,14 +251,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED]);
     }
 
-    protected function getModuleIdByName(string $moduleName) {
-        return $this->db->selectCell("id FROM module WHERE name = ?", [$moduleName]);
-    }
-
-    protected function childNameToClass(string $moduleName): string {
-        return $moduleName . '\\' . MODULE_SUFFIX;
-    }
-    protected function classToName(string $class): string {
+    public static function classToModuleName(string $class): string {
         $suffixLength = strlen(MODULE_SUFFIX);
         if (substr($class, -$suffixLength) !== MODULE_SUFFIX) {
             throw new \UnexpectedValueException("The module class '$class' must end with the '" . MODULE_SUFFIX . "' suffix");
@@ -274,9 +260,23 @@ abstract class ModuleManager extends Node implements IEventManager {
         return substr($class, 0, -($suffixLength + 1));
     }
 
-    protected function getModuleAutoloader() {
-        return $this->serviceManager->get('moduleAutoloader');
+    protected function getModuleClassLoader() {
+        return $this->serviceManager->get('moduleClassLoader');
     }
+
+    protected function getModuleIdByName(string $moduleName) {
+        return $this->db->selectCell('id FROM module WHERE name = ?', [$moduleName]);
+    }
+
+    protected function childNameToClass(string $moduleName): string {
+        return $moduleName . '\\' . MODULE_SUFFIX;
+    }
+
+    /*
+    protected function classToChildName(string $class): string {
+        return self::classToModuleName($class);
+    }
+    */
 
     protected function initEventHandlers() {
         if (null !== $this->eventHandlers) {

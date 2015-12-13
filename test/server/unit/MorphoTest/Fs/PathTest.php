@@ -266,44 +266,32 @@ class PathTest extends TestCase {
         Path::toRelative($baseDirPath, $path);
     }
 
-    public function dataForBase64EncodeDecode() {
-        return [
-            [
-                "abc 123",
-            ],
-            [
-                "�J�sӑ釘/",
-            ],
-            [
-                "\x00\r\n123'`",
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForBase64EncodeDecode
-     */
-    public function testBase64EncodeDecode($uri) {
-        $encoded = Path::base64Encode($uri);
-        $this->assertRegExp('~^' . Path::BASE64_URI_REGEXP . '+$~s', $encoded);
-        $this->assertSame($uri, Path::base64Decode($encoded));
-    }
-
-    public function testBaseName() {
-        $this->assertEquals('', Path::baseName(''));
-        $this->assertEquals('.hidden', Path::baseName('.hidden'));
-        $this->assertEquals('foo', Path::baseName('foo.jpg'));
+    public function testNameWithoutExt() {
+        $this->assertEquals('', Path::nameWithoutExt(''));
+        $this->assertEquals('', Path::nameWithoutExt('.jpg'));
+        $this->assertEquals('foo', Path::nameWithoutExt('foo.jpg'));
     }
 
     public function testExt() {
         $this->assertEquals('', Path::ext(''));
-        $this->assertEquals('', Path::ext('.test'));
+        $this->assertEquals('jpg', Path::ext('.jpg'));
+        $this->assertEquals('txt', Path::ext('config.txt'));
         $this->assertEquals('txt', Path::ext('.config.txt'));
-        $this->assertEquals('txt', Path::ext('test.txt'));
-        $this->assertEquals('', Path::ext('testtxt'));
+
+        $this->assertEquals('txt', Path::ext('dir/.txt'));
+        $this->assertEquals('txt', Path::ext('dir/config.txt'));
         $this->assertEquals('php', Path::ext(__FILE__));
-        $this->assertEquals('', Path::ext(__DIR__ . '/.config'));
-        $this->assertEquals('', Path::ext(__DIR__ . '.foo/config'));
+        $this->assertEquals('ts', Path::ext(__DIR__ . '/test.d.ts'));
+
+        $this->assertEquals('', Path::ext('term.'));
+    }
+
+    public function testFileName() {
+        $this->assertEquals('PathTest.php', Path::fileName(__FILE__));
+    }
+
+    public function testNormalizeExt() {
+        $this->assertEquals('php', Path::normalizeExt('.php'));
     }
 
     public function testNewExt() {
@@ -318,16 +306,17 @@ class PathTest extends TestCase {
 
         $this->assertEquals('/foo/bar/term.txt', Path::newExt('/foo/bar/term.jpg', 'txt'));
         $this->assertEquals('/foo/bar/term.txt', Path::newExt('/foo/bar/term.jpg', '.txt'));
+        $this->assertEquals('/foo/bar/term.txt', Path::newExt('/foo/bar/term.', 'txt'));
 
-        $this->assertEquals('/foo/bar/.hidden.txt', Path::newExt('/foo/bar/.hidden', 'txt'));
-        $this->assertEquals('/foo/bar/.hidden.txt', Path::newExt('/foo/bar/.hidden', '.txt'));
+        $this->assertEquals('dir/foo.d.ts', Path::newExt('dir/foo.d.ts', 'd.ts'));
     }
 
-    public function testNewExt_EmptyPathOrNewExt() {
+    public function testNewExt_EmptyPathOrExt() {
         $this->assertEquals('term', Path::newExt('term', ''));
-        $this->assertEquals('term.', Path::newExt('term.', ''));
+        $this->assertEquals('term', Path::newExt('term.', ''));
         $this->assertEquals('/foo/bar/term', Path::newExt('/foo/bar/term', ''));
         $this->assertEquals('/foo/bar/term', Path::newExt('/foo/bar/term.txt', ''));
+        $this->assertEquals('/foo/bar/term', Path::newExt('/foo/bar/term.', ''));
 
         $this->assertEquals('.jpg', Path::newExt('', '.jpg'));
         $this->assertEquals('.jpg', Path::newExt('', 'jpg'));

@@ -1,6 +1,5 @@
 <?php
-declare(strict_types=1);
-
+//declare(strict_types=1);
 namespace Morpho\Web;
 
 use Morpho\Core\Application as BaseApplication;
@@ -35,6 +34,6 @@ class Application extends BaseApplication {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
         }
-        die("Unable to handle the request. Please contact site's support and try access this page again later.");
+        die("Unable to handle the request. Please contact site's support and try to return to this page again later.");
     }
 }

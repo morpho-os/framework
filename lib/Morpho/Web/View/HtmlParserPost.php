@@ -20,8 +20,8 @@ class HtmlParserPost extends HtmlParser {
         $filesToCompile = [];
         $compile = false;
         foreach (array_map('trim', explode(',', $tag['src'])) as $fileName) {
-            $inFilePath = $inDirPath . '/' . Path::newExt($fileName, 'ts');
-            $outFilePath = $outDirPath . '/' . Path::newExt($inFilePath, 'js');
+            $inFilePath = $inDirPath . '/' . Path::newExt(basename($fileName), 'ts');
+            $outFilePath = $outDirPath . '/' . Path::newExt(basename($inFilePath), 'js');
             if (!is_file($inFilePath)) {
                 throw new \RuntimeException("The '$inFilePath' does not exist");
             }
@@ -39,7 +39,7 @@ class HtmlParserPost extends HtmlParser {
             if ($compile) {
                 $this->runTsc($inOutFilePaths[0], $inOutFilePaths[1]);
             }
-            $text[] = implode("\n", filter($removeRefs, File::readAsArray($inOutFilePaths[1])));
+            $text[] = implode("\n", filter($removeRefs, File::readArray($inOutFilePaths[1])));
             //$text[] = file_get_contents($inOutFilePaths[1]);
         }
         $scriptTag['_text'] = implode("\n", $text) . $tag['_text'];

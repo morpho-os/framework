@@ -65,10 +65,10 @@ class Document extends DOMDocument {
     }
 
     public function __call($method, $args) {
-        return call_user_func_array(array($this->getXpath(), $method), $args);
+        return call_user_func_array(array($this->getXPath(), $method), $args);
     }
 
-    private function getXpath() {
+    private function getXPath() {
         if (null === $this->xPath) {
             $this->xPath = new XPathQuery($this);
         }

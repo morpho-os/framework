@@ -21,7 +21,7 @@ abstract class Autoloader {
     }
 
     /**
-     * @return null
+     * @return void
      */
     public function register(bool $prepend = false) {
         spl_autoload_register([$this, 'autoload'], true, $prepend);
@@ -32,7 +32,7 @@ abstract class Autoloader {
     }
 
     /**
-     * @return string|null The path if found, false otherwise
+     * @return string|false The path if found, false otherwise
      */
     abstract public function findFilePath(string $class);
 }

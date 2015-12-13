@@ -86,4 +86,27 @@ class UriTest extends TestCase {
         $uri = new Uri('http://example.com/system?bar=baz#some');
         $this->assertEquals('/system?bar=baz#some', $uri->relativeRef());
     }
+
+    public function dataForBase64EncodeDecode() {
+        return [
+            [
+                "abc 123",
+            ],
+            [
+                "�J�sӑ釘/",
+            ],
+            [
+                "\x00\r\n123'`",
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForBase64EncodeDecode
+     */
+    public function testBase64EncodeDecode($uri) {
+        $encoded = Uri::base64Encode($uri);
+        $this->assertRegExp('~^' . Uri::BASE64_URI_REGEXP . '+$~s', $encoded);
+        $this->assertSame($uri, Uri::base64Decode($encoded));
+    }
 }

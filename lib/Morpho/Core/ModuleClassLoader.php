@@ -1,12 +1,11 @@
 <?php
 namespace Morpho\Core;
-
 use Morpho\Base\FileClassMapAutoloader;
 use function Morpho\Base\head;
 use Morpho\Fs\Directory;
 use Morpho\Fs\Path;
 
-class ModuleAutoloader extends FileClassMapAutoloader implements \IteratorAggregate {
+class ModuleClassLoader extends FileClassMapAutoloader implements \IteratorAggregate {
     public function __construct($moduleDirPath, $cacheDirPath, $useCache = true) {
         parent::__construct(
             Directory::create($cacheDirPath) . '/module-classmap.php',
@@ -25,7 +24,6 @@ class ModuleAutoloader extends FileClassMapAutoloader implements \IteratorAggreg
             $useCache
         );
     }
-
     public function getIterator() {
         return new \ArrayIterator($this->map);
     }

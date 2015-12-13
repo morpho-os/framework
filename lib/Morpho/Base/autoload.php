@@ -356,3 +356,12 @@ function jsonEncode($data): string {
 function jsonDecode(string $json) {
     return json_decode($json, true);
 }
+
+function endsWith($string, $suffix): bool {
+    return substr($string, -strlen($suffix)) === $suffix;
+}
+
+function starsWith($string, $prefix): bool {
+    // @TODO: Use substr() as for endsWith?
+    return 0 === strpos($string, $prefix);
+}

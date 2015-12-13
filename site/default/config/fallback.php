@@ -6,7 +6,8 @@ return [
         'host' => '127.0.0.1',
         'user' => 'root',
         'password' => '',
-        'db' => ''
+        'db' => '',
+        'port' => '3306',
     ],
     'moduleAutoloader' => [
         'useCache' => false,

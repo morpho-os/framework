@@ -55,7 +55,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function createModuleManagerService() {
-        $this->get('moduleAutoloader')->register();
+        $this->get('moduleClassLoader')->register();
         $moduleManager = new ModuleManager($this->get('db'));
         $moduleManager->isFallbackMode($this->isFallbackMode());
         return $moduleManager;

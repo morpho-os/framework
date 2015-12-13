@@ -1,18 +1,26 @@
 <?php
-declare(strict_types=1);
-
 namespace Morpho\Core;
 
 use Morpho\Di\IServiceManager;
 use Morpho\Fs\Path;
 
 abstract class Application {
+    protected $config = [];
+
     /**
      * @return mixed Returns true on success and any value !== true on error.
      */
     public static function main(array $config = []) {
         return (new static($config))
             ->run();
+    }
+
+    public function __construct(array $config = []) {
+        $this->config = $config;
+    }
+
+    public function getConfig(): array {
+        return $this->config;
     }
 
     /**

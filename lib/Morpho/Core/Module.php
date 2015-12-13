@@ -8,6 +8,11 @@ abstract class Module extends Node {
 
     protected $type = 'Module';
 
+    public function __construct(array $options = []) {
+        parent::__construct($options);
+        $this->initClassLoader();
+    }
+
     public function install(Db $db) {
     }
 
@@ -50,5 +55,13 @@ abstract class Module extends Node {
             return $controllerName;
         }
         return $this->getNamespace() . '\\' . CONTROLLER_NS . '\\' . $controllerName . CONTROLLER_SUFFIX;
+    }
+
+    protected function initClassLoader() {
+        $classDirPath = $this->getClassDirPath();
+        $autoloadFilePath = $classDirPath . COMPOSER_AUTOLOAD_FILE_PATH;
+        if (is_file($autoloadFilePath)) {
+            require $autoloadFilePath;
+        }
     }
 }

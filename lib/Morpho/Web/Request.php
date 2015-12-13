@@ -57,27 +57,33 @@ class Request extends BaseRequest {
         return $this->{'get' . $this->getMethod()}($name, $trim);
     }
 
+    public function data(array $source, $name, bool $trim = true) {
+        // @TODO: Optimize this method for memory usage.
+        if (null === $name) {
+            return $trim ? trimMore($source) : $source;
+        }
+        if (is_array($name)) {
+            $data = array_intersect_key($source, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
+            return $trim ? trimMore($data) : $data;
+        }
+        if ($trim) {
+            return isset($source[$name])
+                ? trimMore($source[$name])
+                : null;
+        }
+        return isset($source[$name])
+            ? $source[$name]
+            : null;
+    }
+
     public function hasPost(string $name) {
         return isset($_POST[$name]);
     }
 
     public function getPost($name = null, bool $trim = true) {
-        if (null === $name) {
-            return $trim ? trimMore($_POST) : $_POST;
-        }
-        if (is_array($name)) {
-            $data = array_intersect_key($_POST, array_flip(array_values($name)));
-            $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
-        }
-        if ($trim) {
-            return isset($_POST[$name])
-                ? trimMore($_POST[$name])
-                : null;
-        }
-        return isset($_POST[$name])
-            ? $_POST[$name]
-            : null;
+        // @TODO: Optimize this method for memory for usage.
+        return $this->data($_POST, $name, $trim);
     }
 
     public function hasGet(string $name) {
@@ -85,22 +91,8 @@ class Request extends BaseRequest {
     }
 
     public function getGet($name = null, bool $trim = true) {
-        if (null === $name) {
-            return $trim ? trimMore($_GET) : $_GET;
-        }
-        if (is_array($name)) {
-            $data = array_intersect_key($_GET, array_flip(array_values($name)));
-            $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
-        }
-        if ($trim) {
-            return isset($_GET[$name])
-                ? trimMore($_GET[$name])
-                : null;
-        }
-        return isset($_GET[$name])
-            ? $_GET[$name]
-            : null;
+        // @TODO: Optimize this method for memory usage.
+        return $this->data($_GET, $name, $trim);
     }
 
     public function isAjax(): bool {

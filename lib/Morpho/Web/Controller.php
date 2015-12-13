@@ -35,7 +35,7 @@ class Controller extends BaseController {
         if (null === $httpMethod) {
             $httpMethod = Request::GET_METHOD;
         }
-        $this->redirectToUri(
+        return $this->redirectToUri(
             $this->serviceManager
                 ->get('router')
                 ->assemble($action, $httpMethod, $controller, $module, $params)
@@ -47,6 +47,11 @@ class Controller extends BaseController {
         if ($request->hasGet('redirect')) {
             $uri = (new Uri($request->getGet('redirect')))->removeQueryArg('redirect')->__toString();
         }
+
+        if ($request->isAjax()) {
+            return $this->success(['redirect' => $uri]);
+        }
+
         $response = $request->getResponse();
         $response->redirect(
             $request->currentUri()
@@ -67,14 +72,14 @@ class Controller extends BaseController {
         if ($fragment) {
             $uri->setFragment($fragment);
         }
-        $this->redirectToUri($uri->__toString());
+        return $this->redirectToUri($uri->__toString());
     }
 
     protected function redirectToHome(string $successMessage = null) {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
-        $this->redirectToUri('/');
+        return $this->redirectToUri('/');
     }
 
     protected function success($data = null) {
@@ -124,6 +129,10 @@ class Controller extends BaseController {
 
     public function getArgs($name = null, bool $trim = true) {
         return $this->request->getArgs($name, $trim);
+    }
+
+    protected function data(array $source, $name, bool $trim = true) {
+        return $this->request->data($source, $name, $trim);
     }
 
     protected function getPost($name = null, bool $trim = true) {

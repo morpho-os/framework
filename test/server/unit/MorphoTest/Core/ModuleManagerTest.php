@@ -58,11 +58,11 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testModuleOperations() {
-        $moduleAutoloader = new \ArrayIterator([
-            __CLASS__ . '\\My\\Module' => __FILE__,
-            __CLASS__ . '\\NotInstalled\\Module' => $this->getTestDirPath() . '/NotInstalled/Module.php',
+        $moduleClassLoader = new \ArrayIterator([
+            __CLASS__ . '\\My' => __FILE__,
+            __CLASS__ . '\\NotInstalled' => $this->getTestDirPath() . '/NotInstalled/Module.php',
         ]);
-        $moduleManager = $this->createModuleManager($this->createDb(), $moduleAutoloader);
+        $moduleManager = $this->createModuleManager($this->createDb(), $moduleClassLoader);
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
@@ -212,11 +212,11 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertTrue($module->getChild($controllerName)->isDispatchCalled());
     }
 
-    private function createModuleManager(Db $db = null, $moduleAutoloader = null) {
+    private function createModuleManager(Db $db = null, $moduleClassLoader = null) {
         $moduleManager = new MyModuleManager($db ?: $this->createDb());
         $serviceManager = new ServiceManager();
-        if (null !== $moduleAutoloader) {
-            $serviceManager->set('moduleAutoloader', $moduleAutoloader);
+        if (null !== $moduleClassLoader) {
+            $serviceManager->set('moduleClassLoader', $moduleClassLoader);
         }
         $moduleManager->setServiceManager($serviceManager);
         return $moduleManager;

@@ -1,6 +1,5 @@
 <?php
-declare(strict_types=1);
-
+//declare(strict_types=1);
 namespace Morpho\Db;
 
 use Morpho\Base\ArrayTool;
@@ -29,7 +28,7 @@ class Db {
         );
     }
 
-    public function sqlQuery() {
+    public function sqlQuery(): SqlQuery {
         return new SqlQuery();
     }
     
@@ -97,7 +96,7 @@ class Db {
         $this->query($sql, array_values($row));
     }
     
-    public function lastInsertId($seqName = null): string {
+    public function lastInsertId(string $seqName = null): string {
         return $this->conn->lastInsertId($seqName);
     }
 
@@ -174,6 +173,11 @@ class Db {
     }
 
     public function createTable(string $tableName, array $tableDefinition) {
+        list($sql, $args) = $this->getCreateTableSqlArgsFromDefinition($tableName, $tableDefinition);
+        $this->query($sql, $args);
+    }
+
+    public function getCreateTableSqlArgsFromDefinition(string $tableName, array $tableDefinition): array {
         ArrayTool::ensureHasOnlyKeys($tableDefinition, ['columns', 'fks', 'indexes', 'pk', 'description']);
 
         list($pkColumns, $columns) = $this->columnsDefinitionToSqlArray($tableDefinition['columns']);
@@ -214,11 +218,10 @@ class Db {
             $sql .= "\n, COMMENT=?";
             $args[] = $tableDefinition['description'];
         }
-
-        $this->query($sql, $args);
+        return [$sql, $args];
     }
 
-    public function getTableDefinition($tableName, $dbName = null) {
+    public function getTableDefinition(string $tableName, string $dbName = null): array {
         // The code fragment from the Doctrine MySQL, @TODO: specify where
         $stmt = $this->query("SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . (null === $dbName ? 'DATABASE()' : "'$dbName'") . " AND TABLE_NAME = '" . $tableName . "'");
         if (!$stmt->rowCount()) {
@@ -227,7 +230,7 @@ class Db {
         return $stmt->fetchAll();
     }
 
-    public function getCreateTableSql($tableName): string {
+    public function getCreateTableSql(string $tableName): string {
         return $this->fetchRows("SHOW CREATE TABLE " . $this->quoteIdentifier($tableName))[0]['Create Table'];
     }
 
@@ -241,10 +244,7 @@ class Db {
         }
     }
 
-    /**
-     * @param string $tableName
-     */
-    public function deleteTable($tableName) {
+    public function deleteTable(string $tableName) {
         $this->transaction(function () use ($tableName) {
             /*
             $isMySql = $this->connection->getDriver() instanceof MySqlDriver;
@@ -276,7 +276,7 @@ class Db {
         return $this->fetchColumn("SHOW DATABASES");
     }
 
-    public static function quoteIdentifier($name) {
+    public static function quoteIdentifier(string $name) {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
         return '`' . $name . '`';
     }
@@ -321,7 +321,7 @@ class Db {
         return $this->isOneOfTypes($type, ['float', 'double', 'real', 'double precision']);
     }
 
-    protected function isOneOfTypes($type, array $types) {
+    protected function isOneOfTypes(string $type, array $types) {
         return any(
             function ($expectedType) use ($type) {
                 return $this->typesEqual($type, $expectedType);
@@ -330,7 +330,7 @@ class Db {
         );
     }
 
-    protected function typesEqual($type1, $type2) {
+    protected function typesEqual(string $type1, string $type2) {
         return 0 === stripos($type1, $type2);
     }
 

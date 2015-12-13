@@ -8,15 +8,7 @@ class XPathQuery {
         $this->xPath = new \DOMXPath($doc);
     }
 
-    /**
-     * @TODO: More effective algorithm.
-     * @return null|DOMNode The first DOMNode that matches the XPath query or null if no matching node is found.
-     */
-    public function single(string $xPath, $contextNode = null) {
-        return $this->all($xPath, $contextNode)->head();
-    }
-
-    public function all(string $xPath, $contextNode = null): XPathResult {
+    public function select(string $xPath, $contextNode = null): XPathResult {
         $nodeList = $this->xPath($xPath, $contextNode);
         if (!$nodeList instanceof \DOMNodeList) {
             throw new \RuntimeException('Unable to select DOMNodeList, consider to use the xPath() method instead.');
@@ -25,6 +17,9 @@ class XPathQuery {
         return new XPathResult($nodeList);
     }
 
+    /**
+     * @return @TODO
+     */
     public function xPath(string $xPath, $contextNode = null) {
         if (null !== $contextNode) {
             $result = $this->xPath->evaluate($xPath, $contextNode);
@@ -61,8 +56,6 @@ class XPathQuery {
     }
 
     public function position($xPath) {
-        $xpath = "count($xPath/preceding-sibling::*)+1";
-
-        return $this->xpath($xPath);
+        return $this->xPath("count($xPath/preceding-sibling::*)+1");
     }
 }

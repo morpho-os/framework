@@ -8,12 +8,14 @@ use Morpho\Fs\Directory;
 class ClassDiscoverer {
     private $discoverStrategy;
 
+    const PHP_FILES_REG_EXP = '~\.php$~si';
+
     /**
      * @return array
      */
     public function getClassesForDir($dirPaths, $regexp = null, array $options = []) {
         if (!$regexp) {
-            $regexp = '/\.php$/';
+            $regexp = self::PHP_FILES_REG_EXP;
         }
         $filePaths = Directory::listEntries($dirPaths, $regexp, $options);
         $map = array();

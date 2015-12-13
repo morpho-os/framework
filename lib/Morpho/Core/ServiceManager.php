@@ -2,7 +2,7 @@
 namespace Morpho\Core;
 
 use Morpho\Base\Environment;
-use Morpho\Di\{ServiceManager as BaseServiceManager, IServiceManagerAware};
+use Morpho\Di\ServiceManager as BaseServiceManager;
 use Morpho\Db\Db;
 
 abstract class ServiceManager extends BaseServiceManager {
@@ -25,13 +25,14 @@ abstract class ServiceManager extends BaseServiceManager {
 
     abstract protected function createModuleManagerService();
 
-    protected function createModuleAutoloaderService() {
+    protected function createModuleClassLoaderService() {
         $config = $this->config;
-        return new ModuleAutoloader(
+        $classLoader = new ModuleClassLoader(
             MODULE_DIR_PATH,
             $config['cacheDirPath'],
-            $config['moduleAutoloader']['useCache']
+            $config['moduleClassLoader']['useCache']
         );
+        return $classLoader;
     }
 
     protected function createViewService() {

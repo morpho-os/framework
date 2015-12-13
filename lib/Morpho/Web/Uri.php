@@ -5,6 +5,8 @@ use Morpho\Fs\Path;
 use Zend\Uri\Http as BaseUri;
 
 class Uri extends BaseUri {
+    const BASE64_URI_REGEXP = '[A-Za-z0-9+\\-_]';
+
     private $basePath;
     const QUERY_PART_SEPARATOR = '?';
     const QUERY_ARG_SEPARATOR = '&';
@@ -101,5 +103,31 @@ class Uri extends BaseUri {
 
     public static function encode(string $uri): string {
         return str_replace('%2F', '/', rawurlencode($uri));
+    }
+
+    /**
+     * @see http://tools.ietf.org/html/rfc4648#section-5
+     * @see http://php.net/base64_encode#103849
+     */
+    public static function base64Encode(string $uri): string {
+        return rtrim(
+            strtr(
+                base64_encode($uri),
+                '+/',
+                '-_'
+            ),
+            '='
+        );
+    }
+
+    public static function base64Decode(string $uri): string {
+        return base64_decode(
+            str_pad(
+                strtr($uri, '-_', '+/'),
+                strlen($uri) % 4,
+                '=',
+                STR_PAD_RIGHT
+            )
+        );
     }
 }

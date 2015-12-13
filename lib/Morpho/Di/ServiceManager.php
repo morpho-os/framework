@@ -6,8 +6,6 @@ class ServiceManager implements IServiceManager {
 
     protected $aliases = [];
 
-    //protected $factories = [];
-
     private $loading = [];
 
     public function __construct(array $services = null) {
@@ -17,12 +15,6 @@ class ServiceManager implements IServiceManager {
             }
         }
     }
-
-    /*
-    public function setFactory(string $serviceId, $factory) {
-        $this->factories[$serviceId] = $factory;
-    }
-    */
 
     public function set(string $id, $service) {
         $this->services[strtolower($id)] = $service;
@@ -85,14 +77,6 @@ class ServiceManager implements IServiceManager {
     }
 
     protected function createService($id) {
-        /*
-        if (isset($this->factories[$id])) {
-            $this->beforeCreate($id);
-            $service = $this->factories[$id]();
-            $this->afterCreate($id, $service);
-        } else {
-        }
-        */
         $method = 'create' . $id . 'Service';
         if (method_exists($this, $method)) {
             $this->beforeCreate($id);

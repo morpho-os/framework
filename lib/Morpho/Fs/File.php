@@ -50,8 +50,30 @@ class File extends Entry {
     /**
      * Returns non empty lines from file as array.
      */
-    public static function readAsArray(string $filePath): array {
+    public static function readArray(string $filePath) {
         return file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    }
+
+    public static function writeArray(string $filePath, array $arr): string {
+        return self::write($filePath, implode("\n", $arr));
+    }
+
+    public static function readLines(string $filePath): \Generator {
+        // @TODO: replace filterLines() with readLines() and filter()
+        throw new NotImplementedException();
+    }
+
+    public static function filterLines(callable $filter, string $filePath): \Generator {
+        $handle = fopen($filePath, 'r');
+        if (!$handle) {
+            throw new IoException("Unable to read the '$filePath' file");
+        }
+        while (false !== ($line = fgets($handle))) {
+            if ($filter($line)) {
+                yield $line;
+            }
+        }
+        fclose($handle);
     }
 
     /**
@@ -69,13 +91,14 @@ class File extends Entry {
     }
 
     public static function readCsv(string $filePath): \Generator {
-        $handle = fopen(__DIR__, "r");
+        // @TODO: Replace with readLines()?
+        $handle = fopen($filePath, "r");
         if (!$handle) {
             throw new IoException("Unable to read the '$filePath' file");
         }
         // @TODO: Handle second argument
-        while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            yield $row;
+        while (false !== ($line = fgetcsv($handle, null, ','))) {
+            yield $line;
         }
         fclose($handle);
     }
@@ -108,7 +131,7 @@ class File extends Entry {
             throw new IoException("The file path is empty.");
         }
         $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array) $options), $options['context']);
-        if (!$result) {
+        if (false === $result) {
             throw new IoException("Unable to write to the file '$filePath'.");
         }
 
@@ -196,10 +219,6 @@ class File extends Entry {
         }
 
         return $uniquePath;
-    }
-
-    public static function filterLines(callable $filter, string $filePath): \Generator {
-        throw new NotImplementedException(__METHOD__);
     }
 
     protected static function filePutContentsOptionsToFlags(array $options): int {

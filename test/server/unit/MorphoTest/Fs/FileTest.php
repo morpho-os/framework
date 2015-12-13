@@ -99,9 +99,15 @@ class FileTest extends TestCase {
         $this->assertEquals('test', file_get_contents($filePath));
     }
 
-    public function testCantWriteToEmptyFile() {
+    public function testWrite_CantWriteToEmptyFile() {
         $this->setExpectedException('\Morpho\Fs\IoException', "The file path is empty.");
         File::write('', 'Test');
+    }
+
+    public function testWrite_EmptyString() {
+        $tmpDirPath = $this->createTmpDir();
+        $filePath = $tmpDirPath . '/' . __FUNCTION__ . '.txt';
+        $this->assertEquals($filePath, File::write($filePath, ''));
     }
 
     public function testCopyWithoutOverwrite() {

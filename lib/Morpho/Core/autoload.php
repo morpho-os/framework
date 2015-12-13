@@ -36,3 +36,5 @@ const APP_NS = 'App';
 const EPS = 0.00001;
 
 const CONFIG_FILE_NAME = 'config.php';
+
+const COMPOSER_AUTOLOAD_FILE_PATH = '/vendor/autoload.php';
