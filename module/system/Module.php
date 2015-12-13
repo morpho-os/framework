@@ -14,6 +14,20 @@ class Module extends BaseModule {
     }
 
     /**
+     * @Listen afterDispatch 100
+     */
+    public function afterDispatch(array $event) {
+        /*
+        $headers = $event[1]['request']->getResponse()->getHeaders();
+        $headers->addHeaderLine('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT')
+            ->addHeaderLine('Last-Modified', gmdate('D, d M Y H:i:s') . ' GMT')
+            ->addHeaderLine('Cache-Control', 'no-store, no-cache, must-revalidate')
+            ->addHeaderLine('Cache-Control', 'post-check=0, pre-check=0')
+            ->addHeaderLine('Pragma', 'no-cache');
+        */
+    }
+
+    /**
      * @Listen dispatchError 100
      */
     public function dispatchError(array $event) {

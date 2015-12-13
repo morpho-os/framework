@@ -15,9 +15,10 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav" id="main-menu">
-                    <li><a href="/system/db">Database</a></li>
-                    <li><a href="/system/module">Modules</a></li>
+                    <li><a href="/db">Database</a></li>
+                    <li><a href="/module">Modules</a></li>
                     <li><a href="<?= $this->uriWithRedirectToSelf('/system/module/rebuild-routes') ?>">Rebuild routes</a></li>
+                    <li><a href="<?= $this->uriWithRedirectToSelf('/system/module/rebuild-events') ?>">Rebuild events</a></li>
                 </ul>
                 <?php //print $this->widget('Menu')->render('main'); ?>
             </div>

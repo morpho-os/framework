@@ -158,12 +158,16 @@ class Db {
         return $this->conn->inTransaction();
     }
 
-    public function useDb(string $dbName) {
-        $this->query('USE ?', [$dbName]);
+    public function useDatabase(string $dbName) {
+        $this->query("USE $dbName");
     }
 
-    public function createDb(string $dbName) {
-        $this->query('CREATE DATABASE ?', [$dbName]);
+    public function createDatabase(string $dbName) {
+        $this->query("CREATE DATABASE $dbName CHARACTER SET utf8 COLLATE utf8_general_ci");
+    }
+
+    public function deleteDatabase(string $dbName) {
+        throw new NotImplementedException(__METHOD__);
     }
 
     public function createTables(array $tableDefinitions) {

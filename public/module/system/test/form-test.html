@@ -1,0 +1,66 @@
+<meta charset="utf-8">
+<script src="/bower_components/es5-shim/es5-shim.js"></script>
+<script src="/bower_components/jquery/dist/jquery.js"></script>
+<script src="/bower_components/stackframe/dist/stackframe.js"></script>
+<script src="/bower_components/stacktrace-gps/dist/stacktrace-gps.js"></script>
+<script src="/bower_components/error-stack-parser/dist/error-stack-parser.js"></script>
+<script src="/bower_components/stacktrace-js/dist/stacktrace.js"></script>
+<script src="/module/system/dest/main.js"></script>
+<script src="/module/system/dest/test-case.js"></script>
+<script src="/module/system/test/form-test.js"></script>
+
+<form>
+</form>
+
+<form>
+    <textarea></textarea>
+    <button>OK</button>
+    <input type="button">
+    <input type="checkbox">
+    <input type="color">
+    <input type="date">
+    <input type="datetime">
+    <input type="datetime-local">
+    <input type="email">
+    <input type="file">
+    <input type="hidden">
+    <!-- Image does not carry over a value to the server. -->
+    <input type="image">
+    <input type="month">
+    <input type="number">
+    <input type="password">
+    <input type="radio">
+    <input type="range">
+    <input type="reset">
+    <input type="search">
+    <input type="submit">
+    <input type="time">
+    <input type="tel">
+    <input type="text">
+    <input type="time">
+    <input type="url">
+    <input type="week">
+    <select>
+        <optgroup label="Group 1">
+            <option>Option 1.1</option>
+        </optgroup>
+        <optgroup label="Group 2">
+            <option>Option 2.1</option>
+            <option>Option 2.2</option>
+        </optgroup>
+        <optgroup label="Group 3" disabled>
+            <option>Option 3.1</option>
+            <option>Option 3.2</option>
+            <option>Option 3.3</option>
+        </optgroup>
+    </select>
+</form>
+
+<form>
+    <input type="button">
+    <input type="text" required>
+    <textarea required></textarea>
+</form>
+<script>
+new SystemTest.FormTest();
+</script>

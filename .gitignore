@@ -6,7 +6,7 @@
 /composer.lock
 
 # bower
-bower_components
+bower_components/
 
 # npm
-node_modules
+node_modules/

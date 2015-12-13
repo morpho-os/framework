@@ -25,6 +25,9 @@ class ModuleClassLoader extends FileClassMapAutoloader implements \IteratorAggre
         );
     }
     public function getIterator() {
+        if (null === $this->map) {
+            $this->map = $this->createMap();
+        }
         return new \ArrayIterator($this->map);
     }
 }

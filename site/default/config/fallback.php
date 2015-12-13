@@ -9,7 +9,7 @@ return [
         'db' => '',
         'port' => '3306',
     ],
-    'moduleAutoloader' => [
+    'moduleClassLoader' => [
         'useCache' => false,
     ],
     'templateEngine' => [

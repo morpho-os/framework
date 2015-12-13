@@ -228,7 +228,12 @@ abstract class ModuleManager extends Node implements IEventManager {
             $exclude = $this->db->selectColumn("name FROM $this->tableName ORDER BY name");
             $modules = [];
         }
-        foreach ($this->getModuleClassLoader() as $moduleName => $dirPath) {
+        $moduleAutoloader = $this->getModuleClassLoader();
+        foreach ($moduleAutoloader as $class => $path) {
+            $moduleName = self::classToModuleName($class);
+            if (false === $moduleName) {
+                continue;
+            }
             if (in_array($moduleName, $exclude)) {
                 continue;
             }
@@ -251,10 +256,10 @@ abstract class ModuleManager extends Node implements IEventManager {
             : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED]);
     }
 
-    public static function classToModuleName(string $class): string {
+    public static function classToModuleName(string $class) {
         $suffixLength = strlen(MODULE_SUFFIX);
         if (substr($class, -$suffixLength) !== MODULE_SUFFIX) {
-            throw new \UnexpectedValueException("The module class '$class' must end with the '" . MODULE_SUFFIX . "' suffix");
+            return false;
         }
         // Module name := <Name> NS_SEP "Module".
         return substr($class, 0, -($suffixLength + 1));

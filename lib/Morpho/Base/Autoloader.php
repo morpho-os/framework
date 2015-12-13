@@ -4,7 +4,7 @@
  * (see Morpho\Base\ClassLoader).
  */
 
-declare(strict_types=1);
+//declare(strict_types=1);
 
 namespace Morpho\Base;
 
