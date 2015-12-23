@@ -1,15 +1,27 @@
 <?php
 namespace MorphoTest\Web;
 
-use Morpho\Fs\Directory;
-use Morpho\Fs\File;
-use Morpho\Web\Menu;
-use Morpho\Web\Router;
-use Morpho\Web\Request;
-use Morpho\Test\DbTestCase;
-use Morpho\Web\MenuItem;
+//use Morpho\Fs\Directory;
+//use Morpho\Fs\File;
+use Morpho\Test\TestCase;
+use Morpho\Web\FastRouter;
+//use Morpho\Web\Request;
+//use Morpho\Test\DbTestCase;
+//use Morpho\Web\MenuItem;
 
-class RouterTest extends DbTestCase {
+class FastRouterTest extends TestCase {
+    public function setUp() {
+        $this->router = new FastRouter();
+    }
+
+    public function testModuleDirPathAccessors() {
+        $this->assertEquals(MODULE_DIR_PATH, $this->router->getModuleDirPath());
+        $moduleDirPath = $this->getTestDirPath();
+        $this->assertNull($this->router->setModuleDirPath($moduleDirPath));
+        $this->assertEquals($moduleDirPath, $this->router->getModuleDirPath());
+    }
+}
+/*
     public function setUp() {
         $this->markTestIncomplete();
 
@@ -124,7 +136,6 @@ class RouterTest extends DbTestCase {
 
     /**
      * @dataProvider dataForPatternsGeneration
-     */
     public function testPatternsGeneration(array $uriParts, $expected) {
         $router = new MyRouter($this->mock('\Morpho\Db\Db'));
         $patterns = $router->generatePatterns($uriParts);
@@ -411,21 +422,18 @@ class {$uniqId}SettingController extends Controller
 {
     /**
      * @Title Settings
-     */
     public function listAction()
     {
     }
 
     /**
      * @Title Do it
-     */
     public function fooAction()
     {
     }
     
     /**
      * @Title Persistent
-     */
     public function testAction()
     {
     }
@@ -476,14 +484,12 @@ class {$uniqId}SettingController extends Controller
 
     /**
      *
-     */
     public function fooAction()
     {
     }
     
     /**
      * @Title Persistent
-     */
     public function testAction()
     {
     }
@@ -515,7 +521,6 @@ class {$uniqId}SettingController extends Controller
 
     /**
      *
-     */
     public function fooAction()
     {
     }
@@ -623,7 +628,6 @@ OUT;
 
     /**
      * @dataProvider dataForRoute_RestActions
-     */
     public function testRoute_RestActions($method, $uri, $expectedModule, $expectedController, $expectedAction, array $expectedParams) {
         $this->rebuildRoutes('MyEntityController.php');
 
@@ -691,7 +695,6 @@ OUT;
         return 'morpho-test-web-router-test';
     }
 }
-/*
 class MyRouter extends Router {
     public function generatePatterns(array $uriParts) {
         return parent::generatePatterns($uriParts);

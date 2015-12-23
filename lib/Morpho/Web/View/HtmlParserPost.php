@@ -25,8 +25,7 @@ class HtmlParserPost extends HtmlParser {
             if (!is_file($inFilePath)) {
                 throw new \RuntimeException("The '$inFilePath' does not exist");
             }
-            if (!is_file($outFilePath)) {
-                // @TODO: Add lookup in cache, compile only if the file was updated.
+            if ($this->shouldCompileTs($inFilePath, $outFilePath)) {
                 $compile = true;
             }
             $filesToCompile[] = [$inFilePath, $outFilePath];
@@ -47,10 +46,25 @@ class HtmlParserPost extends HtmlParser {
         return $this->containerScript($scriptTag);
     }
 
+    protected function shouldCompileTs(string $inFilePath, string $outFilePath): bool {
+        return true;
+        //$cacheDirPath = $this->serviceManager->getSiteManager()->getCurrentSite()->getCacheDirPath();
+        //return !is_file($outFilePath);
+        // @TODO: Add lookup in cache, compile only if the file was updated.
+    }
+
     protected function runTsc(string $inFilePath, string $outFilePath) {
         // Note: node and tsc must be in $PATH.
+        $nodeDirPath = '/opt/nodejs/4.2.3/bin';
         // @TODO: Take into account the $outFilePath
-        cmdEx('PATH=$PATH:/opt/nodejs/v4.0.0/bin tsc --removeComments --noImplicitAny --suppressImplicitAnyIndexErrors --noEmitOnError --newLine LF ' . escapeshellarg($inFilePath));
+        $options = [
+            '--removeComments',
+            //'--noImplicitAny',
+            '--suppressImplicitAnyIndexErrors',
+            '--noEmitOnError',
+            '--newLine LF',
+        ];
+        cmdEx("PATH=\$PATH:$nodeDirPath tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
     }
 
     protected function containerBody($tag) {

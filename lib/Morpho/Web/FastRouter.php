@@ -18,7 +18,7 @@ class FastRouter extends Router {
 
         $cacheFilePath = $this->getCacheFilePath();
         if (!file_exists($cacheFilePath)) {
-            $this->rebuildRoutes(MODULE_DIR_PATH, $cacheFilePath);
+            $this->rebuildRoutes();
         }
         $dispatchData = require $cacheFilePath;
         $dispatcher = new GroupCountBasedDispatcher($dispatchData);
@@ -37,9 +37,9 @@ class FastRouter extends Router {
         }
     }
 
-    public function rebuildRoutes(...$args) {
-        $routesMeta = $this->buildRoutesMeta($args[0]);
-        $cacheFilePath = isset($args[1]) ? $args[1] : $this->getCacheFilePath();
+    public function rebuildRoutes() {
+        $routesMeta = $this->buildRoutesMeta($this->getModuleDirPath());
+        $cacheFilePath = $this->getCacheFilePath();
 
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
 

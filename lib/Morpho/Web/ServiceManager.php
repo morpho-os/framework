@@ -64,7 +64,7 @@ class ServiceManager extends BaseServiceManager {
     protected function createErrorHandlerService() {
         $logger = $this->createLogger('error');
 
-        if (Environment::isIniSet('log_errors') && !empty(ini_get('error_log'))) {
+        if (ErrorHandler::doesErrorLogOn()) {
             $logger->pushHandler(new ErrorLogHandler());
         }
 

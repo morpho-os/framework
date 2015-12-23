@@ -2,6 +2,7 @@
 namespace Morpho\Core;
 
 use Morpho\Base\Environment;
+use Morpho\Base\MethodNotFoundException;
 use Morpho\Di\ServiceManager as BaseServiceManager;
 use Morpho\Db\Db;
 
@@ -12,6 +13,16 @@ abstract class ServiceManager extends BaseServiceManager {
         parent::__construct($services);
         $this->config = $config;
         $this->setAliases(['dispatcher' => 'modulemanager']);
+    }
+
+    /**
+     * Replaces the calls in form get$name() with the get($name), for example: getFoo() -> get('foo').
+     */
+    public function __call($method, array $args) {
+        if (substr($method, 0, 3) === 'get' && strlen($method) > 3) {
+            return $this->get(substr($method, 3));
+        }
+        throw new MethodNotFoundException($this, $method);
     }
 
     protected function createEnvironmentService() {

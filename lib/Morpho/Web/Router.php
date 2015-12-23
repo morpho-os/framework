@@ -11,9 +11,11 @@ use Morpho\Fs\Path;
  *     * Rails 4.x Routing, @see http://guides.rubyonrails.org/routing.html
  */
 abstract class Router implements IServiceManagerAware {
+    const MAX_PARTS_COUNT = 9;
+
     protected $serviceManager;
 
-    const MAX_PARTS_COUNT = 9;
+    protected $moduleDirPath;
 
     protected $restActions = [
         'index'  => ['GET', null],       // GET    /$module/$entityType
@@ -30,9 +32,20 @@ abstract class Router implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
+    public function setModuleDirPath(string $moduleDirPath) {
+        $this->moduleDirPath = $moduleDirPath;
+    }
+
+    public function getModuleDirPath() {
+        if (null === $this->moduleDirPath) {
+            $this->moduleDirPath = MODULE_DIR_PATH;
+        }
+        return $this->moduleDirPath;
+    }
+
     abstract public function route($request);
 
-    abstract public function rebuildRoutes(...$args);
+    abstract public function rebuildRoutes();
 
     abstract public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null);
 

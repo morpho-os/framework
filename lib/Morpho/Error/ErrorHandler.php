@@ -1,6 +1,8 @@
 <?php
 namespace Morpho\Error;
 
+use Morpho\Base\Environment;
+
 /**
  * ErrorHandler is main error/exception handler. It transforms errors to exceptions
  * and sends notification about exception to the attached subscribers.
@@ -90,6 +92,10 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     public static function errorToException($severity, $message, $filePath, $lineNo, $context): \ErrorException {
         $class = self::getExceptionClass($severity);
         return new $class($message, 0, $severity, $filePath, $lineNo);
+    }
+
+    public static function doesErrorLogOn(): bool {
+        return Environment::isIniSet('log_errors') && !empty(ini_get('error_log'));
     }
 
     protected function setIniSettings() {

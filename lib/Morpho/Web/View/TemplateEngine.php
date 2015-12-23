@@ -10,9 +10,11 @@ abstract class TemplateEngine extends FilterChain {
 
     protected $templateVars = [];
 
-    private $cacheDirPath;
+    protected $cacheDirPath;
 
-    public function setCacheDirPath($dirPath) {
+    protected $uniqueFileHash = '';
+
+    public function setCacheDirPath(string $dirPath) {
         $this->cacheDirPath = $dirPath;
     }
 
@@ -31,7 +33,7 @@ abstract class TemplateEngine extends FilterChain {
      * @param array $vars
      * @return string Returns result after of PHP execution.
      */
-    public function renderFile($filePath, array $vars = []) {
+    public function renderFile(string $filePath, array $vars = []) {
         $__filePath = $this->getCompiledFilePath($filePath);
         unset($filePath);
         extract($vars, EXTR_SKIP);
@@ -47,7 +49,7 @@ abstract class TemplateEngine extends FilterChain {
      * @param array $vars
      * @return string Returns result after of PHP execution.
      */
-    public function render($phpEngineCode, array $vars = []) {
+    public function render(string $phpEngineCode, array $vars = []) {
         extract($vars, EXTR_SKIP);
         ob_start();
         eval('?>' . $this->filter($phpEngineCode));
@@ -65,27 +67,26 @@ abstract class TemplateEngine extends FilterChain {
         return $this->useCache;
     }
 
-    public function __get($varName) {
+    public function __get(string $varName) {
         if (isset($this->templateVars[$varName])) {
             return $this->templateVars[$varName];
         }
         throw new \RuntimeException("The template variable '$varName' does not exist.");
     }
 
-    public function __isset($varName) {
+    public function __isset(string $varName) {
         return isset($this->templateVars[$varName]);
     }
 
     /**
-     * @param string $filePath
-     *
      * @return string Path to file containing PHP code.
      */
-    protected function getCompiledFilePath($filePath) {
+    protected function getCompiledFilePath(string $filePath): string {
         if (!$this->cacheDirPath) {
             throw new EmptyPropertyException($this, 'cacheFilePath');
         }
-        $cacheFilePath = $this->cacheDirPath . '/' . md5($filePath) . '.php';
+        $this->uniqueFileHash = md5($this->uniqueFileHash . '|' . $filePath);
+        $cacheFilePath = $this->cacheDirPath . '/' . $this->uniqueFileHash . '.php';
         if (!is_file($cacheFilePath) || !$this->useCache()) {
             foreach ($this->filters as $filter) {
                 $filter->setFilePath($filePath);

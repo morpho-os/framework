@@ -164,7 +164,7 @@ class Site {
 
     public function isFallbackConfigUsed(): bool {
         if (null === $this->isFallbackConfigUsed) {
-            throw new \LogicException('eThe loadConfig() must be called first');
+            throw new \LogicException('The loadConfig() must be called first');
         }
         return $this->isFallbackConfigUsed;
     }

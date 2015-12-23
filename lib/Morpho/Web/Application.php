@@ -4,6 +4,7 @@ namespace Morpho\Web;
 
 use Morpho\Core\Application as BaseApplication;
 use Morpho\Di\IServiceManager;
+use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
     protected function createServiceManager(): IServiceManager {
@@ -29,6 +30,9 @@ class Application extends BaseApplication {
                 $serviceManager->get('errorHandler')
                     ->handleException($e);
             } catch (\Throwable $e) {
+                if (ErrorHandler::doesErrorLogOn()) {
+                    error_log(addslashes((string) $e));
+                }
             }
         }
         if (!headers_sent()) {

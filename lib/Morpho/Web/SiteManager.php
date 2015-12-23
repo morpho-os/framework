@@ -159,6 +159,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     protected function listSiteNames(): array {
         if (!$this->siteNames) {
+            // @TODO: Add writing of the detected sites to the config.
             $this->siteNames = $this->getConfig()['sites'] ?? array_map(
                 'basename',
                 Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])

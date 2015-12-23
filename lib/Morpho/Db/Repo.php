@@ -1,9 +1,9 @@
 <?php
 namespace Morpho\Db;
 
-use Morpho\Core\Node;
+use Morpho\Core\Repo as BaseRepo;
 
-class Repo extends Node {
+class Repo extends BaseRepo {
     protected $tableName;
 
     protected $pkName = 'id';
@@ -20,17 +20,8 @@ class Repo extends Node {
         return $this->getDb()->selectRows($sql, $args);
     }
 
-    protected function childNameToClass(string $name): string {
-        return $name;
-    }
-
     protected function getDb(): Db {
         return $this->serviceManager->get('db');
-    }
-
-    protected function getRepo(string $name): Repo {
-        return $this->getParentByType('Module')
-            ->get($this->getNamespace() . '\\' . $name . REPO_SUFFIX);
     }
 
     protected function transaction(\Closure $transaction) {
