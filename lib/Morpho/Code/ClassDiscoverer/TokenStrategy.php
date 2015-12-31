@@ -10,14 +10,14 @@ class TokenStrategy implements IDiscoverStrategy {
         $contents = file_get_contents($filePath);
         try {
             if (!preg_match('{\b(?:class|interface|trait)\b}i', $contents)) {
-                return array();
+                return [];
             }
             $tokens = token_get_all($contents);
         } catch (\Exception $e) {
             throw new \RuntimeException('Could not scan for classes inside ' . $filePath . ": \n" . $e->getMessage(), 0, $e);
         }
 
-        $classes = array();
+        $classes = [];
 
         $namespace = '';
         for ($i = 0, $max = count($tokens); $i < $max; $i++) {
@@ -34,7 +34,7 @@ class TokenStrategy implements IDiscoverStrategy {
                     $namespace = '';
                     // If there is a namespace, extract it
                     while (($t = $tokens[++$i]) && is_array($t)) {
-                        if (in_array($t[0], array(T_STRING, T_NS_SEPARATOR))) {
+                        if (in_array($t[0], [T_STRING, T_NS_SEPARATOR])) {
                             $namespace .= $t[1];
                         }
                     }

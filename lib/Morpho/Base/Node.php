@@ -1,10 +1,10 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Base;
 
 class Node extends Object implements \Countable, \RecursiveIterator {
-    protected $children = array();
+    protected $children = [];
 
     /**
      * Name must be unique among all child nodes.
@@ -15,7 +15,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     protected $parent;
 
-    protected $loadable = array();
+    protected $loadable = [];
 
     public function setName($name): Node {
         $this->name = $name;
@@ -71,7 +71,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
      * @return void
      */
     public function removeAll() {
-        $this->children = array();
+        $this->children = [];
     }
 
     /**

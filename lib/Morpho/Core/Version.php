@@ -43,11 +43,11 @@ class Version {
         return implode(
             '.',
             array_filter(
-                array(
+                [
                     self::MAJOR,
                     self::MINOR,
                     self::PATCH,
-                ),
+                ],
                 $callback
             )
         )

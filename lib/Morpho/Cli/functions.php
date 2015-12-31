@@ -1,9 +1,11 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Cli;
 
-use function Morpho\Base\{writeLn, jsonDecode};
+use function Morpho\Base\{
+    writeLn, jsonDecode
+};
 use Morpho\Base\NotImplementedException;
 
 function writeOk() {
@@ -36,7 +38,7 @@ function args(): ArgsHandler {
 function cmdEx(string $command, $args = null): CommandResult {
     $result = cmd($command, $args);
     if ($result->isError()) {
-        throw new CliException((string) $result, $result->getExitCode());
+        throw new CliException((string)$result, $result->getExitCode());
     }
     return $result;
 }
@@ -62,10 +64,10 @@ function pipe(array $commands) {
 function askYesNo($question) {
     echo $question . "? (y/n): ";
     do {
-        $answer = trim(fgets(STDIN));
-        if ($answer === 'y' || $answer === 'Y') {
+        $answer = strtolower(trim(fgets(STDIN)));
+        if ($answer === 'y') {
             return true;
-        } elseif ($answer === 'n' || $answer === 'N') {
+        } elseif ($answer === 'n') {
             return false;
         } else {
             writeLn("Please answer: y, Y, n, N");

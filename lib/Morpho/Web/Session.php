@@ -10,10 +10,10 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
 
     protected $data;
 
-    public function __construct($name, $autoStart = true, $clear = false) {
+    public function __construct(string $name, bool $autoStart = true, bool $forceClear = false) {
         $this->name = $name;
 
-        $this->init($autoStart, $clear);
+        $this->init($autoStart, $forceClear);
     }
 
     /**
@@ -87,14 +87,12 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         );
     }
 
-    public function toArray() {
+    public function toArray(): array {
         return $_SESSION[self::KEY][$this->name];
     }
 
     public function clear() {
-        $_SESSION[self::KEY][$this->name] = array();
-
-        return $this;
+        $_SESSION[self::KEY][$this->name] = [];
     }
 
     public function offsetExists($key) {
@@ -113,22 +111,22 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         $this->__unset($key);
     }
 
-    protected function init($autoStart, $clear) {
+    protected function init(bool $autoStart, bool $forceClear) {
         if ($autoStart && !isset($_SESSION)) {
-            if (headers_sent($filePath, $lineNum)) {
+            if (headers_sent($filePath, $lineNumber)) {
                 throw new \RuntimeException(
-                    "Unable to start session, headers were already sent at '$filePath:$lineNum'."
+                    "Unable to start session, headers were already sent at '$filePath:$lineNumber'."
                 );
             }
             session_start();
         }
 
         if (!isset($_SESSION[self::KEY])) {
-            $_SESSION[self::KEY] = array();
+            $_SESSION[self::KEY] = [];
         }
         if (!isset($_SESSION[self::KEY][$this->name])) {
-            $_SESSION[self::KEY][$this->name] = array();
-        } elseif ($clear) {
+            $_SESSION[self::KEY][$this->name] = [];
+        } elseif ($forceClear) {
             $this->clear();
         }
     }

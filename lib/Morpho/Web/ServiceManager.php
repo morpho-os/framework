@@ -10,8 +10,9 @@ use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\ServiceManager as BaseServiceManager;
-use Morpho\Identity\UserManager;
-use Morpho\Logger\WebProcessor;
+use Morpho\Web\Logging\WebProcessor;
+use Morpho\Web\Routing\FallbackRouter;
+use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\HtmlParserPost;
 use Morpho\Web\View\HtmlParserPre;
@@ -20,7 +21,6 @@ use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
-use Morpho\Base\Environment;
 
 class ServiceManager extends BaseServiceManager {
     public function createRouterService() {
@@ -113,10 +113,12 @@ class ServiceManager extends BaseServiceManager {
 
         return $logger;
     }
-
+/*
     public function createUserManagerService() {
-        return new UserManager($this->get('db'), $this->get('session'));
+        return new UserManager(rr, $this->get('session'));
     }
+*/
+
 
     protected function isFallbackMode() {
         return $this->get('siteManager')->isFallbackMode();

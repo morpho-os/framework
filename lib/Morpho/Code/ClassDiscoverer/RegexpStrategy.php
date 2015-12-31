@@ -11,7 +11,7 @@ class RegexpStrategy implements IDiscoverStrategy {
     public function getClassesForFile($filePath) {
         $lines = file($filePath);
         $type = $ns = null;
-        $classes = array();
+        $classes = [];
         $this->currentNs = null;
         foreach ($lines as $line) {
             if ($this->isNs($line, $ns)) {

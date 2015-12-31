@@ -21,13 +21,13 @@ abstract class DbTestCase extends TestCase {
     }
 
     protected function getDbConfig() {
-        return array(
-            'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'user' => 'root',
+        return [
+            'driver'   => 'mysql',
+            'host'     => '127.0.0.1',
+            'user'     => 'root',
             'password' => '',
-            'db' => 'test',
-        );
+            'db'       => 'test',
+        ];
     }
 
     protected function createDb($config = null) {

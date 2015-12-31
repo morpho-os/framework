@@ -1,10 +1,11 @@
 <?php
-namespace MorphoTest\Web;
+namespace MorphoTest\Web\Routing;
 
 //use Morpho\Fs\Directory;
 //use Morpho\Fs\File;
 use Morpho\Test\TestCase;
-use Morpho\Web\FastRouter;
+use Morpho\Web\Routing\FastRouter;
+
 //use Morpho\Web\Request;
 //use Morpho\Test\DbTestCase;
 //use Morpho\Web\MenuItem;

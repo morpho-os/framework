@@ -5,7 +5,7 @@ use Morpho\Base\ArrayTool;
 use function Morpho\Base\escapeHtml;
 
 class TagRenderer {
-    public static function openTag($tagName, array $attributes = array(), $isXml = false) {
+    public static function openTag($tagName, array $attributes = [], $isXml = false) {
         return '<'
         . escapeHtml($tagName)
         . self::attributes($attributes)
@@ -37,12 +37,12 @@ class TagRenderer {
 
     public static function render($tagName, array $attributes = null, $text = null, array $options = null) {
         $options = ArrayTool::handleOptions(
-            (array) $options,
+            (array)$options,
             [
                 'escapeText' => true,
-                'isSingle' => false,
-                'isXml' => null,
-                'eol' => true,
+                'isSingle'   => false,
+                'isXml'      => null,
+                'eol'        => true,
             ]
         );
         $output = self::openTag($tagName, (array)$attributes, $options['isXml']);

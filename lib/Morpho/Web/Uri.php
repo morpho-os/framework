@@ -54,10 +54,10 @@ class Uri extends BaseUri {
         $query = $this->getQuery();
         $this->setQuery(
             $query
-                . (!empty($query)
-                    ? self::QUERY_ARG_SEPARATOR . self::queryArgsToString($queryArgs)
-                    : self::queryArgsToString($queryArgs)
-                )
+            . (!empty($query)
+                ? self::QUERY_ARG_SEPARATOR . self::queryArgsToString($queryArgs)
+                : self::queryArgsToString($queryArgs)
+            )
         );
         return $this;
     }
@@ -67,8 +67,8 @@ class Uri extends BaseUri {
      */
     public function relativeRef(): string {
         return $this->getPath()
-            . $this->queryPart()
-            . $this->fragmentPart();
+        . $this->queryPart()
+        . $this->fragmentPart();
     }
 
     /**

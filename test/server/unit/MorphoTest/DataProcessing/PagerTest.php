@@ -1,7 +1,7 @@
 <?php
-namespace MorphoTest\Pager;
+namespace MorphoTest\DataProcessing;
 
-use Morpho\Pager\Pager;
+use Morpho\DataProcessing\Pager;
 use Morpho\Test\TestCase;
 
 class PagerTest extends TestCase {
@@ -56,9 +56,9 @@ class PagerTest extends TestCase {
         $this->pager->setPageSize(2);
         $items = range(0, $totalItemsCount - 1);
         $this->pager->setItems($items);
-        $this->assertEquals(array(6), $this->pager->getPage(4)->toArray());
-        $this->assertEquals(array(4, 5), $this->pager->getPage(3)->toArray());
-        $this->assertEquals(array(0, 1), $this->pager->getPage(1)->toArray());
+        $this->assertEquals([6], $this->pager->getPage(4)->toArray());
+        $this->assertEquals([4, 5], $this->pager->getPage(3)->toArray());
+        $this->assertEquals([0, 1], $this->pager->getPage(1)->toArray());
 
         // check bounds
         $this->assertEquals([], $this->pager->getPage(5)->toArray());
@@ -66,7 +66,7 @@ class PagerTest extends TestCase {
     }
 
     public function testIterator() {
-        $items = array(1, 2, 3, 4, 5, 6, 7);
+        $items = [1, 2, 3, 4, 5, 6, 7];
         $this->pager->setItems($items)
             ->setPageSize(2);
 
@@ -74,31 +74,31 @@ class PagerTest extends TestCase {
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(1, $this->pager->key());
-        $this->assertInstanceOf('\Morpho\Pager\Page', $this->pager->current());
-        $this->assertEquals(array(1, 2), $this->pager->current()->toArray());
+        $this->assertInstanceOf('\Morpho\DataProcessing\Page', $this->pager->current());
+        $this->assertEquals([1, 2], $this->pager->current()->toArray());
 
         $this->assertNull($this->pager->next());
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(2, $this->pager->key());
-        $this->assertEquals(array(3, 4), $this->pager->current()->toArray());
+        $this->assertEquals([3, 4], $this->pager->current()->toArray());
 
         $this->assertNull($this->pager->next());
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(3, $this->pager->key());
-        $this->assertEquals(array(5, 6), $this->pager->current()->toArray());
+        $this->assertEquals([5, 6], $this->pager->current()->toArray());
 
         $this->assertNull($this->pager->next());
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(4, $this->pager->key());
-        $this->assertEquals(array(7), $this->pager->current()->toArray());
+        $this->assertEquals([7], $this->pager->current()->toArray());
 
         $this->assertNull($this->pager->next());
 
         $this->assertFalse($this->pager->valid());
         $this->assertEquals(4, $this->pager->key());
-        $this->assertEquals(array(7), $this->pager->current()->toArray());
+        $this->assertEquals([7], $this->pager->current()->toArray());
     }
 }

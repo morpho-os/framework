@@ -46,23 +46,23 @@ class Processor extends NodeVisitorAbstract {
     public function leaveNode(Node $node) {
         if ($node instanceof EchoStatement) {
             return new EchoStatement(
-                array(
+                [
                     new FuncCallExpr(
                         new NameNode(
-                            array('htmlspecialchars')
+                            ['htmlspecialchars']
                         ),
-                        array(
+                        [
                             new ArgNode(
                                 $node->exprs[0]
                             ),
                             new ArgNode(
                                 new ConstFetchExpr(
-                                    new NameNode(array('ENT_QUOTES'))
+                                    new NameNode(['ENT_QUOTES'])
                                 )
                             ),
-                        )
+                        ]
                     ),
-                )
+                ]
             );
         } elseif ($node instanceof IncludeExpr) {
             if ($node->type !== IncludeExpr::TYPE_REQUIRE) {

@@ -7,7 +7,7 @@ require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
 class HandlerManagerTest extends BaseErrorHandlerTest {
     public function testIsRegistered() {
-        $callback = array($this, 'myHandler');
+        $callback = [$this, 'myHandler'];
         $handlerTypes = [HandlerManager::ERROR, HandlerManager::EXCEPTION];
         foreach ($handlerTypes as $handlerType) {
             $this->assertFalse(HandlerManager::isRegistered($handlerType, $callback));
@@ -26,17 +26,17 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
     public function testRegisterAndUnregisterHandler() {
         $this->assertEquals($this->prevErrorHandler, HandlerManager::getCurrent(HandlerManager::ERROR));
 
-        $callback = array($this, 'myHandler');
+        $callback = [$this, 'myHandler'];
         $this->assertEquals($this->prevErrorHandler, HandlerManager::register(HandlerManager::ERROR, $callback));
 
         echo $t;
 
-        $expected = array(
+        $expected = [
             E_NOTICE,
             "Undefined variable: t",
             __FILE__,
             __LINE__ - 6,
-        );
+        ];
         array_pop($this->handlerArgs);
         $this->assertEquals($expected, $this->handlerArgs);
         $this->assertEquals($callback, HandlerManager::getCurrent(HandlerManager::ERROR));
@@ -48,10 +48,10 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
     public function testThrowsExceptionIfInvalidHandlerTypeProvided() {
         $class = '\Morpho\Error\HandlerManager';
         $methods = array_diff(get_class_methods($class), ['getAllExceptionHandlers', 'getAllErrorHandlers', 'getExceptionHandler', 'getErrorHandler']);
-        $callback = array($this, 'myHandler');
+        $callback = [$this, 'myHandler'];
         foreach ($methods as $method) {
             try {
-                call_user_func(array($class, $method), 'invalid-type', $callback);
+                call_user_func([$class, $method], 'invalid-type', $callback);
                 $this->fail($class . '::' . $method . '() does not throw \InvalidArgumentException');
             } catch (\InvalidArgumentException $e) {
                 $this->assertEquals("Invalid handler type was provided 'invalid-type'.", $e->getMessage());

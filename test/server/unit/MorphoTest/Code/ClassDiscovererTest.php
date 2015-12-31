@@ -21,7 +21,7 @@ class ClassDiscovererTest extends TestCase {
         $discoverStrategy = $this->getMock('\Morpho\Code\ClassDiscoverer\IDiscoverStrategy');
         $discoverStrategy->expects($this->atLeastOnce())
             ->method('getClassesForFile')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
         $this->assertInstanceOf(get_class($this->classDiscoverer), $this->classDiscoverer->setDiscoverStrategy($discoverStrategy));
         $this->classDiscoverer->getClassesForDir(__DIR__);
     }

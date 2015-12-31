@@ -62,7 +62,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         return [
             [
                 E_USER_ERROR,
-                'UserErrorException'
+                'UserErrorException',
             ],
             [
                 E_USER_WARNING,

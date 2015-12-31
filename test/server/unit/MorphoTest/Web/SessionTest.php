@@ -62,7 +62,7 @@ class SessionTest extends TestCase {
     public function testIterator() {
         $this->assertFalse($this->session->valid());
 
-        $data = array(1, 2, array('foo' => 'bar'));
+        $data = [1, 2, ['foo' => 'bar']];
         $this->session->fromArray($data);
 
         $this->assertNull($this->session->rewind());
@@ -81,7 +81,7 @@ class SessionTest extends TestCase {
 
         $this->assertTrue($this->session->valid());
         $this->assertEquals(2, $this->session->key());
-        $this->assertEquals(array('foo' => 'bar'), $this->session->current());
+        $this->assertEquals(['foo' => 'bar'], $this->session->current());
 
         $this->assertNull($this->session->next());
 
@@ -89,7 +89,7 @@ class SessionTest extends TestCase {
     }
 
     public function testArrayAccess() {
-        $this->session['foo'] = array();
+        $this->session['foo'] = [];
         $this->session['foo'][] = 'something';
         $this->assertEquals('something', $this->session['foo'][0]);
     }

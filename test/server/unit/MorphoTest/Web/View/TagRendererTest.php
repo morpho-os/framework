@@ -18,7 +18,7 @@ class TagRendererTest extends TestCase {
     }
 
     public function testRenderSingle() {
-        $attributes = array('href' => 'foo/bar.css', 'rel' => 'stylesheet');
+        $attributes = ['href' => 'foo/bar.css', 'rel' => 'stylesheet'];
         $expected = '<link href="foo/bar.css" rel="stylesheet">';
         $this->assertEquals(
             $expected,
@@ -44,7 +44,7 @@ class TagRendererTest extends TestCase {
     }
 
     public function testRender() {
-        $attributes = array('href' => 'foo/bar');
+        $attributes = ['href' => 'foo/bar'];
         $options = ['eol' => false];
         $this->assertEquals('<a href="foo/bar">Hello</a>', TagRenderer::render('a', $attributes, 'Hello', $options));
     }

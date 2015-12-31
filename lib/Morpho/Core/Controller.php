@@ -142,7 +142,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
                 [
                     'node' => $this,
                     'name' => $viewName,
-                    'vars' => $viewVars
+                    'vars' => $viewVars,
                 ]
             )
         );

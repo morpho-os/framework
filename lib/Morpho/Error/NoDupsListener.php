@@ -57,11 +57,11 @@ class NoDupsListener implements IExceptionListener {
         $id = md5(
             join(
                 ':',
-                array(
+                [
                     get_class($e),
                     $file,
-                    $line
-                )
+                    $line,
+                ]
             )
         );
 

@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Web;
 
-use Morpho\Web\Messenger\{IMessageStorage, SessionMessageStorage};
+use Morpho\Web\Messenger\{
+    IMessageStorage, SessionMessageStorage
+};
 
 class Messenger implements \Countable {
     const SUCCESS = 'success';
@@ -59,7 +61,7 @@ class Messenger implements \Countable {
         }
         $this->messages[$type][] = [
             'message' => $message,
-            'args' => (array)$args,
+            'args'    => (array)$args,
         ];
     }
 

@@ -2,7 +2,9 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\filter;
-use function Morpho\Cli\{cmdEx};
+use function Morpho\Cli\{
+    cmdEx
+};
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
@@ -59,7 +61,7 @@ class HtmlParserPost extends HtmlParser {
         // @TODO: Take into account the $outFilePath
         $options = [
             '--removeComments',
-            //'--noImplicitAny',
+            '--noImplicitAny',
             '--suppressImplicitAnyIndexErrors',
             '--noEmitOnError',
             '--newLine LF',

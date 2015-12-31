@@ -57,7 +57,7 @@ class ControllerTest extends TestCase {
         $moduleName = 'morpho-test';
         $httpMethod = Request::POST_METHOD;
 
-        $router = $this->mock('\Morpho\Web\Router');
+        $router = $this->mock('\Morpho\Web\Routing\Router');
         $router->expects($this->once())
             ->method('assemble')
             ->with($this->equalTo($actionName), $this->equalTo($httpMethod), $this->equalTo($controllerName), $this->equalTo($moduleName), $this->equalTo(['foo' => 'bar']))

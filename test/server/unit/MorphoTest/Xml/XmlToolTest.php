@@ -6,31 +6,31 @@ use Morpho\Xml\XmlTool;
 
 class XmlToolTest extends TestCase {
     public function testArrayToDomDoc() {
-        $data = array(
-            'student_info' => array(
+        $data = [
+            'student_info' => [
                 'total_stud' => 500,
-                0 => array(
-                    'student' => array(
-                        'id' => 1,
-                        'name' => 'abc',
-                        'address' => array(
+                0            => [
+                    'student' => [
+                        'id'      => 1,
+                        'name'    => 'abc',
+                        'address' => [
                             'city' => 'Pune',
-                            'zip' => 411006,
-                        ),
-                    ),
-                ),
-                1 => array(
-                    'student' => array(
-                        'id' => 2,
-                        'name' => 'xyz',
-                        'address' => array(
+                            'zip'  => 411006,
+                        ],
+                    ],
+                ],
+                1            => [
+                    'student' => [
+                        'id'      => 2,
+                        'name'    => 'xyz',
+                        'address' => [
                             'city' => 'Mumbai',
-                            'zip' => 400906,
-                        ),
-                    ),
-                ),
-            ),
-        );
+                            'zip'  => 400906,
+                        ],
+                    ],
+                ],
+            ],
+        ];
         $expected = <<<'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <student_info>

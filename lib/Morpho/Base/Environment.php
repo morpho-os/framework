@@ -66,17 +66,17 @@ class Environment extends Object {
     }
 
     public static function initServerVarsForCli(array $serverVars = []) {
-        $defaultServerVars = array(
-            'HTTP_HOST' => 'localhost',
-            'SCRIPT_NAME' => null,
-            'REMOTE_ADDR' => '127.0.0.1',
-            'REQUEST_METHOD' => 'GET',
-            'SERVER_NAME' => null,
+        $defaultServerVars = [
+            'HTTP_HOST'       => 'localhost',
+            'SCRIPT_NAME'     => null,
+            'REMOTE_ADDR'     => '127.0.0.1',
+            'REQUEST_METHOD'  => 'GET',
+            'SERVER_NAME'     => null,
             'SERVER_SOFTWARE' => null,
             'HTTP_USER_AGENT' => null,
             'SERVER_PROTOCOL' => 'HTTP/1.0',
-            'REQUEST_URI' => '',
-        );
+            'REQUEST_URI'     => '',
+        ];
         $_SERVER += $serverVars + $defaultServerVars;
     }
 
@@ -96,14 +96,14 @@ class Environment extends Object {
             $_SERVER['HTTP_HOST'] = '';
         }
 
-        $defaultServerVars = array(
-            'SCRIPT_NAME' => null,
-            'REMOTE_ADDR' => '127.0.0.1',
-            'REQUEST_METHOD' => 'GET',
-            'SERVER_NAME' => null,
+        $defaultServerVars = [
+            'SCRIPT_NAME'     => null,
+            'REMOTE_ADDR'     => '127.0.0.1',
+            'REQUEST_METHOD'  => 'GET',
+            'SERVER_NAME'     => null,
             'SERVER_SOFTWARE' => null,
             'HTTP_USER_AGENT' => null,
-        );
+        ];
         $_SERVER += $serverVars + $defaultServerVars;
     }
 
@@ -153,11 +153,11 @@ class Environment extends Object {
         // Basic idea found here: php.net/ini_get.
         static $map = [
             // true values:
-            'on' => true, 'true' => true, 'yes' => true,
+            'on'  => true, 'true' => true, 'yes' => true,
             // false values:
             'off' => false, 'false' => false, 'no' => false,
         ];
-        return $map[strtolower($value)] ?? (bool) $value;
+        return $map[strtolower($value)] ?? (bool)$value;
     }
 
     /**

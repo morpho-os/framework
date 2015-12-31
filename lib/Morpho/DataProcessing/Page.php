@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Pager;
+namespace Morpho\DataProcessing;
 
 use Morpho\Base\ArrayIterator;
 

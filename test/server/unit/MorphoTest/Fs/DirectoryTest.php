@@ -55,14 +55,14 @@ class DirectoryTest extends TestCase {
 
     public function testListEntries_WithoutProcessorAndWithDefaultOptions() {
         $testDirPath = $this->getTestDirPath();
-        $expected = array(
+        $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
             $testDirPath . '/2/3.php',
             $testDirPath . '/4',
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
-        );
+        ];
         $actual = Directory::listEntries($testDirPath);
         sort($expected);
         sort($actual);
@@ -132,13 +132,13 @@ class DirectoryTest extends TestCase {
 
     public function testListEntries_WithRegExpProcessorAndWithDefaultOptions() {
         $testDirPath = $this->getTestDirPath();
-        $expected = array(
+        $expected = [
             $testDirPath . '/2',
             $testDirPath . '/2/3.php',
             $testDirPath . '/4',
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
-        );
+        ];
         $actual = Directory::listEntries($testDirPath, '~\.php$~si');
         sort($expected);
         sort($actual);
@@ -195,7 +195,7 @@ class DirectoryTest extends TestCase {
             $testDirPath,
             '~\.txt$~si',
             [
-                'type' => Directory::DIR | Directory::FILE,
+                'type'      => Directory::DIR | Directory::FILE,
                 'recursive' => false,
             ]
         );

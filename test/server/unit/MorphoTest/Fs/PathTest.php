@@ -62,14 +62,14 @@ class PathTest extends TestCase {
     }
 
     public function dataForAssertSafe() {
-        return array(
-            array('..'),
-            array('C:/foo/../bar'),
-            array('C:\foo\..\bar'),
-            array("some/file.php\x00"),
-            array("foo/../bar"),
-            array("foo/.."),
-        );
+        return [
+            ['..'],
+            ['C:/foo/../bar'],
+            ['C:\foo\..\bar'],
+            ["some/file.php\x00"],
+            ["foo/../bar"],
+            ["foo/.."],
+        ];
     }
 
     /**
@@ -81,14 +81,14 @@ class PathTest extends TestCase {
     }
 
     public function dataForAssertSafeDoesNotThrowExceptionForSafePath() {
-        return array(
-            array(
+        return [
+            [
                 'C:/foo/bar',
                 'C:\foo\bar',
                 'foo/bar',
                 '/foo/bar/index.php',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -99,31 +99,31 @@ class PathTest extends TestCase {
     }
 
     public function dataForIsNormalizedInvalid() {
-        return array(
-            array('\foo\bar\baz'),
-            array('\foo\bar\baz\\'),
-            array('\foo\bar\baz/'),
+        return [
+            ['\foo\bar\baz'],
+            ['\foo\bar\baz\\'],
+            ['\foo\bar\baz/'],
 
-            array('\foo\..\baz'),
-            array('\foo\..\baz\\'),
-            array('\foo\..\baz/'),
+            ['\foo\..\baz'],
+            ['\foo\..\baz\\'],
+            ['\foo\..\baz/'],
 
-            array('/foo/../baz'),
-            array('/foo/../baz\\'),
-            array('/foo/../baz/'),
+            ['/foo/../baz'],
+            ['/foo/../baz\\'],
+            ['/foo/../baz/'],
 
-            array('C:\foo\bar\baz'),
-            array('C:\foo\bar\baz\\'),
-            array('C:\foo\bar\baz/'),
+            ['C:\foo\bar\baz'],
+            ['C:\foo\bar\baz\\'],
+            ['C:\foo\bar\baz/'],
 
-            array('C:\foo\..\baz'),
-            array('C:\foo\..\baz\\'),
-            array('C:\foo\..\baz/'),
+            ['C:\foo\..\baz'],
+            ['C:\foo\..\baz\\'],
+            ['C:\foo\..\baz/'],
 
-            array('C:/foo/../baz'),
-            array('C:/foo/../baz\\'),
-            array('C:/foo/../baz/'),
-        );
+            ['C:/foo/../baz'],
+            ['C:/foo/../baz\\'],
+            ['C:/foo/../baz/'],
+        ];
     }
 
     /**
@@ -150,11 +150,11 @@ class PathTest extends TestCase {
             [
                 '/', '/',
             ],
-            array(__DIR__, __DIR__),
-            array(__FILE__, __FILE__),
-            array(getcwd(), ''),
-            array(__DIR__, __DIR__ . '/_files/..'),
-            array(__FILE__, __DIR__ . '/_files/../' . basename(__FILE__)),
+            [__DIR__, __DIR__],
+            [__FILE__, __FILE__],
+            [getcwd(), ''],
+            [__DIR__, __DIR__ . '/_files/..'],
+            [__FILE__, __DIR__ . '/_files/../' . basename(__FILE__)],
         ];
     }
 
@@ -196,7 +196,7 @@ class PathTest extends TestCase {
     }
 
     public function testCombine_ArraySyntax() {
-        $this->assertEquals('foo/bar/baz', Path::combine(array('foo', 'bar', null, 'baz')));
+        $this->assertEquals('foo/bar/baz', Path::combine(['foo', 'bar', null, 'baz']));
     }
 
     public function dataForCombine_AbsoluteUri() {

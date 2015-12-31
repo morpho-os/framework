@@ -2,12 +2,12 @@
 /**
  * Changed ClassLoader from the Composer project with adapted coding conventions,
  * removed support of the fallback directories and outdated code.
- * 
+ *
  * https://github.com/composer/composer/blob/master/src/Composer/Autoload/ClassLoader.php
  * Copyright (c) 2015 Nils Adermann, Jordi Boggiano
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Base;
 
@@ -75,7 +75,7 @@ class ClassLoader extends Autoloader {
     public function addPrefixToDirPathMappingPsr0(string $prefix, $paths, bool $prepend = false): self {
         $first = $prefix[0];
         if (!isset($this->prefixesPsr0[$first][$prefix])) {
-            $this->prefixesPsr0[$first][$prefix] = (array) $paths;
+            $this->prefixesPsr0[$first][$prefix] = (array)$paths;
         } else {
             $this->prefixesPsr0[$first][$prefix] = $prepend
                 ? array_merge((array)$paths, $this->prefixesPsr0[$first][$prefix])
@@ -101,8 +101,8 @@ class ClassLoader extends Autoloader {
             $this->setPrefixToDirPathMappingPsr4($prefix, $paths);
         } else {
             $this->prefixDirsPsr4[$prefix] = $prepend
-                ? array_merge((array) $paths, $this->prefixDirsPsr4[$prefix])
-                : array_merge($this->prefixDirsPsr4[$prefix], (array) $paths);
+                ? array_merge((array)$paths, $this->prefixDirsPsr4[$prefix])
+                : array_merge($this->prefixDirsPsr4[$prefix], (array)$paths);
         }
         return $this;
     }

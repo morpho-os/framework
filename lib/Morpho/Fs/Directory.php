@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Fs;
 
@@ -39,7 +39,7 @@ class Directory extends Entry {
             $processor,
             [
                 'recursive' => false,
-                'type' => self::FILE | self::DIR,
+                'type'      => self::FILE | self::DIR,
             ]
         );
         foreach ($paths as $sourceFilePath) {
@@ -63,9 +63,9 @@ class Directory extends Entry {
         $options = ArrayTool::handleOptions(
             $options,
             [
-                'recursive' => true,
+                'recursive'      => true,
                 'followSymlinks' => false,
-                'type' => self::FILE | self::DIR,
+                'type'           => self::FILE | self::DIR,
             ]
         );
 

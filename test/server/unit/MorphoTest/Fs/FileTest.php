@@ -10,8 +10,8 @@ class FileTest extends TestCase {
         $targetFilePath = $this->copyFile($this->getTestDirPath() . '/composer.json', $tmpDirPath);
 
         $this->assertEquals([
-            'require' => [
-                'php' => '7.0.*',
+            'require'     => [
+                'php'      => '7.0.*',
                 'ext-curl' => '*',
             ],
             'require-dev' => [

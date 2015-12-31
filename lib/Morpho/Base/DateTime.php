@@ -4,6 +4,17 @@ namespace Morpho\Base;
 class DateTime extends \DateTimeImmutable {
     const DATETIME_FORMAT = 'Y-m-d H:i:s';
 
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     * @return DateTime
+     */
+    public static function now($timezone = null): self {
+        if (is_string($timezone)) {
+            $timezone = new \DateTimeZone($timezone);
+        }
+        return new static('now', $timezone);
+    }
+
     public function yearAsInt() {
         return (int)$this->format('Y');
     }

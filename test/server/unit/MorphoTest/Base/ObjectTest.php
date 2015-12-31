@@ -28,10 +28,10 @@ class ObjectTest extends TestCase {
      * @dataProvider dataForToArray
      */
     public function testToArray($object) {
-        $expected = array(
-            'publicProp' => 'one',
+        $expected = [
+            'publicProp'    => 'one',
             'protectedProp' => 'two',
-        );
+        ];
         $this->assertEquals($expected, $object->toArray());
     }
 

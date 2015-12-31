@@ -1,13 +1,18 @@
 <?php
-namespace Morpho\Web;
+namespace Morpho\Web\Routing;
 
-use Morpho\Di\{IServiceManager, IServiceManagerAware};
-use function Morpho\Base\{classify, dasherize, head};
+use Morpho\Di\{
+    IServiceManager, IServiceManagerAware
+};
+use function Morpho\Base\{
+    classify, dasherize, head
+};
 use Morpho\Fs\Path;
+use Morpho\Web\Request;
 
 /**
  * This class applies some ideas found at:
- *     * the Drupal-8 routing system (http://drupal.org)
+ *     * the Drupal-8 routing system (http://drupal.org) (@TODO: Not actual anymore?)
  *     * Rails 4.x Routing, @see http://guides.rubyonrails.org/routing.html
  */
 abstract class Router implements IServiceManagerAware {
@@ -50,42 +55,36 @@ abstract class Router implements IServiceManagerAware {
     abstract public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null);
 
     public function dumpRoutes(): array {
-        return $this->buildRoutesMeta(MODULE_DIR_PATH);
+        return iterator_to_array($this->buildRoutesMeta(MODULE_DIR_PATH));
     }
 
-    protected function buildRoutesMeta(...$args): array {
-        if (count($args) !== 1) {
-            throw new \LogicException("Invalid number of arguments");
-        }
-        $moduleDirPath = $args[0];
-        $routesMeta = [];
+    protected function buildRoutesMeta(string $moduleDirPath): \Generator {
         $filePaths = RouteInfoProvider::enumerateControllerFiles($moduleDirPath);
-        $i = 0;
         foreach ($filePaths as $filePath) {
-            $routesMeta[$i]['filePath'] = $filePath;
-            $routesMeta[$i]['module'] = $module = classify(
+            $module = classify(
                 head(
                     Path::toRelative($moduleDirPath, $filePath),
                     '/'
                 )
             );
-            $controllersInFileMeta = RouteInfoProvider::buildMetaForControllersInFile($filePath);
-            $routesMeta[$i]['controllers'] = [];
+            $controllersInFileMeta = RouteInfoProvider::getMetaForControllersInFile($filePath);
             foreach ($controllersInFileMeta as $controllerMeta) {
-                $controllerMeta['actions'] = !empty($controllerMeta['actions'])
-                    ? iterator_to_array(
-                        $this->normalizeControllerActionMeta(
-                            $controllerMeta['actions'],
-                            $module,
-                            $controllerMeta['controller']
-                        )
-                    )
-                    : [];
-                $routesMeta[$i]['controllers'][] = $controllerMeta;
+                if (!empty($controllerMeta['actions'])) {
+                    foreach ($this->normalizeControllerActionMeta($controllerMeta['actions'], $module, $controllerMeta['controller']) as $actionMeta) {
+                        yield [
+                            'httpMethod' => $actionMeta['httpMethod'],
+                            'uri'        => $actionMeta['uri'],
+                            'module'     => $module,
+                            'controller' => $controllerMeta['controller'],
+                            'action'     => $actionMeta['action'],
+                            'filePath'   => $filePath,
+                            'class'      => $controllerMeta['class'],
+                            'title'      => $actionMeta['title'],
+                        ];
+                    }
+                }
             }
-            $i++;
         }
-        return $routesMeta;
     }
 
     protected function handleHomeUri(Request $request, $uri) {
@@ -147,10 +146,10 @@ abstract class Router implements IServiceManagerAware {
                     $yield = false;
                     foreach ((array)$docComment['methods'] as $httpMethod) {
                         $actionMeta = [
-                            'title' => $title,
-                            'action' => $action,
+                            'title'      => $title,
+                            'action'     => $action,
                             'httpMethod' => $httpMethod,
-                            'uri' => $uri,
+                            'uri'        => $uri,
                         ];
                         yield $actionMeta;
                     }
@@ -160,10 +159,10 @@ abstract class Router implements IServiceManagerAware {
 
             if ($yield) {
                 $actionMeta = [
-                    'title' => $title,
-                    'action' => $action,
+                    'title'      => $title,
+                    'action'     => $action,
                     'httpMethod' => $httpMethod,
-                    'uri' => $uri,
+                    'uri'        => $uri,
                 ];
                 yield $actionMeta;
             }

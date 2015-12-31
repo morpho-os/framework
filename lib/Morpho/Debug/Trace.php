@@ -2,11 +2,11 @@
 namespace Morpho\Debug;
 
 class Trace {
-    protected $frames = array();
+    protected $frames = [];
 
     public function __construct() {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        $this->frames = array();
+        $this->frames = [];
         foreach ($trace as $frame) {
             if (isset($frame['file']) && dirname($frame['file']) == __DIR__) {
                 continue;
@@ -16,7 +16,7 @@ class Trace {
     }
 
     public function __toString() {
-        $lines = array();
+        $lines = [];
         foreach ($this->frames as $index => $frame) {
             $lines[] = '#' . $index . ' ' . $frame;
         }
@@ -43,11 +43,11 @@ class Trace {
         }
 
         return new Frame(
-            array(
+            [
                 'function' => $function,
                 'filePath' => isset($frame['file']) ? $frame['file'] : null,
-                'line' => isset($frame['line']) ? $frame['line'] : null
-            )
+                'line'     => isset($frame['line']) ? $frame['line'] : null,
+            ]
         );
     }
 }

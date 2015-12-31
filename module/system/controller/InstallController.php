@@ -86,7 +86,7 @@ class InstallController extends Controller {
         if ($router instanceof IServiceManagerAware) {
             $router->setServiceManager($this->serviceManager);
         }
-        $router->rebuildRoutes(MODULE_DIR_PATH);
+        $router->rebuildRoutes();
     }
 
     protected function installModules(Db $db) {

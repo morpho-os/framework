@@ -1,64 +1,84 @@
 <?php
 namespace Morpho\Identity;
 
-use Morpho\Db\Db;
+use Morpho\Base\EntityExistsException;
+use Morpho\Base\EntityNotFoundException;
+use Morpho\Base\NotImplementedException;
 use Morpho\Web\Session;
 
 class UserManager {
-    protected $db;
-
     protected $session;
 
     protected $user;
 
-    public function __construct(Db $db, Session $session) {
-        $this->db = $db;
+    protected $repo;
+
+    const USER_NOT_FOUND_ERROR = 'userNotFound';
+    const LOGIN_NOT_FOUND_ERROR = 'loginNotFound';
+    const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
+
+    public function __construct(IUserRepo $repo, Session $session) {
+        $this->repo = $repo;
         $this->session = $session;
     }
 
-    /**
-     * @return false|array Returns false for the guest and array for the authenticated user.
-     */
-    public function getUser() {
+    public function getLoggedInUser() {
         if (null !== $this->user) {
             return $this->user;
         }
-        if (empty($this->session->userId)) {
-            $this->user = false;
-        } else {
-            $this->user = $this->db->selectRow('id, login FROM `user` WHERE id = ?', [$this->session->userId]);
+        if (!isset($this->session->userId)) {
+            throw new \RuntimeException("The user was not logged in");
+        }
+        $this->user = $this->repo->findUserById('id, login FROM `user` WHERE id = ?', $this->session->userId);
+        if (false === $this->user) {
+            throw new EntityNotFoundException("The user with ID {$this->session->userId} does not exist");
         }
         return $this->user;
     }
 
-    public function isGuestUser(): bool {
-        return empty($this->session->userId);
+    public function isUserLoggedIn(): bool {
+        return !empty($this->session->userId);
     }
 
-    public function logIn($login, $pass) {
-        $userId = $this->authenticate($login, $pass);
-        if (false !== $userId) {
-            $this->session->userId = $userId;
-        }
-        return $userId;
-    }
-
-    public function logOut() {
-        unset($this->session->userId);
+    public function isUserRegistered(array $user): bool {
+        return (bool)$this->repo->findUserByLogin($user['login']);
     }
 
     /**
-     * @param string $login
-     * @param string $password
-     * @return false|string Returns User ID on success, false on failure.
+     * @return true|array Returns true on success, array with errors otherwise.
      */
-    public function authenticate($login, $password) {
-        $row = $this->db->selectRow('id, passwordHash FROM `user` WHERE login = ?', [$login]);
-        if ($row) {
-            if (PasswordManager::isValidPassword($password, $row['passwordHash'])) {
-                return $row['id'];
-            }
+    public function logIn(array $user) {
+        $registeredUser = $this->repo->findUserByLogin($user['login']);
+        if (false === $registeredUser) {
+            return [self::USER_NOT_FOUND_ERROR, self::LOGIN_NOT_FOUND_ERROR];
         }
-        return false;
+        if (!PasswordManager::isValidPassword($user['password'], $registeredUser['passwordHash'])) {
+            return [self::USER_NOT_FOUND_ERROR, self::PASSWORDS_DONT_MATCH_ERROR];
+        }
+        $this->session->userId = $registeredUser['id'];
+        $this->user = $registeredUser;
+        return true;
+    }
+
+    public function logOut() {
+        $this->user = null;
+        unset($this->session->userId);
+    }
+
+    public function registerUser(array $user) {
+        if ($this->repo->findUserByLogin($user['login'])) {
+            throw new EntityExistsException("Such user already exists");
+        }
+        $user['passwordHash'] = PasswordManager::passwordHash($user['password']);
+        $this->repo->saveUser($user);
+    }
+
+    public function deleteRegisteredUser(array $user) {
+        $this->logOut();
+        $this->repo->deleteUser($user);
+    }
+
+    public function userHasRole(array $role): bool {
+        throw new NotImplementedException();
     }
 }

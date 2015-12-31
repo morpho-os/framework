@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Cli;
 
-use function Morpho\Base\{filter, all, any, reduce};
+use function Morpho\Base\{
+    filter, all, any, reduce
+};
 use Morpho\Code\Compiler\Lexer;
 
 class ArgsHandler {
@@ -11,9 +13,9 @@ class ArgsHandler {
 
     protected $definition;
 
-    const SHORT_ARG_TOKEN  = 1;
-    const LONG_ARG_TOKEN   = 2;
-    const VALUE_ARG_TOKEN  = 3;
+    const SHORT_ARG_TOKEN = 1;
+    const LONG_ARG_TOKEN = 2;
+    const VALUE_ARG_TOKEN = 3;
     const WHITESPACE_TOKEN = 4;
 
     public function setArgValues(array $args) {
@@ -48,10 +50,10 @@ class ArgsHandler {
 
     protected function parseArgs(): array {
         $lexer = new Lexer([
-            '\s+' => self::WHITESPACE_TOKEN,
-            '-[a-z][a-z_0-9-]*(=\S+)?' => self::SHORT_ARG_TOKEN,
+            '\s+'                       => self::WHITESPACE_TOKEN,
+            '-[a-z][a-z_0-9-]*(=\S+)?'  => self::SHORT_ARG_TOKEN,
             '--[a-z][a-z_0-9-]*(=\S+)?' => self::LONG_ARG_TOKEN,
-            '\S+' => self::VALUE_ARG_TOKEN,
+            '\S+'                       => self::VALUE_ARG_TOKEN,
         ]);
         $tokens = $lexer->run(implode(' ', $this->getArgValues()));
 

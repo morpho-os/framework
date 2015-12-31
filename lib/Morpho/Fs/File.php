@@ -1,11 +1,13 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Fs;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Base\NotImplementedException;
-use function Morpho\Base\{jsonDecode, jsonEncode};
+use function Morpho\Base\{
+    jsonDecode, jsonEncode
+};
 
 class File extends Entry {
     /**
@@ -17,15 +19,15 @@ class File extends Entry {
         }
 
         $options = ArrayTool::handleOptions(
-            (array) $options,
+            (array)$options,
             [
-                'lock' => false,
-                'offset' => -1,
-                'length' => null,
+                'lock'           => false,
+                'offset'         => -1,
+                'length'         => null,
                 'useIncludePath' => false,
-                'context' => null,
-                'binary' => true,
-                'handleBom' => true
+                'context'        => null,
+                'binary'         => true,
+                'handleBom'      => true,
             ]
         );
 
@@ -120,7 +122,7 @@ class File extends Entry {
      * Appends content to the file and returns the file path.
      */
     public static function append(string $filePath, string $content, array $options = null): string {
-        return self::write($filePath, $content, ArrayTool::handleOptions((array) $options, ['append' => true]));
+        return self::write($filePath, $content, ArrayTool::handleOptions((array)$options, ['append' => true]));
     }
 
     /**
@@ -130,7 +132,7 @@ class File extends Entry {
         if (empty($filePath)) {
             throw new IoException("The file path is empty.");
         }
-        $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array) $options), $options['context']);
+        $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array)$options), $options['context']);
         if (false === $result) {
             throw new IoException("Unable to write to the file '$filePath'.");
         }
@@ -226,10 +228,10 @@ class File extends Entry {
             $options,
             [
                 'useIncludePath' => false,
-                'lock' => true,
-                'append' => false,
-                'context' => null,
-                'mode' => 0644,
+                'lock'           => true,
+                'append'         => false,
+                'context'        => null,
+                'mode'           => 0644,
             ]
         );
         $flags = 0;

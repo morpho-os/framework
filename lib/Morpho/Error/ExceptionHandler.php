@@ -22,7 +22,7 @@ class ExceptionHandler implements IExceptionHandler {
         if ($this->registered) {
             throw new \LogicException();
         }
-        HandlerManager::register(HandlerManager::EXCEPTION, array($this, 'handleException'));
+        HandlerManager::register(HandlerManager::EXCEPTION, [$this, 'handleException']);
         $this->registered = true;
     }
 
@@ -30,7 +30,7 @@ class ExceptionHandler implements IExceptionHandler {
         if (!$this->registered) {
             throw new \LogicException();
         }
-        HandlerManager::unregister(HandlerManager::EXCEPTION, array($this, 'handleException'));
+        HandlerManager::unregister(HandlerManager::EXCEPTION, [$this, 'handleException']);
     }
 
     public function handleException(\Throwable $e) {

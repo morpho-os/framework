@@ -1,11 +1,11 @@
 <?php
-namespace MorphoTest\Web;
+namespace MorphoTest\Web\Routing;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\RouteInfoProvider;
+use Morpho\Web\Routing\RouteInfoProvider;
 
 class RouteInfoProviderTest extends TestCase {
-    public function testBuildMetaForControllersInFile() {
+    public function testGetMetaForControllersInFile() {
         $expectedDocComment = <<<OUT
 /**
      * @foo Bar
@@ -16,33 +16,33 @@ OUT;
         $this->assertEquals(
             [
                 [
-                    'class' => $nsPrefix . 'MyFirstController',
+                    'class'      => $nsPrefix . 'MyFirstController',
                     'controller' => 'MyFirst',
-                    'actions' => [
+                    'actions'    => [
                         [
                             'action' => 'foo',
                         ],
                     ],
                 ],
                 [
-                    'class' => $nsPrefix . 'MySecondController',
+                    'class'      => $nsPrefix . 'MySecondController',
                     'controller' => 'MySecond',
-                    'actions' => [
+                    'actions'    => [
                         [
                             'action' => 'doSomething',
                         ],
                         [
-                            'action' => 'process',
+                            'action'     => 'process',
                             'docComment' => $expectedDocComment,
                         ],
                     ],
                 ],
                 [
-                    'class' => $nsPrefix . 'ThirdController',
+                    'class'      => $nsPrefix . 'ThirdController',
                     'controller' => 'Third',
                 ],
             ],
-            RouteInfoProvider::buildMetaForControllersInFile($this->getTestDirPath() . '/MyController.php')
+            RouteInfoProvider::getMetaForControllersInFile($this->getTestDirPath() . '/MyController.php')
         );
     }
 
@@ -55,8 +55,8 @@ OUT;
         $this->assertEquals(
             [
                 'methods' => ['GET', 'POST'],
-                'uri' => null,
-                'title' => null,
+                'uri'     => null,
+                'title'   => null,
             ],
             RouteInfoProvider::parseDocComment($docComment)
         );
@@ -69,8 +69,8 @@ OUT;
         $this->assertEquals(
             [
                 'methods' => ['GET'],
-                'uri' => '/',
-                'title' => null,
+                'uri'     => '/',
+                'title'   => null,
             ],
             RouteInfoProvider::parseDocComment($docComment)
         );
@@ -84,8 +84,8 @@ OUT;
         $this->assertEquals(
             [
                 'methods' => ['GET'],
-                'uri' => '/some/path',
-                'title' => null,
+                'uri'     => '/some/path',
+                'title'   => null,
             ],
             RouteInfoProvider::parseDocComment($docComment)
         );
@@ -99,8 +99,8 @@ OUT;
         $this->assertEquals(
             [
                 'methods' => ['GET'],
-                'uri' => '/some/path',
-                'title' => 'Foo',
+                'uri'     => '/some/path',
+                'title'   => 'Foo',
             ],
             RouteInfoProvider::parseDocComment($docComment)
         );
@@ -113,8 +113,8 @@ OUT;
         $this->assertEquals(
             [
                 'methods' => null,
-                'uri' => null,
-                'title' => 'My menu item',
+                'uri'     => null,
+                'title'   => 'My menu item',
             ],
             RouteInfoProvider::parseDocComment($docComment)
         );
@@ -127,8 +127,8 @@ OUT;
         $this->assertEquals(
             [
                 'methods' => null,
-                'uri' => null,
-                'title' => null,
+                'uri'     => null,
+                'title'   => null,
             ],
             RouteInfoProvider::parseDocComment($docComment)
         );

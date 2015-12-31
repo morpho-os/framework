@@ -14,7 +14,7 @@ class PriceFilterTest extends TestCase {
     }
 
     public function testReturnsNullForNonScalar() {
-        $this->assertNull($this->filter->filter(array()));
+        $this->assertNull($this->filter->filter([]));
     }
 
     public function testCanFilterMixedValue() {

@@ -35,7 +35,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testRenderFileWithAbsPath() {
         $dirPath = $this->getTestDirPath();
-        $this->assertEquals('<h1>Hello World!</h1>', $this->engine->renderFile($dirPath . '/my-file.phtml', array('who' => 'World!')));
+        $this->assertEquals('<h1>Hello World!</h1>', $this->engine->renderFile($dirPath . '/my-file.phtml', ['who' => 'World!']));
     }
 
     public function testRenderFileThrowsExceptionWhenNotExist() {

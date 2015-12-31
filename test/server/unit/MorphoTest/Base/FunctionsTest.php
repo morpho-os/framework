@@ -2,7 +2,9 @@
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
-use function Morpho\Base\{uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols};
+use function Morpho\Base\{
+    uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols
+};
 
 class FunctionsTest extends TestCase {
     public function setUp() {
@@ -32,12 +34,12 @@ class FunctionsTest extends TestCase {
     public function testShorten() {
         $this->assertEquals('foo...', shorten('foobarb', 6));
         $this->assertEquals('foobar', shorten('foobar', 6));
-        $this->assertEquals('fooba',  shorten('fooba', 6));
-        $this->assertEquals('foob',   shorten('foob', 6));
-        $this->assertEquals('foo',    shorten('foo'), 6);
-        $this->assertEquals('fo',     shorten('fo'), 6);
-        $this->assertEquals('f',      shorten('f'), 6);
-        $this->assertEquals('',       shorten(''), 6);
+        $this->assertEquals('fooba', shorten('fooba', 6));
+        $this->assertEquals('foob', shorten('foob', 6));
+        $this->assertEquals('foo', shorten('foo'), 6);
+        $this->assertEquals('fo', shorten('fo'), 6);
+        $this->assertEquals('f', shorten('f'), 6);
+        $this->assertEquals('', shorten(''), 6);
 
         $this->assertEquals('foob!!', shorten('foobarb', 6, '!!'));
     }
@@ -61,18 +63,18 @@ class FunctionsTest extends TestCase {
     }
 
     public function testTrimMore() {
-        $t = array(
+        $t = [
             '  ff  ',
-            ' foo ' => array(
+            ' foo ' => [
                 ' bar-',
-            ),
-        );
-        $expected = array(
+            ],
+        ];
+        $expected = [
             'ff',
-            ' foo ' => array(
+            ' foo ' => [
                 'bar',
-            ),
-        );
+            ],
+        ];
         $this->assertEquals($expected, trimMore($t, '-'));
 
         $this->assertEquals('ff', trimMore('__ ff  ', '_'));

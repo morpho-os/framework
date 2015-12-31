@@ -9,11 +9,11 @@ abstract class DiscoverStrategyTest extends TestCase {
     }
 
     public function testGetClassesForFile() {
-        $expected = array(
+        $expected = [
             __NAMESPACE__ . '\\StrategyTest1\\FooTrait',
             __NAMESPACE__ . '\\StrategyTest1\\BarClass',
             __NAMESPACE__ . '\\StrategyTest2\\BazInterface',
-        );
+        ];
         $actual = $this->strategy->getClassesForFile(__DIR__ . '/_files/DiscoverStrategyTest/MyFile.php');
         sort($expected);
         sort($actual);

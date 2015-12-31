@@ -48,13 +48,13 @@ class MessengerTest extends TestCase {
                 Messenger::SUCCESS => [
                     [
                         'message' => 'Hello {0} and welcome',
-                        'args' => ['<b>Name</b>'],
+                        'args'    => ['<b>Name</b>'],
                     ],
                 ],
                 Messenger::WARNING => [
                     [
                         'message' => 'Bar',
-                        'args' => [],
+                        'args'    => [],
                     ],
                 ],
             ],

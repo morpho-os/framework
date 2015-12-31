@@ -15,7 +15,7 @@ class Repo extends BaseRepo {
     protected function selectBool(string $sql, array $args = []): bool {
         return $this->getDb()->selectBool($sql, $args);
     }
-    
+
     protected function selectRows(string $sql, array $args = []): array {
         return $this->getDb()->selectRows($sql, $args);
     }

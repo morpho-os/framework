@@ -1,8 +1,12 @@
 <?php
 namespace Morpho\Web\View;
 
-use function Morpho\Base\{dasherize, escapeHtml, filterStringArgs};
-use Morpho\Di\{IServiceManager, IServiceManagerAware};
+use function Morpho\Base\{
+    dasherize, escapeHtml, filterStringArgs
+};
+use Morpho\Di\{
+    IServiceManager, IServiceManagerAware
+};
 
 class MessengerPlugin implements \Countable, IServiceManagerAware {
     private $serviceManager;

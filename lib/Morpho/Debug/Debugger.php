@@ -12,7 +12,7 @@ use Morpho\Base\NotImplementedException;
  *     xdebug.var_display_max_depth=-1
  */
 class Debugger {
-    protected $ignoredFrames = array();
+    protected $ignoredFrames = [];
 
     protected $isHtmlMode;
 
@@ -63,7 +63,7 @@ class Debugger {
             $filter = \ReflectionMethod::IS_PUBLIC;
         }
         $r = is_object($object) ? new \ReflectionObject($object) : new \ReflectionClass($object);
-        $methods = array();
+        $methods = [];
         foreach ($r->getMethods($filter) as $method) {
             if (null !== $regexp) {
                 if (!preg_match($regexp, $method->getName())) {
@@ -226,7 +226,7 @@ class Debugger {
     }
 
     public function ignoreCaller(string $filePath, int $lineNumber = null): self {
-        $this->ignoredFrames[] = array('filePath' => $filePath, 'line' => $lineNumber);
+        $this->ignoredFrames[] = ['filePath' => $filePath, 'line' => $lineNumber];
 
         return $this;
     }
@@ -338,30 +338,30 @@ OUT;
 
     protected function isPhpFormatEnabled(): bool {
         return ini_get('html_errors')
-            && ini_get('xdebug.default_enable')
-            && ini_get('xdebug.overload_var_dump');
+        && ini_get('xdebug.default_enable')
+        && ini_get('xdebug.overload_var_dump');
     }
 
     protected function errorHandler($level, $message, $filePath, $line, $context) {
         if ($level & error_reporting()) {
             try {
                 // @TODO: Sync with PHP 7.
-                $types = array(
-                    E_ERROR => 'Error',
-                    E_WARNING => 'Warning',
-                    E_PARSE => 'Parse error',
-                    E_NOTICE => 'Notice',
-                    E_CORE_ERROR => 'Core error',
-                    E_CORE_WARNING => 'Core warning',
-                    E_COMPILE_ERROR => 'Compile error',
-                    E_COMPILE_WARNING => 'Compile warning',
-                    E_USER_ERROR => 'User error',
-                    E_USER_WARNING => 'User warning',
-                    E_USER_NOTICE => 'User notice',
-                    E_STRICT => 'Strict warning',
+                $types = [
+                    E_ERROR             => 'Error',
+                    E_WARNING           => 'Warning',
+                    E_PARSE             => 'Parse error',
+                    E_NOTICE            => 'Notice',
+                    E_CORE_ERROR        => 'Core error',
+                    E_CORE_WARNING      => 'Core warning',
+                    E_COMPILE_ERROR     => 'Compile error',
+                    E_COMPILE_WARNING   => 'Compile warning',
+                    E_USER_ERROR        => 'User error',
+                    E_USER_WARNING      => 'User warning',
+                    E_USER_NOTICE       => 'User notice',
+                    E_STRICT            => 'Strict warning',
                     E_RECOVERABLE_ERROR => 'Recoverable fatal error',
-                    E_DEPRECATED => 'Deprecated notice',
-                );
+                    E_DEPRECATED        => 'Deprecated notice',
+                ];
                 $message = $types[$level] . ': ' . $message;
 
                 // Hack to get informative backtrace.

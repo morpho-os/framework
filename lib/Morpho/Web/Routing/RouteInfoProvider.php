@@ -1,7 +1,8 @@
 <?php
-namespace Morpho\Web;
+namespace Morpho\Web\Routing;
 
 use function Morpho\Base\last;
+use Morpho\Web\Request;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;
@@ -14,7 +15,7 @@ class RouteInfoProvider extends PhpParser\NodeVisitorAbstract {
         'Morpho\\Web\\Controller',
     ];
 
-    private $controllers = [];
+    protected $controllers = [];
 
     private $inController;
 
@@ -25,7 +26,7 @@ class RouteInfoProvider extends PhpParser\NodeVisitorAbstract {
         );
     }
 
-    public static function buildMetaForControllersInFile($filePath) {
+    public static function getMetaForControllersInFile($filePath) {
         $parser = new Parser(new Lexer());
         $stmts = $parser->parse(file_get_contents($filePath));
         $traverser = new NodeTraverser();
@@ -60,8 +61,8 @@ class RouteInfoProvider extends PhpParser\NodeVisitorAbstract {
         }
         return [
             'methods' => $httpMethods,
-            'uri' => $uri,
-            'title' => $title,
+            'uri'     => $uri,
+            'title'   => $title,
         ];
     }
 
@@ -78,7 +79,7 @@ class RouteInfoProvider extends PhpParser\NodeVisitorAbstract {
                 $class = (string)$node->namespacedName;
                 $this->controllers[] = [
                     'controller' => $this->classToControllerName($class),
-                    'class' => $class,
+                    'class'      => $class,
                 ];
             }
         } elseif ($this->inController && $node instanceof PhpParser\Node\Stmt\ClassMethod) {

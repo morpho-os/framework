@@ -1,5 +1,6 @@
 <?php
 namespace Morpho\Core;
+
 use Morpho\Base\FileClassMapAutoloader;
 use function Morpho\Base\head;
 use Morpho\Fs\Directory;
@@ -24,6 +25,7 @@ class ModuleClassLoader extends FileClassMapAutoloader implements \IteratorAggre
             $useCache
         );
     }
+
     public function getIterator() {
         if (null === $this->map) {
             $this->map = $this->createMap();

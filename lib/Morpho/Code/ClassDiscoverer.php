@@ -18,7 +18,7 @@ class ClassDiscoverer {
             $regexp = self::PHP_FILES_REG_EXP;
         }
         $filePaths = Directory::listEntries($dirPaths, $regexp, $options);
-        $map = array();
+        $map = [];
         foreach ($filePaths as $filePath) {
             $classes = $this->getClassesForFile($filePath);
             foreach ($classes as $class) {

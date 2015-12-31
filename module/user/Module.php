@@ -2,26 +2,27 @@
 namespace User;
 
 use Morpho\Core\Module as BaseModule;
+use Morpho\Identity\UserManager;
 
 class Module extends BaseModule {
-/**
-     * @Listen beforeDispatch 100
+    private $initialized = false;
 
+    /**
+     * @Listen beforeDispatch 100
+     */
     public function beforeDispatch(array $event) {
-        $userManager = $this->serviceManager->get('userManager');
-        d($userManager->isGuestUser());
-        /*
-        $event[1]['request']->setUser(
-            new User(['id' => $this->getUserId()])
-        );
+        if (!$this->initialized) {
+            $this->serviceManager->set('userManager', new UserManager($this->getRepo('User'), $this->serviceManager->get('session')));
+            $this->initialized = true;
+        }
     }
-*/
+
     public static function getTableDefinitions(): array {
         return [
             'user' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                     'login' => [
                         'type' => 'varchar',
@@ -34,7 +35,7 @@ class Module extends BaseModule {
             'permission' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                     'name' => [
                         'type' => 'varchar',
@@ -44,7 +45,7 @@ class Module extends BaseModule {
             'role' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                     'name' => [
                         'type' => 'varchar',
@@ -54,7 +55,7 @@ class Module extends BaseModule {
             'resource' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                     'name' => [
                         'type' => 'varchar',
@@ -72,7 +73,7 @@ class Module extends BaseModule {
                         'unsigned' => true,
                     ],
                 ],
-                'fks' => [
+                'foreignKeys' => [
                     [
                         'childColumn' => 'userId',
                         'parentTable' => 'user',
@@ -100,7 +101,7 @@ class Module extends BaseModule {
                         'unsigned' => true,
                     ],
                 ],
-                'fks' => [
+                'foreignKeys' => [
                     [
                         'childColumn' => 'roleId',
                         'parentTable' => 'role',

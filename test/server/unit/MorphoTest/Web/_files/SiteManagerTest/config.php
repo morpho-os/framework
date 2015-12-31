@@ -1,10 +1,10 @@
 <?php
-return array(
-    'sites' => [
+return [
+    'sites'       => [
         'test',
         'bar',
         'default',
         'foo',
     ],
     'defaultSite' => 'my-default',
-);
+];

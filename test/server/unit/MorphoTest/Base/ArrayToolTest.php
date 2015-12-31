@@ -67,7 +67,7 @@ class ArrayToolTest extends TestCase {
             ],
             [
                 ['foo' => 5, 'bar' => 6, 'baz' => 7],
-                7
+                7,
             ],
         ];
     }
@@ -94,7 +94,7 @@ class ArrayToolTest extends TestCase {
             ],
             [
                 ['foo'],
-                []
+                [],
             ],
             [
                 ['foo' => 5, 'bar' => 6, 'baz' => 7],
@@ -125,7 +125,7 @@ class ArrayToolTest extends TestCase {
             ],
             [
                 ['foo'],
-                'foo'
+                'foo',
             ],
             [
                 ['foo' => 5, 'bar' => 6, 'baz' => 7],
@@ -235,7 +235,7 @@ class ArrayToolTest extends TestCase {
             [
                 [],
                 [],
-            ]
+            ],
         ];
     }
 
@@ -286,7 +286,7 @@ class ArrayToolTest extends TestCase {
             [
                 [],
                 [],
-            ]
+            ],
         ];
     }
 
@@ -337,40 +337,40 @@ class ArrayToolTest extends TestCase {
 
     public function testUnsetRecursive() {
         $array = $this->getTestArray();
-        $expected = array(
+        $expected = [
             'foo' => 'test',
-            'bar' => array(
+            'bar' => [
                 'something',
-            ),
-            'baz' => array(
-                'test' => array(),
-            ),
-        );
+            ],
+            'baz' => [
+                'test' => [],
+            ],
+        ];
         $this->assertEquals($expected, ArrayTool::unsetRecursive($array, 'unsetMe'));
         $this->assertEquals($expected, $array);
     }
 
     public function testCamelizeKeys() {
-        $array = array(
+        $array = [
             'foo-bar' => 'one',
             'bar_baz' => 'two',
-        );
-        $expected = array(
+        ];
+        $expected = [
             'fooBar' => 'one',
             'barBaz' => 'two',
-        );
+        ];
         $this->assertEquals($expected, ArrayTool::camelizeKeys($array));
     }
 
     public function testUnderscoreKeys() {
-        $array = array(
+        $array = [
             'fooBar' => 'one',
             'barBaz' => 'two',
-        );
-        $expected = array(
+        ];
+        $expected = [
             'foo_bar' => 'one',
             'bar_baz' => 'two',
-        );
+        ];
         $this->assertEquals($expected, ArrayTool::underscoreKeys($array));
     }
 
@@ -388,19 +388,19 @@ class ArrayToolTest extends TestCase {
     }
 
     protected function getTestArray() {
-        return array(
-            'foo' => 'test',
-            'bar' => array(
+        return [
+            'foo'     => 'test',
+            'bar'     => [
                 'something',
-            ),
+            ],
             'unsetMe' => 1,
-            'baz' => array(
-                'test' => array(
-                    'unsetMe' => array(
+            'baz'     => [
+                'test' => [
+                    'unsetMe' => [
                         'unsetMe' => 'test',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
     }
 }

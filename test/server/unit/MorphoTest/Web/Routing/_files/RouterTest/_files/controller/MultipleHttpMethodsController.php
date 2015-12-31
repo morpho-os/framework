@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Web\RouterTest\Controller;
+namespace MorphoTest\Web\Routing\RouterTest\Controller;
 
 use Morpho\Web\Controller;
 

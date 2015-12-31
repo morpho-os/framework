@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Core;
 
@@ -8,10 +8,10 @@ use Morpho\Base\IEventManager;
 use Morpho\Db\Db;
 
 abstract class ModuleManager extends Node implements IEventManager {
-    const ENABLED     = 0x1;  // 001 (installed enabled)
-    const DISABLED    = 0x2;  // 010 (installed disabled)
+    const ENABLED = 0x1;  // 001 (installed enabled)
+    const DISABLED = 0x2;  // 010 (installed disabled)
     const UNINSTALLED = 0x4;  // 100 (uninstalled (not installed))
-    const ALL         = 0x7;  // 111 (all above (installed | uninstalled))
+    const ALL = 0x7;  // 111 (all above (installed | uninstalled))
 
     protected $fallbackMode = false;
 
@@ -50,7 +50,7 @@ abstract class ModuleManager extends Node implements IEventManager {
                 list($moduleName, $controllerName, $actionName) = [
                     $request->getModuleName(),
                     $request->getControllerName(),
-                    $request->getActionName()
+                    $request->getActionName(),
                 ];
 
                 if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
@@ -84,7 +84,7 @@ abstract class ModuleManager extends Node implements IEventManager {
                 if (false === is_callable($handler)) {
                     $handler = [
                         $this->getChild($handler['moduleName']),
-                        $handler['method']
+                        $handler['method'],
                     ];
                 }
                 if (!is_callable($handler)) {
@@ -333,9 +333,9 @@ abstract class ModuleManager extends Node implements IEventManager {
         foreach ($foundEvents as $eventName => $methods) {
             foreach ($methods as $method => $priority) {
                 $events[] = [
-                    'name' => $eventName,
+                    'name'     => $eventName,
                     'priority' => $priority,
-                    'method' => $method,
+                    'method'   => $method,
                 ];
             }
         }

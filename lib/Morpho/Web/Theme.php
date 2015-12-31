@@ -1,9 +1,11 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Web;
 
-use function Morpho\Base\{dasherize, jsonEncode};
+use function Morpho\Base\{
+    dasherize, jsonEncode
+};
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
 

@@ -54,7 +54,7 @@ class SiteTest extends TestCase {
                 'log',
             ],
             [
-                'cache'
+                'cache',
             ],
             [
                 'upload',

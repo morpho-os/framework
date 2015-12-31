@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Base;
 
@@ -85,14 +85,14 @@ function uniqueName(): string {
  */
 function dasherize($string, bool $trim = true) {
     $string = sanitize($string, '-_ ');
-    $search = array('/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/');
-    $replace = array('\\1-\\2', '\\1-\\2');
+    $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
+    $replace = ['\\1-\\2', '\\1-\\2'];
     $result = strtolower(
         preg_replace(
             $search,
             $replace,
             str_replace(
-                array('_', ' '),
+                ['_', ' '],
                 '-',
                 $string
             )
@@ -121,7 +121,7 @@ function underscore($string, bool $trim = true) {
             '~([a-z])([A-Z])~s',
             '$1_$2',
             str_replace(
-                array('-', ' '),
+                ['-', ' '],
                 '_',
                 $string
             )
@@ -155,7 +155,7 @@ function classify($string, bool $toFqName = false): string {
             $string
         );
     }
-    $string = str_replace(array('-', '_'), ' ', $string);
+    $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
     if ($toFqName) {
@@ -176,7 +176,7 @@ function classify($string, bool $toFqName = false): string {
  */
 function camelize($string, bool $lcfirst = false): string {
     $string = sanitize($string, '-_ ');
-    $string = str_replace(array('-', '_'), ' ', $string);
+    $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
     if (!$lcfirst) {
@@ -240,7 +240,7 @@ function sanitize($string, $allowedCharacters, bool $deleteDups = true) {
 }
 
 function escapeHtml($text): string {
-    return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
 }
 
 /**
@@ -267,7 +267,7 @@ function trimMore($string, $charlist = null) {
         }
         return $string;
     }
-    return trim((string) $string, $charlist . TRIM_CHARS);
+    return trim((string)$string, $charlist . TRIM_CHARS);
 }
 
 function head($string, $separator) {
@@ -302,8 +302,8 @@ function tail($string, $separator) {
 /**
  * Removes duplicated characters from the string.
  *
- * @param string|int     $string Source string with duplicated characters.
- * @param string         $chars  Either a set of characters to use in character class or a reg-exp pattern that must match
+ * @param string|int $string Source string with duplicated characters.
+ * @param string $chars Either a set of characters to use in character class or a reg-exp pattern that must match
  *                               all duplicated characters that must be removed.
  * @return string                String with removed duplicates.
  */

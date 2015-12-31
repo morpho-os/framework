@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Pager;
+namespace Morpho\DataProcessing;
 
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;

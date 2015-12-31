@@ -29,13 +29,13 @@ class Site {
 
     private $configFileName = self::CONFIG_FILE_NAME;
 
-    const CONFIG_FILE_NAME          = CONFIG_FILE_NAME;
+    const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
-    const DEV_MODE        = 'dev';
-    const STAGING_MODE    = 'staging';
+    const DEV_MODE = 'dev';
+    const STAGING_MODE = 'staging';
     const PRODUCTION_MODE = 'production';
-    const TESTING_MODE    = 'testing';
+    const TESTING_MODE = 'testing';
 
     public function __construct(array $options = []) {
         ArrayTool::ensureHasOnlyKeys($options, ['dirPath', 'name']);
@@ -47,7 +47,7 @@ class Site {
     public function setDirPath(string $dirPath) {
         $this->dirPath = $dirPath;
     }
-    
+
     public function getDirPath(): string {
         return $this->dirPath;
     }

@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Web;
 
-use Morpho\Di\{IServiceManager, IServiceManagerAware};
+use Morpho\Di\{
+    IServiceManager, IServiceManagerAware
+};
 use Morpho\Fs\Directory;
 use Morpho\Fs\Path;
 use Morpho\Base\Object;
@@ -33,7 +35,7 @@ class SiteManager extends Object implements IServiceManagerAware {
             $this->useMultiSiting = $flag;
         }
         if (null === $this->useMultiSiting) {
-            $this->useMultiSiting = (bool) $this->getConfig()['useMultiSiting'];
+            $this->useMultiSiting = (bool)$this->getConfig()['useMultiSiting'];
         }
         return $this->useMultiSiting;
     }
@@ -110,7 +112,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         $realSiteName = $this->getAlias($siteName);
 
         return new Site([
-            'name' => $realSiteName,
+            'name'    => $realSiteName,
             'dirPath' => $this->getAllSitesDirPath() . '/' . $realSiteName,
         ]);
     }
@@ -161,9 +163,9 @@ class SiteManager extends Object implements IServiceManagerAware {
         if (!$this->siteNames) {
             // @TODO: Add writing of the detected sites to the config.
             $this->siteNames = $this->getConfig()['sites'] ?? array_map(
-                'basename',
-                Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])
-            );
+                    'basename',
+                    Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])
+                );
         }
         return $this->siteNames;
     }

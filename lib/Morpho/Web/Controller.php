@@ -135,6 +135,10 @@ class Controller extends BaseController {
         return $this->request->data($source, $name, $trim);
     }
 
+    protected function isPostMethod(): bool {
+        return $this->request->isPostMethod();
+    }
+
     protected function getPost($name = null, bool $trim = true) {
         return $this->request->getPost($name, $trim);
     }

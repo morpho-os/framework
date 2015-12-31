@@ -1,13 +1,11 @@
 <?php
-namespace Morpho\Logger;
+namespace Morpho\Web\Logging;
 
 use Monolog\Processor\WebProcessor as BaseWebProcessor;
 use Morpho\Web\HttpTool;
 
-class WebProcessor extends BaseWebProcessor
-{
-    public function __invoke(array $record)
-    {
+class WebProcessor extends BaseWebProcessor {
+    public function __invoke(array $record) {
         $record = parent::__invoke($record);
 
         $record['extra']['ip'] = HttpTool::getIp() ?: HttpTool::UNKNOWN_IP;

@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Web;
+namespace Morpho\Web\Routing;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Code\CodeTool;
@@ -26,7 +26,6 @@ class FastRouter extends Router {
         $routeInfo = $dispatcher->dispatch($request->getMethod(), $uri);
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $route = $routeInfo[1];
-
             $request->setModuleName($route['module'])
                 ->setControllerName($route['controller'])
                 ->setActionName($route['action']);
@@ -38,37 +37,28 @@ class FastRouter extends Router {
     }
 
     public function rebuildRoutes() {
-        $routesMeta = $this->buildRoutesMeta($this->getModuleDirPath());
         $cacheFilePath = $this->getCacheFilePath();
-
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
-
-        foreach ($routesMeta as $routeMeta) {
-            foreach ($routeMeta['controllers'] as $controllerMeta) {
-                foreach ($controllerMeta['actions'] as $actionMeta) {
-                    if (preg_match('~[^\w/-]~si', $actionMeta['uri'])) {
-                        // @TODO
-                        d($actionMeta);
-                    }
-                    $handler = [
-                        'module' => $routeMeta['module'],
-                        'controller' => $controllerMeta['controller'],
-                        'action' => $actionMeta['action']
-                    ];
-                    $routeCollector->addRoute($actionMeta['httpMethod'], $actionMeta['uri'], $handler);
-                }
-            }
+        foreach ($this->buildRoutesMeta($this->getModuleDirPath()) as $routeMeta) {
+            $routeMeta['uri'] = preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
+                return '{' . str_replace('$', '', array_pop($matches)) . '}';
+            }, $routeMeta['uri']);
+            $handler = [
+                'module'     => $routeMeta['module'],
+                'controller' => $routeMeta['controller'],
+                'action'     => $routeMeta['action'],
+            ];
+            $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], $handler);
         }
-
         $dispatchData = $routeCollector->getData();
         CodeTool::writeVarToFile($dispatchData, $cacheFilePath);
     }
 
-    protected function getCacheFilePath() {
-        return $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath() . '/routes.php';
-    }
-
     public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null) {
         throw new NotImplementedException();
+    }
+
+    protected function getCacheFilePath() {
+        return $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath() . '/routes.php';
     }
 }

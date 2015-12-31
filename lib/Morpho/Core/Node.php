@@ -1,10 +1,14 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Core;
 
-use Morpho\Base\{Node as BaseNode, ObjectNotFoundException};
-use Morpho\Di\{IServiceManagerAware, IServiceManager};
+use Morpho\Base\{
+    Node as BaseNode, ObjectNotFoundException
+};
+use Morpho\Di\{
+    IServiceManagerAware, IServiceManager
+};
 
 abstract class Node extends BaseNode implements IServiceManagerAware {
     protected $serviceManager;

@@ -7,14 +7,14 @@ class PriceFilter extends Filter {
             return null;
         }
         $value = str_replace(',', '.', $value);
-        $search = array(
+        $search = [
             '{\.+}si',
             '{[^-\d.]}si',
-        );
-        $replace = array(
+        ];
+        $replace = [
             '.',
             '',
-        );
+        ];
         $value = preg_replace($search, $replace, $value);
         if (!strlen($value) || !self::isFloat($value)) {
             return null;

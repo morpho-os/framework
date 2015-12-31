@@ -9,7 +9,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     const EPS = 0.000000001;
     const TIMEZONE = 'UTC';
 
-    private $tmpDirPaths = array();
+    private $tmpDirPaths = [];
 
     private $classFilePath;
 
@@ -39,6 +39,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
             }
         }
     }
+
     /*
     protected function initSession()
     {

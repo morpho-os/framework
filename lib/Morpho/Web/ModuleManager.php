@@ -6,28 +6,28 @@ use Morpho\Core\ModuleManager as BaseModuleManager;
 class ModuleManager extends BaseModuleManager {
     protected function getFallbackModeEventHandlers(): array {
         return [
-            'render' => [
+            'render'         => [
                 [
                     'moduleName' => 'Bootstrap',
-                    'method' => 'render',
+                    'method'     => 'render',
                 ],
             ],
-            'afterDispatch' => [
+            'afterDispatch'  => [
                 [
                     'moduleName' => 'Bootstrap',
-                    'method' => 'afterDispatch',
+                    'method'     => 'afterDispatch',
                 ],
             ],
             'beforeDispatch' => [
                 [
                     'moduleName' => 'Bootstrap',
-                    'method' => 'beforeDispatch',
+                    'method'     => 'beforeDispatch',
                 ],
             ],
-            'dispatchError' => [
+            'dispatchError'  => [
                 function ($event) {
                     throw $event[1]['exception'];
-                }
+                },
             ],
         ];
     }

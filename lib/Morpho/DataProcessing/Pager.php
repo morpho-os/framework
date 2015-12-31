@@ -1,11 +1,11 @@
 <?php
-namespace Morpho\Pager;
+namespace Morpho\DataProcessing;
 
 use Morpho\Base\Node;
 use function Morpho\Base\uniqueName;
 
 class Pager extends Node {
-    protected $items = array();
+    protected $items = [];
 
     protected $pageSize = 20;
 

@@ -59,7 +59,7 @@ class ModuleManagerTest extends DbTestCase {
 
     public function testModuleOperations() {
         $moduleClassLoader = new \ArrayIterator([
-            __CLASS__ . '\\My\\Module' => __FILE__,
+            __CLASS__ . '\\My\\Module'           => __FILE__,
             __CLASS__ . '\\NotInstalled\\Module' => $this->getTestDirPath() . '/NotInstalled/Module.php',
         ]);
         $moduleManager = $this->createModuleManager($this->createDb(), $moduleClassLoader);
@@ -221,6 +221,7 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager->setServiceManager($serviceManager);
         return $moduleManager;
     }
+
     private function createDbTables(Db $db) {
         $db->createTables(\System\Module::getTableDefinitions());
     }

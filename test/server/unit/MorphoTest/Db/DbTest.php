@@ -5,6 +5,8 @@ use Morpho\Test\DbTestCase;
 use Morpho\Db\Db;
 
 class DbTest extends DbTestCase {
+    protected $db;
+
     public function setUp() {
         $this->db = new Db($this->getDbConfig());
         $this->db->deleteAllTables();
@@ -14,9 +16,9 @@ class DbTest extends DbTestCase {
         $this->db->createTable('foo', [
             'columns' => [
                 'some' => [
-                    'type' => 'varchar'
-                ]
-            ]
+                    'type' => 'varchar',
+                ],
+            ],
         ]);
         $this->db->insertRow('foo', ['some' => 'test']);
         $this->assertEquals('0', $this->db->lastInsertId());
@@ -27,9 +29,9 @@ class DbTest extends DbTestCase {
         $this->db->createTable('foo', [
             'columns' => [
                 'some' => [
-                    'type' => 'pk'
-                ]
-            ]
+                    'type' => 'primaryKey',
+                ],
+            ],
         ]);
         $this->db->insertRow('foo', ['some' => '']);
         $this->assertEquals('1', $this->db->lastInsertId());
@@ -49,13 +51,13 @@ class DbTest extends DbTestCase {
 
     public function testCreateTablesWithFksOnOneColumn() {
         $this->db->createTables([
-            'product' => [
-                'columns' => [
-                    'id' => [
-                        'type' => 'pk',
+            'product'      => [
+                'columns'     => [
+                    'id'          => [
+                        'type' => 'primaryKey',
                     ],
-                    'title' => [
-                        'type' => 'varchar',
+                    'title'       => [
+                        'type'   => 'varchar',
                         'length' => 100,
                     ],
                     'description' => [
@@ -64,36 +66,36 @@ class DbTest extends DbTestCase {
                 ],
                 'description' => 'Stores products',
             ],
-            'order' => [
+            'order'        => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                 ],
             ],
             'productOrder' => [
                 'columns' => [
                     'productId' => [
-                        'type' => 'int',
+                        'type'     => 'int',
                         'unsigned' => true,
                     ],
-                    'orderId' => [
-                        'type' => 'int',
+                    'orderId'   => [
+                        'type'     => 'int',
                         'unsigned' => true,
                     ],
                 ],
-                'fks' => [
+                'foreignKeys'     => [
                     [
-                        'childColumn' => 'productId',
+                        'childColumn'  => 'productId',
                         // @TODO: add support of the product.id notation.
-                        'parentTable' => 'product',
+                        'parentTable'  => 'product',
                         'parentColumn' => 'id',
                     ],
                     [
-                        'childColumn' => 'orderId',
-                        'parentTable' => 'order',
+                        'childColumn'  => 'orderId',
+                        'parentTable'  => 'order',
                         'parentColumn' => 'id',
-                    ]
+                    ],
                 ],
             ],
         ]);
@@ -103,6 +105,10 @@ class DbTest extends DbTestCase {
 
     public function testForeignKeyOnMultipleColumns() {
         $this->markTestIncomplete();
+    }
+
+    public function testGetCreateTableSqlFromDefinition() {
+
     }
 
     public function testRenameColumn() {
@@ -157,14 +163,14 @@ OUT
     public function testCreateTablesWithIndexes() {
         $tableDefinition = [
             'columns' => [
-                'id' => [
-                    'type' => 'pk',
+                'id'   => [
+                    'type' => 'primaryKey',
                 ],
                 'path' => [
                     'type' => 'varchar',
                 ],
                 'type' => [
-                    'type' => 'varchar',
+                    'type'   => 'varchar',
                     'length' => 10,
                 ],
             ],
@@ -191,21 +197,82 @@ OUT
             $this->db->getCreateTableSql('file')
         );
     }
-    
-    public function testSelectCell()
-    {
+
+    public function testSelectCell() {
         $this->createTestTableWithData();
         $this->assertEquals('some value', $this->db->selectCell("foo FROM test"));
     }
 
-    private function createTestTableWithData()
-    {
+    public function testColumnDefinitionToSql_Nullable() {
+        $columnName = 'foo';
+
+        $columnDefinition = [
+            'type' => 'tinyint(1)',
+            'nullable' => false,
+        ];
+        $this->assertEquals(<<<OUT
+`$columnName` tinyint(1) NOT NULL
+OUT
+            ,
+            $this->db->columnDefinitionToSql($columnName, $columnDefinition)
+        );
+
+        $columnDefinition = [
+            'type' => 'tinyint(1)',
+            'nullable' => true,
+        ];
+        $this->assertEquals(<<<OUT
+`$columnName` tinyint(1)
+OUT
+            ,
+            $this->db->columnDefinitionToSql($columnName, $columnDefinition)
+        );
+    }
+
+    public function testTableDefinitionToSql_UniqueKeys() {
+        $tableName = 'test';
+        $tableDefinition = [
+            'columns' => [
+                'login' => [
+                    'type' => 'varchar',
+                ],
+                'email' => [
+                    'type'   => 'varchar',
+                    'length' => 10,
+                ],
+            ],
+            'uniqueKeys' => [
+                [
+                    'columns' => ['login', 'email']
+                    /* @TODO:
+                    'indexName' => 'myUniqueIdx',
+                    'indexType' =>
+                    'indexOption' =>
+                    */
+                ],
+            ],
+        ];
+        list($sql, $args) = $this->db->tableDefinitionToSql($tableName, $tableDefinition);
+        $this->assertEquals(<<<OUT
+CREATE TABLE `$tableName` (
+`login` varchar(255) NOT NULL,
+`email` varchar(10) NOT NULL,
+UNIQUE (`login`, `email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+OUT
+            ,
+            $sql
+        );
+        $this->assertEquals([], $args);
+    }
+
+    private function createTestTableWithData() {
         $this->db->createTable(
             'test',
             [
                 'columns' => [
-                    'id' => [
-                        'type' => 'pk',
+                    'id'  => [
+                        'type' => 'primaryKey',
                     ],
                     'foo' => [
                         'type' => 'varchar',
@@ -215,42 +282,42 @@ OUT
         );
         $this->db->insertRow('test', ['foo' => 'some value']);
     }
-/*
-        public function testAutoSetLastInsertId()
-        {
-            $this->assertBoolAccessor([$this->db, 'autoSetLastInsertId'], true);
-        }
+    /*
+            public function testAutoSetLastInsertId()
+            {
+                $this->assertBoolAccessor([$this->db, 'autoSetLastInsertId'], true);
+            }
 
-        public function testOperations()
-        {
-            $db = $this->db;
-            $db->createTableForClass(__NAMESPACE__ . '\\MyTable');
-            $sql = 'SELECT * FROM my_table';
-            $this->assertEquals([], $db->selectRows($sql));
-            $db->insertRow('my_table', ['title' => 'ok1']);
-            $db->insertRow('my_table', ['title' => 'ok2']);
-            $db->deleteRows('my_table', ['id' => 1]);
-            $this->assertEquals(
-                [
-                    ['id' => '2', 'title' => 'ok2'],
-                ],
-                $db->selectRows($sql)
-            );
-            $db->updateRows('my_table', ['title' => 'FooBar'], ['id' => 2]);
-            $this->assertEquals(
-                [
-                    ['id' => '2', 'title' => 'FooBar'],
-                ],
-                $db->selectRows($sql)
-            );
+            public function testOperations()
+            {
+                $db = $this->db;
+                $db->createTableForClass(__NAMESPACE__ . '\\MyTable');
+                $sql = 'SELECT * FROM my_table';
+                $this->assertEquals([], $db->selectRows($sql));
+                $db->insertRow('my_table', ['title' => 'ok1']);
+                $db->insertRow('my_table', ['title' => 'ok2']);
+                $db->deleteRows('my_table', ['id' => 1]);
+                $this->assertEquals(
+                    [
+                        ['id' => '2', 'title' => 'ok2'],
+                    ],
+                    $db->selectRows($sql)
+                );
+                $db->updateRows('my_table', ['title' => 'FooBar'], ['id' => 2]);
+                $this->assertEquals(
+                    [
+                        ['id' => '2', 'title' => 'FooBar'],
+                    ],
+                    $db->selectRows($sql)
+                );
 
-            $db = new Db($this->getDbConfig());
-            $this->assertEquals(
-                [
-                    ['id' => '2', 'title' => 'FooBar'],
-                ],
-                $db->selectRows($sql)
-            );
-        }
-*/
+                $db = new Db($this->getDbConfig());
+                $this->assertEquals(
+                    [
+                        ['id' => '2', 'title' => 'FooBar'],
+                    ],
+                    $db->selectRows($sql)
+                );
+            }
+    */
 }

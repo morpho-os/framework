@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Base;
 
@@ -78,7 +78,7 @@ abstract class Object {
             $properties = $this->reflect()->getProperties(
                 \ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED
             );
-            $this->properties = array();
+            $this->properties = [];
             foreach ($properties as $property) {
                 $name = $property->getName();
                 $this->properties[$name] = $name;

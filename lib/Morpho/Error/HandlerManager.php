@@ -94,7 +94,7 @@ class HandlerManager {
     public static function getCurrent(string $handlerType) {
         self::checkType($handlerType);
 
-        $currentHandler = call_user_func('set_' . $handlerType . '_handler', array(__CLASS__, __FUNCTION__));
+        $currentHandler = call_user_func('set_' . $handlerType . '_handler', [__CLASS__, __FUNCTION__]);
         call_user_func('restore_' . $handlerType . '_handler');
 
         return $currentHandler;

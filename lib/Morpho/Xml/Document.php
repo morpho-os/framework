@@ -65,7 +65,7 @@ class Document extends DOMDocument {
     }
 
     public function __call($method, $args) {
-        return call_user_func_array(array($this->getXPath(), $method), $args);
+        return call_user_func_array([$this->getXPath(), $method], $args);
     }
 
     private function getXPath() {

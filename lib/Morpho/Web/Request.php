@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Morpho\Web;
 
@@ -248,7 +248,8 @@ class Request extends BaseRequest {
         $uri = new Uri();
 
         if ((!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
-            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+        ) {
             $scheme = 'https';
         } else {
             $scheme = 'http';
@@ -266,7 +267,7 @@ class Request extends BaseRequest {
             // works for regname, IPv4 & IPv6
             if (preg_match('|\:(\d+)$|', $host, $matches)) {
                 $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
-                $port = (int) $matches[1];
+                $port = (int)$matches[1];
             }
 
             // set up a validator that check if the hostname is legal (not spoofed)
@@ -285,13 +286,13 @@ class Request extends BaseRequest {
         if (!$host && isset($_SERVER['SERVER_NAME'])) {
             $host = $_SERVER['SERVER_NAME'];
             if (isset($_SERVER['SERVER_PORT'])) {
-                $port = (int) $_SERVER['SERVER_PORT'];
+                $port = (int)$_SERVER['SERVER_PORT'];
             }
             // Check for missinterpreted IPv6-Address
             // Reported at least for Safari on Windows
             if (isset($_SERVER['SERVER_ADDR']) && preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
                 $host = '[' . $_SERVER['SERVER_ADDR'] . ']';
-                if ($port . ']' == substr($host, strrpos($host, ':')+1)) {
+                if ($port . ']' == substr($host, strrpos($host, ':') + 1)) {
                     // The last digit of the IPv6-Address has been taken as port
                     // Unset the port so the default port can be used
                     $port = null;

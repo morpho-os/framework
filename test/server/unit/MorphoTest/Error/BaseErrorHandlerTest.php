@@ -5,11 +5,11 @@ use Morpho\Test\TestCase;
 
 abstract class BaseErrorHandlerTest extends TestCase {
     public function setUp() {
-        $handler = set_error_handler(array($this, 'setUp'));
+        $handler = set_error_handler([$this, 'setUp']);
         restore_error_handler();
         $this->prevErrorHandler = $handler;
 
-        $handler = set_exception_handler(array($this, 'setUp'));
+        $handler = set_exception_handler([$this, 'setUp']);
         restore_exception_handler();
         $this->prevExceptionHandler = $handler;
 

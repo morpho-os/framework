@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Web\View;
 
-use function Morpho\Base\{htmlId, camelize};
+use function Morpho\Base\{
+    htmlId, camelize
+};
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
 use Morpho\Web\Uri;
@@ -17,23 +19,23 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->plugins[$name];
     }
 
-    public function hiddenInput($name, $value, array $attributes = null) {
+    public function hiddenField($name, $value, array $attributes = null) {
         return TagRenderer::renderSingle(
             'input',
             [
-                'name' => $name,
+                'name'  => $name,
                 'value' => $value,
-                'type' => 'hidden',
+                'type'  => 'hidden',
             ] + (array)$attributes
         );
     }
 
-    public function isGuestUser() {
-        return $this->serviceManager->get('userManager')->isGuestUser();
+    public function isUserLoggedIn(): bool {
+        return $this->serviceManager->get('userManager')->isUserLoggedIn();
     }
 
-    public function getUser() {
-        return $this->serviceManager->get('userManager')->getUser();
+    public function getLoggedInUser() {
+        return $this->serviceManager->get('userManager')->getLoggedInUser();
     }
 
     public function uriWithRedirectToSelf($uri): string {

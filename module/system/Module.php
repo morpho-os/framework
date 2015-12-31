@@ -68,7 +68,7 @@ class Module extends BaseModule {
             'file' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                     'path' => [
                         'type' => 'varchar',
@@ -87,7 +87,7 @@ class Module extends BaseModule {
             'module' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk'
+                        'type' => 'primaryKey'
                     ],
                     'name' => [
                         'type' => 'varchar',
@@ -120,7 +120,7 @@ class Module extends BaseModule {
                         'unsigned' => true,
                     ],
                 ],
-                'fks' => [
+                'foreignKeys' => [
                     [
                         'childColumn' => 'moduleId',
                         'parentTable' => 'module',
@@ -131,7 +131,7 @@ class Module extends BaseModule {
             'setting' => [
                 'columns' => [
                     'id' => [
-                        'type' => 'pk',
+                        'type' => 'primaryKey',
                     ],
                     'name' => [
                         'type' => 'varchar',
@@ -144,7 +144,7 @@ class Module extends BaseModule {
                         'unsigned' => 'true',
                     ],
                 ],
-                'fks' => [
+                'foreignKeys' => [
                     [
                         'childColumn' => 'moduleId',
                         'parentTable' => 'module',

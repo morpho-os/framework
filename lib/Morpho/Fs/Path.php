@@ -38,7 +38,7 @@ class Path {
         $result = [];
         $i = 0;
         foreach ($paths as $path) {
-            $path = (string) $path;
+            $path = (string)$path;
             if ($path === '') {
                 continue;
             }

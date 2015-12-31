@@ -11,7 +11,7 @@ class Application extends BaseApplication {
         $siteManager = new SiteManager();
         $siteConfig = $siteManager->getSiteConfig();
         $services = [
-            'app' => $this,
+            'app'         => $this,
             'siteManager' => $siteManager,
         ];
         if (isset($siteConfig['serviceManager'])) {
@@ -23,7 +23,7 @@ class Application extends BaseApplication {
     }
 
     protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null) {
-        while (@ob_end_flush());
+        while (@ob_end_flush()) ;
         if (null !== $serviceManager) {
             try {
                 // Last chance handler.
@@ -31,7 +31,7 @@ class Application extends BaseApplication {
                     ->handleException($e);
             } catch (\Throwable $e) {
                 if (ErrorHandler::doesErrorLogOn()) {
-                    error_log(addslashes((string) $e));
+                    error_log(addslashes((string)$e));
                 }
             }
         }

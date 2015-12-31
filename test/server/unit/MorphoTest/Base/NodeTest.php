@@ -239,9 +239,9 @@ class NodeTest extends TestCase {
 }
 
 class MyNode extends Node {
-    protected $loadable = array(
+    protected $loadable = [
         'myLoadable' => 'MorphoTest\\Base\\MyLoadableNode',
-    );
+    ];
 }
 
 class MyLoadableNode extends Node {

@@ -74,7 +74,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
      */
     public function registerAsFatalErrorHandler($flag = null): bool {
         if (null !== $flag) {
-            $this->registerAsFatalErrorHandler = (bool) $flag;
+            $this->registerAsFatalErrorHandler = (bool)$flag;
         }
         return $this->registerAsFatalErrorHandler;
     }
@@ -84,7 +84,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
      */
     public function exitOnFatalError($flag = null): bool {
         if (null !== $flag) {
-            $this->exitOnFatalError = (bool) $flag;
+            $this->exitOnFatalError = (bool)$flag;
         }
         return $this->exitOnFatalError;
     }

@@ -50,13 +50,13 @@ class CodeTool {
         foreach (token_get_all($source) as $token) {
             if (is_string($token)) {
                 $output .= $token;
-            } elseif (!in_array($token[0], array(T_COMMENT, T_DOC_COMMENT))) {
+            } elseif (!in_array($token[0], [T_COMMENT, T_DOC_COMMENT])) {
                 $output .= $token[1];
             }
         }
 
         // replace multiple new lines with a newline
-        $output = preg_replace(array('/\s+$/Sm', '/\n+/S'), "\n", $output);
+        $output = preg_replace(['/\s+$/Sm', '/\n+/S'], "\n", $output);
 
         return $output;
     }

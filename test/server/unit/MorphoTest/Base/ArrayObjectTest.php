@@ -17,7 +17,7 @@ class ArrayObjectTest extends TestCase {
     }
 
     public function testToArray() {
-        $data = array('foo' => 'bar');
+        $data = ['foo' => 'bar'];
         $this->list->exchangeArray($data);
         $this->assertEquals($data, $this->list->toArray());
     }
