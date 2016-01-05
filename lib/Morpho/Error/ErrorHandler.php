@@ -94,7 +94,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return new $class($message, 0, $severity, $filePath, $lineNo);
     }
 
-    public static function doesErrorLogOn(): bool {
+    public static function isErrorLogEnabled(): bool {
         return Environment::isIniSet('log_errors') && !empty(ini_get('error_log'));
     }
 

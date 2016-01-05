@@ -30,7 +30,7 @@ class Application extends BaseApplication {
                 $serviceManager->get('errorHandler')
                     ->handleException($e);
             } catch (\Throwable $e) {
-                if (ErrorHandler::doesErrorLogOn()) {
+                if (ErrorHandler::isErrorLogEnabled()) {
                     error_log(addslashes((string)$e));
                 }
             }

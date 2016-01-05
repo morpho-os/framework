@@ -5,16 +5,29 @@ use function Morpho\Base\filter;
 use function Morpho\Cli\{
     cmdEx
 };
+use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
+use Morpho\Web\ServiceManager;
 
 class HtmlParserPost extends HtmlParser {
     protected $scripts = [];
 
+    protected $forceCompileTs;
+
+    protected $nodeBinDirPath;
+
     private $scriptIndex = 0;
 
+    public function __construct(ServiceManager $serviceManager, bool $forceCompileTs, string $nodeBinDirPath) {
+        parent::__construct($serviceManager);
+        $this->forceCompileTs = $forceCompileTs;
+        $this->nodeBinDirPath = $nodeBinDirPath;
+    }
+
     protected function containerTypeScript($tag) {
-        $outDirPath = $inDirPath = dirname($this->filePath);
+        $inDirPath = str_replace('\\', '/', dirname($this->filePath));
+        $cacheDirPath = $this->serviceManager->getSiteManager()->getCurrentSite()->getCacheDirPath();
         $scriptTag = [];
         if (isset($tag['index'])) {
             $scriptTag['index'] = $tag['index'];
@@ -23,15 +36,19 @@ class HtmlParserPost extends HtmlParser {
         $compile = false;
         foreach (array_map('trim', explode(',', $tag['src'])) as $fileName) {
             $inFilePath = $inDirPath . '/' . Path::newExt(basename($fileName), 'ts');
-            $outFilePath = $outDirPath . '/' . Path::newExt(basename($inFilePath), 'js');
             if (!is_file($inFilePath)) {
                 throw new \RuntimeException("The '$inFilePath' does not exist");
             }
-            if ($this->shouldCompileTs($inFilePath, $outFilePath)) {
+            $inFileChangedTime = filemtime($inFilePath);
+            $outDirPath = $cacheDirPath . '/' . Path::toRelative(MODULE_DIR_PATH, $inFilePath);
+            $outFilePath = $outDirPath . '/' . $inFileChangedTime . '.js';
+            if ($this->forceCompileTs || !is_file($outFilePath)) {
+                Directory::recreate($outDirPath);
                 $compile = true;
             }
             $filesToCompile[] = [$inFilePath, $outFilePath];
         }
+
         $text = [];
         $removeRefs = function ($line) {
             return substr($line, 0, 3) !== '///';
@@ -48,25 +65,17 @@ class HtmlParserPost extends HtmlParser {
         return $this->containerScript($scriptTag);
     }
 
-    protected function shouldCompileTs(string $inFilePath, string $outFilePath): bool {
-        return true;
-        //$cacheDirPath = $this->serviceManager->getSiteManager()->getCurrentSite()->getCacheDirPath();
-        //return !is_file($outFilePath);
-        // @TODO: Add lookup in cache, compile only if the file was updated.
-    }
-
     protected function runTsc(string $inFilePath, string $outFilePath) {
-        // Note: node and tsc must be in $PATH.
-        $nodeDirPath = '/opt/nodejs/4.2.3/bin';
-        // @TODO: Take into account the $outFilePath
         $options = [
             '--removeComments',
             '--noImplicitAny',
             '--suppressImplicitAnyIndexErrors',
             '--noEmitOnError',
             '--newLine LF',
+            '--out ' . escapeshellarg($outFilePath),
         ];
-        cmdEx("PATH=\$PATH:$nodeDirPath tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
+        // Note: node and tsc must be in $PATH.
+        cmdEx("PATH=\$PATH:{$this->nodeBinDirPath} tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
     }
 
     protected function containerBody($tag) {

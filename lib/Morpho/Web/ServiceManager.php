@@ -46,7 +46,7 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->attach(new HtmlParserPre($this))
             ->attach(new Compiler())
-            ->attach(new HtmlParserPost($this));
+            ->attach(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath']));
         return $templateEngine;
     }
 
@@ -64,7 +64,7 @@ class ServiceManager extends BaseServiceManager {
     protected function createErrorHandlerService() {
         $logger = $this->createLogger('error');
 
-        if (ErrorHandler::doesErrorLogOn()) {
+        if (ErrorHandler::isErrorLogEnabled()) {
             $logger->pushHandler(new ErrorLogHandler());
         }
 
@@ -113,12 +113,6 @@ class ServiceManager extends BaseServiceManager {
 
         return $logger;
     }
-/*
-    public function createUserManagerService() {
-        return new UserManager(rr, $this->get('session'));
-    }
-*/
-
 
     protected function isFallbackMode() {
         return $this->get('siteManager')->isFallbackMode();

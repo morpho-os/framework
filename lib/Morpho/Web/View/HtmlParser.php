@@ -23,4 +23,3 @@ abstract class HtmlParser extends HtmlSemiParser {
             ->prependWithBasePath($uri);
     }
 }
-

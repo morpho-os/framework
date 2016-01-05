@@ -14,6 +14,8 @@ return [
     ],
     'templateEngine' => [
         'useCache' => false,
+        'forceCompileTs' => false,
+        'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
     ],
     'serviceManager' => 'Morpho\Web\ServiceManager',
     'mode' => 'dev',

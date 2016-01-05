@@ -1,9 +1,6 @@
 <?php
 namespace Morpho\Code\Compiler;
 
-/**
- * Based on lections by Alex Aiken
- */
 class Compiler {
     public function run(string $input) {
         $phases = [
