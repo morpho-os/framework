@@ -11,4 +11,5 @@ bower_components/
 # npm
 node_modules/
 
+/site/default/config.php
 /site/default/cache/*
