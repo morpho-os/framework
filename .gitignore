@@ -10,3 +10,6 @@ bower_components/
 
 # npm
 node_modules/
+
+/site/*/config.php
+/site/*/cache/*
