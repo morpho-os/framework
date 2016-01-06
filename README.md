@@ -45,7 +45,6 @@ echo 'PATH=$PATH:'$installDirPath/bin >> ~/.zshrc
 ```
 
 
-
 #### Windows
 
 @TODO

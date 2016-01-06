@@ -57,7 +57,8 @@
             "lib/Morpho/Debug/autoload.php",
             "lib/Morpho/Error/autoload.php",
             "lib/Morpho/Core/autoload.php",
-            "lib/Morpho/Web/autoload.php"
+            "lib/Morpho/Web/autoload.php",
+            "lib/Morpho/Cli/autoload.php"
         ]
     },
     "config": {
