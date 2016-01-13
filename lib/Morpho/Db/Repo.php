@@ -8,23 +8,23 @@ class Repo extends BaseRepo {
 
     protected $pkName = 'id';
 
-    protected function insertRow(array $row) {
+    public function insertRow(array $row) {
         return $this->getDb()->insertRow($this->tableName, $row);
     }
 
-    protected function selectBool(string $sql, array $args = []): bool {
-        return $this->getDb()->selectBool($sql, $args);
+    public function __call(string $method, array $args = []) {
+        return $this->getDb()->$method(...$args);
     }
 
-    protected function selectRows(string $sql, array $args = []): array {
-        return $this->getDb()->selectRows($sql, $args);
+    protected function deleteRows($whereCondition, array $whereConditionArgs = null): int {
+        return $this->getDb()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
+    }
+
+    protected function updateRows(array $row, $whereCondition, $whereConditionArgs = null) {
+        $this->getDb()->updateRows($this->tableName, $row, $whereCondition, $whereConditionArgs);
     }
 
     protected function getDb(): Db {
         return $this->serviceManager->get('db');
-    }
-
-    protected function transaction(\Closure $transaction) {
-        return $this->getDb()->transaction($transaction);
     }
 }

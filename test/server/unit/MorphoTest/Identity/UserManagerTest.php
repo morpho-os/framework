@@ -22,7 +22,7 @@ class UserManagerTest extends DbTestCase {
                 return isset($this->users[$login]) ? $this->users[$login] : false;
             }
 
-            public function saveUser(array $user): array {
+            public function saveUser(array $user) {
                 $user['id'] = ++$this->id;
                 $this->users[$user['login']] = $user;
                 return $user;

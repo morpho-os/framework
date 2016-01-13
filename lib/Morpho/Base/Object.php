@@ -43,7 +43,7 @@ abstract class Object {
 
     protected function setProperties(array $data) {
         $propNames = $this->getNamesOfProperties();
-        ArrayTool::ensureHasOnlyKeys($data, $propNames);
+        ArrayTool::assertHasOnlyKeys($data, $propNames);
         foreach ($data as $name => $value) {
             $this->setProperty($name, $value);
         }

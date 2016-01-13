@@ -1,9 +1,6 @@
 <?php
 namespace Morpho\Db;
 
-use Morpho\Base\ArrayTool;
-use Morpho\Base\NotImplementedException;
-
 class Db {
     private $conn;
 
@@ -73,7 +70,7 @@ class Db {
             ->fetch(\PDO::FETCH_ASSOC);
     }
 
-    protected function fetchColumn(string $sql, array $args = []): array {
+    public function fetchColumn(string $sql, array $args = []): array {
         return $this->query($sql, $args)
             ->fetchAll(\PDO::FETCH_COLUMN);
     }
@@ -88,14 +85,14 @@ class Db {
             ->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
 
+    public function lastInsertId(string $seqName = null): string {
+        return $this->conn->lastInsertId($seqName);
+    }
+
     public function insertRow(string $tableName, array $row) {
         $sql = "INSERT INTO " . $this->quoteIdentifier($tableName) . '(';
         $sql .= implode(', ', $this->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $this->positionalPlaceholders($row)) . ')';
         $this->query($sql, array_values($row));
-    }
-
-    public function lastInsertId(string $seqName = null): string {
-        return $this->conn->lastInsertId($seqName);
     }
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
@@ -109,23 +106,30 @@ class Db {
         return $stmt->rowCount();
     }
 
-    public function updateRow(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null) {
+    /**
+     * @param array|string $whereCondition
+     * @param array|null $whereConditionArgs
+     */
+    public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null) {
         $sql = 'UPDATE ' . $this->quoteIdentifier($tableName)
             . ' SET ' . implode(', ', $this->namedPlaceholders($row));
         $args = array_values($row);
         if (null !== $whereCondition) {
             if (!is_array($whereCondition)) {
-                throw new NotImplementedException();
-            }
-            $sql .= ' ' . $this->whereSql(
+                $sql .= ' ' . $this->whereSql($whereCondition);
+                if (null !== $whereConditionArgs) {
+                    $args = array_merge($args, $whereConditionArgs);
+                }
+            } else {
+                if (null !== $whereConditionArgs) {
+                    throw new \LogicException('The $whereConditionArgs argument must be empty when the $whereCondition is array');
+                }
+                $sql .= ' ' . $this->whereSql(
                     $this->andSql(
                         $this->namedPlaceholders($whereCondition)
                     )
                 );
-            $args = array_merge($args, array_values($whereCondition));
-            if (null !== $whereConditionArgs) {
-                throw new NotImplementedException();
-                //$args = array_merge($args, array_values($whereConditionArgs));
+                $args = array_merge($args, array_values($whereCondition));
             }
         }
         $this->query($sql, $args);
@@ -168,6 +172,11 @@ class Db {
         return $ids;
     }
 
+    public static function quoteIdentifier(string $name) {
+        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+        return '`' . $name . '`';
+    }
+
     public static function andSql(array $expr): string {
         return implode(' AND ', $expr);
     }
@@ -190,206 +199,5 @@ class Db {
 
     public static function positionalPlaceholders(array $row): array {
         return array_fill(0, count($row), '?');
-    }
-
-    public function listDatabases(): array {
-        return $this->fetchColumn("SHOW DATABASES");
-    }
-
-    public function createDatabase(string $dbName) {
-        $this->query("CREATE DATABASE $dbName CHARACTER SET utf8 COLLATE utf8_general_ci");
-    }
-
-    public function deleteDatabase(string $dbName) {
-        $this->query("DROP DATABASE $dbName");
-    }
-
-    public function createTables(array $tableDefinitions) {
-        foreach ($tableDefinitions as $tableName => $tableDefinition) {
-            $this->createTable($tableName, $tableDefinition);
-        }
-    }
-
-    public function createTable(string $tableName, array $tableDefinition) {
-        list($sql, $args) = $this->tableDefinitionToSql($tableName, $tableDefinition);
-        $this->query($sql, $args);
-    }
-
-    public function listTables(): array {
-        return $this->fetchColumn("SHOW TABLES");
-    }
-
-    public function deleteTables(array $tableNames) {
-        foreach ($tableNames as $tableName) {
-            $this->deleteTable($tableName);
-        }
-    }
-
-    public function deleteTable(string $tableName) {
-        $this->transaction(function () use ($tableName) {
-            /*
-            $isMySql = $this->connection->getDriver() instanceof MySqlDriver;
-            if ($isMySql) {
-            */
-            $this->query('SET FOREIGN_KEY_CHECKS=0;');
-            $this->query('DROP TABLE IF EXISTS ' . $this->quoteIdentifier($tableName));
-            /*
-            if ($isMySql) {
-            }
-            */
-            $this->query('SET FOREIGN_KEY_CHECKS=1;');
-        });
-    }
-
-    public function deleteAllTables() {
-        $this->deleteTables($this->listTables());
-    }
-
-    public function renameTable() {
-        throw new NotImplementedException();
-    }
-
-    public function renameColumn() {
-        throw new NotImplementedException();
-    }
-
-    public static function quoteIdentifier(string $name) {
-        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
-        return '`' . $name . '`';
-    }
-
-    public static function tableDefinitionToSql(string $tableName, array $tableDefinition): array {
-        ArrayTool::ensureHasOnlyKeys($tableDefinition, ['columns', 'foreignKeys', 'indexes', 'primaryKey', 'description', 'uniqueKeys']);
-
-        list($pkColumns, $columns) = self::columnsDefinitionToSqlArray($tableDefinition['columns']);
-
-        if (isset($tableDefinition['foreignKeys'])) {
-            foreach ($tableDefinition['foreignKeys'] as $fkDefinition) {
-                $columns[] = 'FOREIGN KEY (' . self::quoteIdentifier($fkDefinition['childColumn']) . ')'
-                    . ' REFERENCES ' . self::quoteIdentifier($fkDefinition['parentTable'])
-                    . '(' . self::quoteIdentifier($fkDefinition['parentColumn']) . ')';
-            }
-        }
-
-        if (isset($tableDefinition['indexes'])) {
-            foreach ($tableDefinition['indexes'] as $indexName => $indexDefinition) {
-                $columns[] = 'KEY'
-                    . (is_numeric($indexName)
-                        ? ' (' . self::quoteIdentifier($indexDefinition) . ')'
-                        : ' ' . self::indexDefinitionToSql($indexDefinition));
-            }
-        }
-
-        if (isset($tableDefinition['uniqueKeys'])) {
-            foreach ($tableDefinition['uniqueKeys'] as $uniqueKeyDefinition) {
-                $columns[] = 'UNIQUE '
-                    . self::indexDefinitionToSql($uniqueKeyDefinition);
-            }
-        }
-
-        if (count($pkColumns)) {
-            if (isset($tableDefinition['primaryKey'])) {
-                throw new \RuntimeException("Only one PK can be present");
-            }
-            $columns[] = 'PRIMARY KEY ' . self::indexDefinitionToSql(['columns' => $pkColumns]);
-        } elseif (isset($tableDefinition['primaryKey'])) {
-            $columns[] = 'PRIMARY KEY ' . self::indexDefinitionToSql($tableDefinition['primaryKey']);
-        }
-
-        $sql = "CREATE TABLE " . self::quoteIdentifier($tableName)
-            . " (\n"
-            . implode(",\n", $columns)
-            . "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8";
-
-        $args = [];
-        if (isset($tableDefinition['description'])) {
-            $sql .= "\n, COMMENT=?";
-            $args[] = $tableDefinition['description'];
-        }
-        return [$sql, $args];
-    }
-
-    public static function columnDefinitionToSql($columnName, array $columnDefinition): string {
-        ArrayTool::ensureHasOnlyKeys($columnDefinition, ['type', 'nullable', 'scale', 'precision', 'default', 'unsigned', 'length']);
-
-        $columnDefinitionSql = '';
-        $columnType = $columnDefinition['type'];
-
-        // @TODO: Add 'fk' type.
-
-        if ($columnType === 'primaryKey') {
-            $columnDefinitionSql .= 'int unsigned NOT NULL AUTO_INCREMENT';
-            $pkColumns[] = $columnName;
-        } else {
-            $columnDefinitionSql .= $columnType;
-
-            if (TypeInfoProvider::isIntegerType($columnType)) {
-                $columnDefinitionSql .= isset($columnDefinition['unsigned']) ? ' unsigned' : '';
-            } elseif (TypeInfoProvider::isFloatingPointType($columnType)) {
-                // Precision is the total number of digits in a number.
-                // Scale is the number of digits to the right of the decimal point in a number.
-                // For the number -999.9999, precision == 7 and scale == 4.
-                $columnDefinitionSql .= '(' . $columnDefinition['precision'] . ',' . $columnDefinition['scale'] . ')';
-            } elseif (TypeInfoProvider::isOneOfTypes($columnType, ['char', 'varchar'])) {
-                $columnDefinitionSql .= '(' . (isset($columnDefinition['length']) ? $columnDefinition['length'] : '255') . ')';
-            }
-
-            if (!isset($columnDefinition['nullable'])) {
-                // By default a column can't contain NULL.
-                $columnDefinition['nullable'] = false;
-            }
-            if (false === $columnDefinition['nullable']) {
-                $columnDefinitionSql .= ' NOT NULL';
-            }
-            if (isset($columnDefinition['default'])) {
-                $columnDefinitionSql .= ' DEFAULT ' . $columnDefinition['default'];
-            }
-        }
-
-        return self::quoteIdentifier($columnName) . ' ' . $columnDefinitionSql;
-    }
-
-    public function getTableDefinition(string $tableName, string $dbName = null): array {
-        // The code fragment from the Doctrine MySQL, @TODO: specify where
-        $stmt = $this->query("SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . (null === $dbName ? 'DATABASE()' : "'$dbName'") . " AND TABLE_NAME = '" . $tableName . "'");
-        if (!$stmt->rowCount()) {
-            throw new \RuntimeException("The table '" . (null === $dbName ? $tableName : $dbName . '.' . $tableName) . "' does not exist");
-        }
-        return $stmt->fetchAll();
-    }
-
-    public function getCreateTableSql(string $tableName): string {
-        return $this->fetchRows("SHOW CREATE TABLE " . $this->quoteIdentifier($tableName))[0]['Create Table'];
-    }
-
-    protected static function columnsDefinitionToSqlArray(array $columnsDefinition) {
-        $sql = [];
-        $pkColumns = [];
-        foreach ($columnsDefinition as $columnName => $columnDefinition) {
-            $sql[] = self::columnDefinitionToSql($columnName, $columnDefinition);
-            if ($columnDefinition['type'] === 'primaryKey') {
-                $pkColumns[] = $columnName;
-            }
-        }
-        return [$pkColumns, $sql];
-    }
-
-    protected static function indexDefinitionToSql(array $indexDefinition) {
-        $sql = [];
-        if (isset($indexDefinition['name'])) {
-            $sql[] = $indexDefinition['name'];
-        }
-        if (isset($indexDefinition['type'])) {
-            $sql[] = $indexDefinition['type'];
-        }
-        $sql[] = '('
-            . (is_array($indexDefinition['columns'])
-                ? implode(', ', array_map([__CLASS__, 'quoteIdentifier'], $indexDefinition['columns']))
-                : self::quoteIdentifier($indexDefinition['columns']))
-            . ')';
-        if (isset($indexDefinition['option'])) {
-            $sql[] = $indexDefinition['option'];
-        }
-        return implode(' ', $sql);
     }
 }

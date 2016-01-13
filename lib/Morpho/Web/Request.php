@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Morpho\Web;
 
+use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\Core\Request as BaseRequest;
 use Zend\Validator\Hostname as HostNameValidator;
@@ -29,9 +30,9 @@ class Request extends BaseRequest {
 
     protected $method;
 
-    protected $content;
-
     private $uri;
+
+    private $mapPostTo;
 
     private static $allMethods = [
         self::OPTIONS_METHOD,
@@ -47,10 +48,11 @@ class Request extends BaseRequest {
     ];
 
     public function getContent(): string {
-        if (null === $this->content) {
-            $this->content = file_get_contents('php://input');
-        }
-        return $this->content;
+        return file_get_contents('php://input');
+    }
+
+    public function getParsedContent(): array {
+        return Uri::stringToQueryArgs($this->getContent());
     }
 
     public function getArgs($name = null, bool $trim = true) {
@@ -75,6 +77,26 @@ class Request extends BaseRequest {
         return isset($source[$name])
             ? $source[$name]
             : null;
+    }
+
+    public function getPatch($name = null, bool $trim = true) {
+        return $this->data(
+            $this->mapPostTo === self::PATCH_METHOD ? $_POST : $this->getParsedContent(),
+            $name,
+            $trim
+        );
+    }
+
+    public function getPut($name = null, bool $trim = true) {
+        return $this->data(
+            $this->mapPostTo === self::PUT_METHOD ? $_POST : $this->getParsedContent(),
+            $name,
+            $trim
+        );
+    }
+
+    public function getDelete($name = null, bool $trim = true) {
+        throw new NotImplementedException();
     }
 
     public function hasPost(string $name) {
@@ -130,6 +152,15 @@ class Request extends BaseRequest {
 
     public function getMethod(): string {
         if (null === $this->method) {
+            // Handle the '_method' like in 'Ruby on Rails'.
+            if (isset($_POST['_method'])) {
+                $method = strtoupper($_POST['_method']);
+                if (in_array($method, [self::PATCH_METHOD, self::DELETE_METHOD, self::PUT_METHOD], true)) {
+                    $this->method = $method;
+                    $this->mapPostTo = $method;
+                    return $method;
+                }
+            }
             $this->method = $this->normalizeMethod($_SERVER['REQUEST_METHOD']);
         }
         return $this->method;
@@ -159,16 +190,16 @@ class Request extends BaseRequest {
         return $this->getMethod() === self::DELETE_METHOD;
     }
 
+    public function isPatchMethod(): bool {
+        return $this->getMethod() === self::PATCH_METHOD;
+    }
+
     public function isTraceMethod(): bool {
         return $this->getMethod() === self::TRACE_METHOD;
     }
 
     public function isConnectMethod(): bool {
         return $this->getMethod() === self::CONNECT_METHOD;
-    }
-
-    public function isPatchMethod(): bool {
-        return $this->getMethod() === self::PATCH_METHOD;
     }
 
     public function isPropfindMethod(): bool {

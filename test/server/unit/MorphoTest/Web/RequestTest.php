@@ -55,6 +55,17 @@ class RequestTest extends TestCase {
         $this->assertBoolAccessor([$this->request, 'isDispatched'], false);
     }
 
+    public function testParamsAccessors() {
+        $this->assertFalse($this->request->hasParams());
+        $this->request->setParam('foo', 'bar');
+        $this->assertTrue($this->request->hasParams());
+        $this->assertEquals(['foo' => 'bar'], $this->request->getParams());
+        $this->request->clearParams();
+        $this->assertFalse($this->request->hasParams());
+        $this->request->setParams(['cat' => 'dog']);
+        $this->assertEquals(['cat' => 'dog'], $this->request->getParams());
+    }
+
     public function dataForTrim() {
         return [
             [

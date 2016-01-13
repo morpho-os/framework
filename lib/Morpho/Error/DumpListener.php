@@ -7,7 +7,7 @@ class DumpListener implements IExceptionListener {
 
         // The d() function can be found in the morpho/debug package.
         if (function_exists('d')) {
-            d()->dump($exAsString);
+             d()->dump($exAsString);
 
             exit();
         }

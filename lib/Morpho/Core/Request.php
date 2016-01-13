@@ -52,6 +52,10 @@ abstract class Request {
         return $this->actionName;
     }
 
+    public function hasParams(): bool {
+        return count($this->params) > 0;
+    }
+
     public function setParams(array $params) {
         $this->params = $params;
     }

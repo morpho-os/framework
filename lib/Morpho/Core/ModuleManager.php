@@ -1,17 +1,17 @@
 <?php
-declare(strict_types = 1);
-
+//declare(strict_types = 1);
 namespace Morpho\Core;
 
 use function Morpho\Base\classify;
 use Morpho\Base\IEventManager;
 use Morpho\Db\Db;
+use Morpho\Db\SchemaManager;
 
 abstract class ModuleManager extends Node implements IEventManager {
-    const ENABLED = 0x1;  // 001 (installed enabled)
-    const DISABLED = 0x2;  // 010 (installed disabled)
+    const ENABLED     = 0x1;  // 001 (installed enabled)
+    const DISABLED    = 0x2;  // 010 (installed disabled)
     const UNINSTALLED = 0x4;  // 100 (uninstalled (not installed))
-    const ALL = 0x7;  // 111 (all above (installed | uninstalled))
+    const ALL         = 0x7;  // 111 (all above (installed | uninstalled))
 
     protected $fallbackMode = false;
 
@@ -104,7 +104,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             function (Db $db) use ($moduleName) {
                 $module = $this->getChild($moduleName);
 
-                $db->createTables($module->getTableDefinitions());
+                (new SchemaManager($db))->createTables($module->getTableDefinitions());
 
                 $module->install($db);
 
@@ -139,7 +139,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             function (Db $db) use ($moduleName) {
                 $this->getChild($moduleName)
                     ->enable($db);
-                $db->updateRow($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
+                $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
             }
         );
         $this->rebuildEvents($moduleName);
@@ -155,7 +155,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             function (Db $db) use ($moduleName) {
                 $this->getChild($moduleName)
                     ->disable($db);
-                $db->updateRow($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
+                $db->updateRows($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
             }
         );
         $this->rebuildEvents($moduleName);

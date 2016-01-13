@@ -2,6 +2,7 @@
 namespace MorphoTest\Core;
 
 use Morpho\Core\Request;
+use Morpho\Db\SchemaManager;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
 use Morpho\Core\Module;
@@ -11,9 +12,11 @@ use Morpho\Web\Controller;
 
 class ModuleManagerTest extends DbTestCase {
     public function setUp() {
+        parent::setUp();
         $db = $this->createDb();
-        $db->deleteAllTables(['module', 'module_event']);
-        $this->createDbTables($db);
+        $schemaManager = new SchemaManager($db);
+        $schemaManager->deleteAllTables(['module', 'module_event']);
+        $schemaManager->createTables(\System\Module::getTableDefinitions());
     }
 
     public function testFallbackMode() {
@@ -213,17 +216,16 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     private function createModuleManager(Db $db = null, $moduleClassLoader = null) {
-        $moduleManager = new MyModuleManager($db ?: $this->createDb());
+        if (null === $db) {
+            $db = $this->createDb();
+        }
+        $moduleManager = new MyModuleManager($db);
         $serviceManager = new ServiceManager();
         if (null !== $moduleClassLoader) {
             $serviceManager->set('moduleClassLoader', $moduleClassLoader);
         }
         $moduleManager->setServiceManager($serviceManager);
         return $moduleManager;
-    }
-
-    private function createDbTables(Db $db) {
-        $db->createTables(\System\Module::getTableDefinitions());
     }
 }
 

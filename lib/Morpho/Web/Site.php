@@ -38,7 +38,7 @@ class Site {
     const TESTING_MODE = 'testing';
 
     public function __construct(array $options = []) {
-        ArrayTool::ensureHasOnlyKeys($options, ['dirPath', 'name']);
+        ArrayTool::assertHasOnlyKeys($options, ['dirPath', 'name']);
         foreach ($options as $name => $value) {
             $this->$name = $value;
         }

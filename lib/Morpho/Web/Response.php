@@ -13,7 +13,7 @@ class Response extends BaseResponse {
         }
     }
 
-    public function isSuccess() {
+    public function isSuccessful(): bool {
         $code = $this->getStatusCode();
         // Use condition from jQuery: 304 == Not Modified.
         return $code >= 200 && $code < 300 || $code === 304;

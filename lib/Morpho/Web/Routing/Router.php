@@ -55,7 +55,7 @@ abstract class Router implements IServiceManagerAware {
     abstract public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null);
 
     public function dumpRoutes(): array {
-        return iterator_to_array($this->buildRoutesMeta(MODULE_DIR_PATH));
+        return iterator_to_array($this->buildRoutesMeta($this->getModuleDirPath()));
     }
 
     protected function buildRoutesMeta(string $moduleDirPath): \Generator {

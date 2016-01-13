@@ -187,7 +187,7 @@ class TypeInfoProvider {
         return in_array(strtoupper($type), ['SERIAL', 'BOOL', 'BOOLEAN', 'SERIAL DEFAULT VALUE'], true);
     }
 
-    public static function expandMacroType(string $type): bool {
+    public static function expandMacroType(string $type): string {
         $type = strtoupper($type);
         if ($type === 'SERIAL') {
             return 'BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE';

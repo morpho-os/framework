@@ -2,6 +2,7 @@
 namespace MorphoTest\Core;
 
 use Morpho\Base\ArrayTool;
+use Morpho\Db\SchemaManager;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\SettingManager;
 
@@ -9,8 +10,9 @@ class SettingManagerTest extends DbTestCase {
     public function setUp() {
         $db = $this->createDb();
         $moduleNames = ['module', 'setting'];
-        $db->deleteAllTables($moduleNames);
-        $db->createTables(ArrayTool::getItemsWithKeys(\System\Module::getTableDefinitions(), $moduleNames));
+        $schemaManager = new SchemaManager($db);
+        $schemaManager->deleteAllTables($moduleNames);
+        $schemaManager->createTables(ArrayTool::getItemsWithKeys(\System\Module::getTableDefinitions(), $moduleNames));
         $this->settingManager = new SettingManager($db);
         $moduleName = 'foo';
         $db->insertRow('module', ['name' => $moduleName, 'status' => 1, 'weight' => 0]);

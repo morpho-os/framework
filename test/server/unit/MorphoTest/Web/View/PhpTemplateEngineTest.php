@@ -7,7 +7,6 @@ use Morpho\Web\Uri;
 use Morpho\Web\View\HtmlParserPost;
 use Morpho\Web\View\HtmlParserPre;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Web\View\PluginManager;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\Request;
 

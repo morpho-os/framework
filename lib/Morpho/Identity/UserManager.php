@@ -29,7 +29,7 @@ class UserManager {
         if (!isset($this->session->userId)) {
             throw new \RuntimeException("The user was not logged in");
         }
-        $this->user = $this->repo->findUserById('id, login FROM `user` WHERE id = ?', $this->session->userId);
+        $this->user = $this->repo->findUserById($this->session->userId);
         if (false === $this->user) {
             throw new EntityNotFoundException("The user with ID {$this->session->userId} does not exist");
         }

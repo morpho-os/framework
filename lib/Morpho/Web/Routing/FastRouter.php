@@ -29,10 +29,10 @@ class FastRouter extends Router {
             $request->setModuleName($route['module'])
                 ->setControllerName($route['controller'])
                 ->setActionName($route['action']);
-            /*
-                ->setMethod($route['method'])
-                ->setParams($route['params']);
-            */
+            $params = $routeInfo[2] ?? null;
+            if ($params) {
+                $request->setParams($params);
+            }
         }
     }
 
@@ -41,7 +41,9 @@ class FastRouter extends Router {
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
         foreach ($this->buildRoutesMeta($this->getModuleDirPath()) as $routeMeta) {
             $routeMeta['uri'] = preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
-                return '{' . str_replace('$', '', array_pop($matches)) . '}';
+                $var = array_pop($matches);
+                // @TODO: Add support for other patterns, beside numbers.
+                return '{' . str_replace('$', '', $var) . ':[0-9]+}';
             }, $routeMeta['uri']);
             $handler = [
                 'module'     => $routeMeta['module'],
@@ -51,7 +53,7 @@ class FastRouter extends Router {
             $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], $handler);
         }
         $dispatchData = $routeCollector->getData();
-        CodeTool::writeVarToFile($dispatchData, $cacheFilePath);
+        CodeTool::writeVarToFile($dispatchData, $cacheFilePath, false);
     }
 
     public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null) {

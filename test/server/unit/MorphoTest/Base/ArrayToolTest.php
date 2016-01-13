@@ -197,7 +197,7 @@ class ArrayToolTest extends TestCase {
         );
     }
 
-    public function dataForEnsureHasRequiredItems_Invalid() {
+    public function dataForAssertHasKeys_Invalid() {
         return [
             [
                 ['foo' => 1, 'baz' => 2],
@@ -215,14 +215,14 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForEnsureHasRequiredItems_Invalid
+     * @dataProvider dataForAssertHasKeys_Invalid
      */
-    public function testEnsureHasRequiredItems_Invalid($actual, $requiredKeys) {
+    public function testAssertHasKeys_Invalid($actual, $requiredKeys) {
         $this->setExpectedException('\RuntimeException', 'Required items are missing');
-        ArrayTool::ensureHasRequiredItems($actual, $requiredKeys);
+        ArrayTool::assertHasKeys($actual, $requiredKeys);
     }
 
-    public function dataForEnsureHasRequiredItems_Valid() {
+    public function dataForAssertHasKeys_Valid() {
         return [
             [
                 ['foo' => 1, 'bar' => 2],
@@ -240,13 +240,13 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForEnsureHasRequiredItems_Valid
+     * @dataProvider dataForAssertHasKeys_Valid
      */
-    public function testEnsureHasRequiredItems_Valid($actual, $requiredKeys) {
-        ArrayTool::ensureHasRequiredItems($actual, $requiredKeys);
+    public function testAssertHasKeys_Valid($actual, $requiredKeys) {
+        ArrayTool::assertHasKeys($actual, $requiredKeys);
     }
 
-    public function dataForEnsureHasOnlyKeys_Invalid() {
+    public function dataForAssertHasOnlyKeys_Invalid() {
         return [
             [
                 ['foo' => '1', 'something' => 2],
@@ -262,14 +262,14 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForEnsureHasOnlyKeys_Invalid
+     * @dataProvider dataForAssertHasOnlyKeys_Invalid
      */
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
         $this->setExpectedException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
-        ArrayTool::ensureHasOnlyKeys($actual, $allowedKeys);
+        ArrayTool::assertHasOnlyKeys($actual, $allowedKeys);
     }
 
-    public function dataForEnsureHasOnlyKeys_Valid() {
+    public function dataForAssertHasOnlyKeys_Valid() {
         return [
             [
                 ['foo' => '1', 'bar' => 2, 'baz' => 3],
@@ -291,10 +291,10 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForEnsureHasOnlyKeys_Valid
+     * @dataProvider dataForAssertHasOnlyKeys_Valid
      */
-    public function testEnsureHasOnlyKeys_Valid($actual, $allowedKeys) {
-        ArrayTool::ensureHasOnlyKeys($actual, $allowedKeys);
+    public function testAssertHasOnlyKeys_Valid($actual, $allowedKeys) {
+        ArrayTool::assertHasOnlyKeys($actual, $allowedKeys);
     }
 
     public function dataForHandleOptions() {
