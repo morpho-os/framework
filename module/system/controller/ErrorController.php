@@ -10,10 +10,12 @@ class ErrorController extends Controller {
     }
 
     public function accessDeniedAction() {
-        dd();
     }
 
     public function uncaughtErrorAction() {
-        dd();
+        /*
+        $exception = $this->request->getInternalParam('error')
+        d($exception->getMessage(), $exception->getFile(), $exception->getLine());
+        */
     }
 }

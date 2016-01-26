@@ -55,6 +55,7 @@ class Directory extends Entry {
     /**
      * @param array|string $dirPaths
      * @param string|\Closure $processor
+     * @TODO: Return \Generator
      */
     public static function listEntries($dirPaths, $processor = null, array $options = []): array {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
@@ -120,6 +121,7 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
+     *     // @TODO: Return \Generator
      */
     public static function listDirs($dirPath, $processor = null, array $options = []): array {
         $options['type'] = self::DIR;
@@ -132,7 +134,7 @@ class Directory extends Entry {
         return self::listEntries($dirPath, $processor, $options);
     }
 
-    public static function listEmptyDirs($dirPath, $processor = null) {
+    public static function listEmptyDirs($dirPath, $processor = null): \Generator {
         // @TODO
         throw new NotImplementedException();
     }
@@ -142,12 +144,14 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
+     * // @TODO: Return \Generator
      */
     public static function listFiles($dirPath, $processor = null, array $options = []): array {
         $options['type'] = self::FILE;
         return self::listEntries($dirPath, $processor, $options);
     }
 
+    // @TODO: Return \Generator
     public static function listLinks(string $dirPath, $processor = null): array {
         throw new NotImplementedException(__METHOD__);
     }

@@ -7,6 +7,7 @@ use Morpho\Db\Sql\Db;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\NotFoundException;
+use Morpho\Web\Response;
 
 class Module extends BaseModule {
     const NAME = 'system';
@@ -59,21 +60,22 @@ class Module extends BaseModule {
 
             foreach ($this->thrownExceptions as $prevException) {
                 if (ErrorHandler::getHashId($prevException) === ErrorHandler::getHashId($exception)) {
-                    throw new \RuntimeException('Exception loop detected', 0, $exception);
+                    throw new \RuntimeException('Exception loop has been detected', 0, $exception);
                 }
             }
             $this->thrownExceptions[] = $exception;
 
             $request->setHandler($handler)
                 ->isDispatched(false);
+            $request->setInternalParam('error', $exception);
             $request->getResponse()->setStatusCode($statusCode);
         };
         if ($exception instanceof AccessDeniedException) {
-            $handleError(self::ACCESS_DENIED_ERROR, 403);
+            $handleError(self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403);
         } elseif ($exception instanceof NotFoundException) {
-            $handleError(self::PAGE_NOT_FOUND_ERROR, 404);
+            $handleError(self::PAGE_NOT_FOUND_ERROR, Response::STATUS_CODE_404);
         } else {
-            $handleError(self::UNCAUGHT_ERROR, 500);
+            $handleError(self::UNCAUGHT_ERROR, Response::STATUS_CODE_500);
         }
     }
 

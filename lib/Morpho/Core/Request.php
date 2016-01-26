@@ -12,13 +12,15 @@ abstract class Request {
 
     protected $params = [];
 
+    protected $internalParams = [];
+
     private $isDispatched = false;
 
     /**
      * @param bool|null $flag
      * @return bool
      */
-    public function isDispatched($flag = null) {
+    public function isDispatched(bool $flag = null) {
         if ($flag !== null) {
             $this->isDispatched = $flag;
         }
@@ -74,25 +76,30 @@ abstract class Request {
         return $this->params;
     }
 
-    public function clearParams() {
-        $this->params = [];
-    }
-
-    public function setParam($name, $value) {
+    public function setParam(string $name, $value) {
         $this->params[$name] = $value;
     }
 
-    public function getParam($name, $default = null) {
+    public function getParam(string $name, $default = null) {
         return isset($this->params[$name]) ? $this->params[$name] : $default;
+    }
+
+    public function setInternalParam(string $name, $value) {
+        $this->internalParams[$name] = $value;
+    }
+
+    public function getInternalParam(string $name, $default = null) {
+        return isset($this->internalParams[$name]) ? $this->internalParams[$name] : $default;
+    }
+
+    public function unsetInternalParam(string $name) {
+        unset($this->internalParams[$name]);
     }
 
     public function setResponse($response) {
         $this->response = $response;
     }
 
-    /**
-     * @return Response
-     */
     public function getResponse() {
         if (null === $this->response) {
             $this->response = $this->createResponse();

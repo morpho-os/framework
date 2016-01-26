@@ -10,6 +10,16 @@ class RequestTest extends TestCase {
         $this->request = new Request();
     }
 
+    public function testInternalParamAccessors() {
+        $this->assertNull($this->request->getInternalParam('foo'));
+        $this->assertEquals('default', $this->request->getInternalParam('foo', 'default'));
+        $this->assertNull($this->request->setInternalParam('foo', 'bar'));
+        $this->assertEquals('bar', $this->request->getInternalParam('foo'));
+        $this->assertEquals('bar', $this->request->getInternalParam('foo', 'default'));
+        $this->assertNull($this->request->unsetInternalParam('foo'));
+        $this->assertNull($this->request->getInternalParam('foo'));
+    }
+
     public function testHandlerAccessors() {
         $handler = ['foo', 'bar', 'baz'];
         $this->request->setHandler($handler);
@@ -66,7 +76,7 @@ class RequestTest extends TestCase {
         $this->request->setParam('foo', 'bar');
         $this->assertTrue($this->request->hasParams());
         $this->assertEquals(['foo' => 'bar'], $this->request->getParams());
-        $this->request->clearParams();
+        $this->request->setParams([]);
         $this->assertFalse($this->request->hasParams());
         $this->request->setParams(['cat' => 'dog']);
         $this->assertEquals(['cat' => 'dog'], $this->request->getParams());

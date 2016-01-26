@@ -6,6 +6,7 @@ use Morpho\Di\ServiceManager;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
+use Morpho\Web\Response;
 use System\Module as SystemModule;
 
 class ModuleTest extends DbTestCase {
@@ -19,42 +20,53 @@ class ModuleTest extends DbTestCase {
 
     public function testDispatchError_SetsDefaultHandlerForAccessDenied() {
         $settingManager = $this->createSettingManager(false);
-        list($module, $event, $request) = $this->initModuleForDispatchError($settingManager);
+        $exception = $this->throwAccessDenied();
+        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingManager);
+
         $module->dispatchError($event);
-        $this->assertEquals(SystemModule::defaultErrorHandler(SystemModule::ACCESS_DENIED_ERROR), $request->getHandler());
-        $this->assertFalse($request->isDispatched());
+
+        $this->assertRequestHasHandlerAndException(
+            $request,
+            SystemModule::defaultErrorHandler(SystemModule::ACCESS_DENIED_ERROR),
+            $exception
+        );
     }
 
     public function testDispatchError_SetsUserDefinedHandlerIfSetForAccessDenied() {
         $handler = ['My', 'Foo', 'handleMe'];
         $settingManager = $this->createSettingManager($handler);
-        list($module, $event, $request) = $this->initModuleForDispatchError($settingManager);
+        $exception = $this->throwAccessDenied();
+        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingManager);
+
         $module->dispatchError($event);
-        $this->assertEquals($handler, $request->getHandler());
-        $this->assertFalse($request->isDispatched());
+
+        $this->assertRequestHasHandlerAndException($request, $handler, $exception);
     }
 
     public function testDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         $handler = ['My', 'Foo', 'handleMe'];
         $settingManager = $this->createSettingManager($handler);
-        list($module, $event, $request) = $this->initModuleForDispatchError($settingManager);
+        $exception = $this->throwAccessDenied();
+        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingManager);
+
         $module->dispatchError($event);
-        $this->assertEquals($handler, $request->getHandler());
-        $this->assertFalse($request->isDispatched());
+
+        $this->assertRequestHasHandlerAndException($request, $handler, $exception);
+
+        $event[1]['exception'] = $this->throwAccessDenied();
         try {
             $module->dispatchError($event);
             $this->fail();
         } catch (\RuntimeException $e) {
-            $this->assertEquals('Exception loop detected', $e->getMessage());
+            $this->assertEquals('Exception loop has been detected', $e->getMessage());
             $this->assertEquals($e->getPrevious(), $event[1]['exception']);
         }
     }
 
-    private function initModuleForDispatchError($settingManager) {
-        $e = $this->throwAccessDenied();
+    private function initModuleForDispatchError(\Exception $exception, $settingManager) {
         $request = new Request();
         $request->isDispatched(true);
-        $event = [null, ['exception' => $e, 'request' => $request]];
+        $event = [null, ['exception' => $exception, 'request' => $request]];
         $module = new SystemModule();
         $serviceManager = new ServiceManager();
         $serviceManager->set('settingManager', $settingManager);
@@ -85,5 +97,12 @@ class ModuleTest extends DbTestCase {
                 throw new \UnexpectedValueException();
             }
         };
+    }
+
+    private function assertRequestHasHandlerAndException(Request $request, array $handler, \Exception $exception) {
+        $this->assertFalse($request->isDispatched());
+        $this->assertEquals($handler, $request->getHandler());
+        $this->assertEquals($exception, $request->getInternalParam('error'));
+        $this->assertEquals(Response::STATUS_CODE_403, $request->getResponse()->getStatusCode());
     }
 }

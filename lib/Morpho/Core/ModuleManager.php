@@ -285,7 +285,6 @@ abstract class ModuleManager extends Node implements IEventManager {
         if ($this->fallbackMode) {
             $this->eventHandlers = $this->getFallbackModeEventHandlers();
         } else {
-            $this->eventHandlers = [];
             $sql = "e.name as eventName, e.method, m.name AS moduleName
             FROM event e
             INNER JOIN $this->tableName m
@@ -293,6 +292,12 @@ abstract class ModuleManager extends Node implements IEventManager {
             WHERE m.status = ?
             ORDER BY e.priority DESC, m.weight ASC, m.name ASC";
             $lines = $this->db->selectRows($sql, [self::ENABLED]);
+            if (!count($lines)) {
+                // For some reason the events can be lost in the database, so we need fallback.
+                $this->eventHandlers = $this->getFallbackModeEventHandlers();
+                return;
+            }
+            $this->eventHandlers = [];
             foreach ((array)$lines as $line) {
                 $this->eventHandlers[$line['eventName']][] = $line;
             }

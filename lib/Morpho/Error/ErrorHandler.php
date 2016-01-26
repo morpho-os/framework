@@ -99,7 +99,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     }
 
     public static function getHashId(\Throwable $e) {
-        return md5($e->getFile() . $e->getLine() . $e->getMessage());
+        return md5(str_replace("\x00", '', $e->getFile()) . "\x00" . $e->getLine());
     }
 
     protected function setIniSettings() {

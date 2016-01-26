@@ -17,9 +17,9 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         ini_set('display_errors', $this->oldErrorLevel);
     }
 
-    public function testGetHashId_TheSameFileDifferentLinesTheSameMessage() {
+    public function testGetHashId_TheSameFileDifferentLines() {
         try {
-            throw new \RuntimeException("FOO");
+            throw new \RuntimeException();
         } catch (\RuntimeException $e1) {
 
         }
@@ -27,7 +27,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->assertNotEmpty($hashId1);
         $this->assertEquals($hashId1, ErrorHandler::getHashId($e1));
         try {
-            throw new \RuntimeException("FOO");
+            throw new \RuntimeException();
         } catch (\RuntimeException $e2) {
 
         }
