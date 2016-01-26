@@ -2,7 +2,7 @@
 namespace Morpho\Core;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 
 class SettingManager {
     protected $db;
@@ -27,7 +27,7 @@ class SettingManager {
     /**
      * @param string $name
      * @param string $moduleName
-     * @return mixed Returns non false value if setting with $name exists.
+     * @return mixed Returns non false value if setting with $name exists, false otherwise.
      */
     public function get($name, $moduleName) {
         if (isset($this->cache[$name])) {
@@ -48,7 +48,7 @@ class SettingManager {
             throw new \UnexpectedValueException("Empty setting name");
         }
         if (empty($moduleName)) {
-            throw new \UnexpsectedValueException("Empty module name");
+            throw new \UnexpectedValueException("Empty module name");
         }
         $row = $this->db->selectRow(
             's.name, m.id AS moduleId

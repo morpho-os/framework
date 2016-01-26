@@ -1,5 +1,3 @@
-/// <reference path="d.ts/stacktrace.d.ts" />
-/// <reference path="d.ts/bom.d.ts" />
 var System;
 (function (System) {
     function defineFunctionNameProp() {

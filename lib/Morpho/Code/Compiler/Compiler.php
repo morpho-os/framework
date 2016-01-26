@@ -1,8 +1,10 @@
 <?php
 namespace Morpho\Code\Compiler;
 
-class Compiler {
-    public function run(string $input) {
+use Morpho\Base\IFn;
+
+class Compiler implements IFn {
+    public function __invoke(...$args) {
         $phases = [
             new LexicalAnalysis(),
             new Parsing(),
@@ -11,8 +13,8 @@ class Compiler {
             new CodeGeneration(),
         ];
         foreach ($phases as $phase) {
-            $input = $phase->run($input);
+            $args = $phase(...$args);
         }
-        return $input;
+        return $args;
     }
 }

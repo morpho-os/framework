@@ -11,6 +11,7 @@ use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Web\Logging\WebProcessor;
+use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\FallbackRouter;
 use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\View\Compiler;

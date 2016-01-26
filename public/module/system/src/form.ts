@@ -228,7 +228,7 @@ namespace System {
         }
 
         protected showValueRequiredElError($el: JQuery): void {
-            this.showElMessage($el, new Message(MessageType.Error, tr('Это поле обязательно для заполнения.')));
+            this.showElMessage($el, new Message(MessageType.Error, tr('This field is required.')));
         }
 
         protected showElMessage($el: JQuery, message: Message): void {
@@ -275,6 +275,7 @@ namespace System {
         }
 
         protected getFormData(): Array<JQuerySerializeArrayElement> {
+            // @TODO: see the serializeArray() method: $('form').serializeArray()?
             var data: Array<JQuerySerializeArrayElement> = [];
             this.getEls().each((index, node) => {
                 var name = node.getAttribute('name');
@@ -375,7 +376,7 @@ namespace System {
         }
 
         protected showUnknownError(): void {
-            // @TODO:
+            showUnknownError(null);
         }
     }
 

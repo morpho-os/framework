@@ -5,8 +5,7 @@ use function Morpho\Base\escapeHtml;
 use Morpho\Base\NotImplementedException;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
-use Morpho\Db\Db;
-use Morpho\Web\Menu;
+use Morpho\Db\Sql\Db;
 
 class WidgetPlugin implements IServiceManagerAware {
     public function __invoke($name) {

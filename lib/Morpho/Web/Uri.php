@@ -16,6 +16,10 @@ class Uri extends BaseUri {
         return strlen($uri) > 2 && false !== strpos($uri, '//');
     }
 
+    public function isPathEqualTo(string $path): bool {
+        return $this->getPath() === $path;
+    }
+
     public function setBasePath(string $basePath) {
         $this->basePath = $basePath;
         return $this;
@@ -67,8 +71,8 @@ class Uri extends BaseUri {
      */
     public function relativeRef(): string {
         return $this->getPath()
-        . $this->queryPart()
-        . $this->fragmentPart();
+            . $this->queryPart()
+            . $this->fragmentPart();
     }
 
     /**

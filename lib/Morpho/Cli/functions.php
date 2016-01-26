@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Morpho\Cli;
 
 use function Morpho\Base\{
-    writeLn, jsonDecode
+    writeLn, decodeJson
 };
 use Morpho\Base\NotImplementedException;
 
@@ -53,7 +53,7 @@ function cmd(string $command, array $args = null): CommandResult {
 }
 
 function cmdJson(string $cmd, array $args = null): string {
-    return jsonDecode(cmd($cmd, $args));
+    return decodeJson(cmd($cmd, $args));
 }
 
 function pipe(array $commands) {

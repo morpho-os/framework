@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Core;
 
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 
 abstract class Module extends Node {
     protected $name;

@@ -1,13 +1,25 @@
 <?php
 namespace System;
 
+use Morpho\Base\Assert;
 use Morpho\Core\Module as BaseModule;
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
+use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\NotFoundException;
 
 class Module extends BaseModule {
     const NAME = 'system';
+
+    const ACCESS_DENIED_ERROR  = 'accessDenied';
+    const PAGE_NOT_FOUND_ERROR = 'pageNotFound';
+    const UNCAUGHT_ERROR       = 'uncaughtError';
+
+    const ACCESS_DENIED_ERROR_HANDLER  = 'accessDeniedHandler';
+    const PAGE_NOT_FOUND_ERROR_HANDLER = 'pageNotFoundHandler';
+    const UNCAUGHT_ERROR_HANDLER       = 'uncaughtErrorHandler';
+
+    private $thrownExceptions = [];
 
     public function install(Db $db) {
 
@@ -27,38 +39,41 @@ class Module extends BaseModule {
         */
     }
 
+    public static function defaultErrorHandler(string $errorType): array {
+        Assert::isOneOf($errorType, [self::ACCESS_DENIED_ERROR, self::PAGE_NOT_FOUND_ERROR, self::UNCAUGHT_ERROR]);
+        return ['System', 'Error', $errorType];
+    }
+
     /**
      * @Listen dispatchError 100
      */
     public function dispatchError(array $event) {
         $exception = $event[1]['exception'];
+        $request = $event[1]['request'];
+        $handleError = function (string $errorType, int $statusCode) use ($request, $exception) {
+            $handler = $this->serviceManager->get('settingManager')
+                ->get($errorType . 'Handler', self::NAME);
+            if (false === $handler) {
+                $handler = static::defaultErrorHandler($errorType);
+            }
+
+            foreach ($this->thrownExceptions as $prevException) {
+                if (ErrorHandler::getHashId($prevException) === ErrorHandler::getHashId($exception)) {
+                    throw new \RuntimeException('Exception loop detected', 0, $exception);
+                }
+            }
+            $this->thrownExceptions[] = $exception;
+
+            $request->setHandler($handler)
+                ->isDispatched(false);
+            $request->getResponse()->setStatusCode($statusCode);
+        };
         if ($exception instanceof AccessDeniedException) {
-            $mca = $this->serviceManager->get('settingManager')
-                ->get('accessDeniedMCA', 'system');
-            if (false !== $mca) {
-                $request = $event[1]['request'];
-                $request->setModuleName($mca['module'])
-                    ->setControllerName($mca['controller'])
-                    ->setActionName($mca['action'])
-                    ->isDispatched(false);
-                $request->getResponse()
-                    ->setStatusCode(403);
-            }
+            $handleError(self::ACCESS_DENIED_ERROR, 403);
         } elseif ($exception instanceof NotFoundException) {
-            $mca = $this->serviceManager->get('settingManager')
-                ->get('notFoundMCA', 'system');
-            if (false !== $mca) {
-                $request = $event[1]['request'];
-                $request->setModuleName($mca['module'])
-                    ->setControllerName($mca['controller'])
-                    ->setActionName($mca['action'])
-                    ->isDispatched(false);
-                $request->getResponse()
-                    ->setStatusCode(404);
-            }
+            $handleError(self::PAGE_NOT_FOUND_ERROR, 404);
         } else {
-            // @TODO: Handle other errors.
-            throw $exception;
+            $handleError(self::UNCAUGHT_ERROR, 500);
         }
     }
 

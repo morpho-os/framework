@@ -4,8 +4,7 @@ namespace Morpho\Core;
 
 use function Morpho\Base\classify;
 use Morpho\Base\IEventManager;
-use Morpho\Db\Db;
-use Morpho\Db\SchemaManager;
+use Morpho\Db\Sql\Db;
 
 abstract class ModuleManager extends Node implements IEventManager {
     const ENABLED     = 0x1;  // 001 (installed enabled)
@@ -47,11 +46,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             try {
                 $request->isDispatched(true);
 
-                list($moduleName, $controllerName, $actionName) = [
-                    $request->getModuleName(),
-                    $request->getControllerName(),
-                    $request->getActionName(),
-                ];
+                list($moduleName, $controllerName, $actionName) = $request->getHandler();
 
                 if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
                     $this->actionNotFound($moduleName, $controllerName, $actionName);
@@ -65,7 +60,7 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $controller->dispatch($request);
 
                 $this->trigger('afterDispatch', ['request' => $request]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->trigger('dispatchError', ['request' => $request, 'exception' => $e]);
             }
         } while (false === $request->isDispatched());
@@ -104,7 +99,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             function (Db $db) use ($moduleName) {
                 $module = $this->getChild($moduleName);
 
-                (new SchemaManager($db))->createTables($module->getTableDefinitions());
+                $db->schemaManager()->createTables($module->getTableDefinitions());
 
                 $module->install($db);
 
@@ -165,7 +160,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $modules = null !== $moduleName ? [$moduleName] : $this->listEnabledModules();
         foreach ($modules as $moduleName) {
             $moduleId = $this->getModuleIdByName($moduleName);
-            $this->db->query("DELETE FROM event WHERE moduleId = ?", [$moduleId]);
+            $this->db->runQuery("DELETE FROM event WHERE moduleId = ?", [$moduleId]);
             foreach ($this->getEvents($this->getChild($moduleName), $moduleId) as $event) {
                 $this->db->insertRow('event', array_merge($event, ['moduleId' => $moduleId]));
             }

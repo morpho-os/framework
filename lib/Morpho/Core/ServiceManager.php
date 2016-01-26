@@ -4,7 +4,7 @@ namespace Morpho\Core;
 use Morpho\Base\Environment;
 use Morpho\Base\MethodNotFoundException;
 use Morpho\Di\ServiceManager as BaseServiceManager;
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;

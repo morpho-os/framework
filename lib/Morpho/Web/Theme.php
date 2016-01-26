@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Morpho\Web;
 
 use function Morpho\Base\{
-    dasherize, jsonEncode
+    dasherize, encodeJson
 };
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
@@ -60,7 +60,7 @@ abstract class Theme extends Module {
             $request->getResponse()
                 ->getHeaders()
                 ->addHeaderLine('Content-Type', 'application/json');
-            return jsonEncode($vars);
+            return encodeJson($vars);
         }
         if (isset($args['layout'])) {
             $this->layout = dasherize($args['layout']);

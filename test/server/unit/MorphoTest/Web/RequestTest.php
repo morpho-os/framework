@@ -10,6 +10,12 @@ class RequestTest extends TestCase {
         $this->request = new Request();
     }
 
+    public function testHandlerAccessors() {
+        $handler = ['foo', 'bar', 'baz'];
+        $this->request->setHandler($handler);
+        $this->assertEquals($handler, $this->request->getHandler());
+    }
+
     public function testCurrentUri_ReturnsUniqueInstance() {
         $this->assertNotSame($this->request->currentUri(), $this->request->currentUri());
     }

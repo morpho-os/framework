@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Web;
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Assert;
 use Morpho\Fs\Path;
 
 class Site {
@@ -38,7 +38,7 @@ class Site {
     const TESTING_MODE = 'testing';
 
     public function __construct(array $options = []) {
-        ArrayTool::assertHasOnlyKeys($options, ['dirPath', 'name']);
+        Assert::hasOnlyKeys($options, ['dirPath', 'name']);
         foreach ($options as $name => $value) {
             $this->$name = $value;
         }

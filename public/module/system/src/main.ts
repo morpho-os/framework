@@ -1,5 +1,6 @@
 /// <reference path="system" />
 /// <reference path="form" />
+/// <reference path="application" />
 
 /*
 window.onerror = function(msg, file, line, col, error) {
@@ -27,3 +28,6 @@ window.onerror = function () {
      }
 };
 */
+$(function () {
+    System.Application.main();
+});

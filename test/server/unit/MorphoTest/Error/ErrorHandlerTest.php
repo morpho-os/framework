@@ -3,7 +3,6 @@ namespace MorphoTest\Error;
 
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\HandlerManager;
-use Morpho\Error\ExceptionEvent;
 
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
@@ -16,6 +15,25 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     public function tearDown() {
         parent::tearDown();
         ini_set('display_errors', $this->oldErrorLevel);
+    }
+
+    public function testGetHashId_TheSameFileDifferentLinesTheSameMessage() {
+        try {
+            throw new \RuntimeException("FOO");
+        } catch (\RuntimeException $e1) {
+
+        }
+        $hashId1 = ErrorHandler::getHashId($e1);
+        $this->assertNotEmpty($hashId1);
+        $this->assertEquals($hashId1, ErrorHandler::getHashId($e1));
+        try {
+            throw new \RuntimeException("FOO");
+        } catch (\RuntimeException $e2) {
+
+        }
+        $hashId2 = ErrorHandler::getHashId($e2);
+        $this->assertNotEmpty($hashId2);
+        $this->assertNotEquals($hashId1, $hashId2);
     }
 
     public function testRegisterTwiceThrowsException() {

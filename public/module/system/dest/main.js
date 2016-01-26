@@ -1,4 +1,3 @@
-/// <reference path="d.ts/bom.d.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -58,10 +57,6 @@ var NotImplementedException = (function (_super) {
     }
     return NotImplementedException;
 })(Exception);
-function tr(message) {
-    return message;
-}
-/// <reference path="d.ts/jquery-ext.d.ts" />
 var uniqId = 0;
 $.fn.once = function (fn) {
     var cssClass = String(uniqId++) + '-processed';
@@ -110,9 +105,6 @@ var System;
     })();
     System.EventManager = EventManager;
 })(System || (System = {}));
-/// <reference path="bom" />
-/// <reference path="jquery-ext" />
-/// <reference path="event-manager" />
 var System;
 (function (System) {
     var Widget = (function (_super) {
@@ -178,9 +170,6 @@ var System;
         return ModalWindow;
     })(Window);
 })(System || (System = {}));
-/// <reference path="bom" />
-/// <reference path="jquery-ext" />
-/// <reference path="widget" />
 var System;
 (function (System) {
     var CommonRegExp = (function () {
@@ -190,6 +179,14 @@ var System;
         return CommonRegExp;
     })();
     System.CommonRegExp = CommonRegExp;
+    function tr(message) {
+        return message;
+    }
+    System.tr = tr;
+    function showUnknownError(message) {
+        alert("Unknown error, please contact support");
+    }
+    System.showUnknownError = showUnknownError;
     function redirectToSelf() {
         redirectTo(window.location.href);
     }
@@ -202,16 +199,6 @@ var System;
         window.location.href = uri;
     }
     System.redirectTo = redirectTo;
-    function loadScript(src) {
-        var node = document.createElement('script');
-        node.type = 'text/javascript';
-        node.charset = 'utf-8';
-        document.getElementsByTagName('head')[0].appendChild(node);
-    }
-    System.loadScript = loadScript;
-    function loadStyle() {
-    }
-    System.loadStyle = loadStyle;
     var Uri = (function () {
         function Uri() {
         }
@@ -225,6 +212,68 @@ var System;
 })(System || (System = {}));
 var System;
 (function (System) {
+    var MessageManager = (function (_super) {
+        __extends(MessageManager, _super);
+        function MessageManager() {
+            _super.apply(this, arguments);
+        }
+        MessageManager.prototype.getNumberOfMessages = function () {
+            return this.getMessageEls().length;
+        };
+        MessageManager.prototype.getMessageEls = function () {
+            return this.el.find('.alert');
+        };
+        return MessageManager;
+    })(System.Widget);
+    System.MessageManager = MessageManager;
+    var PageMessageManager = (function (_super) {
+        __extends(PageMessageManager, _super);
+        function PageMessageManager() {
+            _super.apply(this, arguments);
+        }
+        PageMessageManager.prototype.registerEventHandlers = function () {
+            _super.prototype.registerEventHandlers.call(this);
+            this.registerCloseMessageHandler();
+        };
+        PageMessageManager.prototype.registerCloseMessageHandler = function () {
+            var self = this;
+            function hideElWithAnim($el, fn) {
+                $el.fadeOut(fn);
+            }
+            function hideMainContainerWithAnim() {
+                hideElWithAnim(self.el, function () {
+                    self.el.find('.messages').remove();
+                    self.el.hide();
+                });
+            }
+            function closeMessageWithAnim($message) {
+                if (self.getNumberOfMessages() === 1) {
+                    hideMainContainerWithAnim();
+                }
+                else {
+                    var $messageContainer = $message.closest('.messages');
+                    if ($messageContainer.find('.alert').length === 1) {
+                        hideElWithAnim($messageContainer, function () {
+                            $messageContainer.remove();
+                        });
+                    }
+                    else {
+                        hideElWithAnim($message, function () {
+                            $message.remove();
+                        });
+                    }
+                }
+            }
+            this.el.on('click', 'button.close', function () {
+                closeMessageWithAnim($(this).closest('.alert'));
+            });
+            setTimeout(function () {
+                hideMainContainerWithAnim();
+            }, 5000);
+        };
+        return PageMessageManager;
+    })(MessageManager);
+    System.PageMessageManager = PageMessageManager;
     function messageTypeToString(messageType) {
         switch (messageType) {
             case 8:
@@ -254,8 +303,6 @@ var System;
     })();
     System.Message = Message;
 })(System || (System = {}));
-/// <reference path="widget" />
-/// <reference path="message" />
 var System;
 (function (System) {
     var Form = (function (_super) {
@@ -441,7 +488,7 @@ var System;
             return true;
         };
         Form.prototype.showValueRequiredElError = function ($el) {
-            this.showElMessage($el, new System.Message(1, tr('Это поле обязательно для заполнения.')));
+            this.showElMessage($el, new System.Message(1, System.tr('This field is required.')));
         };
         Form.prototype.showElMessage = function ($el, message) {
             $el.after(this.formatElMessage(message));
@@ -549,10 +596,24 @@ var System;
             return 'keyup blur change paste';
         };
         Form.prototype.showUnknownError = function () {
+            System.showUnknownError(null);
         };
         return Form;
     })(System.Widget);
     System.Form = Form;
 })(System || (System = {}));
-/// <reference path="system" />
-/// <reference path="form" />
+var System;
+(function (System) {
+    var Application = (function () {
+        function Application() {
+        }
+        Application.main = function () {
+            window.pageMessenger = new System.PageMessageManager('#page-messages');
+        };
+        return Application;
+    })();
+    System.Application = Application;
+})(System || (System = {}));
+$(function () {
+    System.Application.main();
+});

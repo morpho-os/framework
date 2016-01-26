@@ -21,7 +21,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     private $isFallbackMode;
 
-    private $siteNames;
+    private $allowedSiteNames;
 
     private $config;
 
@@ -64,7 +64,7 @@ class SiteManager extends Object implements IServiceManagerAware {
     }
 
     public function setSite(Site $site, bool $makeCurrent = true) {
-        $siteName = $site->getName();
+        $siteName = $this->normalizeSiteName($site->getName());
         $this->checkSiteName($siteName);
         $this->sites[$siteName] = $site;
         if ($makeCurrent) {
@@ -73,6 +73,7 @@ class SiteManager extends Object implements IServiceManagerAware {
     }
 
     public function getSite(string $siteName) {
+        $siteName = $this->normalizeSiteName($siteName);
         if (!isset($this->sites[$siteName])) {
             $this->sites[$siteName] = $this->createSite($siteName);
         }
@@ -90,8 +91,6 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function setAllSitesDirPath($dirPath) {
         $this->allSitesDirPath = Path::normalize($dirPath);
-
-        return $this;
     }
 
     public function getAllSitesDirPath() {
@@ -102,11 +101,31 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->allSitesDirPath;
     }
 
-    public function isValidSiteName($siteName) {
-        return in_array($siteName, $this->listSiteNames(), true);
+    public function isValidSiteName($siteName): bool {
+        return !empty($siteName) && in_array($this->normalizeSiteName($siteName), $this->getAllowedSiteNames(), true);
     }
 
-    protected function createSite($siteName) {
+    public function setServiceManager(IServiceManager $serviceManager) {
+        $this->serviceManager = $serviceManager;
+    }
+
+    public function setAllowedSiteNames(array $siteNames) {
+        $this->allowedSiteNames = $siteNames;
+    }
+
+    public function getAllowedSiteNames(): array {
+        if (!$this->allowedSiteNames) {
+            // @TODO: Add writing of the detected sites to the config.
+            $this->allowedSiteNames = $this->getConfig()['sites'] ?? array_map(
+                    'basename',
+                    Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])
+                );
+        }
+        return $this->allowedSiteNames;
+    }
+
+    protected function createSite(string $siteName) {
+        $siteName = $this->normalizeSiteName($siteName);
         $this->checkSiteName($siteName);
 
         $realSiteName = $this->getAlias($siteName);
@@ -117,7 +136,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         ]);
     }
 
-    protected function getAlias($siteName) {
+    protected function getAlias(string $siteName): string {
         /*
          * @TODO:
          * $sitos = array(); $aliasFilePath = $this->allSitesDirPath .
@@ -128,9 +147,9 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $siteName;
     }
 
-    protected function checkSiteName($siteName) {
-        if (!$this->isValidSiteName($siteName)) {
-            $this->exit("Invalid site name '$siteName' was provided.");
+    protected function checkSiteName(string $normalizedSiteName) {
+        if (!$this->isValidSiteName($normalizedSiteName)) {
+            $this->exit("Invalid site name '$normalizedSiteName' was provided.");
         }
     }
 
@@ -145,32 +164,25 @@ class SiteManager extends Object implements IServiceManagerAware {
         }
         $siteName = null;
         if (!empty($_SERVER['HTTP_HOST'])) {
-            $siteName = $_SERVER['HTTP_HOST'];
+            $siteName = $this->normalizeSiteName($_SERVER['HTTP_HOST']);
         }
         $this->checkSiteName($siteName);
 
         return $siteName;
     }
 
-    protected function getConfig() {
+    protected function getConfig(): array {
         if (null === $this->config) {
             $this->config = require $this->getAllSitesDirPath() . '/' . self::CONFIG_FILE_NAME;
         }
         return $this->config;
     }
 
-    protected function listSiteNames(): array {
-        if (!$this->siteNames) {
-            // @TODO: Add writing of the detected sites to the config.
-            $this->siteNames = $this->getConfig()['sites'] ?? array_map(
-                    'basename',
-                    Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])
-                );
+    protected function normalizeSiteName($siteName): string {
+        $siteName = strtolower((string) $siteName);
+        if (substr($siteName, 0, 4) === 'www.' && strlen($siteName) > 4) {
+            return substr($siteName, 4);
         }
-        return $this->siteNames;
-    }
-
-    public function setServiceManager(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
+        return $siteName;
     }
 }

@@ -25,7 +25,17 @@ abstract class Request {
         return $this->isDispatched;
     }
 
-    public function setModuleName($moduleName) {
+    public function setHandler(array $handler): Request {
+        return $this->setModuleName($handler[0])
+            ->setControllerName($handler[1])
+            ->setActionName($handler[2]);
+    }
+
+    public function getHandler(): array {
+        return [$this->getModuleName(), $this->getControllerName(), $this->getActionName()];
+    }
+
+    public function setModuleName(string $moduleName) {
         $this->moduleName = $moduleName;
         return $this;
     }
@@ -34,7 +44,7 @@ abstract class Request {
         return $this->moduleName;
     }
 
-    public function setControllerName($controllerName) {
+    public function setControllerName(string $controllerName) {
         $this->controllerName = $controllerName;
         return $this;
     }
@@ -43,7 +53,7 @@ abstract class Request {
         return $this->controllerName;
     }
 
-    public function setActionName($actionName) {
+    public function setActionName(string $actionName) {
         $this->actionName = $actionName;
         return $this;
     }

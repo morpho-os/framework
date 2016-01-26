@@ -4,8 +4,7 @@ namespace System\Controller;
 use Morpho\Di\IServiceManagerAware;
 use Morpho\Web\Controller;
 use Morpho\Code\CodeTool;
-use Morpho\Core\ModuleManager;
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 
 class InstallController extends Controller {
     public function installAction() {
@@ -46,6 +45,7 @@ class InstallController extends Controller {
     }
 
     protected function install(array $dbConfig, bool $dropTables): bool {
+        $schemaManager = null;
         try {
             $db = new Db($dbConfig);
         } catch (\PDOException $e) {
@@ -53,17 +53,22 @@ class InstallController extends Controller {
                 $dbName = $dbConfig['db'];
                 $dbConfig['db'] = '';
                 $db = new Db($dbConfig);
-                $db->createDatabase($dbName);
+                $schemaManager = $db->schemaManager();
+                $schemaManager->createDatabase($dbName);
                 $db->useDatabase($dbName);
                 $dbConfig['db'] = $dbName;
             }
         }
 
+        if (null === $schemaManager) {
+            $schemaManager = $db->schemaManager();
+        }
+
         // Check that we can connect and make queries.
-        $db->listTables();
+        $schemaManager->listTables();
 
         if ($dropTables) {
-            $db->deleteAllTables();
+            $schemaManager->deleteAllTables();
         }
 
         // Set the new DB instance for all services.
@@ -91,7 +96,8 @@ class InstallController extends Controller {
 
     protected function installModules(Db $db) {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $moduleManager->listModules(ModuleManager::UNINSTALLED);
+        $modules = $this->serviceManager->get('siteManager')->getSiteConfig()['modules']
+            ?? $moduleManager->listUninstalledModules();
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {
             $moduleManager->installModule($moduleName);

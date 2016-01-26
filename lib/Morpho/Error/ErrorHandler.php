@@ -98,6 +98,10 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return Environment::isIniSet('log_errors') && !empty(ini_get('error_log'));
     }
 
+    public static function getHashId(\Throwable $e) {
+        return md5($e->getFile() . $e->getLine() . $e->getMessage());
+    }
+
     protected function setIniSettings() {
         $oldIniSettings = [];
         $oldIniSettings['display_errors'] = ini_set('display_errors', 0);

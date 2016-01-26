@@ -7,6 +7,16 @@ namespace System {
         public static EMAIL = /^[^@]+@[^@]+$/;
     }
 
+    export function tr(message: string) {
+        // @TODO
+        return message;
+    }
+
+    export function showUnknownError(message?: string): void {
+        // @TODO
+        alert("Unknown error, please contact support");
+    }
+
     export function redirectToSelf(): void {
         redirectTo(window.location.href);
     }
@@ -17,18 +27,6 @@ namespace System {
 
     export function redirectTo(uri: string): void {
         window.location.href = uri;
-    }
-
-    export function loadScript(src: string): void {
-        let node = document.createElement('script');
-        node.type = 'text/javascript';
-        node.charset = 'utf-8';
-        //node.async = true;
-        document.getElementsByTagName('head')[0].appendChild(node);
-    }
-
-    export function loadStyle() {
-
     }
 
     export class Uri {

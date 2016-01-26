@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Test;
 
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 use Morpho\Fs\Directory;
 
 abstract class DbTestCase extends TestCase {

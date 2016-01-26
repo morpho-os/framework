@@ -59,8 +59,3 @@ class NotImplementedException extends Exception {
 class NotImplementedError extends Error {
 }
 */
-
-function tr(message: string) {
-    // @TODO
-    return message;
-}

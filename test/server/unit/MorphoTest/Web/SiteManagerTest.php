@@ -22,6 +22,62 @@ class SiteManagerTest extends TestCase {
         $this->assertSame($site, $this->siteManager->getCurrentSite());
     }
 
+    public function dataForIsValidSiteName_ValidSiteName() {
+        return [
+            [
+                'example.com',
+            ],
+            [
+                'www.example.com',
+            ],
+            [
+                'localhost',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForIsValidSiteName_ValidSiteName
+     */
+    public function testIsValidSiteName_ValidSiteName($siteName) {
+        $this->siteManager->setAllowedSiteNames(['example.com', 'localhost']);
+        $this->assertTrue($this->siteManager->isValidSiteName($siteName));
+    }
+
+    public function dataForIsValidSiteName_InvalidSiteName() {
+        return [
+            [
+                'foo.example.com',
+            ],
+            [
+                '',
+            ],
+            [
+                null,
+            ],
+            [
+                0,
+            ],
+            [
+                -1,
+            ],
+            [
+                false,
+            ],
+            [
+                'foo.example.com.com',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForIsValidSiteName_InvalidSiteName
+     */
+    public function testIsValidSiteName_InvalidSiteName($siteName) {
+        $this->siteManager->setAllowedSiteNames(['example.com', 'localhost']);
+        $this->assertFalse($this->siteManager->isValidSiteName($siteName));
+    }
+
     public function testSetSite_SiteNameValidation_ThrowsExceptionForEmptySiteName() {
         $site = new Site(['name' => '']);
         $this->siteManager->setSite($site);

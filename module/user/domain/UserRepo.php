@@ -1,7 +1,8 @@
 <?php
 namespace User\Domain;
 
-use Morpho\Db\Repo;
+use Morpho\Base\ArrayTool;
+use Morpho\Db\Sql\Repo;
 use Morpho\Identity\IUserRepo;
 
 class UserRepo extends Repo implements IUserRepo {
@@ -22,11 +23,15 @@ class UserRepo extends Repo implements IUserRepo {
         return $this->getDb()->selectRow("* FROM $this->tableName WHERE id = ?", [$id]);
     }
 
-    public function saveUser(array $user): array {
-        d($user);
+    public function saveUser(array $user) {
+        $this->insertRow(ArrayTool::getItemsWithKeys($user, ['login', 'passwordHash']));
     }
 
     public function deleteUser(array $user) {
-        d($user);
+        $userId = $user['id'];
+        if (empty($userId)) {
+            throw new \UnexpectedValueException("The User ID must be not empty");
+        }
+        $this->deleteRows(['id' => $userId]);
     }
 }

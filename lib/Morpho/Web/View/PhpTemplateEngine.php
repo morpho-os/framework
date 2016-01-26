@@ -11,6 +11,8 @@ use Morpho\Web\Uri;
 class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected $serviceManager;
 
+    private $uri;
+
     public function getPlugin($name) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
@@ -38,8 +40,15 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->serviceManager->get('userManager')->getLoggedInUser();
     }
 
+    public function uri(): Uri {
+        if (null === $this->uri) {
+            $this->uri = $this->serviceManager->get('request')->currentUri();
+        }
+        return $this->uri;
+    }
+
     public function uriWithRedirectToSelf($uri): string {
-        $currentUri = $this->currentUri();
+        $currentUri = $this->uri();
         $relativeRef = $currentUri->relativeRef();
         return $currentUri->parse($currentUri->prependWithBasePath($uri))
             ->appendQueryArgs(['redirect' => $relativeRef])
@@ -47,7 +56,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function link(string $uri, string $text, array $attributes = [], array $options = null): string {
-        $attributes['href'] = $this->currentUri()
+        $attributes['href'] = $this->uri()
             ->prependWithBasePath($uri);
         return TagRenderer::render('a', $attributes, $text, $options);
     }
@@ -84,11 +93,5 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;
-    }
-
-    protected function currentUri(): Uri {
-        return $this->serviceManager
-            ->get('request')
-            ->currentUri();
     }
 }

@@ -127,23 +127,8 @@ class ArrayTool {
         if (null === $options || count($options) === 0) {
             return $defaultOptions;
         }
-        self::assertHasOnlyKeys($options, array_keys($defaultOptions));
+        Assert::hasOnlyKeys($options, array_keys($defaultOptions));
         return array_merge($defaultOptions, $options);
-    }
-
-    public static function assertHasOnlyKeys(array $arr, array $allowedKeys) {
-        $diff = array_diff_key($arr, array_flip($allowedKeys));
-        if (count($diff)) {
-            throw new \RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
-        }
-        return $arr;
-    }
-
-    public static function assertHasKeys(array $arr, array $requiredKeys) {
-        $intersection = array_intersect_key(array_flip($requiredKeys), $arr);
-        if (count($intersection) != count($requiredKeys)) {
-            throw new \RuntimeException("Required items are missing");
-        }
     }
 
     /**

@@ -1,64 +1,64 @@
+<?php $this->var()->pageTitle = 'Installation'; ?>
+
 <h1>Installation</h1>
 
-<div>
-    <form id="install-form" method="post" class="form-horizontal" action="/install">
-        <fieldset>
-            <legend>MySQL database configuration</legend>
+<form id="install-form" method="post" class="form-horizontal" action="/install">
+    <fieldset>
+        <legend>MySQL database configuration</legend>
 
-            <div class="form-group">
-                <label class="control-label col-lg-2">Database</label>
+        <div class="form-group">
+            <label class="control-label col-md-8">Database</label>
 
-                <div class="col-lg-2">
-                    <input type="text" name="db" class="form-control" id="db" required autofocus>
-                </div>
+            <div class="col-md-8">
+                <input type="text" name="db" class="form-control" id="db" required autofocus>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label class="control-label col-lg-2">User</label>
+        <div class="form-group">
+            <label class="control-label col-md-8">User</label>
 
-                <div class="col-lg-2">
-                    <input type="text" name="user" value="root" class="form-control" id="user" required>
-                </div>
+            <div class="col-md-8">
+                <input type="text" name="user" value="root" class="form-control" id="user" required>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label class="control-label col-lg-2">Password</label>
+        <div class="form-group">
+            <label class="control-label col-md-8">Password</label>
 
-                <div class="col-lg-2">
-                    <input type="password" name="password" class="form-control" autocomplete="off" id="password">
-                </div>
+            <div class="col-md-8">
+                <input type="password" name="password" class="form-control" autocomplete="off" id="password">
             </div>
+        </div>
 
-            <div class="form-group" id="host-port-group">
-                <label class="control-label col-lg-2">Host and Port</label>
+        <div class="form-group" id="host-port-group">
+            <label class="control-label col-md-8">Host and Port</label>
 
-                <div class="col-lg-2">
-                    <input type="text" name="host" value="127.0.0.1" class="form-control" placeholder="host">
-                </div>
-                <div class="col-lg-1">
-                    <input type="text" name="port" value="3306" class="form-control" placeholder="port">
-                </div>
+            <div class="col-md-6">
+                <input type="text" name="host" value="127.0.0.1" class="form-control" placeholder="host">
             </div>
-
-            <div class="form-group">
-                <div class="col-lg-offset-2 col-lg-10">
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="dropTables" value="1" id="drop-tables"> Drop all tables in the
-                        '<span id="target-db"></span>' database.
-                    </label>
-                </div>
+            <div class="col-md-2">
+                <input type="text" name="port" value="3306" class="form-control" placeholder="port">
             </div>
+        </div>
 
-            <div class="form-group">
-                <div class="col-lg-offset-2 col-lg-10">
-                    <button type="submit" class="btn btn-default" style="margin-top: 1.5em; display: block;" id="install">
-                        Install
-                    </button>
-                </div>
+        <div class="form-group">
+            <div class="col-md-offset-8 col-md-8">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="dropTables" value="1" id="drop-tables"> Drop all tables in the
+                    '<span id="target-db"></span>' database.
+                </label>
             </div>
-        </fieldset>
-    </form>
-</div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-8 col-md-8">
+                <button type="submit" class="btn btn-default" style="margin-top: 1.5em; display: block;" id="install">
+                    Install
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</form>
 <typeScript index="1000" src="install-form">
 new System.Install.InstallForm('#install-form');
 </typeScript>

@@ -89,13 +89,11 @@ abstract class Router implements IServiceManagerAware {
 
     protected function handleHomeUri(Request $request, $uri) {
         if ($uri === '/') {
-            $mca = $this->serviceManager
+            $handler = $this->serviceManager
                 ->get('settingManager')
-                ->get('homeMCA', 'system');
-            if (false !== $mca) {
-                $request->setModuleName($mca['module'])
-                    ->setControllerName($mca['controller'])
-                    ->setActionName($mca['action'])
+                ->get('homeHandler', 'system');
+            if (false !== $handler) {
+                $request->setHandler($handler)
                     ->setMethod(Request::GET_METHOD);
                 return true;
             }

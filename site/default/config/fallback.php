@@ -20,4 +20,9 @@ return [
     'serviceManager' => 'Morpho\Web\ServiceManager',
     'mode' => 'dev',
     'isDebug' => true,
+    'modules' => [
+        'System',
+        'User',
+        'Bootstrap',
+    ],
 ];

@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Code\Compiler;
 
-interface ICompilerPhase {
-    public function run($input);
+use Morpho\Base\IFn;
+
+interface ICompilerPhase extends IFn {
 }

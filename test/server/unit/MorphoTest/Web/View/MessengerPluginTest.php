@@ -3,8 +3,8 @@ namespace MorphoTest\Web\View;
 
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Messenger;
-use Morpho\Web\Messenger\IMessageStorage;
+use Morpho\Web\Messages\Messenger;
+use Morpho\Web\Messages\IMessageStorage;
 use Morpho\Web\View\MessengerPlugin;
 use Morpho\Base\ArrayIterator;
 

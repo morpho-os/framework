@@ -2,11 +2,9 @@
 namespace Morpho\Code\Compiler;
 
 class Parsing implements ICompilerPhase {
-    public function __construct($parser) {
-        $this->parser = $parser;
-    }
+    private $parser;
 
-    public function run($input) {
-        // TODO: Implement run() method.
+    public function __construct($parser = null) {
+        $this->parser = $parser;
     }
 }

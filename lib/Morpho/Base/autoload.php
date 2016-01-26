@@ -77,9 +77,9 @@ function uniqueName(): string {
 /**
  * Replaces first capsed letter or underscore with dash and small later.
  *
- * @param $string Allowed string are: /[a-zA-Z0-9_- ]/s.
+ * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
  *                       All other characters will be removed.
- * @param $trim Either trailing '-' characters should be removed or not.
+ * @param bool   $trim   Either trailing '-' characters should be removed or not.
  *
  * @return string
  */
@@ -108,9 +108,9 @@ function dasherize($string, bool $trim = true) {
 /**
  * Replaces first capsed letter or dash with underscore and small later.
  *
- * @param $string Allowed string are: /[a-zA-Z0-9_- ]/s.
+ * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
  *                       All other characters will be removed.
- * @param $trim Either trailing '_' characters should be removed or not.
+ * @param bool   $trim   Either trailing '_' characters should be removed or not.
  *
  * @return string
  */
@@ -138,7 +138,7 @@ function underscore($string, bool $trim = true) {
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be always in upper case.
  *
- * @param $string Allowed string are: /[a-zA-Z0-9_- /\\\\]/s.
+ * @param string $string Allowed string are: /[a-zA-Z0-9_- /\\\\]/s.
  *                       All other characters will be removed.
  *                       The '/' will be transformed to '\'.
  *
@@ -169,7 +169,7 @@ function classify($string, bool $toFqName = false): string {
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be in upper case if $lcfirst == true or in lower case if $lcfirst == false.
  *
- * @param $string Allowed string are: /[a-zA-Z0-9_- ]/s.
+ * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
  *                       All other characters will be removed.
  *
  * @return string
@@ -213,10 +213,10 @@ function humanize($string, bool $escape = true) {
  * or only first word:
  * 'foo bar_baz' -> 'Foo bar baz'
  *
- * @param $string
- * @param $ucwords If == true -> all words will be titleized, else only first word will
- *                      titleized.
- * @param $escape Either need to apply escaping of HTML special chars?
+ * @param string $string
+ * @param bool   $ucwords If == true -> all words will be titleized, else only first word will
+ *                        titleized.
+ * @param bool   $escape  Either need to apply escaping of HTML special chars?
  *
  * @return string.
  */
@@ -346,14 +346,14 @@ function normalizeEols(string $s): string {
 /**
  * @param mixed $data
  */
-function jsonEncode($data): string {
+function encodeJson($data): string {
     return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**
  * @return mixed
  */
-function jsonDecode(string $json) {
+function decodeJson(string $json) {
     return json_decode($json, true);
 }
 

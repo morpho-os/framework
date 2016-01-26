@@ -2,11 +2,10 @@
 namespace MorphoTest\Core;
 
 use Morpho\Core\Request;
-use Morpho\Db\SchemaManager;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
 use Morpho\Core\Module;
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 use Morpho\Di\ServiceManager;
 use Morpho\Web\Controller;
 
@@ -14,7 +13,7 @@ class ModuleManagerTest extends DbTestCase {
     public function setUp() {
         parent::setUp();
         $db = $this->createDb();
-        $schemaManager = new SchemaManager($db);
+        $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
         $schemaManager->createTables(\System\Module::getTableDefinitions());
     }
@@ -181,7 +180,7 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertInstanceOf('\Morpho\Di\IServiceManagerAware', $moduleManager);
     }
 
-    public function testDispatchCallsDispatchMethodOfController() {
+    public function testDispatch_CallsDispatchMethodOfController() {
         $moduleManager = $this->createModuleManager();
         $moduleName = 'my-module';
         $module = new \MorphoTest\Core\ModuleManagerTest\My\Module(['name' => $moduleName]);
@@ -263,7 +262,7 @@ class MyModuleManager extends ModuleManager {
 
 namespace MorphoTest\Core\ModuleManagerTest\My;
 
-use Morpho\Db\Db;
+use Morpho\Db\Sql\Db;
 
 class Module extends \Morpho\Core\Module {
     protected $installCalled = false;
