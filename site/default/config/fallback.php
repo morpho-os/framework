@@ -1,6 +1,7 @@
 <?php
 return [
     'cacheDirPath' => __DIR__ . '/../cache',
+    'serviceManager' => 'Morpho\Web\ServiceManager',
     'db' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
@@ -8,6 +9,11 @@ return [
         'password' => '',
         'db' => '',
         'port' => '3306',
+    ],
+    'modules' => [
+        'System',
+        'User',
+        'Bootstrap',
     ],
     'moduleClassLoader' => [
         'useCache' => false,
@@ -17,12 +23,14 @@ return [
         'forceCompileTs' => false,
         'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
     ],
-    'serviceManager' => 'Morpho\Web\ServiceManager',
-    'mode' => 'dev',
-    'isDebug' => true,
-    'modules' => [
-        'System',
-        'User',
-        'Bootstrap',
+    'errorHandler' => [
+        'mailTo' => 'admin@localhost',
+        'mailOnError' => false,
+        'logToFile' => true,
+        'addDumpListener' => true,
+    ],
+    'logger' => [
+        // Possible values: debug, info, notice, warning, error, critical, alert, emergency.
+        'logLevel' => 'debug',
     ],
 ];

@@ -69,30 +69,20 @@ class ServiceManager extends BaseServiceManager {
             $logger->pushHandler(new ErrorLogHandler());
         }
 
-        $siteManager = $this->get('siteManager');
-        $site = $siteManager->getCurrentSite();
-
-        if ($site->isProductionMode()) {
-            // @TODO: Change subject (a new MailHandler may be required for that).
+        $config = $this->config;
+        if ($config['mailOnError']) {
             $logger->pushHandler(
                 new NativeMailerHandler($this->config['mailTo'], 'An error has occurred', Logger::NOTICE)
             );
         }
 
-        $logger->pushHandler(
-            $this->createStreamHandlerForLogger(
-                $site->getLogDirPath() . '/' . $site->getMode() . '-error.log',
-                Logger::NOTICE
-            )
-        );
+        if ($config['logToFile']) {
+            $logger->addSiteLogDirWriter($logger, 'error', Logger::DEBUG);
+        }
 
         $listeners = [];
-
-        $listeners[] = $site->isDebug()
-            ? new LogListener($logger)
-            : new NoDupsListener(new LogListener($logger));
-
-        if ($site->isDevMode() || $site->isDebug()) {
+        $listeners[] = new NoDupsListener(new LogListener($logger));
+        if ($config['addDumpListener']) {
             $listeners[] = new DumpListener();
         }
 
@@ -101,17 +91,7 @@ class ServiceManager extends BaseServiceManager {
 
     protected function createLoggerService() {
         $logger = $this->createLogger('default');
-
-        $site = $this->get('siteManager')->getCurrentSite();
-        if ($site->isDebug()) {
-            $logger->pushHandler(
-                $this->createStreamHandlerForLogger(
-                    $site->getLogDirPath() . '/' . $site->getMode() . '-debug.log',
-                    Logger::DEBUG
-                )
-            );
-        }
-
+        $this->addSiteLogDirWriter($logger, 'debug', $this->logLevelToInt($logger, $this->config['logger']['logLevel']));
         return $logger;
     }
 
@@ -127,11 +107,25 @@ class ServiceManager extends BaseServiceManager {
         return $handler;
     }
 
+    protected function addSiteLogDirWriter($logger, string $baseName, int $logLevel) {
+        $site = $this->get('siteManager')->getCurrentSite();
+        $logger->pushHandler(
+            $this->createStreamHandlerForLogger(
+                $site->getLogDirPath() . '/' . $baseName . '.log',
+                $logLevel
+            )
+        );
+    }
+
     protected function createLogger(string $name): Logger {
         return (new Logger($name))
             ->pushProcessor(new WebProcessor())
             ->pushProcessor(new MemoryUsageProcessor())
             ->pushProcessor(new MemoryPeakUsageProcessor())
             ->pushProcessor(new IntrospectionProcessor());
+    }
+
+    protected function logLevelToInt($logger, string $level): int {
+        return $logger->getLevels()[strtoupper($level)];
     }
 }

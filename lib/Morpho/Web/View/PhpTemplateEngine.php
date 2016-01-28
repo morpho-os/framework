@@ -42,13 +42,13 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     public function uri(): Uri {
         if (null === $this->uri) {
-            $this->uri = $this->serviceManager->get('request')->currentUri();
+            $this->uri = $this->serviceManager->get('request')->uri();
         }
         return $this->uri;
     }
 
     public function uriWithRedirectToSelf($uri): string {
-        $currentUri = $this->uri();
+        $currentUri = clone $this->uri();
         $relativeRef = $currentUri->relativeRef();
         return $currentUri->parse($currentUri->prependWithBasePath($uri))
             ->appendQueryArgs(['redirect' => $relativeRef])

@@ -17,7 +17,7 @@ class PhpTemplateEngineTest extends TestCase {
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
         $request = new Request();
-        $request->setCurrentUri((new Uri())->setBasePath('/base/path'));
+        $request->setUri((new Uri())->setBasePath('/base/path'));
         $serviceManager = new ServiceManager(null, ['request' => $request]);
         $this->engine->attach(new HtmlParserPre($serviceManager))
             ->attach($compiler)

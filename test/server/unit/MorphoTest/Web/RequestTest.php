@@ -26,10 +26,6 @@ class RequestTest extends TestCase {
         $this->assertEquals($handler, $this->request->getHandler());
     }
 
-    public function testCurrentUri_ReturnsUniqueInstance() {
-        $this->assertNotSame($this->request->currentUri(), $this->request->currentUri());
-    }
-
     public function testHasGet() {
         $this->assertFalse($this->request->hasGet('some'));
         $_GET['some'] = 'ok';
@@ -42,12 +38,12 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->request->hasPost('some'));
     }
 
-    public function testCurrentUri_HasValidComponents() {
+    public function testUri_HasValidComponents() {
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
         $_SERVER['HTTP_HOST'] = 'blog.example.com:8042';
         $_SERVER['REQUEST_URI'] = '/top.htm?page=news&skip=10';
         $_SERVER['QUERY_STRING'] = 'page=news&skip=10';
-        $uri = $this->request->currentUri();
+        $uri = $this->request->uri();
         $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->__toString());
     }
 

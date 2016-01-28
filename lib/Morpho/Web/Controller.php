@@ -53,8 +53,9 @@ class Controller extends BaseController {
         }
 
         $response = $request->getResponse();
+
         $response->redirect(
-            $request->currentUri()
+            $request->uri()
                 ->prependWithBasePath($uri),
             true,
             $httpStatusCode
@@ -65,7 +66,7 @@ class Controller extends BaseController {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
-        $uri = $this->request->currentUri();
+        $uri = $this->request->uri();
         if ($queryArgs) {
             $uri->setQuery($queryArgs);
         }

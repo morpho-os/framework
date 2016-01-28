@@ -126,14 +126,14 @@ class Request extends BaseRequest {
      *
      * @param string|array|null $queryArgs
      */
-    public function currentUri(): Uri {
+    public function uri(): Uri {
         if (null === $this->uri) {
             $this->initUri();
         }
-        return clone $this->uri;
+        return $this->uri;
     }
 
-    public function setCurrentUri(Uri $uri) {
+    public function setUri(Uri $uri) {
         $this->uri = $uri;
     }
 

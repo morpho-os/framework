@@ -145,7 +145,7 @@ abstract class Theme extends Module {
 
     protected function initTemplateEngineVars($templateEngine) {
         $templateEngine->setVars([
-            'uri' => $this->serviceManager->get('request')->currentUri(),
+            'uri' => $this->serviceManager->get('request')->uri(),
         ]);
     }
 

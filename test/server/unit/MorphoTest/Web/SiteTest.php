@@ -10,39 +10,6 @@ class SiteTest extends TestCase {
         $this->site = new Site(['dirPath' => $this->getTestDirPath(), 'name' => 'foo']);
     }
 
-    public function testUseDebug() {
-        $this->site->setConfigDirPath($this->getTestDirPath());
-        $this->site->setConfigFileName('config-with-debug.php');
-        $this->assertBoolAccessor([$this->site, 'isDebug'], true);
-    }
-
-    public function testIsMode() {
-        $this->site->setConfigDirPath($this->getTestDirPath());
-        $this->site->setConfigFileName('config-with-mode.php');
-
-        $this->assertFalse($this->site->isProductionMode());
-        $this->assertFalse($this->site->isDevMode());
-        $this->assertFalse($this->site->isStagingMode());
-        $this->assertTrue($this->site->isTestingMode());
-        $this->assertFalse($this->site->isCustomMode());
-
-        $this->site->setMode('production');
-
-        $this->assertTrue($this->site->isProductionMode());
-        $this->assertFalse($this->site->isDevMode());
-        $this->assertFalse($this->site->isStagingMode());
-        $this->assertFalse($this->site->isTestingMode());
-        $this->assertFalse($this->site->isCustomMode());
-
-        $this->site->setMode("foo");
-
-        $this->assertFalse($this->site->isProductionMode());
-        $this->assertFalse($this->site->isDevMode());
-        $this->assertFalse($this->site->isStagingMode());
-        $this->assertFalse($this->site->isTestingMode());
-        $this->assertTrue($this->site->isCustomMode());
-    }
-
     public function testConstructor_SettingProperties() {
         $this->assertEquals($this->site->getDirPath(), $this->site->getDirPath());
         $this->assertEquals('foo', $this->site->getName());

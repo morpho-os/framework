@@ -51,7 +51,11 @@ class Module extends BaseModule {
     public function dispatchError(array $event) {
         $exception = $event[1]['exception'];
         $request = $event[1]['request'];
-        $handleError = function (string $errorType, int $statusCode) use ($request, $exception) {
+        $handleError = function (string $errorType, int $statusCode, bool $logError) use ($request, $exception) {
+            if ($logError) {
+                $this->serviceManager->get('logger')->emergency($exception, ['exception' => $exception]);
+            }
+
             $handler = $this->serviceManager->get('settingManager')
                 ->get($errorType . 'Handler', self::NAME);
             if (false === $handler) {
@@ -71,11 +75,11 @@ class Module extends BaseModule {
             $request->getResponse()->setStatusCode($statusCode);
         };
         if ($exception instanceof AccessDeniedException) {
-            $handleError(self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403);
+            $handleError(self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403, false);
         } elseif ($exception instanceof NotFoundException) {
-            $handleError(self::PAGE_NOT_FOUND_ERROR, Response::STATUS_CODE_404);
+            $handleError(self::PAGE_NOT_FOUND_ERROR, Response::STATUS_CODE_404, false);
         } else {
-            $handleError(self::UNCAUGHT_ERROR, Response::STATUS_CODE_500);
+            $handleError(self::UNCAUGHT_ERROR, Response::STATUS_CODE_500, true);
         }
     }
 

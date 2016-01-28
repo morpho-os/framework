@@ -19,7 +19,7 @@ abstract class HtmlParser extends HtmlSemiParser {
 
     protected function prependUriWithBasePath(string $uri): string {
         return $this->serviceManager->get('request')
-            ->currentUri()
+            ->uri()
             ->prependWithBasePath($uri);
     }
 }
