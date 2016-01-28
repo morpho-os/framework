@@ -53,7 +53,8 @@ class Module extends BaseModule {
         $request = $event[1]['request'];
         $handleError = function (string $errorType, int $statusCode, bool $logError) use ($request, $exception) {
             if ($logError) {
-                $this->serviceManager->get('logger')->emergency($exception, ['exception' => $exception]);
+                $this->serviceManager->get('errorLogger')
+                    ->emergency($exception, ['exception' => $exception]);
             }
 
             $handler = $this->serviceManager->get('settingManager')

@@ -24,13 +24,11 @@ return [
         'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
     ],
     'errorHandler' => [
+        'addDumpListener' => true,
+    ],
+    'errorLogger' => [
         'mailTo' => 'admin@localhost',
         'mailOnError' => false,
         'logToFile' => true,
-        'addDumpListener' => true,
-    ],
-    'logger' => [
-        // Possible values: debug, info, notice, warning, error, critical, alert, emergency.
-        'logLevel' => 'debug',
     ],
 ];
