@@ -156,6 +156,24 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->rebuildEvents($moduleName);
     }
 
+    public function installAndEnableModule(string $moduleName) {
+        $db = $this->db;
+        $db->transaction(
+            function (Db $db) use ($moduleName) {
+                $module = $this->getChild($moduleName);
+
+                $db->schemaManager()->createTables($module->getTableDefinitions());
+
+                $module->install($db);
+                $db->insertRow($this->tableName, ['name' => $moduleName, 'status' => self::DISABLED]);
+
+                $module->enable($db);
+                $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
+            }
+        );
+        $this->rebuildEvents($moduleName);
+    }
+
     public function rebuildEvents($moduleName = null) {
         $modules = null !== $moduleName ? [$moduleName] : $this->listEnabledModules();
         foreach ($modules as $moduleName) {

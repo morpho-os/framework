@@ -52,12 +52,20 @@ class Module extends BaseModule {
         $exception = $event[1]['exception'];
         $request = $event[1]['request'];
         $handleError = function (string $errorType, int $statusCode, bool $logError) use ($request, $exception) {
+            $serviceManager = $this->serviceManager;
+
+            /*
+            if ($serviceManager->get('siteManager')->getCurrentSiteConfig()['throwDispatchErrors']) {
+
+            }
+            */
+
             if ($logError) {
-                $this->serviceManager->get('errorLogger')
+                $serviceManager->get('errorLogger')
                     ->emergency($exception, ['exception' => $exception]);
             }
 
-            $handler = $this->serviceManager->get('settingManager')
+            $handler = $serviceManager->get('settingManager')
                 ->get($errorType . 'Handler', self::NAME);
             if (false === $handler) {
                 $handler = static::defaultErrorHandler($errorType);

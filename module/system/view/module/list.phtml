@@ -1,0 +1,46 @@
+<?php $this->var()->pageTitle = 'Modules'; ?>
+<?php
+$createNewModuleHtml = <<<OUT
+<form id="create-module-form1" action="/system/module/new">
+    <p>
+        <button class="btn btn-default"><i class="fa fa-plus"></i> Create new Module</button>
+    </p>
+</form>
+OUT;
+
+$uriToAction = function ($action) {
+    return '/system/module/' . $action;
+};
+?>
+<div class="loading-indicator fa fa-refresh fa-3x"></div>
+
+<form method="post">
+    <table id="module-list-grid" class="table table-bordered table-striped table-hover table-condensed grid">
+        <tr>
+            <?php // <th style="width: 1%;"><input type="checkbox"></th> ?>
+            <th style="width: 50%;">Module name</th>
+            <th>Actions</th>
+        </tr>
+        <?php foreach ($node->listModules() as $module): ?>
+            <tr>
+                <?php //          <td><input type="checkbox"></td> ?>
+                <td style="width: 50%;"><?= $module['name'] ?></td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <?php if (!$node->isInstalledModule($module)): ?>
+                            <button class="btn btn-default" name="install[<?= $module['name'] ?>]" formaction="<?= $uriToAction('install') ?>">Install</button>
+                        <?php elseif ($node->isEnabledModule($module)): ?>
+                            <button class="btn btn-default" name="disable[<?= $module['name'] ?>]" formaction="<?= $uriToAction('disable') ?>"><i class="fa fa-ban"></i> Disable</button>
+                            <button class="btn btn-default" name="configure[<?= $module['name'] ?>]" formaction="<?= $uriToAction('configure') ?>"><i class="fa fa-wrench"></i> Configure</button>
+                        <?php else: ?>
+                            <button class="btn btn-default" name="enable[<?= $module['name'] ?>]" formaction="<?= $uriToAction('enable') ?>">Enable</button>
+                            <button class="btn btn-default" name="uninstall[<?= $module['name'] ?>]" formaction="<?= $uriToAction('uninstall') ?>">Uninstall</button>
+                        <?php endif ?>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach ?>
+    </table>
+</form>
+
+<?php print $createNewModuleHtml ?>
