@@ -47,11 +47,7 @@ class NoDupsListener implements IExceptionListener {
         $this->gc();
     }
 
-    /**
-     * @param \Exception $e
-     * @return string
-     */
-    protected function createLockId(\Exception $e) {
+    protected function createLockId(\Throwable $e): string {
         $file = $e->getFile();
         $line = $e->getLine();
         $id = md5(
@@ -64,7 +60,6 @@ class NoDupsListener implements IExceptionListener {
                 ]
             )
         );
-
         return $id;
     }
 
@@ -72,12 +67,7 @@ class NoDupsListener implements IExceptionListener {
         return sys_get_temp_dir();
     }
 
-    /**
-     * @param string $dirPath
-     * @return string
-     * @throws \Exception
-     */
-    protected function initLockFileDir($dirPath) {
+    protected function initLockFileDir(string $dirPath): string {
         $dirPath = rtrim($dirPath, '\\/') . "/" . strtolower(str_replace('\\', '-', get_class($this)));
         if (!@is_dir($dirPath)) {
             if (!@mkdir($dirPath, 0777, true)) {
@@ -85,15 +75,12 @@ class NoDupsListener implements IExceptionListener {
                 throw new \Exception("Unable to create directory '{$dirPath}': {$error['message']}");
             }
         }
-
         return $dirPath;
     }
 
-    protected function isLockExpired($id, \Exception $exception) {
+    protected function isLockExpired($id, \Throwable $exception) {
         $filePath = $this->getLockFilePath($id);
-
-        return !file_exists($filePath)
-        || filemtime($filePath) < time() - $this->period;
+        return !file_exists($filePath) || (filemtime($filePath) < time() - $this->period);
     }
 
     protected function getLockFilePath($id) {

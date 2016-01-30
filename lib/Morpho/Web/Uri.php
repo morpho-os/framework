@@ -34,7 +34,7 @@ class Uri extends BaseUri {
         return $this;
     }
 
-    public function removeQueryArg($name): self {
+    public function unsetQueryArg($name): self {
         $query = $this->getQuery();
         if (null !== $query) {
             $queryArgs = self::stringToQueryArgs($query);

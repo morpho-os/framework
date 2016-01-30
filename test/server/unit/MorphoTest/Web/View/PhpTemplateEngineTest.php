@@ -13,7 +13,6 @@ use Morpho\Web\Request;
 class PhpTemplateEngineTest extends TestCase {
     public function setUp() {
         $this->engine = new PhpTemplateEngine();
-        $this->initCliEnv();
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
         $request = new Request();

@@ -223,6 +223,12 @@ class File extends Entry {
         return $uniquePath;
     }
 
+    public static function ensureIsReadable(string $filePath) {
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new IoException("The file '$filePath' is not readable");
+        }
+    }
+
     protected static function filePutContentsOptionsToFlags(array $options): int {
         $options = ArrayTool::handleOptions(
             $options,

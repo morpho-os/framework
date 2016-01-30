@@ -20,7 +20,7 @@ class Directory extends Entry {
         // @TODO: Handle $options
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         // @TODO: Handle dots and relative paths: '..', '.' a
-        self::ensureDirExists($sourceDirPath);
+        self::ensureExists($sourceDirPath);
         if (!is_dir($sourceDirPath)) {
             throw new IoException("Source path must be a directory.");
         }
@@ -200,8 +200,7 @@ class Directory extends Entry {
      * The base for this method was taken from the eZ Components, ezcBaseFile::removeRecursive()
      */
     public static function delete(string $dirPath, bool $deleteSelf = true) {
-        self::ensureDirExists($dirPath);
-
+        self::ensureExists($dirPath);
         $sourceDirPath = realpath($dirPath);
         if (!$sourceDirPath) {
             throw new IoException("The directory '$dirPath' could not be found.");
@@ -300,7 +299,7 @@ class Directory extends Entry {
         return is_file($path) || is_dir($path) || is_link($path);
     }
 
-    private static function ensureDirExists(string $dirPath) {
+    public static function ensureExists(string $dirPath) {
         if (!is_dir($dirPath) || empty($dirPath)) {
             throw new IoException("The '$dirPath' directory does not exist.");
         }

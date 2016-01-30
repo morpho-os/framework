@@ -9,10 +9,6 @@ use Morpho\Web\SiteManager;
 use Morpho\Web\Uri;
 
 class ControllerTest extends TestCase {
-    public function setUp() {
-        $this->initCliEnv();
-    }
-
     public function testRedirectToUri() {
         $controller = new MyController();
         $request = new Request();

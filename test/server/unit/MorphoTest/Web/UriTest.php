@@ -30,12 +30,12 @@ class UriTest extends TestCase {
         $this->assertEquals([], Uri::stringToQueryArgs(''));
     }
 
-    public function testRemoveQueryArg() {
+    public function testUnsetQueryArg() {
         $uri = '/system/module/rebuild-routes?redirect=/system/module/rebuild-routes&ok=test';
-        $this->assertEquals('/system/module/rebuild-routes?ok=test', (new Uri($uri))->removeQueryArg('redirect')->__toString());
+        $this->assertEquals('/system/module/rebuild-routes?ok=test', (new Uri($uri))->unsetQueryArg('redirect')->__toString());
 
         $uri = '/system/foo';
-        $this->assertEquals('/system/foo', (new Uri($uri))->removeQueryArg('redirect'));
+        $this->assertEquals('/system/foo', (new Uri($uri))->unsetQueryArg('redirect'));
     }
 
     public function dataForHasAuthority() {

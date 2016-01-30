@@ -27,8 +27,8 @@ class ServiceManager implements IServiceManager {
      * This method uses logic found in the Symfony\Component\DependencyInjection\Container::get().
      */
     public function get(string $id) {
+        // Resolve alias:
         $id = strtolower($id);
-
         while (isset($this->aliases[$id])) {
             $id = $this->aliases[$id];
         }

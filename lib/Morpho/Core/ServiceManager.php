@@ -1,7 +1,6 @@
 <?php
 namespace Morpho\Core;
 
-use Morpho\Base\Environment;
 use Morpho\Base\MethodNotFoundException;
 use Morpho\Di\ServiceManager as BaseServiceManager;
 use Morpho\Db\Sql\Db;
@@ -23,10 +22,6 @@ abstract class ServiceManager extends BaseServiceManager {
             return $this->get(substr($method, 3));
         }
         throw new MethodNotFoundException($this, $method);
-    }
-
-    protected function createEnvironmentService() {
-        return new Environment();
     }
 
     protected function createDbService() {

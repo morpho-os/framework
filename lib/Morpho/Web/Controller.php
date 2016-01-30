@@ -45,7 +45,7 @@ class Controller extends BaseController {
     protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
         $request = $this->request;
         if ($request->hasGet('redirect')) {
-            $uri = (new Uri($request->getGet('redirect')))->removeQueryArg('redirect')->__toString();
+            $uri = (new Uri($request->getGet('redirect')))->unsetQueryArg('redirect')->__toString();
         }
 
         if ($request->isAjax()) {

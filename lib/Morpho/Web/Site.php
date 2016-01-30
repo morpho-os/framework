@@ -23,7 +23,6 @@ class Site {
 
     protected $publicDirPath;
 
-
     protected $configFileName = self::CONFIG_FILE_NAME;
 
     const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
@@ -31,8 +30,11 @@ class Site {
 
     public function __construct(array $options = []) {
         Assert::hasOnlyKeys($options, ['dirPath', 'name']);
-        foreach ($options as $name => $value) {
-            $this->$name = $value;
+        if (isset($options['dirPath'])) {
+            $this->setDirPath($options['dirPath']);
+        }
+        if (isset($options['name'])) {
+            $this->setName($options['name']);
         }
     }
 

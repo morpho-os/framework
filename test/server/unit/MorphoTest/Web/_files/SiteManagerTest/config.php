@@ -1,10 +1,10 @@
 <?php
 return [
     'sites'       => [
-        'test',
-        'bar',
+        'some' => 'first-site',
         'default',
+        '192.0.2.3' => 'by-ip',
         'foo',
     ],
-    'defaultSite' => 'my-default',
+    'useMultiSiting' => false,
 ];

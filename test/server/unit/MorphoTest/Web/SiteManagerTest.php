@@ -5,15 +5,15 @@ use Morpho\Test\TestCase;
 use Morpho\Web\SiteManager;
 use Morpho\Web\Site;
 
+
 class SiteManagerTest extends TestCase {
     public function setUp() {
         $this->siteManager = new class() extends SiteManager {
             protected function exit(string $message) {
-                $this->exitMessage = $message;
+                throw new ExitException($message);
             }
         };
         $this->siteManager->setAllSitesDirPath($this->getTestDirPath());
-        $this->siteManager->useMultiSiting(true);
     }
 
     public function testSetSite_SetsSiteAsCurrentByDefault() {
@@ -22,116 +22,112 @@ class SiteManagerTest extends TestCase {
         $this->assertSame($site, $this->siteManager->getCurrentSite());
     }
 
-    public function dataForIsValidSiteName_ValidSiteName() {
-        return [
-            [
-                'example.com',
-            ],
-            [
-                'www.example.com',
-            ],
-            [
-                'localhost',
-            ],
-        ];
+    public function testGetSite_ThrowsExceptionForNonExistingSiteName() {
+        $this->setExpectedException('RuntimeException', "Not allowed site name was provided");
+        $this->siteManager->getSite('nonexistent');
     }
 
-    /**
-     * @dataProvider dataForIsValidSiteName_ValidSiteName
-     */
-    public function testIsValidSiteName_ValidSiteName($siteName) {
-        $this->siteManager->setAllowedSiteNames(['example.com', 'localhost']);
-        $this->assertTrue($this->siteManager->isValidSiteName($siteName));
+    public function testGetCurrentSite_ReturnsTheSameSiteInstance() {
+        $this->assertSame($this->siteManager->getCurrentSite(), $this->siteManager->getCurrentSite());
     }
 
-    public function dataForIsValidSiteName_InvalidSiteName() {
+    public function dataForGetCurrentSite_ReturnsDefaultSiteWhenMultiSitingDisabled() {
         return [
-            [
-                'foo.example.com',
-            ],
             [
                 '',
             ],
             [
-                null,
+                'bar',
             ],
-            [
-                0,
-            ],
-            [
-                -1,
-            ],
-            [
-                false,
-            ],
-            [
-                'foo.example.com.com',
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForIsValidSiteName_InvalidSiteName
-     */
-    public function testIsValidSiteName_InvalidSiteName($siteName) {
-        $this->siteManager->setAllowedSiteNames(['example.com', 'localhost']);
-        $this->assertFalse($this->siteManager->isValidSiteName($siteName));
-    }
-
-    public function testSetSite_SiteNameValidation_ThrowsExceptionForEmptySiteName() {
-        $site = new Site(['name' => '']);
-        $this->siteManager->setSite($site);
-        $this->assertEquals("Invalid site name '' was provided.", $this->siteManager->exitMessage);
-    }
-
-    public function testGetSite_ThrowsExceptionForNonExistingSiteName() {
-        $this->siteManager->getSite('nonexistent');
-        $this->assertEquals("Invalid site name 'nonexistent' was provided.", $this->siteManager->exitMessage);
-    }
-
-    public function dataForGetCurrentSite_ExistingSite() {
-        return [
             [
                 'foo',
             ],
             [
-                'bar',
+                'someINvalid value',
             ],
         ];
     }
 
     /**
-     * @dataProvider dataForGetCurrentSite_ExistingSite
+     * @dataProvider dataForGetCurrentSite_ReturnsDefaultSiteWhenMultiSitingDisabled
      */
-    public function testGetCurrentSite_ExistingSite($siteName) {
+    public function testGetCurrentSite_ReturnsDefaultSiteWhenMultiSitingDisabled($siteName) {
         $_SERVER['HTTP_HOST'] = $siteName;
-        $this->assertEquals($siteName, $this->siteManager->getCurrentSite()->getName());
+        $this->siteManager->useMultiSiting(false);
+        $this->assertEquals('first-site', $this->siteManager->getCurrentSite()->getName());
     }
 
-    public function testGetCurrentSite_ReturnsTheSameSiteInstance() {
-        $_SERVER['HTTP_HOST'] = 'foo';
-        $this->assertSame($this->siteManager->getCurrentSite(), $this->siteManager->getCurrentSite());
+    public function dataForGetCurrentSite_ReturnsSiteByHostFieldWhenMultiSitingEnabled() {
+        return $this->dataWithValidSiteNames();
     }
 
-    public function testGetSiteConfig() {
-        $_SERVER['HTTP_HOST'] = 'test';
-        $this->assertEquals(['foo' => 'bar'], $this->siteManager->getSiteConfig());
+    /**
+     * @dataProvider dataForGetCurrentSite_ReturnsSiteByHostFieldWhenMultiSitingEnabled
+     */
+    public function testGetCurrentSite_ReturnsSiteByHostFieldWhenMultiSitingEnabled($siteName, $expectedSite) {
+        $_SERVER['HTTP_HOST'] = $siteName;
+        $this->siteManager->useMultiSiting(true);
+        $this->assertEquals($expectedSite ?: $siteName, $this->siteManager->getCurrentSite()->getName());
     }
 
-    public function testGetCurrentSiteDirPath() {
-        $_SERVER['HTTP_HOST'] = 'foo';
+    public function testGetCurrentSite_ExitsWhenHostFieldEmptyAndMultiSitingEnabled() {
+        $this->siteManager->useMultiSiting(true);
+        $_SERVER['HTTP_HOST'] = '';
+        $this->setExpectedException(__NAMESPACE__ . '\\ExitException', "Empty value of the 'Host' field");
+        $this->siteManager->getCurrentSite();
+    }
+
+    public function testGetCurrentSiteConfig() {
+        $this->assertEquals(['foo' => 'bar'], $this->siteManager->getCurrentSiteConfig());
+    }
+
+    public function dataForGetCurrentSite_SetsSiteDir() {
+        return $this->dataWithValidSiteNames();
+    }
+
+    /**
+     * @dataProvider dataForGetCurrentSite_SetsSiteDir
+     */
+    public function testGetCurrentSite_SetsSiteDir($siteName, $expectedSite) {
+        $_SERVER['HTTP_HOST'] = $siteName;
+        $this->siteManager->useMultiSiting(true);
         $this->assertEquals(
-            $this->getTestDirPath() . '/foo',
+            $this->getTestDirPath() . '/' . ($expectedSite ?: $siteName),
             $this->siteManager->getCurrentSite()->getDirPath()
         );
     }
 
     public function testUseMultiSiting() {
-        $this->assertBoolAccessor([new SiteManager, 'useMultiSiting'], false);
+        $this->assertBoolAccessor([$this->siteManager, 'useMultiSiting'], false);
     }
 
-    public function testReturnsDefaultSiteWhenMultiSitingDisabled() {
-        $this->siteManager->useMultiSiting(false);
-        $this->assertEquals('my-default', $this->siteManager->getCurrentSiteName());
+    public function testGetCurrentSite_CanUseIpv4() {
+        $this->siteManager->useMultiSiting(true);
+        $_SERVER['HTTP_HOST'] = '192.0.2.3';
+        $this->assertEquals('by-ip', $this->siteManager->getCurrentSite()->getName());
     }
+
+    public function testGetCurrentSite_CanUseIpv6() {
+        $this->markTestIncomplete();
+    }
+
+    private function dataWithValidSiteNames() {
+        return [
+            [
+                'foo',
+                null,
+            ],
+            [
+                'default',
+                null,
+            ],
+            [
+                'some',
+                'first-site',
+            ],
+        ];
+    }
+}
+
+class ExitException extends \RuntimeException {
 }

@@ -40,6 +40,10 @@ class ServiceManager extends BaseServiceManager {
         return new Request();
     }
 
+    protected function createEnvironmentService() {
+        return new Environment();
+    }
+
     protected function createTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();

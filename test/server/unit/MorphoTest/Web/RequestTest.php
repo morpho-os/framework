@@ -6,7 +6,6 @@ use Morpho\Web\Request;
 
 class RequestTest extends TestCase {
     public function setUp() {
-        $this->initCliEnv();
         $this->request = new Request();
     }
 

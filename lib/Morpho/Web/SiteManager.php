@@ -4,6 +4,7 @@ namespace Morpho\Web;
 use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };
+use Morpho\Base\Assert;
 use Morpho\Fs\Directory;
 use Morpho\Fs\Path;
 use Morpho\Base\Object;
@@ -27,10 +28,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
 
-    /**
-     * @param null|bool $flag
-     */
-    public function useMultiSiting($flag = null): bool {
+    public function useMultiSiting(bool $flag = null): bool {
         if (null !== $flag) {
             $this->useMultiSiting = $flag;
         }
@@ -40,7 +38,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->useMultiSiting;
     }
 
-    public function isFallbackMode($flag = null) {
+    public function isFallbackMode(bool $flag = null): bool {
         if (null !== $flag) {
             $this->isFallbackMode = $flag;
             return $flag;
@@ -51,124 +49,105 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->getCurrentSite()->isFallbackConfigUsed();
     }
 
-    public function getCurrentSite() {
+    public function getCurrentSite(): Site {
         if (null === $this->currentSiteName) {
-            $this->currentSiteName = $this->discoverCurrentSiteName();
+            $siteName = $this->discoverCurrentSiteName();
+            if (!isset($this->sites[$siteName])) {
+                $this->sites[$siteName] = $this->createSite($siteName);
+            }
+            $this->currentSiteName = $siteName;
         }
-
-        return $this->getSite($this->currentSiteName);
+        return $this->sites[$this->currentSiteName];
     }
 
-    public function getCurrentSiteName() {
-        return $this->getCurrentSite()->getName();
-    }
-
-    public function setSite(Site $site, bool $makeCurrent = true) {
-        $siteName = $this->normalizeSiteName($site->getName());
-        $this->checkSiteName($siteName);
+    public function setSite(Site $site, bool $setAsCurrent = true) {
+        $siteName = $site->getName();
+        $this->ensureIsAllowedSiteName($siteName);
         $this->sites[$siteName] = $site;
-        if ($makeCurrent) {
+        if ($setAsCurrent) {
             $this->currentSiteName = $siteName;
         }
     }
 
-    public function getSite(string $siteName) {
-        $siteName = $this->normalizeSiteName($siteName);
+    public function getSite(string $siteName): Site {
         if (!isset($this->sites[$siteName])) {
+            $this->ensureIsAllowedSiteName($siteName);
             $this->sites[$siteName] = $this->createSite($siteName);
         }
-
         return $this->sites[$siteName];
     }
 
-    public function setSiteConfig(array $config) {
+    public function setCurrentSiteConfig(array $config) {
         $this->getCurrentSite()->setConfig($config);
     }
 
-    public function getSiteConfig() {
+    public function getCurrentSiteConfig(): array {
         return $this->getCurrentSite()->getConfig();
     }
 
-    public function setAllSitesDirPath($dirPath) {
+    public function setAllSitesDirPath(string $dirPath) {
         $this->allSitesDirPath = Path::normalize($dirPath);
     }
 
-    public function getAllSitesDirPath() {
+    public function getAllSitesDirPath(): string {
         if (null === $this->allSitesDirPath) {
             $this->allSitesDirPath = SITE_DIR_PATH;
         }
-
         return $this->allSitesDirPath;
-    }
-
-    public function isValidSiteName($siteName): bool {
-        return !empty($siteName) && in_array($this->normalizeSiteName($siteName), $this->getAllowedSiteNames(), true);
     }
 
     public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
 
-    public function setAllowedSiteNames(array $siteNames) {
-        $this->allowedSiteNames = $siteNames;
-    }
-
-    public function getAllowedSiteNames(): array {
-        if (!$this->allowedSiteNames) {
-            // @TODO: Add writing of the detected sites to the config.
-            $this->allowedSiteNames = $this->getConfig()['sites'] ?? array_map(
-                    'basename',
-                    Directory::listDirs($this->getAllSitesDirPath(), null, ['recursive' => false])
-                );
+    protected function ensureIsAllowedSiteName(string $siteName) {
+        if (false === $this->resolveSiteName($siteName)) {
+            throw new \RuntimeException("Not allowed site name was provided");
         }
-        return $this->allowedSiteNames;
     }
 
-    protected function createSite(string $siteName) {
-        $siteName = $this->normalizeSiteName($siteName);
-        $this->checkSiteName($siteName);
-
-        $realSiteName = $this->getAlias($siteName);
-
-        return new Site([
-            'name'    => $realSiteName,
-            'dirPath' => $this->getAllSitesDirPath() . '/' . $realSiteName,
-        ]);
-    }
-
-    protected function getAlias(string $siteName): string {
-        /*
-         * @TODO:
-         * $sitos = array(); $aliasFilePath = $this->allSitesDirPath .
-         * '/site-alias.php'; // site-alias.php file can define aliases for
-         * sites. if (file_exists($aliasFilePath)) { require $aliasFilePath; }
-         */
-
+    protected function discoverCurrentSiteName(): string {
+        $sites = $this->getConfig()['sites'];
+        if (!$this->useMultiSiting()) {
+            return array_shift($sites);
+        }
+        $siteName = $_SERVER['HTTP_HOST'] ?? null;
+        if (empty($siteName)) {
+            $this->exit("Empty value of the 'Host' field");
+        }
+        $siteName = strtolower((string)$siteName);
+        if (substr($siteName, 0, 4) === 'www.' && strlen($siteName) > 4) {
+            $siteName = substr($siteName, 4);
+        }
+        $siteName = $this->resolveSiteName($siteName);
+        if (false === $siteName) {
+            $this->exit("Invalid value of the 'Host' field");
+        }
         return $siteName;
     }
 
-    protected function checkSiteName(string $normalizedSiteName) {
-        if (!$this->isValidSiteName($normalizedSiteName)) {
-            $this->exit("Invalid site name '$normalizedSiteName' was provided.");
+    /**
+     * @param string|bool Returns site name on success and false otherwise.
+     */
+    protected function resolveSiteName(string $siteName) {
+        if (null === $this->allowedSiteNames) {
+            $sites = $this->getConfig()['sites'];
+            foreach ($sites as $alias => $resolvedSiteName) {
+                if (is_numeric($alias)) {
+                    if ($resolvedSiteName === $siteName) {
+                        return $siteName;
+                    }
+                } elseif ($alias === $siteName) {
+                    return $resolvedSiteName;
+                }
+            }
         }
+        return false;
     }
 
     protected function exit(string $message) {
-        header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
-        exit("<h2>Bad request (400).</h2>");
-    }
-
-    protected function discoverCurrentSiteName() {
-        if (!$this->useMultiSiting()) {
-            return $this->getConfig()['defaultSite'];
-        }
-        $siteName = null;
-        if (!empty($_SERVER['HTTP_HOST'])) {
-            $siteName = $this->normalizeSiteName($_SERVER['HTTP_HOST']);
-        }
-        $this->checkSiteName($siteName);
-
-        return $siteName;
+        header(Environment::httpProtocolVersion() . ' 400 Bad Request', true, 400);
+        exit("<h2>Bad request (code: 400)</h2>");
     }
 
     protected function getConfig(): array {
@@ -178,11 +157,12 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->config;
     }
 
-    protected function normalizeSiteName($siteName): string {
-        $siteName = strtolower((string) $siteName);
-        if (substr($siteName, 0, 4) === 'www.' && strlen($siteName) > 4) {
-            return substr($siteName, 4);
-        }
-        return $siteName;
+    protected function createSite(string $siteName): Site {
+        $siteDirPath = $this->getAllSitesDirPath() . '/' . $siteName;
+        Directory::ensureExists($siteDirPath);
+        return new Site([
+            'name'    => $siteName,
+            'dirPath' => $siteDirPath,
+        ]);
     }
 }

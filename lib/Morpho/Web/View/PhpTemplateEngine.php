@@ -49,6 +49,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     public function uriWithRedirectToSelf($uri): string {
         $currentUri = clone $this->uri();
+        $currentUri->unsetQueryArg('redirect');
         $relativeRef = $currentUri->relativeRef();
         return $currentUri->parse($currentUri->prependWithBasePath($uri))
             ->appendQueryArgs(['redirect' => $relativeRef])

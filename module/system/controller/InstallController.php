@@ -96,7 +96,7 @@ class InstallController extends Controller {
 
     protected function installModules(Db $db) {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $this->serviceManager->get('siteManager')->getSiteConfig()['modules']
+        $modules = $this->serviceManager->get('siteManager')->getCurrentSiteConfig()['modules']
             ?? $moduleManager->listUninstalledModules();
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {

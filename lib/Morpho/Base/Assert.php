@@ -2,12 +2,6 @@
 namespace Morpho\Base;
 
 class Assert {
-    public static function fileReadable($filePath) {
-        self::isTrue(
-            is_file($filePath) && is_readable($filePath), "The file '$filePath' is not readable"
-        );
-    }
-
     public static function isOneOf($needle, array $haystack) {
         self::isTrue(in_array($needle, $haystack, true), 'The value is not one of the provided values');
     }
@@ -17,7 +11,6 @@ class Assert {
         if (count($diff)) {
             throw new \RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
         }
-        return $arr;
     }
 
     public static function hasKeys(array $arr, array $requiredKeys) {

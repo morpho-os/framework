@@ -1,7 +1,8 @@
 <?php
 namespace Morpho\Test;
 
-use Morpho\Base\Environment;
+use Morpho\Cli\Environment as CliEnvironment;
+use Morpho\Web\Environment as WebEnvironment;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 
@@ -111,9 +112,5 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
     protected function randomString() {
         return md5(uniqid(microtime(true)));
-    }
-
-    protected function initCliEnv() {
-        Environment::initServerVarsForCli();
     }
 }

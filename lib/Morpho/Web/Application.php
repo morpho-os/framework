@@ -9,7 +9,7 @@ use Morpho\Error\ErrorHandler;
 class Application extends BaseApplication {
     protected function createServiceManager(): IServiceManager {
         $siteManager = new SiteManager();
-        $siteConfig = $siteManager->getSiteConfig();
+        $siteConfig = $siteManager->getCurrentSiteConfig();
         $services = [
             'app'         => $this,
             'siteManager' => $siteManager,
@@ -38,6 +38,7 @@ class Application extends BaseApplication {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
         }
+        d($e);
         die("Unable to handle the request. Please contact site's support and try to return to this page again later.");
     }
 }

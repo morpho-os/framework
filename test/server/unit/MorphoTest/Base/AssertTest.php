@@ -27,7 +27,7 @@ class AssertTest extends TestCase {
      */
     public function testHasKeys_Invalid($actual, $requiredKeys) {
         $this->setExpectedException('\RuntimeException', 'Required items are missing');
-        Assert::HasKeys($actual, $requiredKeys);
+        Assert::hasKeys($actual, $requiredKeys);
     }
 
     public function dataForHasKeys_Valid() {
@@ -75,7 +75,7 @@ class AssertTest extends TestCase {
      */
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
         $this->setExpectedException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
-        Assert::HasOnlyKeys($actual, $allowedKeys);
+        Assert::hasOnlyKeys($actual, $allowedKeys);
     }
 
     public function dataForHasOnlyKeys_Valid() {
@@ -103,7 +103,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForHasOnlyKeys_Valid
      */
     public function testHasOnlyKeys_Valid($actual, $allowedKeys) {
-        Assert::HasOnlyKeys($actual, $allowedKeys);
+        Assert::hasOnlyKeys($actual, $allowedKeys);
     }
 
     public function dataForIsOneOf_Invalid() {

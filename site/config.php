@@ -1,8 +1,7 @@
 <?php
-return array(
+return [
     'sites' => [
         'default',
     ],
     'useMultiSiting' => false,
-    'defaultSite' => 'default',
-);
+];
