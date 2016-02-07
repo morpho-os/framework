@@ -20,7 +20,7 @@ class PhpTemplateEngineTest extends TestCase {
         $serviceManager = new ServiceManager(null, ['request' => $request]);
         $this->engine->attach(new HtmlParserPre($serviceManager))
             ->attach($compiler)
-            ->attach(new HtmlParserPost($serviceManager, true, ''));
+            ->attach(new HtmlParserPost($serviceManager, true, '', []));
         $this->engine->setServiceManager($serviceManager);
         $this->engine->setCacheDirPath($this->getTmpDirPath());
         $this->engine->useCache(false);

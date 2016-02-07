@@ -17,12 +17,15 @@ class HtmlParserPost extends HtmlParser {
 
     protected $nodeBinDirPath;
 
+    protected $tsOptions;
+
     private $scriptIndex = 0;
 
-    public function __construct(ServiceManager $serviceManager, bool $forceCompileTs, string $nodeBinDirPath) {
+    public function __construct(ServiceManager $serviceManager, bool $forceCompileTs, string $nodeBinDirPath, array $tsOptions) {
         parent::__construct($serviceManager);
         $this->forceCompileTs = $forceCompileTs;
         $this->nodeBinDirPath = $nodeBinDirPath;
+        $this->tsOptions = $tsOptions;
     }
 
     protected function containerTypeScript($tag) {
@@ -66,14 +69,7 @@ class HtmlParserPost extends HtmlParser {
     }
 
     protected function runTsc(string $inFilePath, string $outFilePath) {
-        $options = [
-            '--removeComments',
-            '--noImplicitAny',
-            '--suppressImplicitAnyIndexErrors',
-            '--noEmitOnError',
-            '--newLine LF',
-            '--out ' . escapeshellarg($outFilePath),
-        ];
+        $options = array_merge($this->tsOptions, ['--out ' . escapeshellarg($outFilePath)]);
         // Note: node and tsc must be in $PATH.
         cmdEx("PATH=\$PATH:{$this->nodeBinDirPath} tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
     }

@@ -43,6 +43,10 @@ function cmdEx(string $command, $args = null): CommandResult {
     return $result;
 }
 
+function cmdSu(string $cmd) {
+    cmdEx('sudo bash -c "' . $cmd . '"');
+}
+
 function cmd(string $command, array $args = null): CommandResult {
     ob_start();
     passthru(
@@ -61,7 +65,7 @@ function pipe(array $commands) {
     throw new NotImplementedException();
 }
 
-function askYesNo($question) {
+function askYesNo(string $question) {
     echo $question . "? (y/n): ";
     do {
         $answer = strtolower(trim(fgets(STDIN)));
@@ -73,4 +77,9 @@ function askYesNo($question) {
             writeLn("Please answer: y, Y, n, N");
         }
     } while (true);
+}
+
+function ask(string $question): string {
+    echo $question;
+    return strtolower(trim(fgets(STDIN)));
 }

@@ -51,7 +51,7 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->attach(new HtmlParserPre($this))
             ->attach(new Compiler())
-            ->attach(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath']));
+            ->attach(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']));
         return $templateEngine;
     }
 
@@ -89,7 +89,7 @@ class ServiceManager extends BaseServiceManager {
         $config = $this->config['errorLogger'];
         if ($config['mailOnError']) {
             $logger->pushHandler(
-                new NativeMailerHandler($this->config['mailTo'], 'An error has occurred', Logger::NOTICE)
+                new NativeMailerHandler($config['mailTo'], 'An error has occurred', $config['mailFrom'], Logger::NOTICE)
             );
         }
 

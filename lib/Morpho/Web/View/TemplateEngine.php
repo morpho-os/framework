@@ -38,7 +38,13 @@ abstract class TemplateEngine extends FilterChain {
         unset($filePath);
         extract($vars, EXTR_SKIP);
         ob_start();
-        require $__filePath;
+        try {
+            require $__filePath;
+        } catch (\Throwable $e) {
+            // Don't output any result in case of Error
+            ob_end_clean();
+            throw $e;
+        }
         return trim(ob_get_clean());
     }
 

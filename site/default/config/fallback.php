@@ -22,13 +22,23 @@ return [
         'useCache' => false,
         'forceCompileTs' => false,
         'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
+        'tsOptions' => [
+            '--forceConsistentCasingInFileNames',
+            '--removeComments',
+            '--noImplicitAny',
+            '--suppressImplicitAnyIndexErrors',
+            '--noEmitOnError',
+            '--newLine LF',
+            '--allowJs',
+        ],
     ],
     'errorHandler' => [
         'addDumpListener' => true,
     ],
     'errorLogger' => [
-        'mailTo' => 'admin@localhost',
         'mailOnError' => false,
+        'mailFrom' => 'admin@localhost',
+        'mailTo' => 'admin@localhost',
         'logToFile' => true,
     ],
 ];

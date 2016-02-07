@@ -14,13 +14,13 @@ abstract class Theme extends Module {
 
     protected $layout = 'index';
 
-    protected $basePaths = [];
+    protected $baseDirPaths = [];
 
     protected $templateEngine;
 
     private $isLayoutRendered = false;
 
-    private $themeDirAdded = false;
+    private $isThemeDirAdded = false;
 
     public function setTemplateEngine($templateEngine) {
         $this->templateEngine = $templateEngine;
@@ -34,10 +34,7 @@ abstract class Theme extends Module {
         return $this->templateEngine;
     }
 
-    /**
-     * @param bool|null $flag
-     */
-    public function isLayoutRendered($flag = null): bool {
+    public function isLayoutRendered(bool $flag = null): bool {
         if ($flag !== null) {
             $this->isLayoutRendered = $flag;
         }
@@ -66,8 +63,9 @@ abstract class Theme extends Module {
             $this->layout = dasherize($args['layout']);
         }
         $vars['node'] = $args['node'];
+        $filePath = dasherize($vars['node']->getName()) . '/' . dasherize($args['name']);
         return $this->renderFile(
-            dasherize($vars['node']->getName()) . '/' . dasherize($args['name']),
+            $filePath,
             $vars,
             isset($args['instanceVars']) ? $args['instanceVars'] : null
         );
@@ -87,14 +85,15 @@ abstract class Theme extends Module {
             $request->replace((array) $data);
         }
         */
-        if (!$this->themeDirAdded) {
-            $this->addBasePath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
-            $this->themeDirAdded = true;
+        if (!$this->isThemeDirAdded) {
+            $this->addBaseDirPath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
+            $this->isThemeDirAdded = true;
         }
 
         $request = $event[1]['request'];
-        $module = $this->getParent('ModuleManager')->getChild($request->getModuleName());
-        $this->addBasePath(
+        $moduleName = $request->getModuleName();
+        $module = $this->getParent('ModuleManager')->getChild($moduleName);
+        $this->addBaseDirPath(
             $module->getClassDirPath() . '/' . VIEW_DIR_NAME
         );
     }
@@ -116,8 +115,10 @@ abstract class Theme extends Module {
         }
     }
 
-    public function addBasePath(string $path) {
-        array_unshift($this->basePaths, $path);
+    public function addBaseDirPath(string $dirPath) {
+        if (false === array_search($dirPath, $this->baseDirPaths, true)) {
+            array_unshift($this->baseDirPaths, $dirPath);
+        }
     }
 
     /**
@@ -128,7 +129,7 @@ abstract class Theme extends Module {
         if (Path::isAbsolute($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
             return $relOrAbsFilePath;
         }
-        foreach ($this->basePaths as $basePath) {
+        foreach ($this->baseDirPaths as $basePath) {
             $filePath = Path::combine($basePath, $relOrAbsFilePath);
             if (is_readable($filePath)) {
                 return $filePath;
@@ -137,7 +138,7 @@ abstract class Theme extends Module {
         if ($throwExIfNotFound) {
             throw new \RuntimeException(
                 "Unable to detect an absolute file path for the path '$relOrAbsFilePath', searched in paths:\n'"
-                . implode(PATH_SEPARATOR, $this->basePaths) . "'."
+                . implode(PATH_SEPARATOR, $this->baseDirPaths) . "'."
             );
         }
         return false;
@@ -149,11 +150,11 @@ abstract class Theme extends Module {
         ]);
     }
 
-    protected function renderFile($path, array $vars, array $instanceVars = null): string {
+    protected function renderFile(string $filePath, array $vars, array $instanceVars = null): string {
         $templateEngine = $this->getTemplateEngine();
         if (null !== $instanceVars) {
             $templateEngine->mergeVars($instanceVars);
         }
-        return $templateEngine->renderFile($this->getAbsoluteFilePath($path), $vars);
+        return $templateEngine->renderFile($this->getAbsoluteFilePath($filePath), $vars);
     }
 }

@@ -23,7 +23,6 @@ class Application extends BaseApplication {
     }
 
     protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null) {
-        while (@ob_end_flush()) ;
         if (null !== $serviceManager) {
             try {
                 // Last chance handler.
@@ -38,7 +37,7 @@ class Application extends BaseApplication {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
         }
-        d($e);
+        while (@ob_end_clean());
         die("Unable to handle the request. Please contact site's support and try to return to this page again later.");
     }
 }
