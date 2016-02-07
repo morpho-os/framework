@@ -37,13 +37,13 @@
         "nikic/php-parser": "dev-master",
         "nikic/fast-route": "dev-master",
         "monolog/monolog": "dev-master",
-        "zendframework/zend-http": "dev-master",
-        "zendframework/zend-uri": "dev-master",
-        "zendframework/zend-filter": "dev-master",
-        "zendframework/zend-json": "dev-master",
-        "zendframework/zend-mail": "dev-master",
-        "zendframework/zend-stdlib": "dev-master",
-        "zendframework/zend-validator": "dev-master"
+        "zendframework/zend-http": "~2.5",
+        "zendframework/zend-uri": "~2.5",
+        "zendframework/zend-filter": "~2.5",
+        "zendframework/zend-json": "~2.5",
+        "zendframework/zend-mail": "~2.5",
+        "zendframework/zend-stdlib": "~2.5",
+        "zendframework/zend-validator": "~2.5"
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master"
@@ -65,6 +65,7 @@
         "bin-dir": "bin"
     },
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
             "dev-master": "0.x-dev"
