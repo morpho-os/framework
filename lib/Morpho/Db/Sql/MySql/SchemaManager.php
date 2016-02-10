@@ -85,7 +85,12 @@ class SchemaManager extends BaseSchemaManager {
             }
             $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql(['columns' => $pkColumns]);
         } elseif (isset($tableDefinition['primaryKey'])) {
-            $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql($tableDefinition['primaryKey']);
+            if (isset($tableDefinition['primaryKey'][0])) { // 'primaryKey' => ['firstCol', 'secondCol'] or 'firstCol'
+                $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql(['columns' => (array)$tableDefinition['primaryKey']]);
+            } else {
+                //throw new \RuntimeException("The 'primaryKey' has invalid format");
+                $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql($tableDefinition['primaryKey']);
+            }
         }
 
         $sql = "CREATE TABLE " . $this->db->quoteIdentifier($tableName)

@@ -41,4 +41,5 @@ return [
         'mailTo' => 'admin@localhost',
         'logToFile' => true,
     ],
+    'throwDispatchErrors' => false,
 ];

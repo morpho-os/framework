@@ -7,6 +7,7 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Web\Response;
+use Morpho\Web\SiteManager;
 use System\Module as SystemModule;
 
 class ModuleTest extends DbTestCase {
@@ -69,6 +70,10 @@ class ModuleTest extends DbTestCase {
         $event = [null, ['exception' => $exception, 'request' => $request]];
         $module = new SystemModule();
         $serviceManager = new ServiceManager();
+        $siteManager = $this->getMock('\\Morpho\\Web\\SiteManager');
+        $siteManager->method('getCurrentSiteConfig')
+            ->will($this->returnValue(['throwDispatchErrors' => false]));
+        $serviceManager->set('siteManager', $siteManager);
         $serviceManager->set('settingManager', $settingManager);
         $module->setServiceManager($serviceManager);
         return [$module, $event, $request];

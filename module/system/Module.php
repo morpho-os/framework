@@ -51,18 +51,17 @@ class Module extends BaseModule {
     public function dispatchError(array $event) {
         $exception = $event[1]['exception'];
         $request = $event[1]['request'];
+
         $handleError = function (string $errorType, int $statusCode, bool $logError) use ($request, $exception) {
             $serviceManager = $this->serviceManager;
-
-            /*
-            if ($serviceManager->get('siteManager')->getCurrentSiteConfig()['throwDispatchErrors']) {
-
-            }
-            */
 
             if ($logError) {
                 $serviceManager->get('errorLogger')
                     ->emergency($exception, ['exception' => $exception]);
+            }
+
+            if ($serviceManager->get('siteManager')->getCurrentSiteConfig()['throwDispatchErrors']) {
+                throw $exception;
             }
 
             $handler = $serviceManager->get('settingManager')
@@ -83,6 +82,7 @@ class Module extends BaseModule {
             $request->setInternalParam('error', $exception);
             $request->getResponse()->setStatusCode($statusCode);
         };
+
         if ($exception instanceof AccessDeniedException) {
             $handleError(self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403, false);
         } elseif ($exception instanceof NotFoundException) {

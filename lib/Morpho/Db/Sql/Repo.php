@@ -8,20 +8,47 @@ class Repo extends BaseRepo {
 
     protected $pkName = 'id';
 
+    protected static $allowedDbMethods = [
+        'lastInsertId',
+        'selectRows',
+        'selectRow',
+        'selectColumn',
+        'selectCell',
+        'selectMap',
+        'transaction',
+        'fetchRows',
+        'fetchRow',
+        'fetchColumn',
+        'fetchCell',
+        'fetchMap',
+        'inTransaction',
+    ];
+
+    public function __call(string $method, array $args = []) {
+        if (in_array($method, static::$allowedDbMethods, true)) {
+            return $this->getDb()->$method(...$args);
+        }
+        throw new \RuntimeException("Unexpected call");
+    }
+
     public function insertRow(array $row) {
         return $this->getDb()->insertRow($this->tableName, $row);
     }
 
-    public function __call(string $method, array $args = []) {
-        return $this->getDb()->$method(...$args);
+    public function saveRow(array $row) {
+        if (empty($row[$this->pkName])) {
+            $this->insertRow($row);
+        } else {
+            $this->updateRows($row, "{$this->pkName} = ?", [$row[$this->pkName]]);
+        }
     }
 
-    protected function deleteRows($whereCondition, array $whereConditionArgs = null): int {
-        return $this->getDb()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
-    }
-
-    protected function updateRows(array $row, $whereCondition, $whereConditionArgs = null) {
+    public function updateRows(array $row, $whereCondition, $whereConditionArgs = null) {
         $this->getDb()->updateRows($this->tableName, $row, $whereCondition, $whereConditionArgs);
+    }
+
+    public function deleteRows($whereCondition, array $whereConditionArgs = null): int {
+        return $this->getDb()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
     }
 
     protected function getDb(): Db {

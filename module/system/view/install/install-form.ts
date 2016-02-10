@@ -1,4 +1,4 @@
-/// <reference path="../../../../public/module/system/src/d.ts/main.d.ts" />
+/// <reference path="../../../../public/module/system/src/d.ts/all.d.ts" />
 
 namespace System.Install {
     import Form = System.Form;

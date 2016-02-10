@@ -11,23 +11,16 @@ class DebuggerTest extends TestCase {
     }
 
     public function testVarToString() {
-        ob_start();
         if (Environment::isXdebugEnabled() && Environment::isIniSet('xdebug.overload_var_dump')) {
             $this->markTestIncomplete();
-            ?>
-
-            array(1) {
-            'foo' => string(3) "bar"
-            }
-            <?php
-        } else {
-            ?>
-
-            array(1) {
-            ["foo"] => string(3) "bar"
-            }
-            <?php
         }
+        ob_start();
+?>
+
+array(1) {
+  ["foo"] => string(3) "bar"
+}
+<?php
         $expected = ob_get_clean();
         $this->assertEquals($expected, $this->debugger->varToString(['foo' => 'bar']));
     }
