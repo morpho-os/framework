@@ -6,11 +6,11 @@ declare namespace System {
     class CommonRegExp {
         static EMAIL: RegExp;
     }
+    function tr(message: string): string;
+    function showUnknownError(message?: string): void;
     function redirectToSelf(): void;
     function redirectToHome(): void;
     function redirectTo(uri: string): void;
-    function loadScript(src: string): void;
-    function loadStyle(): void;
     class Uri {
         prependWithBasePath(uri: string): string;
     }

@@ -113,7 +113,7 @@ var System;
             throw new Error(message ? message : "Test has failed");
         };
         return TestCase;
-    })();
+    }());
     System.TestCase = TestCase;
     function eq(a, b, aStack, bStack) {
         var result = true;

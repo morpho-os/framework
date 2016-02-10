@@ -1,5 +1,5 @@
 /// <reference path="d.ts/stacktrace.d.ts" />
-/// <reference path="d.ts/bom.d.ts" />
+/// <reference path="bom" />
 
 namespace System {
     function defineFunctionNameProp() {

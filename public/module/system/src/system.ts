@@ -7,7 +7,7 @@ namespace System {
         public static EMAIL = /^[^@]+@[^@]+$/;
     }
 
-    export function tr(message: string) {
+    export function tr(message: string): string {
         // @TODO
         return message;
     }

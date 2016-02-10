@@ -1,4 +1,4 @@
-interface Math {
+declare interface Math {
     EPS: number;
     roundFloat(val: number, precision: number): number;
     isFloatLessThanZero(val: number): boolean;
@@ -6,7 +6,7 @@ interface Math {
     isFloatEqualZero(val: number): boolean;
     isFloatsEqual(a: number, b: number): boolean;
 }
-interface String {
+declare interface String {
     escapeHtml(): string;
     titleize(): string;
 }

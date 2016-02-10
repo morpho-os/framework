@@ -1,3 +1,5 @@
+/// <reference path="message"/>
+
 namespace System {
     export class Application {
         public static main() {

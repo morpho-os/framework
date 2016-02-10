@@ -1,7 +1,23 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+var uniqId = 0;
+$.fn.once = function (fn) {
+    var cssClass = String(uniqId++) + '-processed';
+    return this.not('.' + cssClass)
+        .addClass(cssClass)
+        .each(fn);
+};
+$.resolvedPromise = function (value) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    return (_a = $.Deferred()).resolve.apply(_a, [value].concat(args)).promise();
+    var _a;
+};
+$.isPromise = function (value) {
+    return value && $.isFunction(value.promise);
+};
+$.isDomNode = function (obj) {
+    return obj.nodeType > 0;
 };
 Math.EPS = 0.000001;
 Math.roundFloat = function (val, precision) {
@@ -37,47 +53,36 @@ String.prototype.escapeHtml = function () {
 String.prototype.titleize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
-var Exception = (function (_super) {
-    __extends(Exception, _super);
-    function Exception(message) {
-        _super.call(this, message);
-        this.message = message;
-        this.name = 'Exception';
-        this.message = message;
-    }
-    Exception.prototype.toString = function () {
-        return this.name + ': ' + this.message;
-    };
-    return Exception;
-})(Error);
-var NotImplementedException = (function (_super) {
-    __extends(NotImplementedException, _super);
-    function NotImplementedException() {
-        _super.apply(this, arguments);
-    }
-    return NotImplementedException;
-})(Exception);
-var uniqId = 0;
-$.fn.once = function (fn) {
-    var cssClass = String(uniqId++) + '-processed';
-    return this.not('.' + cssClass)
-        .addClass(cssClass)
-        .each(fn);
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-$.resolvedPromise = function (value) {
-    var args = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        args[_i - 1] = arguments[_i];
-    }
-    return (_a = $.Deferred()).resolve.apply(_a, [value].concat(args)).promise();
-    var _a;
-};
-$.isPromise = function (value) {
-    return value && $.isFunction(value.promise);
-};
-$.isDomNode = function (obj) {
-    return obj.nodeType > 0;
-};
+var System;
+(function (System) {
+    var Exception = (function (_super) {
+        __extends(Exception, _super);
+        function Exception(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'Exception';
+            this.message = message;
+        }
+        Exception.prototype.toString = function () {
+            return this.name + ': ' + this.message;
+        };
+        return Exception;
+    }(Error));
+    System.Exception = Exception;
+    var NotImplementedException = (function (_super) {
+        __extends(NotImplementedException, _super);
+        function NotImplementedException() {
+            _super.apply(this, arguments);
+        }
+        return NotImplementedException;
+    }(Exception));
+    System.NotImplementedException = NotImplementedException;
+})(System || (System = {}));
 var System;
 (function (System) {
     var EventManager = (function () {
@@ -102,7 +107,7 @@ var System;
             }
         };
         return EventManager;
-    })();
+    }());
     System.EventManager = EventManager;
 })(System || (System = {}));
 var System;
@@ -138,7 +143,7 @@ var System;
             });
         };
         return Widget;
-    })(System.EventManager);
+    }(System.EventManager));
     System.Widget = Widget;
     var ProgressBar = (function (_super) {
         __extends(ProgressBar, _super);
@@ -146,21 +151,21 @@ var System;
             _super.apply(this, arguments);
         }
         return ProgressBar;
-    })(Widget);
+    }(Widget));
     var Menu = (function (_super) {
         __extends(Menu, _super);
         function Menu() {
             _super.apply(this, arguments);
         }
         return Menu;
-    })(Widget);
+    }(Widget));
     var Window = (function (_super) {
         __extends(Window, _super);
         function Window() {
             _super.apply(this, arguments);
         }
         return Window;
-    })(Widget);
+    }(Widget));
     System.Window = Window;
     var ModalWindow = (function (_super) {
         __extends(ModalWindow, _super);
@@ -168,7 +173,7 @@ var System;
             _super.apply(this, arguments);
         }
         return ModalWindow;
-    })(Window);
+    }(Window));
 })(System || (System = {}));
 var System;
 (function (System) {
@@ -177,7 +182,7 @@ var System;
         }
         CommonRegExp.EMAIL = /^[^@]+@[^@]+$/;
         return CommonRegExp;
-    })();
+    }());
     System.CommonRegExp = CommonRegExp;
     function tr(message) {
         return message;
@@ -206,9 +211,27 @@ var System;
             return uri;
         };
         return Uri;
-    })();
+    }());
     System.Uri = Uri;
     System.uri = new Uri();
+})(System || (System = {}));
+var System;
+(function (System) {
+    var ResourceLoader = (function () {
+        function ResourceLoader() {
+        }
+        ResourceLoader.loadStyle = function (uri) {
+        };
+        ResourceLoader.loadScript = function (uri) {
+            var node = document.createElement('script');
+            node.type = 'text/javascript';
+            node.charset = 'utf-8';
+            document.getElementsByTagName('head')[0].appendChild(node);
+        };
+        ResourceLoader.loadImage = function (uri) {
+        };
+        return ResourceLoader;
+    }());
 })(System || (System = {}));
 var System;
 (function (System) {
@@ -224,7 +247,7 @@ var System;
             return this.el.find('.alert');
         };
         return MessageManager;
-    })(System.Widget);
+    }(System.Widget));
     System.MessageManager = MessageManager;
     var PageMessageManager = (function (_super) {
         __extends(PageMessageManager, _super);
@@ -272,7 +295,7 @@ var System;
             }, 5000);
         };
         return PageMessageManager;
-    })(MessageManager);
+    }(MessageManager));
     System.PageMessageManager = PageMessageManager;
     function messageTypeToString(messageType) {
         switch (messageType) {
@@ -300,7 +323,7 @@ var System;
             return this.type === type;
         };
         return Message;
-    })();
+    }());
     System.Message = Message;
 })(System || (System = {}));
 var System;
@@ -350,14 +373,14 @@ var System;
                 return $(this).hasClass('invalid');
             });
         };
-        Form.prototype.addCommonMessage = function (message) {
+        Form.prototype.addFormMessage = function (message) {
             var type = message.type;
             if (typeof this.messages[type] === 'undefined') {
                 this.messages[type] = [];
             }
             this.messages[type].push(message);
         };
-        Form.prototype.getCommonMessages = function (type) {
+        Form.prototype.getFormMessages = function (type) {
             var _this = this;
             if (type === void 0) { type = null; }
             var messages = [], concatMessages = function (type) {
@@ -382,43 +405,43 @@ var System;
             }
             return messages;
         };
-        Form.prototype.showCommonMessage = function (message) {
-            this.addCommonMessage(message);
-            this._showAddedCommonMessage(message);
+        Form.prototype.showFormMessage = function (message) {
+            this.addFormMessage(message);
+            this._showAddedFormMessage(message);
         };
-        Form.prototype.showAddedCommonMessages = function () {
-            this.forEach(this.getCommonErrorMessages, this.showAddedCommonMessage);
+        Form.prototype.showAddedFormMessages = function () {
+            this.forEach(this.getFormErrorMessages, this.showAddedFormMessage);
         };
-        Form.prototype.showAddedCommonMessage = function (message) {
-            this.ensureIsAddedCommonMessage(message);
+        Form.prototype.showAddedFormMessage = function (message) {
+            this.ensureIsAddedFormMessage(message);
         };
-        Form.prototype.showCommonMessages = function (messages) {
-            this.forEach(messages, this.showCommonMessage);
+        Form.prototype.showFormMessages = function (messages) {
+            this.forEach(messages, this.showFormMessage);
         };
         Form.prototype.hasErrors = function () {
             return !this.isValid();
         };
         Form.prototype.clearErrors = function () {
             this.removeElsErrors();
-            this.removeCommonErrors();
+            this.removeFormErrors();
             this.messages[1] = [];
         };
-        Form.prototype.showCommonErrorMessage = function (text) {
-            this.showCommonMessage(new System.Message(1, text));
+        Form.prototype.showFormErrorMessage = function (text) {
+            this.showFormMessage(new System.Message(1, text));
         };
-        Form.prototype.getCommonErrorMessages = function () {
-            return this.getCommonMessages(1);
+        Form.prototype.getFormErrorMessages = function () {
+            return this.getFormMessages(1);
         };
-        Form.prototype.addCommonErrorMessage = function (text) {
-            this.addCommonMessage(new System.Message(1, text));
+        Form.prototype.addFormErrorMessage = function (text) {
+            this.addFormMessage(new System.Message(1, text));
         };
         Form.prototype.init = function () {
             _super.prototype.init.call(this);
             this.el.attr('novalidate', 'novalidate');
         };
-        Form.prototype._showAddedCommonMessage = function (message) {
+        Form.prototype._showAddedFormMessage = function (message) {
             this.showEl(this.getMessageContainerEl()
-                .append(this.formatCommonMessage(message)));
+                .append(this.formatFormMessage(message)));
         };
         Form.prototype.removeElsErrors = function () {
             this.forEachEl(this.getElsToValidate(), this.removeElErrors);
@@ -429,7 +452,7 @@ var System;
                 .find('.error').remove();
             $el.removeClass('invalid');
         };
-        Form.prototype.removeCommonErrors = function () {
+        Form.prototype.removeFormErrors = function () {
             var $messageContainer = this.getMessageContainerEl();
             $messageContainer.find('.alert-error').remove();
             if ($messageContainer.is(':empty')) {
@@ -443,17 +466,17 @@ var System;
             }
             return $containerEl;
         };
-        Form.prototype.ensureIsAddedCommonMessage = function (message) {
-            if (!this.isAddedCommonMessage(message)) {
+        Form.prototype.ensureIsAddedFormMessage = function (message) {
+            if (!this.isAddedFormMessage(message)) {
                 throw new Error("Message must be added first");
             }
         };
-        Form.prototype.isAddedCommonMessage = function (message) {
+        Form.prototype.isAddedFormMessage = function (message) {
             return $.inArray(message, this.messages[message.type]) >= 0;
         };
-        Form.prototype.formatCommonMessage = function (message) {
+        Form.prototype.formatFormMessage = function (message) {
             if (!message.hasType(1)) {
-                throw new NotImplementedException("formatMessage");
+                throw new System.NotImplementedException("formatMessage");
             }
             return '<div class="alert alert-error">' + message.text + '</div>';
         };
@@ -488,7 +511,7 @@ var System;
             return true;
         };
         Form.prototype.showValueRequiredElError = function ($el) {
-            this.showElMessage($el, new System.Message(1, System.tr('This field is required.')));
+            this.showElMessage($el, new System.Message(1, System.tr('Это поле обязательно для заполнения.')));
         };
         Form.prototype.showElMessage = function ($el, message) {
             $el.after(this.formatElMessage(message));
@@ -599,7 +622,7 @@ var System;
             System.showUnknownError(null);
         };
         return Form;
-    })(System.Widget);
+    }(System.Widget));
     System.Form = Form;
 })(System || (System = {}));
 var System;
@@ -611,7 +634,7 @@ var System;
             window.pageMessenger = new System.PageMessageManager('#page-messages');
         };
         return Application;
-    })();
+    }());
     System.Application = Application;
 })(System || (System = {}));
 $(function () {

@@ -13,11 +13,14 @@ $link-color ?= #18b1cc
 
 $grid-columns ?= 24
 
+$body-bg ?= #202020
+$body-color ?= #fff
+
 @require "bootstrap"
 
 html, body 
-    background: #202020
-    color: #fff
+    background: $body-bg
+    color: $body-color
     width: 100%
     height: 100%
 
@@ -72,3 +75,6 @@ form
 
         label 
             color: $gray-dark
+
+    legend
+        color: $body-color

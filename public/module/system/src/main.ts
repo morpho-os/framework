@@ -1,4 +1,11 @@
+/// <reference path="jquery-ext" />
+/// <reference path="bom" />
+/// <reference path="error" />
+/// <reference path="event-manager" />
+/// <reference path="widget" />
 /// <reference path="system" />
+/// <reference path="resource-loader" />
+/// <reference path="message" />
 /// <reference path="form" />
 /// <reference path="application" />
 

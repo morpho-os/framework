@@ -39,23 +39,3 @@ String.prototype.titleize = function () {
     // @TODO:
     return this.charAt(0).toUpperCase() + this.slice(1)
 };
-
-class Exception extends Error {
-    //public stack: any;
-
-    constructor(public message: string) {
-        super(message);
-        this.name = 'Exception';
-        this.message = message;
-//        this.stack = (<any>new Error()).stack;
-    }
-    toString() {
-        return this.name + ': ' + this.message;
-    }
-}
-class NotImplementedException extends Exception {
-}
-/*
-class NotImplementedError extends Error {
-}
-*/

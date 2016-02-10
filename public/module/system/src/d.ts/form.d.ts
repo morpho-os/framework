@@ -1,5 +1,8 @@
 /// <reference path="widget.d.ts" />
 /// <reference path="message.d.ts" />
+/// <reference path="system.d.ts" />
+/// <reference path="bom.d.ts" />
+/// <reference path="error.d.ts" />
 
 declare namespace System {
     class Form extends Widget {
@@ -15,26 +18,26 @@ declare namespace System {
         getElsToValidate(): JQuery;
         getSubmitButtonEls(): JQuery;
         getInvalidEls(): JQuery;
-        addCommonMessage(message: Message): void;
-        getCommonMessages(type?: MessageType): Message[];
-        showCommonMessage(message: Message): void;
-        showAddedCommonMessages(): void;
-        showAddedCommonMessage(message: Message): void;
-        showCommonMessages(messages: Message[]): void;
+        addFormMessage(message: Message): void;
+        getFormMessages(type?: MessageType): Message[];
+        showFormMessage(message: Message): void;
+        showAddedFormMessages(): void;
+        showAddedFormMessage(message: Message): void;
+        showFormMessages(messages: Message[]): void;
         hasErrors(): boolean;
         clearErrors(): void;
-        showCommonErrorMessage(text: string): void;
-        getCommonErrorMessages(): Message[];
-        addCommonErrorMessage(text: string): void;
+        showFormErrorMessage(text: string): void;
+        getFormErrorMessages(): Message[];
+        addFormErrorMessage(text: string): void;
         protected init(): void;
-        protected _showAddedCommonMessage(message: Message): void;
+        protected _showAddedFormMessage(message: Message): void;
         protected removeElsErrors(): void;
         protected removeElErrors($el: JQuery): void;
-        protected removeCommonErrors(): void;
+        protected removeFormErrors(): void;
         protected getMessageContainerEl(): JQuery;
-        protected ensureIsAddedCommonMessage(message: Message): void;
-        protected isAddedCommonMessage(message: Message): boolean;
-        protected formatCommonMessage(message: Message): string;
+        protected ensureIsAddedFormMessage(message: Message): void;
+        protected isAddedFormMessage(message: Message): boolean;
+        protected formatFormMessage(message: Message): string;
         protected _validate(): boolean;
         protected validateEls(): boolean;
         protected validateEl($el: JQuery): boolean;

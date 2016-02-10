@@ -1,3 +1,5 @@
+/// <reference path="widget.d.ts" />
+
 declare namespace System {
     const enum MessageType {
         Error = 1,
@@ -5,6 +7,14 @@ declare namespace System {
         Info = 4,
         Debug = 8,
         All = 15,
+    }
+    class MessageManager extends System.Widget {
+        protected getNumberOfMessages(): number;
+        protected getMessageEls(): JQuery;
+    }
+    class PageMessageManager extends MessageManager {
+        protected registerEventHandlers(): void;
+        protected registerCloseMessageHandler(): void;
     }
     class Message {
         type: MessageType;

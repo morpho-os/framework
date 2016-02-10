@@ -1,10 +1,14 @@
 /// <reference path="widget" />
 /// <reference path="message" />
+/// <reference path="system"/>
+/// <reference path="bom"/>
+/// <reference path="error"/>
 
 /**
  * Definitions:
- * Error is CommonError or ElError.
- * Element is JQuery object.
+ * Error = FormError | ElError.
+ * Element = JQuery object
+ * FormError is common Error for 
  */
 namespace System {
     export class Form extends Widget {
@@ -55,7 +59,7 @@ namespace System {
             });
         }
 
-        public addCommonMessage(message: Message): void {
+        public addFormMessage(message: Message): void {
             var type = message.type;
             if (typeof this.messages[type] === 'undefined') {
                 this.messages[type] = [];
@@ -63,7 +67,7 @@ namespace System {
             this.messages[type].push(message);
         }
 
-        public getCommonMessages(type: MessageType = null): Message[] {
+        public getFormMessages(type: MessageType = null): Message[] {
             var messages: Message[] = [],
                 concatMessages = (type: MessageType) => {
                     if (typeof this.messages[type] !== 'undefined') {
@@ -88,21 +92,21 @@ namespace System {
             return messages;
         }
 
-        public showCommonMessage(message: Message): void {
-            this.addCommonMessage(message);
-            this._showAddedCommonMessage(message);
+        public showFormMessage(message: Message): void {
+            this.addFormMessage(message);
+            this._showAddedFormMessage(message);
         }
 
-        public showAddedCommonMessages(): void {
-            this.forEach(this.getCommonErrorMessages, this.showAddedCommonMessage);
+        public showAddedFormMessages(): void {
+            this.forEach(this.getFormErrorMessages, this.showAddedFormMessage);
         }
 
-        public showAddedCommonMessage(message: Message): void {
-            this.ensureIsAddedCommonMessage(message);
+        public showAddedFormMessage(message: Message): void {
+            this.ensureIsAddedFormMessage(message);
         }
 
-        public showCommonMessages(messages: Message[]): void {
-            this.forEach(messages, this.showCommonMessage);
+        public showFormMessages(messages: Message[]): void {
+            this.forEach(messages, this.showFormMessage);
         }
 
         public hasErrors(): boolean {
@@ -111,20 +115,20 @@ namespace System {
 
         public clearErrors(): void {
             this.removeElsErrors();
-            this.removeCommonErrors();
+            this.removeFormErrors();
             this.messages[MessageType.Error] = [];
         }
 
-        public showCommonErrorMessage(text: string): void {
-            this.showCommonMessage(new Message(MessageType.Error, text));
+        public showFormErrorMessage(text: string): void {
+            this.showFormMessage(new Message(MessageType.Error, text));
         }
 
-        public getCommonErrorMessages(): Message[] {
-            return this.getCommonMessages(MessageType.Error);
+        public getFormErrorMessages(): Message[] {
+            return this.getFormMessages(MessageType.Error);
         }
 
-        public addCommonErrorMessage(text: string): void {
-            this.addCommonMessage(new Message(MessageType.Error, text));
+        public addFormErrorMessage(text: string): void {
+            this.addFormMessage(new Message(MessageType.Error, text));
         }
 
         protected init(): void {
@@ -132,10 +136,10 @@ namespace System {
             this.el.attr('novalidate', 'novalidate');
         }
 
-        protected _showAddedCommonMessage(message: Message): void {
+        protected _showAddedFormMessage(message: Message): void {
             this.showEl(
                 this.getMessageContainerEl()
-                    .append(this.formatCommonMessage(message))
+                    .append(this.formatFormMessage(message))
             );
         }
 
@@ -150,7 +154,7 @@ namespace System {
             $el.removeClass('invalid');
         }
 
-        protected removeCommonErrors(): void {
+        protected removeFormErrors(): void {
             var $messageContainer = this.getMessageContainerEl();
             $messageContainer.find('.alert-error').remove();
             if ($messageContainer.is(':empty')) {
@@ -167,17 +171,17 @@ namespace System {
             return $containerEl;
         }
 
-        protected ensureIsAddedCommonMessage(message: Message) {
-            if (!this.isAddedCommonMessage(message)) {
+        protected ensureIsAddedFormMessage(message: Message) {
+            if (!this.isAddedFormMessage(message)) {
                 throw new Error("Message must be added first");
             }
         }
 
-        protected isAddedCommonMessage(message: Message): boolean {
+        protected isAddedFormMessage(message: Message): boolean {
             return $.inArray(message, this.messages[message.type]) >= 0;
         }
 
-        protected formatCommonMessage(message: Message): string {
+        protected formatFormMessage(message: Message): string {
             if (!message.hasType(MessageType.Error)) {
                 throw new NotImplementedException("formatMessage");
             }
@@ -228,7 +232,7 @@ namespace System {
         }
 
         protected showValueRequiredElError($el: JQuery): void {
-            this.showElMessage($el, new Message(MessageType.Error, tr('This field is required.')));
+            this.showElMessage($el, new Message(MessageType.Error, tr('Это поле обязательно для заполнения.')));
         }
 
         protected showElMessage($el: JQuery, message: Message): void {
