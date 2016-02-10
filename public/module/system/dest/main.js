@@ -511,7 +511,7 @@ var System;
             return true;
         };
         Form.prototype.showValueRequiredElError = function ($el) {
-            this.showElMessage($el, new System.Message(1, System.tr('Это поле обязательно для заполнения.')));
+            this.showElMessage($el, new System.Message(1, System.tr('This field is required and can\'t be empty.')));
         };
         Form.prototype.showElMessage = function ($el, message) {
             $el.after(this.formatElMessage(message));

@@ -232,7 +232,7 @@ namespace System {
         }
 
         protected showValueRequiredElError($el: JQuery): void {
-            this.showElMessage($el, new Message(MessageType.Error, tr('Это поле обязательно для заполнения.')));
+            this.showElMessage($el, new System.Message(1, System.tr('This field is required and can\'t be empty.')));
         }
 
         protected showElMessage($el: JQuery, message: Message): void {
