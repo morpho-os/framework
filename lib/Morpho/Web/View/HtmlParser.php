@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Web\View;
 
-use Morpho\Web\ServiceManager;
+use Morpho\Di\ServiceManager;
 
 abstract class HtmlParser extends HtmlSemiParser {
     protected $serviceManager;

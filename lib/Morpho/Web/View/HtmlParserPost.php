@@ -8,7 +8,7 @@ use function Morpho\Cli\{
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
-use Morpho\Web\ServiceManager;
+use Morpho\Di\ServiceManager;
 
 class HtmlParserPost extends HtmlParser {
     protected $scripts = [];

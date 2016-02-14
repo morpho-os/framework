@@ -511,7 +511,7 @@ var System;
             return true;
         };
         Form.prototype.showValueRequiredElError = function ($el) {
-            this.showElMessage($el, new System.Message(1, System.tr('This field is required and can\'t be empty.')));
+            this.showElMessage($el, new System.Message(1, System.tr('This field is required')));
         };
         Form.prototype.showElMessage = function ($el, message) {
             $el.after(this.formatElMessage(message));

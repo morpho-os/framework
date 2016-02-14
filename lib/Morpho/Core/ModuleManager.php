@@ -212,7 +212,6 @@ abstract class ModuleManager extends Node implements IEventManager {
         if ($state & self::UNINSTALLED) {
             $modules = array_merge($modules, $this->listUninstalledModules());
         }
-
         return $modules;
     }
 

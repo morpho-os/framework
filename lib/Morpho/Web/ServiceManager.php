@@ -12,8 +12,10 @@ use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
+use Morpho\Web\Routing\ActionsMetaProvider;
 use Morpho\Web\Routing\FallbackRouter;
 use Morpho\Web\Routing\FastRouter;
+use Morpho\Web\Routing\RoutesMetaProvider;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\HtmlParserPost;
 use Morpho\Web\View\HtmlParserPre;
@@ -104,6 +106,15 @@ class ServiceManager extends BaseServiceManager {
         }
 
         return $logger;
+    }
+
+    protected function createRoutesMetaProviderService() {
+        $routesMetaProvider = new RoutesMetaProvider();
+        $actionsMetaProvider = new ActionsMetaProvider();
+        $actionsMetaProvider->setModuleDirPath(MODULE_DIR_PATH);
+        $actionsMetaProvider->setModuleManager($this->get('moduleManager'));
+        $routesMetaProvider->setActionsMetaProvider($actionsMetaProvider);
+        return $routesMetaProvider;
     }
 
     protected function isFallbackMode() {

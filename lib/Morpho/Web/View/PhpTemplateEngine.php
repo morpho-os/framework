@@ -13,7 +13,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     private $uri;
 
-    public function getPlugin($name) {
+    public function getPlugin(string $name) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
             $this->plugins[$name] = $this->createPlugin($name);
@@ -21,7 +21,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->plugins[$name];
     }
 
-    public function hiddenField($name, $value, array $attributes = null) {
+    public function hiddenField(string $name, $value, array $attributes = null): string {
         return TagRenderer::renderSingle(
             'input',
             [
@@ -30,6 +30,14 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
                 'type'  => 'hidden',
             ] + (array)$attributes
         );
+    }
+
+    public function options(array $options, $defaultValue = null): string {
+        $html = '';
+        foreach ($options as $value => $text) {
+            $html .= '<option value="' . $this->escapeHtml($value) . '"' . ($value === $defaultValue ? ' selected' : '') . '>' . $this->escapeHtml($text) . '</option>';
+        }
+        return $html;
     }
 
     public function isUserLoggedIn(): bool {
@@ -47,7 +55,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->uri;
     }
 
-    public function uriWithRedirectToSelf($uri): string {
+    public function uriWithRedirectToSelf( $uri): string {
         $currentUri = clone $this->uri();
         $currentUri->unsetQueryArg('redirect');
         $relativeRef = $currentUri->relativeRef();
@@ -62,7 +70,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return TagRenderer::render('a', $attributes, $text, $options);
     }
 
-    public function copyright($brand, $startYear = null) {
+    public function copyright(string $brand, $startYear = null): string {
         $currentYear = date('Y');
         if ($startYear == $currentYear) {
             $range = $currentYear;
@@ -83,11 +91,11 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    protected static function escapeHtml($value) {
+    protected static function escapeHtml($value): string {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 
-    protected function createPlugin($name) {
+    protected function createPlugin(string $name) {
         $class = __NAMESPACE__ . '\\' . $name . 'Plugin';
         $plugin = new $class();
         if ($plugin instanceof IServiceManagerAware) {

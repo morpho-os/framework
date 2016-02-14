@@ -103,6 +103,7 @@ class ModuleController extends Controller {
     private function processModule(\Closure $process) {
         $moduleName = key(array_values($_POST)[0]);
         $process($this->serviceManager->get('moduleManager'), $moduleName);
+        $this->serviceManager->get('router')->rebuildRoutes();
         return $this->redirectToUri('/system/module/list');
     }
 }

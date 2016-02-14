@@ -1,16 +1,17 @@
 <?php
 namespace Morpho\Web\Routing;
 
-use Morpho\Base\NotImplementedException;
 use Morpho\Code\CodeTool;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
+use Morpho\Fs\Path;
+use Morpho\Web\Request;
 
 class FastRouter extends Router {
-    public function route($request) {
+    public function route($request)/*: void*/ {
         $uri = $this->getNormalizedUri($request);
         if ($this->handleHomeUri($request, $uri)) {
             return;
@@ -25,10 +26,10 @@ class FastRouter extends Router {
 
         $routeInfo = $dispatcher->dispatch($request->getMethod(), $uri);
         if ($routeInfo[0] === Dispatcher::FOUND) {
-            $route = $routeInfo[1];
-            $request->setModuleName($route['module'])
-                ->setControllerName($route['controller'])
-                ->setActionName($route['action']);
+            $handlerInfo = $routeInfo[1];
+            $request->setModuleName($handlerInfo['module'])
+                ->setControllerName($handlerInfo['controller'])
+                ->setActionName($handlerInfo['action']);
             $params = $routeInfo[2] ?? null;
             if ($params) {
                 $request->setParams($params);
@@ -36,10 +37,10 @@ class FastRouter extends Router {
         }
     }
 
-    public function rebuildRoutes() {
+    public function rebuildRoutes()/*: void*/ {
         $cacheFilePath = $this->getCacheFilePath();
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
-        foreach ($this->buildRoutesMeta($this->getModuleDirPath()) as $routeMeta) {
+        foreach ($this->getRoutesMeta() as $routeMeta) {
             $routeMeta['uri'] = preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
                 $var = array_pop($matches);
                 // @TODO: Add support for other patterns, beside numbers.
@@ -56,11 +57,28 @@ class FastRouter extends Router {
         CodeTool::writeVarToFile($dispatchData, $cacheFilePath, false);
     }
 
-    public function assemble(string $action, string $httpMethod, string $controller, string $module, array $params = null) {
-        throw new NotImplementedException();
+    protected function getCacheFilePath(): string {
+        return $this->serviceManager->get('siteManager')
+            ->getCurrentSite()
+            ->getCacheDirPath() . '/routes.php';
     }
 
-    protected function getCacheFilePath() {
-        return $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath() . '/routes.php';
+    protected function getNormalizedUri($request): string {
+        $uri = Path::normalize($request->getUriPath());
+        return $uri === '' ? '/' : $uri;
+    }
+
+    protected function handleHomeUri(Request $request, $uri): bool {
+        if ($uri === '/') {
+            $handler = $this->serviceManager
+                ->get('settingManager')
+                ->get('homeHandler', 'system');
+            if (false !== $handler) {
+                $request->setHandler($handler)
+                    ->setMethod(Request::GET_METHOD);
+                return true;
+            }
+        }
+        return false;
     }
 }

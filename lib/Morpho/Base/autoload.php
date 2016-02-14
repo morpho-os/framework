@@ -3,6 +3,19 @@ declare(strict_types = 1);
 
 namespace Morpho\Base;
 
+const INT_TYPE      = 'int';
+const FLOAT_TYPE    = 'float';
+const BOOL_TYPE     = 'bool';
+const STRING_TYPE   = 'string';
+const NULL_TYPE     = 'null';
+const ARRAY_TYPE    = 'array';
+const RESOURCE_TYPE = 'resource';
+
+const TRIM_CHARS = " \t\n\r\x00\x0B";
+
+const SHORTEN_TAIL = '...';
+const SHORTEN_LENGTH = 30;
+
 function unpackArgs(array $args): array {
     return count($args) === 1 && is_array($args[0])
         ? $args[0]
@@ -259,7 +272,6 @@ function unescapeHtml($text): string {
  *
  * @return string|array
  */
-const TRIM_CHARS = " \t\n\r\x00\x0B";
 function trimMore($string, $charlist = null) {
     if (is_array($string)) {
         foreach ($string as $k => $v) {
@@ -323,8 +335,6 @@ function filterStringArgs($string, array $args, callable $filterFn): string {
     return strtr($string, $fromToMap);
 }
 
-const SHORTEN_TAIL = '...';
-const SHORTEN_LENGTH = 30;
 function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): string {
     if (strlen($text) <= $length) {
         return $text;
@@ -364,4 +374,37 @@ function endsWith($string, $suffix): bool {
 function starsWith($string, $prefix): bool {
     // @TODO: Use substr() as for endsWith?
     return 0 === strpos($string, $prefix);
+}
+
+function typeOf($val): string {
+    if (is_object($val)) {
+        return get_class($val);
+    }
+    return resolveTypeSynonym(gettype($val));
+}
+
+function resolveTypeSynonym(string $type): string {
+    switch (strtolower($type)) {
+        case 'int':
+        case 'integer':
+            return INT_TYPE;
+        case 'float':
+        case 'double':
+        case 'real':
+            return FLOAT_TYPE;
+        case 'bool':
+        case 'boolean':
+            return BOOL_TYPE;
+        case 'string':
+            return STRING_TYPE;
+        case 'null':
+            return NULL_TYPE;
+        // @TODO: void type
+        case 'array':
+            return ARRAY_TYPE;
+        case 'resource':
+            return RESOURCE_TYPE;
+        default:
+            throw new \UnexpectedValueException("Unexpected value of type: '$type'");
+    }
 }

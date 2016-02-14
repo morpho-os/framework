@@ -2,6 +2,7 @@
 namespace Morpho\Debug;
 
 use Morpho\Base\NotImplementedException;
+use function Morpho\Base\typeOf;
 
 /**
  * Utility class to debug any PHP application.
@@ -21,7 +22,7 @@ class Debugger {
     private static $class;
 
     public function type($obj) {
-        $this->dump(is_object($obj) ? get_class($obj) : gettype($obj));
+        $this->dump(typeOf($obj));
     }
 
     public function dump() {

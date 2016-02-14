@@ -11,12 +11,12 @@ class ModuleClassLoader extends FileClassMapAutoloader implements \IteratorAggre
         parent::__construct(
             Directory::create($cacheDirPath) . '/module-classmap.php',
             $moduleDirPath,
-            function ($path, $isDir) {
+            function ($path, $isDir) use ($moduleDirPath) {
                 if ($isDir) {
-                    // Skip the "MODULE_DIR_PATH/$moduleName/vendor" directories (libraries managed by Composer).
-                    if (0 === strpos($path, MODULE_DIR_PATH) && strlen($path) > strlen(MODULE_DIR_PATH)) {
-                        $moduleName = head(Path::toRelative(MODULE_DIR_PATH, $path), '/');
-                        return false === strpos($path, MODULE_DIR_PATH . '/' . $moduleName . '/vendor');
+                    // Skip the "$moduleDirPath/$moduleName/vendor" directories (libraries managed by Composer).
+                    if (0 === strpos($path, $moduleDirPath) && strlen($path) > strlen($moduleDirPath)) {
+                        $moduleName = head(Path::toRelative($moduleDirPath, $path), '/');
+                        return false === strpos($path, $moduleDirPath . '/' . $moduleName . '/vendor');
                     }
                     return true;
                 }

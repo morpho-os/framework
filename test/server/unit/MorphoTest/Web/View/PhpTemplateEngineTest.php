@@ -1,7 +1,7 @@
 <?php
 namespace MorphoTest\Web\View;
 
-use Morpho\Web\ServiceManager;
+use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
 use Morpho\Web\View\HtmlParserPost;
@@ -17,7 +17,7 @@ class PhpTemplateEngineTest extends TestCase {
         $compiler->appendSourceInfo(false);
         $request = new Request();
         $request->setUri((new Uri())->setBasePath('/base/path'));
-        $serviceManager = new ServiceManager(null, ['request' => $request]);
+        $serviceManager = new ServiceManager(['request' => $request]);
         $this->engine->attach(new HtmlParserPre($serviceManager))
             ->attach($compiler)
             ->attach(new HtmlParserPost($serviceManager, true, '', []));

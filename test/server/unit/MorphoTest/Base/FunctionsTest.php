@@ -3,8 +3,9 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols
+    uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
 };
+use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
 class FunctionsTest extends TestCase {
     public function setUp() {
@@ -12,11 +13,72 @@ class FunctionsTest extends TestCase {
     }
 
     public function tearDown() {
-        //resetState();
+        if (isset($this->tmpHandle)) {
+            fclose($this->tmpHandle);
+        }
+    }
+
+    public function dataForTypeOf() {
+        $filePath = tempnam($this->getTmpDirPath(), __FUNCTION__);
+        $this->tmpHandle = $fp = fopen($filePath, 'r');
+        return [
+            [
+                INT_TYPE,
+                5,
+            ],
+            [
+                FLOAT_TYPE,
+                3.14
+            ],
+            [
+                BOOL_TYPE,
+                true,
+            ],
+            [
+                STRING_TYPE,
+                "Hello",
+            ],
+            [
+                NULL_TYPE,
+                null,
+            ],
+            [
+                ARRAY_TYPE,
+                [],
+            ],
+            [
+                RESOURCE_TYPE,
+                $fp,
+            ],
+            [
+                'Closure',
+                function () {},
+            ],
+            [
+                'stdClass',
+                new \stdClass,
+            ],
+            [
+                'ArrayObject',
+                new \ArrayObject(),
+            ],
+            [
+                'Morpho\\Base\\ArrayObject',
+                new \Morpho\Base\ArrayObject,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForTypeOf
+     */
+    public function testTypeOf($expected, $actual) {
+        $this->assertEquals($expected, typeOf($actual));
     }
 
     public function testNormalizeEols() {
-        $this->markTestIncomplete();
+        $this->assertEquals("foo\nbar\nbaz\n", normalizeEols("foo\r\nbar\rbaz\r\n"));
+        $this->assertEquals("", normalizeEols(""));
     }
 
     public function testWriteLnSingle() {
