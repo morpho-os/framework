@@ -12,6 +12,7 @@ const ARRAY_TYPE    = 'array';
 const RESOURCE_TYPE = 'resource';
 
 const TRIM_CHARS = " \t\n\r\x00\x0B";
+const EOL_REGEXP = '~\r\n?~s';
 
 const SHORTEN_TAIL = '...';
 const SHORTEN_LENGTH = 30;
@@ -346,7 +347,7 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
 }
 
 function normalizeEols(string $s): string {
-    $res = preg_replace('~\r\n?~s', "\n", $s);
+    $res = preg_replace(EOL_REGEXP, "\n", $s);
     if (null === $res) {
         throw new \RuntimeException("Unable to replace EOL");
     }

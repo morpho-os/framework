@@ -324,12 +324,12 @@ namespace System {
         protected beforeSend(jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any {
         }
 
-        protected ajaxSuccess(responseData: any, textStatus: string, jqXHR: JQueryXHR): void {
+        protected ajaxSuccess(responseData: any, textStatus: string, jqXHR: JQueryXHR): any {
             this.enableSubmitButtonEls();
             this.handleResponse(responseData);
         }
 
-        protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): void {
+        protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
             this.enableSubmitButtonEls();
             // @TODO: Replace alert with internal method call.
             alert("AJAX error");

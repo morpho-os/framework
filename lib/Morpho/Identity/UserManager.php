@@ -13,8 +13,8 @@ class UserManager {
 
     protected $repo;
 
-    const USER_NOT_FOUND_ERROR = 'userNotFound';
-    const LOGIN_NOT_FOUND_ERROR = 'loginNotFound';
+    const USER_NOT_FOUND_ERROR       = 'userNotFound';
+    const LOGIN_NOT_FOUND_ERROR      = 'loginNotFound';
     const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
 
     public function __construct(IUserRepo $repo, Session $session) {
@@ -29,10 +29,8 @@ class UserManager {
         if (!isset($this->session->userId)) {
             throw new \RuntimeException("The user was not logged in");
         }
-        $this->user = $this->repo->findUserById($this->session->userId);
-        if (false === $this->user) {
-            throw new EntityNotFoundException("The user with ID {$this->session->userId} does not exist");
-        }
+        $this->user = $this->getUserById($this->session->userId);
+
         return $this->user;
     }
 
@@ -42,6 +40,15 @@ class UserManager {
 
     public function isUserRegistered(array $user): bool {
         return (bool)$this->repo->findUserByLogin($user['login']);
+    }
+
+    /**
+     * Log in into the system by ID without any check.
+     */
+    public function logInById($userId)/*: void */ {
+        $registeredUser = $this->getUserById($userId);
+        $this->session->userId = $registeredUser['id'];
+        $this->user = $registeredUser;
     }
 
     /**
@@ -65,12 +72,17 @@ class UserManager {
         unset($this->session->userId);
     }
 
+    /**
+     * This operation usually must be done in transaction.
+     *
+     * @return mixed
+     */
     public function registerUser(array $user) {
         if ($this->repo->findUserByLogin($user['login'])) {
             throw new EntityExistsException("Such user already exists");
         }
         $user['passwordHash'] = PasswordManager::passwordHash($user['password']);
-        $this->repo->saveUser($user);
+        return $this->repo->saveUser($user);
     }
 
     public function deleteRegisteredUser(array $user) {
@@ -80,5 +92,13 @@ class UserManager {
 
     public function userHasRole(array $role): bool {
         throw new NotImplementedException();
+    }
+
+    protected function getUserById($userId) {
+        $user = $this->repo->findUserById($userId);
+        if (false === $user) {
+            throw new EntityNotFoundException("The user with ID $userId does not exist");
+        }
+        return $user;
     }
 }

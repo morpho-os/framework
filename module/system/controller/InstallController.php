@@ -7,6 +7,12 @@ use Morpho\Code\CodeTool;
 use Morpho\Db\Sql\Db;
 
 class InstallController extends Controller {
+    public function indexAction() {
+        return [
+            'dbConfig' => $this->serviceManager->get('siteManager')->getCurrentSiteConfig()['db'],
+        ];
+    }
+
     public function installAction() {
         $dbConfig = $this->getArgs();
 
@@ -87,9 +93,10 @@ class InstallController extends Controller {
     }
 
     protected function initRoutes() {
-        $router = $this->serviceManager->createRouterService();
+        $serviceManager = $this->serviceManager;
+        $router = $serviceManager->createRouterService();
         if ($router instanceof IServiceManagerAware) {
-            $router->setServiceManager($this->serviceManager);
+            $router->setServiceManager($serviceManager);
         }
         $router->rebuildRoutes();
     }
@@ -103,6 +110,7 @@ class InstallController extends Controller {
             $moduleManager->installModule($moduleName);
             $moduleManager->enableModule($moduleName);
         }
+        $moduleManager->isFallbackMode(false);
     }
 
     protected function initNewEnv(Db $db) {

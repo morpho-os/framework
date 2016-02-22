@@ -7,10 +7,11 @@ use Morpho\Base\IEventManager;
 use Morpho\Db\Sql\Db;
 
 abstract class ModuleManager extends Node implements IEventManager {
-    const ENABLED     = 0x1;  // 001 (installed enabled)
-    const DISABLED    = 0x2;  // 010 (installed disabled)
-    const UNINSTALLED = 0x4;  // 100 (uninstalled (not installed))
-    const ALL         = 0x7;  // 111 (all above (installed | uninstalled))
+    const ENABLED     = 0b001;  // (installed enabled)
+    const DISABLED    = 0b010;  // (installed disabled)
+    const INSTALLED   = 0b011;  // (installed enabled | installed disabled)
+    const UNINSTALLED = 0b100;  // (uninstalled (not installed))
+    const ALL         = 0b111;  // (all above (installed | uninstalled))
 
     protected $fallbackMode = false;
 

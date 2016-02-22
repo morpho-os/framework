@@ -124,11 +124,11 @@ var System;
         };
         Widget.prototype.init = function () {
         };
-        Widget.prototype.showEl = function (el) {
-            el.removeClass('hide').show();
+        Widget.prototype.showEl = function ($el) {
+            $el.removeClass('hide').show();
         };
-        Widget.prototype.hideEl = function (el) {
-            el.hide();
+        Widget.prototype.hideEl = function ($el) {
+            $el.hide();
         };
         Widget.prototype.forEach = function (items, fn) {
             var _this = this;

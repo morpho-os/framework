@@ -103,7 +103,7 @@ class Db {
         return $this->conn->lastInsertId($seqName);
     }
 
-    public function insertRow(string $tableName, array $row) {
+    public function insertRow(string $tableName, array $row)/*: void*/ {
         $sql = "INSERT INTO " . $this->quoteIdentifier($tableName) . '(';
         $sql .= implode(', ', $this->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $this->positionalPlaceholders($row)) . ')';
         $this->runQuery($sql, array_values($row));
@@ -124,7 +124,7 @@ class Db {
      * @param array|string $whereCondition
      * @param array|null $whereConditionArgs
      */
-    public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null) {
+    public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null)/*: void */ {
         $sql = 'UPDATE ' . $this->quoteIdentifier($tableName)
             . ' SET ' . implode(', ', $this->namedPlaceholders($row));
         $args = array_values($row);
@@ -182,7 +182,7 @@ class Db {
         return $this->conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
     }
     
-    public static function getAvailableDrivers() {
+    public static function getAvailableDrivers(): array {
         return \PDO::getAvailableDrivers();
     }
 
@@ -194,7 +194,7 @@ class Db {
         return $ids;
     }
 
-    public function quoteIdentifier(string $name) {
+    public function quoteIdentifier(string $name): string {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
         return '`' . $name . '`';
     }

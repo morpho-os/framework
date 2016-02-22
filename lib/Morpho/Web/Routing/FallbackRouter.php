@@ -6,7 +6,7 @@ class FallbackRouter {
         $path = rtrim($request->uri()->getPath(), '/');
         $parts = array_slice(array_filter(explode('/', $path)), 0, 9);
         $routes = [
-            'GET'  => ['check-env'],
+            //'GET'  => ['check-env'],
             'POST' => ['install'],
         ];
         $httpMethod = $request->getMethod();

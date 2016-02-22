@@ -117,11 +117,23 @@ class TypeInfoProvider {
         'VARBINARY'  => [
             'storageInBytes' => 'len + 1 bytes if column is 0 – 255 bytes, len + 2 bytes if column may require more than 255 bytes',
         ],
-        'TINYBLOB'   => [
+        'TINYTEXT'   => [
             'storageInBytes' => '$M+1',
             // len + 1 bytes
         ],
-        'TINYTEXT'   => [
+        'TEXT'       => [
+            'storageInBytes' => '$M+2',
+            // len + 2 bytes
+        ],
+        'MEDIUMTEXT' => [
+            'storageInBytes' => '$M+3'
+            // len + 3 bytes
+        ],
+        'LONGTEXT'   => [
+            'storageInBytes' => '$M+4'
+            // len + 4 bytes
+        ],
+        'TINYBLOB'   => [
             'storageInBytes' => '$M+1',
             // len + 1 bytes
         ],
@@ -129,23 +141,11 @@ class TypeInfoProvider {
             'storageInBytes' => '$M+2',
             // len + 2 bytes
         ],
-        'TEXT'       => [
-            'storageInBytes' => '$M+2',
-            // len + 2 bytes
-        ],
         'MEDIUMBLOB' => [
             'storageInBytes' => '$M+3',
             // len + 3 bytes
         ],
-        'MEDIUMTEXT' => [
-            'storageInBytes' => '$M+3'
-            // len + 3 bytes
-        ],
         'LONGBLOB'   => [
-            'storageInBytes' => '$M+4'
-            // len + 4 bytes
-        ],
-        'LONGTEXT'   => [
             'storageInBytes' => '$M+4'
             // len + 4 bytes
         ],
@@ -153,7 +153,7 @@ class TypeInfoProvider {
             'storageInBytes' => '?',
         ],
         'JSON'       => [
-
+            // @TODO
         ],
     ];
 

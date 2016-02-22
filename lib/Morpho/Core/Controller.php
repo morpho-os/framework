@@ -10,9 +10,10 @@ abstract class Controller extends Node implements IServiceManagerAware {
     protected $request;
 
     private $viewVars = [];
+
     private $specialViewVars = [];
 
-    public function dispatch($request) {
+    public function dispatch($request)/*: void */ {
         $this->viewVars = $this->specialViewVars = [];
 
         $this->request = $request;
@@ -50,11 +51,11 @@ abstract class Controller extends Node implements IServiceManagerAware {
         }
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager)/*: void */ {
         $this->serviceManager = $serviceManager;
     }
 
-    public function setRequest($request) {
+    public function setRequest($request)/*: void */ {
         $this->request = $request;
     }
 
@@ -73,35 +74,29 @@ abstract class Controller extends Node implements IServiceManagerAware {
     /**
      * Called before calling of any action.
      */
-    protected function beforeEach() {
+    protected function beforeEach()/*: void */ {
     }
 
     /**
      * Called after calling of any action.
      */
-    protected function afterEach() {
+    protected function afterEach()/*: void */ {
     }
 
-    protected function setSetting(string $name, $value, $moduleName = null) {
+    protected function setSetting(string $name, $value, string $moduleName = null)/*: void */ {
         $this->serviceManager->get('settingManager')
             ->set($name, $value, $moduleName ?: $this->getModuleName());
     }
 
-    protected function getSetting(string $name, $moduleName = null) {
+    protected function getSetting(string $name, string $moduleName = null) {
         return $this->serviceManager->get('settingManager')
             ->get($name, $moduleName ?: $this->getModuleName());
     }
 
-    /**
-     * @return string
-     */
-    protected function getModuleName() {
+    protected function getModuleName(): string {
         return $this->parent->getName();
     }
 
-    /**
-     * @return \Morpho\Db\Db
-     */
     protected function getDb() {
         return $this->serviceManager->get('db');
     }
@@ -110,15 +105,15 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->parent->getRepo($name);
     }
 
-    protected function setView(string $viewName) {
+    protected function setView(string $viewName)/*: void */ {
         $this->specialViewVars['name'] = $viewName;
     }
 
-    protected function setSpecialViewVar(string $name, $value) {
+    protected function setSpecialViewVar(string $name, $value)/*: void */ {
         $this->specialViewVars[$name] = $value;
     }
 
-    protected function setViewInstanceVars(array $vars) {
+    protected function setViewInstanceVars(array $vars)/*: void */ {
         $this->specialViewVars['instanceVars'] = array_merge(
             isset($this->specialViewVars['instanceVars'])
                 ? $this->specialViewVars['instanceVars']
@@ -131,10 +126,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->request->isDispatched();
     }
 
-    /**
-     * @return string
-     */
-    protected function renderView(string $viewName, array $viewVars = []) {
+    protected function renderView(string $viewName, array $viewVars = []): string {
         return $this->trigger(
             'render',
             array_merge(

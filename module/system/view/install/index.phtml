@@ -1,16 +1,17 @@
-<?php $this->var()->pageTitle = 'Installation'; ?>
+<?php
+$this->var()->pageTitle = 'Installation';
+?>
 
 <h1>Installation</h1>
 
 <form id="install-form" method="post" class="form-horizontal" action="/install">
     <fieldset>
         <legend>MySQL database configuration</legend>
-
         <div class="form-group">
             <label class="control-label col-md-8">Database</label>
 
             <div class="col-md-8">
-                <input type="text" name="db" class="form-control" id="db" required autofocus>
+                <input type="text" name="db" value="<?= isset($dbConfig['db']) ? $dbConfig['db'] : '' ?>" class="form-control" id="db" required>
             </div>
         </div>
 
@@ -18,7 +19,7 @@
             <label class="control-label col-md-8">User</label>
 
             <div class="col-md-8">
-                <input type="text" name="user" value="root" class="form-control" id="user" required>
+                <input type="text" name="user" value="<?= isset($dbConfig['user']) ? $dbConfig['user'] : '' ?>" class="form-control" id="user" required>
             </div>
         </div>
 
@@ -26,7 +27,7 @@
             <label class="control-label col-md-8">Password</label>
 
             <div class="col-md-8">
-                <input type="password" name="password" class="form-control" autocomplete="off" id="password">
+                <input type="password" name="password" value="<?= isset($dbConfig['password']) ? $dbConfig['password'] : '' ?>" class="form-control" autocomplete="off" id="password">
             </div>
         </div>
 
@@ -34,10 +35,10 @@
             <label class="control-label col-md-8">Host and Port</label>
 
             <div class="col-md-6">
-                <input type="text" name="host" value="127.0.0.1" class="form-control" placeholder="host">
+                <input type="text" name="host" value="<?= isset($dbConfig['host']) ? $dbConfig['host'] : '' ?>" class="form-control" placeholder="host">
             </div>
             <div class="col-md-2">
-                <input type="text" name="port" value="3306" class="form-control" placeholder="port">
+                <input type="text" name="port" value="<?= isset($dbConfig['port']) ? $dbConfig['port'] : '' ?>" class="form-control" placeholder="port">
             </div>
         </div>
 

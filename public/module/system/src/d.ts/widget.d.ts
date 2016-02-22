@@ -8,8 +8,8 @@ declare namespace System {
         constructor(el: any);
         protected registerEventHandlers(): void;
         protected init(): void;
-        protected showEl(el: JQuery): void;
-        protected hideEl(el: JQuery): void;
+        protected showEl($el: JQuery): void;
+        protected hideEl($el: JQuery): void;
         protected forEach(items: any, fn: any): void;
         protected forEachEl(items: any, fn: any): void;
     }

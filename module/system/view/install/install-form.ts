@@ -3,6 +3,10 @@
 namespace System.Install {
     import Form = System.Form;
     export class InstallForm extends Form {
+        protected init(): void {
+            this.getDbNameEl().focus();
+        }
+
         protected registerEventHandlers(): void {
             super.registerEventHandlers();
             this.getDbNameEl().on('keyup change blur', () => {

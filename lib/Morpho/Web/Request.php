@@ -47,6 +47,7 @@ class Request extends BaseRequest {
     ];
 
     public function getContent(): string {
+        // @TODO
         return file_get_contents('php://input');
     }
 

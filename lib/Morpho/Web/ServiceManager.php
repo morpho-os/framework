@@ -24,6 +24,7 @@ use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
+use Morpho\Db\Sql\Db;
 
 class ServiceManager extends BaseServiceManager {
     public function createRouterService() {
@@ -32,6 +33,15 @@ class ServiceManager extends BaseServiceManager {
         }
         //return new Router($this->get('db'));
         return new FastRouter();
+    }
+
+    protected function createDbService() {
+        $dbConfig = $this->config['db'];
+        if ($this->isFallbackMode()) {
+            // Don't connect for the fallback mode.
+            $dbConfig['db'] = '';
+        }
+        return new Db($dbConfig);
     }
 
     protected function createSessionService() {

@@ -6,15 +6,18 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 
 class SchemaManager extends BaseSchemaManager {
+    protected $defaultEngine = 'InnoDB';
+    protected $defaultCharset = 'utf8';
+
     public function listDatabases(): array {
         return $this->db->fetchColumn("SHOW DATABASES");
     }
 
-    public function createDatabase(string $dbName) {
+    public function createDatabase(string $dbName)/*: void*/ {
         $this->db->runQuery("CREATE DATABASE " . $this->db->quoteIdentifier($dbName) . " CHARACTER SET utf8 COLLATE utf8_general_ci");
     }
 
-    public function deleteDatabase(string $dbName) {
+    public function deleteDatabase(string $dbName)/*: void*/ {
         $this->db->runQuery("DROP DATABASE " . $this->db->quoteIdentifier($dbName));
     }
 
@@ -22,7 +25,7 @@ class SchemaManager extends BaseSchemaManager {
         return $this->db->fetchColumn("SHOW TABLES");
     }
 
-    public function deleteTable(string $tableName) {
+    public function deleteTable(string $tableName)/*: void*/ {
         $this->db->transaction(function ($db) use ($tableName) {
             /*
             $isMySql = $this->connection->getDriver() instanceof MySqlDriver;
@@ -38,15 +41,15 @@ class SchemaManager extends BaseSchemaManager {
         });
     }
 
-    public function renameTable(string $oldTableName, string $newTableName) {
+    public function renameTable(string $oldTableName, string $newTableName)/*: void*/ {
         throw new NotImplementedException();
     }
 
-    public function deleteTableIfExists(string $tableName) {
+    public function deleteTableIfExists(string $tableName)/*: void*/ {
         $this->db->runQuery('DROP TABLE IF EXISTS ' . $this->db->quoteIdentifier($tableName));
     }
 
-    public function renameColumn() {
+    public function renameColumn()/*: void*/ {
         throw new NotImplementedException();
     }
 
@@ -64,7 +67,18 @@ class SchemaManager extends BaseSchemaManager {
         }
 
         if (isset($tableDefinition['indexes'])) {
-            foreach ($tableDefinition['indexes'] as $indexName => $indexDefinition) {
+            // 'indexes' => 'indexedCol1',
+            // or 'indexes' => ['indexedCol1', 'indexedCol2', ...]
+            // or 'indexes' => [
+            //     [
+            //         'name' => ...
+            //         'columns' => ...
+            //         'type' => ...
+            //         'option' => ...
+            //     ],
+            // ]
+            foreach ((array)$tableDefinition['indexes'] as $indexName => $indexDefinition) {
+                // @TODO: Merge common logic with 'uniqueKeys' and 'primaryKey'.
                 $columns[] = 'KEY'
                     . (is_numeric($indexName)
                         ? ' (' . $this->db->quoteIdentifier($indexDefinition) . ')'
@@ -73,9 +87,22 @@ class SchemaManager extends BaseSchemaManager {
         }
 
         if (isset($tableDefinition['uniqueKeys'])) {
-            foreach ($tableDefinition['uniqueKeys'] as $uniqueKeyDefinition) {
-                $columns[] = 'UNIQUE '
-                    . $this->indexDefinitionToSql($uniqueKeyDefinition);
+            // 'foreignKeys' => 'colName1'
+            // or 'foreignKeys' => ['colName1', 'colName2', ...]]
+            // or 'foreignKeys' => [
+            //     [
+            //         'name' => ...
+            //         'columns' => ...
+            //         'type' => ...
+            //         'option' => ...
+            //     ],
+            // ]
+            foreach ((array)$tableDefinition['uniqueKeys'] as $uniqueKeyDefinition) {
+                if (is_string($uniqueKeyDefinition)) {
+                    $columns[] = 'UNIQUE ' . $this->indexDefinitionToSql(['columns' => $uniqueKeyDefinition]);
+                } else {
+                    $columns[] = 'UNIQUE ' . $this->indexDefinitionToSql($uniqueKeyDefinition);
+                }
             }
         }
 
@@ -85,10 +112,19 @@ class SchemaManager extends BaseSchemaManager {
             }
             $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql(['columns' => $pkColumns]);
         } elseif (isset($tableDefinition['primaryKey'])) {
-            if (isset($tableDefinition['primaryKey'][0])) { // 'primaryKey' => ['firstCol', 'secondCol'] or 'firstCol'
+            if (isset($tableDefinition['primaryKey'][0])) {
+                // 'primaryKey' => 'colName',
+                // or 'primaryKey' => ['pkCol1', 'pkCol2'],
                 $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql(['columns' => (array)$tableDefinition['primaryKey']]);
             } else {
-                //throw new \RuntimeException("The 'primaryKey' has invalid format");
+                /**
+                 * 'primaryKey' => [
+                 *     'name'   => ...
+                 *     'columns => ...
+                 *     'type'   => ...
+                 *     'option' => ...
+                 * ]
+                 */
                 $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql($tableDefinition['primaryKey']);
             }
         }
@@ -96,23 +132,22 @@ class SchemaManager extends BaseSchemaManager {
         $sql = "CREATE TABLE " . $this->db->quoteIdentifier($tableName)
             . " (\n"
             . implode(",\n", $columns)
-            . "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+            . "\n) ENGINE={$this->defaultEngine} DEFAULT CHARSET={$this->defaultCharset}";
 
         $args = [];
         if (isset($tableDefinition['description'])) {
             $sql .= "\n, COMMENT=?";
             $args[] = $tableDefinition['description'];
         }
+
         return [$sql, $args];
     }
 
-    public function columnDefinitionToSql($columnName, array $columnDefinition): string {
+    public function columnDefinitionToSql(string $columnName, array $columnDefinition): string {
         Assert::hasOnlyKeys($columnDefinition, ['type', 'nullable', 'scale', 'precision', 'default', 'unsigned', 'length']);
 
         $columnDefinitionSql = '';
         $columnType = $columnDefinition['type'];
-
-        // @TODO: Add 'foreignKey' type.
 
         if ($columnType === 'primaryKey') {
             $columnDefinitionSql .= 'int unsigned NOT NULL AUTO_INCREMENT';
@@ -173,7 +208,7 @@ class SchemaManager extends BaseSchemaManager {
         return [$pkColumns, $sql];
     }
 
-    protected function indexDefinitionToSql(array $indexDefinition) {
+    protected function indexDefinitionToSql(array $indexDefinition): string {
         $sql = [];
         if (isset($indexDefinition['name'])) {
             $sql[] = $indexDefinition['name'];

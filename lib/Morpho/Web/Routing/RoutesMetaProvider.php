@@ -22,6 +22,10 @@ class RoutesMetaProvider implements \IteratorAggregate {
         $this->actionsMetaProvider = $actionsMetaProvider;
     }
 
+    public function getActionsMetaProvider() {
+        return $this->actionsMetaProvider;
+    }
+
     public function getIterator(): \Generator {
         foreach ($this->actionsMetaProvider as $actionMeta) {
             // 1 $actionMeta can be mapped to the >= 1 $routeMeta

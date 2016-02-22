@@ -2,6 +2,9 @@
 namespace Morpho\Identity;
 
 interface IUserRepo {
+    /**
+     * @return mixed
+     */
     public function saveUser(array $user);
 
     public function deleteUser(array $user);

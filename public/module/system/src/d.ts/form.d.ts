@@ -58,8 +58,8 @@ declare namespace System {
         protected sendAjaxRequest(ajaxSettings: JQueryAjaxSettings): JQueryXHR;
         protected getAjaxSettings(): JQueryAjaxSettings;
         protected beforeSend(jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any;
-        protected ajaxSuccess(responseData: any, textStatus: string, jqXHR: JQueryXHR): void;
-        protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): void;
+        protected ajaxSuccess(responseData: any, textStatus: string, jqXHR: JQueryXHR): any;
+        protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any;
         protected enableSubmitButtonEls(): void;
         protected disableSubmitButtonEls(): void;
         protected handleResponse(responseData: JsonResponse): void;

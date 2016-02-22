@@ -3,7 +3,6 @@ namespace Morpho\Core;
 
 use Morpho\Base\MethodNotFoundException;
 use Morpho\Di\ServiceManager as BaseServiceManager;
-use Morpho\Db\Sql\Db;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;
@@ -22,11 +21,6 @@ abstract class ServiceManager extends BaseServiceManager {
             return $this->get(substr($method, 3));
         }
         throw new MethodNotFoundException($this, $method);
-    }
-
-    protected function createDbService() {
-        $dbConfig = $this->config['db'];
-        return new Db(isset($dbConfig['dsn']) ? $dbConfig['dsn'] : $dbConfig);
     }
 
     abstract protected function createModuleManagerService();

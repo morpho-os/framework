@@ -19,12 +19,12 @@ namespace System {
         protected init(): void {
         }
 
-        protected showEl(el: JQuery): void {
-            el.removeClass('hide').show();
+        protected showEl($el: JQuery): void {
+            $el.removeClass('hide').show();
         }
 
-        protected hideEl(el: JQuery): void {
-            el.hide();
+        protected hideEl($el: JQuery): void {
+            $el.hide();
         }
 
         protected forEach(items: any, fn: any): void {

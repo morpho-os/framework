@@ -4,15 +4,15 @@ namespace Morpho\Identity;
 use Zend\Math\Rand;
 
 class PasswordManager {
-    const PASS_LENGTH = 16;
-    const MAX_PASS_LENGTH = 72;
+    const PASSWORD_LENGTH = 24;
+    const MAX_PASSWORD_LENGTH = 72;
 
-    // Removed characters which can confuse: 0, '0', 'I', 1, 'l'.
+    // Removed characters which can confuse: 0, 'O', 'I', 1, 'l'.
     const ALLOWED_CHARS = '\\/~;:<>?!@#$%^&*(){}[].,-_=+abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
     const COST = 12;
 
-    public static function generatePassword(int $length = self::PASS_LENGTH): string {
+    public static function generatePassword(int $length = self::PASSWORD_LENGTH): string {
         return Rand::getString($length, self::ALLOWED_CHARS, true);
     }
 
@@ -24,7 +24,7 @@ class PasswordManager {
      * @return string Password hash, 60 characters.
      */
     public static function passwordHash(string $plainPassword): string {
-        if (strlen($plainPassword) > self::MAX_PASS_LENGTH) {
+        if (strlen($plainPassword) > self::MAX_PASSWORD_LENGTH) {
             throw new \UnexpectedValueException("Password too long");
         }
         $passwordHash = password_hash($plainPassword, static::algo(), self::options());

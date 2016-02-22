@@ -15,7 +15,7 @@ class ArrayTool {
         throw new NotImplementedException();
     }
 
-    public static function getItemsWithKeys(array $arr, array $keys): array {
+    public static function itemsWithKeys(array $arr, array $keys): array {
         return array_intersect_key($arr, array_flip(array_values($keys)));
     }
 

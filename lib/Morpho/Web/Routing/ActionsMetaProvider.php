@@ -26,8 +26,9 @@ class ActionsMetaProvider implements \IteratorAggregate {
         $traverser->addVisitor(new PhpParser\NodeVisitor\NameResolver());
         $controllerVisitor = new ControllerVisitor();
         $traverser->addVisitor($controllerVisitor);
+        $moduleDirPath = $this->moduleDirPath;
         foreach ($this->moduleManager->listEnabledModules() as $moduleName) {
-            $controllerDirPath = $this->moduleDirPath . '/' . dasherize($moduleName) . '/' . CONTROLLER_DIR_NAME;
+            $controllerDirPath = $moduleDirPath . '/' . dasherize($moduleName) . '/' . CONTROLLER_DIR_NAME;
             foreach (glob($controllerDirPath . '/*Controller.php') as $controllerFilePath) {
                 $stmts = $parser->parse(file_get_contents($controllerFilePath));
                 $traverser->traverse($stmts);
