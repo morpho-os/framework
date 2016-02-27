@@ -45,7 +45,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function actionName(): string {
-        $actionName = $this->request()->actionName();
+        $actionName = $this->request()->getActionName();
         if (empty($actionName)) {
             throw new EmptyValueException();
         }

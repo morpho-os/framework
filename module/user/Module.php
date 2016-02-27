@@ -29,8 +29,10 @@ class Module extends BaseModule {
                     ],
                     'passwordHash' => [
                         'type' => 'varchar',
+                        'nullable' => true,
                     ],
                 ],
+                'uniqueKeys' => ['login'],
             ],
             'permission' => [
                 'columns' => [
@@ -85,6 +87,7 @@ class Module extends BaseModule {
                         'parentColumn' => 'id',
                     ]
                 ],
+                'description' => 'Stores relations between users (the `user` table) and roles (the `role` table)',
             ],
             'userPermission' => [
                 'columns' => [
@@ -118,6 +121,7 @@ class Module extends BaseModule {
                         'parentColumn' => 'id',
                     ]
                 ],
+                'description' => 'Stores relations between users (the `user` table) and permissions (the `permission` table)',
             ],
         ];
     }

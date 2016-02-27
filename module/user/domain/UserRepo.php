@@ -15,19 +15,16 @@ class UserRepo extends Repo implements IUserRepo {
         return $this->getDb()->selectRow("* FROM $this->tableName WHERE login = ?", [$login]);
     }
 
-    /**
-     * @param string|int $id
-     * @return array|false Returns an array with information about User on success, false otherwise.
-     */
-    public function findUserById($id) {
-        return $this->getDb()->selectRow("* FROM $this->tableName WHERE id = ?", [$id]);
+    public function getUserById($id): array {
+        return $this->selectRowEx("* FROM $this->tableName WHERE id = ?", [$id]);
     }
 
-    public function saveUser(array $user) {
-        $this->insertRow(ArrayTool::getItemsWithKeys($user, ['login', 'passwordHash']));
+    public function saveUser(array $user): string {
+        $this->insertRow(ArrayTool::itemsWithKeys($user, ['login', 'passwordHash']));
+        return $this->lastInsertId('id');
     }
 
-    public function deleteUser(array $user) {
+    public function deleteUser(array $user)/*: void */ {
         $userId = $user['id'];
         if (empty($userId)) {
             throw new \UnexpectedValueException("The User ID must be not empty");
