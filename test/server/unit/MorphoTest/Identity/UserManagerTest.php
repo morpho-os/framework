@@ -1,6 +1,7 @@
 <?php
 namespace MorphoTest\Identity;
 
+use Morpho\Base\EntityNotFoundException;
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
 use Morpho\Web\Session;
@@ -32,13 +33,13 @@ class UserManagerTest extends DbTestCase {
                 unset($this->users[$user['login']]);
             }
             
-            public function findUserById($id) {
+            public function getUserById($id): array {
                 foreach ($this->users as $user) {
                     if ($user['id'] === $id) {
                         return $user;
                     }
                 }
-                return false;
+                throw new EntityNotFoundException();
             }
         };
         $_SESSION = [];
@@ -88,23 +89,48 @@ class UserManagerTest extends DbTestCase {
         $this->userManager->registerUser($user);
     }
 
-    public function testLogin_TwiceWorks() {
+    public function testLogIn_TwiceWorks() {
         $user = ['login' => 'I', 'password' => 'pass'];
         $this->userManager->registerUser($user);
         $this->assertTrue($this->userManager->logIn($user));
         $this->assertTrue($this->userManager->logIn($user));
     }
 
-    public function testLogin_NotRegisteredReturnsError() {
+    public function testLogIn_NotRegisteredReturnsError() {
         $user = ['login' => 'foo', 'password' => 'bar'];
-        $this->assertEquals([UserManager::USER_NOT_FOUND_ERROR, UserManager::LOGIN_NOT_FOUND_ERROR], $this->userManager->logIn($user));
+        $this->assertEquals([UserManager::LOGIN_NOT_FOUND_ERROR], $this->userManager->logIn($user));
     }
 
-    public function testLogin_InvalidPasswordReturnsError() {
+    public function testLogIn_InvalidPasswordReturnsError() {
         $user = ['login' => 'foo', 'password' => 'bar'];
         $this->userManager->registerUser($user);
         $user['password'] = 'invalid';
-        $this->assertEquals([UserManager::USER_NOT_FOUND_ERROR, UserManager::PASSWORDS_DONT_MATCH_ERROR], $this->userManager->logIn($user));
+        $this->assertEquals([UserManager::PASSWORDS_DONT_MATCH_ERROR], $this->userManager->logIn($user));
+    }
+
+    public function dataForLogIn_EmptyLoginOrPasswordReturnsError() {
+        return [
+            [
+                'my-login',
+                '',
+            ],
+            [
+                '',
+                'my-password',
+            ],
+            [
+                '',
+                '',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForLogIn_EmptyLoginOrPasswordReturnsError
+     */
+    public function testLogIn_EmptyLoginOrPasswordReturnsError($login, $password) {
+        $this->userManager->registerUser(['login' => $login, 'password' => $password]);
+        $this->assertEquals([UserManager::EMPTY_LOGIN_OR_PASSWORD], $this->userManager->logIn(['login' => $login, 'password' => $password]));
     }
 
     private function assertGetLoggedInUserThrowsUserNotLoggedInException() {

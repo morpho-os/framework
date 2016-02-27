@@ -46,7 +46,7 @@ class Db {
     }
 
     /**
-     * @return false|null|string
+     * @return false|array
      */
     public function selectRow(string $sql, array $args) {
         return $this->fetchRow('SELECT ' . $sql, $args);
@@ -77,7 +77,7 @@ class Db {
     }
 
     /**
-     * @return false|null|string
+     * @return false|array
      */
     public function fetchRow(string $sql, array $args = []) {
         return $this->runQuery($sql, $args)

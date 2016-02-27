@@ -16,18 +16,14 @@ abstract class Request {
 
     private $isDispatched = false;
 
-    /**
-     * @param bool|null $flag
-     * @return bool
-     */
-    public function isDispatched(bool $flag = null) {
+    public function isDispatched(bool $flag = null): bool {
         if ($flag !== null) {
             $this->isDispatched = $flag;
         }
         return $this->isDispatched;
     }
 
-    public function setHandler(array $handler): Request {
+    public function setHandler(array $handler): self {
         return $this->setModuleName($handler[0])
             ->setControllerName($handler[1])
             ->setActionName($handler[2]);
@@ -42,6 +38,9 @@ abstract class Request {
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getModuleName() {
         return $this->moduleName;
     }
@@ -51,6 +50,9 @@ abstract class Request {
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getControllerName() {
         return $this->controllerName;
     }
@@ -60,6 +62,9 @@ abstract class Request {
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getActionName() {
         return $this->actionName;
     }
@@ -68,15 +73,15 @@ abstract class Request {
         return count($this->params) > 0;
     }
 
-    public function setParams(array $params) {
+    public function setParams(array $params)/*: void */ {
         $this->params = $params;
     }
 
-    public function getParams() {
+    public function getParams(): array {
         return $this->params;
     }
 
-    public function setParam(string $name, $value) {
+    public function setParam(string $name, $value)/*: void */ {
         $this->params[$name] = $value;
     }
 
@@ -84,7 +89,7 @@ abstract class Request {
         return isset($this->params[$name]) ? $this->params[$name] : $default;
     }
 
-    public function setInternalParam(string $name, $value) {
+    public function setInternalParam(string $name, $value)/*: void */ {
         $this->internalParams[$name] = $value;
     }
 
@@ -92,11 +97,11 @@ abstract class Request {
         return isset($this->internalParams[$name]) ? $this->internalParams[$name] : $default;
     }
 
-    public function unsetInternalParam(string $name) {
+    public function unsetInternalParam(string $name)/*: void */ {
         unset($this->internalParams[$name]);
     }
 
-    public function setResponse($response) {
+    public function setResponse($response)/*: void */ {
         $this->response = $response;
     }
 

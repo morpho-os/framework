@@ -2,7 +2,6 @@
 namespace Morpho\Identity;
 
 use Morpho\Base\EntityExistsException;
-use Morpho\Base\EntityNotFoundException;
 use Morpho\Base\NotImplementedException;
 use Morpho\Web\Session;
 
@@ -13,9 +12,9 @@ class UserManager {
 
     protected $repo;
 
-    const USER_NOT_FOUND_ERROR       = 'userNotFound';
     const LOGIN_NOT_FOUND_ERROR      = 'loginNotFound';
     const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
+    const EMPTY_LOGIN_OR_PASSWORD    = 'emptyPassword';
 
     public function __construct(IUserRepo $repo, Session $session) {
         $this->repo = $repo;
@@ -29,8 +28,7 @@ class UserManager {
         if (!isset($this->session->userId)) {
             throw new \RuntimeException("The user was not logged in");
         }
-        $this->user = $this->getUserById($this->session->userId);
-
+        $this->user = $this->getRegisteredUserById($this->session->userId);
         return $this->user;
     }
 
@@ -43,10 +41,10 @@ class UserManager {
     }
 
     /**
-     * Log in into the system by ID without any check.
+     * Log in into the system by ID without any checks.
      */
     public function logInById($userId)/*: void */ {
-        $registeredUser = $this->getUserById($userId);
+        $registeredUser = $this->getRegisteredUserById($userId);
         $this->session->userId = $registeredUser['id'];
         $this->user = $registeredUser;
     }
@@ -55,15 +53,26 @@ class UserManager {
      * @return true|array Returns true on success, array with errors otherwise.
      */
     public function logIn(array $user) {
-        $registeredUser = $this->repo->findUserByLogin($user['login']);
+        $login = trim($user['login']);
+        $password = trim($user['password']);
+
+        if (empty($login) || empty($password)) {
+            return [self::EMPTY_LOGIN_OR_PASSWORD];
+        }
+
+        $registeredUser = $this->repo->findUserByLogin($login);
         if (false === $registeredUser) {
-            return [self::USER_NOT_FOUND_ERROR, self::LOGIN_NOT_FOUND_ERROR];
+            return [self::LOGIN_NOT_FOUND_ERROR];
         }
-        if (!PasswordManager::isValidPassword($user['password'], $registeredUser['passwordHash'])) {
-            return [self::USER_NOT_FOUND_ERROR, self::PASSWORDS_DONT_MATCH_ERROR];
+
+        if (!PasswordManager::isValidPassword($password, $registeredUser['passwordHash'])) {
+            return [self::PASSWORDS_DONT_MATCH_ERROR];
         }
+        unset($registeredUser['passwordHash']);
+
         $this->session->userId = $registeredUser['id'];
         $this->user = $registeredUser;
+
         return true;
     }
 
@@ -82,7 +91,9 @@ class UserManager {
             throw new EntityExistsException("Such user already exists");
         }
         $user['passwordHash'] = PasswordManager::passwordHash($user['password']);
-        return $this->repo->saveUser($user);
+        $registeredUser = $this->repo->saveUser($user);
+        unset($registeredUser['passwordHash']);
+        return $registeredUser;
     }
 
     public function deleteRegisteredUser(array $user) {
@@ -94,11 +105,9 @@ class UserManager {
         throw new NotImplementedException();
     }
 
-    protected function getUserById($userId) {
-        $user = $this->repo->findUserById($userId);
-        if (false === $user) {
-            throw new EntityNotFoundException("The user with ID $userId does not exist");
-        }
-        return $user;
+    private function getRegisteredUserById($id) {
+        $registeredUser = $this->repo->getUserById($id);
+        unset($registeredUser['passwordHash']);
+        return $registeredUser;
     }
 }

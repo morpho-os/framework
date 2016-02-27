@@ -57,6 +57,14 @@ class Repo extends BaseRepo {
         }
     }
 
+    public function selectRowEx(string $sql, array $args, string $message = null): array {
+        $row = $this->getDb()->selectRow($sql, $args);
+        if (false === $row) {
+            $this->entityNotFoundError($message);
+        }
+        return $row;
+    }
+
     /**
      * @param array|string $whereCondition
      * @param array|null $whereConditionArgs

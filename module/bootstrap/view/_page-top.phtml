@@ -8,8 +8,8 @@
     <?php
     //  <link rel="shortcut icon" href="../../assets/ico/favicon.png">
     ?>
-    <title><?= $this->var()->pageTitle ?></title>
+    <title><?= $this->pageTitle ?></title>
     <link href="/module/system/css/main.css" rel="stylesheet">
 </head>
-<body>
+<body id="<?= $this->pageCssId() ?>">
 

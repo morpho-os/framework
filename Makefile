@@ -28,6 +28,9 @@ clean-tmp-js:
 	@rm -f $(publicModuleDirPath)/**/src/**/*.js
 	@rm -f $(publicModuleDirPath)/**/src/*.js
 
+clean-cache:
+	@rm -rf site/**/cache/*
+
 update-npm-modules:
 	@(cd public && npm update)
 

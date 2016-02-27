@@ -129,9 +129,7 @@ class Module extends BaseModule {
                         'type' => 'int',
                     ],
                 ],
-                'indexes' => [
-                    'name',
-                ],
+                'uniqueKeys' => ['name'],
             ],
             //'controller' =>
             'event' => [

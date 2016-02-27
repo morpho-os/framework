@@ -20,7 +20,7 @@ class Uri extends BaseUri {
         return $this->getPath() === $path;
     }
 
-    public function setBasePath(string $basePath) {
+    public function setBasePath(string $basePath): self {
         $this->basePath = $basePath;
         return $this;
     }
@@ -50,7 +50,7 @@ class Uri extends BaseUri {
         return $queryArgs;
     }
 
-    public static function queryArgsToString(array $queryArgs) {
+    public static function queryArgsToString(array $queryArgs): string {
         return str_replace('+', '%20', http_build_query($queryArgs));
     }
 

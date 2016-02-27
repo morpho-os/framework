@@ -62,7 +62,7 @@ class Controller extends BaseController {
         );
     }
 
-    protected function redirectToSelf(string $successMessage = null, $queryArgs, string $fragment = null) {
+    protected function redirectToSelf(string $successMessage = null, $queryArgs = null, string $fragment = null) {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
@@ -120,8 +120,8 @@ class Controller extends BaseController {
         throw new NotFoundException();
     }
 
-    protected function getSession() {
-        return $this->serviceManager->get('session');
+    protected function session(): Session {
+        return new Session(get_class($this));
     }
 
     protected function getParam($name) {

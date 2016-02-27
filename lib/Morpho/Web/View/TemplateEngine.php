@@ -2,38 +2,27 @@
 namespace Morpho\Web\View;
 
 use Morpho\Base\EmptyPropertyException;
+use Morpho\Base\ItemNotSetException;
 use Morpho\Fs\File;
 use Zend\Filter\FilterChain;
 
 abstract class TemplateEngine extends FilterChain {
     protected $useCache = true;
 
-    protected $templateVars = [];
+    protected $vars = [];
 
     protected $cacheDirPath;
 
     protected $uniqueFileHash = '';
 
-    public function setCacheDirPath(string $dirPath) {
+    public function setCacheDirPath(string $dirPath)/*: void */ {
         $this->cacheDirPath = $dirPath;
     }
 
-    public function mergeVars(array $vars) {
-        $this->templateVars = array_merge($this->templateVars, $vars);
-    }
-
-    public function setVars(array $vars) {
-        $this->templateVars = $vars;
-    }
-
     /**
-     * Renders file that contains code in PHPTemplate language and returns result as string.
-     *
-     * @param string $filePath
-     * @param array $vars
-     * @return string Returns result after of PHP execution.
+     * Renders file that contains code in PHPTemplate language and returns result after of PHP execution.
      */
-    public function renderFile(string $filePath, array $vars = []) {
+    public function renderFile(string $filePath, array $vars = []): string {
         $__filePath = $this->getCompiledFilePath($filePath);
         unset($filePath);
         extract($vars, EXTR_SKIP);
@@ -49,44 +38,53 @@ abstract class TemplateEngine extends FilterChain {
     }
 
     /**
-     * Renders code in PHPTemplate language and returns result as string.
-     *
-     * @param string $phpEngineCode
-     * @param array $vars
-     * @return string Returns result after of PHP execution.
+     * Renders code in PHPTemplate language and returns result after of PHP execution.
      */
-    public function render(string $phpEngineCode, array $vars = []) {
+    public function render(string $phpEngineCode, array $vars = []): string {
         extract($vars, EXTR_SKIP);
         ob_start();
         eval('?>' . $this->filter($phpEngineCode));
         return trim(ob_get_clean());
     }
 
-    /**
-     * @param bool|null $flag
-     * @return bool
-     */
-    public function useCache($flag = null) {
+    public function useCache(bool $flag = null): bool {
         if (null !== $flag) {
             $this->useCache = $flag;
         }
         return $this->useCache;
     }
 
+    public function __set(string $varName, $value)/*: void */ {
+        $this->vars[$varName] = $value;
+    }
+
     public function __get(string $varName) {
-        if (isset($this->templateVars[$varName])) {
-            return $this->templateVars[$varName];
+        if (!isset($this->vars[$varName])) {
+            throw new ItemNotSetException("The template variable '$varName' was not set.");
         }
-        throw new \RuntimeException("The template variable '$varName' does not exist.");
+        return $this->vars[$varName];
     }
 
-    public function __isset(string $varName) {
-        return isset($this->templateVars[$varName]);
+    public function __isset(string $varName): bool {
+        return isset($this->vars[$varName]);
     }
 
-    /**
-     * @return string Path to file containing PHP code.
-     */
+    public function __unset(string $name)/*: void */ {
+        unset($this->vars[$name]);
+    }
+
+    public function mergeVars(array $vars)/*: void */ {
+        $this->vars = array_merge($this->vars, $vars);
+    }
+
+    public function setVars(array $vars)/*: void */ {
+        $this->vars = $vars;
+    }
+    
+    public function getVars(): array {
+        return $this->vars;
+    }
+
     protected function getCompiledFilePath(string $filePath): string {
         if (!$this->cacheDirPath) {
             throw new EmptyPropertyException($this, 'cacheFilePath');
