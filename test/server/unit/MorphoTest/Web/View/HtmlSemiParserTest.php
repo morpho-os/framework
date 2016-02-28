@@ -10,7 +10,7 @@ class HtmlSemiParserTest extends TestCase {
     }
 
     public function testCallsTagHandler() {
-        $handler = $this->parser->attachHandler(new MyTagHandler());
+        $handler = $this->parser->attachHandlersFrom(new MyTagHandler());
         $html = <<<HTML
 <body>
     <a href="/foo/bar" class="my">Some text</a>
@@ -22,7 +22,7 @@ HTML;
     }
 
     public function testCallContainerHandler() {
-        $handler = $this->parser->attachHandler(new MyContainerHandler());
+        $handler = $this->parser->attachHandlersFrom(new MyContainerHandler());
         $html = <<<HTML
 <div class="my-class" style="width: 98%;">
     <a href="foo">123</a>
@@ -41,7 +41,7 @@ HTML;
     }
 
     public function testSkipsTagHandlerIfNoTag() {
-        $handler = $this->parser->attachHandler(new MyTagHandler());
+        $handler = $this->parser->attachHandlersFrom(new MyTagHandler());
         $html = <<<HTML
 <body>
     <form action="/some/uri" method="post">
@@ -55,7 +55,7 @@ HTML;
     }
 
     public function testCanRemoveTag() {
-        $handler = $this->parser->attachHandler(new RemoveTagHandler());
+        $handler = $this->parser->attachHandlersFrom(new RemoveTagHandler());
         $html = <<<HTML
 <body>
 <br>
@@ -71,7 +71,7 @@ HTML;
     }
 
     public function testCanRemoveContainer() {
-        $handler = $this->parser->attachHandler(new RemoveTagHandler());
+        $handler = $this->parser->attachHandlersFrom(new RemoveTagHandler());
         $html = <<<HTML
 <body>
 <script src="template.dart"></script>

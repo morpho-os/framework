@@ -17,6 +17,8 @@ class HtmlSemiParser extends BaseFilter {
      */
     protected $regexpTagIn = '(?>(?xs) (?> [^>"\']+ | " [^"]* " | \' [^\']* \' )* )';
 
+    protected $isHtml5 = true;
+
     /**
      * Containers, whose bodies are not parsed by the library.
      */
@@ -25,15 +27,19 @@ class HtmlSemiParser extends BaseFilter {
 
     private $tagHandlers = [];
     private $containerHandlers = [];
-    private $sp_precachers = [];
+    private $tagsPreprocessors = [];
 
+    /**
+     * @var string
+     */
     private $replaceHash; // unique hash to replace all the tags
     private $spIgnored;
+    private $selfAdd;
 
     public function __construct() {
         $this->selfAdd = true;
-        $this->attachHandler($this);
-        unset($this->selfAdd);
+        $this->attachHandlersFrom($this);
+        $this->selfAdd = false;
 
         // Generate unique hash.
         static $num = 0;
@@ -64,12 +70,8 @@ class HtmlSemiParser extends BaseFilter {
      *                               (for containers only, see below).
      *                               String representation of tag will be
      *                               reconstructed automatically by that array.
-     *
-     * @param string $tagName Name of tag to handle. E.g., "a", "img" etc.
-     * @param callback $handler Callback which will be called on for found tag.
-     * @return void
      */
-    public function attachTagHandler($tagName, callable $handler, $atFront = false) {
+    public function attachTagHandler(string $tagName, callable $handler, bool $atFront = false)/*: void */ {
         $tagName = strtolower($tagName);
         if (!isset($this->tagHandlers[$tagName])) {
             $this->tagHandlers[$tagName] = [];
@@ -86,12 +88,8 @@ class HtmlSemiParser extends BaseFilter {
      *
      * Containers are processed just like simple tags (see addTag()), but they also have
      * bodies saved in "_text" attribute.
-     *
-     * @param string $contName Name of container to search.
-     * @param callback $handler Call this function to replace.
-     * @return void
      */
-    public function attachContainerHandler($tagName, $handler, $atFront = false) {
+    public function attachContainerHandler(string $tagName, callable $handler, bool $atFront = false)/*: void */ {
         $tagName = strtolower($tagName);
         if (!isset($this->containerHandlers[$tagName])) {
             $this->containerHandlers[$tagName] = [];
@@ -103,7 +101,7 @@ class HtmlSemiParser extends BaseFilter {
         }
     }
 
-    public function attachHandler($obj, $noPrecache = false, $atFront = false) {
+    public function attachHandlersFrom($obj, bool $atFront = false) {
         foreach (get_class_methods($obj) as $method) {
             if (0 === strpos($method, $this->tagHandlerPrefix)) {
                 $this->attachTagHandler(
@@ -111,27 +109,18 @@ class HtmlSemiParser extends BaseFilter {
                     [$obj, $method],
                     $atFront
                 );
-            }
-            if (0 === strpos($method, $this->containerHandlerPrefix)) {
+            } elseif (0 === strpos($method, $this->containerHandlerPrefix)) {
                 $this->attachContainerHandler(
                     substr($method, strlen($this->containerHandlerPrefix)),
                     [$obj, $method],
                     $atFront
                 );
-            }
-        }
-        // Add object precacher & post-processors if present.
-        if (!isset($this->selfAdd)) {
-            $pNames = [
-                'preCacheTags' => 'sp_precachers',
-            ];
-            foreach ($pNames as $pname => $var) {
-                if (method_exists($obj, $pname)) {
-                    if (!$atFront) {
-                        array_push($this->$var, [$obj, $pname]);
-                    } else {
-                        array_unshift($this->$var, [$obj, $pname]);
-                    }
+            // Check the selfAdd to avoid infinite call of the preprocessTags, as it is already defined here.
+            } elseif (!$this->selfAdd && $method === 'preprocessTags') {
+                if (!$atFront) {
+                    array_push($this->tagsPreprocessors, [$obj, $method]);
+                } else {
+                    array_unshift($this->tagsPreprocessors, [$obj, $method]);
                 }
             }
         }
@@ -149,7 +138,7 @@ class HtmlSemiParser extends BaseFilter {
 
         // Remove ignored container bodies from the string.
         $this->spIgnored = [];
-        if ($this->skipIgnoredTags) {
+        if ($this->skipIgnoredTags && $this->ignoredTags) {
             $reIgnoredNames = join("|", $this->ignoredTags);
             $reIgnored = "{(<($reIgnoredNames) (?> \s+ $reTagIn)? >) (.*?) (</\\2>)}six";
             // Note that we MUST increase backtrack_limit, else error
@@ -190,29 +179,28 @@ class HtmlSemiParser extends BaseFilter {
             $foundTags = []; // found tags
             for ($i = 1, $n = count($chunks); $i < $n; $i += 5) {
                 // $i points to sequential tag (or container) subchain.
-                $tOrig = $chunks[$i]; // - original tag text
-                $tName = $chunks[$i + 1]; // - tag name
-                $tAttr = $chunks[$i + 2]; // - tag attributes
-                $tBody = $chunks[$i + 3]; // - container body
+                $originalTagText = $chunks[$i];
+                $tagName = $chunks[$i + 1];
+                $attribsString = $chunks[$i + 2];
+                $containerBody = $chunks[$i + 3];
                 $tFollow = $chunks[$i + 4]; // - following unparsed text block
 
-                // Add tag to array for precaching.
-                $tag = [];
-                $this->parseAttrib($tAttr, $tag);
-                $tag['_orig'] = $tOrig;
-                $tag['_tagName'] = $tName;
+                // Add tag to array for pre-processing.
+                $tag = $this->parseAttributes($attribsString);
+                $tag['_orig'] = $originalTagText;
+                $tag['_tagName'] = $tagName;
                 if ($src == "containerHandlers") {
-                    if (strlen($tBody) < $hashlen && isset($sp_ignored[0][$tBody])) {
+                    if (strlen($containerBody) < $hashlen && isset($sp_ignored[0][$containerBody])) {
                         // Maybe it is temporarily removed content - place back!
                         // Fast solution working in most cases (key-based hash lookup
                         // is much faster than str_replace() below).
-                        $tBody = $sp_ignored[0][$tBody];
+                        $containerBody = $sp_ignored[0][$containerBody];
                     } else {
                         // We must pass unmangled content to container processors!
-                        $tBody = str_replace($sp_ignored[1], $sp_ignored[2], $tBody);
+                        $containerBody = str_replace($sp_ignored[1], $sp_ignored[2], $containerBody);
                     }
-                    $tag['_text'] = $tBody;
-                } elseif (substr($tAttr, -1) == '/') {
+                    $tag['_text'] = $containerBody;
+                } elseif (substr($attribsString, -1) == '/') {
                     $tag['_text'] = null;
                 }
                 $foundTags[] = $tag;
@@ -222,8 +210,9 @@ class HtmlSemiParser extends BaseFilter {
             // Save original tags.
             $origTags = $foundTags;
 
-            // Precache (possibly modifying) all the found tags (if needed).
-            $this->precacheTags($foundTags);
+            if (count($this->tagsPreprocessors)) {
+                $foundTags = $this->preprocessTags($foundTags);
+            }
 
             // Process all found tags and join the buffer.
             $html = $textParts[0];
@@ -245,7 +234,7 @@ class HtmlSemiParser extends BaseFilter {
                         $text = $this->makeTag($tag);
                     } else {
                         // Else - use original tag string.
-                        // We use this algorythm because of non-unicode tag parsing mode:
+                        // We use this algorithm because of non-unicode tag parsing mode:
                         // e.g. entity &nbsp; in tag attributes is replaced by &amp;nbsp;
                         // in makeTag(), but if the tag is not modified at all, we do
                         // not care and do not call makeTag() at all saving original &nbsp;.
@@ -278,7 +267,7 @@ class HtmlSemiParser extends BaseFilter {
      *
      * @return  HTML-strict representation of tag or container.
      */
-    protected function makeTag($attr) {
+    protected function makeTag(array $attr): string {
         // Join & return tag.
         $s = "";
         foreach ($attr as $k => $v) {
@@ -287,7 +276,8 @@ class HtmlSemiParser extends BaseFilter {
             }
             $s .= " " . $k;
             if ($v !== null) {
-                $s .= '="' . $this->escapeHtml($v) . '"';
+                //$s .= '="' . $this->escapeHtml($v) . '"';
+                $s .= '="' . $v . '"';
             }
         }
         if (!@$attr['_tagName']) {
@@ -297,7 +287,7 @@ class HtmlSemiParser extends BaseFilter {
         if (!array_key_exists('_text', $attr)) { // do not use isset()!
             $tag = "<{$attr['_tagName']}{$s}>";
         } elseif ($attr['_text'] === null) { // null
-            $tag = "<{$attr['_tagName']}{$s} />";
+            $tag = "<{$attr['_tagName']}{$s}" . ($this->isHtml5 ? '>' : ' />');
         } else {
             $tag = "<{$attr['_tagName']}{$s}>{$attr['_text']}</{$attr['_tagName']}>";
         }
@@ -305,24 +295,14 @@ class HtmlSemiParser extends BaseFilter {
     }
 
     /**
-     * Virtual user-defined client precache functions.
-     *
      * This function is called after all tags and containers are
-     * found in HTML text, but BEFORE any replaces. It could work with
-     * $foundTags to process all found data at once (for
-     * faster replacing later). E.g., if callbacks use MySQL, it is
-     * much more faster to perform one SQL-query with big IN() clause
-     * than a lot of simple SQL querise with their own get_result()
-     * calls.
-     *
-     * @return void
+     * found in HTML text, but BEFORE any replaces.
      */
-    protected function precacheTags(&$foundTags) {
-        foreach ($this->sp_precachers as $pk) {
-            // call_user_func() does not support &-parameters
-            // while allow_call_time_pass_reference=false
-            call_user_func_array($pk, [&$foundTags]);
+    protected function preprocessTags(array $foundTags): array {
+        foreach ($this->tagsPreprocessors as $tagPreprocessor) {
+            $foundTags = $tagPreprocessor($foundTags);
         }
+        return $foundTags;
     }
 
     /**
@@ -340,19 +320,12 @@ class HtmlSemiParser extends BaseFilter {
     }
 
     /**
-     * Process the tag.
-     *
-     * @param array $attr Parsed tag.
-     * @return                Attributes of processed tag.
+     * @return mixed Handled tag.
      */
     protected function runHandlersForTag(array $tag) {
         $tagName = strtolower($tag['_tagName']);
         // Processing tag or container?
-        if (isset($tag['_text'])) {
-            $handlers = $this->containerHandlers[$tagName];
-        } else {
-            $handlers = $this->tagHandlers[$tagName];
-        }
+        $handlers = $this->getHandlersForTag($tagName, isset($tag['_text']));
         // Use all handlers from right to left.
         for ($i = count($handlers) - 1; $i >= 0; $i--) {
             $handler = $handlers[$i];
@@ -367,21 +340,21 @@ class HtmlSemiParser extends BaseFilter {
         return $tag;
     }
 
+    protected function getHandlersForTag($tagName, $isContainerTag) {
+        return $isContainerTag ? $this->containerHandlers[$tagName] : $this->tagHandlers[$tagName];
+    }
+
     /**
      * Parse the attribute string: "a1=v1 a2=v2 ..." of the tag.
-     *
-     * @param  $body     Tag body between < and >.
-     * @param  &$attr    Resulting Array of tag attributes
-     * @return void.
      */
-    protected function parseAttrib($body, &$attr) {
+    protected function parseAttributes(string $attribs): array {
         $preg = '/([-\w:]+) \s* ( = \s* (?> ("[^"]*" | \'[^\']*\' | \S*) ) )?/sx';
         $regs = null;
-        preg_match_all($preg, $body, $regs);
+        preg_match_all($preg, $attribs, $regs);
         $names = $regs[1];
         $checks = $regs[2];
         $values = $regs[3];
-        $attr = [];
+        $tag = [];
         for ($i = 0, $c = count($names); $i < $c; $i++) {
             $name = strtolower($names[$i]);
             if (!@$checks[$i]) {
@@ -392,21 +365,13 @@ class HtmlSemiParser extends BaseFilter {
                     $value = substr($value, 1, -1);
                 }
             }
+            /*
             if (strpos($value, '&') !== false) {
                 $value = $this->unescapeHtml($value);
             }
-            $attr[$name] = $value;
+            */
+            $tag[$name] = $value;
         }
-    }
-
-    protected function escapeHtml($value) {
-        return htmlspecialchars($value, ENT_QUOTES);
-    }
-
-    /**
-     * Inverses effect of escapeHtml().
-     */
-    protected function unescapeHtml($value) {
-        return htmlspecialchars_decode($value, ENT_QUOTES);
+        return $tag;
     }
 }

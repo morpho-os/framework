@@ -8,7 +8,9 @@
     */ ?>
     <div id="main-window">
         <div class="container" id="main-window-inner">
+            <?php if (isset($this->pageTitle)): ?>
             <h1 id="page-header"><?= $this->pageTitle ?></h1>
+            <?php endif ?>
             <?php print $this->messenger()->renderPageMessages() ?>
             <div id="page-body">
                 <?php print $body ?>
