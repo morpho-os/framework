@@ -56,6 +56,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
      */
     public function handleFatalError() {
         $error = error_get_last();
+        error_clear_last();
         if ($this->fatalErrorHandlerActive
             && $error
             && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])

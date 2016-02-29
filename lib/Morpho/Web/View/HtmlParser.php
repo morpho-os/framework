@@ -8,18 +8,31 @@ abstract class HtmlParser extends HtmlSemiParser {
 
     protected $filePath;
 
+    private $request;
+
     public function __construct(ServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
         parent::__construct();
     }
 
-    public function setFilePath(string $filePath) {
+    public function setFilePath(string $filePath)/*: void */ {
         $this->filePath = $filePath;
     }
 
     protected function prependUriWithBasePath(string $uri): string {
-        return $this->serviceManager->get('request')
+        return $this->request()
             ->uri()
             ->prependWithBasePath($uri);
+    }
+
+    protected function request() {
+        if (null === $this->request) {
+            $this->request = $this->serviceManager->get('request');
+        }
+        return $this->request;
+    }
+
+    protected function escapeHtml($var): string {
+        return htmlspecialchars($var, ENT_QUOTES);
     }
 }

@@ -16,8 +16,3 @@ Morpho is **PHP 7** framework to build PHP applications: Web-sites, Web-applicat
 ## License
 
 License is Apache-2.0.
-
-
-## Who is behind Morpho and commercial support
-
-Behind the Morpho framework is the [NeuroJazz Studio](http://neurojazz.com). We provide commercial support for the Morpho framework.

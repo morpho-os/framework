@@ -352,6 +352,10 @@ class Request extends BaseRequest {
     }
 
     protected function detectBasePath(): string {
-        return '/' . trim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        $basePath = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        if (!preg_match('~^[-\w/\~]*$~', $basePath)) {
+            throw new BadRequestException();
+        }
+        return '/' . $basePath;
     }
 }

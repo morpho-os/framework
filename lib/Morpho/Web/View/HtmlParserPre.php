@@ -8,14 +8,4 @@ class HtmlParserPre extends HtmlParser {
             return $tag;
         }
     }
-
-    protected function tagForm($tag) {
-        if (isset($tag['action'])) {
-            $uri = $tag['action'];
-            if (isset($uri[0]) && $uri[0] == '/') {
-                $tag['action'] = $this->prependUriWithBasePath($uri);
-            }
-        }
-        return $tag;
-    }
 }

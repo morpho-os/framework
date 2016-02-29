@@ -17,6 +17,7 @@ use Morpho\Web\Routing\FallbackRouter;
 use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\Routing\RoutesMetaProvider;
 use Morpho\Web\View\Compiler;
+use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\HtmlParserPost;
 use Morpho\Web\View\HtmlParserPre;
 use Morpho\Web\View\PhpTemplateEngine;
@@ -62,6 +63,7 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine->setCacheDirPath($this->get('siteManager')->getCurrentSite()->getCacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->attach(new HtmlParserPre($this))
+            ->attach(new FormPersister($this))
             ->attach(new Compiler())
             ->attach(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']));
         return $templateEngine;

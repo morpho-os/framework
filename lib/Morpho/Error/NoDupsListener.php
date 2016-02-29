@@ -72,6 +72,7 @@ class NoDupsListener implements IExceptionListener {
         if (!@is_dir($dirPath)) {
             if (!@mkdir($dirPath, 0777, true)) {
                 $error = error_get_last();
+                error_clear_last();
                 throw new \Exception("Unable to create directory '{$dirPath}': {$error['message']}");
             }
         }
