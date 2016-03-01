@@ -8,11 +8,7 @@ use Morpho\Web\Site;
 
 class SiteManagerTest extends TestCase {
     public function setUp() {
-        $this->siteManager = new class() extends SiteManager {
-            protected function exit(string $message) {
-                throw new ExitException($message);
-            }
-        };
+        $this->siteManager = new SiteManager();
         $this->siteManager->setAllSitesDirPath($this->getTestDirPath());
     }
 
@@ -73,7 +69,7 @@ class SiteManagerTest extends TestCase {
     public function testGetCurrentSite_ExitsWhenHostFieldEmptyAndMultiSitingEnabled() {
         $this->siteManager->useMultiSiting(true);
         $_SERVER['HTTP_HOST'] = '';
-        $this->setExpectedException(__NAMESPACE__ . '\\ExitException', "Empty value of the 'Host' field");
+        $this->setExpectedException('\Morpho\Web\BadRequestException', "Empty value of the 'Host' field");
         $this->siteManager->getCurrentSite();
     }
 
@@ -127,7 +123,4 @@ class SiteManagerTest extends TestCase {
             ],
         ];
     }
-}
-
-class ExitException extends \RuntimeException {
 }

@@ -4,7 +4,6 @@ namespace Morpho\Web;
 use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };
-use Morpho\Base\Assert;
 use Morpho\Fs\Directory;
 use Morpho\Fs\Path;
 use Morpho\Base\Object;
@@ -113,7 +112,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         }
         $siteName = $_SERVER['HTTP_HOST'] ?? null;
         if (empty($siteName)) {
-            $this->exit("Empty value of the 'Host' field");
+            $this->invalidSiteError("Empty value of the 'Host' field");
         }
         $siteName = strtolower((string)$siteName);
         if (substr($siteName, 0, 4) === 'www.' && strlen($siteName) > 4) {
@@ -121,7 +120,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         }
         $siteName = $this->resolveSiteName($siteName);
         if (false === $siteName) {
-            $this->exit("Invalid value of the 'Host' field");
+            $this->invalidSiteError("Invalid value of the 'Host' field");
         }
         return $siteName;
     }
@@ -145,9 +144,8 @@ class SiteManager extends Object implements IServiceManagerAware {
         return false;
     }
 
-    protected function exit(string $message) {
-        header(Environment::httpProtocolVersion() . ' 400 Bad Request', true, 400);
-        exit("<h2>Bad request (code: 400)</h2>");
+    protected function invalidSiteError(string $message) {
+        throw new BadRequestException($message);
     }
 
     protected function getConfig(): array {

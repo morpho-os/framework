@@ -56,6 +56,12 @@ class ServiceManager extends BaseServiceManager {
     protected function createEnvironmentService() {
         return new Environment();
     }
+    
+    protected function createDebugLoggerService() {
+        $logger = new Logger('debug');
+        $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
+        return $logger;
+    }
 
     protected function createTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
@@ -108,13 +114,7 @@ class ServiceManager extends BaseServiceManager {
         }
 
         if ($config['logToFile']) {
-            $site = $this->get('siteManager')->getCurrentSite();
-            $logger->pushHandler(
-                $this->createStreamHandlerForLogger(
-                    $site->getLogDirPath() . '/error.log',
-                    Logger::DEBUG
-                )
-            );
+            $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
         }
 
         return $logger;
@@ -133,11 +133,13 @@ class ServiceManager extends BaseServiceManager {
         return $this->get('siteManager')->isFallbackMode();
     }
 
-    protected function createStreamHandlerForLogger($filePath, $logLevel) {
+    private function appendSiteLogFileWriter($logger, int $logLevel) {
+        $site = $this->get('siteManager')->getCurrentSite();
+        $filePath = $site->getLogDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)
         );
-        return $handler;
+        $logger->pushHandler($handler);
     }
 }
