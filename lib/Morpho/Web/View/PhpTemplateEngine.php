@@ -24,6 +24,14 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->plugins[$name];
     }
 
+    public static function formatFloat($val) {
+        if (empty($val)) {
+            $val = 0;
+        }
+        $val = str_replace(',', '.', $val);
+        return number_format(round(floatval($val), 2), 2, '.', ' ');
+    }
+
     public function pageCssId(): string {
         return dasherize(self::moduleName()) . '-' . dasherize(self::controllerName()) . '-' . dasherize(self::actionName());
     }

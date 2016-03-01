@@ -353,7 +353,7 @@ class Request extends BaseRequest {
 
     protected function detectBasePath(): string {
         $basePath = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
-        if (!preg_match('~^[-\w/\~]*$~', $basePath)) {
+        if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();
         }
         return '/' . $basePath;

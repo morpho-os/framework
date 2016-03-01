@@ -19,7 +19,10 @@ class UserRepo extends Repo implements IUserRepo {
         return $this->selectRowEx("* FROM $this->tableName WHERE id = ?", [$id]);
     }
 
-    public function saveUser(array $user): string {
+    /**
+     * @return mixed
+     */
+    public function saveUser(array $user) {
         $this->insertRow(ArrayTool::itemsWithKeys($user, ['login', 'passwordHash']));
         return $this->lastInsertId('id');
     }

@@ -91,9 +91,8 @@ class UserManager {
             throw new EntityExistsException("Such user already exists");
         }
         $user['passwordHash'] = PasswordManager::passwordHash($user['password']);
-        $registeredUser = $this->repo->saveUser($user);
-        unset($registeredUser['passwordHash']);
-        return $registeredUser;
+        $userId = $this->repo->saveUser($user);
+        return $userId;
     }
 
     public function deleteRegisteredUser(array $user) {
