@@ -41,7 +41,7 @@ class MessengerTest extends TestCase {
     }
 
     public function testToArray() {
-        $this->messenger->addSuccessMessage('Hello {0} and welcome', ...['<b>Name</b>']);
+        $this->messenger->addSuccessMessage('Hello {0} and welcome', ['<b>Name</b>']);
         $this->messenger->addWarningMessage('Bar');
         $this->assertEquals(
             [

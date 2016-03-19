@@ -191,21 +191,21 @@ class Directory extends Entry {
     }
 
     /**
-     * Deletes files and directories recursively from a file system
+     * Deletes files and directories recursively from a file system.
      *
      * This method recursively removes the $dirPath and all its contents.
      * You should be extremely careful with this method as it has the
      * potential to erase everything that the current user has access to.
      *
-     * The base for this method was taken from the eZ Components, ezcBaseFile::removeRecursive()
+     * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
      */
     public static function delete(string $dirPath, bool $deleteSelf = true) {
         self::ensureExists($dirPath);
-        $sourceDirPath = realpath($dirPath);
-        if (!$sourceDirPath) {
+        $absFilePath = realpath($dirPath);
+        if (!$absFilePath) {
             throw new IoException("The directory '$dirPath' could not be found.");
         }
-        $d = @dir($sourceDirPath);
+        $d = @dir($absFilePath);
         if (!$d) {
             throw new IoException("The directory '$dirPath' can not be opened for reading.");
         }
@@ -218,7 +218,7 @@ class Directory extends Entry {
             if ($fileName == '.' || $fileName == '..') {
                 continue;
             }
-            $filePath = $sourceDirPath . '/' . $fileName;
+            $filePath = $absFilePath . '/' . $fileName;
             if (is_dir($filePath)) {
                 self::delete($filePath);
             } else {
@@ -236,9 +236,9 @@ class Directory extends Entry {
         }
         $d->close();
         if ($deleteSelf) {
-            $success = @rmdir($sourceDirPath);
+            $success = @rmdir($absFilePath);
             if (!$success) {
-                throw new IoException("Unable to delete the directory '$sourceDirPath': permission denied.");
+                throw new IoException("Unable to delete the directory '$absFilePath': permission denied.");
             }
         }
     }

@@ -102,6 +102,7 @@ class RoutesMetaProvider implements \IteratorAggregate {
             if (!empty($docComment['httpMethods'])) {
                 foreach ((array)$docComment['httpMethods'] as $httpMethod) {
                     if ($i > 0) {
+                        // ?
                         $routesMeta[$i] = $routesMeta[$i - 1];
                     }
                     $routesMeta[$i]['httpMethod'] = $httpMethod;

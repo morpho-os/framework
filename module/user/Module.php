@@ -44,7 +44,7 @@ class Module extends BaseModule {
                     ],
                 ],
             ],
-            'role' => [
+            'group' => [
                 'columns' => [
                     'id' => [
                         'type' => 'primaryKey',
@@ -64,13 +64,13 @@ class Module extends BaseModule {
                     ],
                 ],
             ],
-            'userRole' => [
+            'userGroup' => [
                 'columns' => [
                     'userId' => [
                         'type' => 'int',
                         'unsigned' => true,
                     ],
-                    'roleId' => [
+                    'groupId' => [
                         'type' => 'int',
                         'unsigned' => true,
                     ],
@@ -82,16 +82,16 @@ class Module extends BaseModule {
                         'parentColumn' => 'id',
                     ],
                     [
-                        'childColumn' => 'roleId',
-                        'parentTable' => 'role',
+                        'childColumn' => 'groupId',
+                        'parentTable' => 'group',
                         'parentColumn' => 'id',
                     ]
                 ],
-                'description' => 'Stores relations between users (the `user` table) and roles (the `role` table)',
+                'description' => 'Stores relations between users (the `user` table) and groups (the `group` table)',
             ],
             'userPermission' => [
                 'columns' => [
-                    'roleId' => [
+                    'groupId' => [
                         'type' => 'int',
                         'unsigned' => true,
                     ],
@@ -106,8 +106,8 @@ class Module extends BaseModule {
                 ],
                 'foreignKeys' => [
                     [
-                        'childColumn' => 'roleId',
-                        'parentTable' => 'role',
+                        'childColumn' => 'groupId',
+                        'parentTable' => 'group',
                         'parentColumn' => 'id',
                     ],
                     [

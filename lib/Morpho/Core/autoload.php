@@ -24,13 +24,14 @@ const LIB_DIR_PATH = BASE_DIR_PATH . '/' . LIB_DIR_NAME;
 const MODULE_DIR_PATH = BASE_DIR_PATH . '/' . MODULE_DIR_NAME;
 const SITE_DIR_PATH = BASE_DIR_PATH . '/' . SITE_DIR_NAME;
 
-const DOMAIN_NS = 'Domain';
-const REPO_SUFFIX = 'Repo';
-const MODULE_SUFFIX = 'Module';
-const CONTROLLER_NS = 'Controller';
-const CONTROLLER_SUFFIX = 'Controller';
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';
+const CONTROLLER_NS = 'Controller';
+const CONTROLLER_SUFFIX = 'Controller';
+const DOMAIN_NS = 'Domain';
+const MODULE_SUFFIX = 'Module';
+const REPO_SUFFIX = 'Repo';
+const PLUGIN_SUFFIX = 'Plugin';
 
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;

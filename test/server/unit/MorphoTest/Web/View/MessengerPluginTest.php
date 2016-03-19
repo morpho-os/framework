@@ -38,7 +38,7 @@ OUT;
     }
 
     public function testRenderPageMessagesWithEscaping() {
-        $this->messenger->addWarningMessage("<div>Random {0} warning {1} has been occurred.</div>", ...['<b>system</b>', '<div>for <b>unknown</b> reason</div>']);
+        $this->messenger->addWarningMessage("<div>Random {0} warning {1} has been occurred.</div>", ['<b>system</b>', '<div>for <b>unknown</b> reason</div>']);
         $expected = <<<OUT
 <div id="page-messages">
     <div class="messages warning">

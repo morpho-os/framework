@@ -41,13 +41,12 @@ abstract class Controller extends Node implements IServiceManagerAware {
             $this->request->getResponse()
                 ->setContent($actionResult);
         } elseif ($this->shouldRenderView()) {
+            $renderedView = $this->renderView(
+                isset($this->specialViewVars['name']) ? $this->specialViewVars['name'] : $action,
+                $actionResult
+            );
             $this->request->getResponse()
-                ->setContent(
-                    $this->renderView(
-                        isset($this->specialViewVars['name']) ? $this->specialViewVars['name'] : $action,
-                        $actionResult // $actionResult is view vars.
-                    )
-                );
+                ->setContent($renderedView);
         }
     }
 

@@ -21,25 +21,25 @@ class Messenger implements \Countable {
         $this->messages->clear();
     }
 
-    public function addSuccessMessage($message, ...$args) {
+    public function addSuccessMessage($message, array $args = null) {
         $this->addMessage($message, $args, self::SUCCESS);
     }
 
-    public function addInfoMessage($message, ...$args) {
+    public function addInfoMessage($message, array $args = null) {
         $this->addMessage($message, $args, self::INFO);
     }
 
-    public function addWarningMessage($message, ...$args) {
+    public function addWarningMessage($message, array $args = null) {
         $this->addMessage($message, $args, self::WARNING);
+    }
+
+    public function addErrorMessage($message, array $args = null) {
+        $this->addMessage($message, $args, self::ERROR);
     }
 
     public function hasWarningMessages() {
         return isset($this->messages[self::WARNING])
         && count($this->messages[self::WARNING]) > 0;
-    }
-
-    public function addErrorMessage($message, ...$args) {
-        $this->addMessage($message, $args, self::ERROR);
     }
 
     public function hasErrorMessages() {

@@ -8,15 +8,11 @@ use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };
 
-class MessengerPlugin implements \Countable, IServiceManagerAware {
+class MessengerPlugin extends Plugin implements \Countable, IServiceManagerAware {
     private $serviceManager;
 
     public function count() {
         return $this->getMessenger()->count();
-    }
-
-    public function __invoke() {
-        return $this;
     }
 
     public function renderPageMessages() {
@@ -60,7 +56,9 @@ class MessengerPlugin implements \Countable, IServiceManagerAware {
             filterStringArgs(
                 $message['message'],
                 $message['args'],
-                function ($value) { return nl2br(escapeHtml($value)); }
+                function ($value) {
+                    return nl2br(escapeHtml($value));
+                }
             ),
             $type
         );

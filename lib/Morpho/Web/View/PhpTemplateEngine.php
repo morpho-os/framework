@@ -16,6 +16,8 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     private $request;
 
+    const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
+
     public function getPlugin(string $name) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
@@ -30,6 +32,10 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         }
         $val = str_replace(',', '.', $val);
         return number_format(round(floatval($val), 2), 2, '.', ' ');
+    }
+
+    public function htmlId($id): string {
+        return htmlId($id);
     }
 
     public function pageCssId(): string {
@@ -122,22 +128,26 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function __call($pluginName, array $args) {
-        return call_user_func_array(
-            $this->getPlugin($pluginName),
-            $args
-        );
+        $plugin = $this->getPlugin($pluginName);
+        return $plugin(...$args);
     }
 
     public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
 
-    protected static function escapeHtml($value): string {
+    public static function escapeHtml($value): string {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 
     protected function createPlugin(string $name) {
-        $class = __NAMESPACE__ . '\\' . $name . 'Plugin';
+        $serviceManager = $this->serviceManager;
+        $class = $serviceManager->get('moduleManager')
+            ->getChild($serviceManager->get('request')->getModuleName())
+            ->getNamespace() . '\\View\\Plugin\\' . $name . self::PLUGIN_SUFFIX;
+        if (!class_exists($class)) {
+            $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
+        }
         $plugin = new $class();
         if ($plugin instanceof IServiceManagerAware) {
             $plugin->setServiceManager($this->serviceManager);

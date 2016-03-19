@@ -1,12 +1,15 @@
 <?php $this->pageTitle = 'Modules'; ?>
 <?php
-$createNewModuleHtml = <<<OUT
-<form id="create-module-form1" action="/system/module/new" action="get">
-    <p>
-        <button class="btn btn-default"><i class="fa fa-plus"></i> Create new Module</button>
-    </p>
-</form>
-OUT;
+$createNewModuleForm = function () {
+    ob_start();
+    ?>
+    <form action="/system/module/new" method="get" style="margin: 1.5em 0;">
+        <p>
+            <button class="btn btn-default"><i class="fa fa-plus"></i> Create new Module</button>
+        </p>
+    </form>
+    <?php return ob_get_clean();
+};
 
 $uriToAction = function ($action) {
     return '/system/module/' . $action;
@@ -14,21 +17,28 @@ $uriToAction = function ($action) {
 ?>
 <div class="loading-indicator fa fa-refresh fa-3x"></div>
 
+<?php print $createNewModuleForm() ?>
+
 <form method="post">
     <table id="module-list-grid" class="table table-bordered table-striped table-hover table-condensed grid">
         <tr>
             <?php // <th style="width: 1%;"><input type="checkbox"></th> ?>
+      <?php //      <th style="width: 1%;">ID</th> ?>
             <th style="width: 50%;">Module name</th>
             <th>Actions</th>
         </tr>
         <?php foreach ($node->listModules() as $module): ?>
             <tr>
                 <?php //          <td><input type="checkbox"></td> ?>
+                <?php /*
+                <td style="width: 1%" class="number"><?php print isset($module['id']) ? $this->escapeHtml($module['id']) : '&nbsp;' ?></td>
+ */ ?>
                 <td style="width: 50%;"><?= $module['name'] ?></td>
                 <td>
                     <div class="btn-group btn-group-sm">
                         <?php if (!$node->isInstalledModule($module)): ?>
                             <button class="btn btn-default" name="install[<?= $module['name'] ?>]" formaction="<?= $uriToAction('install') ?>">Install</button>
+                            <button class="btn btn-default" name="deleteFromFs[<?= $module['name'] ?>]" onclick="return confirm('Are you sure?');" formaction="<?= $uriToAction('delete-from-disk') ?>">Delete from disk</button>
                         <?php elseif ($node->isEnabledModule($module)): ?>
                             <button class="btn btn-default" name="disable[<?= $module['name'] ?>]" formaction="<?= $uriToAction('disable') ?>"><i class="fa fa-ban"></i> Disable</button>
                             <button class="btn btn-default" name="configure[<?= $module['name'] ?>]" formaction="<?= $uriToAction('configure') ?>"><i class="fa fa-wrench"></i> Configure</button>
@@ -43,4 +53,4 @@ $uriToAction = function ($action) {
     </table>
 </form>
 
-<?php print $createNewModuleHtml ?>
+<?php print $createNewModuleForm() ?>

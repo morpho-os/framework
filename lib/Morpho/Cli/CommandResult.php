@@ -14,7 +14,7 @@ class CommandResult {
     }
 
     public function isError(): bool {
-        return $this->exitCode !== Environment::SUCCESS_EXIT_CODE;
+        return $this->exitCode !== Environment::SUCCESS_CODE;
     }
 
     public function getExitCode(): int {

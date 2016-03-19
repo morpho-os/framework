@@ -112,15 +112,16 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     public function uninstallModule(string $moduleName) {
         $db = $this->db;
-        $exists = $db->selectBool("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED]);
-        if (!$exists) {
+        $moduleId = $db->selectCell("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED]);
+        if (!$moduleId) {
             throw new \LogicException("Can't uninstall the module '$moduleName', only disabled modules can be uninstalled");
         }
         $db->transaction(
-            function (Db $db) use ($moduleName) {
+            function (Db $db) use ($moduleName, $moduleId) {
                 $this->getChild($moduleName)
                     ->uninstall($db);
-                $db->deleteRows($this->tableName, ['name' => $moduleName]);
+                $db->deleteRows('event', ['moduleId' => $moduleId]);
+                $db->deleteRows($this->tableName, ['id' => $moduleId]);
             }
         );
         $this->rebuildEvents($moduleName);
@@ -177,12 +178,17 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     public function rebuildEvents($moduleName = null) {
         $modules = null !== $moduleName ? [$moduleName] : $this->listEnabledModules();
+        $db = $this->db;
         foreach ($modules as $moduleName) {
-            $moduleId = $this->getModuleIdByName($moduleName);
-            $this->db->runQuery("DELETE FROM event WHERE moduleId = ?", [$moduleId]);
-            foreach ($this->getEvents($this->getChild($moduleName), $moduleId) as $event) {
-                $this->db->insertRow('event', array_merge($event, ['moduleId' => $moduleId]));
-            }
+            $db->transaction(function () use ($moduleName) {
+                $moduleRow = $this->db->selectRow('id, status FROM module WHERE name = ?', [$moduleName]);
+                if ($moduleRow) {
+                    $this->db->runQuery("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
+                    foreach ($this->getEventsMeta($this->getChild($moduleName)) as $eventMeta) {
+                        $this->db->insertRow('event', array_merge($eventMeta, ['moduleId' => $moduleRow['id']]));
+                    }
+                }
+            });
         }
     }
 
@@ -282,10 +288,6 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $this->serviceManager->get('moduleClassLoader');
     }
 
-    protected function getModuleIdByName(string $moduleName) {
-        return $this->db->selectCell('id FROM module WHERE name = ?', [$moduleName]);
-    }
-
     protected function childNameToClass(string $moduleName): string {
         return $moduleName . '\\' . MODULE_SUFFIX;
     }
@@ -322,7 +324,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    protected function getEvents(Module $module): array {
+    protected function getEventsMeta(Module $module): array {
         $rClass = new \ReflectionClass($module);
         $rClasses = [$rClass];
         while ($rClass = $rClass->getParentClass()) {
@@ -333,31 +335,39 @@ abstract class ModuleManager extends Node implements IEventManager {
         $foundEvents = [];
         foreach ($rClasses as $rClass) {
             $filter = \ReflectionMethod::IS_PUBLIC ^ (\ReflectionMethod::IS_ABSTRACT | \ReflectionMethod::IS_STATIC);
-            foreach ($rClass->getMethods($filter) as $method) {
-                $docComment = $method->getDocComment();
-                if (false === $docComment) {
+            foreach ($rClass->getMethods($filter) as $rMethod) {
+                $methodName = $rMethod->getName();
+                if ($methodName === '__construct') {
                     continue;
                 }
-                if (preg_match_all($regexp, $docComment, $matches, PREG_SET_ORDER)) {
-                    foreach ($matches as $match) {
-                        $eventName = $match['eventName'];
-                        $priority = isset($match['priority']) ? $match['priority'] : 0;
-                        $foundEvents[$eventName][$method->getName()] = $priority;
+                $docComment = $rMethod->getDocComment();
+                if (false !== $docComment) {
+                    if (preg_match_all($regexp, $docComment, $matches, PREG_SET_ORDER)) {
+                        foreach ($matches as $match) {
+                            $eventName = $match['eventName'];
+                            $priority = isset($match['priority']) ? $match['priority'] : 0;
+                            $foundEvents[$methodName][$eventName] = $priority;
+                        }
+                        continue;
                     }
+                }
+                if ($rMethod->class === $rClass->name) {
+                    // If the child class defines a method with the same name, don't inherit
+                    // doc-comments.
+                    unset($foundEvents[$methodName]);
                 }
             }
         }
         $events = [];
-        foreach ($foundEvents as $eventName => $methods) {
-            foreach ($methods as $method => $priority) {
+        foreach ($foundEvents as $methodName => $events1) {
+            foreach ($events1 as $eventName => $priority) {
                 $events[] = [
                     'name'     => $eventName,
                     'priority' => $priority,
-                    'method'   => $method,
+                    'method'   => $methodName,
                 ];
             }
         }
-
         return $events;
     }
 

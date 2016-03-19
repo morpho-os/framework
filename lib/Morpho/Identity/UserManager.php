@@ -100,7 +100,7 @@ class UserManager {
         $this->repo->deleteUser($user);
     }
 
-    public function userHasRole(array $role): bool {
+    public function userInGroup(array $group): bool {
         throw new NotImplementedException();
     }
 

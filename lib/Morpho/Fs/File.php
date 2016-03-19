@@ -132,6 +132,7 @@ class File extends Entry {
         if (empty($filePath)) {
             throw new IoException("The file path is empty.");
         }
+        Directory::create(dirname($filePath));
         $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array)$options), $options['context']);
         if (false === $result) {
             throw new IoException("Unable to write to the file '$filePath'.");
@@ -144,6 +145,7 @@ class File extends Entry {
      * Has the same effect as truncate but should be used in different situation/context.
      */
     public static function createEmpty(string $filePath) {
+        Directory::create(dirname($filePath));
         self::truncate($filePath);
     }
 

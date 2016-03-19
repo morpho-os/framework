@@ -68,9 +68,9 @@ function writeLn(...$messages) {
     echo implode("\n", $messages) . "\n";
 }
 
-function htmlId($id) {
+function htmlId($id): string {
     static $htmlIds = [];
-    $id = dasherize(deleteDups(preg_replace('/[^\w-]/s', '-', $id), '-'));
+    $id = dasherize(deleteDups(preg_replace('/[^\w-]/s', '-', (string)$id), '-'));
     if (isset($htmlIds[$id])) {
         $id .= '-' . $htmlIds[$id]++;
     } else {

@@ -36,6 +36,7 @@ class Application extends BaseApplication {
         }
         $message = null;
         if (!headers_sent()) {
+            //http_response_code();
             if ($e instanceof NotFoundException) {
                 header(Environment::httpProtocolVersion() . ' 404 Not Found');
                 $message = "The requested page was not found";

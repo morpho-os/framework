@@ -84,11 +84,21 @@ class Controller extends BaseController {
     }
 
     protected function success($data = null) {
+        //if (!$this->request->isAjax()) {
         return ['success' => $data ?: true];
+        /*}
+        $this->addSuccessMessage(...$data);
+        return null;
+        */
     }
 
     protected function error($data = null) {
         return ['error' => $data ?: true];
+        /*
+        if (!$this->request->isAjax()) {
+        }
+        $this->addErrorMessage(...$data);
+        */
     }
 
     protected function getMessages(bool $clear = true): array {
@@ -100,16 +110,16 @@ class Controller extends BaseController {
         return $messages;
     }
 
-    protected function addSuccessMessage(string $message, ...$args) {
-        $this->serviceManager->get('messenger')->addSuccessMessage($message, ...$args);
+    protected function addSuccessMessage(string $message, array $args = null) {
+        $this->serviceManager->get('messenger')->addSuccessMessage($message, $args);
     }
 
-    protected function addErrorMessage(string $message, ...$args) {
-        $this->serviceManager->get('messenger')->addErrorMessage($message, ...$args);
+    protected function addErrorMessage(string $message, array $args = null) {
+        $this->serviceManager->get('messenger')->addErrorMessage($message, $args);
     }
 
-    protected function addWarningMessage(string $message, ...$args) {
-        $this->serviceManager->get('messenger')->addWarningMessage($message, ...$args);
+    protected function addWarningMessage(string $message, array $args = null) {
+        $this->serviceManager->get('messenger')->addWarningMessage($message, $args);
     }
 
     protected function accessDenied() {
@@ -120,8 +130,8 @@ class Controller extends BaseController {
         throw new NotFoundException();
     }
 
-    protected function session(): Session {
-        return new Session(get_class($this));
+    protected function session(string $key = null): Session {
+        return new Session(get_class($this) . ($key ?: ''));
     }
 
     protected function getParam($name) {
