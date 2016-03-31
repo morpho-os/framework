@@ -65,7 +65,7 @@ function pipe(array $commands) {
     throw new NotImplementedException();
 }
 
-function askYesNo(string $question) {
+function askYesNo(string $question): bool {
     echo $question . "? (y/n): ";
     do {
         $answer = strtolower(trim(fgets(STDIN)));

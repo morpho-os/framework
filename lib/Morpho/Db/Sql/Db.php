@@ -2,7 +2,11 @@
 namespace Morpho\Db\Sql;
 
 class Db {
-    private $conn;
+    protected $conn;
+    
+    protected $schemaManager;
+    
+    protected $query;
 
     const MYSQL_DRIVER = 'mysql';
 
@@ -24,21 +28,21 @@ class Db {
             isset($config['password']) ? $config['password'] : ''
         );
     }
-
+    
     public function query(): Query {
-        return new Query();
-    }
-
-    public function schemaManager(): SchemaManager {
-        $driver = $this->getCurrentDriverName();
-        switch ($driver) {
-            case self::MYSQL_DRIVER:
-                $class = __NAMESPACE__ . '\\MySql\\SchemaManager';
-                break;
-            default:
-                throw new \RuntimeException("Unable to find Schema Manager for the driver '$driver'");
+        if (null === $this->query) {
+            $class = $this->implNs() . '\\Query';
+            $this->query = new $class();
         }
-        return new $class($this);
+        return $this->query;
+    }
+    
+    public function schemaManager(): SchemaManager {
+        if (null === $this->schemaManager) {
+            $class = $this->implNs() . '\\SchemaManager';
+            $this->schemaManager = new $class($this);
+        }
+        return $this->schemaManager;
     }
 
     public function selectRows(string $sql, array $args = []): array {
@@ -104,17 +108,19 @@ class Db {
     }
 
     public function insertRow(string $tableName, array $row)/*: void*/ {
-        $sql = "INSERT INTO " . $this->quoteIdentifier($tableName) . '(';
-        $sql .= implode(', ', $this->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $this->positionalPlaceholders($row)) . ')';
+        $query = $this->query();
+        $sql = "INSERT INTO " . $query->identifier($tableName) . '(';
+        $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->runQuery($sql, array_values($row));
     }
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
+        $query = $this->query();
         if (is_array($whereCondition) && count($whereCondition)) {
             $whereConditionArgs = array_values($whereCondition);
-            $whereCondition = $this->andSql($this->namedPlaceholders($whereCondition));
+            $whereCondition = $query->logicalAnd($query->namedPlaceholders($whereCondition));
         }
-        $sql = 'DELETE FROM ' . $this->quoteIdentifier($tableName)
+        $sql = 'DELETE FROM ' . $query->identifier($tableName)
             . (!empty($whereCondition) ? ' WHERE ' . $whereCondition : '');
         $stmt = $this->runQuery($sql, $whereConditionArgs);
         return $stmt->rowCount();
@@ -125,12 +131,13 @@ class Db {
      * @param array|null $whereConditionArgs
      */
     public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null)/*: void */ {
-        $sql = 'UPDATE ' . $this->quoteIdentifier($tableName)
-            . ' SET ' . implode(', ', $this->namedPlaceholders($row));
+        $query = $this->query();
+        $sql = 'UPDATE ' . $query->identifier($tableName)
+            . ' SET ' . implode(', ', $query->namedPlaceholders($row));
         $args = array_values($row);
         if (null !== $whereCondition) {
             if (!is_array($whereCondition)) {
-                $sql .= ' ' . $this->whereSql($whereCondition);
+                $sql .= ' ' . $query->whereClause($whereCondition);
                 if (null !== $whereConditionArgs) {
                     $args = array_merge($args, $whereConditionArgs);
                 }
@@ -138,9 +145,9 @@ class Db {
                 if (null !== $whereConditionArgs) {
                     throw new \LogicException('The $whereConditionArgs argument must be empty when the $whereCondition is array');
                 }
-                $sql .= ' ' . $this->whereSql(
-                    $this->andSql(
-                        $this->namedPlaceholders($whereCondition)
+                $sql .= ' ' . $query->whereClause(
+                    $query->logicalAnd(
+                        $query->namedPlaceholders($whereCondition)
                     )
                 );
                 $args = array_merge($args, array_values($whereCondition));
@@ -174,10 +181,6 @@ class Db {
         return $this->conn->inTransaction();
     }
 
-    public function useDatabase(string $dbName) {
-        $this->runQuery("USE $dbName");
-    }
-
     public function getCurrentDriverName(): string {
         return $this->conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
     }
@@ -186,40 +189,15 @@ class Db {
         return \PDO::getAvailableDrivers();
     }
 
-    public function quoteIdentifiers(array $identifiers): array {
-        $ids = [];
-        foreach ($identifiers as $identifier) {
-            $ids[] = $this->quoteIdentifier($identifier);
+    protected function implNs(): string {
+        $driver = $this->getCurrentDriverName();
+        switch ($driver) {
+            case self::MYSQL_DRIVER:
+                $ns = __NAMESPACE__ . '\\MySql';
+                break;
+            default:
+                throw new \RuntimeException("Unable to find Schema Manager for the driver '$driver'");
         }
-        return $ids;
-    }
-
-    public function quoteIdentifier(string $name): string {
-        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
-        return '`' . $name . '`';
-    }
-
-    public static function andSql(array $expr): string {
-        return implode(' AND ', $expr);
-    }
-
-    public static function orSql(array $expr): string {
-        return implode(' OR ', $expr);
-    }
-
-    public static function whereSql(string $sql): string {
-        return 'WHERE ' . $sql;
-    }
-
-    public function namedPlaceholders(array $row): array {
-        $placeholders = [];
-        foreach ($row as $key => $value) {
-            $placeholders[] = $this->quoteIdentifier($key) . ' = ?';
-        }
-        return $placeholders;
-    }
-
-    public function positionalPlaceholders(array $row): array {
-        return array_fill(0, count($row), '?');
+        return $ns;
     }
 }

@@ -3,15 +3,10 @@ namespace Morpho\Core;
 
 use Morpho\Db\Sql\Db;
 
-abstract class Module extends Node {
+class Module extends Node {
     protected $name;
 
     protected $type = 'Module';
-
-    public function __construct(array $options = []) {
-        parent::__construct($options);
-        $this->initClassLoader();
-    }
 
     public function install(Db $db) {
     }
@@ -26,9 +21,7 @@ abstract class Module extends Node {
     }
 
     public function getRepo($name) {
-        return $this->getChild(
-            $this->getNamespace() . '\\' . DOMAIN_NS . '\\' . $name . REPO_SUFFIX
-        );
+        return $this->getChild(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
     }
 
     public static function getTableDefinitions(): array {
@@ -50,18 +43,11 @@ abstract class Module extends Node {
             ->get($name, $moduleName ?: $this->getName());
     }
 
-    protected function childNameToClass(string $controllerName): string {
-        if (false !== strpos($controllerName, '\\')) {
-            return $controllerName;
+    protected function childNameToClass(string $name) {
+        if (false === strpos($name, '\\')) {
+            // By default any child is Controller.
+            $name = CONTROLLER_NS . '\\' . $name . CONTROLLER_SUFFIX;
         }
-        return $this->getNamespace() . '\\' . CONTROLLER_NS . '\\' . $controllerName . CONTROLLER_SUFFIX;
-    }
-
-    protected function initClassLoader() {
-        $classDirPath = $this->getClassDirPath();
-        $autoloadFilePath = $classDirPath . COMPOSER_AUTOLOAD_FILE_PATH;
-        if (is_file($autoloadFilePath)) {
-            require $autoloadFilePath;
-        }
+        return parent::childNameToClass($name);
     }
 }

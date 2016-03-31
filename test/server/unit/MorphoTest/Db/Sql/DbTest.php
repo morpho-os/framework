@@ -40,12 +40,8 @@ class DbTest extends DbTestCase {
         $this->assertEquals('1', $this->db->lastInsertId('some'));
     }
 
-    public function testQuery_ReturnsUniqueInstance() {
-        $query1 = $this->db->query();
-        $this->assertInstanceOf('Morpho\Db\Sql\Query', $query1);
-        $query2 = $this->db->query();
-        $this->assertInstanceOf('Morpho\Db\Sql\Query', $query2);
-        $this->assertNotSame($query1, $query2);
+    public function testQuery_ReturnsNotUniqueInstance() {
+        $this->assertNotUniqueInstance([$this->db, 'query'], 'Morpho\Db\Sql\MySql\Query');
     }
 
     public function testSelectCell() {
@@ -75,8 +71,8 @@ class DbTest extends DbTestCase {
         $this->assertEquals(Db::MYSQL_DRIVER, $this->db->getCurrentDriverName());
     }
 
-    public function testSchemaManager() {
-        $this->assertInstanceOf('\Morpho\Db\Sql\SchemaManager', $this->db->schemaManager());
+    public function testSchemaManager_ReturnsNotUniqueInstance() {
+        $this->assertNotUniqueInstance([$this->db, 'schemaManager'], 'Morpho\Db\Sql\MySql\SchemaManager');
     }
 
     private function setTestDataForUpdateRows() {

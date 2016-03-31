@@ -52,10 +52,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         }
     }
     */
-
+    
     protected function getTestDirPath(): string {
         $classFilePath = $this->getClassFilePath();
-
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
     }
 
@@ -68,7 +67,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     }
 
     protected function createTmpDir($dirName = null): string {
-        $tmpDirPath = $this->getTmpDirPath() . '/' . md5(uniqid('', true));
+        $tmpDirPath = $this->tmpDirPath() . '/' . md5(uniqid('', true));
         $this->tmpDirPaths[] = $tmpDirPath;
         $tmpDirPath .= null !== $dirName ? '/' . $dirName : '';
         if (is_dir($tmpDirPath)) {
@@ -78,7 +77,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         return Directory::create($tmpDirPath);
     }
 
-    protected function getTmpDirPath(): string {
+    protected function tmpDirPath(): string {
         return Directory::tmpDirPath();
     }
 
@@ -89,6 +88,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     protected function getNamespace($useFqn = false) {
         $class = get_class($this);
         return ($useFqn ? '\\' : '') . substr($class, 0, strrpos($class, '\\'));
+    }
+
+    protected function assertIntString($val) {
+        $this->assertRegExp('~^[-+]?\d+$~si', $val, "The value is not either an integer or an integer string");
     }
 
     protected function assertHtmlEquals($expected, $actual, $message = '') {
@@ -105,6 +108,14 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
+    protected function assertNotUniqueInstance(callable $fn, string $expectedClass) {
+        $this->assertInstanceUniqueness($fn, $expectedClass, false);
+    }
+    
+    protected function assertUniqueInstance(callable $fn, string $expectedClass) {
+        $this->assertInstanceUniqueness($fn, $expectedClass, true);
+    }
+
     protected function setDefaultTimezone() {
         $this->oldTimezone = @date_default_timezone_get();
         date_default_timezone_set(self::TIMEZONE);
@@ -112,5 +123,17 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
     protected function randomString() {
         return md5(uniqid(microtime(true)));
+    }
+
+    private function assertInstanceUniqueness(callable $fn, string $expectedClass, bool $unique) {
+        $instance1 = $fn();
+        $this->assertInstanceOf($expectedClass, $instance1);
+        $instance2 = $fn();
+        $this->assertInstanceOf($expectedClass, $instance2);
+        if ($unique) {
+            $this->assertNotSame($instance1, $instance2);
+        } else {
+            $this->assertSame($instance1, $instance2);
+        }
     }
 }

@@ -11,21 +11,21 @@ class Directory extends Entry {
     const FILE = 0x01;
     const DIR = 0x02;
 
-    public static function move(string $sourceDirPath, string $targetDirPath) {
+    public static function move(string $sourceDirPath, string $targetDirPath)/*: void */ {
         self::copy($sourceDirPath, $targetDirPath);
         self::delete($sourceDirPath);
     }
 
-    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null) {
+    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null)/*: void */ {
         // @TODO: Handle $options
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         // @TODO: Handle dots and relative paths: '..', '.' a
         self::ensureExists($sourceDirPath);
         if (!is_dir($sourceDirPath)) {
-            throw new IoException("Source path must be a directory.");
+            throw new Exception("Source path must be a directory.");
         }
         if ($sourceDirPath === $targetDirPath) {
-            throw new IoException("Cannot copy a directory '$sourceDirPath' into itself.");
+            throw new Exception("Cannot copy a directory '$sourceDirPath' into itself.");
         }
 
         if (is_dir($targetDirPath)) {
@@ -55,11 +55,10 @@ class Directory extends Entry {
     /**
      * @param array|string $dirPaths
      * @param string|\Closure $processor
-     * @TODO: Return \Generator
      */
-    public static function listEntries($dirPaths, $processor = null, array $options = []): array {
+    public static function listEntries($dirPaths, $processor = null, array $options = []): \Generator {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
-            throw new IoException();
+            throw new Exception();
         }
         $options = ArrayTool::handleOptions(
             $options,
@@ -77,7 +76,6 @@ class Directory extends Entry {
             };
         }
 
-        $paths = [];
         foreach ((array)$dirPaths as $dirPath) {
             foreach (new DirectoryIterator($dirPath) as $item) {
                 if ($item->isDot()) {
@@ -93,27 +91,23 @@ class Directory extends Entry {
 
                 if ($isDir) {
                     if ($options['type'] & self::DIR) {
-                        $paths[] = $path;
+                        yield $path;
                     }
 
                     if ($options['recursive']) {
                         if ($item->isLink() && !$options['followSymlinks']) {
                             continue;
                         }
-                        $paths = array_merge(
-                            $paths,
-                            self::listEntries($item->getPathname(), $processor, $options)
-                        );
+
+                        yield from self::listEntries($item->getPathname(), $processor, $options);
                     }
                 } else {
                     if ($options['type'] & self::FILE) {
-                        $paths[] = $path;
+                        yield $path;
                     }
                 }
             }
         }
-
-        return $paths;
     }
 
     /**
@@ -121,9 +115,8 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
-     *     // @TODO: Return \Generator
      */
-    public static function listDirs($dirPath, $processor = null, array $options = []): array {
+    public static function listDirs($dirPath, $processor = null, array $options = []): \Generator {
         $options['type'] = self::DIR;
         if (is_string($processor)) {
             $regexp = $processor;
@@ -144,15 +137,13 @@ class Directory extends Entry {
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
-     * // @TODO: Return \Generator
      */
-    public static function listFiles($dirPath, $processor = null, array $options = []): array {
+    public static function listFiles($dirPath, $processor = null, array $options = []): \Generator {
         $options['type'] = self::FILE;
         return self::listEntries($dirPath, $processor, $options);
     }
 
-    // @TODO: Return \Generator
-    public static function listLinks(string $dirPath, $processor = null): array {
+    public static function listLinks(string $dirPath, $processor = null): \Generator {
         throw new NotImplementedException(__METHOD__);
     }
 
@@ -163,17 +154,15 @@ class Directory extends Entry {
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
-    public static function listBrokenLinks($dirPath, $processor = null): array {
-        $brokenLinkPaths = [];
+    public static function listBrokenLinks($dirPath, $processor = null): \Generator {
         foreach (Directory::listEntries($dirPath, $processor) as $path) {
             if (is_link($path)) {
                 $targetPath = readlink($path);
                 if (false === $targetPath || !self::isEntry($path)) {
-                    $brokenLinkPaths[$path] = $targetPath;
+                    yield $path => $targetPath;
                 }
             }
         }
-        return $brokenLinkPaths;
     }
 
     public static function tmpDirPath(): string {
@@ -199,19 +188,19 @@ class Directory extends Entry {
      *
      * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
      */
-    public static function delete(string $dirPath, bool $deleteSelf = true) {
+    public static function delete(string $dirPath, bool $deleteSelf = true)/*: void */ {
         self::ensureExists($dirPath);
         $absFilePath = realpath($dirPath);
         if (!$absFilePath) {
-            throw new IoException("The directory '$dirPath' could not be found.");
+            throw new Exception("The directory '$dirPath' could not be found.");
         }
         $d = @dir($absFilePath);
         if (!$d) {
-            throw new IoException("The directory '$dirPath' can not be opened for reading.");
+            throw new Exception("The directory '$dirPath' can not be opened for reading.");
         }
         // Check if we can delete the dir.
         if (!is_writable(realpath($dirPath . '/' . '..'))) {
-            throw new IoException("The directory '$dirPath' can not be opened for writing.");
+            throw new Exception("The directory '$dirPath' can not be opened for writing.");
         }
         // Loop over contents.
         while (($fileName = $d->read()) !== false) {
@@ -225,12 +214,13 @@ class Directory extends Entry {
                 if (false === @unlink($filePath)) {
                     $message = "The file '$filePath' can not be deleted";
                     $error = error_get_last();
+                    error_clear_last();
                     if (preg_match('~unlink\(.*\): Permission denied~s', $error['message'])) {
                         $message .= ': permission denied.';
                     } else {
                         $message .= '.';
                     }
-                    throw new IoException($message);
+                    throw new Exception($message);
                 }
             }
         }
@@ -238,7 +228,7 @@ class Directory extends Entry {
         if ($deleteSelf) {
             $success = @rmdir($absFilePath);
             if (!$success) {
-                throw new IoException("Unable to delete the directory '$absFilePath': permission denied.");
+                throw new Exception("Unable to delete the directory '$absFilePath': permission denied.");
             }
         }
     }
@@ -253,7 +243,7 @@ class Directory extends Entry {
             $uniquePath = $dirPath . '-' . $i;
         }
         if ($i == $numberOfAttempts && is_dir($uniquePath)) {
-            throw new IoException("Unable to generate an unique path for the directory '$dirPath' (tried $i times).");
+            throw new Exception("Unable to generate an unique path for the directory '$dirPath' (tried $i times).");
         }
 
         return $uniquePath;
@@ -270,7 +260,7 @@ class Directory extends Entry {
 
     public static function create(string $dirPath, int $mode = 0755, bool $recursive = true): string {
         if (empty($dirPath)) {
-            throw new IoException("The directory path is empty.");
+            throw new Exception("The directory path is empty.");
         }
 
         if (is_dir($dirPath)) {
@@ -284,9 +274,9 @@ class Directory extends Entry {
             $error = error_get_last();
             $message = "Unable to create the directory '$dirPath' with mode: $mode.";
             if (null !== $error) {
-                throw new IoException($message . ' ' . $error['message']);
+                throw new Exception($message . ' ' . $error['message']);
             } else {
-                throw new IoException($message);
+                throw new Exception($message);
             }
         }
 
@@ -299,9 +289,9 @@ class Directory extends Entry {
         return is_file($path) || is_dir($path) || is_link($path);
     }
 
-    public static function ensureExists(string $dirPath) {
+    public static function ensureExists(string $dirPath)/*: void */ {
         if (!is_dir($dirPath) || empty($dirPath)) {
-            throw new IoException("The '$dirPath' directory does not exist.");
+            throw new Exception("The '$dirPath' directory does not exist.");
         }
     }
 }

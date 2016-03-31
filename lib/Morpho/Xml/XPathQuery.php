@@ -8,19 +8,23 @@ class XPathQuery {
         $this->xPath = new \DOMXPath($doc);
     }
 
+    public static function formFields(): string {
+        // @TODO
+        return 'input|textarea|option[@name]|';
+    }
+
     public function select(string $xPath, $contextNode = null): XPathResult {
-        $nodeList = $this->xPath($xPath, $contextNode);
+        $nodeList = $this->eval($xPath, $contextNode);
         if (!$nodeList instanceof \DOMNodeList) {
             throw new \RuntimeException('Unable to select DOMNodeList, consider to use the xPath() method instead.');
         }
-
         return new XPathResult($nodeList);
     }
 
     /**
      * @return @TODO
      */
-    public function xPath(string $xPath, $contextNode = null) {
+    public function eval(string $xPath, $contextNode = null) {
         if (null !== $contextNode) {
             $result = $this->xPath->evaluate($xPath, $contextNode);
         } else {
@@ -29,11 +33,10 @@ class XPathQuery {
         if (false === $result) {
             throw new \RuntimeException("The XPath expression '$xPath' is not valid.");
         }
-
         return $result;
     }
 
-    public function getXPath($node) {
+    public function xPathString($node) {
         /*
         @TODO
         if ($node instanceof SimpleXMLElement) {

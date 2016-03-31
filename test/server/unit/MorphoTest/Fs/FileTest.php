@@ -29,7 +29,7 @@ class FileTest extends TestCase {
     }
 
     public function testDelete() {
-        $targetFilePath = $this->getTmpDirPath() . '/' . basename(__FILE__);
+        $targetFilePath = $this->tmpDirPath() . '/' . basename(__FILE__);
         File::copy(__FILE__, $targetFilePath);
         $this->assertFileExists($targetFilePath);
 
@@ -40,7 +40,7 @@ class FileTest extends TestCase {
 
     public function testDeleteNonExistentFileThrowsException() {
         $this->setExpectedException('\Morpho\Fs\FileNotFoundException');
-        File::delete($this->getTmpDirPath() . '/' . md5(uniqid()) . '.php');
+        File::delete($this->tmpDirPath() . '/' . md5(uniqid()) . '.php');
     }
 
     public function testTruncate() {
@@ -68,8 +68,8 @@ class FileTest extends TestCase {
 
     public function testMoveNotExistentFileThrowsException() {
         $sourceFilePath = __FILE__ . 'some';
-        $targetFilePath = $this->getTmpDirPath() . '/some';
-        $this->setExpectedException('\Morpho\Fs\IoException', "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
+        $targetFilePath = $this->tmpDirPath() . '/some';
+        $this->setExpectedException('\Morpho\Fs\Exception', "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
         File::move($sourceFilePath, $targetFilePath);
     }
 
@@ -86,8 +86,8 @@ class FileTest extends TestCase {
 
     public function testCopy_IfSourceIsDirThrowsException() {
         $sourceFilePath = $this->getTestDirPath();
-        $this->setExpectedException('\Morpho\Fs\IoException', "Unable to copy: the source '$sourceFilePath' is not a file");
-        File::copy($sourceFilePath, $this->getTmpDirPath());
+        $this->setExpectedException('\Morpho\Fs\Exception', "Unable to copy: the source '$sourceFilePath' is not a file");
+        File::copy($sourceFilePath, $this->tmpDirPath());
     }
 
     public function testWrite() {
@@ -100,7 +100,7 @@ class FileTest extends TestCase {
     }
 
     public function testWrite_CantWriteToEmptyFile() {
-        $this->setExpectedException('\Morpho\Fs\IoException', "The file path is empty.");
+        $this->setExpectedException('\Morpho\Fs\Exception', "The file path is empty.");
         File::write('', 'Test');
     }
 
@@ -121,7 +121,7 @@ class FileTest extends TestCase {
         try {
             File::copy($sourceFilePath, $targetFilePath, false);
             $this->fail();
-        } catch (\Morpho\Fs\IoException $e) {
+        } catch (\Morpho\Fs\Exception $e) {
         }
 
         $this->assertEquals(0, filesize($targetFilePath));
@@ -176,7 +176,7 @@ class FileTest extends TestCase {
     public function testUniquePathShouldThrowExceptionWhenNumberOfAttempsReached() {
         $filePath = __FILE__;
         $expectedMessage = "Unable to generate unique path for file '$filePath' (tried 0 times).";
-        $this->setExpectedException('\Morpho\Fs\IoException', $expectedMessage);
+        $this->setExpectedException('\Morpho\Fs\Exception', $expectedMessage);
         File::uniquePath($filePath, 0);
     }
 

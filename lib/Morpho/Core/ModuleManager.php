@@ -2,8 +2,9 @@
 //declare(strict_types = 1);
 namespace Morpho\Core;
 
-use function Morpho\Base\classify;
+use Morpho\Base\Node as BaseNode;
 use Morpho\Base\IEventManager;
+use Morpho\Code\ClassDiscoverer;
 use Morpho\Db\Sql\Db;
 
 abstract class ModuleManager extends Node implements IEventManager {
@@ -15,6 +16,12 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected $fallbackMode = false;
 
+    protected $fallbackModules = [
+        'System',
+        'User',
+        'Bootstrap',
+    ];
+
     protected $eventHandlers;
 
     protected $name = 'ModuleManager';
@@ -22,27 +29,25 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected $db;
 
     protected $tableName = 'module';
-
-    public function __construct(Db $db) {
+    
+    protected $moduleListProvider;
+    
+    protected $moduleClassLoader;
+    
+    public function __construct(Db $db = null, \Traversable $moduleListProvider = null, ModuleClassLoader $moduleClassLoader = null) {
         $this->db = $db;
+        $this->moduleListProvider = $moduleListProvider;
+        $this->moduleClassLoader = $moduleClassLoader;
     }
 
-    public function setDb(Db $db) {
-        $this->db = $db;
-    }
-
-    /**
-     * @param bool|null $flag
-     * @return bool
-     */
-    public function isFallbackMode($flag = null) {
+    public function isFallbackMode(bool $flag = null): bool {
         if (null !== $flag) {
             $this->fallbackMode = $flag;
         }
         return $this->fallbackMode;
     }
 
-    public function dispatch($request) {
+    public function dispatch($request)/*: void */ {
         do {
             try {
                 $request->isDispatched(true);
@@ -55,9 +60,8 @@ abstract class ModuleManager extends Node implements IEventManager {
 
                 $this->trigger('beforeDispatch', ['request' => $request]);
 
-                $controller = $this->getChild($moduleName)
-                    ->getChild($controllerName);
-
+                $module = $this->getChild($moduleName);
+                $controller = $module->getChild($controllerName);
                 $controller->dispatch($request);
 
                 $this->trigger('afterDispatch', ['request' => $request]);
@@ -67,11 +71,14 @@ abstract class ModuleManager extends Node implements IEventManager {
         } while (false === $request->isDispatched());
     }
 
-    public function on(string $eventName, callable $handler) {
+    public function on(string $eventName, callable $handler)/*: void */ {
         $this->initEventHandlers();
         $this->eventHandlers[$eventName][] = $handler;
     }
 
+    /**
+     * @return mixed
+     */
     public function trigger(string $eventName, array $args = null) {
         $event = [$eventName, $args];
         $this->initEventHandlers();
@@ -94,7 +101,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    public function installModule(string $moduleName) {
+    public function installModule(string $moduleName)/*: void */ {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
@@ -108,9 +115,10 @@ abstract class ModuleManager extends Node implements IEventManager {
             }
         );
         $this->rebuildEvents($moduleName);
+        $this->clearCache();
     }
 
-    public function uninstallModule(string $moduleName) {
+    public function uninstallModule(string $moduleName)/*: void */ {
         $db = $this->db;
         $moduleId = $db->selectCell("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED]);
         if (!$moduleId) {
@@ -125,9 +133,10 @@ abstract class ModuleManager extends Node implements IEventManager {
             }
         );
         $this->rebuildEvents($moduleName);
+        $this->clearCache();
     }
 
-    public function enableModule(string $moduleName) {
+    public function enableModule(string $moduleName)/*: void */ {
         $db = $this->db;
         if ($db->selectBool("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])) {
             throw new \LogicException("The module '$moduleName' is already enabled");
@@ -142,7 +151,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->rebuildEvents($moduleName);
     }
 
-    public function disableModule(string $moduleName) {
+    public function disableModule(string $moduleName)/*: void */ {
         $db = $this->db;
         $exists = (bool)$db->selectCell("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED]);
         if (!$exists) {
@@ -158,7 +167,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->rebuildEvents($moduleName);
     }
 
-    public function installAndEnableModule(string $moduleName) {
+    public function installAndEnableModule(string $moduleName)/*: void */ {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
@@ -174,9 +183,10 @@ abstract class ModuleManager extends Node implements IEventManager {
             }
         );
         $this->rebuildEvents($moduleName);
+        $this->clearCache();
     }
 
-    public function rebuildEvents($moduleName = null) {
+    public function rebuildEvents($moduleName = null)/*: void */ {
         $modules = null !== $moduleName ? [$moduleName] : $this->listEnabledModules();
         $db = $this->db;
         foreach ($modules as $moduleName) {
@@ -223,44 +233,23 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function listAllModules(): array {
-        return $this->fallbackMode
-            ? []
-            : array_merge($this->listUninstalledModules(), $this->listInstalledModules());
+        if ($this->fallbackMode) {
+            return [];
+        }
+        return iterator_to_array($this->moduleListProvider, false);
     }
 
     public function listInstalledModules(): array {
         return $this->fallbackMode
             ? []
-            : array_merge($this->listEnabledModules(), $this->listDisabledModules());
+            : $this->db->selectColumn("name FROM $this->tableName ORDER BY name, weight");
     }
 
-    public function listUninstalledModules() {
-        // @TODO: Resolve dependencies automatically.
+    public function listUninstalledModules(): array {
         if ($this->fallbackMode) {
-            $exclude = [];
-            $modules = [
-                'System',
-                'User',
-                'Bootstrap',
-            ];
-        } else {
-            $exclude = $this->db->selectColumn("name FROM $this->tableName ORDER BY name");
-            $modules = [];
+            return $this->fallbackModules;
         }
-        $moduleAutoloader = $this->getModuleClassLoader();
-        foreach ($moduleAutoloader as $class => $path) {
-            $moduleName = self::classToModuleName($class);
-            if (false === $moduleName) {
-                continue;
-            }
-            if (in_array($moduleName, $exclude)) {
-                continue;
-            }
-            if (!in_array($moduleName, $modules)) {
-                $modules[] = $moduleName;
-            }
-        }
-        return $modules;
+        return array_diff($this->listAllModules(), $this->listInstalledModules());
     }
 
     public function listEnabledModules(): array {
@@ -275,30 +264,25 @@ abstract class ModuleManager extends Node implements IEventManager {
             : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED]);
     }
 
-    public static function classToModuleName(string $class) {
-        $suffixLength = strlen(MODULE_SUFFIX);
-        if (substr($class, -$suffixLength) !== MODULE_SUFFIX) {
-            return false;
-        }
-        // Module name := <Name> NS_SEP "Module".
-        return substr($class, 0, -($suffixLength + 1));
+    public function setDb(Db $db) {
+        $this->db = $db;
     }
 
-    protected function getModuleClassLoader() {
-        return $this->serviceManager->get('moduleClassLoader');
+    protected function clearCache()/*: void */ {
+        $this->moduleClassLoader->clearCache();
     }
 
-    protected function childNameToClass(string $moduleName): string {
-        return $moduleName . '\\' . MODULE_SUFFIX;
+    protected function loadChild(string $name): BaseNode {
+        $this->moduleClassLoader->registerModule($name);
+        return parent::loadChild($name);
+    }
+    
+    protected function childNameToClass(string $moduleName) {
+        $class = $moduleName . '\\' . MODULE_SUFFIX;
+        return class_exists($class) ? $class : __NAMESPACE__ . '\\Module';
     }
 
-    /*
-    protected function classToChildName(string $class): string {
-        return self::classToModuleName($class);
-    }
-    */
-
-    protected function initEventHandlers() {
+    protected function initEventHandlers()/*: void */ {
         if (null !== $this->eventHandlers) {
             return;
         }
@@ -375,5 +359,5 @@ abstract class ModuleManager extends Node implements IEventManager {
         return [];
     }
 
-    abstract protected function actionNotFound($moduleName, $controllerName, $actionName);
+    abstract protected function actionNotFound($moduleName, $controllerName, $actionName)/*: void */;
 }

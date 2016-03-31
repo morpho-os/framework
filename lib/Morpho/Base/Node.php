@@ -15,17 +15,11 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     protected $parent;
 
-    protected $loadable = [];
-
     public function setName($name): Node {
         $this->name = $name;
-
         return $this;
     }
 
-    /**
-     * @throws EmptyPropertyException
-     */
     public function getName(): string {
         if (null === $this->name) {
             throw new EmptyPropertyException($this, 'name');
@@ -56,9 +50,8 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     /**
      * @param string|Node
-     * @return void
      */
-    public function removeChild($child) {
+    public function removeChild($child)/*: void */ {
         if (is_string($child)) {
             unset($this->children[$child]);
         } else {
@@ -67,10 +60,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         }
     }
 
-    /**
-     * @return void
-     */
-    public function removeAll() {
+    public function removeAll()/*: void */ {
         $this->children = [];
     }
 
@@ -83,8 +73,8 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         } else {
             $name = $child->getName();
         }
-
-        return isset($this->children[$name]) || $this->isChildLoadable($name);
+        return isset($this->children[$name])
+            || $this->childNameToClass($name) !== false;
     }
 
     /**
@@ -96,15 +86,9 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     public function getChild(string $name): Node {
         if (!isset($this->children[$name])) {
-            $node = $this->tryLoadChild($name);
-            if (!$node) {
-                throw new ObjectNotFoundException(
-                    "Unable to load a node with the '$name' name, check that class exists."
-                );
-            }
+            $node = $this->loadChild($name);
             return $this->addChild($node);
         }
-
         return $this->children[$name];
     }
 
@@ -117,10 +101,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         throw new ObjectNotFoundException("Unable to find a node with the name '$name' in leaf nodes.");
     }
 
-    /**
-     * @return array
-     */
-    public function getAll() {
+    public function getChildNodes(): array {
         return $this->children;
     }
 
@@ -151,7 +132,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     /**
-     * @return RecursiveIterator|null
+     * @return \RecursiveIterator|null
      */
     public function getChildren() {
         if (!$this->hasChildren()) {
@@ -176,50 +157,39 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return $current ? $current : null;
     }
 
-    /**
-     * @return string
-     */
     public function key() {
         return key($this->children);
     }
 
-    /**
-     * @return void
-     */
-    public function next() {
+    public function next()/*: void */ {
         next($this->children);
     }
 
-    /**
-     * @return void
-     */
-    public function rewind() {
+    public function rewind()/*: void */ {
         reset($this->children);
     }
 
-    /**
-     * @return bool
-     */
-    public function valid() {
+    public function valid(): bool {
         return false !== current($this->children);
     }
 
-    /**
-     * @return int
-     */
-    public function count() {
+    public function count(): int {
         return count($this->children);
     }
 
-    protected function tryLoadChild(string $name) {
-        if ($this->isChildLoadable($name)) {
-            $class = $this->loadable[$name];
-            return (new $class())->setName($name);
+    protected function loadChild(string $name): Node {
+        $class = $this->childNameToClass($name);
+        if (!$class) {
+            throw new ObjectNotFoundException("Unable to load a child node with the name '$name'");
         }
-        return false;
+        return (new $class())->setName($name);
     }
 
-    protected function isChildLoadable(string $name): bool {
-        return isset($this->loadable[$name]);
+    /**
+     * @return string|false
+     */
+    protected function childNameToClass(string $name) {
+        $class = $this->getNamespace() . '\\' . $name;
+        return class_exists($class) ? $class : false;
     }
 }

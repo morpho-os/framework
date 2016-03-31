@@ -2,9 +2,9 @@
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
-use Morpho\Base\FileClassMapAutoloader;
+use Morpho\Base\ClassMapClassLoader;
 
-class FileClassMapAutoloaderTest extends TestCase {
+class ClassMapClassLoaderTest extends TestCase {
     public function tearDown() {
         $mapFilePath = $this->getMapFilePath();
         if (is_file($mapFilePath)) {
@@ -16,7 +16,7 @@ class FileClassMapAutoloaderTest extends TestCase {
         $regexp = '{\.php$}si';
         $dirPath = $this->getTestDirPath();
         $mapFilePath = $this->getMapFilePath();
-        $autoloader = new FileClassMapAutoloader($mapFilePath, $dirPath, $regexp);
+        $autoloader = new ClassMapClassLoader($mapFilePath, $dirPath, $regexp);
 
         $this->assertFalse(file_exists($mapFilePath));
 
@@ -31,7 +31,7 @@ class FileClassMapAutoloaderTest extends TestCase {
     }
 
     public function testClearEmptyMapShouldNotThrowException() {
-        $autoloader = new FileClassMapAutoloader($this->getMapFilePath(), $this->getTestDirPath());
+        $autoloader = new ClassMapClassLoader($this->getMapFilePath(), $this->getTestDirPath());
         $autoloader->clearMap();
     }
 
@@ -42,7 +42,7 @@ class FileClassMapAutoloaderTest extends TestCase {
 
         $this->assertFalse(file_exists($mapFilePath));
 
-        $autoloader = new FileClassMapAutoloader($mapFilePath, $dirPath);
+        $autoloader = new ClassMapClassLoader($mapFilePath, $dirPath);
         $autoloader->useCache(false);
         $this->assertTrue($autoloader->autoload($class));
 
@@ -50,10 +50,10 @@ class FileClassMapAutoloaderTest extends TestCase {
     }
 
     public function testUseCache() {
-        $this->assertBoolAccessor([new FileClassMapAutoloader(null, null), 'useCache'], true);
+        $this->assertBoolAccessor([new ClassMapClassLoader(null, null), 'useCache'], true);
     }
 
     protected function getMapFilePath() {
-        return $this->getTmpDirPath() . '/' . md5(__METHOD__) . '.php';
+        return $this->tmpDirPath() . '/' . md5(__METHOD__) . '.php';
     }
 }

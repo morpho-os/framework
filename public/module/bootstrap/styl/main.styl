@@ -37,9 +37,6 @@ svg
 
 */
 
-.nowrap 
-    white-space: nowrap
-
 /*
 .grid 
     th.expand,
@@ -49,35 +46,108 @@ svg
 
 */
 
-#page-messages 
+
+/******************************************************************************
+ * Pages
+ *****************************************************************************/
+
+.page-title
+    border-bottom: none
+
+
+/******************************************************************************
+ * Utilities
+ *****************************************************************************/
+
+span.required
+    color: $required-color
+
+.no-top-gaps
+    margin-top: 0
+    padding-top: 0
+
+.no-right-gaps
+    margin-right: 0
+    padding-right: 0
+
+.no-bottom-gaps
+    margin-bottom: 0
+    padding-bottom: 0
+
+.no-left-gaps
+    margin-left: 0
+    padding-left: 0
+
+.no-wrap
+    white-space: nowrap;
+
+.number
+    text-align: right;
+
+.no-content:after
+    content: normal !important
+
+
+/******************************************************************************
+ * Messages
+ *****************************************************************************/
+
+#page-messages
     position: fixed
     top: 70px
     right: 0
     left: 0
     z-index: 1000
 
-    .alert 
+    .alert
         margin: 1em auto
         width: 500px
         max-height: 200px
         overflow: auto
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25)
 
-form 
-    .help-block 
+.alert-error
+    alert-variant($alert-danger-bg, $alert-danger-border, $alert-danger-text)
+    alert-styles($alert-danger-bg)
+
+.error
+    color: #a94442 !important
+
+    a
+        color: #a94442 !important
+        text-decoration: underline
+
+
+/******************************************************************************
+ * Forms
+ *****************************************************************************/
+
+/*
+.form-group label:after
+    content: ':'
+
+*/
+
+form
+    legend
+        color: $body-color
+
+    .form-group.required label:after
+        color: $required-color
+        content: "*"
+        margin-left: 5px
+
+    .help-block
         font-size: 85%
         margin-bottom: 0
         padding-bottom: 0
 
-    .has-error 
-        .help-block 
+    .has-error
+        .help-block
             color: lighten($text-color, 25%)
 
-        label 
+        label
             color: $gray-dark
 
-    legend
-        color: $body-color
-
-    .form-actions
-        margin-top: 1.5em
+    .submit-btns
+        margin-top: 2em

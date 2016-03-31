@@ -28,7 +28,7 @@ OUT;
     protected function createTemplateEngine() {
         $templateEngine = new PhpTemplateEngine($this->mock('\Morpho\Web\Ui\PluginManager'));
         $templateEngine->useCache(false);
-        $templateEngine->setCacheDirPath($this->getTmpDirPath());
+        $templateEngine->setCacheDirPath($this->tmpDirPath());
         return $templateEngine;
     }
 }

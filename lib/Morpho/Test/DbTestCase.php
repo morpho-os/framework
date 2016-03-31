@@ -5,7 +5,7 @@ use Morpho\Db\Sql\Db;
 use Morpho\Fs\Directory;
 
 abstract class DbTestCase extends TestCase {
-    protected function createFixtures($db) {
+    protected function createFixtures($db)/*: void*/ {
         $paths = Directory::listEntries($this->getTestDirPath(), '~Fixture\.php$~');
         foreach ($paths as $path) {
             require_once $path;
@@ -16,11 +16,11 @@ abstract class DbTestCase extends TestCase {
         }
     }
 
-    protected function createDbConnection() {
+    protected function createDbConnection(): \PDO {
         return Db::createConnection($this->getDbConfig());
     }
 
-    protected function getDbConfig() {
+    protected function getDbConfig(): array {
         return [
             'driver'   => 'mysql',
             'host'     => '127.0.0.1',
@@ -30,7 +30,7 @@ abstract class DbTestCase extends TestCase {
         ];
     }
 
-    protected function createDb($config = null) {
+    protected function db($config = null): Db {
         return new Db($config ? $config : $this->createDbConnection());
     }
 }

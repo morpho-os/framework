@@ -568,7 +568,7 @@ var System;
             return $el.val();
         };
         Form.prototype.sendFormData = function (uri, requestData) {
-            var ajaxSettings = this.getAjaxSettings();
+            var ajaxSettings = this.ajaxSettings();
             ajaxSettings.url = uri;
             ajaxSettings.data = requestData;
             return this.sendAjaxRequest(ajaxSettings);
@@ -576,13 +576,23 @@ var System;
         Form.prototype.sendAjaxRequest = function (ajaxSettings) {
             return $.ajax(ajaxSettings);
         };
-        Form.prototype.getAjaxSettings = function () {
+        Form.prototype.ajaxSettings = function () {
+            var self = this;
             return {
-                beforeSend: this.beforeSend.bind(this),
-                success: this.ajaxSuccess.bind(this),
-                error: this.ajaxError.bind(this),
-                type: this.el.attr('method') || 'GET'
+                beforeSend: function (jqXHR, settings) {
+                    return self.beforeSend(jqXHR, settings);
+                },
+                success: function (data, textStatus, jqXHR) {
+                    return self.ajaxSuccess(data, textStatus, jqXHR);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    return self.ajaxError(jqXHR, textStatus, errorThrown);
+                },
+                method: this.submitMethod()
             };
+        };
+        Form.prototype.submitMethod = function () {
+            return this.el.attr('method') || 'GET';
         };
         Form.prototype.beforeSend = function (jqXHR, settings) {
         };
@@ -612,8 +622,12 @@ var System;
             }
         };
         Form.prototype.handleResponseSuccess = function (responseData) {
+            if (responseData.redirect) {
+                System.redirectTo(responseData.redirect);
+            }
         };
         Form.prototype.handleResponseError = function (responseData) {
+            this.showFormErrorMessage(responseData);
         };
         Form.prototype.changeEventNames = function () {
             return 'keyup blur change paste';

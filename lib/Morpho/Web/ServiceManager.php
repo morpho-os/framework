@@ -9,6 +9,9 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
+use Morpho\Core\ModuleClassLoader;
+use Morpho\Core\ModuleListProvider;
+use Morpho\Core\ModulePathManager;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
@@ -34,6 +37,10 @@ class ServiceManager extends BaseServiceManager {
         }
         //return new Router($this->get('db'));
         return new FastRouter();
+    }
+
+    protected function createClassLoaderService() {
+        return require BASE_DIR_PATH . '/' . COMPOSER_AUTOLOAD_FILE_PATH;
     }
 
     protected function createDbService() {
@@ -78,10 +85,20 @@ class ServiceManager extends BaseServiceManager {
     protected function createMessengerService() {
         return new Messenger();
     }
+    
+    protected function createModulePathManagerService() {
+        return new ModulePathManager(MODULE_DIR_PATH);
+    }
 
     protected function createModuleManagerService() {
-        $this->get('moduleClassLoader')->register();
-        $moduleManager = new ModuleManager($this->get('db'));
+        $modulePathManager = $this->get('modulePathManager');
+        $moduleClassLoader = new ModuleClassLoader($modulePathManager, $this->get('siteManager')->getCurrentSite()->getCacheDirPath(), $this->config['moduleClassLoader']['useCache']);
+        $moduleClassLoader->register();
+        $moduleManager = new ModuleManager(
+            $this->get('db'),
+            new ModuleListProvider($modulePathManager),
+            $moduleClassLoader
+        );
         $moduleManager->isFallbackMode($this->isFallbackMode());
         return $moduleManager;
     }
@@ -123,7 +140,7 @@ class ServiceManager extends BaseServiceManager {
     protected function createRoutesMetaProviderService() {
         $routesMetaProvider = new RoutesMetaProvider();
         $actionsMetaProvider = new ActionsMetaProvider();
-        $actionsMetaProvider->setModuleDirPath(MODULE_DIR_PATH);
+        $actionsMetaProvider->setServiceManager($this);
         $actionsMetaProvider->setModuleManager($this->get('moduleManager'));
         $routesMetaProvider->setActionsMetaProvider($actionsMetaProvider);
         return $routesMetaProvider;

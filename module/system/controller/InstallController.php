@@ -1,6 +1,7 @@
 <?php
 namespace System\Controller;
 
+use Morpho\Core\SettingManager;
 use Morpho\Di\IServiceManagerAware;
 use Morpho\Web\Controller;
 use Morpho\Code\CodeTool;
@@ -61,7 +62,7 @@ class InstallController extends Controller {
                 $db = new Db($dbConfig);
                 $schemaManager = $db->schemaManager();
                 $schemaManager->createDatabase($dbName);
-                $db->useDatabase($dbName);
+                $db->runQuery($db->query()->useDb($dbName));
                 $dbConfig['db'] = $dbName;
             }
         }

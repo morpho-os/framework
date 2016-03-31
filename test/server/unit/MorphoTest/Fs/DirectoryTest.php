@@ -33,7 +33,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testCreate_CantCreateEmptyDir() {
-        $this->setExpectedException('\Morpho\Fs\IoException', "The directory path is empty.");
+        $this->setExpectedException('\Morpho\Fs\Exception', "The directory path is empty.");
         Directory::create('');
     }
 
@@ -49,7 +49,7 @@ class DirectoryTest extends TestCase {
     public function testUniquePath_ThrowsExceptionWhenNumberOfAttemptsReached() {
         $dirPath = __DIR__;
         $expectedMessage = "Unable to generate an unique path for the directory '$dirPath' (tried 0 times).";
-        $this->setExpectedException('\\Morpho\\Fs\\IoException', $expectedMessage);
+        $this->setExpectedException('\\Morpho\\Fs\\Exception', $expectedMessage);
         Directory::uniquePath($dirPath, 0);
     }
 
@@ -63,12 +63,12 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = Directory::listEntries($testDirPath);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
 
-        $actual = Directory::listEntries($testDirPath);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath), false);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
@@ -80,12 +80,12 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $actual = Directory::listEntries($testDirPath, null, ['type' => Directory::DIR]);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath, null, ['type' => Directory::DIR]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
 
-        $actual = Directory::listDirs($testDirPath);
+        $actual = iterator_to_array(Directory::listDirs($testDirPath), false);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
@@ -100,14 +100,14 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = Directory::listEntries($testDirPath, null, ['type' => Directory::DIR | Directory::FILE]);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath, null, ['type' => Directory::DIR | Directory::FILE]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
     public function testListEntries_WithoutProcessorAndWithoutBothFileAndDirOptions() {
-        $this->assertEquals([], Directory::listEntries($this->getTestDirPath(), null, ['type' => 0]));
+        $this->assertEquals([], iterator_to_array(Directory::listEntries($this->getTestDirPath(), null, ['type' => 0]), false));
     }
 
     public function testListEntries_WithClosureProcessorAndWithDefaultOptions() {
@@ -119,11 +119,14 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = Directory::listEntries(
-            $testDirPath,
-            function ($path, $isDir) {
-                return $isDir || basename($path) != '1.txt';
-            }
+        $actual = iterator_to_array(
+            Directory::listEntries(
+                $testDirPath,
+                function ($path, $isDir) {
+                    return $isDir || basename($path) != '1.txt';
+                }
+            ),
+            false
         );
         sort($expected);
         sort($actual);
@@ -139,7 +142,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = Directory::listEntries($testDirPath, '~\.php$~si');
+        $actual = iterator_to_array(Directory::listEntries($testDirPath, '~\.php$~si'), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -152,7 +155,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $actual = Directory::listEntries($testDirPath, '~\.php$~si', ['type' => Directory::DIR]);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath, '~\.php$~si', ['type' => Directory::DIR]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -167,7 +170,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = Directory::listEntries($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE]);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -176,10 +179,13 @@ class DirectoryTest extends TestCase {
     public function testListEntries_WithRegExpProcessorThatDoesNotMatchAnyPathAndWithFileOption() {
         $this->assertEquals(
             [],
-            Directory::listEntries(
-                $this->getTestDirPath(),
-                '~\.some$~si',
-                ['type' => Directory::FILE]
+            iterator_to_array(
+                Directory::listEntries(
+                    $this->getTestDirPath(),
+                    '~\.some$~si',
+                    ['type' => Directory::FILE]
+                ),
+                false
             )
         );
     }
@@ -199,6 +205,7 @@ class DirectoryTest extends TestCase {
                 'recursive' => false,
             ]
         );
+        $actual = iterator_to_array($actual, false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -206,12 +213,12 @@ class DirectoryTest extends TestCase {
 
     public function testListEntries_ThrowsExceptionOnInvalidOption() {
         $this->setExpectedException('\RuntimeException', 'Not allowed items are present');
-        Directory::listEntries($this->getTestDirPath(), null, ['invalid' => 'foo']);
+        iterator_to_array(Directory::listEntries($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 
     public function testListEntries_WithNotRecursiveOption() {
         $testDirPath = $this->getTestDirPath();
-        $actual = Directory::listEntries($testDirPath, null, ['recursive' => false]);
+        $actual = iterator_to_array(Directory::listEntries($testDirPath, null, ['recursive' => false]), false);
         $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
@@ -224,7 +231,7 @@ class DirectoryTest extends TestCase {
 
     public function testListDirs_WithRegExpAndWithNotRecursiveOption() {
         $testDirPath = $this->getTestDirPath();
-        $actual = Directory::listDirs($testDirPath, "~.*/[^4]$~si", ['recursive' => false]);
+        $actual = iterator_to_array(Directory::listDirs($testDirPath, "~.*/[^4]$~si", ['recursive' => false]), false);
         $expected = [
             $testDirPath . '/2',
         ];
@@ -272,13 +279,13 @@ class DirectoryTest extends TestCase {
 
         $targetDirPath = $sourceDirPath;
 
-        $this->setExpectedException('\Morpho\Fs\IoException', "Cannot copy a directory '$sourceDirPath' into itself.");
+        $this->setExpectedException('\Morpho\Fs\Exception', "Cannot copy a directory '$sourceDirPath' into itself.");
         Directory::copy($sourceDirPath, $targetDirPath);
     }
 
     protected function assertDirContentsEqual($sourceDirPath, $targetDirPath) {
-        $expected = Directory::listEntries($sourceDirPath);
-        $actual = Directory::listEntries($targetDirPath);
+        $expected = iterator_to_array(Directory::listEntries($sourceDirPath), false);
+        $actual = iterator_to_array(Directory::listEntries($targetDirPath), false);
 
         $sourceDirPath = str_replace('\\', '/', $sourceDirPath);
         $targetDirPath = str_replace('\\', '/', $targetDirPath);

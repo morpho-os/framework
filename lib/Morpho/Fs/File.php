@@ -34,7 +34,7 @@ class File extends Entry {
         $content = @file_get_contents($filePath, $options['useIncludePath']);
 
         if (false === $content) {
-            throw new IoException("Unable to read the '$filePath' file.");
+            throw new Exception("Unable to read the '$filePath' file.");
         }
 
         if ($options['binary']) {
@@ -68,7 +68,7 @@ class File extends Entry {
     public static function filterLines(callable $filter, string $filePath): \Generator {
         $handle = fopen($filePath, 'r');
         if (!$handle) {
-            throw new IoException("Unable to read the '$filePath' file");
+            throw new Exception("Unable to read the '$filePath' file");
         }
         while (false !== ($line = fgets($handle))) {
             if ($filter($line)) {
@@ -96,7 +96,7 @@ class File extends Entry {
         // @TODO: Replace with readLines()?
         $handle = fopen($filePath, "r");
         if (!$handle) {
-            throw new IoException("Unable to read the '$filePath' file");
+            throw new Exception("Unable to read the '$filePath' file");
         }
         // @TODO: Handle second argument
         while (false !== ($line = fgetcsv($handle, null, ','))) {
@@ -130,12 +130,12 @@ class File extends Entry {
      */
     public static function write(string $filePath, string $content, array $options = null): string {
         if (empty($filePath)) {
-            throw new IoException("The file path is empty.");
+            throw new Exception("The file path is empty.");
         }
         Directory::create(dirname($filePath));
         $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array)$options), $options['context']);
         if (false === $result) {
-            throw new IoException("Unable to write to the file '$filePath'.");
+            throw new Exception("Unable to write to the file '$filePath'.");
         }
 
         return $filePath;
@@ -155,7 +155,7 @@ class File extends Entry {
     public static function truncate(string $filePath) {
         $handle = @fopen($filePath, 'w');
         if (false === $handle) {
-            throw new IoException("Unable to open the file '$filePath' for writing.");
+            throw new Exception("Unable to open the file '$filePath' for writing.");
         }
         fclose($handle);
     }
@@ -165,7 +165,7 @@ class File extends Entry {
      */
     public static function delete(string $filePath) {
         if (!@unlink($filePath)) {
-            throw new FileNotFoundException("Unable to delete the file '$filePath.'");
+            throw new FileNotFoundException($filePath);
         }
     }
 
@@ -174,7 +174,7 @@ class File extends Entry {
      */
     public static function copy(string $sourceFilePath, string $targetFilePath, bool $overwrite = false, bool $skipIfExists = false): string {
         if (!is_file($sourceFilePath)) {
-            throw new IoException("Unable to copy: the source '$sourceFilePath' is not a file");
+            throw new Exception("Unable to copy: the source '$sourceFilePath' is not a file");
         }
         if (!is_dir(dirname($targetFilePath))) {
             Directory::create(dirname($targetFilePath));
@@ -186,11 +186,11 @@ class File extends Entry {
             if ($skipIfExists) {
                 return $targetFilePath;
             } else {
-                throw new IoException("The target file '$targetFilePath' already exists.");
+                throw new Exception("The target file '$targetFilePath' already exists.");
             }
         }
         if (!@copy($sourceFilePath, $targetFilePath)) {
-            throw new IoException("Unable to copy the file '$sourceFilePath' to the '$targetFilePath'.");
+            throw new Exception("Unable to copy the file '$sourceFilePath' to the '$targetFilePath'.");
         }
 
         return $targetFilePath;
@@ -203,7 +203,7 @@ class File extends Entry {
     public static function move(string $sourceFilePath, string $targetFilePath): string {
         Directory::create(dirname($targetFilePath));
         if (!@rename($sourceFilePath, $targetFilePath)) {
-            throw new IoException("Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
+            throw new Exception("Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
         }
         clearstatcache();
 
@@ -219,7 +219,7 @@ class File extends Entry {
             $uniquePath = $filePath . '-' . $i;
         }
         if ($i == $numberOfAttempts && is_file($uniquePath)) {
-            throw new IoException("Unable to generate unique path for file '$filePath' (tried $i times).");
+            throw new Exception("Unable to generate unique path for file '$filePath' (tried $i times).");
         }
 
         return $uniquePath;
@@ -227,7 +227,7 @@ class File extends Entry {
 
     public static function ensureIsReadable(string $filePath) {
         if (!is_file($filePath) || !is_readable($filePath)) {
-            throw new IoException("The file '$filePath' is not readable");
+            throw new Exception("The file '$filePath' is not readable");
         }
     }
 

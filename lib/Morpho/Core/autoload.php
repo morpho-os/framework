@@ -23,6 +23,7 @@ const TMP_DIR_NAME = 'tmp';
 const LIB_DIR_PATH = BASE_DIR_PATH . '/' . LIB_DIR_NAME;
 const MODULE_DIR_PATH = BASE_DIR_PATH . '/' . MODULE_DIR_NAME;
 const SITE_DIR_PATH = BASE_DIR_PATH . '/' . SITE_DIR_NAME;
+const TEST_DIR_PATH = BASE_DIR_PATH . '/' . TEST_DIR_NAME;
 
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';
@@ -38,4 +39,7 @@ const EPS = 0.00001;
 
 const CONFIG_FILE_NAME = 'config.php';
 
-const COMPOSER_AUTOLOAD_FILE_PATH = '/vendor/autoload.php';
+const MODULE_CLASS_FILE_NAME = 'Module.php';
+
+const COMPOSER_FILE_NAME = 'composer.json';
+const COMPOSER_AUTOLOAD_FILE_PATH = 'vendor/autoload.php';

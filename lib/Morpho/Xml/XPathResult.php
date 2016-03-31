@@ -1,33 +1,13 @@
 <?php
 namespace Morpho\Xml;
 
-use Morpho\Base\NotImplementedException;
+class XPathResult implements \Iterator {
+    protected $nodeList;
 
-class XPathResult {
-    private $nodeList;
+    protected $offset = 0;
 
     public function __construct(\DOMNodeList $nodeList) {
         $this->nodeList = $nodeList;
-    }
-
-    public function filter(callable $filter) {
-        throw new NotImplementedException();
-    }
-
-    public function head() {
-        return $this->nodeList->item(0);
-    }
-
-    public function tail() {
-        throw new NotImplementedException();
-    }
-
-    public function last() {
-        throw new NotImplementedException();
-    }
-
-    public function init() {
-        throw new NotImplementedException();
     }
 
     public function toHtml() {
@@ -36,10 +16,41 @@ class XPathResult {
         foreach ($this->nodeList as $node) {
             $root->appendChild($doc->importNode($node, true));
         }
-        return preg_replace('~^<nodes>|</nodes>~si', '', $doc->saveHTML());
+        return preg_replace('~^<nodes>|</nodes>$~si', '', $doc->saveHTML());
     }
 
-    public function __call($method, $args) {
-        $this->nodeList->$method(...$args);
+    public function item($offset) {
+        return $this->nodeList->item($offset);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function current() {
+        return $this->item($this->offset);
+    }
+
+    /**
+     * Move forward to next element
+     */
+    public function next()/*: void */ {
+        $this->offset++;
+    }
+
+    /**
+     * Return the key of the current element
+     * @return mixed scalar on success, or null on failure.
+     */
+    public function key() {
+        return $this->offset;
+    }
+
+
+    public function rewind()/*: void */ {
+        $this->offset = 0;
+    }
+
+    public function valid(): bool {
+        return (bool)$this->item($this->offset + 1);
     }
 }

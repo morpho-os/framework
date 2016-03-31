@@ -56,7 +56,8 @@ declare namespace System {
         protected getElValue($el: JQuery): any;
         protected sendFormData(uri: string, requestData: Object): JQueryXHR;
         protected sendAjaxRequest(ajaxSettings: JQueryAjaxSettings): JQueryXHR;
-        protected getAjaxSettings(): JQueryAjaxSettings;
+        protected ajaxSettings(): JQueryAjaxSettings;
+        protected submitMethod(): string;
         protected beforeSend(jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any;
         protected ajaxSuccess(responseData: any, textStatus: string, jqXHR: JQueryXHR): any;
         protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any;

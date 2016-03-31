@@ -7,7 +7,7 @@ use Morpho\Core\SettingManager;
 
 class SettingManagerTest extends DbTestCase {
     public function setUp() {
-        $db = $this->createDb();
+        $db = $this->db();
         $moduleNames = ['module', 'setting'];
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables($moduleNames);

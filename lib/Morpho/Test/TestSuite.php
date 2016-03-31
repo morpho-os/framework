@@ -5,7 +5,7 @@ use Morpho\Fs\Directory;
 use Morpho\Base\NotImplementedException;
 
 abstract class TestSuite extends \PHPUnit_Framework_TestSuite {
-    protected $testFileRegexp = '{(Test|TestSuite)\.php$}s';
+    protected $testFileRegexp = '~(Test|TestSuite)\.php$~s';
 
     public static function suite() {
         $suite = new static();

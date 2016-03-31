@@ -31,7 +31,7 @@ abstract class Router implements IServiceManagerAware {
     */
 
     public function dumpRoutes(): array {
-        return iterator_to_array($this->getRoutesMeta());
+        return iterator_to_array($this->getRoutesMeta(), false);
     }
 
     protected function getRoutesMeta(): \Iterator {

@@ -25,16 +25,6 @@ abstract class ServiceManager extends BaseServiceManager {
 
     abstract protected function createModuleManagerService();
 
-    protected function createModuleClassLoaderService() {
-        $config = $this->config;
-        $classLoader = new ModuleClassLoader(
-            MODULE_DIR_PATH,
-            $config['cacheDirPath'],
-            $config['moduleClassLoader']['useCache']
-        );
-        return $classLoader;
-    }
-
     protected function createViewService() {
         return $this->get('moduleManager')
             ->get($this->config['view']);

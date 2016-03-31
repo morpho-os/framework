@@ -24,7 +24,7 @@ class PhpTemplateEngineTest extends TestCase {
             ->attach($compiler)
             ->attach(new HtmlParserPost($serviceManager, true, '', []));
         $this->templateEngine->setServiceManager($serviceManager);
-        $this->templateEngine->setCacheDirPath($this->getTmpDirPath());
+        $this->templateEngine->setCacheDirPath($this->tmpDirPath());
         $this->templateEngine->useCache(false);
         $this->setDefaultTimezone();
     }

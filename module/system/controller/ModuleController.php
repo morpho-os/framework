@@ -46,8 +46,8 @@ class ModuleController extends Controller {
         }
 
         if (!empty($postData['module']['enable'])) {
-            $this->serviceManager->get('moduleClassLoader')->clearMap();
-            $this->serviceManager->get('moduleManager')->installAndEnableModule($moduleName);
+            $moduleManager = $this->getParent('ModuleManager');
+            $moduleManager->installAndEnableModule($moduleName);
         }
 
         return $this->redirectToUri('/system/module/list');
@@ -190,7 +190,7 @@ class ModuleController extends Controller {
     }
 
     protected function moduleDirPath(string $moduleName): string {
-        return MODULE_DIR_PATH . '/' . dasherize($moduleName);
+        return $this->serviceManager->get('modulePathManager')->getModuleDirPath($moduleName);
     }
 
     protected function writeModuleClass(string $moduleName, bool $isTheme) {

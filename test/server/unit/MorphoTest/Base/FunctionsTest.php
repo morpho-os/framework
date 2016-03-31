@@ -19,7 +19,7 @@ class FunctionsTest extends TestCase {
     }
 
     public function dataForTypeOf() {
-        $filePath = tempnam($this->getTmpDirPath(), __FUNCTION__);
+        $filePath = tempnam($this->tmpDirPath(), __FUNCTION__);
         $this->tmpHandle = $fp = fopen($filePath, 'r');
         return [
             [

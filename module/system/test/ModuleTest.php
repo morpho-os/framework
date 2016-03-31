@@ -7,13 +7,12 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Web\Response;
-use Morpho\Web\SiteManager;
 use System\Module as SystemModule;
 
 class ModuleTest extends DbTestCase {
     public function setUp() {
         parent::setUp();
-        $db = $this->createDb();
+        $db = $this->db();
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables();
         $schemaManager->createTables(SystemModule::getTableDefinitions());

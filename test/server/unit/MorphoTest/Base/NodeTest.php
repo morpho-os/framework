@@ -99,7 +99,7 @@ class NodeTest extends TestCase {
     }
 
     public function testGetNonExistingChildThrowsException() {
-        $this->setExpectedException('\RuntimeException', "Unable to load a node with the 'some' name, check that class exists.");
+        $this->setExpectedException('\RuntimeException', "Unable to load a child node with the name 'some'");
         $this->node->getChild('some');
     }
 
@@ -109,11 +109,11 @@ class NodeTest extends TestCase {
         $this->assertSame($comp, $this->node->getChild('foo'));
     }
 
-    public function testGetAll() {
-        $this->assertEquals([], $this->node->getAll());
+    public function testGetChildNodes() {
+        $this->assertEquals([], $this->node->getChildNodes());
         $comp = new Node(['name' => 'foo']);
         $this->node->addChild($comp);
-        $this->assertSame(['foo' => $comp], $this->node->getAll());
+        $this->assertSame(['foo' => $comp], $this->node->getChildNodes());
     }
 
     public function testRecursiveIteratorMethods() {
@@ -154,7 +154,7 @@ class NodeTest extends TestCase {
         $this->assertNull($this->node->current());
     }
 
-    public function testGetChildrenThrowsLogicExceptionWhenNodeDoesNotHaveChildren() {
+    public function testGetChildren_ThrowsLogicExceptionWhenNodeDoesNotHaveChildren() {
         $node = new Node(['name' => 'foo']);
         $this->setExpectedException('\LogicException', "Node doesn't have children.");
         $node->getChildren();
@@ -227,10 +227,13 @@ class NodeTest extends TestCase {
         $this->assertSame($item1, $item2->addChild($item1));
     }
 
-    public function testCanLoadSubnodes() {
+    public function testGetChild_CanLoadClass() {
         $node = new MyNode();
-        $loadableNode = $node->getChild('myLoadable');
-        $this->assertEquals('myLoadable', $loadableNode->getName());
+        $name = 'ChildNode';
+        $childNode = $node->getChild($name);
+        $class = __NAMESPACE__ . '\\' . $name;
+        $this->assertEquals($class, get_class($childNode));
+        $this->assertEquals($name, $childNode->getName());
     }
 
     protected function myObjectClassName() {
@@ -239,11 +242,8 @@ class NodeTest extends TestCase {
 }
 
 class MyNode extends Node {
-    protected $loadable = [
-        'myLoadable' => 'MorphoTest\\Base\\MyLoadableNode',
-    ];
 }
 
-class MyLoadableNode extends Node {
+class ChildNode extends Node {
     protected $name = 'someName';
 }

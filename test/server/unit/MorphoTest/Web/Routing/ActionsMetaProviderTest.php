@@ -1,6 +1,8 @@
 <?php
 namespace MorphoTest\Web\Routing;
 
+use Morpho\Core\ModulePathManager;
+use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Routing\ActionsMetaProvider;
 
@@ -11,15 +13,18 @@ class ActionsMetaProviderTest extends TestCase {
 
     public function testIterator() {
         $actionsMetaProvider = new ActionsMetaProvider();
-        $actionsMetaProvider->setModuleDirPath($this->getTestDirPath());
-        $actionsMetaProvider->setModuleManager(new class () {
+        $serviceManager = new ServiceManager();
+        $serviceManager->set('modulePathManager', new ModulePathManager($this->getTestDirPath()));
+        $moduleManager = new class () {
             public function listEnabledModules() {
                 return [
                     'Foo',
                     'Baz'
                 ];
             }
-        });
+        };
+        $serviceManager->set('moduleManager', $moduleManager);
+        $actionsMetaProvider->setServiceManager($serviceManager);
         $this->assertEquals(
             [
                 [
@@ -71,7 +76,7 @@ class ActionsMetaProviderTest extends TestCase {
      */',
                 ],
             ],
-            iterator_to_array($actionsMetaProvider->getIterator())
+            iterator_to_array($actionsMetaProvider->getIterator(), false)
         );
     }
 }

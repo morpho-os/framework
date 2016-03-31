@@ -2,22 +2,20 @@
 namespace Morpho\Web\Routing;
 
 use function Morpho\Base\{last, dasherize};
+use Morpho\Di\IServiceManager;
+use Morpho\Di\IServiceManagerAware;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;
 use PhpParser;
 
-class ActionsMetaProvider implements \IteratorAggregate {
+class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
     protected $moduleManager;
 
-    protected $moduleDirPath;
+    protected $serviceManager;
 
     public function setModuleManager($moduleManager) {
         $this->moduleManager = $moduleManager;
-    }
-
-    public function setModuleDirPath(string $moduleDirPath) {
-        $this->moduleDirPath = $moduleDirPath;
     }
 
     public function getIterator() {
@@ -26,10 +24,10 @@ class ActionsMetaProvider implements \IteratorAggregate {
         $traverser->addVisitor(new PhpParser\NodeVisitor\NameResolver());
         $controllerVisitor = new ControllerVisitor();
         $traverser->addVisitor($controllerVisitor);
-        $moduleDirPath = $this->moduleDirPath;
-        foreach ($this->moduleManager->listEnabledModules() as $moduleName) {
-            $controllerDirPath = $moduleDirPath . '/' . dasherize($moduleName) . '/' . CONTROLLER_DIR_NAME;
-            foreach (glob($controllerDirPath . '/*Controller.php') as $controllerFilePath) {
+        $modulePathManager = $this->serviceManager->get('modulePathManager');
+        $moduleManager = $this->serviceManager->get('moduleManager');
+        foreach ($moduleManager->listEnabledModules() as $moduleName) {
+            foreach ($modulePathManager->getControllerFilePaths($moduleName) as $controllerFilePath) {
                 $stmts = $parser->parse(file_get_contents($controllerFilePath));
                 $traverser->traverse($stmts);
                 foreach ($controllerVisitor->getActionsMeta() as $actionMeta) {
@@ -37,6 +35,10 @@ class ActionsMetaProvider implements \IteratorAggregate {
                 }
             }
         }
+    }
+
+    public function setServiceManager(IServiceManager $serviceManager) {
+        $this->serviceManager = $serviceManager;
     }
 }
 

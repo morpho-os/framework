@@ -10,14 +10,11 @@ class ClassDiscoverer {
 
     const PHP_FILES_REG_EXP = '~\.php$~si';
 
-    /**
-     * @return array
-     */
-    public function getClassesForDir($dirPaths, $regexp = null, array $options = []) {
+    public function getClassMapForDir($dirPaths, $regexp = null, array $options = []): array {
         if (!$regexp) {
             $regexp = self::PHP_FILES_REG_EXP;
         }
-        $filePaths = Directory::listEntries($dirPaths, $regexp, $options);
+        $filePaths = Directory::listFiles($dirPaths, $regexp, $options);
         $map = [];
         foreach ($filePaths as $filePath) {
             $classes = $this->getClassesForFile($filePath);
@@ -28,25 +25,30 @@ class ClassDiscoverer {
                 $map[$class] = $filePath;
             }
         }
-
         return $map;
     }
 
-    public function getClassesForFile($filePath) {
+    public function getClassMapForFile(string $filePath): array {
+        $map = [];
+        foreach ($this->getClassesForFile($filePath) as $class) {
+            $map[$class] = $filePath;
+        }
+        return $map;
+    }
+
+    public function getClassesForFile(string $filePath): array {
         return $this->getDiscoverStrategy()->getClassesForFile($filePath);
     }
 
-    public function setDiscoverStrategy(IDiscoverStrategy $strategy) {
+    public function setDiscoverStrategy(IDiscoverStrategy $strategy): self {
         $this->discoverStrategy = $strategy;
-
         return $this;
     }
 
-    public function getDiscoverStrategy() {
+    public function getDiscoverStrategy(): IDiscoverStrategy {
         if (null === $this->discoverStrategy) {
             $this->discoverStrategy = new TokenStrategy();
         }
-
         return $this->discoverStrategy;
     }
 }

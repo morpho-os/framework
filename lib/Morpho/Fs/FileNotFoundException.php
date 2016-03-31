@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Fs;
 
-class FileNotFoundException extends IoException {
+class FileNotFoundException extends Exception {
     public function __construct($filePath = null) {
         $message = null;
         if (null !== $filePath) {

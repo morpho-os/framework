@@ -1,6 +1,8 @@
 <?php
 namespace MorphoTest\Core;
 
+use Morpho\Base\Node;
+use Morpho\Core\ModuleClassLoader;
 use Morpho\Core\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
@@ -12,10 +14,24 @@ use Morpho\Web\Controller;
 class ModuleManagerTest extends DbTestCase {
     public function setUp() {
         parent::setUp();
-        $db = $this->createDb();
+        $db = $this->db();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
         $schemaManager->createTables(\System\Module::getTableDefinitions());
+    }
+
+    public function testGetChild_ForModuleWithoutModuleClass() {
+        $moduleManager = $this->createModuleManager(null, null, $this->mock(ModuleClassLoader::class));
+        $name = 'galaxy/earth';
+        $module = $moduleManager->getChild($name);
+        $this->assertEquals(Module::class, get_class($module));
+        $this->assertEquals($name, $module->getName());
+    }
+    
+    public function testListUninstalledModules_CanUseComposerNamingStyle() {
+        $moduleList = ['galaxy/earth', 'galaxy/saturn'];
+        $moduleManager = $this->createModuleManager(null, new \ArrayIterator($moduleList));
+        $this->assertEquals($moduleList, $moduleManager->listUninstalledModules());
     }
 
     public function testFallbackMode() {
@@ -60,11 +76,11 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testModuleOperations() {
-        $moduleClassLoader = new \ArrayIterator([
-            __CLASS__ . '\\My\\Module'           => __FILE__,
-            __CLASS__ . '\\NotInstalled\\Module' => $this->getTestDirPath() . '/NotInstalled/Module.php',
+        $moduleListProvider = new \ArrayIterator([
+            __CLASS__ . '\\My',
+            __CLASS__ . '\\NotInstalled',
         ]);
-        $moduleManager = $this->createModuleManager($this->createDb(), $moduleClassLoader);
+        $moduleManager = $this->createModuleManager($this->db(), $moduleListProvider, $this->mock(ModuleClassLoader::class));
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
@@ -214,16 +230,9 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertTrue($module->getChild($controllerName)->isDispatchCalled());
     }
 
-    private function createModuleManager(Db $db = null, $moduleClassLoader = null) {
-        if (null === $db) {
-            $db = $this->createDb();
-        }
-        $moduleManager = new MyModuleManager($db);
-        $serviceManager = new ServiceManager();
-        if (null !== $moduleClassLoader) {
-            $serviceManager->set('moduleClassLoader', $moduleClassLoader);
-        }
-        $moduleManager->setServiceManager($serviceManager);
+    private function createModuleManager(Db $db = null, $moduleListProvider = null, $moduleClassLoader = null) {
+        $moduleManager = new MyModuleManager($db ?: $this->db(), $moduleListProvider, $moduleClassLoader);
+        $moduleManager->setServiceManager(new ServiceManager());
         return $moduleManager;
     }
 }
@@ -239,8 +248,8 @@ class ErrorHandlingTestModule extends Module {
         return $this->errorListenerCalled;
     }
 
-    public function get(string $name): \Morpho\Base\Node {
-        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController() : parent::get($name);
+    public function getChild(string $name): Node {
+        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController() : parent::getChild($name);
     }
 }
 
@@ -254,14 +263,13 @@ class ErrorHandlingTestModuleException extends \RuntimeException {
 }
 
 class MyModuleManager extends ModuleManager {
-    protected $loadable = ['foo' => 'MorphoTest\Core\ModuleManagerTest\My\Module'];
-
     protected function actionNotFound($moduleName, $controllerName, $actionName) {
     }
 }
 
 namespace MorphoTest\Core\ModuleManagerTest\My;
 
+use Morpho\Base\Node;
 use Morpho\Db\Sql\Db;
 
 class Module extends \Morpho\Core\Module {
@@ -302,10 +310,11 @@ class Module extends \Morpho\Core\Module {
         return $this->disableCalled;
     }
 
-    protected function tryLoadChild(string $name) {
+    protected function loadChild(string $name): Node {
         if ($name === 'my-controller') {
             return new MyController(['name' => 'my-controller']);
         }
+        return parent::loadChild($name);
     }
 }
 

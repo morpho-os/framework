@@ -302,7 +302,7 @@ namespace System {
         }
 
         protected sendFormData(uri: string, requestData: Object): JQueryXHR {
-            var ajaxSettings = this.getAjaxSettings();
+            var ajaxSettings = this.ajaxSettings();
             ajaxSettings.url = uri;
             ajaxSettings.data = requestData;
             return this.sendAjaxRequest(ajaxSettings);
@@ -312,13 +312,24 @@ namespace System {
             return $.ajax(ajaxSettings);
         }
 
-        protected getAjaxSettings(): JQueryAjaxSettings {
+        protected ajaxSettings(): JQueryAjaxSettings {
+            var self = this;
             return {
-                beforeSend: this.beforeSend.bind(this),
-                success: this.ajaxSuccess.bind(this),
-                error: this.ajaxError.bind(this),
-                type: this.el.attr('method') || 'GET'
+                beforeSend: function (jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any {
+                    return self.beforeSend(jqXHR, settings);
+                },
+                success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any {
+                    return self.ajaxSuccess(data, textStatus, jqXHR);
+                },
+                error: function (jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
+                    return self.ajaxError(jqXHR, textStatus, errorThrown);
+                },
+                method: this.submitMethod()
             };
+        }
+
+        protected submitMethod(): string {
+            return this.el.attr('method') || 'GET';
         }
 
         protected beforeSend(jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any {
@@ -353,26 +364,15 @@ namespace System {
             }
         }
 
-        protected handleResponseSuccess(responseData: any): void {
-            // @TODO
+        protected handleResponseSuccess(responseData: any): any {
+            if (responseData.redirect) {
+                redirectTo(responseData.redirect);
+                return true;
+            }
         }
 
-        protected handleResponseError(responseData: any): void {
-            // @TODO:
-            //alert(this.formatJsonMessages(this.normalizeResponseErrorMessages(responseData)).join("\n"));
-            /*
-             var messageTypes = ['error', 'warning', 'info', 'success'],
-             messageType;
-             for (var i = 0, n = messageTypes.length; i < n; i++) {
-             messageType = messageTypes[i];
-             if (responseData[messageType]) {
-             this.getPageMessenger()
-             .showAjaxMessages(responseData[messageType], messageType);
-             delete responseData[messageType];
-             }
-             }
-             return this.resolvedPromise(responseData);
-             */
+        protected handleResponseError(responseData: any): any {
+            this.showFormErrorMessage(responseData);
         }
 
         protected changeEventNames(): string {

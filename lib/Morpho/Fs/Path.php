@@ -66,7 +66,7 @@ class Path {
     public static function toAbsolute(string $path, bool $normalize = true): string {
         $absPath = realpath($path);
         if (false === $absPath) {
-            throw new IoException("Unable to detect absolute path for the '$path' path.");
+            throw new Exception("Unable to detect absolute path for the '$path' path.");
         }
         return $normalize ? self::normalize($absPath) : $absPath;
     }
@@ -79,11 +79,11 @@ class Path {
             return $basePath;
         }
         if (empty($basePath)) {
-            throw new IoException("The base path can't be empty.");
+            throw new Exception("The base path can't be empty.");
         }
         $pos = strpos($path, $basePath);
         if ($pos !== 0) {
-            throw new IoException("The path '$path' does not contain the base path '$basePath'.");
+            throw new Exception("The path '$path' does not contain the base path '$basePath'.");
         }
 
         return (string)substr($path, strlen($basePath) + 1);

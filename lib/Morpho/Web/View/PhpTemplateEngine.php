@@ -2,7 +2,7 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\{
-    htmlId, camelize, dasherize
+    classify, htmlId, camelize, dasherize
 };
 use Morpho\Base\EmptyValueException;
 use Morpho\Di\IServiceManager;
@@ -143,12 +143,20 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected function createPlugin(string $name) {
         $serviceManager = $this->serviceManager;
         $class = $serviceManager->get('moduleManager')
-            ->getChild($serviceManager->get('request')->getModuleName())
-            ->getNamespace() . '\\View\\Plugin\\' . $name . self::PLUGIN_SUFFIX;
+            ->getChild(self::moduleName())
+            ->getNamespace()
+            . '\\View\\Plugin\\'
+                . classify(self::controllerName())
+                . '\\' . $name . self::PLUGIN_SUFFIX;
         if (!class_exists($class)) {
-            $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
+            $class1 = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
+            if (!class_exists($class1)) {
+                throw new \RuntimeException("Unable to find either '$class' or '$class1' plugin class");
+            }
+            $plugin = new $class1();
+        } else {
+            $plugin = new $class();
         }
-        $plugin = new $class();
         if ($plugin instanceof IServiceManagerAware) {
             $plugin->setServiceManager($this->serviceManager);
         }

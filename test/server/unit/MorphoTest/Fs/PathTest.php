@@ -141,7 +141,7 @@ class PathTest extends TestCase {
 
     public function testToAbsoluteShouldThrowExceptionForInvalidPath() {
         $invalidPath = __DIR__ . '/ttttt';
-        $this->setExpectedException('\Morpho\Fs\IoException', "Unable to detect absolute path for the '$invalidPath' path.");
+        $this->setExpectedException('\Morpho\Fs\Exception', "Unable to detect absolute path for the '$invalidPath' path.");
         Path::toAbsolute($invalidPath);
     }
 
@@ -260,7 +260,7 @@ class PathTest extends TestCase {
         $baseDirPath = '/foo/bar/baz/';
         $path = __DIR__;
         $this->setExpectedException(
-            '\Morpho\Fs\IoException',
+            '\Morpho\Fs\Exception',
             "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'."
         );
         Path::toRelative($baseDirPath, $path);
