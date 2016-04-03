@@ -15,7 +15,7 @@ return [
         'User',
         'Bootstrap',
     ],
-    'moduleClassLoader' => [
+    'moduleAutoloader' => [
         'useCache' => false,
     ],
     'templateEngine' => [

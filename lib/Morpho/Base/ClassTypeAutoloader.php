@@ -11,7 +11,7 @@ declare(strict_types = 1);
 
 namespace Morpho\Base;
 
-class ClassLoader extends Autoloader {
+class ClassTypeAutoloader extends Autoloader {
     private $classToFileMap = [];
     private $classToFileMapAuthoritative = false;
 

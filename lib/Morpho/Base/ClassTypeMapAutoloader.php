@@ -2,10 +2,10 @@
 //declare(strict_types = 1);
 namespace Morpho\Base;
 
-use Morpho\Code\ClassDiscoverer;
+use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\File;
 
-class ClassMapClassLoader extends Autoloader {
+class ClassTypeMapAutoloader extends Autoloader {
     protected $processor;
 
     protected $searchDirPaths;
@@ -29,7 +29,7 @@ class ClassMapClassLoader extends Autoloader {
 
     public function findFilePath(string $class) {
         if (null === $this->map) {
-            $this->map = $this->createMap();
+            $this->map = $this->createTypeMap();
         }
         return isset($this->map[$class]) ? $this->map[$class] : false;
     }
@@ -51,13 +51,13 @@ class ClassMapClassLoader extends Autoloader {
         return $this->useCache;
     }
 
-    protected function createMap(): array {
+    protected function createTypeMap(): array {
         $useCache = $this->useCache;
         if ($useCache && is_file($this->mapFilePath)) {
             return require $this->mapFilePath;
         }
-        $classDiscoverer = new ClassDiscoverer();
-        $map = $classDiscoverer->getClassMapForDir($this->searchDirPaths, $this->processor, ['followSymlinks' => true]);
+        $classTypeDiscoverer = new ClassTypeDiscoverer();
+        $map = $classTypeDiscoverer->classTypesDefinedInDir($this->searchDirPaths, $this->processor, ['followSymlinks' => true]);
         if ($useCache) {
             File::write($this->mapFilePath, '<?php return ' . var_export($map, true) . ';');
         }

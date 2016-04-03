@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Code\ClassDiscoverer;
+namespace Morpho\Code\ClassTypeDiscoverer;
 
 class RegexpStrategy implements IDiscoverStrategy {
     private $nsRegexp = '/^\s*namespace\s+([a-z_]\w*(?:\\\\[a-z_]\w*)*);/si';
@@ -8,7 +8,7 @@ class RegexpStrategy implements IDiscoverStrategy {
 
     private $currentNs;
 
-    public function getClassesForFile($filePath) {
+    public function classTypesDefinedInFile(string $filePath): array {
         $lines = file($filePath);
         $type = $ns = null;
         $classes = [];
@@ -28,10 +28,7 @@ class RegexpStrategy implements IDiscoverStrategy {
         return $classes;
     }
 
-    /**
-     * @return bool
-     */
-    private function isNs($line, &$ns) {
+    private function isNs($line, &$ns): bool {
         $isNs = false !== strpos($line, 'namespace') && preg_match($this->nsRegexp, $line, $m);
         if ($isNs) {
             $ns = array_pop($m);
@@ -40,10 +37,7 @@ class RegexpStrategy implements IDiscoverStrategy {
         return $isNs;
     }
 
-    /**
-     * @return bool
-     */
-    private function isType($line, &$type) {
+    private function isType($line, &$type): bool {
         $isType = (
                 false !== strpos($line, 'class')
                 || false !== strpos($line, 'interface')

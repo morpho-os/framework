@@ -1,7 +1,7 @@
 <?php
 /**
  * This class uses parts of the code found in the ClassLoader class from the Composer project
- * (see Morpho\Base\ClassLoader).
+ * (see Morpho\Base\ClassTypeAutoloader).
  */
 
 //declare(strict_types=1);

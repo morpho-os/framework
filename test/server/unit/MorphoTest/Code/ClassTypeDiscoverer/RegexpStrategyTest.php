@@ -1,8 +1,8 @@
 <?php
-namespace MorphoTest\Code\ClassDiscoverer;
+namespace MorphoTest\Code\ClassTypeDiscoverer;
 
 class RegexpStrategyTest extends DiscoverStrategyTest {
     protected function createDiscoverStrategy() {
-        return new \Morpho\Code\ClassDiscoverer\RegexpStrategy();
+        return new \Morpho\Code\ClassTypeDiscoverer\RegexpStrategy();
     }
 }

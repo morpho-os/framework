@@ -2,9 +2,9 @@
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
-use Morpho\Base\ClassMapClassLoader;
+use Morpho\Base\ClassTypeMapAutoloader;
 
-class ClassMapClassLoaderTest extends TestCase {
+class ClassTypeMapAutoloaderTest extends TestCase {
     public function tearDown() {
         $mapFilePath = $this->getMapFilePath();
         if (is_file($mapFilePath)) {
@@ -16,7 +16,7 @@ class ClassMapClassLoaderTest extends TestCase {
         $regexp = '{\.php$}si';
         $dirPath = $this->getTestDirPath();
         $mapFilePath = $this->getMapFilePath();
-        $autoloader = new ClassMapClassLoader($mapFilePath, $dirPath, $regexp);
+        $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath, $regexp);
 
         $this->assertFalse(file_exists($mapFilePath));
 
@@ -31,7 +31,7 @@ class ClassMapClassLoaderTest extends TestCase {
     }
 
     public function testClearEmptyMapShouldNotThrowException() {
-        $autoloader = new ClassMapClassLoader($this->getMapFilePath(), $this->getTestDirPath());
+        $autoloader = new ClassTypeMapAutoloader($this->getMapFilePath(), $this->getTestDirPath());
         $autoloader->clearMap();
     }
 
@@ -42,7 +42,7 @@ class ClassMapClassLoaderTest extends TestCase {
 
         $this->assertFalse(file_exists($mapFilePath));
 
-        $autoloader = new ClassMapClassLoader($mapFilePath, $dirPath);
+        $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath);
         $autoloader->useCache(false);
         $this->assertTrue($autoloader->autoload($class));
 
@@ -50,7 +50,7 @@ class ClassMapClassLoaderTest extends TestCase {
     }
 
     public function testUseCache() {
-        $this->assertBoolAccessor([new ClassMapClassLoader(null, null), 'useCache'], true);
+        $this->assertBoolAccessor([new ClassTypeMapAutoloader(null, null), 'useCache'], true);
     }
 
     protected function getMapFilePath() {

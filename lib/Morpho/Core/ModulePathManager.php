@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Core;
 
-use Morpho\Code\ClassDiscoverer;
+use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\Directory;
 
 class ModulePathManager {

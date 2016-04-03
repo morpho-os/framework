@@ -1,12 +1,12 @@
 <?php
-namespace Morpho\Code\ClassDiscoverer;
+namespace Morpho\Code\ClassTypeDiscoverer;
 
 class TokenStrategy implements IDiscoverStrategy {
     /**
      * The source of this method was copied from the \Composer\Autoload\ClassMapGenerator::findClasses()
      * and changed slightly.
      */
-    public function getClassesForFile($filePath) {
+    public function classTypesDefinedInFile(string $filePath): array {
         $contents = file_get_contents($filePath);
         try {
             if (!preg_match('{\b(?:class|interface|trait)\b}i', $contents)) {
@@ -51,8 +51,9 @@ class TokenStrategy implements IDiscoverStrategy {
                             break;
                         }
                     }
-
-                    $classes[] = ltrim($namespace . $class, '\\');
+                    if ($class !== '') {
+                        $classes[] = ltrim($namespace . $class, '\\');
+                    }
                     break;
                 default:
                     break;

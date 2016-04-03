@@ -4,7 +4,7 @@ namespace Morpho\Core;
 
 use Morpho\Base\Node as BaseNode;
 use Morpho\Base\IEventManager;
-use Morpho\Code\ClassDiscoverer;
+use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Db\Sql\Db;
 
 abstract class ModuleManager extends Node implements IEventManager {
@@ -32,12 +32,12 @@ abstract class ModuleManager extends Node implements IEventManager {
     
     protected $moduleListProvider;
     
-    protected $moduleClassLoader;
+    protected $autoloader;
     
-    public function __construct(Db $db = null, \Traversable $moduleListProvider = null, ModuleClassLoader $moduleClassLoader = null) {
+    public function __construct(Db $db = null, \Traversable $moduleListProvider = null, ModuleAutoloader $autoloader = null) {
         $this->db = $db;
         $this->moduleListProvider = $moduleListProvider;
-        $this->moduleClassLoader = $moduleClassLoader;
+        $this->autoloader = $autoloader;
     }
 
     public function isFallbackMode(bool $flag = null): bool {
@@ -269,11 +269,11 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     protected function clearCache()/*: void */ {
-        $this->moduleClassLoader->clearCache();
+        $this->autoloader->clearCache();
     }
 
     protected function loadChild(string $name): BaseNode {
-        $this->moduleClassLoader->registerModule($name);
+        $this->autoloader->registerModule($name);
         return parent::loadChild($name);
     }
     
@@ -308,7 +308,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    protected function getEventsMeta(Module $module): array {
+    protected function getEventsMeta($module): array {
         $rClass = new \ReflectionClass($module);
         $rClasses = [$rClass];
         while ($rClass = $rClass->getParentClass()) {

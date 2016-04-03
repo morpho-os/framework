@@ -2,7 +2,7 @@
 namespace MorphoTest\Core;
 
 use Morpho\Base\Node;
-use Morpho\Core\ModuleClassLoader;
+use Morpho\Core\ModuleAutoloader;
 use Morpho\Core\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
@@ -21,7 +21,7 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testGetChild_ForModuleWithoutModuleClass() {
-        $moduleManager = $this->createModuleManager(null, null, $this->mock(ModuleClassLoader::class));
+        $moduleManager = $this->createModuleManager(null, null, $this->mock(ModuleAutoloader::class));
         $name = 'galaxy/earth';
         $module = $moduleManager->getChild($name);
         $this->assertEquals(Module::class, get_class($module));
@@ -80,7 +80,7 @@ class ModuleManagerTest extends DbTestCase {
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ]);
-        $moduleManager = $this->createModuleManager($this->db(), $moduleListProvider, $this->mock(ModuleClassLoader::class));
+        $moduleManager = $this->createModuleManager($this->db(), $moduleListProvider, $this->mock(ModuleAutoloader::class));
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
@@ -193,7 +193,6 @@ class ModuleManagerTest extends DbTestCase {
     public function testInterfaces() {
         $moduleManager = $this->createModuleManager();
         $this->assertInstanceOf('\Morpho\Base\Node', $moduleManager);
-        $this->assertInstanceOf('\Morpho\Di\IServiceManagerAware', $moduleManager);
     }
 
     public function testDispatch_CallsDispatchMethodOfController() {
@@ -230,8 +229,8 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertTrue($module->getChild($controllerName)->isDispatchCalled());
     }
 
-    private function createModuleManager(Db $db = null, $moduleListProvider = null, $moduleClassLoader = null) {
-        $moduleManager = new MyModuleManager($db ?: $this->db(), $moduleListProvider, $moduleClassLoader);
+    private function createModuleManager(Db $db = null, $moduleListProvider = null, $moduleAutoloader = null) {
+        $moduleManager = new MyModuleManager($db ?: $this->db(), $moduleListProvider, $moduleAutoloader);
         $moduleManager->setServiceManager(new ServiceManager());
         return $moduleManager;
     }

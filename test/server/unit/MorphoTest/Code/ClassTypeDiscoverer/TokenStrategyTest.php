@@ -1,8 +1,8 @@
 <?php
-namespace MorphoTest\Code\ClassDiscoverer;
+namespace MorphoTest\Code\ClassTypeDiscoverer;
 
 class TokenStrategyTest extends DiscoverStrategyTest {
     protected function createDiscoverStrategy() {
-        return new \Morpho\Code\ClassDiscoverer\TokenStrategy();
+        return new \Morpho\Code\ClassTypeDiscoverer\TokenStrategy();
     }
 }

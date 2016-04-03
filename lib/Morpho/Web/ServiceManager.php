@@ -9,7 +9,7 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\Core\ModuleClassLoader;
+use Morpho\Core\ModuleAutoloader;
 use Morpho\Core\ModuleListProvider;
 use Morpho\Core\ModulePathManager;
 use Morpho\Core\ServiceManager as BaseServiceManager;
@@ -39,7 +39,7 @@ class ServiceManager extends BaseServiceManager {
         return new FastRouter();
     }
 
-    protected function createClassLoaderService() {
+    protected function createAutoloaderService() {
         return require BASE_DIR_PATH . '/' . COMPOSER_AUTOLOAD_FILE_PATH;
     }
 
@@ -92,12 +92,12 @@ class ServiceManager extends BaseServiceManager {
 
     protected function createModuleManagerService() {
         $modulePathManager = $this->get('modulePathManager');
-        $moduleClassLoader = new ModuleClassLoader($modulePathManager, $this->get('siteManager')->getCurrentSite()->getCacheDirPath(), $this->config['moduleClassLoader']['useCache']);
-        $moduleClassLoader->register();
+        $autoloader = new ModuleAutoloader($modulePathManager, $this->get('siteManager')->getCurrentSite()->getCacheDirPath(), $this->config['moduleAutoloader']['useCache']);
+        $autoloader->register();
         $moduleManager = new ModuleManager(
             $this->get('db'),
             new ModuleListProvider($modulePathManager),
-            $moduleClassLoader
+            $autoloader
         );
         $moduleManager->isFallbackMode($this->isFallbackMode());
         return $moduleManager;

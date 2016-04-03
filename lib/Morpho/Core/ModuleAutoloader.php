@@ -5,10 +5,10 @@ use function Morpho\Base\dasherize;
 use Morpho\Base\Autoloader;
 use Morpho\Base\EmptyPropertyException;
 use function Morpho\Base\head;
-use Morpho\Code\ClassDiscoverer;
+use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\File;
 
-class ModuleClassLoader extends Autoloader {
+class ModuleAutoloader extends Autoloader {
     protected $registered = false;
     
     protected $modulePathManager;
@@ -43,24 +43,24 @@ class ModuleClassLoader extends Autoloader {
             if (is_file($cacheFilePath)) {
                 $map = require $cacheFilePath;
             } else {
-                $map = $this->getClassMap($moduleName);
+                $map = $this->getClassTypeMap($moduleName);
                 File::write($cacheFilePath, '<?php return ' . var_export($map, true) . ';');
             }
         } else {
-            $map = $this->getClassMap($moduleName);
+            $map = $this->getClassTypeMap($moduleName);
         }
         $this->map[$moduleName] = $map;
     }
     
-    protected function getClassMap(string $moduleName): array {
-        $classDiscoverer = new ClassDiscoverer();
+    protected function getClassTypeMap(string $moduleName): array {
+        $classTypeDiscoverer = new ClassTypeDiscoverer();
         $moduleDirPath = $this->modulePathManager->getModuleDirPath($moduleName);
         $moduleClassFilePath = $moduleDirPath . '/' . MODULE_CLASS_FILE_NAME;
         $map = [];
         if (is_file($moduleClassFilePath)) {
-            $map = array_merge($map, $classDiscoverer->getClassMapForFile($moduleClassFilePath));
+            $map = array_merge($map, $classTypeDiscoverer->classTypesDefinedInFile($moduleClassFilePath));
         }
-        $map = array_merge($map, $classDiscoverer->getClassMapForDir(
+        $map = array_merge($map, $classTypeDiscoverer->classTypesDefinedInDir(
             array_filter(
                 array_map(
                     function ($dirName) use ($moduleDirPath) {
