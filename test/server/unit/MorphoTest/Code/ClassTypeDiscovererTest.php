@@ -18,8 +18,7 @@ class ClassTypeDiscovererTest extends TestCase {
     }
 
     public function testClassTypesDefinedInDir_UsingCustomStrategy() {
-        //$discoverStrategy = $this->getMock(ClassTypeDiscoverer::class . '\\IDiscoverStrategy');
-        $discoverStrategy = $this->getMock('\\Morpho\\Code\\ClassTypeDiscoverer\\IDiscoverStrategy');
+        $discoverStrategy = $this->getMock(ClassTypeDiscoverer::class . '\\IDiscoverStrategy');
         $discoverStrategy->expects($this->atLeastOnce())
             ->method('classTypesDefinedInFile')
             ->will($this->returnValue([]));
@@ -58,22 +57,37 @@ class ClassTypeDiscovererTest extends TestCase {
 
     public function testFileDependsFromClassTypes() {
         $classTypes = ClassTypeDiscoverer::fileDependsFromClassTypes($this->getTestDirPath() . '/ClassTypeDeps.php');
-        sort($classTypes);
         $this->assertEquals([
-            self::class . '\A_Extends',
-            self::class . '\B_Implements',
-            self::class . '\C_Implements',
-            self::class . '\D_Uses',
-            self::class . '\E_Instantiates',
-            self::class . '\F_CallsStatically',
-            self::class . '\G_ReadsStaticProperty',
-            self::class . '\H_WritesStaticProperty',
-            self::class . '\I_CatchesException',
-            self::class . '\J_CatchesException',
-            self::class . '\K_AppliesInstanceOfOperator',
-            self::class . '\L_ReadsClassConstant',
-            self::class . '\M_ClassMethodDeclaresParameterWithType',
-            self::class . '\N_ClassMethodDeclaresReturnType',
+            self::class . '\A_ClassExtends',
+            self::class . '\B_ClassImplementsA',
+            self::class . '\B_ClassImplementsB',
+            self::class . '\C_ClassUsesTrait',
+            self::class . '\D_InstantiatesNewObject',
+            self::class . '\E_CallsMethodStatically',
+            self::class . '\F_ReadsStaticProperty',
+            self::class . '\G_WritesStaticProperty',
+            self::class . '\H_CatchesExceptionA',
+            self::class . '\H_CatchesExceptionB',
+            self::class . '\I_AppliesInstanceOfOperator',
+            self::class . '\J_ReadsClassConstant',
+            self::class . '\K_MethodDefinitionHasParameterWithType',
+            self::class . '\L_MethodDefinitionHasReturnType',
+            self::class . '\M_FunctionDefinitionHasParameterWithType',
+            self::class . '\N_FunctionDefinitionHasReturnType',
+            self::class . '\O_ConstructorDefinitionHasParameterWithType',
+            self::class . '\P_ExtendsInterfaceA',
+            self::class . '\P_ExtendsInterfaceB',
+            self::class . '\Q_TraitUsesTrait',
+            self::class . '\R_AnonymousClassExtends',
+            self::class . '\S_AnonymousClassImplementsA',
+            self::class . '\S_AnonymousClassImplementsB',
+            self::class . '\T_AnonymousFunctionDefinitionHasParameterWithType',
+            self::class . '\U_AnonymousFunctionDefinitionHasReturnType',
         ], $classTypes);
+    }
+
+    public function testFileDependsFromClassTypes_WithoutStdClassesArg() {
+        $this->assertEquals([self::class . '\ISome'], ClassTypeDiscoverer::fileDependsFromClassTypes($this->getTestDirPath() . '/ClassTypeDepsWithStdClasses.php'));
+        $this->assertEquals(['ArrayObject', self::class . '\ISome'], ClassTypeDiscoverer::fileDependsFromClassTypes($this->getTestDirPath() . '/ClassTypeDepsWithStdClasses.php', false));
     }
 }

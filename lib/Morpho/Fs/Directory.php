@@ -143,6 +143,13 @@ class Directory extends Entry {
         return self::listEntries($dirPath, $processor, $options);
     }
 
+    public static function listFilesWithExt($dirPath, array $extensions, array $options = []): \Generator {
+        foreach ($extensions as $k => $extension) {
+            $extensions[$k] = preg_quote($extension, '/');
+        }
+        return self::listFiles($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $options);
+    }
+
     public static function listLinks(string $dirPath, $processor = null): \Generator {
         throw new NotImplementedException(__METHOD__);
     }
@@ -289,6 +296,9 @@ class Directory extends Entry {
         return is_file($path) || is_dir($path) || is_link($path);
     }
 
+    /**
+     * @TODO: Rename
+     */
     public static function ensureExists(string $dirPath)/*: void */ {
         if (!is_dir($dirPath) || empty($dirPath)) {
             throw new Exception("The '$dirPath' directory does not exist.");

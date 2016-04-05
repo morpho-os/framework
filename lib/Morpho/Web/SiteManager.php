@@ -99,6 +99,9 @@ class SiteManager extends Object implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
+    /**
+     * @TODO: Rename
+     */
     protected function ensureIsAllowedSiteName(string $siteName) {
         if (false === $this->resolveSiteName($siteName)) {
             throw new \RuntimeException("Not allowed site name was provided");

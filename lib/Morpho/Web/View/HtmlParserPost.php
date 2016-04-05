@@ -2,9 +2,7 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\filter;
-use function Morpho\Cli\{
-    cmdEx
-};
+use function Morpho\Cli\{cmd};
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
@@ -61,7 +59,7 @@ class HtmlParserPost extends HtmlParser {
             if ($compile) {
                 $this->runTsc($inOutFilePaths[0], $inOutFilePaths[1]);
             }
-            $text[] = implode("\n", filter($removeRefs, File::readArray($inOutFilePaths[1])));
+            $text[] = implode("\n", filter($removeRefs, File::readLines($inOutFilePaths[1])));
             //$text[] = file_get_contents($inOutFilePaths[1]);
         }
         $scriptTag['_text'] = implode("\n", $text) . $tag['_text'];
@@ -72,7 +70,7 @@ class HtmlParserPost extends HtmlParser {
     protected function runTsc(string $inFilePath, string $outFilePath) {
         $options = array_merge($this->tsOptions, ['--out ' . escapeshellarg($outFilePath)]);
         // Note: node and tsc must be in $PATH.
-        cmdEx("PATH=\$PATH:{$this->nodeBinDirPath} tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
+        cmd("PATH=\$PATH:{$this->nodeBinDirPath} tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
     }
 
     protected function containerBody($tag) {

@@ -49,20 +49,16 @@ class File extends Entry {
         return $content;
     }
 
+    public static function writeLines(string $filePath, array $lines): string {
+        return self::write($filePath, implode("\n", $lines));
+    }
+
     /**
      * Returns non empty lines from file as array.
      */
-    public static function readArray(string $filePath) {
-        return file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    }
-
-    public static function writeArray(string $filePath, array $arr): string {
-        return self::write($filePath, implode("\n", $arr));
-    }
-
-    public static function readLines(string $filePath): \Generator {
+    public static function readLines(string $filePath): array {
         // @TODO: replace filterLines() with readLines() and filter()
-        throw new NotImplementedException();
+        return file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 
     public static function filterLines(callable $filter, string $filePath): \Generator {
@@ -225,6 +221,9 @@ class File extends Entry {
         return $uniquePath;
     }
 
+    /**
+     * @TODO: Rename
+     */
     public static function ensureIsReadable(string $filePath) {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new Exception("The file '$filePath' is not readable");

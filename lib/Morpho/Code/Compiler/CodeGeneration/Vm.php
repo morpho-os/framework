@@ -9,7 +9,6 @@ class BytecodeCompiler extends IFn {
 
 class Vm {
     public function __invoke(...$args) {
-        $bytecode = $args[0]
-        
+        //$bytecode = $args[0]
     }
 }

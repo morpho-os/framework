@@ -32,28 +32,22 @@ function args(): ArgsHandler {
     return new ArgsHandler();
 }
 
-/**
- * Runs command with additional check for error.
- */
-function cmdEx(string $command, $args = null): CommandResult {
-    $result = cmd($command, $args);
-    if ($result->isError()) {
-        throw new CliException((string)$result, $result->getExitCode());
-    }
-    return $result;
+function cmdSu(string $cmd): CommandResult
+{
+    return cmd('sudo bash -c "' . $cmd . '"');
 }
 
-function cmdSu(string $cmd) {
-    cmdEx('sudo bash -c "' . $cmd . '"');
-}
-
-function cmd(string $command, array $args = null): CommandResult {
+function cmd(string $command, array $args = null, bool $throwExOnError = true): CommandResult {
     ob_start();
     passthru(
         $command . (null !== $args ? ' ' . argString($args) : ''),
         $exitCode
     );
-    return new CommandResult(trim(ob_get_clean()), $exitCode);
+    $result = new CommandResult(trim(ob_get_clean()), $exitCode);
+    if ($throwExOnError && $result->isError()) {
+        throw new Exception((string)$result, $result->getExitCode());
+    }
+    return $result;
 }
 
 function cmdJson(string $cmd, array $args = null): string {

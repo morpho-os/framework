@@ -19,11 +19,19 @@ const MODULE_DIR_NAME = 'module';
 const SITE_DIR_NAME = 'site';
 const TEST_DIR_NAME = 'test';
 const TMP_DIR_NAME = 'tmp';
+const VENDOR_DIR_NAME = 'vendor';
+
+const CONFIG_FILE_NAME = 'config.php';
+const AUTOLOAD_FILE_NAME = 'autoload.php';
+const COMPOSER_FILE_NAME = 'composer.json';
+const MODULE_CLASS_FILE_NAME = 'Module.php';
 
 const LIB_DIR_PATH = BASE_DIR_PATH . '/' . LIB_DIR_NAME;
 const MODULE_DIR_PATH = BASE_DIR_PATH . '/' . MODULE_DIR_NAME;
 const SITE_DIR_PATH = BASE_DIR_PATH . '/' . SITE_DIR_NAME;
 const TEST_DIR_PATH = BASE_DIR_PATH . '/' . TEST_DIR_NAME;
+const VENDOR_DIR_PATH = BASE_DIR_PATH . '/' .VENDOR_DIR_NAME;
+const COMPOSER_AUTOLOAD_FILE_PATH = VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
 
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';
@@ -36,10 +44,3 @@ const PLUGIN_SUFFIX = 'Plugin';
 
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
-
-const CONFIG_FILE_NAME = 'config.php';
-
-const MODULE_CLASS_FILE_NAME = 'Module.php';
-
-const COMPOSER_FILE_NAME = 'composer.json';
-const COMPOSER_AUTOLOAD_FILE_PATH = 'vendor/autoload.php';
