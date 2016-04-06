@@ -32,8 +32,7 @@ function args(): ArgsHandler {
     return new ArgsHandler();
 }
 
-function cmdSu(string $cmd): CommandResult
-{
+function cmdSu(string $cmd): CommandResult {
     return cmd('sudo bash -c "' . $cmd . '"');
 }
 

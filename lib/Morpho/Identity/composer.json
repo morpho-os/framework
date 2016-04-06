@@ -1,0 +1,16 @@
+{
+    "name": "morpho-os/identity",
+    "description": "",
+    "type": "library",
+    "homepage": "https://github.com/morpho-os/framework",
+    "license": "Apache-2.0",
+    "require": {
+        "morpho/base": "dev-master",
+        "morpho/web": "dev-master",
+        "zendframework/zend-math": "dev-master"
+    },
+    "support": {
+        "issues": "https://github.com/morpho-os/framework/issues",
+        "source": "https://github.com/morpho-os/framework"
+    }
+}

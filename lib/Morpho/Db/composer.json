@@ -1,0 +1,15 @@
+{
+    "name": "morpho-os/db",
+    "description": "",
+    "type": "library",
+    "homepage": "https://github.com/morpho-os/framework",
+    "license": "Apache-2.0",
+    "require": {
+        "morpho/base": "dev-master",
+        "morpho/core": "dev-master"
+    },
+    "support": {
+        "issues": "https://github.com/morpho-os/framework/issues",
+        "source": "https://github.com/morpho-os/framework"
+    }
+}
