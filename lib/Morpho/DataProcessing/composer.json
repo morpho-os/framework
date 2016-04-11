@@ -4,15 +4,15 @@
     "type": "library",
     "homepage": "https://github.com/morpho-os/framework",
     "license": "Apache-2.0",
-    "require": {
-        "morpho/base": "dev-master",
-        "morpho/di": "dev-master",
-        "morpho/fs": "dev-master",
-        "zendframework/zend-filter": "dev-master",
-        "zendframework/zend-validator": "dev-master"
-    },
     "support": {
         "issues": "https://github.com/morpho-os/framework/issues",
         "source": "https://github.com/morpho-os/framework"
+    },
+    "require": {
+        "morpho-os/base": "dev-master",
+        "morpho-os/di": "dev-master",
+        "morpho-os/fs": "dev-master",
+        "zendframework/zend-filter": "dev-master",
+        "zendframework/zend-validator": "dev-master"
     }
 }

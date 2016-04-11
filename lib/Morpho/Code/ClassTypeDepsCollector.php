@@ -4,18 +4,18 @@ namespace Morpho\Code;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Closure;
-use PHPParser\Node\Expr\Instanceof_;
-use PHPParser\Node\Expr\New_;
-use PHPParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Instanceof_;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
-use PHPParser\Node\Name\FullyQualified;
-use PHPParser\Node\Param;
+use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Function_;
-use PHPParser\Node\Stmt\Interface_;
-use PHPParser\Node\Stmt\TraitUse;
-use PHPParser\Node\Stmt\TryCatch;
+use PhpParser\Node\Stmt\Interface_;
+use PhpParser\Node\Stmt\TraitUse;
+use PhpParser\Node\Stmt\TryCatch;
 use PhpParser\NodeVisitorAbstract;
 
 class ClassTypeDepsCollector extends NodeVisitorAbstract {

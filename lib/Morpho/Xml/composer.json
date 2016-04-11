@@ -4,11 +4,11 @@
     "type": "library",
     "homepage": "https://github.com/morpho-os/framework",
     "license": "Apache-2.0",
-    "require": {
-        "morpho/fs": "dev-master"
-    },
     "support": {
         "issues": "https://github.com/morpho-os/framework/issues",
         "source": "https://github.com/morpho-os/framework"
+    },
+    "require": {
+        "morpho-os/fs": "dev-master"
     }
 }

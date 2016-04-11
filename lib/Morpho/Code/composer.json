@@ -4,20 +4,15 @@
     "type": "library",
     "homepage": "https://github.com/morpho-os/framework",
     "license": "Apache-2.0",
-    "require": {
-        "morpho/base": "dev-master",
-        "morpho/fs": "dev-master",
-        "php-parser/lexer": "dev-master",
-        "php-parser/node": "dev-master",
-        "php-parser/node-traverser": "dev-master",
-        "php-parser/node-visitor": "dev-master",
-        "php-parser/node-visitor-abstract": "dev-master",
-        "php-parser/parser": "dev-master",
-        "sebastian-bergmann/exporter": "dev-master",
-        "zendframework/zend-filter": "dev-master"
-    },
     "support": {
         "issues": "https://github.com/morpho-os/framework/issues",
         "source": "https://github.com/morpho-os/framework"
+    },
+    "require": {
+        "morpho-os/base": "dev-master",
+        "morpho-os/fs": "dev-master",
+        "nikic/php-parser": "dev-master",
+        "sebastian/exporter": "dev-master",
+        "zendframework/zend-filter": "dev-master"
     }
 }

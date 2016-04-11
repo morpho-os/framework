@@ -4,7 +4,6 @@
     "type": "library",
     "homepage": "https://github.com/morpho-os/framework",
     "license": "Apache-2.0",
-    "require": [],
     "support": {
         "issues": "https://github.com/morpho-os/framework/issues",
         "source": "https://github.com/morpho-os/framework"

@@ -29,10 +29,9 @@ class Environment extends BaseEnvironment {
     /**
      * @TODO: Refactor this method.
      *
-     * @param bool $asBytes
      * @return int|string Returns max upload file size in bytes or as string with suffix.
      */
-    public static function getMaxUploadFileSize($asBytes = true) {
+    public static function getMaxUploadFileSize(bool $asBytes = true) {
         $maxSizeIni = ini_get('post_max_size');
         $maxSize = Converter::toBytes($maxSizeIni);
         $uploadMaxSizeIni = ini_get('upload_max_filesize');

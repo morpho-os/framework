@@ -11,20 +11,28 @@ abstract class Environment extends Object {
 
     protected static $initialized = false;
 
-    public static function isXdebugEnabled() {
+    public static function isXdebugEnabled(): bool {
         return (bool)ini_get('xdebug.default_enable');
     }
 
-    public static function isCli() {
+    public static function isCli(): bool {
         return PHP_SAPI == 'cli';
     }
 
-    public static function isWin() {
+    public static function isWindows(): bool {
         return DIRECTORY_SEPARATOR == '\\';
     }
 
-    public static function isUnix() {
+    public static function isUnix(): bool {
         return DIRECTORY_SEPARATOR == '/';
+    }
+
+    public static function isLinux(): bool {
+        return self::isUnix() && !self::isMac();
+    }
+
+    public static function isMac(): bool {
+        return false !== strpos(php_uname('s'), 'Darwin');
     }
 
     /**
@@ -48,7 +56,7 @@ abstract class Environment extends Object {
         return $map[strtolower($value)] ?? (bool)$value;
     }
 
-    public function init() {
+    public function init()/*: void */ {
         if (static::$initialized) {
             throw new \RuntimeException("The environment was already initialized.");
         }
@@ -59,7 +67,7 @@ abstract class Environment extends Object {
         static::$initialized = true;
     }
 
-    protected function _init() {
+    protected function _init()/*: void */ {
         $this->initErrorSettings();
         $this->initDate();
         $this->initServerVars();
@@ -67,18 +75,18 @@ abstract class Environment extends Object {
         $this->initFs();
     }
 
-    protected function initErrorSettings() {
+    protected function initErrorSettings()/*: void */ {
         error_reporting(E_ALL | E_STRICT);
         ini_set('display_errors', 0);
     }
 
-    protected function initDate() {
+    protected function initDate()/*: void */ {
         ini_set('date.timezone', self::TIMEZONE);
     }
 
-    abstract protected function initServerVars();
+    abstract protected function initServerVars()/*: void */;
 
-    protected function initLocale() {
+    protected function initLocale()/*: void */ {
         //setlocale(LC_ALL, 'C');
         //$enc = self::ENCODING;
         ini_set('default_charset', self::ENCODING);
@@ -86,7 +94,7 @@ abstract class Environment extends Object {
         //iconv_set_encoding('internal_encoding', $enc); // Not actual since PHP_VERSION_ID >= 50600
     }
 
-    protected function initFs() {
+    protected function initFs()/*: void */ {
         // @TODO: Ensure that we need do this.
         umask(0);
     }

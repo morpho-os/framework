@@ -36,13 +36,21 @@ function cmdSu(string $cmd): CommandResult {
     return cmd('sudo bash -c "' . $cmd . '"');
 }
 
-function cmd(string $command, array $args = null, bool $throwExOnError = true): CommandResult {
-    ob_start();
-    passthru(
-        $command . (null !== $args ? ' ' . argString($args) : ''),
-        $exitCode
-    );
-    $result = new CommandResult(trim(ob_get_clean()), $exitCode);
+function cmd(string $command, array $args = null, bool $catchStdOut = true, bool $throwExOnError = true): CommandResult {
+    if ($catchStdOut) {
+        ob_start();
+        passthru(
+            $command . (null !== $args ? ' ' . argString($args) : ''),
+            $exitCode
+        );
+        $result = new CommandResult(trim(ob_get_clean()), $exitCode);
+    } else {
+        passthru(
+            $command . (null !== $args ? ' ' . argString($args) : ''),
+            $exitCode
+        );
+        $result = new CommandResult('', $exitCode);
+    }
     if ($throwExOnError && $result->isError()) {
         throw new Exception((string)$result, $result->getExitCode());
     }

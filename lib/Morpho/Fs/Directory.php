@@ -17,7 +17,6 @@ class Directory extends Entry {
     }
 
     public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null)/*: void */ {
-        // @TODO: Handle $options
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         // @TODO: Handle dots and relative paths: '..', '.' a
         self::ensureExists($sourceDirPath);
@@ -27,6 +26,14 @@ class Directory extends Entry {
         if ($sourceDirPath === $targetDirPath) {
             throw new Exception("Cannot copy a directory '$sourceDirPath' into itself.");
         }
+        $options = ArrayTool::handleOptions(
+            (array) $options,
+            [
+                'overwrite'      => false,
+                'followSymlinks' => false,
+                'skipIfExists'   => false,
+            ]
+        );
 
         if (is_dir($targetDirPath)) {
             $targetDirPath .= '/' . basename($sourceDirPath);
@@ -40,14 +47,15 @@ class Directory extends Entry {
             [
                 'recursive' => false,
                 'type'      => self::FILE | self::DIR,
+                'followSymlinks' => $options['followSymlinks'],
             ]
         );
         foreach ($paths as $sourceFilePath) {
             $targetPath = $targetDirPath . '/' . basename($sourceFilePath);
             if (is_file($sourceFilePath) || is_link($sourceFilePath)) {
-                File::copy($sourceFilePath, $targetPath, false, false);
+                File::copy($sourceFilePath, $targetPath, $options['overwrite'], $options['skipIfExists']);
             } else {
-                self::copy($sourceFilePath, $targetPath, $processor);
+                self::copy($sourceFilePath, $targetPath, $processor, $options);
             }
         }
     }

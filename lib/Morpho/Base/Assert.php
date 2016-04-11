@@ -2,6 +2,12 @@
 namespace Morpho\Base;
 
 class Assert {
+    public static function notEmpty(...$value) {
+        foreach ($value as $v) {
+            self::isTrue(!empty($v), 'The value is not empty');
+        }
+    }
+
     public static function isOneOf($needle, array $haystack) {
         self::isTrue(in_array($needle, $haystack, true), 'The value is not one of the provided values');
     }

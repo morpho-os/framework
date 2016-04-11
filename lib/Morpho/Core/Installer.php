@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Deploy;
+namespace Morpho\Core;
 
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
