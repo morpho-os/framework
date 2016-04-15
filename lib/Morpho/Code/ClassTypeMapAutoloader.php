@@ -1,8 +1,7 @@
 <?php
 //declare(strict_types = 1);
-namespace Morpho\Base;
+namespace Morpho\Code;
 
-use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\File;
 
 class ClassTypeMapAutoloader extends Autoloader {

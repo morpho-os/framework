@@ -6,7 +6,7 @@
 
 //declare(strict_types=1);
 
-namespace Morpho\Base;
+namespace Morpho\Code;
 
 abstract class Autoloader {
     public function autoload(string $class): bool {

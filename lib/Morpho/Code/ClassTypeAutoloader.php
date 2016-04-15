@@ -9,7 +9,7 @@
 
 declare(strict_types = 1);
 
-namespace Morpho\Base;
+namespace Morpho\Code;
 
 class ClassTypeAutoloader extends Autoloader {
     private $classToFileMap = [];

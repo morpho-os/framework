@@ -1,8 +1,8 @@
 <?php
-namespace MorphoTest\Base;
+namespace MorphoTest\Code;
 
 use Morpho\Test\TestCase;
-use Morpho\Base\ClassTypeMapAutoloader;
+use Morpho\Code\ClassTypeMapAutoloader;
 
 class ClassTypeMapAutoloaderTest extends TestCase {
     public function tearDown() {

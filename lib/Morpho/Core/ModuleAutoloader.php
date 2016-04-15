@@ -2,9 +2,9 @@
 namespace Morpho\Core;
 
 use function Morpho\Base\dasherize;
-use Morpho\Base\Autoloader;
 use Morpho\Base\EmptyPropertyException;
 use function Morpho\Base\head;
+use Morpho\Code\Autoloader;
 use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\File;
 
