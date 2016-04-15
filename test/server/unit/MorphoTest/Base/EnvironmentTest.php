@@ -19,22 +19,22 @@ class EnvironmentTest extends TestCase {
         $this->assertTrue(Environment::isCli());
     }
 
-    public function testIsIniSet() {
-        $this->assertTrue(Environment::isIniSet('realpath_cache_size'));
+    public function testGetBoolIni() {
+        $this->assertTrue(Environment::getBoolIni('realpath_cache_size'));
 
         $setting = 'zend.enable_gc';
-        $this->assertTrue(Environment::isIniSet($setting));
+        $this->assertTrue(Environment::getBoolIni($setting));
 
         ini_set($setting, 0);
-        $this->assertFalse(Environment::isIniSet($setting));
+        $this->assertFalse(Environment::getBoolIni($setting));
 
         ini_set($setting, 1);
-        $this->assertTrue(Environment::isIniSet($setting));
+        $this->assertTrue(Environment::getBoolIni($setting));
 
         // Names are case sensitive, so such setting should not exist.
-        $this->assertFalse(Environment::isIniSet(strtoupper($setting)));
+        $this->assertFalse(Environment::getBoolIni(strtoupper($setting)));
 
-        $this->assertFalse(Environment::isIniSet(__FUNCTION__));
+        $this->assertFalse(Environment::getBoolIni(__FUNCTION__));
     }
 
     public function dataForIniToBool() {

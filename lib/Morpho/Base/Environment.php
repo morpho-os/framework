@@ -10,7 +10,7 @@ abstract class Environment extends Object {
     protected $startSession = false;
 
     protected static $initialized = false;
-
+    
     public static function isXdebugEnabled(): bool {
         return (bool)ini_get('xdebug.default_enable');
     }
@@ -38,10 +38,10 @@ abstract class Environment extends Object {
     /**
      * Returns true if the ini setting with the $name can be interpreted as true.
      */
-    public static function isIniSet(string $name): bool {
+    public static function getBoolIni(string $name): bool {
         return self::iniToBool(ini_get($name));
     }
-
+    
     /**
      * Converts any value that can be used in the ini configs to the bool value.
      */
@@ -65,6 +65,13 @@ abstract class Environment extends Object {
         $this->_init();
 
         static::$initialized = true;
+    }
+
+    public static function enableExpectations() {
+        // http://php.net/assert#function.assert.expectations
+        Assert::isTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini option must be set to 1 for expectations");
+        ini_set('assert.active', 1);
+        ini_set('assert.exception', 1);
     }
 
     protected function _init()/*: void */ {

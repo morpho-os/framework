@@ -17,11 +17,11 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testEscapeEachArg() {
-        $this->assertEquals(["'foo'\\''bar'", "'test/'"], \Morpho\Cli\escapeEachArg(["foo'bar", 'test/']));
+    public function testEscapedArgs() {
+        $this->assertEquals(["'foo'\\''bar'", "'test/'"], \Morpho\Cli\escapedArgs(["foo'bar", 'test/']));
     }
 
-    public function testArgString() {
-        $this->assertEquals("'foo'\\''bar' 'test/'", \Morpho\Cli\argString(["foo'bar", 'test/']));
+    public function testEscapedArgsString() {
+        $this->assertEquals("'foo'\\''bar' 'test/'", \Morpho\Cli\escapedArgsString(["foo'bar", 'test/']));
     }
 }

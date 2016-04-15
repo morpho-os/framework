@@ -11,7 +11,7 @@ class DebuggerTest extends TestCase {
     }
 
     public function testVarToString() {
-        if (Environment::isXdebugEnabled() && Environment::isIniSet('xdebug.overload_var_dump')) {
+        if (Environment::isXdebugEnabled() && Environment::getBoolIni('xdebug.overload_var_dump')) {
             $this->markTestIncomplete();
         }
         ob_start();

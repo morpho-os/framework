@@ -96,7 +96,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     }
 
     public static function isErrorLogEnabled(): bool {
-        return Environment::isIniSet('log_errors') && !empty(ini_get('error_log'));
+        return Environment::getBoolIni('log_errors') && !empty(ini_get('error_log'));
     }
 
     public static function getHashId(\Throwable $e) {

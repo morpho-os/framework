@@ -166,10 +166,9 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testFilter_PrintDoesNotEscapeVars() {
-        $php = "<?php print '<div><span>Text</span></div>'; ?>";
-        $expected = '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~';
-        $this->assertRegexp($expected, $this->templateEngine->filter($php));
-
+        $expected = '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~s';
+        $this->assertRegexp($expected, $this->templateEngine->filter("<?php print '<div><span>Text</span></div>'; ?>"));
+        $expected = '~^<\?php\s+print\s+"<div><span>Text</span></div>";$~s';
         $this->assertRegexp($expected, $this->templateEngine->filter('<?php print("<div><span>Text</span></div>");'));
     }
 
