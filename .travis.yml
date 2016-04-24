@@ -1,7 +1,9 @@
 language: php
 php:
     #    - hhvm
-    - 7.0
+    #    - 7.0
+    - nightly
+    - hhvm
 
 services:
     - mysql
