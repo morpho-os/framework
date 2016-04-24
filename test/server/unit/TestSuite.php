@@ -3,10 +3,10 @@ use Morpho\Fs\Directory;
 
 class TestSuite extends \Morpho\Test\TestSuite {
     public function listTestFiles() {
-        return array_merge(
+        return d(array_merge(
             iterator_to_array(Directory::listFiles(__DIR__ . '/MorphoTest', $this->testFileRegexp), false),
             $this->listTestFilesOfModules()
-        );
+        ));
     }
 
     protected function listTestFilesOfModules() {
