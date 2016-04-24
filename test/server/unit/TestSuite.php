@@ -1,8 +1,5 @@
 <?php
-use Morpho\Core\ModuleListProvider;
-use Morpho\Core\ModulePathManager;
 use Morpho\Fs\Directory;
-use Morpho\Web\ModuleManager;
 
 class TestSuite extends \Morpho\Test\TestSuite {
     public function listTestFiles() {
@@ -13,12 +10,13 @@ class TestSuite extends \Morpho\Test\TestSuite {
     }
 
     protected function listTestFilesOfModules() {
-        $filePaths = [];
-        $modulePathManager = new ModulePathManager(MODULE_DIR_PATH);
-        $moduleManager = new ModuleManager(null, new ModuleListProvider($modulePathManager));
-        foreach ($moduleManager->listAllModules() as $moduleName) {
-            $filePaths = array_merge($filePaths, $modulePathManager->getTestFilePaths($moduleName));
-        }
-        return $filePaths;
+        $filter = function ($path, $isDir) {
+            if ($isDir) {
+                $baseName = basename($path);
+                return $baseName !== VENDOR_DIR_NAME && $baseName !== LIB_DIR_NAME;
+            }
+            return preg_match('~/' . TEST_DIR_NAME . '/.+Test\.php$~si', $path);
+        };
+        return iterator_to_array(Directory::listFiles(MODULE_DIR_PATH, $filter, ['recursive' => true]), false);
     }
 }

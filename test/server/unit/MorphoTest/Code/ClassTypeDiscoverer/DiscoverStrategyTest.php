@@ -8,13 +8,13 @@ abstract class DiscoverStrategyTest extends TestCase {
         $this->strategy = $this->createDiscoverStrategy();
     }
 
-    public function testClassTypesDefinedInFile() {
+    public function testDefinedClassTypesInFile() {
         $expected = [
             __NAMESPACE__ . '\\StrategyTest1\\FooTrait',
             __NAMESPACE__ . '\\StrategyTest1\\BarClass',
             __NAMESPACE__ . '\\StrategyTest2\\BazInterface',
         ];
-        $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/MyFile.php');
+        $actual = $this->strategy->definedClassTypesInFile(__DIR__ . '/_files/DiscoverStrategyTest/MyFile.php');
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);

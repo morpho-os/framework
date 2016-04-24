@@ -1,12 +1,12 @@
 <?php
 namespace Morpho\Web\Routing;
 
-use Morpho\Code\CodeTool;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
+use Morpho\Fs\File;
 use Morpho\Fs\Path;
 use Morpho\Web\Request;
 
@@ -18,9 +18,11 @@ class FastRouter extends Router {
         }
 
         $cacheFilePath = $this->getCacheFilePath();
+        /*
         if (!file_exists($cacheFilePath)) {
+        */
             $this->rebuildRoutes();
-        }
+        //}
         $dispatchData = require $cacheFilePath;
         $dispatcher = new GroupCountBasedDispatcher($dispatchData);
 
@@ -54,13 +56,13 @@ class FastRouter extends Router {
             $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], $handler);
         }
         $dispatchData = $routeCollector->getData();
-        CodeTool::writeVarToFile($dispatchData, $cacheFilePath, false);
+        File::writePhp($cacheFilePath, $dispatchData, false);
     }
 
     protected function getCacheFilePath(): string {
         return $this->serviceManager->get('siteManager')
             ->getCurrentSite()
-            ->getCacheDirPath() . '/routes.php';
+            ->getCacheDirPath() . '/route.php';
     }
 
     protected function getNormalizedUri($request): string {

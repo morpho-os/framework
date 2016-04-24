@@ -35,14 +35,14 @@ class HtmlParserPost extends HtmlParser {
         }
         $filesToCompile = [];
         $compile = false;
-        $moduleDirPath = $this->serviceManager->get('modulePathManager')->getAllModuleDirPath();
+        $baseModuleDirPath = $this->serviceManager->get('moduleFs')->getBaseModuleDirPath();
         foreach (array_map('trim', explode(',', $tag['src'])) as $fileName) {
             $inFilePath = $inDirPath . '/' . Path::newExt(basename($fileName), 'ts');
             if (!is_file($inFilePath)) {
                 throw new \RuntimeException("The '$inFilePath' does not exist");
             }
             $inFileChangedTime = filemtime($inFilePath);
-            $outDirPath = $cacheDirPath . '/' . Path::toRelative($moduleDirPath, $inFilePath);
+            $outDirPath = $cacheDirPath . '/' . Path::toRelative($baseModuleDirPath, $inFilePath);
             $outFilePath = $outDirPath . '/' . $inFileChangedTime . '.js';
             if ($this->forceCompileTs || !is_file($outFilePath)) {
                 Directory::recreate($outDirPath);

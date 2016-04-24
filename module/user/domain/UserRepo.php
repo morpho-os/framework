@@ -1,5 +1,5 @@
 <?php
-namespace User\Domain;
+namespace Morpho\User\Domain;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\Repo;

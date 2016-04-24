@@ -1,11 +1,10 @@
 <?php
-namespace System\Controller;
+namespace Morpho\System\Controller;
 
-use Morpho\Core\SettingManager;
 use Morpho\Di\IServiceManagerAware;
 use Morpho\Web\Controller;
-use Morpho\Code\CodeTool;
 use Morpho\Db\Sql\Db;
+use Morpho\Fs\File;
 
 class InstallController extends Controller {
     public function indexAction() {
@@ -125,7 +124,7 @@ class InstallController extends Controller {
         $config = $site->getConfig();
         $config['db'] = $dbConfig;
         $configFilePath = $site->getConfigFilePath();
-        CodeTool::writeVarToFile($config, $configFilePath);
+        File::writePhp($configFilePath, $config);
         #chmod($configFilePath, 0440);
     }
 }

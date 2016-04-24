@@ -18,11 +18,7 @@ class CodeTool {
         throw new NotImplementedException();
     }
 
-    public static function writeVarToFile($var, string $filePath, bool $stripNumericKeys = true) {
-        File::write($filePath, '<?php return ' . self::varToPhp($var, $stripNumericKeys));
-    }
-
-    public static function varToPhp($var, bool $stripNumericKeys = true): string {
+    public static function varToString($var, bool $stripNumericKeys = true): string {
         // @TODO: Replace with Formatter::format().
         $php = preg_replace(
                 [

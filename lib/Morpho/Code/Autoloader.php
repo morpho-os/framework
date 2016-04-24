@@ -32,7 +32,7 @@ abstract class Autoloader {
     }
 
     /**
-     * @return string|false The path if found, false otherwise
+     * @return string|false The path (string) if found, any value which can be converted to the false.
      */
     abstract public function findFilePath(string $class);
 }

@@ -11,7 +11,7 @@ class NoDupsListenerTest extends TestCase {
     }
 
     public function testNoDupsOnException() {
-        $listener = $this->getMock('\Morpho\Error\DumpListener');
+        $listener = $this->createMock('\Morpho\Error\DumpListener');
         $ex = new \Exception();
         $listener->expects($this->once())
             ->method('onException')

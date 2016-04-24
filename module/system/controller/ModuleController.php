@@ -1,5 +1,5 @@
 <?php
-namespace System\Controller;
+namespace Morpho\System\Controller;
 
 use function Morpho\Base\{classify, dasherize};
 use Morpho\Fs\{File, Directory, Path};
@@ -169,10 +169,9 @@ class ModuleController extends Controller {
         $moduleManager = $this->serviceManager->get('moduleManager');
         $modules = $this->getDb()->selectRows('* FROM module ORDER BY weight, name');
         foreach ($moduleManager->listUninstalledModules() as $moduleName) {
-            $module = $moduleManager->getChild($moduleName);
             $modules[] = [
                 'id' => null,
-                'name' => $module->getName(),
+                'name' => $moduleName,
                 'status' => ModuleManager::UNINSTALLED,
             ];
         }
@@ -190,7 +189,7 @@ class ModuleController extends Controller {
     }
 
     protected function moduleDirPath(string $moduleName): string {
-        return $this->serviceManager->get('modulePathManager')->getModuleDirPath($moduleName);
+        return $this->serviceManager->get('moduleManager')->getModuleFs()->getModuleDirPath($moduleName);
     }
 
     protected function writeModuleClass(string $moduleName, bool $isTheme) {

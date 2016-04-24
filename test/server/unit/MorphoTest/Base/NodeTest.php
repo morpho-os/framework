@@ -15,7 +15,7 @@ class NodeTest extends TestCase {
         $this->assertSame($secondLevelChild, $this->node->getLeaf('secondLevel'));
     }
 
-    public function testGetNotLeafNodeThrowsException() {
+    public function testGetLeaf_ThrowsExceptionForNotLeaf() {
         $this->setExpectedException('\Morpho\Base\ObjectNotFoundException', "Unable to find a node with the name 'firstLevel' in leaf nodes.");
         $firstLevelChild = $this->node->addChild(new Node(['name' => 'firstLevel']));
         $secondLevelChild = $firstLevelChild->addChild(new Node(['name' => 'secondLevel']));
@@ -23,7 +23,7 @@ class NodeTest extends TestCase {
         $this->node->getLeaf('firstLevel');
     }
 
-    public function testNodeWithoutTypeThrowsException() {
+    public function testNewNode_WithoutTypeThrowsException() {
         $comp = new Node([]);
         $this->setExpectedException('\Morpho\Base\EmptyPropertyException', "The property 'Morpho\\Base\\Node::type' is empty.");
         $comp->getType();
@@ -43,7 +43,7 @@ class NodeTest extends TestCase {
         $this->assertTrue($this->node->hasChild($comp));
     }
 
-    public function testCantAddNodeWithoutName() {
+    public function testAddChild_CantAddNodeWithoutName() {
         $node = new Node();
         $this->setExpectedException('\RuntimeException', 'The node must have name.');
         $node->addChild(new Node(['name' => '']));
@@ -60,7 +60,7 @@ class NodeTest extends TestCase {
         $this->assertEquals(0, count($this->node));
     }
 
-    public function testAddByReferenceTwice() {
+    public function testAddChild_ByReferenceTwice() {
         $comp1 = new Node(['name' => 'foo']);
         $comp2 = new Node(['name' => 'bar']);
         $this->node->addChild($comp1);
@@ -77,7 +77,7 @@ class NodeTest extends TestCase {
         $this->assertInstanceOf('\Countable', $this->node);
     }
 
-    public function testRemoveAndIsEmpty() {
+    public function testRemoveChildAndIsEmpty() {
         $comp = new Node(['name' => 'test']);
         $this->assertTrue($this->node->isEmpty());
 
@@ -116,7 +116,7 @@ class NodeTest extends TestCase {
         $this->assertSame(['foo' => $comp], $this->node->getChildNodes());
     }
 
-    public function testRecursiveIteratorMethods() {
+    public function testRecursiveIterator() {
         // Check initial state
         $this->assertNull($this->node->rewind());
 
@@ -160,7 +160,7 @@ class NodeTest extends TestCase {
         $node->getChildren();
     }
 
-    public function testRecursiveIteratorLeavesOnly() {
+    public function testRecursiveIterator_LeavesOnly() {
         $parentNode = new Node(['name' => 'foo']);
         $firstLevelChild = $parentNode->addChild(
             new Node(['name' => 'bar'])
@@ -177,7 +177,7 @@ class NodeTest extends TestCase {
         $this->assertEquals(1, $i);
     }
 
-    public function testRecursiveIteratorSelfFirst() {
+    public function testRecursiveIterator_SelfFirst() {
         $parentNode = new Node(['name' => 'foo']);
         $firstLevelChild = $parentNode->addChild(
             new Node(['name' => 'bar'])
@@ -196,7 +196,7 @@ class NodeTest extends TestCase {
         $this->assertEquals(2, $i);
     }
 
-    public function testRecursiveIteratorChildFirst() {
+    public function testRecursiveIterator_ChildFirst() {
         $parentNode = new Node(['name' => 'foo']);
         $firstLevelChild = $parentNode->addChild(
             new Node(['name' => 'bar'])
@@ -221,7 +221,7 @@ class NodeTest extends TestCase {
         $this->assertSame($this->node, $node->getParent());
     }
 
-    public function testAddReturnsAddedNode() {
+    public function testAddChild_ReturnsAddedNode() {
         $item1 = new Node(['name' => 'item1']);
         $item2 = new Node(['name' => 'item2']);
         $this->assertSame($item1, $item2->addChild($item1));

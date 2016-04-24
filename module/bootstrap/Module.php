@@ -1,5 +1,5 @@
 <?php
-namespace Bootstrap;
+namespace Morpho\Bootstrap;
 
 use Morpho\Web\Theme;
 

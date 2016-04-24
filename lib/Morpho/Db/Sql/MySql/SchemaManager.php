@@ -8,13 +8,14 @@ use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 class SchemaManager extends BaseSchemaManager {
     protected $defaultEngine = 'InnoDB';
     protected $defaultCharset = 'utf8';
+    protected $defaultCollation = 'utf8_general_ci';
 
     public function listDatabases(): array {
         return $this->db->fetchColumn("SHOW DATABASES");
     }
 
     public function createDatabase(string $dbName)/*: void*/ {
-        $this->db->runQuery("CREATE DATABASE " . $this->db->query()->identifier($dbName) . " CHARACTER SET utf8 COLLATE utf8_general_ci");
+        $this->db->runQuery("CREATE DATABASE " . $this->db->query()->identifier($dbName) . " CHARACTER SET " . $this->defaultCharset . " COLLATE " . $this->defaultCollation);
     }
     
     public function dbExists(string $dbName): bool {

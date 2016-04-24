@@ -8,6 +8,7 @@ use Morpho\Base\NotImplementedException;
 use function Morpho\Base\{
     decodeJson, encodeJson
 };
+use Morpho\Code\CodeTool;
 
 class File extends Entry {
     /**
@@ -137,6 +138,11 @@ class File extends Entry {
         return $filePath;
     }
 
+    public static function writePhp(string $filePath, $var, bool $stripNumericKeys = true): string {
+        File::write($filePath, '<?php return ' . CodeTool::varToString($var, $stripNumericKeys));
+        return $filePath;
+    }
+
     /**
      * Has the same effect as truncate but should be used in different situation/context.
      */
@@ -162,6 +168,12 @@ class File extends Entry {
     public static function delete(string $filePath) {
         if (!@unlink($filePath)) {
             throw new FileNotFoundException($filePath);
+        }
+    }
+    
+    public static function deleteIfExists(string $filePath) {
+        if (is_file($filePath)) {
+            self::delete($filePath);
         }
     }
 

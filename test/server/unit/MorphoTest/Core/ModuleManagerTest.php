@@ -2,7 +2,7 @@
 namespace MorphoTest\Core;
 
 use Morpho\Base\Node;
-use Morpho\Core\ModuleAutoloader;
+use Morpho\Core\ModuleFs;
 use Morpho\Core\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
@@ -17,20 +17,20 @@ class ModuleManagerTest extends DbTestCase {
         $db = $this->db();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
-        $schemaManager->createTables(\System\Module::getTableDefinitions());
+        $schemaManager->createTables(\Morpho\System\Module::getTableDefinitions());
     }
 
     public function testGetChild_ForModuleWithoutModuleClass() {
-        $moduleManager = $this->createModuleManager(null, null, $this->mock(ModuleAutoloader::class));
-        $name = 'galaxy/earth';
-        $module = $moduleManager->getChild($name);
+        $moduleManager = $this->createModuleManager();
+        $moduleName = 'galaxy/earth';
+        $module = $moduleManager->getChild($moduleName);
         $this->assertEquals(Module::class, get_class($module));
-        $this->assertEquals($name, $module->getName());
+        $this->assertEquals($moduleName, $module->getName());
     }
-    
+
     public function testListUninstalledModules_CanUseComposerNamingStyle() {
         $moduleList = ['galaxy/earth', 'galaxy/saturn'];
-        $moduleManager = $this->createModuleManager(null, new \ArrayIterator($moduleList));
+        $moduleManager = $this->createModuleManager(null, $this->createModuleFs($moduleList));
         $this->assertEquals($moduleList, $moduleManager->listUninstalledModules());
     }
 
@@ -76,11 +76,11 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testModuleOperations() {
-        $moduleListProvider = new \ArrayIterator([
+        $moduleFs = $this->createModuleFs([
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ]);
-        $moduleManager = $this->createModuleManager($this->db(), $moduleListProvider, $this->mock(ModuleAutoloader::class));
+        $moduleManager = $this->createModuleManager(null, $moduleFs);
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
@@ -229,10 +229,21 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertTrue($module->getChild($controllerName)->isDispatchCalled());
     }
 
-    private function createModuleManager(Db $db = null, $moduleListProvider = null, $moduleAutoloader = null) {
-        $moduleManager = new MyModuleManager($db ?: $this->db(), $moduleListProvider, $moduleAutoloader);
+    private function createModuleManager(Db $db = null, $moduleFs = null) {
+        $moduleManager = new MyModuleManager(
+            $db ?: $this->db(),
+            $moduleFs ?: $this->createModuleFs([])
+        );
         $moduleManager->setServiceManager(new ServiceManager());
         return $moduleManager;
+    }
+
+    private function createModuleFs(array $modules) {
+        $mock = $this->createMock(ModuleFs::class);
+        $mock->expects($this->any())
+            ->method('getModuleNames')
+            ->will($this->returnValue(new \ArrayIterator($modules)));
+        return $mock;
     }
 }
 

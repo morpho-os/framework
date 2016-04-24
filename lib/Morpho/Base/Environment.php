@@ -12,7 +12,7 @@ abstract class Environment extends Object {
     protected static $initialized = false;
     
     public static function isXdebugEnabled(): bool {
-        return (bool)ini_get('xdebug.default_enable');
+        return self::getBoolIni('xdebug.default_enable');
     }
 
     public static function isCli(): bool {
@@ -20,7 +20,7 @@ abstract class Environment extends Object {
     }
 
     public static function isWindows(): bool {
-        return DIRECTORY_SEPARATOR == '\\';
+        return defined('PHP_WINDOWS_VERSION_BUILD');//DIRECTORY_SEPARATOR == '\\';
     }
 
     public static function isUnix(): bool {
@@ -39,6 +39,7 @@ abstract class Environment extends Object {
      * Returns true if the ini setting with the $name can be interpreted as true.
      */
     public static function getBoolIni(string $name): bool {
+        // @TODO: can we use just (bool) ini_get()?
         return self::iniToBool(ini_get($name));
     }
     

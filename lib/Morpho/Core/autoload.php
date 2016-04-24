@@ -23,15 +23,15 @@ const VENDOR_DIR_NAME = 'vendor';
 
 const CONFIG_FILE_NAME = 'config.php';
 const AUTOLOAD_FILE_NAME = 'autoload.php';
-const COMPOSER_FILE_NAME = 'composer.json';
+const MODULE_META_FILE_NAME = 'composer.json';
 const MODULE_CLASS_FILE_NAME = 'Module.php';
 
-const LIB_DIR_PATH = BASE_DIR_PATH . '/' . LIB_DIR_NAME;
-const MODULE_DIR_PATH = BASE_DIR_PATH . '/' . MODULE_DIR_NAME;
-const SITE_DIR_PATH = BASE_DIR_PATH . '/' . SITE_DIR_NAME;
-const TEST_DIR_PATH = BASE_DIR_PATH . '/' . TEST_DIR_NAME;
-const VENDOR_DIR_PATH = BASE_DIR_PATH . '/' .VENDOR_DIR_NAME;
-const COMPOSER_AUTOLOAD_FILE_PATH = VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+// @TODO: Replace with the `const`? Check PHP internals.
+define('LIB_DIR_PATH',  BASE_DIR_PATH . '/' . LIB_DIR_NAME);
+define('MODULE_DIR_PATH',  BASE_DIR_PATH . '/' . MODULE_DIR_NAME);
+define('SITE_DIR_PATH',  BASE_DIR_PATH . '/' . SITE_DIR_NAME);
+define('TEST_DIR_PATH',  BASE_DIR_PATH . '/' . TEST_DIR_NAME);
+define('VENDOR_DIR_PATH',  BASE_DIR_PATH . '/' . VENDOR_DIR_NAME);
 
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';

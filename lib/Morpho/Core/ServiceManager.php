@@ -23,6 +23,10 @@ abstract class ServiceManager extends BaseServiceManager {
         throw new MethodNotFoundException($this, $method);
     }
 
+    protected function createAutoloaderService() {
+        return require VENDOR_DIR_PATH . '/' . AUTOLOAD_FILE_NAME;
+    }
+
     abstract protected function createModuleManagerService();
 
     protected function createViewService() {

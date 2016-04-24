@@ -8,19 +8,19 @@ class ModuleManager extends BaseModuleManager {
         return [
             'render'         => [
                 [
-                    'moduleName' => 'Bootstrap',
+                    'moduleName' => 'morpho-os/bootstrap',
                     'method'     => 'render',
                 ],
             ],
             'afterDispatch'  => [
                 [
-                    'moduleName' => 'Bootstrap',
+                    'moduleName' => 'morpho-os/bootstrap',
                     'method'     => 'afterDispatch',
                 ],
             ],
             'beforeDispatch' => [
                 [
-                    'moduleName' => 'Bootstrap',
+                    'moduleName' => 'morpho-os/bootstrap',
                     'method'     => 'beforeDispatch',
                 ],
             ],

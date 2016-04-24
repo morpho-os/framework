@@ -11,7 +11,7 @@ class SettingManagerTest extends DbTestCase {
         $moduleNames = ['module', 'setting'];
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables($moduleNames);
-        $schemaManager->createTables(ArrayTool::itemsWithKeys(\System\Module::getTableDefinitions(), $moduleNames));
+        $schemaManager->createTables(ArrayTool::itemsWithKeys(\Morpho\System\Module::getTableDefinitions(), $moduleNames));
         $this->settingManager = new SettingManager($db);
         $moduleName = 'foo';
         $db->insertRow('module', ['name' => $moduleName, 'status' => 1, 'weight' => 0]);

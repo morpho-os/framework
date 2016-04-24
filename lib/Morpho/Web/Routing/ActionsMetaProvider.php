@@ -24,10 +24,10 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
         $traverser->addVisitor(new PhpParser\NodeVisitor\NameResolver());
         $controllerVisitor = new ControllerVisitor();
         $traverser->addVisitor($controllerVisitor);
-        $modulePathManager = $this->serviceManager->get('modulePathManager');
         $moduleManager = $this->serviceManager->get('moduleManager');
+        $moduleFs = $moduleManager->getModuleFs();
         foreach ($moduleManager->listEnabledModules() as $moduleName) {
-            foreach ($modulePathManager->getControllerFilePaths($moduleName) as $controllerFilePath) {
+            foreach ($moduleFs->getModuleControllerFilePaths($moduleName) as $controllerFilePath) {
                 $stmts = $parser->parse(file_get_contents($controllerFilePath));
                 $traverser->traverse($stmts);
                 foreach ($controllerVisitor->getActionsMeta() as $actionMeta) {

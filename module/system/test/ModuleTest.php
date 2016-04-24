@@ -1,5 +1,5 @@
 <?php
-namespace SystemTest;
+namespace MorphoTest\SystemTest;
 
 use Morpho\Core\SettingManager;
 use Morpho\Di\ServiceManager;
@@ -7,7 +7,7 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Web\Response;
-use System\Module as SystemModule;
+use Morpho\System\Module as SystemModule;
 
 class ModuleTest extends DbTestCase {
     public function setUp() {

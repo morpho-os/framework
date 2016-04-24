@@ -18,13 +18,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
     protected $backupGlobals = true;
 
-    /**
-     * Creates mock object without calling of the __construct() of the $class.
-     */
-    public function mock($class, $methods = [], array $arguments = [], $mockClassName = '', $callOriginalConstructor = false, $callOriginalClone = true, $callAutoload = true, $cloneArguments = false, $callOriginalMethods = false) {
-        return $this->getMock($class, $methods, $arguments, $mockClassName, $callOriginalConstructor, $callOriginalClone, $callAutoload, $cloneArguments, $callOriginalMethods);
-    }
-
     protected function tearDown() {
         if (null !== $this->oldTimezone) {
             date_default_timezone_set($this->oldTimezone);
@@ -39,6 +32,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
                 Directory::delete($tmpDirPath);
             }
         }
+    }
+
+    protected function createMock($originalClassName) {
+        if (method_exists('PHPUnit_Framework_TestCase', 'createMock')) {
+            return parent::createMock($originalClassName);
+        }
+        return $this->getMockBuilder($originalClassName)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->disableArgumentCloning()
+            //->disallowMockingUnknownTypes()
+            ->getMock();
     }
 
     /*

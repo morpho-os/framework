@@ -23,7 +23,10 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function all(callable $predicate, array $arr): bool {
+/**
+ * @param \Traversable|array $arr
+ */
+function all(callable $predicate, $arr): bool {
     foreach ($arr as $key => $value) {
         if (!$predicate($value, $key)) {
             return false;
@@ -32,7 +35,10 @@ function all(callable $predicate, array $arr): bool {
     return true;
 }
 
-function any(callable $predicate, array $arr): bool {
+/**
+ * @param \Traversable|array $arr
+ */
+function any(callable $predicate, $arr): bool {
     foreach ($arr as $key => $value) {
         if ($predicate($value, $key)) {
             return true;

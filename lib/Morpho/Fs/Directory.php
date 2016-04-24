@@ -136,7 +136,7 @@ class Directory extends Entry {
     }
 
     public static function listEmptyDirs($dirPath, $processor = null): \Generator {
-        // @TODO
+        // @TODO: Implement isEmpty() method, see Composer\Util\Filesystem::isDirEmpty()
         throw new NotImplementedException();
     }
 

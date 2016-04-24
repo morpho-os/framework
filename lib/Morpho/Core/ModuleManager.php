@@ -2,7 +2,6 @@
 //declare(strict_types = 1);
 namespace Morpho\Core;
 
-use Morpho\Base\Node as BaseNode;
 use Morpho\Base\IEventManager;
 use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Db\Sql\Db;
@@ -17,27 +16,29 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected $fallbackMode = false;
 
     protected $fallbackModules = [
-        'System',
-        'User',
-        'Bootstrap',
+        'morpho-os/system',
+        'morpho-os/user',
+        'morpho-os/bootstrap',
     ];
 
     protected $eventHandlers;
 
     protected $name = 'ModuleManager';
 
-    protected $db;
-
     protected $tableName = 'module';
     
-    protected $moduleListProvider;
+    protected $db;
+
+    protected $moduleFs;
     
-    protected $autoloader;
-    
-    public function __construct(Db $db = null, \Traversable $moduleListProvider = null, ModuleAutoloader $autoloader = null) {
+    public function __construct(Db $db = null, ModuleFs $moduleFs) {
+        parent::__construct([]);
         $this->db = $db;
-        $this->moduleListProvider = $moduleListProvider;
-        $this->autoloader = $autoloader;
+        $this->moduleFs = $moduleFs;
+    }
+    
+    public function getModuleFs(): ModuleFs {
+        return $this->moduleFs;
     }
 
     public function isFallbackMode(bool $flag = null): bool {
@@ -236,7 +237,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         if ($this->fallbackMode) {
             return [];
         }
-        return iterator_to_array($this->moduleListProvider, false);
+        $moduleNames = $this->moduleFs->getModuleNames();
+        return is_array($moduleNames) ? $moduleNames : iterator_to_array($moduleNames, false);
     }
 
     public function listInstalledModules(): array {
@@ -269,17 +271,12 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     protected function clearCache()/*: void */ {
-        $this->autoloader->clearCache();
+        $this->moduleFs->clearCache();
     }
 
-    protected function loadChild(string $name): BaseNode {
-        $this->autoloader->registerModule($name);
-        return parent::loadChild($name);
-    }
-    
     protected function childNameToClass(string $moduleName) {
-        $class = $moduleName . '\\' . MODULE_SUFFIX;
-        return class_exists($class) ? $class : __NAMESPACE__ . '\\Module';
+        $class = $this->moduleFs->getModuleClass($moduleName);
+        return $class ?: Module::class;
     }
 
     protected function initEventHandlers()/*: void */ {

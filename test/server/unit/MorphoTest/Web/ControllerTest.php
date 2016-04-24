@@ -15,7 +15,7 @@ class ControllerTest extends TestCase {
         $uri = new Uri();
         $uri->setBasePath('/some/base/path');
         $request->setUri($uri);
-        $response = $this->mock('\Morpho\Web\Response');
+        $response = $this->createMock('\Morpho\Web\Response');
         $response->expects($this->once())
             ->method('redirect')
             ->with($this->equalTo('/some/base/path/system/module/list'));

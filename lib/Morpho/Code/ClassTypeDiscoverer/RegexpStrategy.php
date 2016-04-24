@@ -8,7 +8,7 @@ class RegexpStrategy implements IDiscoverStrategy {
 
     private $currentNs;
 
-    public function classTypesDefinedInFile(string $filePath): array {
+    public function definedClassTypesInFile(string $filePath): array {
         $lines = file($filePath);
         $type = $ns = null;
         $classes = [];

@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Web\Routing;
 
-use function Morpho\Base\{classify, dasherize, head};
+use function Morpho\Base\{
+    classify, dasherize, head, last
+};
 use Morpho\Web\Request;
 
 class RoutesMetaProvider implements \IteratorAggregate {
@@ -71,7 +73,7 @@ class RoutesMetaProvider implements \IteratorAggregate {
         $action = $actionMeta['action'];
         $title = null;
 
-        $uri = '/' . dasherize($actionMeta['module']) . '/' . dasherize($actionMeta['controller']);
+        $uri = '/' . dasherize(last($actionMeta['module'], '/')) . '/' . dasherize($actionMeta['controller']);
         if (isset($this->restActions[$action])) {
             $uri .= rtrim('/' . $this->restActions[$action][1], '/');
             $httpMethod = $this->restActions[$action][0];

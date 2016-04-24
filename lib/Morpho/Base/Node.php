@@ -93,7 +93,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     public function getLeaf(string $name): Node {
-        foreach (new \RecursiveIteratorIterator($this) as $node) {
+        foreach (new \RecursiveIteratorIterator($this, \RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
             if ($node->getName() == $name) {
                 return $node;
             }

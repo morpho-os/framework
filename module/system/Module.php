@@ -1,5 +1,5 @@
 <?php
-namespace System;
+namespace Morpho\System;
 
 use Morpho\Base\Assert;
 use Morpho\Core\Module as BaseModule;
@@ -42,7 +42,7 @@ class Module extends BaseModule {
 
     public static function defaultErrorHandler(string $errorType): array {
         Assert::isOneOf($errorType, [self::ACCESS_DENIED_ERROR, self::PAGE_NOT_FOUND_ERROR, self::UNCAUGHT_ERROR]);
-        return ['System', 'Error', $errorType];
+        return ['morpho-os/system', 'Error', $errorType];
     }
 
     /**

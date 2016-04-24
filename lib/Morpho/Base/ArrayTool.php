@@ -156,4 +156,10 @@ class ArrayTool {
     public static function getHash(array $arr): string {
         return md5(json_encode($arr));
     }
+
+    public static function toArray($arrOrTraversable, bool $useKeys = false): array {
+        return is_array($arrOrTraversable)
+            ? $arrOrTraversable
+            : iterator_to_array($arrOrTraversable, $useKeys);
+    }
 }
