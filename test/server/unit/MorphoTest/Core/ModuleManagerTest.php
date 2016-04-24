@@ -2,7 +2,8 @@
 namespace MorphoTest\Core;
 
 use Morpho\Base\Node;
-use Morpho\Core\ModuleFs;
+// Triggers an error for some reason in Travis environment.
+//use Morpho\Core\ModuleFs;
 use Morpho\Core\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
