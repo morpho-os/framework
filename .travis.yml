@@ -14,7 +14,7 @@ before_script:
 
 script:
     - composer selfupdate && composer install
-    - phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
+    - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
 
 matrix:
     allow_failures:
