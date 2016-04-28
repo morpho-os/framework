@@ -53,12 +53,22 @@ abstract class Theme extends Module {
         $vars = $args['vars'];
 
         $request = $this->serviceManager->get('request');
+
         if ($request->isAjax()) {
             $request->getResponse()
                 ->getHeaders()
                 ->addHeaderLine('Content-Type', 'application/json');
             return encodeJson($vars);
         }
+
+        if (!$this->isThemeDirAdded) {
+            $this->addBaseDirPath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
+            $this->isThemeDirAdded = true;
+        }
+        $this->addBaseDirPath(
+            $this->getParent('ModuleManager')->getModuleFs()->getModuleViewDirPath($request->getModuleName())
+        );
+
         if (isset($args['layout'])) {
             $this->layout = dasherize($args['layout']);
         }
@@ -74,7 +84,7 @@ abstract class Theme extends Module {
     /**
      * @Listen beforeDispatch 100
      * @param $event
-     */
+     * /
     public function beforeDispatch(array $event) {
         //$this->autoDecodeRequestJson();
         /*
@@ -84,19 +94,8 @@ abstract class Theme extends Module {
             $data = Json::decode($request->getContent());
             $request->replace((array) $data);
         }
-        */
-        if (!$this->isThemeDirAdded) {
-            $this->addBaseDirPath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
-            $this->isThemeDirAdded = true;
-        }
-
-        $request = $event[1]['request'];
-        $moduleName = $request->getModuleName();
-        $module = $this->getParent('ModuleManager')->getChild($moduleName);
-        $this->addBaseDirPath(
-            $module->getClassDirPath() . '/' . VIEW_DIR_NAME
-        );
     }
+    */
 
     /**
      * @Listen afterDispatch 100

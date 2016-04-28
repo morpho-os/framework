@@ -203,8 +203,11 @@ class Directory extends Entry {
      *
      * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
      */
-    public static function delete(string $dirPath, bool $deleteSelf = true)/*: void */ {
+    public static function delete(string $dirPath, bool $deleteSelf = true, bool $ignoreVcsFiles = false)/*: void */ {
         self::ensureExists($dirPath);
+        if ($ignoreVcsFiles && $deleteSelf) {
+            throw new \LogicException("The both arguments can't be equal to true");
+        }
         $absFilePath = realpath($dirPath);
         if (!$absFilePath) {
             throw new Exception("The directory '$dirPath' could not be found.");
@@ -220,6 +223,9 @@ class Directory extends Entry {
         // Loop over contents.
         while (($fileName = $d->read()) !== false) {
             if ($fileName == '.' || $fileName == '..') {
+                continue;
+            }
+            if ($ignoreVcsFiles && in_array($fileName, ['.git', '.gitmodules', '.gitignore'])) {
                 continue;
             }
             $filePath = $absFilePath . '/' . $fileName;

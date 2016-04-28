@@ -24,7 +24,6 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         if (null === $this->name) {
             throw new EmptyPropertyException($this, 'name');
         }
-
         return $this->name;
     }
 
@@ -32,7 +31,6 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         if (null === $this->type) {
             throw new EmptyPropertyException($this, 'type');
         }
-
         return $this->type;
     }
 
@@ -40,11 +38,8 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         if (!$node->getName()) {
             throw new \RuntimeException("The node must have name.");
         }
-
         $node->setParent($this);
-
         $this->children[$node->getName()] = $node;
-
         return $node;
     }
 
@@ -177,6 +172,9 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return count($this->children);
     }
 
+    /**
+     * @throws ObjectNotFoundException If unable to load the child.
+     */
     protected function loadChild(string $name): Node {
         $class = $this->childNameToClass($name);
         if (!$class) {

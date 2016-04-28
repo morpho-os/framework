@@ -5,7 +5,7 @@ abstract class Entry {
     /**
      * @return int
      */
-    public static function mode($path) {
+    public static function mode(string $path) {
         // @TODO: Handle errors.
         return octdec(substr(sprintf('%o', fileperms($path)), -4));
     }

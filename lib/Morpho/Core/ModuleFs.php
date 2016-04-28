@@ -50,6 +50,10 @@ $this->useCache = $useCache;
     public function getModuleControllerDirPath(string $moduleName): string {
         return $this->getModuleDirPath($moduleName) . '/' . CONTROLLER_DIR_NAME;
     }
+    
+    public function getModuleViewDirPath(string $moduleName): string {
+        return $this->getModuleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
+    }
 
     public function getBaseModuleDirPath(): string {
         return $this->baseModuleDirPath;
@@ -97,9 +101,9 @@ $this->useCache = $useCache;
     /**
      * Registers the module, so that its classes will be automatically loaded.
      */
-    protected function registerModuleAutoloader(string $moduleName)/*: void */ {
+    protected function registerModuleAutoloader(string $moduleName): bool {
         if (isset($this->registeredModules[$moduleName])) {
-            return;
+            return false;
         }
         $moduleDirPath = $this->getModuleDirPath($moduleName);
         //$autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
@@ -129,6 +133,8 @@ $this->useCache = $useCache;
         // @TODO: Generate and add class map for the view/
 
         $this->registeredModules[$moduleName] = true;
+        
+        return true;
     }
 
     protected function initModuleCache() {

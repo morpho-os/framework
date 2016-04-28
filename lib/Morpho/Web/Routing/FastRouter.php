@@ -45,8 +45,7 @@ class FastRouter extends Router {
         foreach ($this->getRoutesMeta() as $routeMeta) {
             $routeMeta['uri'] = preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
                 $var = array_pop($matches);
-                // @TODO: Add support for other patterns, beside numbers.
-                return '{' . str_replace('$', '', $var) . ':[0-9]+}';
+                return '{' . str_replace('$', '', $var) . ':[^/]+}';
             }, $routeMeta['uri']);
             $handler = [
                 'module'     => $routeMeta['module'],

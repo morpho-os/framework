@@ -21,12 +21,30 @@ class ModuleManagerTest extends DbTestCase {
         $schemaManager->createTables(\Morpho\System\Module::getTableDefinitions());
     }
 
-    public function testGetChild_ForModuleWithoutModuleClass() {
-        $moduleManager = $this->createModuleManager();
-        $moduleName = 'galaxy/earth';
+    public function testGetChild_ModuleWithoutModuleClass() {
+        $moduleName = 'morpho-test/saturn';
+        $moduleNs = __CLASS__ . '\\Saturn';
+        $moduleFs = $this->createModuleFs([$moduleName]);
+        $moduleFs->expects($this->once())
+            ->method('getModuleNamespace')
+            ->with($this->equalTo($moduleName))
+            ->will($this->returnValue($moduleNs));
+        $moduleFs->expects($this->once())
+            ->method('doesModuleExist')
+            ->with($this->equalTo($moduleName))
+            ->will($this->returnValue(true));
+        $moduleManager = $this->createModuleManager(null, $moduleFs);
         $module = $moduleManager->getChild($moduleName);
         $this->assertEquals(Module::class, get_class($module));
         $this->assertEquals($moduleName, $module->getName());
+        $this->assertEquals($moduleNs, $module->getModuleNamespace());
+    }
+
+    public function testGetChild_ThrowsExceptionForNonExistingModule() {
+        $moduleName = 'some/non-existing';
+        $moduleManager = $this->createModuleManager();
+        $this->setExpectedException('\\Morpho\\Base\\ObjectNotFoundException', "Unable to load a child node with the name '$moduleName'");
+        $moduleManager->getChild($moduleName);
     }
 
     public function testListUninstalledModules_CanUseComposerNamingStyle() {
@@ -240,7 +258,7 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     private function createModuleFs(array $modules) {
-        $mock = $this->createMock(ModuleFs::class);
+        $mock = $this->createMock(\Morpho\Core\ModuleFs::class);
         $mock->expects($this->any())
             ->method('getModuleNames')
             ->will($this->returnValue(new \ArrayIterator($modules)));

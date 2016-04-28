@@ -146,7 +146,7 @@ class File extends Entry {
     /**
      * Has the same effect as truncate but should be used in different situation/context.
      */
-    public static function createEmpty(string $filePath) {
+    public static function createEmpty(string $filePath)/*: void */ {
         Directory::create(dirname($filePath));
         self::truncate($filePath);
     }
@@ -154,7 +154,7 @@ class File extends Entry {
     /**
      * Truncates the file to zero length.
      */
-    public static function truncate(string $filePath) {
+    public static function truncate(string $filePath)/*: void */ {
         $handle = @fopen($filePath, 'w');
         if (false === $handle) {
             throw new Exception("Unable to open the file '$filePath' for writing.");
@@ -165,13 +165,13 @@ class File extends Entry {
     /**
      * Deletes the file.
      */
-    public static function delete(string $filePath) {
+    public static function delete(string $filePath)/*: void */ {
         if (!@unlink($filePath)) {
             throw new FileNotFoundException($filePath);
         }
     }
     
-    public static function deleteIfExists(string $filePath) {
+    public static function deleteIfExists(string $filePath)/*: void */ {
         if (is_file($filePath)) {
             self::delete($filePath);
         }

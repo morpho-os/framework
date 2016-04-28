@@ -5,6 +5,8 @@ use Morpho\Base\Converter;
 use Morpho\Base\Environment as BaseEnvironment;
 
 class Environment extends BaseEnvironment {
+    protected $startSession = false;
+
     public static function httpProtocolVersion(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
             $protocol = $_SERVER['SERVER_PROTOCOL'];

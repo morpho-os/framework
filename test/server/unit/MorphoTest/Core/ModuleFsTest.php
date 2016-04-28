@@ -6,7 +6,16 @@ use Morpho\Test\TestCase;
 
 class ModuleFsTest extends TestCase {
     public function setUp() {
+        parent::setUp();
         $this->vendorName = 'morpho-test';
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        $cacheFilePath = $this->tmpDirPath() . '/' . ModuleFs::CACHE_FILE_NAME;
+        if (is_file($cacheFilePath)) {
+            unlink($cacheFilePath);
+        }
     }
 
     public function testBaseModuleDirPathAccessors() {
@@ -19,30 +28,22 @@ class ModuleFsTest extends TestCase {
         $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $moduleNames = $moduleFs->getModuleNames();
-        $this->assertCount(2, $moduleNames);
+        $this->assertCount(3, $moduleNames);
         $this->assertContains("{$this->vendorName}/earth", $moduleNames);
         $this->assertContains("{$this->vendorName}/saturn", $moduleNames);
+        $this->assertContains("{$this->vendorName}/mars", $moduleNames);
     }
 
-    public function testGetModuleClass_ReturnsNullWhenClassDoesNotExist() {
+    public function testGetModuleClass_ReturnsFalseWhenClassDoesNotExist() {
         $moduleFs = $this->createModuleFs($this->getTestDirPath());
         $this->assertNull($moduleFs->getModuleClass("{$this->vendorName}/saturn"));
     }
-/*
-    public function testGetModuleClass_ThrowsExceptionWhenModuleDoesNotExist() {
-        $moduleFs = $this->createModuleFs($this->getTestDirPath());
-        $moduleName = "{$this->vendorName}/non-existing";
-        $this->setExpectedException('\RuntimeException', "The module '$moduleName' does not exist");
-        $moduleFs->getModuleClass($moduleName);
-    }
 
-    public function testGetModuleDirPath_ThrowsExceptionWhenModuleDoesNotExist() {
+    public function testGetModuleClass_ReturnsClassWhenClassExists() {
         $moduleFs = $this->createModuleFs($this->getTestDirPath());
-        $moduleName = "{$this->vendorName}/non-existing";
-        $this->setExpectedException('\RuntimeException', "The module '$moduleName' does not exist");
-        $moduleFs->getModuleDirPath($moduleName);
+        $this->assertEquals('MorphoTest\\Core\\ModuleFsTest\\Mars\\Module', $moduleFs->getModuleClass("{$this->vendorName}/mars"));
     }
-*/
+    
     public function testGetModuleDirPath() {
         $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
@@ -78,7 +79,7 @@ class ModuleFs extends BaseModuleFs {
         return $this->baseCacheDirPath;
     }
 
-    public function registerModuleAutoloader(string $moduleName) {
-
+    public function registerModuleAutoloader(string $moduleName): bool {
+        return false;
     }
 }

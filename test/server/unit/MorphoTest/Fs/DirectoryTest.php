@@ -31,6 +31,10 @@ class DirectoryTest extends TestCase {
         $tmpDirPath = Directory::tmpDirPath();
         $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
     }
+    
+    public function testDelete() {
+        $this->markTestIncomplete();
+    }
 
     public function testCreate_CantCreateEmptyDir() {
         $this->setExpectedException('\Morpho\Fs\Exception', "The directory path is empty.");

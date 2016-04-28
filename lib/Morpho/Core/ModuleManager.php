@@ -3,8 +3,10 @@
 namespace Morpho\Core;
 
 use Morpho\Base\IEventManager;
+use Morpho\Base\ObjectNotFoundException;
 use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Db\Sql\Db;
+use Morpho\Base\Node as BaseNode;
 
 abstract class ModuleManager extends Node implements IEventManager {
     const ENABLED     = 0b001;  // (installed enabled)
@@ -276,7 +278,21 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected function childNameToClass(string $moduleName) {
         $class = $this->moduleFs->getModuleClass($moduleName);
-        return $class ?: Module::class;
+        return $class ?: false;
+    }
+
+    protected function loadChild(string $name): BaseNode {
+        if (!$this->moduleFs->doesModuleExist($name)) {
+            throw new ObjectNotFoundException("Unable to load a child node with the name '$name'");
+        }
+        $class = $this->childNameToClass($name);
+        if (!$class) {
+            $module = new Module();
+            $module->setModuleNamespace($this->moduleFs->getModuleNamespace($name));
+        }  else {
+            $module = new $class();
+        }
+        return $module->setName($name);
     }
 
     protected function initEventHandlers()/*: void */ {

@@ -5,12 +5,8 @@ abstract class Environment extends Object {
     const ENCODING = 'UTF-8';
     const TIMEZONE = 'UTC';
 
-    protected $isCliEnv = false;
-
-    protected $startSession = false;
-
     protected static $initialized = false;
-    
+
     public static function isXdebugEnabled(): bool {
         return self::getBoolIni('xdebug.default_enable');
     }
@@ -42,7 +38,7 @@ abstract class Environment extends Object {
         // @TODO: can we use just (bool) ini_get()?
         return self::iniToBool(ini_get($name));
     }
-    
+
     /**
      * Converts any value that can be used in the ini configs to the bool value.
      */

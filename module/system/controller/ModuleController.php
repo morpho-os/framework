@@ -116,24 +116,6 @@ class ModuleController extends Controller {
         return $this->redirectToUri('/system/module/list');
     }
 
-    /**
-     * @Title Rebuild routes
-     */
-    public function rebuildRoutesAction() {
-        $this->serviceManager->get('router')->rebuildRoutes();
-        $this->addSuccessMessage("Routes were rebuilt successfully.");
-        return $this->redirectToUri('/');
-    }
-
-    /**
-     * @Title Rebuild events
-     */
-    public function rebuildEventsAction() {
-        $this->serviceManager->get('moduleManager')->rebuildEvents();
-        $this->addSuccessMessage("Events were rebuilt successfully.");
-        return $this->redirectToUri('/');
-    }
-
     // --------------------------------------------------------------------------------
 
     public function moduleDirHierarchy(): array {
