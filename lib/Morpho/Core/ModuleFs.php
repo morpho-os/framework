@@ -73,7 +73,6 @@ $this->useCache = $useCache;
      * @return string|null Returns null when module does not have the class, return string otherwise.
      */
     public function getModuleClass(string $moduleName) {
-        $this->registerModuleAutoloader($moduleName);
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['class'];
     }
@@ -87,7 +86,6 @@ $this->useCache = $useCache;
     }
 
     public function getModuleControllerFilePaths(string $moduleName): array {
-        // @TODO: Add caching?
         $dirPath = $this->getModuleControllerDirPath($moduleName);
         if (!is_dir($dirPath)) {
             return [];
@@ -101,7 +99,7 @@ $this->useCache = $useCache;
     /**
      * Registers the module, so that its classes will be automatically loaded.
      */
-    protected function registerModuleAutoloader(string $moduleName): bool {
+    public function registerModuleAutoloader(string $moduleName): bool {
         if (isset($this->registeredModules[$moduleName])) {
             return false;
         }

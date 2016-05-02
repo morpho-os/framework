@@ -1,8 +1,6 @@
 <?php
 namespace Morpho\Test;
 
-use Morpho\Cli\Environment as CliEnvironment;
-use Morpho\Web\Environment as WebEnvironment;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 
@@ -44,6 +42,14 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
             ->disableArgumentCloning()
             //->disallowMockingUnknownTypes()
             ->getMock();
+    }
+
+    protected function assertSetsEqual(array $expected, array $actual) {
+        $this->assertCount(count($expected), $actual);
+        foreach ($expected as $expect) {
+            // @TODO: Better implementation, not O(n^2)?
+            $this->assertContains($expect, $actual);
+        }
     }
 
     /*

@@ -43,8 +43,7 @@ class HtmlSemiParser extends BaseFilter {
 
         // Generate unique hash.
         static $num = 0;
-        $uniq = md5(microtime() . ' ' . ++$num . ' ' . getmypid());
-        $this->replaceHash = $uniq;
+        $this->replaceHash = md5(microtime() . ' ' . ++$num . ' ' . getmypid());
     }
 
     /**
@@ -140,7 +139,7 @@ class HtmlSemiParser extends BaseFilter {
         $this->spIgnored = [];
         if ($this->skipIgnoredTags && $this->ignoredTags) {
             $reIgnoredNames = join("|", $this->ignoredTags);
-            $reIgnored = "{(<($reIgnoredNames) (?> \s+ $reTagIn)? >) (.*?) (</\\2>)}six";
+            $reIgnored = "{(<($reIgnoredNames) (?> \\s+ $reTagIn)? >) (.*?) (</\\2>)}six";
             // Note that we MUST increase backtrack_limit, else error
             // PREG_BACKTRACK_LIMIT_ERROR will be generated on large SELECTs
             // (see preg_last_error() in PHP5).
@@ -167,10 +166,10 @@ class HtmlSemiParser extends BaseFilter {
         $infos = [];
         // (? >...) [without space] is much faster than (?:...) in this case.
         if ($this->tagHandlers) {
-            $infos["tagHandlers"] = "/( <($reTagNames) (?> (\s+ $reTagIn) )? > () )/isx";
+            $infos["tagHandlers"] = "/( <($reTagNames) (?> (\\s+ $reTagIn) )? > () )/isx";
         }
         if ($this->containerHandlers) {
-            $infos["containerHandlers"] = "/(<($reConNames)(?>(\s+$reTagIn))?>(.*?)(?:<\\/\\2\\s*>|\$))/is";
+            $infos["containerHandlers"] = "/(<($reConNames)(?>(\\s+$reTagIn))?>(.*?)(?:<\\/\\2\\s*>|\$))/is";
         }
         foreach ($infos as $src => $re) {
             // Split buffer into tags.

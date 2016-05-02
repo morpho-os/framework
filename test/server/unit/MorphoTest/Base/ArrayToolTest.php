@@ -5,6 +5,38 @@ use Morpho\Test\TestCase;
 use Morpho\Base\ArrayTool;
 
 class ArrayToolTest extends TestCase {
+    public function dataForSetsEqual() {
+        return [
+            [
+                [],
+                [],
+                true,
+            ],
+            [
+                [],
+                [0],
+                false,
+            ],
+            [
+                ['a', 'b', 'c'],
+                [97, 98, 99],
+                false,
+            ],
+            [
+                ['1'],
+                [1],
+                true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForSetsEqual
+     */
+    public function testSetsEqual($a, $b, $expected) {
+        $this->assertEquals($expected, ArrayTool::setsEqual($a, $b));
+    }
+    
     public function testUnset_Cases() {
         $this->assertEquals([], ArrayTool::unset([], 'some'));
         $this->assertEquals([], ArrayTool::unset([], null));

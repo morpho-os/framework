@@ -59,7 +59,7 @@ class Request extends BaseRequest {
         return $this->{'get' . $this->getMethod()}($name, $trim);
     }
 
-    public function data(array $source, $name, bool $trim = true) {
+    public function data(array $source, $name = null, bool $trim = true) {
         // @TODO: Optimize this method for memory usage.
         if (null === $name) {
             return $trim ? trimMore($source) : $source;

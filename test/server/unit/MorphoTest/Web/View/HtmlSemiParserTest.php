@@ -9,6 +9,21 @@ class HtmlSemiParserTest extends TestCase {
         $this->parser = new HtmlSemiParser();
     }
 
+    public function testStringWithPhpInFormTag() {
+        $this->markTestIncomplete();
+        /*
+        $called = null;
+        $handler = function ($tag) use (&$called) {
+            d($tag);
+        };
+        $this->parser->attachTagHandler('form', $handler);
+        $html = '<form method="post"<?= isset($provider) ? \'\' : \'\' ?>></form>';
+        $filtered = $this->parser->filter($html);
+        $this->assertTrue($called);
+        $this->assertEquals('!!!!', $filtered);
+        */
+    }
+
     public function testCallsTagHandler() {
         $handler = $this->parser->attachHandlersFrom(new MyTagHandler());
         $html = <<<HTML

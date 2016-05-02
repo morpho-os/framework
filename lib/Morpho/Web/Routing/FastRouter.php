@@ -18,11 +18,9 @@ class FastRouter extends Router {
         }
 
         $cacheFilePath = $this->getCacheFilePath();
-        /*
         if (!file_exists($cacheFilePath)) {
-        */
             $this->rebuildRoutes();
-        //}
+        }
         $dispatchData = require $cacheFilePath;
         $dispatcher = new GroupCountBasedDispatcher($dispatchData);
 

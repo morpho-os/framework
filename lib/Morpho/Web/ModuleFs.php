@@ -21,7 +21,7 @@ class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
         return $this->getModuleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
     }
 
-    protected function registerModuleAutoloader(string $moduleName): bool {
+    public function registerModuleAutoloader(string $moduleName): bool {
         if (parent::registerModuleAutoloader($moduleName) === false) {
             return false;
         }

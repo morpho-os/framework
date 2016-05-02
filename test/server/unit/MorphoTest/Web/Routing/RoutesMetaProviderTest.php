@@ -64,7 +64,6 @@ class RoutesMetaProviderTest extends TestCase {
                 'module' => 'foo-mod',
                 'controller' => 'bar-ctrl',
                 'action' => $action,
-                'filePath' => __FILE__,
                 'class' => __CLASS__,
             ],
         ]);
@@ -78,7 +77,6 @@ class RoutesMetaProviderTest extends TestCase {
                     'module' => 'foo-mod',
                     'controller' => 'bar-ctrl',
                     'action' => $action,
-                    'filePath' => __FILE__,
                     'title' => null,
                     'class' => __CLASS__,
                 ]
@@ -99,7 +97,6 @@ class RoutesMetaProviderTest extends TestCase {
                 'controller' => $controller,
                 'action' => $action,
                 'docComment' => "/** @POST|PATCH $relUriPath */",
-                'filePath' => __FILE__,
                 'class' => __CLASS__,
             ],
         ]);
@@ -113,7 +110,6 @@ class RoutesMetaProviderTest extends TestCase {
                     'module' => $module,
                     'controller' => $controller,
                     'action' => $action,
-                    'filePath' => __FILE__,
                     'title' => null,
                     'class' => __CLASS__,
                 ],
@@ -123,7 +119,6 @@ class RoutesMetaProviderTest extends TestCase {
                     'module' => $module,
                     'controller' => $controller,
                     'action' => $action,
-                    'filePath' => __FILE__,
                     'title' => null,
                     'class' => __CLASS__,
                 ],

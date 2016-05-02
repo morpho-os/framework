@@ -15,6 +15,14 @@ class ArrayTool {
         throw new NotImplementedException();
     }
 
+    /**
+     * Compares sets not strictly. Each element of each array must be scalar.
+     * @return bool
+     */
+    public static function setsEqual(array $a, array $b): bool {
+        return count($a) === count($b) && count(array_diff($a, $b)) === 0;
+    }
+
     public static function itemsWithKeys(array $arr, array $keys): array {
         return array_intersect_key($arr, array_flip(array_values($keys)));
     }

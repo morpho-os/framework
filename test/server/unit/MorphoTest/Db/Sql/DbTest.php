@@ -13,6 +13,10 @@ class DbTest extends DbTestCase {
         $this->schemaManager = new SchemaManager($this->db);
         $this->schemaManager->deleteAllTables();
     }
+    
+    public function testInsertRows() {
+        $this->markTestIncomplete();
+    }
 
     public function testLastInsertId_ForNonAutoincrementCol() {
         $this->schemaManager->createTable('foo', [

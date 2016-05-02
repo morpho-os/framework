@@ -55,13 +55,13 @@ abstract class ModuleManager extends Node implements IEventManager {
             try {
                 $request->isDispatched(true);
 
+                $this->trigger('beforeDispatch', ['request' => $request]);
+
                 list($moduleName, $controllerName, $actionName) = $request->getHandler();
 
                 if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
                     $this->actionNotFound($moduleName, $controllerName, $actionName);
                 }
-
-                $this->trigger('beforeDispatch', ['request' => $request]);
 
                 $module = $this->getChild($moduleName);
                 $controller = $module->getChild($controllerName);
@@ -277,22 +277,24 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     protected function childNameToClass(string $moduleName) {
-        $class = $this->moduleFs->getModuleClass($moduleName);
+        $moduleFs = $this->moduleFs;
+        $moduleFs->registerModuleAutoloader($moduleName);
+        $class = $moduleFs->getModuleClass($moduleName);
         return $class ?: false;
     }
 
-    protected function loadChild(string $name): BaseNode {
-        if (!$this->moduleFs->doesModuleExist($name)) {
-            throw new ObjectNotFoundException("Unable to load a child node with the name '$name'");
+    protected function loadChild(string $moduleName): BaseNode {
+        if (!$this->moduleFs->doesModuleExist($moduleName)) {
+            throw new ObjectNotFoundException("Unable to load the module '$moduleName'");
         }
-        $class = $this->childNameToClass($name);
+        $class = $this->childNameToClass($moduleName);
         if (!$class) {
             $module = new Module();
-            $module->setModuleNamespace($this->moduleFs->getModuleNamespace($name));
+            $module->setModuleNamespace($this->moduleFs->getModuleNamespace($moduleName));
         }  else {
             $module = new $class();
         }
-        return $module->setName($name);
+        return $module->setName($moduleName);
     }
 
     protected function initEventHandlers()/*: void */ {

@@ -109,9 +109,25 @@ class Db {
 
     public function insertRow(string $tableName, array $row)/*: void*/ {
         $query = $this->query();
-        $sql = "INSERT INTO " . $query->identifier($tableName) . '(';
+        $sql = 'INSERT INTO ' . $query->identifier($tableName) . '(';
         $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->runQuery($sql, array_values($row));
+    }
+    
+    public function insertRows(string $tableName, array $rows, int $rowsInBlock = 100)/*: void */ {
+        // @TODO: Handle $rowsInBlock
+        $args = [];
+        $keys = null;
+        foreach ($rows as $row) {
+            if (null === $keys) {
+                $keys = array_keys($row);
+            }
+            $args = array_merge($args, array_values($row));
+        }
+        $query = $this->query();
+        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($rows)) . ')';
+        $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
+        $this->runQuery($sql, $args);
     }
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {

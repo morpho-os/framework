@@ -142,7 +142,7 @@ class Controller extends BaseController {
         return $this->request->getArgs($name, $trim);
     }
 
-    protected function data(array $source, $name, bool $trim = true) {
+    protected function data(array $source, $name = null, bool $trim = true) {
         return $this->request->data($source, $name, $trim);
     }
 

@@ -1,37 +1,41 @@
 <?php
 namespace Morpho\Web\Routing;
 
-use function Morpho\Base\{last, dasherize};
+use function Morpho\Base\{
+    endsWith, last
+};
+use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
-use PhpParser\NodeTraverser;
-use PhpParser\Parser\Php7 as Parser;
-use PhpParser\Lexer;
-use PhpParser;
 
 class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
     protected $moduleManager;
 
     protected $serviceManager;
 
+    protected $baseControllerClasses = [
+        'Morpho\\Core\\Controller',
+        'Morpho\\Web\\Controller',
+    ];
+
+    private $ignoredMethods;
+
     public function setModuleManager($moduleManager) {
         $this->moduleManager = $moduleManager;
     }
 
     public function getIterator() {
-        $parser = new Parser(new Lexer());
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PhpParser\NodeVisitor\NameResolver());
-        $controllerVisitor = new ControllerVisitor();
-        $traverser->addVisitor($controllerVisitor);
         $moduleManager = $this->serviceManager->get('moduleManager');
         $moduleFs = $moduleManager->getModuleFs();
+        $classTypeDiscoverer = new ClassTypeDiscoverer();
         foreach ($moduleManager->listEnabledModules() as $moduleName) {
+            $moduleFs->registerModuleAutoloader($moduleName);
             foreach ($moduleFs->getModuleControllerFilePaths($moduleName) as $controllerFilePath) {
-                $stmts = $parser->parse(file_get_contents($controllerFilePath));
-                $traverser->traverse($stmts);
-                foreach ($controllerVisitor->getActionsMeta() as $actionMeta) {
-                    yield array_merge($actionMeta, ['filePath' => $controllerFilePath, 'module' => $moduleName]);
+                $classTypes = $classTypeDiscoverer->definedClassTypesInFile($controllerFilePath);
+                foreach (array_keys($classTypes) as $classType) {
+                    if (endsWith($classType, CONTROLLER_SUFFIX)) {
+                        yield from $this->collectActionsMeta($classType, $moduleName, $this->classToControllerName($classType));
+                    }
                 }
             }
         }
@@ -40,67 +44,48 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
     public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
-}
 
-class ControllerVisitor extends PhpParser\NodeVisitorAbstract {
-    protected $baseControllerClasses = [
-        'Morpho\\Core\\Controller',
-        'Morpho\\Web\\Controller',
-    ];
-
-    protected $actionsMeta = [];
-
-    private $currentController;
-
-    public function beforeTraverse(array $nodes) {
-        $this->actionsMeta = [];
-        $this->currentController = null;
-    }
-
-    public function enterNode(PhpParser\Node $node) {
-        if ($node instanceof PhpParser\Node\Stmt\Class_) {
-            $isController = !$node->isAbstract()
-                && (!empty($node->extends) && in_array((string)$node->extends, $this->baseControllerClasses, true));
-            if ($isController) {
-                $class = (string)$node->namespacedName;
-                $this->currentController = [
-                    'controller' => $this->classToControllerName($class),
-                    'class'      => $class,
-                ];
+    protected function collectActionsMeta(string $controllerClass, string $moduleName, string $controllerName) {
+        $actionsMeta = [];
+        $rClass = new \ReflectionClass($controllerClass);
+        $ignoredMethods = $this->getIgnoredMethods();
+        foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
+            $method = $rMethod->getName();
+            if (in_array($method, $ignoredMethods)) {
+                continue;
             }
-        } elseif ($this->currentController && $node instanceof PhpParser\Node\Stmt\ClassMethod) {
-            $method = (string)$node->name;
-            $isAction = $node->isPublic() && !$node->isAbstract()
-                && !$node->isStatic() && strtolower(substr($method, -6)) === strtolower(ACTION_SUFFIX);
-            if ($isAction) {
-                $actionMeta = [
-                    'action' => substr($method, 0, -strlen(ACTION_SUFFIX)),
-                ];
-                $docComment = $node->getDocComment();
-                if (null !== $docComment) {
-                    $actionMeta['docComment'] = $docComment->getText();
+            if (endsWith(strtolower($method), strtolower(ACTION_SUFFIX))) {
+                $action = substr($method, 0, -strlen(ACTION_SUFFIX));
+                $actionsMeta[$action] = ['module' => $moduleName, 'controller' => $controllerName, 'action' => $action, 'class' => $controllerClass];
+                $docComment = $rMethod->getDocComment();
+                if ($docComment) {
+                    $actionsMeta[$action]['docComment'] = $docComment;
                 }
-                $this->actionsMeta[] = array_merge($this->currentController, $actionMeta);
             }
         }
+        return array_values($actionsMeta);
     }
 
-    public function leaveNode(PhpParser\Node $node) {
-        if ($node instanceof PhpParser\Node\Stmt\Class_ && $this->currentController) {
-            $this->currentController = null;
-        }
-    }
-
-    public function getActionsMeta() {
-        return $this->actionsMeta;
-    }
-
-    protected function classToControllerName($class) {
+    private function classToControllerName(string $class) {
         $controllerName = last($class, '\\');
         $suffixLength = strlen(CONTROLLER_SUFFIX);
-        if (substr($controllerName, -$suffixLength) !== CONTROLLER_SUFFIX) {
-            throw new \RuntimeException("The controller class '$class' must end with the '" . CONTROLLER_SUFFIX . "' suffix");
-        }
         return substr($controllerName, 0, -$suffixLength);
+    }
+
+    private function getIgnoredMethods() {
+        if (null === $this->ignoredMethods) {
+            $ignoredMethods = [];
+            foreach ($this->baseControllerClasses as $class) {
+                $rClass = new \ReflectionClass($class);
+                foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
+                    $method = $rMethod->getName();
+                    if (endsWith(strtolower($method), strtolower(ACTION_SUFFIX))) {
+                        $ignoredMethods[] = $method;
+                    }
+                }
+            }
+            $this->ignoredMethods = $ignoredMethods;
+        }
+        return $this->ignoredMethods;
     }
 }

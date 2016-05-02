@@ -88,7 +88,6 @@ class RoutesMetaProvider implements \IteratorAggregate {
             'module'     => $actionMeta['module'],
             'controller' => $actionMeta['controller'],
             'action'     => $action,
-            'filePath'   => $actionMeta['filePath'],
             'title'      => $title,
             'class'      => $actionMeta['class'],
         ];

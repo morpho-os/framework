@@ -106,13 +106,41 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
             ] + (array)$attributes
         );
     }
+    
+    public function httpMethodHiddenField(string $method = null, array $attributes = null): string {
+        return $this->hiddenField('_method', $method, $attributes);
+    }
 
-    public function options(array $options, $defaultValue = null): string {
+    /**
+     * @param array|\Traversable $options
+     * @param array|\Traversable|scalar|null $selectedOption
+     */
+    public function options($options, $selectedOption = null): string {
         $html = '';
-        $defaultValue = (string) $defaultValue;
+        if (null === $selectedOption || is_scalar($selectedOption)) {
+            $defaultValue = (string) $selectedOption;
+            foreach ($options as $value => $text) {
+                $value = (string) $value;
+                $selected = $value === $defaultValue ? ' selected' : '';
+                $html .= '<option value="' . $this->escapeHtml($value) . '"' . $selected . '>' . $this->escapeHtml($text) . '</option>';
+            }
+            return $html;
+        }
+        if (!is_array($selectedOption) && !$selectedOption instanceof \Traversable) {
+            throw new \UnexpectedValueException();
+        }
+        $newOptions = [];
         foreach ($options as $value => $text) {
-            $value = (string) $value;
-            $html .= '<option value="' . $this->escapeHtml($value) . '"' . ($value === $defaultValue ? ' selected' : '') . '>' . $this->escapeHtml($text) . '</option>';
+            $newOptions[(string) $value] = $text;
+        }
+        $selectedOptions = [];
+        foreach ($selectedOption as $val) {
+            $val = (string) $val;
+            $selectedOptions[$val] = true;
+        }
+        foreach ($newOptions as $value => $text) {
+            $selected = isset($selectedOptions[$value]) ? ' selected' : '';
+            $html .= '<option value="' . $this->escapeHtml($value) . '"' . $selected . '>' . $this->escapeHtml($text) . '</option>';
         }
         return $html;
     }
