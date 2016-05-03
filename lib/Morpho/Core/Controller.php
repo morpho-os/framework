@@ -21,26 +21,24 @@ abstract class Controller extends Node implements IServiceManagerAware {
         $action = $request->getActionName();
 
         if (empty($action)) {
-            throw new \LogicException();
+            throw new \LogicException("Empty action name");
         }
 
         $this->beforeEach();
 
-        $actionResult = [];
+        $actionResult = null;
         $method = $action . 'Action';
         if (method_exists($this, $method)) {
             $actionResult = $this->$method();
-            if (null === $actionResult) {
-                $actionResult = [];
-            }
         }
 
         $this->afterEach();
 
         if (is_string($actionResult)) {
+            // Already rendered View.
             $this->request->getResponse()
                 ->setContent($actionResult);
-        } elseif ($this->shouldRenderView()) {
+        } elseif ($this->shouldRenderView($actionResult)) {
             $renderedView = $this->renderView(
                 isset($this->specialViewVars['name']) ? $this->specialViewVars['name'] : $action,
                 $actionResult
@@ -117,11 +115,12 @@ abstract class Controller extends Node implements IServiceManagerAware {
         );
     }
 
-    protected function shouldRenderView(): bool {
-        return $this->request->isDispatched();
+    protected function shouldRenderView($actionResult): bool {
+        return (is_array($actionResult) || !$this->request->getResponse()->isRedirect())
+            && $this->request->isDispatched();
     }
 
-    protected function renderView(string $viewName, array $viewVars = []): string {
+    protected function renderView(string $viewName, array $viewVars = null): string {
         return $this->trigger(
             'render',
             array_merge(
@@ -129,7 +128,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
                 [
                     'node' => $this,
                     'name' => $viewName,
-                    'vars' => $viewVars,
+                    'vars' => (array) $viewVars,
                 ]
             )
         );

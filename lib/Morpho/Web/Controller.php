@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web;
 
+use Morpho\Base\NotImplementedException;
 use Morpho\Core\Controller as BaseController;
 
 class Controller extends BaseController {
@@ -26,6 +27,9 @@ class Controller extends BaseController {
     }
 
     protected function redirectToAction(string $action, string $httpMethod = null, string $controller = null, string $module = null, array $params = null) {
+        // @TODO
+        throw new NotImplementedException(__METHOD__);
+        /*
         if (null === $controller) {
             $controller = $this->request->getControllerName();
         }
@@ -40,6 +44,7 @@ class Controller extends BaseController {
                 ->get('router')
                 ->assemble($action, $httpMethod, $controller, $module, $params)
         );
+        */
     }
 
     protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
@@ -47,19 +52,8 @@ class Controller extends BaseController {
         if ($request->hasGet('redirect')) {
             $uri = (new Uri($request->getGet('redirect')))->unsetQueryArg('redirect')->__toString();
         }
-
-        if ($request->isAjax()) {
-            return $this->success(['redirect' => $uri]);
-        }
-
         $response = $request->getResponse();
-
-        $response->redirect(
-            $request->uri()
-                ->prependWithBasePath($uri),
-            true,
-            $httpStatusCode
-        );
+        $response->redirect($request->uri()->prependWithBasePath($uri), $httpStatusCode);
     }
 
     protected function redirectToSelf(string $successMessage = null, $queryArgs = null, string $fragment = null) {

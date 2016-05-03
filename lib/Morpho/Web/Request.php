@@ -28,6 +28,8 @@ class Request extends BaseRequest {
     protected $headers;
 
     protected $method;
+    
+    protected $isAjax;
 
     private $uri;
 
@@ -117,7 +119,13 @@ class Request extends BaseRequest {
         return $this->data($_GET, $name, $trim);
     }
 
-    public function isAjax(): bool {
+    public function isAjax($flag = null): bool {
+        if (null !== $flag) {
+            $this->isAjax = (bool)$flag;
+        }
+        if (null !== $this->isAjax) {
+            return $this->isAjax;
+        }
         $header = $this->getHeaders()->get('X_REQUESTED_WITH');
         return false !== $header && $header->getFieldValue() == 'XMLHttpRequest';
     }

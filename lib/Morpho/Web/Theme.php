@@ -106,9 +106,11 @@ abstract class Theme extends Module {
         if ($request->isDispatched() && false === $this->isLayoutRendered) {
             if (!$request->isAjax()) {
                 $response = $request->getResponse();
-                $response->setContent(
-                    $this->renderFile($this->layout, ['body' => $response->getContent(), 'node' => $this])
-                );
+                if (!$response->isRedirect()) {
+                    $response->setContent(
+                        $this->renderFile($this->layout, ['body' => $response->getContent(), 'node' => $this])
+                    );
+                }
             }
             $this->isLayoutRendered = true;
         }

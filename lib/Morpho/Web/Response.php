@@ -4,13 +4,9 @@ namespace Morpho\Web;
 use Zend\Http\PhpEnvironment\Response as BaseResponse;
 
 class Response extends BaseResponse {
-    public function redirect($uri, $sendAndExit = true, $httpStatusCode = null) {
+    public function redirect($uri, $httpStatusCode = null) {
         $this->getHeaders()->addHeaderLine('Location', $uri);
         $this->setStatusCode($httpStatusCode ?: self::STATUS_CODE_302);
-        if ($sendAndExit) {
-            $this->send();
-            exit();
-        }
     }
 
     public function isSuccessful(): bool {

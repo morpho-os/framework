@@ -9,6 +9,17 @@ class RequestTest extends TestCase {
         $this->request = new Request();
     }
 
+    public function testIsAjax_BoolAccessor() {
+        $this->assertBoolAccessor([$this->request, 'isAjax'], false);
+    }
+
+    public function testIsAjax_ByDefaultReturnsValueFromHeaders() {
+        $this->request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
+        $this->assertTrue($this->request->isAjax());
+        $this->request->getHeaders()->clearHeaders();
+        $this->assertFalse($this->request->isAjax());
+    }
+
     public function testInternalParamAccessors() {
         $this->assertNull($this->request->getInternalParam('foo'));
         $this->assertEquals('default', $this->request->getInternalParam('foo', 'default'));
@@ -31,7 +42,7 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->request->hasGet('some'));
     }
 
-    public function hasPost() {
+    public function testHasPost() {
         $this->assertFalse($this->request->hasPost('some'));
         $_POST['some'] = 'ok';
         $this->assertTrue($this->request->hasPost('some'));

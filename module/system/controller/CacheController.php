@@ -16,7 +16,7 @@ class CacheController extends Controller {
      */
     public function rebuildRoutesAction() {
         $this->serviceManager->get('router')->rebuildRoutes();
-        return $this->redirectToHome("Routes were rebuilt successfully");
+        $this->redirectToHome("Routes were rebuilt successfully");
     }
 
     /**
@@ -24,6 +24,6 @@ class CacheController extends Controller {
      */
     public function rebuildEventsAction() {
         $this->serviceManager->get('moduleManager')->rebuildEvents();
-        return $this->redirectToHome("Events were rebuilt successfully");
+        $this->redirectToHome("Events were rebuilt successfully");
     }
 }

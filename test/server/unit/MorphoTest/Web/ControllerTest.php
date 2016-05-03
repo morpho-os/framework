@@ -5,36 +5,36 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
 use Morpho\Di\ServiceManager;
-use Morpho\Web\SiteManager;
 use Morpho\Web\Uri;
 
 class ControllerTest extends TestCase {
-    public function testRedirectToUri() {
+    public function testDispatch_Redirect() {
         $controller = new MyController();
-        $request = new Request();
+        $basePath = '/some/base/path';
+        $request = $this->createRequest($basePath);
         $uri = new Uri();
-        $uri->setBasePath('/some/base/path');
+        $uri->setBasePath($basePath);
         $request->setUri($uri);
-        $response = $this->createMock('\Morpho\Web\Response');
-        $response->expects($this->once())
-            ->method('redirect')
-            ->with($this->equalTo('/some/base/path/system/module/list'));
-        $request->setResponse($response);
-        $serviceManager = new ServiceManager(null, ['siteManager' => new SiteManager()]);
-        $controller->setServiceManager($serviceManager);
-        $controller->setRequest($request);
+        $request->setActionName('redirectToSomePage');
 
-        $controller->doRedirectToUri();
+        $controller->dispatch($request);
+
+        $this->assertTrue($request->isDispatched());
+        $response = $request->getResponse();
+        $this->assertTrue($response->isRedirect());
+        $this->assertEquals("Location: $basePath/some/page", trim($response->getHeaders()->toString()));
     }
 
     public function testForwardTo() {
         $controller = new MyController();
-        $request = new Request();
+        $request = $this->createRequest();
         $controller->setRequest($request);
         $actionName = 'forward-here';
         $controllerName = 'my-other';
         $moduleName = 'morpho-test';
+        
         $controller->doForwardToAction($actionName, $controllerName, $moduleName, ['p1' => 'v1']);
+        
         $this->assertEquals($actionName, $request->getActionName());
         $this->assertEquals($controllerName, $request->getControllerName());
         $this->assertEquals($moduleName, $request->getModuleName());
@@ -72,6 +72,12 @@ class ControllerTest extends TestCase {
             $controller->redirectArgs
         );
     }
+
+    private function createRequest() {
+        $request = new Request();
+        $request->isDispatched(true);
+        return $request;
+    }
 }
 
 class MyController extends Controller {
@@ -81,6 +87,10 @@ class MyController extends Controller {
 
     public function doForwardToAction($action, $controller, $module, $params) {
         $this->forwardToAction($action, $controller, $module, $params);
+    }
+
+    public function redirectToSomePageAction() {
+        return $this->redirectToUri('/some/page');
     }
 }
 
@@ -94,18 +104,4 @@ class MyOtherController extends Controller {
     protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
         $this->redirectArgs = func_get_args();
     }
-}
-
-namespace MorphoTest\Web\App;
-
-use Morpho\Base\Node;
-
-class MyService extends Node {
-}
-
-namespace MorphoTest\Web\Domain;
-
-use Morpho\Base\Node;
-
-class MyService extends Node {
 }
