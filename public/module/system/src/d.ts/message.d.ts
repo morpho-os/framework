@@ -1,6 +1,6 @@
 /// <reference path="widget.d.ts" />
 
-declare namespace System {
+declare namespace Morpho.System {
     const enum MessageType {
         Error = 1,
         Warning = 2,
@@ -8,7 +8,7 @@ declare namespace System {
         Debug = 8,
         All = 15,
     }
-    class MessageManager extends System.Widget {
+    class MessageManager extends Morpho.System.Widget {
         protected getNumberOfMessages(): number;
         protected getMessageEls(): JQuery;
     }

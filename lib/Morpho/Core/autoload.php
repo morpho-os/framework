@@ -44,3 +44,5 @@ const PLUGIN_SUFFIX = 'Plugin';
 
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
+
+const SYSTEM_MODULE = 'morpho-os/system';

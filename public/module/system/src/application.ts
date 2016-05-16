@@ -1,9 +1,9 @@
 /// <reference path="message"/>
 
-namespace System {
+namespace Morpho.System {
     export class Application {
         public static main() {
-            (<any>window).pageMessenger = new System.PageMessageManager('#page-messages');
+            (<any>window).pageMessenger = new PageMessageManager('#page-messages');
         }
     }
 }

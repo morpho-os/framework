@@ -36,5 +36,5 @@ window.onerror = function () {
 };
 */
 $(function () {
-    System.Application.main();
+    Morpho.System.Application.main();
 });

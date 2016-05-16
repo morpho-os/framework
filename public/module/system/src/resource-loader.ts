@@ -1,4 +1,4 @@
-namespace System {
+namespace Morpho.System {
     class ResourceLoader {
         public static loadStyle(uri: string): void {
 

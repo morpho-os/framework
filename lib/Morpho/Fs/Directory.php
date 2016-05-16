@@ -10,6 +10,8 @@ use DirectoryIterator;
 class Directory extends Entry {
     const FILE = 0x01;
     const DIR = 0x02;
+    
+    const PHP_FILES_REG_EXP = '~.\.php$~si';
 
     public static function move(string $sourceDirPath, string $targetDirPath)/*: void */ {
         self::copy($sourceDirPath, $targetDirPath);

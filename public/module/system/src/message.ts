@@ -1,6 +1,6 @@
 /// <reference path="widget" />
 
-namespace System {
+namespace Morpho.System {
     export const enum MessageType {
         Error = 1,
         Warning = 2,
@@ -9,7 +9,7 @@ namespace System {
         All = Error | Warning | Info | Debug
     }
 
-    export class MessageManager extends System.Widget {
+    export class MessageManager extends Morpho.System.Widget {
         protected getNumberOfMessages(): number {
             return this.getMessageEls().length;
         }

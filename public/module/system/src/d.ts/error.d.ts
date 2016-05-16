@@ -1,4 +1,4 @@
-declare namespace System {
+declare namespace Morpho.System {
     class Exception extends Error {
         message: string;
         constructor(message: string);

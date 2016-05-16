@@ -10,7 +10,7 @@
  * Element = JQuery object
  * FormError is common Error for 
  */
-namespace System {
+namespace Morpho.System {
     export class Form extends Widget {
         private _wasValidated = false;
         private _isValid: boolean = null;

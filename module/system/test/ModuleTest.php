@@ -94,7 +94,7 @@ class ModuleTest extends DbTestCase {
                 $this->value = $value;
             }
 
-            public function get($name, $moduleName) {
+            public function get(string $name, $moduleName) {
                 if ($name === SystemModule::ACCESS_DENIED_ERROR_HANDLER && $moduleName === SystemModule::NAME) {
                     return $this->value;
                 }

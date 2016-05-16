@@ -9,7 +9,7 @@ use function Morpho\Base\{
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
 
-abstract class Theme extends Module {
+class Theme extends Module {
     protected $suffix = '.phtml';
 
     protected $layout = 'index';
@@ -21,6 +21,14 @@ abstract class Theme extends Module {
     private $isLayoutRendered = false;
 
     private $isThemeDirAdded = false;
+    
+    public function getViewFileSuffix() {
+        return $this->suffix;
+    }
+    
+    public function setViewFileSuffix(string $suffix) {
+        $this->suffix = $suffix;
+    }
 
     public function setTemplateEngine($templateEngine) {
         $this->templateEngine = $templateEngine;
@@ -55,14 +63,13 @@ abstract class Theme extends Module {
         $request = $this->serviceManager->get('request');
 
         if ($request->isAjax()) {
-            $request->getResponse()
-                ->getHeaders()
-                ->addHeaderLine('Content-Type', 'application/json');
             return encodeJson($vars);
         }
 
         if (!$this->isThemeDirAdded) {
-            $this->addBaseDirPath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
+            if (get_class($this) !== __CLASS__) {
+                $this->addBaseDirPath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
+            }
             $this->isThemeDirAdded = true;
         }
         $this->addBaseDirPath(
@@ -73,9 +80,9 @@ abstract class Theme extends Module {
             $this->layout = dasherize($args['layout']);
         }
         $vars['node'] = $args['node'];
-        $filePath = dasherize($vars['node']->getName()) . '/' . dasherize($args['name']);
+        $relFilePath = dasherize($vars['node']->getName()) . '/' . dasherize($args['name']);
         return $this->renderFile(
-            $filePath,
+            $relFilePath,
             $vars,
             isset($args['instanceVars']) ? $args['instanceVars'] : null
         );
@@ -104,8 +111,20 @@ abstract class Theme extends Module {
     public function afterDispatch(array $event) {
         $request = $event[1]['request'];
         if ($request->isDispatched() && false === $this->isLayoutRendered) {
-            if (!$request->isAjax()) {
-                $response = $request->getResponse();
+            $response = $request->getResponse();
+            if ($request->isAjax()) {
+                $response->getHeaders()
+                    ->addHeaderLine('Content-Type', 'application/json');
+                if ($response->isRedirect()) {
+                    if ($response->isContentEmpty()) {
+                        $locationHeader = $response->getHeaders()->get('Location');
+                        $notEncodedContent = ['success' => ['redirect' => $locationHeader->getUri()]];
+                        $response->setContent(encodeJson($notEncodedContent))
+                            ->setStatusCode(Response::STATUS_CODE_200)
+                            ->getHeaders()->removeHeader($locationHeader);
+                    }
+                }
+            } else {
                 if (!$response->isRedirect()) {
                     $response->setContent(
                         $this->renderFile($this->layout, ['body' => $response->getContent(), 'node' => $this])
@@ -120,6 +139,14 @@ abstract class Theme extends Module {
         if (false === array_search($dirPath, $this->baseDirPaths, true)) {
             array_unshift($this->baseDirPaths, $dirPath);
         }
+    }
+    
+    public function getBaseDirPaths(): array {
+        return $this->baseDirPaths;
+    }
+    
+    public function clearBaseDirPaths() {
+        $this->baseDirPaths = [];
     }
 
     /**
@@ -151,11 +178,11 @@ abstract class Theme extends Module {
         ]);
     }
 
-    protected function renderFile(string $filePath, array $vars, array $instanceVars = null): string {
+    protected function renderFile(string $relFilePath, array $vars, array $instanceVars = null): string {
         $templateEngine = $this->getTemplateEngine();
         if (null !== $instanceVars) {
             $templateEngine->mergeVars($instanceVars);
         }
-        return $templateEngine->renderFile($this->getAbsoluteFilePath($filePath), $vars);
+        return $templateEngine->renderFile($this->getAbsoluteFilePath($relFilePath), $vars);
     }
 }

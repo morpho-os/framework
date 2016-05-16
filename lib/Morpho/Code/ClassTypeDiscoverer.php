@@ -14,8 +14,6 @@ use PhpParser\Lexer;
 class ClassTypeDiscoverer {
     private $discoverStrategy;
 
-    const PHP_FILES_REG_EXP = '~\.php$~si';
-    
     public static function definedClassTypes(): array {
         return array_merge(
             self::definedClasses(),
@@ -32,10 +30,7 @@ class ClassTypeDiscoverer {
     }
 
     public function definedClassTypesInDir($dirPaths, string $regExp = null, array $options = []): array {
-        if (!$regExp) {
-            $regExp = self::PHP_FILES_REG_EXP;
-        }
-        $filePaths = Directory::listFiles($dirPaths, $regExp, $options);
+        $filePaths = Directory::listFiles($dirPaths, $regExp ?: Directory::PHP_FILES_REG_EXP, $options);
         $map = [];
         $discoverStrategy = $this->getDiscoverStrategy();
         foreach ($filePaths as $filePath) {

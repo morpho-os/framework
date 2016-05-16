@@ -8,14 +8,14 @@ use Morpho\Web\Request;
 
 class RoutesMetaProvider implements \IteratorAggregate {
     protected $restActions = [
-        'index'  => ['GET', null],       // GET    /$module/$entityType
-        'list'   => ['GET', 'list'],     // GET    /$module/$entityType/list
-        'new'    => ['GET', 'new'],      // GET    /$module/$entityType/new
-        'create' => ['POST', null],      // POST   /$module/$entityType
-        'show'   => ['GET', '$id'],      // GET    /$module/$entityType/$entityId
-        'edit'   => ['GET', '$id/edit'], // GET    /$module/$entityType/$entityId/edit
-        'update' => ['PATCH', '$id'],    // PATCH  /$module/$entityType/$entityId
-        'delete' => ['DELETE', '$id'],   // DELETE /$module/$entityType/$entityId
+        'index'  => ['GET', null],       // GET    $entityType
+        'list'   => ['GET', 'list'],     // GET    $entityType/list
+        'new'    => ['GET', 'new'],      // GET    $entityType/new
+        'create' => ['POST', null],      // POST   $entityType
+        'show'   => ['GET', '$id'],      // GET    $entityType/$entityId
+        'edit'   => ['GET', '$id/edit'], // GET    $entityType/$entityId/edit
+        'update' => ['PATCH', '$id'],    // PATCH  $entityType/$entityId
+        'delete' => ['DELETE', '$id'],   // DELETE $entityType/$entityId
     ];
 
     protected $actionsMetaProvider;

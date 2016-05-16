@@ -2,7 +2,7 @@
 /// <reference path="jquery-ext.d.ts" />
 /// <reference path="widget.d.ts" />
 
-declare namespace System {
+declare namespace Morpho.System {
     class CommonRegExp {
         static EMAIL: RegExp;
     }

@@ -2,7 +2,8 @@
 namespace Morpho\Code\Compiler;
 
 class Interpreter {
-    public function run($program, $data = null) {
+    public function evaluate($program, $env = null) {
+        
     }
     /*
     public function interactiveMode() {

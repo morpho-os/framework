@@ -35,4 +35,8 @@ abstract class Query {
     public static function positionalPlaceholders(array $row): array {
         return array_fill(0, count($row), '?');
     }
+    
+    public static function positionalPlaceholdersString(array $row): string {
+        return implode(', ', self::positionalPlaceholders($row));
+    }
 }

@@ -1,7 +1,7 @@
 /// <reference path="../../../../public/module/system/src/d.ts/all.d.ts" />
 
-namespace System.Install {
-    import Form = System.Form;
+namespace Moprho.System.Install {
+    import Form = Morpho.System.Form;
     export class InstallForm extends Form {
         protected init(): void {
             this.getDbNameEl().focus();
@@ -34,7 +34,7 @@ namespace System.Install {
             if (!(<any>responseData).redirect) {
                 alert('Invalid response was received');
             } else {
-                System.redirectToHome();
+                Morpho.System.redirectToHome();
             }
         }
 

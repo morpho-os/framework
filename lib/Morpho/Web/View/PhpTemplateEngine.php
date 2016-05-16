@@ -11,6 +11,8 @@ use Morpho\Web\Uri;
 
 class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected $serviceManager;
+    
+    protected $tagRenderer;
 
     private $uri;
 
@@ -24,6 +26,13 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
             $this->plugins[$name] = $this->createPlugin($name);
         }
         return $this->plugins[$name];
+    }
+    
+    public function tag() {
+        if (null === $this->tagRenderer) {
+            $this->tagRenderer = new TagRenderer();
+        }
+        return $this->tagRenderer;
     }
 
     public static function formatFloat($val) {

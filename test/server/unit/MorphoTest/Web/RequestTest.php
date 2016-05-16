@@ -9,6 +9,11 @@ class RequestTest extends TestCase {
         $this->request = new Request();
     }
 
+    public function testGetResponse_ReturnsTheSameInstance() {
+        $response = $this->request->getResponse();
+        $this->assertSame($response, $this->request->getResponse());
+    }
+
     public function testIsAjax_BoolAccessor() {
         $this->assertBoolAccessor([$this->request, 'isAjax'], false);
     }
@@ -124,7 +129,7 @@ class RequestTest extends TestCase {
         $this->assertEquals(['one' => 1], $_GET['foo']);
     }
 
-    public function testGetReturnsNullWhenNotSet() {
+    public function testGetGet_ReturnsNullWhenNotSet() {
         $this->assertNull($this->request->getGet('foo', true));
         $this->assertNull($this->request->getGet('foo', false));
     }

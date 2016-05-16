@@ -17,7 +17,7 @@ class FallbackRouter {
                 $action = $parts[0];
             }
         }
-        $request->setModuleName('morpho-os/system')
+        $request->setModuleName(SYSTEM_MODULE)
             ->setControllerName('Install')
             ->setActionName($action);
     }

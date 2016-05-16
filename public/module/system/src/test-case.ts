@@ -1,7 +1,7 @@
 /// <reference path="d.ts/stacktrace.d.ts" />
 /// <reference path="bom" />
 
-namespace System {
+namespace Morpho.System {
     function defineFunctionNameProp() {
         // https://github.com/kryptnostic/Function.name/blob/master/Function.name.js
         var fnNamePrefixRegex = /^[\S\s]*?function\s*/;

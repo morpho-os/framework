@@ -1,2 +1,2 @@
-declare namespace System {
+declare namespace Morpho.System {
 }

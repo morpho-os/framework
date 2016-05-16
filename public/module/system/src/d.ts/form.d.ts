@@ -4,7 +4,7 @@
 /// <reference path="bom.d.ts" />
 /// <reference path="error.d.ts" />
 
-declare namespace System {
+declare namespace Morpho.System {
     class Form extends Widget {
         private _wasValidated;
         private _isValid;

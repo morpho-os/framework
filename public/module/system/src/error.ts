@@ -1,4 +1,4 @@
-namespace System {
+namespace Morpho.System {
     export class Exception extends Error {
         //public stack: any;
 

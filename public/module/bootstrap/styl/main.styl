@@ -3,6 +3,8 @@
 $navbar-border-radius ?= 0px
 $table-bg-accent ?= #3b3f41
 $table-bg-hover  ?= #979797
+$table-link-color ?= #5cb85c
+$table-link-bg ?= $body-bg
 
 $navbar-inverse-color ?= #fefefe
 $navbar-inverse-bg    ?= #434856
@@ -51,7 +53,7 @@ svg
  * Pages
  *****************************************************************************/
 
-.page-title
+#page-title
     border-bottom: none
 
 
@@ -128,10 +130,11 @@ span.required
 
 */
 
-form
+fieldset
     legend
-        color: $body-color
+        color: #ccc
 
+form
     .form-group.required label:after
         color: $required-color
         content: "*"
@@ -141,6 +144,7 @@ form
         font-size: 85%
         margin-bottom: 0
         padding-bottom: 0
+        color: #ccc
 
     .has-error
         .help-block
@@ -151,3 +155,19 @@ form
 
     .submit-btns
         margin-top: 2em
+
+
+/******************************************************************************
+ * Widgets
+ *****************************************************************************/
+
+.table-striped
+    a
+        color: $table-link-color
+        background: $table-link-bg
+
+    a.btn-default
+        btn-styles($btn-default-bg)
+        text-shadow 0 1px 0 #fff
+        border-color #ccc
+        color: $btn-default-color

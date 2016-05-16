@@ -25,11 +25,10 @@ class SettingManager {
     }
 
     /**
-     * @param string $name
      * @param string $moduleName
      * @return mixed Returns non false value if setting with $name exists, false otherwise.
      */
-    public function get($name, $moduleName) {
+    public function get(string $name, $moduleName) {
         if (isset($this->cache[$name])) {
             return $this->cache[$name];
         }
@@ -43,7 +42,7 @@ class SettingManager {
         return unserialize($value);
     }
 
-    public function set($name, $value, $moduleName) {
+    public function set(string $name, $value, $moduleName) {
         if (empty($name)) {
             throw new \UnexpectedValueException("Empty setting name");
         }

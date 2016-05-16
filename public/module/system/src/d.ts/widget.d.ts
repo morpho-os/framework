@@ -2,7 +2,7 @@
 /// <reference path="jquery-ext.d.ts" />
 /// <reference path="event-manager.d.ts" />
 
-declare namespace System {
+declare namespace Morpho.System {
     abstract class Widget extends EventManager {
         protected el: JQuery;
         constructor(el: any);

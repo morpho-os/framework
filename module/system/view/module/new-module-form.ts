@@ -1,7 +1,7 @@
 /// <reference path="../../../../public/module/system/src/d.ts/all.d.ts"/>
 
-namespace System.Module {
-    export class NewModuleForm extends System.Form {
+namespace Morpho.System.Module {
+    export class NewModuleForm extends Morpho.System.Form {
         protected init(): void {
             this.fsTreeCheckboxEls().prop('checked', this.checkAllEl().prop('checked'));
         }

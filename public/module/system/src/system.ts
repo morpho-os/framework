@@ -2,7 +2,7 @@
 /// <reference path="jquery-ext" />
 /// <reference path="widget" />
 
-namespace System {
+namespace Morpho.System {
     export class CommonRegExp {
         public static EMAIL = /^[^@]+@[^@]+$/;
     }

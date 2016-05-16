@@ -2,7 +2,7 @@
 /// <reference path="jquery-ext" />
 /// <reference path="event-manager" />
 
-namespace System {
+namespace Morpho.System {
     export abstract class Widget extends EventManager {
         protected el: JQuery;
 

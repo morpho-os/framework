@@ -1,4 +1,4 @@
-namespace System {
+namespace Morpho.System {
     export class EventManager {
         private eventHandlers: {[eventName: string]: ((...args: any[]) => any)[]} = {};
 

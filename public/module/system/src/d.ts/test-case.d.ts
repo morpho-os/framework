@@ -1,7 +1,7 @@
 /// <reference path="stacktrace.d.ts" />
 /// <reference path="bom.d.ts" />
 
-declare namespace System {
+declare namespace Morpho.System {
     abstract class TestCase {
         constructor();
         protected setUp(): void;
