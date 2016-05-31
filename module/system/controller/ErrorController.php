@@ -4,11 +4,14 @@ namespace Morpho\System\Controller;
 use Morpho\Web\Controller;
 
 class ErrorController extends Controller {
-    public function pageNotFoundAction() {
+    public function notFoundAction() {
         /*
         $this->request->getResponse()
             ->setStatusCode(404);
         */
+    }
+
+    public function badRequestAction() {
     }
 
     public function accessDeniedAction() {

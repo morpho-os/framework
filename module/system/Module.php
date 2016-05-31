@@ -6,18 +6,21 @@ use Morpho\Core\Module as BaseModule;
 use Morpho\Db\Sql\Db;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
+use Morpho\Web\BadRequestException;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Response;
 
 class Module extends BaseModule {
-    const NAME = 'system';
+    const NAME = 'morpho-os/system';
 
+    const BAD_REQUEST_ERROR    = 'badRequest';
     const ACCESS_DENIED_ERROR  = 'accessDenied';
-    const PAGE_NOT_FOUND_ERROR = 'pageNotFound';
+    const NOT_FOUND_ERROR      = 'notFound';
     const UNCAUGHT_ERROR       = 'uncaughtError';
 
+    const BAD_REQUEST_ERROR_HANDLER    = 'badRequestHandler';
     const ACCESS_DENIED_ERROR_HANDLER  = 'accessDeniedHandler';
-    const PAGE_NOT_FOUND_ERROR_HANDLER = 'pageNotFoundHandler';
+    const NOT_FOUND_ERROR_HANDLER      = 'notFoundHandler';
     const UNCAUGHT_ERROR_HANDLER       = 'uncaughtErrorHandler';
 
     private $thrownExceptions = [];
@@ -41,8 +44,8 @@ class Module extends BaseModule {
     }
 
     public static function defaultErrorHandler(string $errorType): array {
-        Assert::isOneOf($errorType, [self::ACCESS_DENIED_ERROR, self::PAGE_NOT_FOUND_ERROR, self::UNCAUGHT_ERROR]);
-        return ['morpho-os/system', 'Error', $errorType];
+        Assert::isOneOf($errorType, [self::NOT_FOUND_ERROR, self::ACCESS_DENIED_ERROR, self::BAD_REQUEST_ERROR, self::UNCAUGHT_ERROR]);
+        return [self::NAME, 'Error', $errorType];
     }
 
     /**
@@ -83,10 +86,12 @@ class Module extends BaseModule {
             $request->getResponse()->setStatusCode($statusCode);
         };
 
-        if ($exception instanceof AccessDeniedException) {
+        if ($exception instanceof NotFoundException) {
+            $handleError(self::NOT_FOUND_ERROR, Response::STATUS_CODE_404, false);
+        } elseif ($exception instanceof AccessDeniedException) {
             $handleError(self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403, false);
-        } elseif ($exception instanceof NotFoundException) {
-            $handleError(self::PAGE_NOT_FOUND_ERROR, Response::STATUS_CODE_404, false);
+        } elseif ($exception instanceof BadRequestException) {
+            $handleError(self::BAD_REQUEST_ERROR, Response::STATUS_CODE_400, false);
         } else {
             $handleError(self::UNCAUGHT_ERROR, Response::STATUS_CODE_500, true);
         }

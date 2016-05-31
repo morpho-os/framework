@@ -123,6 +123,10 @@ class Controller extends BaseController {
     protected function notFound() {
         throw new NotFoundException();
     }
+    
+    protected function badRequest() {
+        throw new BadRequestException();
+    }
 
     protected function session(string $key = null): Session {
         return new Session(get_class($this) . ($key ?: ''));

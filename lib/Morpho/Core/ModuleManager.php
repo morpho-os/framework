@@ -137,8 +137,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName, $moduleId) {
-                $this->getChild($moduleName)
-                    ->uninstall($db);
+                $module = $this->getChild($moduleName);
+                $module->uninstall($db);
                 $db->deleteRows('event', ['moduleId' => $moduleId]);
                 $db->deleteRows($this->tableName, ['id' => $moduleId]);
             }
@@ -154,8 +154,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $this->getChild($moduleName)
-                    ->enable($db);
+                $module = $this->getChild($moduleName);
+                $module->enable($db);
                 $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
             }
         );
@@ -163,15 +163,17 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function disableModule(string $moduleName)/*: void */ {
+        /*
         $db = $this->db;
         $exists = (bool)$db->selectCell("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED]);
         if (!$exists) {
             throw new \LogicException("Can't disable the module '$moduleName', only enabled modules can be disabled");
         }
-        $db->transaction(
+        */
+        $this->db->transaction(
             function (Db $db) use ($moduleName) {
-                $this->getChild($moduleName)
-                    ->disable($db);
+                $module = $this->getChild($moduleName);
+                $module->disable($db);
                 $db->updateRows($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
             }
         );
@@ -205,7 +207,8 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $moduleRow = $this->db->selectRow('id, status FROM module WHERE name = ?', [$moduleName]);
                 if ($moduleRow) {
                     $this->db->runQuery("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
-                    foreach ($this->getEventsMeta($this->getChild($moduleName)) as $eventMeta) {
+                    $module = $this->getChild($moduleName);
+                    foreach ($this->getEventsMeta($module) as $eventMeta) {
                         $this->db->insertRow('event', array_merge($eventMeta, ['moduleId' => $moduleRow['id']]));
                     }
                 }

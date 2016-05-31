@@ -8,7 +8,7 @@ abstract class Environment extends Object {
     protected static $initialized = false;
 
     public static function isXdebugEnabled(): bool {
-        return self::getBoolIni('xdebug.default_enable');
+        return self::getBoolIniVal('xdebug.default_enable');
     }
 
     public static function isCli(): bool {
@@ -34,23 +34,30 @@ abstract class Environment extends Object {
     /**
      * Returns true if the ini setting with the $name can be interpreted as true.
      */
-    public static function getBoolIni(string $name): bool {
+    public static function getBoolIniVal(string $name): bool {
         // @TODO: can we use just (bool) ini_get()?
-        return self::iniToBool(ini_get($name));
+        return self::iniValToBool(ini_get($name));
     }
 
     /**
      * Converts any value that can be used in the ini configs to the bool value.
      */
-    public static function iniToBool($value): bool {
+    public static function iniValToBool($value): bool {
         // Basic idea found here: php.net/ini_get.
         static $map = [
             // true values:
-            'on'  => true, 'true' => true, 'yes' => true,
+            'on'  => true, 'true' => true, 'yes' => true, '1' => true,
             // false values:
-            'off' => false, 'false' => false, 'no' => false,
+            'off' => false, 'false' => false, 'no' => false, 'none' => false, '' => false, '0' => false,
         ];
         return $map[strtolower($value)] ?? (bool)$value;
+    }
+
+    /**
+     * Returns true if the ini-value looks like bool.
+     */
+    public static function isBoolLikeIniVal($value): bool {
+        return in_array(strtolower($value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
     public function init()/*: void */ {

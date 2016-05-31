@@ -110,23 +110,33 @@ $this->useCache = $useCache;
         
         // @TODO: Add caching, use one file for the all 3 composer's autoload_* files.
 
-        $map = require $composerFilesDirPath . '/autoload_namespaces.php';
-        foreach ($map as $namespace => $path) {
-            $autoloader->set($namespace, $path);
+        $filePath = $composerFilesDirPath . '/autoload_namespaces.php';
+        if (is_file($filePath)) {
+            $map = require $filePath;
+            foreach ($map as $namespace => $path) {
+                $autoloader->set($namespace, $path);
+            }
         }
 
-        $map = require $composerFilesDirPath . '/autoload_psr4.php';
-        foreach ($map as $namespace => $path) {
-            $autoloader->setPsr4($namespace, $path);
+        $filePath = $composerFilesDirPath . '/autoload_psr4.php';
+        if (is_file($filePath)) {
+            $map = require $filePath;
+            foreach ($map as $namespace => $path) {
+                $autoloader->setPsr4($namespace, $path);
+            }
+
         }
         $moduleNs = $this->getModuleNamespace($moduleName);
         foreach ([CONTROLLER_NS => CONTROLLER_DIR_NAME, DOMAIN_NS => DOMAIN_DIR_NAME] as $ns => $dirName) {
             $autoloader->setPsr4($moduleNs . '\\' . $ns . '\\', $moduleDirPath . '/' . $dirName);
         }
 
-        $classMap = require $composerFilesDirPath . '/autoload_classmap.php';
-        if ($classMap) {
-            $autoloader->addClassMap($classMap);
+        $filePath = $composerFilesDirPath . '/autoload_classmap.php';
+        if (is_file($filePath)) {
+            $classMap = require $filePath;
+            if ($classMap) {
+                $autoloader->addClassMap($classMap);
+            }
         }
         // @TODO: Generate and add class map for the view/
 

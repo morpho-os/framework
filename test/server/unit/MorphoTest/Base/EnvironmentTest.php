@@ -19,30 +19,26 @@ class EnvironmentTest extends TestCase {
         $this->assertTrue(Environment::isCli());
     }
 
-    public function testGetBoolIni() {
-        $this->assertTrue(Environment::getBoolIni('realpath_cache_size'));
+    public function testGetBoolIniVal() {
+        $this->assertTrue(Environment::getBoolIniVal('realpath_cache_size'));
 
         $setting = 'zend.enable_gc';
-        $this->assertTrue(Environment::getBoolIni($setting));
+        $this->assertTrue(Environment::getBoolIniVal($setting));
 
         ini_set($setting, 0);
-        $this->assertFalse(Environment::getBoolIni($setting));
+        $this->assertFalse(Environment::getBoolIniVal($setting));
 
         ini_set($setting, 1);
-        $this->assertTrue(Environment::getBoolIni($setting));
+        $this->assertTrue(Environment::getBoolIniVal($setting));
 
         // Names are case sensitive, so such setting should not exist.
-        $this->assertFalse(Environment::getBoolIni(strtoupper($setting)));
+        $this->assertFalse(Environment::getBoolIniVal(strtoupper($setting)));
 
-        $this->assertFalse(Environment::getBoolIni(__FUNCTION__));
+        $this->assertFalse(Environment::getBoolIniVal(__FUNCTION__));
     }
 
-    public function dataForIniToBool() {
+    public function dataForIniValToBool() {
         return [
-            [
-                true,
-                'None',
-            ],
             [
                 true,
                 '123',
@@ -58,6 +54,10 @@ class EnvironmentTest extends TestCase {
             [
                 true,
                 '1',
+            ],
+            [
+                true,
+                1,
             ],
             [
                 true,
@@ -103,13 +103,39 @@ class EnvironmentTest extends TestCase {
                 false,
                 'No',
             ],
+            [
+                false,
+                'None',
+            ],
+            [
+                false,
+                '',
+            ],
         ];
     }
 
     /**
-     * @dataProvider dataForIniToBool
+     * @dataProvider dataForIniValToBool
      */
-    public function testIniToBool($expected, $actual) {
-        $this->assertEquals($expected, Environment::iniToBool($actual));
+    public function testIniValToBool($expected, $actual) {
+        $this->assertEquals($expected, Environment::iniValToBool($actual));
+    }
+
+    public function testIsBoolLikeIniVal() {
+        $this->assertFalse(Environment::isBoolLikeIniVal('abc'));
+        $this->assertFalse(Environment::isBoolLikeIniVal('100M'));
+        $this->assertFalse(Environment::isBoolLikeIniVal('01'));
+        $this->assertFalse(Environment::isBoolLikeIniVal('10'));
+        $this->assertFalse(Environment::isBoolLikeIniVal(10));
+        $this->assertFalse(Environment::isBoolLikeIniVal('2'));
+        $this->assertFalse(Environment::isBoolLikeIniVal('-1'));
+        $this->assertFalse(Environment::isBoolLikeIniVal(-1));
+        $this->assertFalse(Environment::isBoolLikeIniVal(2));
+        $this->assertFalse(Environment::isBoolLikeIniVal('90.58333'));
+        $this->assertFalse(Environment::isBoolLikeIniVal(90.58333));
+        $this->assertFalse(Environment::isBoolLikeIniVal('&'));
+        foreach (['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0] as $v) {
+            $this->assertTrue(Environment::isBoolLikeIniVal($v));
+        }
     }
 }

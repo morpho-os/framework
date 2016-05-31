@@ -47,19 +47,21 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     public function handleError($severity, $message, $filePath, $lineNo, $context) {
         if ($severity & error_reporting()) {
-            throw self::errorToException($severity, $message, $filePath, $lineNo, $context);
+            $exception = self::errorToException($severity, $message, $filePath, $lineNo, $context);
+            throw $exception;
         }
     }
 
     /**
-     * @TODO: Can it be deleted?
+     * @TODO: Check can we catch the E_ERROR, E_CORE_ERROR, E_PARSE errors, if yes, delete this method,
+     * as they can will be handled by the handleError().
      */
     public function handleFatalError() {
         $error = error_get_last();
         error_clear_last();
         if ($this->fatalErrorHandlerActive
             && $error
-            && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])
+            && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_PARSE, E_COMPILE_ERROR])
         ) {
             $this->handleException(
                 self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null)
@@ -96,7 +98,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     }
 
     public static function isErrorLogEnabled(): bool {
-        return Environment::getBoolIni('log_errors') && !empty(ini_get('error_log'));
+        return Environment::getBoolIniVal('log_errors') && !empty(ini_get('error_log'));
     }
 
     public static function getHashId(\Throwable $e) {

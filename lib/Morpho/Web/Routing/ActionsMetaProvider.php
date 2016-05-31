@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web\Routing;
 
+use Morpho\Base\ClassNotFoundException;
 use function Morpho\Base\{
     endsWith, last
 };
@@ -47,6 +48,9 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
 
     protected function collectActionsMeta(string $controllerClass, string $moduleName, string $controllerName) {
         $actionsMeta = [];
+        if (!class_exists($controllerClass)) {
+            throw new ClassNotFoundException("Unable to load the class '$controllerClass' for the module '$moduleName', ensure that the class is defined");
+        }
         $rClass = new \ReflectionClass($controllerClass);
         $ignoredMethods = $this->getIgnoredMethods();
         foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
