@@ -43,7 +43,7 @@ class Directory extends Entry {
 
         $targetDirPath = self::create($targetDirPath, self::mode($sourceDirPath));
 
-        $paths = self::listEntries(
+        $paths = self::paths(
             $sourceDirPath,
             $processor,
             [
@@ -66,7 +66,7 @@ class Directory extends Entry {
      * @param array|string $dirPaths
      * @param string|\Closure $processor
      */
-    public static function listEntries($dirPaths, $processor = null, array $options = []): \Generator {
+    public static function paths($dirPaths, $processor = null, array $options = []): \Generator {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception();
         }
@@ -109,7 +109,7 @@ class Directory extends Entry {
                             continue;
                         }
 
-                        yield from self::listEntries($item->getPathname(), $processor, $options);
+                        yield from self::paths($item->getPathname(), $processor, $options);
                     }
                 } else {
                     if ($options['type'] & self::FILE) {
@@ -121,12 +121,12 @@ class Directory extends Entry {
     }
 
     /**
-     * Shortcut for the listEntries() with $options['type'] == self::DIR option.
+     * Shortcut for the paths() with $options['type'] == self::DIR option.
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
-    public static function listDirs($dirPath, $processor = null, array $options = []): \Generator {
+    public static function dirPaths($dirPath, $processor = null, array $options = []): \Generator {
         $options['type'] = self::DIR;
         if (is_string($processor)) {
             $regexp = $processor;
@@ -134,45 +134,45 @@ class Directory extends Entry {
                 return preg_match($regexp, $path);
             };
         }
-        return self::listEntries($dirPath, $processor, $options);
+        return self::paths($dirPath, $processor, $options);
     }
 
-    public static function listEmptyDirs($dirPath, $processor = null): \Generator {
+    public static function emptyDirPaths($dirPath, $processor = null): \Generator {
         // @TODO: Implement isEmpty() method, see Composer\Util\Filesystem::isDirEmpty()
         throw new NotImplementedException();
     }
 
     /**
-     * Shortcut for the listEntries() with $options['type'] == self::FILE option.
+     * Shortcut for the paths() with $options['type'] == self::FILE option.
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
-    public static function listFiles($dirPath, $processor = null, array $options = []): \Generator {
+    public static function filePaths($dirPath, $processor = null, array $options = []): \Generator {
         $options['type'] = self::FILE;
-        return self::listEntries($dirPath, $processor, $options);
+        return self::paths($dirPath, $processor, $options);
     }
 
-    public static function listFilesWithExt($dirPath, array $extensions, array $options = []): \Generator {
+    public static function filePathsWithExt($dirPath, array $extensions, array $options = []): \Generator {
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = preg_quote($extension, '/');
         }
-        return self::listFiles($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $options);
+        return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $options);
     }
 
-    public static function listLinks(string $dirPath, $processor = null): \Generator {
+    public static function linkPaths(string $dirPath, $processor = null): \Generator {
         throw new NotImplementedException(__METHOD__);
     }
 
     /**
-     * @TODO: Extract listLinks() method, use it with $processor that will check link and
+     * @TODO: Extract linkPaths() method, use it with $processor that will check link and
      * return true for broken links.
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
-    public static function listBrokenLinks($dirPath, $processor = null): \Generator {
-        foreach (Directory::listEntries($dirPath, $processor) as $path) {
+    public static function brokenLinksPaths($dirPath, $processor = null): \Generator {
+        foreach (Directory::paths($dirPath, $processor) as $path) {
             if (is_link($path)) {
                 $targetPath = readlink($path);
                 if (false === $targetPath || !self::isEntry($path)) {

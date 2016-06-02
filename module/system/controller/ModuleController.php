@@ -147,10 +147,10 @@ class ModuleController extends Controller {
         return (int) $module['status'] & ModuleManager::ENABLED;
     }
 
-    public function listModules(): array {
+    public function moduleNames(): array {
         $moduleManager = $this->serviceManager->get('moduleManager');
         $modules = $this->getDb()->selectRows('* FROM module ORDER BY weight, name');
-        foreach ($moduleManager->listUninstalledModules() as $moduleName) {
+        foreach ($moduleManager->uninstalledModuleNames() as $moduleName) {
             $modules[] = [
                 'id' => null,
                 'name' => $moduleName,

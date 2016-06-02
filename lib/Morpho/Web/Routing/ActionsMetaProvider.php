@@ -29,7 +29,7 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
         $moduleManager = $this->serviceManager->get('moduleManager');
         $moduleFs = $moduleManager->getModuleFs();
         $classTypeDiscoverer = new ClassTypeDiscoverer();
-        foreach ($moduleManager->listEnabledModules() as $moduleName) {
+        foreach ($moduleManager->enabledModuleNames() as $moduleName) {
             $moduleFs->registerModuleAutoloader($moduleName);
             foreach ($moduleFs->getModuleControllerFilePaths($moduleName) as $controllerFilePath) {
                 $classTypes = $classTypeDiscoverer->definedClassTypesInFile($controllerFilePath);

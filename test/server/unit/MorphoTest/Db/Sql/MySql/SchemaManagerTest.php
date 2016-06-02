@@ -111,7 +111,7 @@ class SchemaManagerTest extends DbTestCase {
         ];
         $this->schemaManager->createTable('file', $tableDefinition);
 
-        $this->assertEquals(['file'], $this->schemaManager->listTables());
+        $this->assertEquals(['file'], $this->schemaManager->tableNames());
 
         $this->assertEquals(<<<OUT
 CREATE TABLE `file` (
@@ -192,7 +192,7 @@ OUT
     }
 
     private function assertCreateTableSql() {
-        $actualTableNames = $this->schemaManager->listTables();
+        $actualTableNames = $this->schemaManager->tableNames();
         sort($actualTableNames);
         $this->assertEquals(['order', 'product', 'productOrder'], $actualTableNames);
 

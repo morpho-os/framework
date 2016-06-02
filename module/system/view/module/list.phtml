@@ -27,7 +27,7 @@ $uriToAction = function ($action) {
             <th style="width: 50%;">Module name</th>
             <th>Actions</th>
         </tr>
-        <?php foreach ($node->listModules() as $module): ?>
+        <?php foreach ($node->moduleNames() as $module): ?>
             <tr>
                 <?php //          <td><input type="checkbox"></td> ?>
                 <?php /*

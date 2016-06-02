@@ -57,7 +57,7 @@ class DirectoryTest extends TestCase {
         Directory::uniquePath($dirPath, 0);
     }
 
-    public function testListEntries_WithoutProcessorAndWithDefaultOptions() {
+    public function testPaths_WithoutProcessorAndWithDefaultOptions() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
@@ -67,34 +67,34 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::listEntries($testDirPath), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
 
-        $actual = iterator_to_array(Directory::listEntries($testDirPath), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath), false);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithoutProcessorAndWithDirOption() {
+    public function testPaths_WithoutProcessorAndWithDirOption() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $actual = iterator_to_array(Directory::listEntries($testDirPath, null, ['type' => Directory::DIR]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Directory::DIR]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
 
-        $actual = iterator_to_array(Directory::listDirs($testDirPath), false);
+        $actual = iterator_to_array(Directory::dirPaths($testDirPath), false);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithoutProcessorAndWithDirOrFileOption() {
+    public function testPaths_WithoutProcessorAndWithDirOrFileOption() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
@@ -104,17 +104,17 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::listEntries($testDirPath, null, ['type' => Directory::DIR | Directory::FILE]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Directory::DIR | Directory::FILE]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithoutProcessorAndWithoutBothFileAndDirOptions() {
-        $this->assertEquals([], iterator_to_array(Directory::listEntries($this->getTestDirPath(), null, ['type' => 0]), false));
+    public function testPaths_WithoutProcessorAndWithoutBothFileAndDirOptions() {
+        $this->assertEquals([], iterator_to_array(Directory::paths($this->getTestDirPath(), null, ['type' => 0]), false));
     }
 
-    public function testListEntries_WithClosureProcessorAndWithDefaultOptions() {
+    public function testPaths_WithClosureProcessorAndWithDefaultOptions() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -124,7 +124,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5/6.php',
         ];
         $actual = iterator_to_array(
-            Directory::listEntries(
+            Directory::paths(
                 $testDirPath,
                 function ($path, $isDir) {
                     return $isDir || basename($path) != '1.txt';
@@ -137,7 +137,7 @@ class DirectoryTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithRegExpProcessorAndWithDefaultOptions() {
+    public function testPaths_WithRegExpProcessorAndWithDefaultOptions() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -146,26 +146,26 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::listEntries($testDirPath, '~\.php$~si'), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, '~\.php$~si'), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithRegExpProcessorAndWithDirOption() {
+    public function testPaths_WithRegExpProcessorAndWithDirOption() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $actual = iterator_to_array(Directory::listEntries($testDirPath, '~\.php$~si', ['type' => Directory::DIR]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithRegExpProcessorAndWithBothFileAndDirOptions() {
+    public function testPaths_WithRegExpProcessorAndWithBothFileAndDirOptions() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -174,17 +174,17 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::listEntries($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_WithRegExpProcessorThatDoesNotMatchAnyPathAndWithFileOption() {
+    public function testPaths_WithRegExpProcessorThatDoesNotMatchAnyPathAndWithFileOption() {
         $this->assertEquals(
             [],
             iterator_to_array(
-                Directory::listEntries(
+                Directory::paths(
                     $this->getTestDirPath(),
                     '~\.some$~si',
                     ['type' => Directory::FILE]
@@ -194,14 +194,14 @@ class DirectoryTest extends TestCase {
         );
     }
 
-    public function testListEntries_WithRegExpProcessorAndWithBothBothFileAndDirOptionsWithoutRecursiveOption() {
+    public function testPaths_WithRegExpProcessorAndWithBothBothFileAndDirOptionsWithoutRecursiveOption() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
             $testDirPath . '/4',
         ];
-        $actual = Directory::listEntries(
+        $actual = Directory::paths(
             $testDirPath,
             '~\.txt$~si',
             [
@@ -215,14 +215,14 @@ class DirectoryTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListEntries_ThrowsExceptionOnInvalidOption() {
+    public function testPaths_ThrowsExceptionOnInvalidOption() {
         $this->setExpectedException('\RuntimeException', 'Not allowed items are present');
-        iterator_to_array(Directory::listEntries($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
+        iterator_to_array(Directory::paths($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 
-    public function testListEntries_WithNotRecursiveOption() {
+    public function testPaths_WithNotRecursiveOption() {
         $testDirPath = $this->getTestDirPath();
-        $actual = iterator_to_array(Directory::listEntries($testDirPath, null, ['recursive' => false]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['recursive' => false]), false);
         $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
@@ -233,9 +233,9 @@ class DirectoryTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testListDirs_WithRegExpAndWithNotRecursiveOption() {
+    public function testDirPaths_WithRegExpAndWithNotRecursiveOption() {
         $testDirPath = $this->getTestDirPath();
-        $actual = iterator_to_array(Directory::listDirs($testDirPath, "~.*/[^4]$~si", ['recursive' => false]), false);
+        $actual = iterator_to_array(Directory::dirPaths($testDirPath, "~.*/[^4]$~si", ['recursive' => false]), false);
         $expected = [
             $testDirPath . '/2',
         ];
@@ -288,8 +288,8 @@ class DirectoryTest extends TestCase {
     }
 
     protected function assertDirContentsEqual($sourceDirPath, $targetDirPath) {
-        $expected = iterator_to_array(Directory::listEntries($sourceDirPath), false);
-        $actual = iterator_to_array(Directory::listEntries($targetDirPath), false);
+        $expected = iterator_to_array(Directory::paths($sourceDirPath), false);
+        $actual = iterator_to_array(Directory::paths($targetDirPath), false);
 
         $sourceDirPath = str_replace('\\', '/', $sourceDirPath);
         $targetDirPath = str_replace('\\', '/', $targetDirPath);

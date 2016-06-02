@@ -47,10 +47,10 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager->getChild($moduleName);
     }
 
-    public function testListUninstalledModules_CanUseComposerNamingStyle() {
-        $moduleList = ['galaxy/earth', 'galaxy/saturn'];
-        $moduleManager = $this->createModuleManager(null, $this->createModuleFs($moduleList));
-        $this->assertEquals($moduleList, $moduleManager->listUninstalledModules());
+    public function testUninstalledModuleNames_CanUseComposerNamingStyle() {
+        $modules = ['galaxy/earth', 'galaxy/saturn'];
+        $moduleManager = $this->createModuleManager(null, $this->createModuleFs($modules));
+        $this->assertEquals($modules, $moduleManager->uninstalledModuleNames());
     }
 
     public function testFallbackMode() {
@@ -102,20 +102,20 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager = $this->createModuleManager(null, $moduleFs);
 
         // 1. Check initial state of all available modules.
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::ENABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::ENABLED | ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
         $notInstalledModules = $allModules = [
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ];
         $this->assertEquals(
             $notInstalledModules,
-            $moduleManager->listModules(ModuleManager::UNINSTALLED)
+            $moduleManager->moduleNames(ModuleManager::UNINSTALLED)
         );
         $this->assertEquals(
             $allModules,
-            $moduleManager->listModules(ModuleManager::ALL)
+            $moduleManager->moduleNames(ModuleManager::ALL)
         );
 
         // 2. Install the module and check for changes.
@@ -132,19 +132,19 @@ class ModuleManagerTest extends DbTestCase {
 
         $this->assertTrue($module->isInstallCalled());
 
-        $this->assertEquals([$moduleName], $moduleManager->listModules(ModuleManager::ENABLED | ModuleManager::DISABLED));
-        $this->assertEquals([$moduleName], $moduleManager->listModules(ModuleManager::DISABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::ENABLED));
+        $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
+        $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED));
 
         $this->assertEquals(
             [
                 __CLASS__ . '\\NotInstalled',
             ],
-            $moduleManager->listModules(ModuleManager::UNINSTALLED)
+            $moduleManager->moduleNames(ModuleManager::UNINSTALLED)
         );
         $this->assertEquals(
             $allModules,
-            $moduleManager->listModules(ModuleManager::ALL)
+            $moduleManager->moduleNames(ModuleManager::ALL)
         );
 
         // 3. Enable the module and check for changes.
@@ -154,18 +154,18 @@ class ModuleManagerTest extends DbTestCase {
 
         $this->assertTrue($module->isEnableCalled());
 
-        $this->assertEquals([$moduleName], $moduleManager->listModules(ModuleManager::ENABLED | ModuleManager::DISABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
-        $this->assertEquals([$moduleName], $moduleManager->listModules(ModuleManager::ENABLED));
+        $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
+        $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED));
         $this->assertEquals(
             [
                 __CLASS__ . '\\NotInstalled',
             ],
-            $moduleManager->listModules(ModuleManager::UNINSTALLED)
+            $moduleManager->moduleNames(ModuleManager::UNINSTALLED)
         );
         $this->assertEquals(
             $allModules,
-            $moduleManager->listModules(ModuleManager::ALL)
+            $moduleManager->moduleNames(ModuleManager::ALL)
         );
 
         // 4. Disable the module and check for changes.
@@ -175,18 +175,18 @@ class ModuleManagerTest extends DbTestCase {
 
         $this->assertTrue($module->isDisableCalled());
 
-        $this->assertEquals([$moduleName], $moduleManager->listModules(ModuleManager::ENABLED | ModuleManager::DISABLED));
-        $this->assertEquals([$moduleName], $moduleManager->listModules(ModuleManager::DISABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::ENABLED));
+        $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
+        $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED));
         $this->assertEquals(
             [
                 __CLASS__ . '\\NotInstalled',
             ],
-            $moduleManager->listModules(ModuleManager::UNINSTALLED)
+            $moduleManager->moduleNames(ModuleManager::UNINSTALLED)
         );
         $this->assertEquals(
             $allModules,
-            $moduleManager->listModules(ModuleManager::ALL)
+            $moduleManager->moduleNames(ModuleManager::ALL)
         );
 
         // 5. Uninstall the module and check for changes.
@@ -196,16 +196,16 @@ class ModuleManagerTest extends DbTestCase {
 
         $this->assertTrue($module->isUninstallCalled());
 
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::ENABLED | ModuleManager::DISABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::DISABLED));
-        $this->assertEquals([], $moduleManager->listModules(ModuleManager::ENABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
+        $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED));
         $this->assertEquals(
             $notInstalledModules,
-            $moduleManager->listModules(ModuleManager::UNINSTALLED)
+            $moduleManager->moduleNames(ModuleManager::UNINSTALLED)
         );
         $this->assertEquals(
             $allModules,
-            $moduleManager->listModules(ModuleManager::ALL)
+            $moduleManager->moduleNames(ModuleManager::ALL)
         );
     }
 

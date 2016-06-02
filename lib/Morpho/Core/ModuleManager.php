@@ -200,7 +200,7 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function rebuildEvents($moduleName = null)/*: void */ {
-        $modules = null !== $moduleName ? [$moduleName] : $this->listEnabledModules();
+        $modules = null !== $moduleName ? [$moduleName] : $this->enabledModuleNames();
         $db = $this->db;
         foreach ($modules as $moduleName) {
             $db->transaction(function () use ($moduleName) {
@@ -217,36 +217,36 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function isEnabledModule(string $moduleName): bool {
-        return in_array($moduleName, $this->listEnabledModules(), true);
+        return in_array($moduleName, $this->enabledModuleNames(), true);
     }
 
     public function isDisabledModule(string $moduleName): bool {
-        return in_array($moduleName, $this->listDisabledModules(), true);
+        return in_array($moduleName, $this->disabledModuleNames(), true);
     }
 
     public function isUninstalledModule(string $moduleName): bool {
-        return in_array($moduleName, $this->listUninstalledModules(), true);
+        return in_array($moduleName, $this->uninstalledModuleNames(), true);
     }
 
     public function isInstalledModule(string $moduleName): bool {
-        return in_array($moduleName, $this->listInstalledModules(), true);
+        return in_array($moduleName, $this->installedModuleNames(), true);
     }
 
-    public function listModules($state): array {
+    public function moduleNames($state): array {
         $modules = [];
         if ($state & self::ENABLED) {
-            $modules = array_merge($modules, array_values($this->listEnabledModules()));
+            $modules = array_merge($modules, array_values($this->enabledModuleNames()));
         }
         if ($state & self::DISABLED) {
-            $modules = array_merge($modules, $this->listDisabledModules());
+            $modules = array_merge($modules, $this->disabledModuleNames());
         }
         if ($state & self::UNINSTALLED) {
-            $modules = array_merge($modules, $this->listUninstalledModules());
+            $modules = array_merge($modules, $this->uninstalledModuleNames());
         }
         return $modules;
     }
 
-    public function listAllModules(): array {
+    public function allModuleNames(): array {
         if ($this->fallbackMode) {
             return [];
         }
@@ -254,26 +254,26 @@ abstract class ModuleManager extends Node implements IEventManager {
         return is_array($moduleNames) ? $moduleNames : iterator_to_array($moduleNames, false);
     }
 
-    public function listInstalledModules(): array {
+    public function installedModuleNames(): array {
         return $this->fallbackMode
             ? []
             : $this->db->selectColumn("name FROM $this->tableName ORDER BY name, weight");
     }
 
-    public function listUninstalledModules(): array {
+    public function uninstalledModuleNames(): array {
         if ($this->fallbackMode) {
             return $this->fallbackModules;
         }
-        return array_diff($this->listAllModules(), $this->listInstalledModules());
+        return array_diff($this->allModuleNames(), $this->installedModuleNames());
     }
 
-    public function listEnabledModules(): array {
+    public function enabledModuleNames(): array {
         return $this->fallbackMode
             ? []
             : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::ENABLED]);
     }
 
-    public function listDisabledModules(): array {
+    public function disabledModuleNames(): array {
         return $this->fallbackMode
             ? []
             : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED]);

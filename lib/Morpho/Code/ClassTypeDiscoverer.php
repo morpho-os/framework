@@ -30,7 +30,7 @@ class ClassTypeDiscoverer {
     }
 
     public function definedClassTypesInDir($dirPaths, string $regExp = null, array $options = []): array {
-        $filePaths = Directory::listFiles($dirPaths, $regExp ?: Directory::PHP_FILES_REG_EXP, $options);
+        $filePaths = Directory::filePaths($dirPaths, $regExp ?: Directory::PHP_FILES_REG_EXP, $options);
         $map = [];
         $discoverStrategy = $this->getDiscoverStrategy();
         foreach ($filePaths as $filePath) {

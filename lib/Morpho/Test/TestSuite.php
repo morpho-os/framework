@@ -9,7 +9,7 @@ abstract class TestSuite extends \PHPUnit_Framework_TestSuite {
 
     public static function suite() {
         $suite = new static();
-        $suite->addTestFiles($suite->listTestFiles());
+        $suite->addTestFiles($suite->testFilePaths());
         return $suite;
     }
 
@@ -18,8 +18,8 @@ abstract class TestSuite extends \PHPUnit_Framework_TestSuite {
      *               or \PHPUnit_Framework_TestCase. Classes can define the suite() static method like
      *               we do in this class and therefore suites can be nested.
      */
-    public function listTestFiles() {
-        return Directory::listFiles(
+    public function testFilePaths() {
+        return Directory::filePaths(
             $this->getTestDirPath(),
             $this->testFileRegexp
         );

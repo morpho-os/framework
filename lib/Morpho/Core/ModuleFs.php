@@ -91,7 +91,7 @@ $this->useCache = $useCache;
             return [];
         }
         return iterator_to_array(
-            Directory::listFiles($dirPath, '~.Controller\.php$~s', ['recursive' => true]),
+            Directory::filePaths($dirPath, '~.Controller\.php$~s', ['recursive' => true]),
             false
         );
     }
@@ -156,7 +156,7 @@ $this->useCache = $useCache;
                     return !$isDir || ($isDir && basename($path) !== VENDOR_DIR_NAME);
                 };
                 $classTypeDiscoverer = new ClassTypeDiscoverer();
-                foreach (Directory::listDirs($this->getBaseModuleDirPath(), $filter, ['recursive' => false]) as $moduleDirPath) {
+                foreach (Directory::dirPaths($this->getBaseModuleDirPath(), $filter, ['recursive' => false]) as $moduleDirPath) {
                     $composerFilePath = $moduleDirPath . '/' . MODULE_META_FILE_NAME;
                     if (is_file($composerFilePath)) {
                         $meta = File::readJson($composerFilePath);
@@ -188,7 +188,7 @@ $this->useCache = $useCache;
             return [];
         }
         return iterator_to_array(
-            Directory::listFiles($dirPath, '~.(Test|TestSuite)\.php$~s'),
+            Directory::filePaths($dirPath, '~.(Test|TestSuite)\.php$~s'),
             false
         );
     }

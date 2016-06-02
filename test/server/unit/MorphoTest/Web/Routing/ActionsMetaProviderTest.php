@@ -142,7 +142,7 @@ class ActionsMetaProviderTest extends TestCase {
                 $this->enabledModules = $enabledModules;
             }
 
-            public function listEnabledModules() {
+            public function enabledModuleNames() {
                 return $this->enabledModules;
             }
 

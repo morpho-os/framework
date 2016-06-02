@@ -71,7 +71,7 @@ class InstallController extends Controller {
         }
 
         // Check that we can connect and make queries.
-        $schemaManager->listTables();
+        $schemaManager->tableNames();
 
         if ($dropTables) {
             $schemaManager->deleteAllTables();
@@ -104,7 +104,7 @@ class InstallController extends Controller {
     protected function installModules(Db $db) {
         $moduleManager = $this->serviceManager->get('moduleManager');
         $modules = $this->serviceManager->get('siteManager')->getCurrentSiteConfig()['modules']
-            ?? $moduleManager->listUninstalledModules();
+            ?? $moduleManager->uninstalledModuleNames();
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {
             $moduleManager->installModule($moduleName);

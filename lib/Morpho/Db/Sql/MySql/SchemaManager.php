@@ -10,7 +10,7 @@ class SchemaManager extends BaseSchemaManager {
     protected $defaultCharset = 'utf8';
     protected $defaultCollation = 'utf8_general_ci';
 
-    public function listDatabases(): array {
+    public function databaseNames(): array {
         return $this->db->fetchColumn("SHOW DATABASES");
     }
 
@@ -19,21 +19,21 @@ class SchemaManager extends BaseSchemaManager {
     }
     
     public function dbExists(string $dbName): bool {
-        return in_array($dbName, $this->listDatabases(), true);
+        return in_array($dbName, $this->databaseNames(), true);
     }
 
     public function deleteDatabase(string $dbName)/*: void*/ {
         $this->db->runQuery("DROP DATABASE " . $this->db->query()->identifier($dbName));
     }
 
-    public function listTables(): array {
+    public function tableNames(): array {
         return $this->db->fetchColumn("SHOW TABLES");
     }
 
     public function tableExists(string $tableName): bool {
         // @TODO: Use `mysql` table?
         // or SHOW TABLES like `$tableName`.
-        return in_array($tableName, $this->listTables(), true);
+        return in_array($tableName, $this->tableNames(), true);
     }
 
     public function deleteTable(string $tableName)/*: void*/ {

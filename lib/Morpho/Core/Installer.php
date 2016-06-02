@@ -59,7 +59,7 @@ class Installer {
     }
 
     private static function processWebDir($frameworkBaseDirPath, $baseDirPath, $io) {
-        $dirPaths = Directory::listDirs(
+        $dirPaths = Directory::dirPaths(
             $frameworkBaseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME,
             null,
             ['recursive' => false]

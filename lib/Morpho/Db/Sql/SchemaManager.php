@@ -31,7 +31,7 @@ abstract class SchemaManager {
     }
 
     public function deleteAllTables()/*: void */ {
-        $this->deleteTables($this->listTables());
+        $this->deleteTables($this->tableNames());
     }
     
     abstract public function tableExists(string $tableName): bool;
@@ -42,5 +42,5 @@ abstract class SchemaManager {
 
     abstract public function deleteTableIfExists(string $tableName)/*: void */;
 
-    abstract public function listTables(): array;
+    abstract public function tableNames(): array;
 }

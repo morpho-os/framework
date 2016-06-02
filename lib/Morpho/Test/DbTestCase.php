@@ -6,7 +6,7 @@ use Morpho\Fs\Directory;
 
 abstract class DbTestCase extends TestCase {
     protected function createFixtures($db)/*: void*/ {
-        $paths = Directory::listEntries($this->getTestDirPath(), '~Fixture\.php$~');
+        $paths = Directory::paths($this->getTestDirPath(), '~Fixture\.php$~');
         foreach ($paths as $path) {
             require_once $path;
             $class = $this->getNamespace(true) . '\\'

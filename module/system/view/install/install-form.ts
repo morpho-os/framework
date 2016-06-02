@@ -1,6 +1,6 @@
 /// <reference path="../../../../public/module/system/src/d.ts/all.d.ts" />
 
-namespace Moprho.System.Install {
+namespace Morpho.System.Install {
     import Form = Morpho.System.Form;
     export class InstallForm extends Form {
         protected init(): void {
