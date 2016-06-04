@@ -65,11 +65,9 @@ abstract class Object {
     }
 
     protected function reflect(): \ReflectionObject {
-        // @TODO: Do we need to cache here?
         if (null === $this->reflectedObject) {
             $this->reflectedObject = new \ReflectionObject($this);
         }
-
         return $this->reflectedObject;
     }
 

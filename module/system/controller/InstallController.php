@@ -124,7 +124,7 @@ class InstallController extends Controller {
         $config = $site->getConfig();
         $config['db'] = $dbConfig;
         $configFilePath = $site->getConfigFilePath();
-        File::writePhp($configFilePath, $config);
+        File::writePhpVar($configFilePath, $config);
         #chmod($configFilePath, 0440);
     }
 }

@@ -49,8 +49,8 @@
         "phpunit/phpunit": "dev-master"
     },
     "autoload": {
-        "psr-0": {
-            "Morpho": "lib"
+        "psr-4": {
+            "Morpho\\": "lib/Morpho/"
         },
         "files": [
             "lib/Morpho/Base/autoload.php",
@@ -70,5 +70,8 @@
         "branch-alias": {
             "dev-master": "0.x-dev"
         }
+    },
+    "support": {
+        "issues": "https://github.com/morpho-os/framework/issues"
     }
 }

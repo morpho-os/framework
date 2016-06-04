@@ -53,7 +53,7 @@ class FastRouter extends Router {
             $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], $handler);
         }
         $dispatchData = $routeCollector->getData();
-        File::writePhp($cacheFilePath, $dispatchData, false);
+        File::writePhpVar($cacheFilePath, $dispatchData, false);
     }
 
     protected function getCacheFilePath(): string {

@@ -138,7 +138,7 @@ class File extends Entry {
         return $filePath;
     }
 
-    public static function writePhp(string $filePath, $var, bool $stripNumericKeys = true): string {
+    public static function writePhpVar(string $filePath, $var, bool $stripNumericKeys = true): string {
         File::write($filePath, '<?php return ' . CodeTool::varToString($var, $stripNumericKeys));
         return $filePath;
     }

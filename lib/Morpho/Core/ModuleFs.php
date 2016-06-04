@@ -99,16 +99,17 @@ $this->useCache = $useCache;
     /**
      * Registers the module, so that its classes will be automatically loaded.
      */
-    public function registerModuleAutoloader(string $moduleName): bool {
+    public function registerModuleAutoloader(string $moduleName) {
         if (isset($this->registeredModules[$moduleName])) {
             return false;
         }
+        
         $moduleDirPath = $this->getModuleDirPath($moduleName);
         //$autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
         $composerFilesDirPath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/composer';
         $autoloader = $this->autoloader;
         
-        // @TODO: Add caching, use one file for the all 3 composer's autoload_* files.
+        // @TODO: Optimize the autoloading process, use one file for the all 3 composer's autoload_* files.
 
         $filePath = $composerFilesDirPath . '/autoload_namespaces.php';
         if (is_file($filePath)) {
@@ -138,7 +139,6 @@ $this->useCache = $useCache;
                 $autoloader->addClassMap($classMap);
             }
         }
-        // @TODO: Generate and add class map for the view/
 
         $this->registeredModules[$moduleName] = true;
         
@@ -176,7 +176,7 @@ $this->useCache = $useCache;
                         }
                     }
                 }
-                File::writePhp($cacheFilePath, $moduleCache);
+                File::writePhpVar($cacheFilePath, $moduleCache);
                 $this->moduleCache = $moduleCache;
             }
         }
