@@ -161,6 +161,11 @@ class File extends Entry {
         }
         fclose($handle);
     }
+    
+    public static function isEmpty(string $filePath): bool {
+        clearstatcache();
+        return filesize($filePath) === 0;
+    }
 
     /**
      * Deletes the file.

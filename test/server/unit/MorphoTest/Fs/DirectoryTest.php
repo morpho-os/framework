@@ -1,10 +1,15 @@
 <?php
-namespace MorphoTest;
+namespace MorphoTest\Fs;
 
 use Morpho\Fs\Directory;
 use Morpho\Test\TestCase;
 
 class DirectoryTest extends TestCase {
+    public function testIsEmptyDir() {
+        $this->assertFalse(Directory::isEmpty($this->getTestDirPath()));
+        $this->assertTrue(Directory::isEmpty($this->createTmpDir()));
+    }
+
     public function testMove_WhenTargetNotExist() {
         $sourceDirPath = $this->createTmpDir('source');
         mkdir($sourceDirPath . '/bar');

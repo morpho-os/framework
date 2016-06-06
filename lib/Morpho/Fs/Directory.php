@@ -136,10 +136,12 @@ class Directory extends Entry {
         }
         return self::paths($dirPath, $processor, $options);
     }
-
-    public static function emptyDirPaths($dirPath, $processor = null): \Generator {
-        // @TODO: Implement isEmpty() method, see Composer\Util\Filesystem::isDirEmpty()
-        throw new NotImplementedException();
+    
+    public static function isEmpty($dirPath): bool {
+        foreach (self::paths($dirPath, null, ['recursive' => false]) as $path) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -306,10 +308,6 @@ class Directory extends Entry {
         umask($oldUmask);
 
         return $dirPath;
-    }
-
-    public static function isEntry(string $path): bool {
-        return is_file($path) || is_dir($path) || is_link($path);
     }
 
     /**

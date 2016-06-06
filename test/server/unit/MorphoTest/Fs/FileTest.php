@@ -1,10 +1,20 @@
 <?php
-namespace MorphoTest;
+namespace MorphoTest\Fs;
 
 use Morpho\Fs\File;
 use Morpho\Test\TestCase;
 
 class FileTest extends TestCase {
+    public function testIsEmpty() {
+        $tmpFilePath = $this->createTmpDir() . '/123';
+        touch($tmpFilePath);
+        $this->assertTrue(File::isEmpty($tmpFilePath));
+        file_put_contents($tmpFilePath, 'ok');
+        $this->assertFalse(File::isEmpty($tmpFilePath));
+        file_put_contents($tmpFilePath, '');
+        $this->assertTrue(File::isEmpty($tmpFilePath));
+    }
+
     public function testReadJson() {
         $tmpDirPath = $this->createTmpDir();
         $targetFilePath = $this->copyFile($this->getTestDirPath() . '/composer.json', $tmpDirPath);
