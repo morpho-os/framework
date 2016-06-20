@@ -5,6 +5,10 @@ use Morpho\Fs\Directory;
 use Morpho\Test\TestCase;
 
 class DirectoryTest extends TestCase {
+    public function testDeleteEmptyDirs() {
+        $this->markTestIncomplete();
+    }
+    
     public function testIsEmptyDir() {
         $this->assertFalse(Directory::isEmpty($this->getTestDirPath()));
         $this->assertTrue(Directory::isEmpty($this->createTmpDir()));

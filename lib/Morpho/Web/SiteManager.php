@@ -117,7 +117,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         if (empty($siteName)) {
             $this->invalidSiteError("Empty value of the 'Host' field");
         }
-        $siteName = strtolower((string)$siteName);
+        $siteName = explode(':', strtolower((string)$siteName), 2)[0];
         if (substr($siteName, 0, 4) === 'www.' && strlen($siteName) > 4) {
             $siteName = substr($siteName, 4);
         }

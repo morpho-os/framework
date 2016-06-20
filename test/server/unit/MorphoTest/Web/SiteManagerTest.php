@@ -5,7 +5,6 @@ use Morpho\Test\TestCase;
 use Morpho\Web\SiteManager;
 use Morpho\Web\Site;
 
-
 class SiteManagerTest extends TestCase {
     public function setUp() {
         $this->siteManager = new SiteManager();
@@ -97,9 +96,15 @@ class SiteManagerTest extends TestCase {
         $this->assertBoolAccessor([$this->siteManager, 'useMultiSiting'], false);
     }
 
-    public function testGetCurrentSite_CanUseIpv4() {
+    public function testGetCurrentSite_Ipv4WithoutPort() {
         $this->siteManager->useMultiSiting(true);
         $_SERVER['HTTP_HOST'] = '192.0.2.3';
+        $this->assertEquals('by-ip', $this->siteManager->getCurrentSite()->getName());
+    }
+
+    public function testGetCurrentSite_Ipv4WithPort() {
+        $this->siteManager->useMultiSiting(true);
+        $_SERVER['HTTP_HOST'] = '192.0.2.3:1234';
         $this->assertEquals('by-ip', $this->siteManager->getCurrentSite()->getName());
     }
 

@@ -136,13 +136,6 @@ class Directory extends Entry {
         }
         return self::paths($dirPath, $processor, $options);
     }
-    
-    public static function isEmpty($dirPath): bool {
-        foreach (self::paths($dirPath, null, ['recursive' => false]) as $path) {
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Shortcut for the paths() with $options['type'] == self::FILE option.
@@ -258,6 +251,26 @@ class Directory extends Entry {
         }
     }
 
+    public static function isEmpty($dirPath): bool {
+        foreach (self::paths($dirPath, null, ['recursive' => false]) as $path) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function deleteEmptyDirs(string $dirPath)/*: void */ {
+        $it = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dirPath, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($it as $fileInfo) {
+            $path = $fileInfo->getPathname();
+            if (is_dir($path) && self::isEmpty($path)) {
+                Directory::delete($path);
+            }
+        }
+    }
+
     /**
      * Generates unique path for directory if the directory with
      * the given path already exists.
@@ -297,6 +310,7 @@ class Directory extends Entry {
         if (!@mkdir($dirPath, $mode, $recursive)) {
             umask($oldUmask);
             $error = error_get_last();
+            error_clear_last();
             $message = "Unable to create the directory '$dirPath' with mode: $mode.";
             if (null !== $error) {
                 throw new Exception($message . ' ' . $error['message']);
