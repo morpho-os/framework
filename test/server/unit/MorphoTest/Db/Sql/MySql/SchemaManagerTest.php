@@ -1,6 +1,7 @@
 <?php
 namespace MorphoTest\Db\Sql\MySql;
 
+use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\MySql\SchemaManager;
 use Morpho\Test\DbTestCase;
 use Morpho\Db\Sql\Db;
@@ -8,16 +9,35 @@ use Morpho\Db\Sql\Db;
 class SchemaManagerTest extends DbTestCase {
     protected $schemaManager;
 
+    private $dbs = [];
+
     public function setUp() {
         parent::setUp();
         $db = new Db($this->getDbConfig());
         $this->schemaManager = new SchemaManager($db);
         $this->schemaManager->deleteAllTables();
+        $this->db = $db;
+        $this->dbs = [];
     }
 
-    public function testGetTableDefinitionForNonExistingTable() {
+    public function tearDown() {
+        parent::tearDown();
+        foreach ($this->dbs as $dbName) {
+            $this->db->runQuery("DROP DATABASE IF EXISTS " . $dbName);
+        }
+    }
+
+    public function testDatabaseOperations() {
+        $dbSuffix = md5(__FUNCTION__);
+        $dbName = 't' . $dbSuffix;
+        $this->assertFalse($this->schemaManager->databaseExists($dbName));
+        $this->callCreateDatabase($dbName, SchemaManager::DEFAULT_CHARSET, SchemaManager::DEFAULT_COLLATION);
+        $this->assertTrue($this->schemaManager->databaseExists($dbName));
+    }
+
+    public function testTableDefinitionForNonExistingTable() {
         $this->setExpectedException('\RuntimeException', "The table 'foo' does not exist");
-        $this->schemaManager->getTableDefinition('foo');
+        $this->schemaManager->tableDefinition('foo');
     }
 
     public function testCreateTablesWithFksOnOneColumn() {
@@ -230,5 +250,150 @@ OUT
             ,
             $this->schemaManager->getCreateTableSql('productOrder')
         );
+    }
+    
+    // ------------------------------------------------------------------------
+
+    public function testSizeOfDatabases() {
+        $this->markTestIncomplete();
+    }
+
+    public function testSizeOfDatabase() {
+        $size = $this->schemaManager->sizeOfDatabase('mysql');
+        $this->assertGreaterThan(0, $size);
+        $sum = 0;
+        foreach ($this->db->runQuery("SELECT DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'mysql'") as $row) {
+            $sum += $row['DATA_LENGTH'] + $row['INDEX_LENGTH'];
+        }
+        $this->assertEquals($sum, $size);
+    }
+
+    public function testSizeOfTables() {
+        $size = $this->schemaManager->sizeOfTables('mysql');
+        $this->assertInternalType('array', $size);
+        $this->assertNotEmpty($size);
+        $expectedKeys = ['tableName', 'tableType', 'sizeInBytes'];
+        foreach ($size as $row) {
+            $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $row);
+
+        }
+    }
+
+    public function testSizeOfTable() {
+        $this->markTestIncomplete();
+    }
+    
+    // ------------------------------------------------------------------------
+    
+    public function testAvailableCharsetsWithDefaultCollation() {
+        $expected = [
+            [
+                'Charset' => 'latin1',
+                'Description' => 'cp1252 West European',
+                'Default collation' => 'latin1_swedish_ci',
+                'Maxlen' => 1,
+            ],
+            [
+                'Charset' => 'utf8',
+                'Description' => 'UTF-8 Unicode',
+                'Default collation' => 'utf8_general_ci',
+                'Maxlen' => 3,
+            ],
+        ];
+        $this->assertEquals(
+            $expected,
+            $this->schemaManager->availableCharsetsWithDefaultCollation(['utf8', 'latin1'])
+        );
+        $rows = $this->schemaManager->availableCharsetsWithDefaultCollation();
+        $this->assertTrue(count($rows) > count($expected));
+        $expectedKeys = array_keys($expected[0]);
+        foreach ($rows as $row) {
+            $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $row);
+        }
+    }
+
+    public function testAvailableCollationsForCharset() {
+        $charset = 'utf8';
+        $rows = $this->schemaManager->availableCollationsForCharset($charset);
+        $this->assertNotEmpty($rows);
+        $expectedKeys = [
+            'Collation',
+            'Charset',
+            'Id',
+            'Default',
+            'Compiled',
+            'Sortlen',
+        ];
+        foreach ($rows as $row) {
+            $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $row);
+            $this->assertEquals($charset, $row['Charset']);
+            $this->assertStringStartsWith($charset, $row['Collation']);
+        }
+    }
+    
+    public function testGetCharsetAndCollationVars() {
+        $vars = $this->schemaManager->getCharsetAndCollationVars();
+        $expectedKeys = [
+            'character_set_client',
+            'character_set_connection',
+            'character_set_database',
+            'character_set_filesystem',
+            'character_set_results',
+            'character_set_server',
+            'character_set_system',
+            'character_sets_dir',
+            'collation_connection',
+            'collation_database',
+            'collation_server',
+        ];
+        $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $vars);
+    }
+
+    public function testGetCharsetAndCollationOfDatabase() {
+        $charset = 'gb2312';
+        $collation = $charset . '_bin';
+        $dbName = $this->callCreateDatabase('t' . md5(__FUNCTION__), $charset, $collation);
+        $this->assertEquals(['charset' => $charset, 'collation' => $collation], $this->schemaManager->getCharsetAndCollationOfDatabase($dbName));
+    }
+    
+    public function testGetCharsetAndCollationOfTables() {
+        $this->db->runQuery("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
+        $this->db->runQuery("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
+        $rows = $this->schemaManager->getCharsetAndCollationOfTables(self::DB);
+        $this->assertNotEmpty($rows);
+        foreach ($rows as $row) {
+            $this->assertCount(5, $row);
+            $this->assertEquals(self::DB, $row['dbName']);
+            $this->assertEquals('BASE TABLE', $row['tableType']);
+            switch ($row['tableName']) {
+                case'cherry':
+                    $this->assertEquals('gb2312', $row['charset']);
+                    $this->assertEquals('gb2312_bin', $row['collation']);
+                    break;
+                case 'kiwi';
+                    $this->assertEquals('cp1250', $row['charset']);
+                    $this->assertEquals('cp1250_croatian_ci', $row['collation']);
+                    break;
+                default:
+                    $this->fail();
+            }
+        }
+    }
+    
+    public function testGetCharsetAndCollationOfColumns() {
+        $this->markTestIncomplete();
+    }
+
+    private function assertArrayHasOnlyItemsWithKeys(array $expectedKeys, array $arr) {
+        $this->assertTrue(
+            ArrayTool::setsEqual($expectedKeys, array_keys($arr)),
+            print_r($expectedKeys, true) . print_r(array_keys($arr), true)
+        );
+    }
+
+    private function callCreateDatabase($dbName, $charset, $collation): string {
+        $this->dbs[] = $dbName;
+        $this->db->runQuery("CREATE DATABASE $dbName CHARACTER SET $charset COLLATE $collation");
+        return $dbName;
     }
 }

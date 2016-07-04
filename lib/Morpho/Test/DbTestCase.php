@@ -5,6 +5,8 @@ use Morpho\Db\Sql\Db;
 use Morpho\Fs\Directory;
 
 abstract class DbTestCase extends TestCase {
+    const DB = 'test';
+    
     protected function createFixtures($db)/*: void*/ {
         $paths = Directory::paths($this->getTestDirPath(), '~Fixture\.php$~');
         foreach ($paths as $path) {
@@ -26,7 +28,7 @@ abstract class DbTestCase extends TestCase {
             'host'     => '127.0.0.1',
             'user'     => 'root',
             'password' => '',
-            'db'       => 'test',
+            'db'       => self::DB,
         ];
     }
 

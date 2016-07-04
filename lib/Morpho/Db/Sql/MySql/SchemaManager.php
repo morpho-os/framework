@@ -6,30 +6,63 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 
 class SchemaManager extends BaseSchemaManager {
-    protected $defaultEngine = 'InnoDB';
-    protected $defaultCharset = 'utf8';
-    protected $defaultCollation = 'utf8_general_ci';
-
+    const DEFAULT_ENGINE    = 'InnoDB';
+    const DEFAULT_CHARSET   = 'utf8';
+    const DEFAULT_COLLATION = 'utf8_general_ci';
+    
     public function databaseNames(): array {
         return $this->db->fetchColumn("SHOW DATABASES");
     }
 
-    public function createDatabase(string $dbName)/*: void*/ {
-        $this->db->runQuery("CREATE DATABASE " . $this->db->query()->identifier($dbName) . " CHARACTER SET " . $this->defaultCharset . " COLLATE " . $this->defaultCollation);
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
+    public function createDatabase(string $dbName, string $charset = null, string $collation = null)/*: void*/ {
+        $this->db->runQuery("CREATE DATABASE " . $this->db->query()->identifier($dbName)
+            . " CHARACTER SET " . ($charset ?: self::DEFAULT_CHARSET)
+            . " COLLATE " . ($collation ?: self::DEFAULT_COLLATION)
+        );
     }
     
-    public function dbExists(string $dbName): bool {
+    public function databaseExists(string $dbName): bool {
         return in_array($dbName, $this->databaseNames(), true);
     }
 
+    public function renameDatabase(string $oldName, string $newName) {
+        throw new NotImplementedException();
+    }
+    
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
     public function deleteDatabase(string $dbName)/*: void*/ {
         $this->db->runQuery("DROP DATABASE " . $this->db->query()->identifier($dbName));
+    }
+
+    public function sizeOfDatabases() {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Returns size of the $dbName in bytes.
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
+    public function sizeOfDatabase(string $dbName) {
+        return $this->db->selectCell(
+            'SUM(DATA_LENGTH + INDEX_LENGTH)
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = ?',
+            [$dbName]
+        );
     }
 
     public function tableNames(): array {
         return $this->db->fetchColumn("SHOW TABLES");
     }
-
+    
     public function tableExists(string $tableName): bool {
         // @TODO: Use `mysql` table?
         // or SHOW TABLES like `$tableName`.
@@ -56,14 +89,52 @@ class SchemaManager extends BaseSchemaManager {
         throw new NotImplementedException();
     }
 
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
     public function deleteTableIfExists(string $tableName)/*: void*/ {
         $this->db->runQuery('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
     }
 
-    public function renameColumn()/*: void*/ {
-        throw new NotImplementedException();
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
+    public function tableDefinition(string $tableName, string $dbName = null): array {
+        // The code fragment from the Doctrine MySQL, @TODO: specify where
+        $stmt = $this->db->runQuery(
+            "SELECT
+                COLUMN_NAME AS Field,
+                COLUMN_TYPE AS Type,
+                IS_NULLABLE AS `Null`,
+                COLUMN_KEY AS `Key`,
+                COLUMN_DEFAULT AS `Default`,
+                EXTRA AS Extra,
+                COLUMN_COMMENT AS Comment,
+                CHARACTER_SET_NAME AS CharacterSet,
+                COLLATION_NAME AS Collation
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = " . (null === $dbName ? 'DATABASE()' : "'$dbName'") . " AND TABLE_NAME = '" . $tableName . "'"
+        );
+        if (!$stmt->rowCount()) {
+            throw new \RuntimeException("The table '" . (null === $dbName ? $tableName : $dbName . '.' . $tableName) . "' does not exist");
+        }
+        return $stmt->fetchAll();
     }
 
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
+    public function getCreateTableSql(string $tableName): string {
+        return $this->db->fetchRows("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))[0]['Create Table'];
+    }
+
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
     public function tableDefinitionToSql(string $tableName, array $tableDefinition): array {
         Assert::hasOnlyKeys($tableDefinition, ['columns', 'foreignKeys', 'indexes', 'primaryKey', 'description', 'uniqueKeys']);
 
@@ -145,7 +216,7 @@ class SchemaManager extends BaseSchemaManager {
         $sql = "CREATE TABLE " . $query->identifier($tableName)
             . " (\n"
             . implode(",\n", $columns)
-            . "\n) ENGINE={$this->defaultEngine} DEFAULT CHARSET={$this->defaultCharset}";
+            . "\n) ENGINE=" . self::DEFAULT_ENGINE . " DEFAULT CHARSET=" . self::DEFAULT_CHARSET;
 
         $args = [];
         if (isset($tableDefinition['description'])) {
@@ -156,6 +227,43 @@ class SchemaManager extends BaseSchemaManager {
         return [$sql, $args];
     }
 
+    public function viewNames(): array {
+        throw new NotImplementedException();
+        // SELECT TABLE_NAME FROM information_schema.VIEWS;
+    }
+
+    /**
+     * Returns size of all tables in $dbName in bytes.
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
+    public function sizeOfTables(string $dbName): array {
+        return $this->db->selectRows(
+            'TABLE_NAME AS tableName,
+            TABLE_TYPE AS tableType,
+            DATA_LENGTH + INDEX_LENGTH as sizeInBytes 
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = ? ORDER BY sizeInBytes DESC',
+            [$dbName]
+        );
+    }
+
+    /**
+     * Returns a size of the $tableName in bytes.
+     * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
+     */
+    public function sizeOfTable(string $tableName) {
+        throw new NotImplementedException();
+    }
+
+    public function renameColumn()/*: void*/ {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
+     * of the caller to provide safe arguments.
+     */
     public function columnDefinitionToSql(string $columnName, array $columnDefinition): string {
         Assert::hasOnlyKeys($columnDefinition, ['type', 'nullable', 'scale', 'precision', 'default', 'unsigned', 'length']);
 
@@ -196,17 +304,130 @@ class SchemaManager extends BaseSchemaManager {
         return $this->db->query()->identifier($columnName) . ' ' . $columnDefinitionSql;
     }
 
-    public function getTableDefinition(string $tableName, string $dbName = null): array {
-        // The code fragment from the Doctrine MySQL, @TODO: specify where
-        $stmt = $this->db->runQuery("SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . (null === $dbName ? 'DATABASE()' : "'$dbName'") . " AND TABLE_NAME = '" . $tableName . "'");
-        if (!$stmt->rowCount()) {
-            throw new \RuntimeException("The table '" . (null === $dbName ? $tableName : $dbName . '.' . $tableName) . "' does not exist");
+    /**
+     * Returns the all available charsets, each result row will contain the default collation for the respective charset.
+     */
+    public function availableCharsetsWithDefaultCollation(array $charsets = null): array {
+        $sql = 'SHOW CHARACTER SET';
+        $where = '';
+        if ($charsets) {
+            $where .= ' WHERE CHARSET IN (' . Query::positionalPlaceholdersString($charsets) . ')';
         }
-        return $stmt->fetchAll();
+        return $this->db->fetchRows($sql . $where, $charsets);
     }
 
-    public function getCreateTableSql(string $tableName): string {
-        return $this->db->fetchRows("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))[0]['Create Table'];
+    /**
+     * Returns list of available collations for the given charset.
+     */
+    public function availableCollationsForCharset(string $charset): array {
+        return $this->db->fetchRows('SHOW COLLATION WHERE CHARSET = ?', [$charset]);
+    }
+
+    /**
+     * Returns a map where key is variable name and value is its value. The list of the returned variables:
+     *     - character_set_client
+     *     - character_set_connection
+     *     - character_set_database
+     *     - character_set_filesystem
+     *     - character_set_results
+     *     - character_set_server
+     *     - character_set_system
+     *     - character_sets_dir
+     *     - collation_connection
+     *     - collation_database
+     *     - collation_server
+     * The following variables in the list depend from the current database:
+     *     - character_set_database
+     *     - collation_database
+     */
+    public function getCharsetAndCollationVars(): array {
+        return array_merge(
+            $this->db->fetchMap('SHOW VARIABLES LIKE "character_set%"'),
+            $this->db->fetchMap('SHOW VARIABLES LIKE "collation%"')
+        );
+    }
+
+    /**
+     * Returns an array in format ['charset' => $charset, 'collation' => $collation].
+     * @return array|false
+     */
+    public function getCharsetAndCollationOfDatabase(string $dbName): array {
+        return $this->db->selectRow(
+            'DEFAULT_CHARACTER_SET_NAME AS charset,
+            DEFAULT_COLLATION_NAME AS collation
+            FROM information_schema.SCHEMATA
+            WHERE SCHEMA_NAME = ?',
+            [$dbName]
+        );
+    }
+    
+    public function setCharsetAndCollationOfDatabase(string $dbName) {
+        throw new NotImplementedException();
+        // ALTER DATABASE $dbName CHARACTER SET $charset COLLATE $collation;
+    }
+
+    /**
+     * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
+     */
+    public function getCharsetAndCollationOfTables(string $dbName): array {
+        return $this->db->selectRows(
+            'TABLE_SCHEMA AS dbName,
+            TABLE_NAME AS tableName,
+            TABLE_TYPE AS tableType,
+            SUBSTRING(TABLE_COLLATION, 1, LOCATE("_", TABLE_COLLATION) - 1) AS charset,
+            TABLE_COLLATION AS collation
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = ?',
+            [$dbName]
+        );
+    }
+
+    public function getCharsetAndCollationOfTable(string $tableName): array {
+        throw new NotImplementedException();
+    }
+
+    public function setCharsetAndCollationOfTable(string $tableName): array {
+        // ALTER TABLE $tableName CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+        // ALTER TABLE $tableName CHARACTER SET utf8, COLLATE utf8_general_ci;
+        throw new NotImplementedException();
+    }
+    
+    /**
+     * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
+     */
+    public function getCharsetAndCollationOfColumns(string $tableName): array {
+        throw new NotImplementedException();
+        // SHOW FULL COLUMNS FROM table_name;
+/*
+SELECT TABLE_SCHEMA,
+  TABLE_NAME,
+  CCSA.CHARACTER_SET_NAME AS DEFAULT_CHAR_SET,
+  COLUMN_NAME,
+  COLUMN_TYPE,
+  C.CHARACTER_SET_NAME
+FROM information_schema.TABLES AS T
+  JOIN information_schema.COLUMNS AS C USING (TABLE_SCHEMA, TABLE_NAME)
+  JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA
+    ON (T.TABLE_COLLATION = CCSA.COLLATION_NAME)
+WHERE TABLE_SCHEMA='$dbName'
+      AND C.DATA_TYPE IN ('enum', 'varchar', 'char', 'text', 'mediumtext', 'longtext')
+ORDER BY TABLE_SCHEMA,
+  TABLE_NAME,
+  COLUMN_NAME
+;
+ */
+    }
+    
+    public function setCharsetAndCollationOfColumn() {
+        //ALTER TABLE $tableName CHANGE COLUMN $columnName $columnName TEXT CHARACTER SET utf8 COLLATE utf8_general_ci;
+        // SHOW FULL COLUMNS FROM $tableName;
+        throw new NotImplementedException();
+    }
+    
+    public function createDbUser() {
+        throw new NotImplementedException();
+ //       GRANT CREATE, DROP, LOCK TABLES, REFERENCES, ALTER, DELETE, INDEX, INSERT, SELECT, UPDATE, CREATE TEMPORARY TABLES, TRIGGER, CREATE VIEW, SHOW VIEW, ALTER ROUTINE, CREATE ROUTINE, EXECUTE ON $dbName.* to $userName@$hostName IDENTIFIED BY '$password';
+//FLUSH PRIVILEGES;
     }
 
     protected function columnsDefinitionToSqlArray(array $columnsDefinition) {

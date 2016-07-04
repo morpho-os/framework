@@ -20,11 +20,13 @@ class Debugger {
     private static $instance;
 
     private static $class;
+    
+    private $exitCode = 0;
 
     public function type($obj) {
         $this->dump(typeOf($obj));
     }
-
+    
     public function dump() {
         $argsCount = func_num_args();
         $output = '';
@@ -36,7 +38,8 @@ class Debugger {
         if ($this->isHtmlMode()) {
             $output = $this->formatHtml($output);
         }
-        exit($output);
+        echo $output;
+        exit($this->exitCode);
     }
 
     public function trace() {
@@ -44,7 +47,8 @@ class Debugger {
         if ($this->isHtmlMode()) {
             $output = $this->formatHtml($output);
         }
-        exit($output);
+        echo $output;
+        exit($this->exitCode);
     }
 
     /**
@@ -246,6 +250,11 @@ class Debugger {
 
     public static function setClass($class) {
         self::$class = $class;
+    }
+    
+    public function setExitCode(int $exitCode): self {
+        $this->exitCode = $exitCode;
+        return $this;
     }
 
     protected function __construct() {

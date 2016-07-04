@@ -45,51 +45,51 @@ class Db {
         return $this->schemaManager;
     }
 
-    public function selectRows(string $sql, array $args = []): array {
-        return $this->fetchRows('SELECT ' . $sql, $args);
+    public function selectRows(string $sql, array $args = null): array {
+        return $this->fetchRows('SELECT ' . $sql, (array) $args);
     }
 
     /**
-     * @return false|array
+     * @return array|false
      */
     public function selectRow(string $sql, array $args) {
         return $this->fetchRow('SELECT ' . $sql, $args);
     }
 
-    public function selectColumn(string $sql, array $args = []): array {
-        return $this->fetchColumn('SELECT ' . $sql, $args);
+    public function selectColumn(string $sql, array $args = null): array {
+        return $this->fetchColumn('SELECT ' . $sql, (array) $args);
     }
 
     /**
      * @return string|null|false
      */
-    public function selectCell(string $sql, array $args = []) {
-        return $this->fetchCell('SELECT ' . $sql, $args);
+    public function selectCell(string $sql, array $args = null) {
+        return $this->fetchCell('SELECT ' . $sql, (array) $args);
     }
 
-    public function selectBool(string $sql, array $args = []): bool {
-        return (bool)$this->selectCell($sql, $args);
+    public function selectBool(string $sql, array $args = null): bool {
+        return (bool)$this->selectCell($sql, (array) $args);
     }
 
-    public function selectMap(string $sql, array $args = []): array {
-        return $this->fetchMap('SELECT ' . $sql, $args);
+    public function selectMap(string $sql, array $args = null): array {
+        return $this->fetchMap('SELECT ' . $sql, (array) $args);
     }
 
-    public function fetchRows(string $sql, array $args = []): array {
-        return $this->runQuery($sql, $args)
+    public function fetchRows(string $sql, array $args = null): array {
+        return $this->runQuery($sql, (array) $args)
             ->fetchAll();
     }
 
     /**
-     * @return false|array
+     * @return array|false
      */
-    public function fetchRow(string $sql, array $args = []) {
-        return $this->runQuery($sql, $args)
+    public function fetchRow(string $sql, array $args = null) {
+        return $this->runQuery($sql, (array) $args)
             ->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function fetchColumn(string $sql, array $args = []): array {
-        return $this->runQuery($sql, $args)
+    public function fetchColumn(string $sql, array $args = null): array {
+        return $this->runQuery($sql, (array) $args)
             ->fetchAll(\PDO::FETCH_COLUMN);
     }
 
@@ -98,8 +98,8 @@ class Db {
             ->fetchColumn(0);
     }
 
-    public function fetchMap(string $sql, array $args): array {
-        return $this->runQuery($sql, $args)
+    public function fetchMap(string $sql, array $args = null): array {
+        return $this->runQuery($sql, (array) $args)
             ->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
 
@@ -114,7 +114,7 @@ class Db {
         $this->runQuery($sql, array_values($row));
     }
     
-    public function insertRows(string $tableName, array $rows, int $rowsInBlock = 100)/*: void */ {
+    public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100*/)/*: void */ {
         // @TODO: Handle $rowsInBlock
         $args = [];
         $keys = null;
