@@ -94,8 +94,9 @@ class PathTest extends TestCase {
     /**
      * @dataProvider dataForAssertSafeDoesNotThrowExceptionForSafePath
      */
-    public function testAssertSafeDoesNotThrowExceptionForSafePath($path) {
+    public function testAssertSafe_DoesNotThrowExceptionForSafePath($path) {
         Path::assertSafe($path);
+        $this->markTestAsNotRisky();
     }
 
     public function dataForIsNormalizedInvalid() {

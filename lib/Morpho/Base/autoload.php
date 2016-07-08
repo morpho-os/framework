@@ -415,3 +415,15 @@ function resolveTypeSynonym(string $type): string {
             throw new \UnexpectedValueException("Unexpected value of type: '$type'");
     }
 }
+
+function bufferOut(callable $fn): string {
+    ob_start();
+    try {
+        $fn();
+    } catch (\Throwable $e) {
+        // Don't output any result in case of Error
+        ob_end_clean();
+        throw $e;
+    }
+    return ob_get_clean();
+}

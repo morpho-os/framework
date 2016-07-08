@@ -30,7 +30,7 @@ class AssertTest extends TestCase {
         Assert::hasKeys($actual, $requiredKeys);
     }
 
-    public function dataForHasKeys_Valid() {
+    public function dataForHasKeys_Valid_DoesNotThrowException() {
         return [
             [
                 ['foo' => 1, 'bar' => 2],
@@ -48,10 +48,11 @@ class AssertTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHasKeys_Valid
+     * @dataProvider dataForHasKeys_Valid_DoesNotThrowException
      */
-    public function testHasKeys_Valid($actual, $requiredKeys) {
+    public function testHasKeys_Valid_DoesNotThrowException($actual, $requiredKeys) {
         Assert::hasKeys($actual, $requiredKeys);
+        $this->markTestAsNotRisky();
     }
 
     public function dataForHasOnlyKeys_Invalid() {
@@ -78,7 +79,7 @@ class AssertTest extends TestCase {
         Assert::hasOnlyKeys($actual, $allowedKeys);
     }
 
-    public function dataForHasOnlyKeys_Valid() {
+    public function dataForHasOnlyKeys_Valid_DoesNotThrowException() {
         return [
             [
                 ['foo' => '1', 'bar' => 2, 'baz' => 3],
@@ -100,10 +101,11 @@ class AssertTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHasOnlyKeys_Valid
+     * @dataProvider dataForHasOnlyKeys_Valid_DoesNotThrowException
      */
-    public function testHasOnlyKeys_Valid($actual, $allowedKeys) {
+    public function testHasOnlyKeys_Valid_DoesNotThrowException($actual, $allowedKeys) {
         Assert::hasOnlyKeys($actual, $allowedKeys);
+        $this->markTestAsNotRisky();
     }
 
     public function dataForIsOneOf_Invalid() {
@@ -131,7 +133,7 @@ class AssertTest extends TestCase {
         Assert::isOneOf($needle, $haystack);
     }
 
-    public function dataForIsOneOf_Valid() {
+    public function dataForIsOneOf_Valid_DoesNotThrowException() {
         return [
             [
                 '',
@@ -145,9 +147,10 @@ class AssertTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIsOneOf_Valid
+     * @dataProvider dataForIsOneOf_Valid_DoesNotThrowException
      */
-    public function testIsOneOf_Valid($needle, $haystack) {
+    public function testIsOneOf_Valid_DoesNotThrowException($needle, $haystack) {
         Assert::isOneOf($needle, $haystack);
+        $this->markTestAsNotRisky();
     }
 }

@@ -5,7 +5,7 @@ namespace Morpho\Cli;
 
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\{
-    writeLn, decodeJson
+    writeLn, decodeJson, bufferOut
 };
 use Morpho\Base\NotImplementedException;
 
@@ -36,21 +36,20 @@ function cmdSu(string $cmd): CommandResult {
 function cmd(string $command, array $args = null, array $options = []): CommandResult {
     $options = ArrayTool::handleOptions($options, [
         'showStdOut' => false,
+        'returnStdOut' => true,
         //'showStdErr' => true,  // @TODO
         'throwException' => true,
-        'returnStdOut' => true
     ]);
-    if ($options['returnStdOut'] || (!$options['returnStdOut'] && !$options['showStdOut'])) {
-        // 1, *
-        // 0, 0
-        ob_start();
+    $runCmd = function () use ($command, $args, &$exitCode)/*: void */ {
         passthru(
             $command . (null !== $args ? ' ' . escapedArgsString($args) : ''),
             $exitCode
         );
+    };
+    if ($options['returnStdOut'] || (!$options['returnStdOut'] && !$options['showStdOut'])) {
         if ($options['returnStdOut']) {
             // 1, *
-            $res = trim(ob_get_clean());
+            $res = trim(bufferOut($runCmd));
             if ($options['showStdOut']) {
                 // 1, 1
                 echo $res;
@@ -58,15 +57,12 @@ function cmd(string $command, array $args = null, array $options = []): CommandR
             $result = new CommandResult($res, $exitCode);
         } else {
             // 0, 0
-            ob_end_clean();
+            bufferOut($runCmd);
             $result = new CommandResult('', $exitCode);
         }
     } else {
         // 0, 1
-        passthru(
-            $command . (null !== $args ? ' ' . escapedArgsString($args) : ''),
-            $exitCode
-        );
+        $runCmd();
         $result = new CommandResult('', $exitCode);
     }
     if ($options['throwException'] && $result->isError()) {

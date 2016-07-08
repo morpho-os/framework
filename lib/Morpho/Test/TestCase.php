@@ -136,6 +136,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         return md5(uniqid(microtime(true)));
     }
 
+    protected function markTestAsNotRisky() {
+        $this->addToAssertionCount(1);
+    }
+
     private function assertInstanceUniqueness(callable $fn, string $expectedClass, bool $unique) {
         $instance1 = $fn();
         $this->assertInstanceOf($expectedClass, $instance1);

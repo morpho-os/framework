@@ -43,7 +43,12 @@ abstract class TemplateEngine extends FilterChain {
     public function render(string $phpEngineCode, array $vars = []): string {
         extract($vars, EXTR_SKIP);
         ob_start();
-        eval('?>' . $this->filter($phpEngineCode));
+        try {
+            eval('?>' . $this->filter($phpEngineCode));
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
         return trim(ob_get_clean());
     }
 

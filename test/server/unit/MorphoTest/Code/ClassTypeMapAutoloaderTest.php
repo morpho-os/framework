@@ -30,9 +30,10 @@ class ClassTypeMapAutoloaderTest extends TestCase {
         $this->assertFalse(file_exists($mapFilePath));
     }
 
-    public function testClearEmptyMapShouldNotThrowException() {
+    public function testClearMap_ClearEmptyMapDoesNotThrowException() {
         $autoloader = new ClassTypeMapAutoloader($this->getMapFilePath(), $this->getTestDirPath());
         $autoloader->clearMap();
+        $this->markTestAsNotRisky();
     }
 
     public function testCaching() {
