@@ -5,7 +5,7 @@ namespace Morpho\Cli;
 
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\{
-    writeLn, decodeJson, bufferOut
+    writeLn, decodeJson, buffer
 };
 use Morpho\Base\NotImplementedException;
 
@@ -49,7 +49,7 @@ function cmd(string $command, array $args = null, array $options = []): CommandR
     if ($options['returnStdOut'] || (!$options['returnStdOut'] && !$options['showStdOut'])) {
         if ($options['returnStdOut']) {
             // 1, *
-            $res = trim(bufferOut($runCmd));
+            $res = trim(buffer($runCmd));
             if ($options['showStdOut']) {
                 // 1, 1
                 echo $res;
@@ -57,7 +57,7 @@ function cmd(string $command, array $args = null, array $options = []): CommandR
             $result = new CommandResult($res, $exitCode);
         } else {
             // 0, 0
-            bufferOut($runCmd);
+            buffer($runCmd);
             $result = new CommandResult('', $exitCode);
         }
     } else {

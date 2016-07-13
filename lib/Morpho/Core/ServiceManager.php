@@ -3,6 +3,7 @@ namespace Morpho\Core;
 
 use Morpho\Base\MethodNotFoundException;
 use Morpho\Di\ServiceManager as BaseServiceManager;
+use function Morpho\Code\composerAutoloader;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;
@@ -24,7 +25,7 @@ abstract class ServiceManager extends BaseServiceManager {
     }
 
     protected function createAutoloaderService() {
-        return require VENDOR_DIR_PATH . '/' . AUTOLOAD_FILE_NAME;
+        return composerAutoloader(VENDOR_DIR_PATH . '/' . AUTOLOAD_FILE_NAME);
     }
 
     abstract protected function createModuleManagerService();

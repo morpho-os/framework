@@ -416,7 +416,7 @@ function resolveTypeSynonym(string $type): string {
     }
 }
 
-function bufferOut(callable $fn): string {
+function buffer(callable $fn): string {
     ob_start();
     try {
         $fn();
