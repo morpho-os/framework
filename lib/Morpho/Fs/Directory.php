@@ -166,12 +166,13 @@ class Directory extends Entry {
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
-    public static function brokenLinksPaths($dirPath, $processor = null): \Generator {
-        foreach (Directory::paths($dirPath, $processor) as $path) {
-            if (is_link($path)) {
-                $targetPath = readlink($path);
-                if (false === $targetPath || !self::isEntry($path)) {
-                    yield $path => $targetPath;
+    public static function brokenLinkPaths($dirPath, $processor = null): \Generator {
+        foreach (Directory::paths($dirPath, $processor) as $linkOrOtherEntryPath) {
+            if (is_link($linkOrOtherEntryPath)) {
+                $targetPath = readlink($linkOrOtherEntryPath);
+                // @TODO: Handle relative paths, see Symlink::isBroken()
+                if (false === $targetPath || !self::isEntry($targetPath)) {
+                    yield $linkOrOtherEntryPath => $targetPath;
                 }
             }
         }

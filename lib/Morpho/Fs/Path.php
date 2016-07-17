@@ -7,8 +7,8 @@ use function Morpho\Base\unpackArgs;
 class Path {
     public static function isAbsolute(string $path): bool {
         return $path !== ''
-        && ($path[0] === '/' || $path[0] === '\\')
-        || (isset($path[1]) && $path[1] === ':');
+            && ($path[0] === '/' || $path[0] === '\\')
+            || (isset($path[1]) && $path[1] === ':');
     }
 
     public static function assertSafe(string $path) {

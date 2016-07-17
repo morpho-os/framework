@@ -4,7 +4,7 @@ namespace Morpho\Code;
 use Composer\Autoload\ClassLoader;
 
 /**
- * Returns the first found Composer's autoloader.
+ * Returns the first found Composer's autoloader - an instance of the \Composer\Autoloader\ClassLoader.
  */
 function composerAutoloader(): ClassLoader {
     foreach (spl_autoload_functions() as $callback) {
