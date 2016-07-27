@@ -2,34 +2,33 @@
 namespace Morpho\Core;
 
 class Version {
-    const MAJOR = 0;
-    const MINOR = 1;
-    const PATCH = 0;
-    const PHASE = 'dev';
+    protected $major;
+    protected $minor;
+    protected $patch;
+    protected $phase;
 
-    public function __toString() {
-        return self::current();
+    public function __construct(string $major, string $minor = null, string $patch = null, string $phase = null) {
+        $this->major = $major;
+        $this->minor = $minor;
+        $this->patch = $patch;
+        $this->phase = $phase;
     }
 
     /**
-     * @return bool
+     * @param string|self $version
      */
-    public static function isValid($version) {
-        $isValid = false;
+    public static function isValid($version): bool {
         $regexp = '{^
             (\d+)                             # major version
             (\.\d+)?                          # optional minor version
             (\.\d+)?                          # optional patch version
-            (-(((alpha|beta|rc)\d*)|dev))?    # optional phase
+            (.*)                              # optional phase
         $}sx';
-        if (preg_match($regexp, $version, $m)) {
-            $isValid = true;
-        }
-
-        return $isValid;
+        $res = (bool) preg_match($regexp, $version, $m);
+        return $res;
     }
 
-    public static function current() {
+    public function __toString() {
         $callback = function ($arg) {
             if ($arg === null) {
                 return false;
@@ -37,20 +36,17 @@ class Version {
 
             return true;
         };
-
-        $suffix = self::PHASE;
-
+        $phase = $this->phase;
         return implode(
             '.',
             array_filter(
                 [
-                    self::MAJOR,
-                    self::MINOR,
-                    self::PATCH,
+                    $this->major,
+                    $this->minor,
+                    $this->patch,
                 ],
                 $callback
             )
-        )
-        . (empty($suffix) ? '' : '-' . $suffix);
+        ) . (empty($phase) ? '' : '-' . $phase);
     }
 }

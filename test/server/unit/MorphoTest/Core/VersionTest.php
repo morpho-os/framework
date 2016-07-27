@@ -5,34 +5,45 @@ use Morpho\Test\TestCase;
 use Morpho\Core\Version;
 
 class VersionTest extends TestCase {
-    public function testIsValid() {
-        $this->assertTrue(Version::isValid('0'));
-        $this->assertTrue(Version::isValid('0.0.0'));
-        $this->assertTrue(Version::isValid('1'));
-        $this->assertTrue(Version::isValid('0.1'));
-        $this->assertTrue(Version::isValid('0.1.1'));
-        $this->assertFalse(Version::isValid('0.1.1.1'));
+    public function dataForIsValid_StringArg() {
+        return [
+            [true, '0'],
+            [true, '0.0.0'],
+            [true, '1'],
+            [true, '0.1'],
+            [true, '0.1.1'],
+/*
+            [false, 'abc0.1.1'],
 
-        $this->assertFalse(Version::isValid('0.'));
-        $this->assertFalse(Version::isValid('0.0.0.'));
-        $this->assertFalse(Version::isValid('1.'));
-        $this->assertFalse(Version::isValid('0.1.'));
-        $this->assertFalse(Version::isValid('0.1.1.'));
-        $this->assertFalse(Version::isValid('0.1.1.1.'));
+            [false, '0.'],
+            [false, '0.0.0.'],
+            [false, '1.'],
+            [false, '0.1.'],
+            [false, '0.1.1.'],
+            [false, '0.1.1.1.'],
 
-        $this->assertFalse(Version::isValid('7.x-1.0-release1'));
-        $this->assertTrue(Version::isValid('0.1-dev'));
-        $this->assertFalse(Version::isValid('0.1-dev1'));
-        $this->assertTrue(Version::isValid('0.1-alpha'));
-        $this->assertTrue(Version::isValid('0.1-alpha1'));
-        $this->assertTrue(Version::isValid('0.1-beta'));
-        $this->assertTrue(Version::isValid('0.1-beta1'));
-        $this->assertTrue(Version::isValid('0.1-rc'));
-        $this->assertTrue(Version::isValid('0.1-rc1'));
+            [true, '7.x-1.0-release1'],
+            [true, '0.1-dev'],
+            [true, '0.1-dev1'],
+            [true, '0.1-alpha'],
+            [true, '0.1-alpha1'],
+            [true, '0.1-beta'],
+            [true, '0.1-beta1'],
+            [true, '0.1-rc'],
+            [true, '0.1-rc1'],
+*/
+        ];
     }
 
-    public function testCurrentVersion() {
-        $this->assertTrue(Version::isValid(Version::current()));
-        $this->assertTrue(Version::isValid((string)(new Version())));
+    /**
+     * @dataProvider dataForIsValid_StringArg
+     */
+    public function testIsValid_StringArg(bool $expected, string $version) {
+        $this->assertEquals($expected, Version::isValid($version));
+    }
+
+    public function testToString() {
+        $this->assertEquals('1.2.3', (string)(new Version('1', '2', '3', null)));
+        // @TODO: More tests, (string)(new Version(1)) -> 1.0.0??
     }
 }
