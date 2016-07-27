@@ -253,7 +253,94 @@ class DirectoryTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testCopy_WhenTargetDirExists() {
+    public function testCopy_IntoItself_TargetPathEqualsSourcePath_ThrowsException() {
+        $sourceDirPath = $this->createTmpDir() . '/foo';
+        mkdir($sourceDirPath);
+        $targetDirPath = $sourceDirPath;
+        $this->setExpectedException(\Morpho\Fs\Exception::class, "Cannot copy the directory '$sourceDirPath' into itself");
+        Directory::copy($sourceDirPath, $targetDirPath);
+    }
+
+    public function testCopy_IntoItself_TargetDirContainsTheSameDirName_ThrowsException() {
+        $tmpDirPath = $this->createTmpDir();
+        $sourceDirPath = $tmpDirPath . '/foo';
+        mkdir($sourceDirPath);
+        $targetDirPath = $tmpDirPath;
+        $this->setExpectedException(\Morpho\Fs\Exception::class, "The '$tmpDirPath' directory already contains the 'foo'");
+        Directory::copy($sourceDirPath, $targetDirPath);
+    }
+
+    public function testCopy_TargetDirContainsTheSameSubdir() {
+        $sourceDirPath = $this->createTmpDir();
+        mkdir($sourceDirPath . '/test1/foo', Directory::MODE, true);
+        $targetDirPath = $this->createTmpDir();
+        mkdir($targetDirPath . '/test1/foo', Directory::MODE, true);
+
+        Directory::copy($sourceDirPath . '/test1', $targetDirPath);
+
+        $this->assertEquals(['test1', 'test1/foo'], $this->pathsInDir($targetDirPath));
+    }
+
+    public function testCopy_TargetDirNotExist_TargetDirNameNotEqualSourceDirName() {
+        $sourceDirPath = $this->createTmpDir() . '/foo';
+        mkdir($sourceDirPath);
+        $targetDirPath = $this->createTmpDir() . '/bar';
+        Directory::copy($sourceDirPath, $targetDirPath);
+        $this->assertEquals([], $this->pathsInDir($targetDirPath));
+    }
+
+    public function testCopy_TargetDirNotExist_TargetDirNameEqualsSourceDirName() {
+        $sourceDirPath = $this->createTmpDir() . '/foo';
+        mkdir($sourceDirPath);
+        $targetDirPath = $this->createTmpDir() . '/bar/foo';
+        Directory::copy($sourceDirPath, $targetDirPath);
+        $this->assertEquals([], $this->pathsInDir($targetDirPath));
+    }
+
+    public function testCopy_TargetDirExists_TargetDirNameNotEqualsSourceDirName() {
+        $sourceDirPath = $this->createTmpDir() . '/foo';
+        mkdir($sourceDirPath);
+        $targetDirPath = $this->createTmpDir() . '/bar';
+        mkdir($targetDirPath);
+        Directory::copy($sourceDirPath, $targetDirPath);
+        $this->assertEquals(['foo'], $this->pathsInDir($targetDirPath));
+    }
+
+    public function testCopy_TargetDirExists_TargetDirNameEqualsSourceDirName() {
+        $sourceDirPath = $this->createTmpDir() . '/foo';
+        mkdir($sourceDirPath);
+        $targetDirPath = $this->createTmpDir() . '/bar';
+        mkdir($targetDirPath . '/foo', Directory::MODE, true);
+        Directory::copy($sourceDirPath, $targetDirPath);
+        $this->assertEquals(['foo'], $this->pathsInDir($targetDirPath));
+    }
+
+    public function testCopy_NestedTargetDirExists() {
+        $sourceDirPath = $this->createTmpDir();
+        mkdir($sourceDirPath . '/public/module/system', Directory::MODE, true);
+        touch($sourceDirPath . '/public/module/system/composer.json');
+
+        $targetDirPath = $this->createTmpDir();
+        mkdir($targetDirPath . '/public/module/bootstrap', Directory::MODE, true);
+
+        Directory::copy($sourceDirPath . '/public', $targetDirPath);
+
+        $paths = iterator_to_array(Directory::paths($targetDirPath, null, ['recursive' => true]), false);
+        sort($paths);
+        $this->assertEquals(
+            [
+                $targetDirPath . '/public',
+                $targetDirPath . '/public/module',
+                $targetDirPath . '/public/module/bootstrap',
+                $targetDirPath . '/public/module/system',
+                $targetDirPath . '/public/module/system/composer.json',
+            ],
+            $paths
+        );
+
+    }
+
+    public function testCopy_WithFiles_TargetDirExists() {
         $sourceDirPath = $this->createTmpDir();
         touch($sourceDirPath . '/file1.txt');
         mkdir($sourceDirPath . '/dir1');
@@ -270,7 +357,7 @@ class DirectoryTest extends TestCase {
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath . '/' . basename($sourceDirPath));
     }
 
-    public function testCopy_WhenTargetDirNotExists() {
+    public function testCopy_WithFIles_TargetDirNotExists() {
         $sourceDirPath = $this->createTmpDir();
         touch($sourceDirPath . '/file1.txt');
         mkdir($sourceDirPath . '/dir1');
@@ -284,40 +371,21 @@ class DirectoryTest extends TestCase {
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath);
     }
 
-    public function testCopy_WhenTargetPathEqualsSourcePathsThrowsException() {
-        $sourceDirPath = $this->createTmpDir();
-        touch($sourceDirPath . '/file1.txt');
-        mkdir($sourceDirPath . '/dir1');
-        touch($sourceDirPath . '/dir1/file2.txt');
-
-        $targetDirPath = $sourceDirPath;
-
-        $this->setExpectedException('\Morpho\Fs\Exception', "Cannot copy a directory '$sourceDirPath' into itself.");
-        Directory::copy($sourceDirPath, $targetDirPath);
+    private function assertDirContentsEqual($dirPathExpectedContent, $dirPathActualContent) {
+        $expected = $this->pathsInDir($dirPathExpectedContent);
+        $actual = $this->pathsInDir($dirPathActualContent);
+        $this->assertTrue(count($actual) > 0);
+        $this->assertEquals($expected, $actual);
     }
 
-    protected function assertDirContentsEqual($sourceDirPath, $targetDirPath) {
-        $expected = iterator_to_array(Directory::paths($sourceDirPath), false);
-        $actual = iterator_to_array(Directory::paths($targetDirPath), false);
-
-        $sourceDirPath = str_replace('\\', '/', $sourceDirPath);
-        $targetDirPath = str_replace('\\', '/', $targetDirPath);
-
-        $this->assertTrue(count($actual) > 0);
-        $this->assertEquals(count($expected), count($actual));
-
-        sort($expected);
-        sort($actual);
-        foreach ($expected as &$filePath) {
-            $filePath = preg_replace('{^' . preg_quote($sourceDirPath) . '}si', '', $filePath);
+    private function pathsInDir(string $dirPath): array {
+        $paths = iterator_to_array(Directory::paths($dirPath), false);
+        $dirPath = str_replace('\\', '/', $dirPath);
+        sort($paths);
+        foreach ($paths as &$filePath) {
+            $filePath = preg_replace('{^' . preg_quote($dirPath) . '/}si', '', $filePath);
         }
         unset($filePath);
-
-        foreach ($actual as &$filePath) {
-            $filePath = preg_replace('{^' . preg_quote($targetDirPath) . '}si', '', $filePath);
-        }
-        unset($filePath);
-
-        $this->assertEquals($expected, $actual);
+        return $paths;
     }
 }

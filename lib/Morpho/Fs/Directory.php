@@ -10,6 +10,8 @@ use DirectoryIterator;
 class Directory extends Entry {
     const FILE = 0x01;
     const DIR = 0x02;
+
+    const MODE = 0755;
     
     const PHP_FILES_REG_EXP = '~.\.php$~si';
 
@@ -19,15 +21,14 @@ class Directory extends Entry {
     }
 
     public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null)/*: void */ {
+        // @TODO: Handle dots and relative paths: '..', '.'
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
-        // @TODO: Handle dots and relative paths: '..', '.' a
         self::ensureExists($sourceDirPath);
-        if (!is_dir($sourceDirPath)) {
-            throw new Exception("Source path must be a directory.");
-        }
+
         if ($sourceDirPath === $targetDirPath) {
-            throw new Exception("Cannot copy a directory '$sourceDirPath' into itself.");
+            throw new Exception("Cannot copy the directory '$sourceDirPath' into itself");
         }
+
         $options = ArrayTool::handleOptions(
             (array) $options,
             [
@@ -38,7 +39,13 @@ class Directory extends Entry {
         );
 
         if (is_dir($targetDirPath)) {
-            $targetDirPath .= '/' . basename($sourceDirPath);
+            $sourceDirName = basename($sourceDirPath);
+            if ($sourceDirName !== basename($targetDirPath)) {
+                $targetDirPath .= '/' . $sourceDirName;
+            }
+            if ($sourceDirPath === $targetDirPath) {
+                throw new Exception("The '" . dirname($targetDirPath) . "' directory already contains the '$sourceDirName'");
+            }
         }
 
         $targetDirPath = self::create($targetDirPath, self::mode($sourceDirPath));
@@ -48,16 +55,16 @@ class Directory extends Entry {
             $processor,
             [
                 'recursive' => false,
-                'type'      => self::FILE | self::DIR,
+                'type' => self::FILE | self::DIR,
                 'followSymlinks' => $options['followSymlinks'],
             ]
         );
-        foreach ($paths as $sourceFilePath) {
-            $targetPath = $targetDirPath . '/' . basename($sourceFilePath);
-            if (is_file($sourceFilePath) || is_link($sourceFilePath)) {
-                File::copy($sourceFilePath, $targetPath, $options['overwrite'], $options['skipIfExists']);
+        foreach ($paths as $path) {
+            $targetPath = $targetDirPath . '/' . basename($path);
+            if (is_file($path) || is_link($path)) {
+                File::copy($path, $targetPath, $options['overwrite'], $options['skipIfExists']);
             } else {
-                self::copy($sourceFilePath, $targetPath, $processor, $options);
+                self::copy($path, $targetPath, $processor, $options);
             }
         }
     }
@@ -185,7 +192,7 @@ class Directory extends Entry {
     /**
      * @return Path to the created directory.
      */
-    public static function createTmpDir(string $relativeDirPath, int $mode = 0755): string {
+    public static function createTmpDir(string $relativeDirPath, int $mode = self::MODE): string {
         return self::create(
             Path::combine(self::tmpDirPath(), $relativeDirPath),
             $mode
@@ -288,7 +295,7 @@ class Directory extends Entry {
         return $uniquePath;
     }
 
-    public static function recreate(string $dirPath, int $mode = 0755, bool $recursive = true): string {
+    public static function recreate(string $dirPath, int $mode = self::MODE, bool $recursive = true): string {
         if (is_dir($dirPath)) {
             self::delete($dirPath);
         }
@@ -297,7 +304,7 @@ class Directory extends Entry {
         return $dirPath;
     }
 
-    public static function create(string $dirPath, int $mode = 0755, bool $recursive = true): string {
+    public static function create(string $dirPath, int $mode = self::MODE, bool $recursive = true): string {
         if (empty($dirPath)) {
             throw new Exception("The directory path is empty.");
         }
@@ -329,8 +336,11 @@ class Directory extends Entry {
      * @TODO: Rename
      */
     public static function ensureExists(string $dirPath)/*: void */ {
-        if (!is_dir($dirPath) || empty($dirPath)) {
-            throw new Exception("The '$dirPath' directory does not exist.");
+        if (empty($dirPath)) {
+            throw new Exception("The directory path is empty");
+        }
+        if (!is_dir($dirPath)) {
+            throw new Exception("The '$dirPath' directory does not exist");
         }
     }
 }
