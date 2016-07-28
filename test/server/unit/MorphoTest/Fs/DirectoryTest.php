@@ -273,6 +273,7 @@ class DirectoryTest extends TestCase {
     public function testCopy_TargetDirContainsTheSameSubdir() {
         $sourceDirPath = $this->createTmpDir();
         mkdir($sourceDirPath . '/test1/foo', Directory::MODE, true);
+
         $targetDirPath = $this->createTmpDir();
         mkdir($targetDirPath . '/test1/foo', Directory::MODE, true);
 
@@ -357,7 +358,7 @@ class DirectoryTest extends TestCase {
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath . '/' . basename($sourceDirPath));
     }
 
-    public function testCopy_WithFIles_TargetDirNotExists() {
+    public function testCopy_WithFiles_TargetDirNotExists() {
         $sourceDirPath = $this->createTmpDir();
         touch($sourceDirPath . '/file1.txt');
         mkdir($sourceDirPath . '/dir1');

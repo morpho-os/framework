@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
+    uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prependFn, appendFn
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -243,6 +243,14 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('fo-o-1', htmlId('<fo>&o\\'));
         $this->assertEquals('foo-bar', htmlId('FooBar'));
         $this->assertEquals('foo-bar-1', htmlId('FooBar'));
+    }
+
+    public function testPrependFn() {
+        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prependFn('prefix'), ['foo', 'bar', 'baz']));
+    }
+
+    public function testAppendFn() {
+        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(appendFn('suffix'), ['foo', 'bar', 'baz']));
     }
 
     protected function assertCommon($fn) {

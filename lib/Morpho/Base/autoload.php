@@ -427,3 +427,15 @@ function buffer(callable $fn): string {
     }
     return ob_get_clean();
 }
+
+function prependFn(string $prefix): callable {
+    return function (string $s) use ($prefix) {
+        return $prefix . $s;
+    };
+}
+
+function appendFn(string $suffix): callable {
+    return function (string $s) use ($suffix) {
+        return $s . $suffix;
+    };
+}
