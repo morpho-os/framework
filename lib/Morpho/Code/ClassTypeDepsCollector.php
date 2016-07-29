@@ -59,7 +59,9 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
             //$this->curNode = $node->namespacedName->toString();
         } elseif ($node instanceof TryCatch) {
             foreach ($node->catches as $catchStmt) {
-                $this->classTypes[] = implode('\\', $catchStmt->type->parts);
+                foreach ($catchStmt->types as $classType) {
+                    $this->classTypes[] = implode('\\', $classType->parts);
+                }
             }
         } elseif ($node instanceof TraitUse) {
             foreach ($node->traits as $nodeName) {
