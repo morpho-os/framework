@@ -14,7 +14,8 @@ before_script:
     - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
-    - travis_retry composer selfupdate && composer install
+    - travis_retry composer selfupdate
+    - travis_retry composer install
     - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
 
 matrix:
