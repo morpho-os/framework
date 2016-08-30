@@ -18,7 +18,7 @@ class SiteManagerTest extends TestCase {
     }
 
     public function testGetSite_ThrowsExceptionForNonExistingSiteName() {
-        $this->setExpectedException('RuntimeException', "Not allowed site name was provided");
+        $this->expectException('RuntimeException', "Not allowed site name was provided");
         $this->siteManager->getSite('nonexistent');
     }
 
@@ -68,7 +68,7 @@ class SiteManagerTest extends TestCase {
     public function testGetCurrentSite_ExitsWhenHostFieldEmptyAndMultiSitingEnabled() {
         $this->siteManager->useMultiSiting(true);
         $_SERVER['HTTP_HOST'] = '';
-        $this->setExpectedException('\Morpho\Web\BadRequestException', "Empty value of the 'Host' field");
+        $this->expectException('\Morpho\Web\BadRequestException', "Empty value of the 'Host' field");
         $this->siteManager->getCurrentSite();
     }
 

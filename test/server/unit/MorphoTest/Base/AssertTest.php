@@ -26,7 +26,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForHasKeys_Invalid
      */
     public function testHasKeys_Invalid($actual, $requiredKeys) {
-        $this->setExpectedException('\RuntimeException', 'Required items are missing');
+        $this->expectException('\RuntimeException', 'Required items are missing');
         Assert::hasKeys($actual, $requiredKeys);
     }
 
@@ -75,7 +75,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForHasOnlyKeys_Invalid
      */
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
-        $this->setExpectedException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
+        $this->expectException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
         Assert::hasOnlyKeys($actual, $allowedKeys);
     }
 
@@ -129,7 +129,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForIsOneOf_Invalid
      */
     public function testIsOneOf_Invalid($needle, $haystack) {
-        $this->setExpectedException('\RuntimeException', 'The value is not one of the provided values');
+        $this->expectException('\RuntimeException', 'The value is not one of the provided values');
         Assert::isOneOf($needle, $haystack);
     }
 

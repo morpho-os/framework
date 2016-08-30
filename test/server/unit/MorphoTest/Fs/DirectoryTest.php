@@ -46,7 +46,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testCreate_CantCreateEmptyDir() {
-        $this->setExpectedException('\Morpho\Fs\Exception', "The directory path is empty.");
+        $this->expectException('\Morpho\Fs\Exception', "The directory path is empty.");
         Directory::create('');
     }
 
@@ -62,7 +62,7 @@ class DirectoryTest extends TestCase {
     public function testUniquePath_ThrowsExceptionWhenNumberOfAttemptsReached() {
         $dirPath = __DIR__;
         $expectedMessage = "Unable to generate an unique path for the directory '$dirPath' (tried 0 times).";
-        $this->setExpectedException('\\Morpho\\Fs\\Exception', $expectedMessage);
+        $this->expectException('\\Morpho\\Fs\\Exception', $expectedMessage);
         Directory::uniquePath($dirPath, 0);
     }
 
@@ -225,7 +225,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_ThrowsExceptionOnInvalidOption() {
-        $this->setExpectedException('\RuntimeException', 'Not allowed items are present');
+        $this->expectException('\RuntimeException', 'Not allowed items are present');
         iterator_to_array(Directory::paths($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 
@@ -257,7 +257,7 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $this->createTmpDir() . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $sourceDirPath;
-        $this->setExpectedException(\Morpho\Fs\Exception::class, "Cannot copy the directory '$sourceDirPath' into itself");
+        $this->expectException(\Morpho\Fs\Exception::class, "Cannot copy the directory '$sourceDirPath' into itself");
         Directory::copy($sourceDirPath, $targetDirPath);
     }
 
@@ -266,7 +266,7 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $tmpDirPath . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $tmpDirPath;
-        $this->setExpectedException(\Morpho\Fs\Exception::class, "The '$tmpDirPath' directory already contains the 'foo'");
+        $this->expectException(\Morpho\Fs\Exception::class, "The '$tmpDirPath' directory already contains the 'foo'");
         Directory::copy($sourceDirPath, $targetDirPath);
     }
 

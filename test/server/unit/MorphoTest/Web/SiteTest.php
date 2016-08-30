@@ -92,7 +92,7 @@ class SiteTest extends TestCase {
     }
 
     public function testIsFallbackConfigUsedThrowsExceptionWhenLoadConfigWasNotCalled() {
-        $this->setExpectedException('\LogicException', 'The loadConfig() must be called first');
+        $this->expectException('\LogicException', 'The loadConfig() must be called first');
         $this->site->isFallbackConfigUsed();
     }
 

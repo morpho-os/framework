@@ -43,7 +43,7 @@ class ModuleManagerTest extends DbTestCase {
     public function testGetChild_ThrowsExceptionForNonExistingModule() {
         $moduleName = 'some/non-existing';
         $moduleManager = $this->createModuleManager();
-        $this->setExpectedException('\\Morpho\\Base\\ObjectNotFoundException', "Unable to load the module '$moduleName'");
+        $this->expectException('\\Morpho\\Base\\ObjectNotFoundException', "Unable to load the module '$moduleName'");
         $moduleManager->getChild($moduleName);
     }
 

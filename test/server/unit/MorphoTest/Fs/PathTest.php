@@ -76,7 +76,7 @@ class PathTest extends TestCase {
      * @dataProvider dataForAssertSafe
      */
     public function testAssertSafeThrowsExceptionForNotSafePath($path) {
-        $this->setExpectedException('\Morpho\Base\SecurityException', 'Invalid file path was detected.');
+        $this->expectException('\Morpho\Base\SecurityException', 'Invalid file path was detected.');
         Path::assertSafe($path);
     }
 
@@ -142,7 +142,7 @@ class PathTest extends TestCase {
 
     public function testToAbsoluteShouldThrowExceptionForInvalidPath() {
         $invalidPath = __DIR__ . '/ttttt';
-        $this->setExpectedException('\Morpho\Fs\Exception', "Unable to detect absolute path for the '$invalidPath' path.");
+        $this->expectException('\Morpho\Fs\Exception', "Unable to detect absolute path for the '$invalidPath' path.");
         Path::toAbsolute($invalidPath);
     }
 
@@ -260,7 +260,7 @@ class PathTest extends TestCase {
     public function testToRelativeThrowsExceptionWhenBasePathNotContainedWithinPath() {
         $baseDirPath = '/foo/bar/baz/';
         $path = __DIR__;
-        $this->setExpectedException(
+        $this->expectException(
             '\Morpho\Fs\Exception',
             "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'."
         );

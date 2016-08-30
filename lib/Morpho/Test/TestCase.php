@@ -140,6 +140,16 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         $this->addToAssertionCount(1);
     }
 
+    public function expectException($exception, $message = '', $code = null) {
+        parent::expectException($exception);
+        if ($message !== null && $message !== '') {
+            $this->expectExceptionMessage($message);
+        }
+        if ($code !== null) {
+            $this->expectExceptionCode($code);
+        }
+    }
+
     private function assertInstanceUniqueness(callable $fn, string $expectedClass, bool $unique) {
         $instance1 = $fn();
         $this->assertInstanceOf($expectedClass, $instance1);

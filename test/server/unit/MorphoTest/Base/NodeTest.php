@@ -16,7 +16,7 @@ class NodeTest extends TestCase {
     }
 
     public function testGetLeaf_ThrowsExceptionForNotLeaf() {
-        $this->setExpectedException('\Morpho\Base\ObjectNotFoundException', "Unable to find a node with the name 'firstLevel' in leaf nodes.");
+        $this->expectException('\Morpho\Base\ObjectNotFoundException', "Unable to find a node with the name 'firstLevel' in leaf nodes.");
         $firstLevelChild = $this->node->addChild(new Node(['name' => 'firstLevel']));
         $secondLevelChild = $firstLevelChild->addChild(new Node(['name' => 'secondLevel']));
         $this->assertSame($secondLevelChild, $this->node->getLeaf('secondLevel'));
@@ -25,7 +25,7 @@ class NodeTest extends TestCase {
 
     public function testNewNode_WithoutTypeThrowsException() {
         $comp = new Node([]);
-        $this->setExpectedException('\Morpho\Base\EmptyPropertyException', "The property 'Morpho\\Base\\Node::type' is empty.");
+        $this->expectException('\Morpho\Base\EmptyPropertyException', "The property 'Morpho\\Base\\Node::type' is empty.");
         $comp->getType();
     }
 
@@ -45,7 +45,7 @@ class NodeTest extends TestCase {
 
     public function testAddChild_CantAddNodeWithoutName() {
         $node = new Node();
-        $this->setExpectedException('\RuntimeException', 'The node must have name.');
+        $this->expectException('\RuntimeException', 'The node must have name.');
         $node->addChild(new Node(['name' => '']));
     }
 
@@ -99,7 +99,7 @@ class NodeTest extends TestCase {
     }
 
     public function testGetNonExistingChildThrowsException() {
-        $this->setExpectedException('\RuntimeException', "Unable to load a child node with the name 'some'");
+        $this->expectException('\RuntimeException', "Unable to load a child node with the name 'some'");
         $this->node->getChild('some');
     }
 
@@ -156,7 +156,7 @@ class NodeTest extends TestCase {
 
     public function testGetChildren_ThrowsLogicExceptionWhenNodeDoesNotHaveChildren() {
         $node = new Node(['name' => 'foo']);
-        $this->setExpectedException('\LogicException', "Node doesn't have children.");
+        $this->expectException('\LogicException', "Node doesn't have children.");
         $node->getChildren();
     }
 

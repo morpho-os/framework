@@ -49,7 +49,7 @@ class FileTest extends TestCase {
     }
 
     public function testDeleteNonExistentFileThrowsException() {
-        $this->setExpectedException('\Morpho\Fs\FileNotFoundException');
+        $this->expectException('\Morpho\Fs\FileNotFoundException');
         File::delete($this->tmpDirPath() . '/' . md5(uniqid()) . '.php');
     }
 
@@ -79,7 +79,7 @@ class FileTest extends TestCase {
     public function testMoveNotExistentFileThrowsException() {
         $sourceFilePath = __FILE__ . 'some';
         $targetFilePath = $this->tmpDirPath() . '/some';
-        $this->setExpectedException('\Morpho\Fs\Exception', "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
+        $this->expectException('\Morpho\Fs\Exception', "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
         File::move($sourceFilePath, $targetFilePath);
     }
 
@@ -96,7 +96,7 @@ class FileTest extends TestCase {
 
     public function testCopy_IfSourceIsDirThrowsException() {
         $sourceFilePath = $this->getTestDirPath();
-        $this->setExpectedException('\Morpho\Fs\Exception', "Unable to copy: the source '$sourceFilePath' is not a file");
+        $this->expectException('\Morpho\Fs\Exception', "Unable to copy: the source '$sourceFilePath' is not a file");
         File::copy($sourceFilePath, $this->tmpDirPath());
     }
 
@@ -110,7 +110,7 @@ class FileTest extends TestCase {
     }
 
     public function testWrite_CantWriteToEmptyFile() {
-        $this->setExpectedException('\Morpho\Fs\Exception', "The file path is empty.");
+        $this->expectException('\Morpho\Fs\Exception', "The file path is empty.");
         File::write('', 'Test');
     }
 
@@ -186,7 +186,7 @@ class FileTest extends TestCase {
     public function testUniquePathShouldThrowExceptionWhenNumberOfAttempsReached() {
         $filePath = __FILE__;
         $expectedMessage = "Unable to generate unique path for file '$filePath' (tried 0 times).";
-        $this->setExpectedException('\Morpho\Fs\Exception', $expectedMessage);
+        $this->expectException('\Morpho\Fs\Exception', $expectedMessage);
         File::uniquePath($filePath, 0);
     }
 

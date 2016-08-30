@@ -39,13 +39,13 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     public function testRegisterTwiceThrowsException() {
         $errorHandler = $this->createErrorHandler();
         $errorHandler->register();
-        $this->setExpectedException('\LogicException');
+        $this->expectException('\LogicException');
         $errorHandler->register();
     }
 
     public function testUnregisterWithoutRegisterThrowsException() {
         $errorHandler = $this->createErrorHandler();
-        $this->setExpectedException('\LogicException');
+        $this->expectException('\LogicException');
         $errorHandler->unregister();
     }
 

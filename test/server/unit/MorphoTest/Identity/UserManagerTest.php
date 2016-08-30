@@ -85,7 +85,7 @@ class UserManagerTest extends DbTestCase {
     public function testRegister_TwiceThrowsException() {
         $user = ['login' => 'foo', 'password' => 'bar'];
         $this->userManager->registerUser($user);
-        $this->setExpectedException('\Morpho\Base\EntityExistsException', 'Such user already exists');
+        $this->expectException('\Morpho\Base\EntityExistsException', 'Such user already exists');
         $this->userManager->registerUser($user);
     }
 

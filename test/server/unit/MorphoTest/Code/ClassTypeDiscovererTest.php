@@ -51,7 +51,7 @@ class ClassTypeDiscovererTest extends TestCase {
 
     public function testTypeFilePath_ThrowsExceptionOnNonExistingType() {
         $class = self::class . 'NonExisting';
-        $this->setExpectedException('ReflectionException', "Class $class does not exist");
+        $this->expectException('ReflectionException', "Class $class does not exist");
         ClassTypeDiscoverer::classTypeFilePath($class);
     }
 

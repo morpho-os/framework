@@ -25,7 +25,7 @@ class StackTest extends TestCase {
 
     public function testPeekThrowsExceptionForEmptyStack() {
         $stack = new Stack();
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException('\RuntimeException');
         $stack->peek();
     }
 

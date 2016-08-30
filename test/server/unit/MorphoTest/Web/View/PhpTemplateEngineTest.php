@@ -30,7 +30,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testVar_ReadUndefinedVarThrowsException() {
-        $this->setExpectedException('\Morpho\Base\ItemNotSetException', "The template variable 'foo' was not set.");
+        $this->expectException('\Morpho\Base\ItemNotSetException', "The template variable 'foo' was not set.");
         $this->templateEngine->foo;
     }
     
@@ -113,7 +113,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testRenderFileThrowsExceptionWhenNotExist() {
         $path = $this->getTestDirPath() . '/non-existing.phtml';
-        $this->setExpectedException('\RuntimeException', 'The file \'' . $path . '\' was not found.');
+        $this->expectException('\RuntimeException', 'The file \'' . $path . '\' was not found.');
         $this->templateEngine->renderFile($path);
     }
 
@@ -174,7 +174,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testFilter_ThrowsSyntaxError() {
         $php = '<?php some invalid code; ?>';
-        $this->setExpectedException('\PhpParser\Error');
+        $this->expectException('\PhpParser\Error');
         $this->templateEngine->filter($php);
     }
 

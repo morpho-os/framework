@@ -83,7 +83,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testInitThrowsExceptionForEmptyArray() {
-        $this->setExpectedException("\\UnexpectedValueException", "Empty list");
+        $this->expectException("\\UnexpectedValueException", "Empty list");
         ArrayTool::init([]);
     }
 
@@ -114,7 +114,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testLastThrowsExceptionForEmptyArray() {
-        $this->setExpectedException("\\UnexpectedValueException", "Empty list");
+        $this->expectException("\\UnexpectedValueException", "Empty list");
         ArrayTool::last([]);
     }
 
@@ -145,7 +145,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testTailThrowsExceptionForEmptyArray() {
-        $this->setExpectedException("\\UnexpectedValueException", "Empty list");
+        $this->expectException("\\UnexpectedValueException", "Empty list");
         ArrayTool::tail([]);
     }
 
@@ -176,7 +176,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testHeadThrowsExceptionForEmptyArray() {
-        $this->setExpectedException("\\UnexpectedValueException", "Empty list");
+        $this->expectException("\\UnexpectedValueException", "Empty list");
         ArrayTool::head([]);
     }
 
@@ -263,7 +263,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testHandleOptionsThrowsExceptionWhenDefaultOptionsAreMissing() {
-        $this->setExpectedException('\RuntimeException', "Not allowed items are present: foo");
+        $this->expectException('\RuntimeException', "Not allowed items are present: foo");
         ArrayTool::handleOptions(['foo' => 'bar'], ['one' => 1]);
     }
 

@@ -36,7 +36,7 @@ class SchemaManagerTest extends DbTestCase {
     }
 
     public function testTableDefinitionForNonExistingTable() {
-        $this->setExpectedException('\RuntimeException', "The table 'foo' does not exist");
+        $this->expectException('\RuntimeException', "The table 'foo' does not exist");
         $this->schemaManager->tableDefinition('foo');
     }
 
