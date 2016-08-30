@@ -7,20 +7,24 @@ destDirPath = $(publicModuleDirPath)/$(1)/dest
 compileMainModuleFile = tsc $(options) --out $(call destDirPath,$(1))/main.js $(call mainSrcFilePath,$(1))
 watchMainModuleFile = tsc $(options) -w --out $(call destDirPath,$(1))/main.js $(call mainSrcFilePath,$(1))
 
-ts: $(call mainSrcFilePath,system)
+targets:
+	@echo Targets in alphabetical order:
+	@grep -oP '^[a-z-]+:' Makefile | tr -d : | sed -e 's/^/\t/' | grep -v show-targets | sort
+
+js: $(call mainSrcFilePath,system)
 	@$(call compileMainModuleFile,system)
 	@tsc $(options) --outDir $(call destDirPath,system) $(publicModuleDirPath)/system/src/test-case.ts
 
-styl:
+css:
 	@(cd $(publicModuleDirPath)/bootstrap/styl && stylus -c --disable-cache < main.styl > ../css/main.css)
 	@(cd $(publicModuleDirPath)/bootstrap/styl && stylus -c --disable-cache < file-upload.styl > ../css/file-upload.css)
 	@(cd $(publicModuleDirPath)/bootstrap/styl && stylus -c --disable-cache < file-upload-noscript.styl > ../css/file-upload-noscript.css)
 	@(cd $(publicModuleDirPath)/system/styl && stylus -c --disable-cache < main.styl > ../css/main.css)
 
-backend-test:
+test:
 	@(cd test/server && phpunit)
 
-clean-js:
+clean: clean-site-cache
 	@rm -f $(publicModuleDirPath)/**/dest/*
 	@rm -f $(publicModuleDirPath)/**/src/*.d.ts
 	@rm -f $(publicModuleDirPath)/**/src/*.js.map
@@ -31,7 +35,8 @@ clean-js:
 clean-site-cache:
 	@rm -rf site/**/cache/*
 
-update-npm-modules:
+npm-update:
 	@(cd public && npm update)
 
-.PHONY: ts styl backend-test clean-js clean-site-cache update-npm-modules
+.PHONY: backend-test clean clean-site-cache css js update-npm-modules
+
