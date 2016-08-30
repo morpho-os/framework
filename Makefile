@@ -38,5 +38,4 @@ clean-site-cache:
 npm-update:
 	@(cd public && npm update)
 
-.PHONY: backend-test clean clean-site-cache css js update-npm-modules
-
+.PHONY: clean clean-site-cache css js npm-update targets test
