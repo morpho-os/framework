@@ -34,26 +34,25 @@ class Application extends BaseApplication {
                 }
             }
         }
-        $message = null;
+        $header = null;
+        if ($e instanceof NotFoundException) {
+            $header = Environment::httpProtocolVersion() . ' 404 Not Found';
+            $message = "The requested page was not found";
+        } elseif ($e instanceof AccessDeniedException) {
+            $header = Environment::httpProtocolVersion() . ' 403 Forbidden';
+            $message = "You don't have access to the requested resource";
+        } elseif ($e instanceof BadRequestException) {
+            $header = Environment::httpProtocolVersion() . ' 400 Bad Request';
+            $message = "Bad request, please contact site's support";
+        } else {
+            $header = Environment::httpProtocolVersion() . ' 500 Internal Server Error';
+            $message = "Unable to handle the request. Please contact site's support and try to return to this page again later";
+        }
         if (!headers_sent()) {
-            //http_response_code();
-            if ($e instanceof NotFoundException) {
-                header(Environment::httpProtocolVersion() . ' 404 Not Found');
-                $message = "The requested page was not found";
-            } elseif ($e instanceof AccessDeniedException) {
-                header(Environment::httpProtocolVersion() . ' 403 Forbidden');
-                $message = "You don't have access to the requested resource";
-            } elseif ($e instanceof BadRequestException) {
-                header(Environment::httpProtocolVersion() . ' 400 Bad Request');
-                $message = "Bad request, please contact site's support";
-            } else {
-                header(Environment::httpProtocolVersion() . ' 500 Internal Server Error');
-            }
+            // @TODO: Use http_response_code()?
+            header($header);
         }
         while (@ob_end_clean());
-        if ($message) {
-            die($message . '.');
-        }
-        die("Unable to handle the request. Please contact site's support and try to return to this page again later.");
+        die($message . '.');
     }
 }
