@@ -13,12 +13,15 @@ function writeOk() {
     writeLn("OK");
 }
 
-function writeError(string $string) {
+function writeError(string $string, bool $exit = true) {
     fwrite(STDERR, $string);
+    if ($exit) {
+        exit(Enviroment::FAILURE_CODE);
+    }
 }
 
-function writeErrorLn(string $string) {
-    writeError($string . "\n");
+function writeErrorLn(string $string, bool $exit = true) {
+    writeError($string . "\n", $exit);
 }
 
 function escapedArgs(array $args): array {
@@ -72,7 +75,7 @@ function cmd(string $command, array $args = null, array $options = []): CommandR
 }
 
 function cmdJson(string $cmd, array $args = null, array $options = []): string {
-    return decodeJson(cmd($cmd, $args));
+    return decodeJson((string)cmd($cmd, $args));
 }
 
 function pipe(array $commands) {
