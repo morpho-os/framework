@@ -1,6 +1,6 @@
 language: php
 php:
-    - 7.0
+    - 7.1
     #- nightly
     #- hhvm
 
@@ -14,7 +14,7 @@ before_script:
     - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
-    - composer selfupdate && composer install
+    - travis_retry composer selfupdate && composer install
     - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
 
 matrix:
