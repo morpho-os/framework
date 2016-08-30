@@ -1,17 +1,12 @@
 <?php
 namespace Morpho\Code\Compiler;
 
-use Morpho\Base\IFn;
+use Morpho\Base\Pipe;
+use Morpho\Code\Compiler\Frontend\LexicalAnalysis;
+use Morpho\Code\Compiler\Frontend\Parsing;
 
-class Compiler implements IFn {
-    public function __invoke(...$args) {
-        foreach ($this->phases() as $phase) {
-            $args = $phase(...$args);
-        }
-        return $args;
-    }
-
-    protected function phases() {
+class Compiler extends Pipe {
+    protected function compose() {
         return [
             new LexicalAnalysis(),
             new Parsing(),
