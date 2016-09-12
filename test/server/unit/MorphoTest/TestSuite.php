@@ -1,10 +1,18 @@
 <?php
+namespace MorphoTest;
+
+use function Morpho\Base\filter;
 use Morpho\Fs\Directory;
 
 class TestSuite extends \Morpho\Test\TestSuite {
     public function testFilePaths() {
         return array_merge(
-            iterator_to_array(Directory::filePaths(__DIR__ . '/MorphoTest', $this->testFileRegexp), false),
+            filter(
+                function ($path) {
+                    return $path !== str_replace('\\', '/', __FILE__);
+                },
+                iterator_to_array(Directory::filePaths(__DIR__, $this->testFileRegexp), false)
+            ),
             $this->testFilePathsOfModules()
         );
     }
