@@ -148,9 +148,10 @@ class File extends Entry {
     /**
      * Has the same effect as truncate but should be used in different situation/context.
      */
-    public static function createEmpty(string $filePath)/*: void */ {
+    public static function createEmpty(string $filePath): string {
         Directory::create(dirname($filePath));
         self::truncate($filePath);
+        return $filePath;
     }
 
     /**
