@@ -2,8 +2,8 @@
 /bin/*
 
 # composer's files.
-/vendor
-/composer.lock
+vendor/
+composer.lock
 
 # bower
 bower_components/
@@ -13,3 +13,5 @@ node_modules/
 
 /site/**/config.php
 /site/*/cache/*
+
+*.log
