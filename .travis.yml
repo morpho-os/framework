@@ -7,6 +7,22 @@ php:
 services:
     - mysql
 
+# Build lifecycle, see https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle:
+#  1. before_install
+#  2. install
+#  3. before_script
+#  4. script
+#  5. after_success or after_failure
+#  6. OPTIONAL before_deploy
+#  7. OPTIONAL deploy
+#  8. OPTIONAL after_deploy
+#  9. after_script
+
+install:
+    - nvm install 6
+    - nvm use 6
+    - node --version && node install typescript@next
+
 before_script:
     - "id && pwd && uname -a"
     - "mysql -uroot -e \"CREATE DATABASE IF NOT EXISTS test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""

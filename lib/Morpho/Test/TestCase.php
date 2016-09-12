@@ -9,27 +9,30 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     const TIMEZONE = 'UTC';
 
     private $tmpDirPaths = [];
+    private $tmpFilePaths = [];
 
     private $classFilePath;
 
-    private $oldTimezone;
+    private $prevTimezone;
 
     protected $backupGlobals = true;
 
     protected function tearDown() {
-        if (null !== $this->oldTimezone) {
-            date_default_timezone_set($this->oldTimezone);
-            $this->oldTimezone = null;
+        if (null !== $this->prevTimezone) {
+            date_default_timezone_set($this->prevTimezone);
+            $this->prevTimezone = null;
         }
+        $this->deleteTmpFiles();
         $this->deleteTmpDirs();
     }
 
-    protected function deleteTmpDirs() {
-        foreach ($this->tmpDirPaths as $tmpDirPath) {
-            if (is_dir($tmpDirPath)) {
-                Directory::delete($tmpDirPath);
-            }
+    protected function createTmpFile(string $ext = null, string $prefix = null): string {
+        $fileName = uniqid($prefix) . strtolower(__FUNCTION__);
+        if (null !== $ext) {
+            $fileName .= '.' . ltrim($ext, '.');
         }
+        $filePath = $this->tmpDirPath() . '/' . $fileName;
+        return $this->tmpFilePaths[] = File::createEmpty($filePath);
     }
 
     protected function createMock($originalClassName) {
@@ -65,16 +68,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     */
     
     protected function getTestDirPath(): string {
-        $classFilePath = $this->getClassFilePath();
+        $classFilePath = $this->classFilePath();
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
-    }
-
-    protected function getClassFilePath(): string {
-        if (!isset($this->classFilePath)) {
-            $this->classFilePath = str_replace('\\', '/', (new \ReflectionObject($this))->getFileName());
-        }
-
-        return $this->classFilePath;
     }
 
     protected function createTmpDir($dirName = null): string {
@@ -96,10 +91,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         return File::copy($srcFilePath, $targetFilePath);
     }
 
-    protected function getNamespace($useFqn = false) {
+/*    protected function namespace($useFqn = false) {
         $class = get_class($this);
         return ($useFqn ? '\\' : '') . substr($class, 0, strrpos($class, '\\'));
-    }
+    }*/
 
     protected function assertIntString($val) {
         $this->assertRegExp('~^[-+]?\d+$~si', $val, "The value is not either an integer or an integer string");
@@ -128,7 +123,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     }
 
     protected function setDefaultTimezone() {
-        $this->oldTimezone = @date_default_timezone_get();
+        $this->prevTimezone = @date_default_timezone_get();
         date_default_timezone_set(self::TIMEZONE);
     }
 
@@ -160,5 +155,29 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         } else {
             $this->assertSame($instance1, $instance2);
         }
+    }
+
+    private function deleteTmpDirs() {
+        foreach ($this->tmpDirPaths as $tmpDirPath) {
+            if (is_dir($tmpDirPath)) {
+                Directory::delete($tmpDirPath);
+            }
+        }
+    }
+
+    private function deleteTmpFiles() {
+        foreach ($this->tmpFilePaths as $tmpFilePath) {
+            if (is_file($tmpFilePath)) {
+                File::delete($tmpFilePath);
+            }
+        }
+    }
+
+    private function classFilePath(): string {
+        if (!isset($this->classFilePath)) {
+            $this->classFilePath = str_replace('\\', '/', (new \ReflectionObject($this))->getFileName());
+        }
+
+        return $this->classFilePath;
     }
 }
