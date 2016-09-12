@@ -2,6 +2,7 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
+use function Morpho\Base\escapeHtml;
 use Morpho\Core\Application as BaseApplication;
 use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
@@ -53,6 +54,6 @@ class Application extends BaseApplication {
             header($header);
         }
         while (@ob_end_clean());
-        die($message . '.');
+        die(escapeHtml($message) . '.');
     }
 }
