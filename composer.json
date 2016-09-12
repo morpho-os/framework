@@ -17,7 +17,7 @@
         "module"
     ],
     "require": {
-        "php": "7.*",
+        "php": "~7.1",
         "ext-curl": "*",
         "ext-date": "*",
         "ext-dom": "*",
@@ -28,7 +28,6 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",
-        "ext-mcrypt": "*",
         "ext-openssl": "*",
         "ext-pcre": "*",
         "ext-pdo_mysql": "*",
