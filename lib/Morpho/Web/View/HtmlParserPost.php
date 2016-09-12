@@ -25,7 +25,7 @@ class HtmlParserPost extends HtmlParser {
         $this->nodeBinDirPath = $nodeBinDirPath;
         $this->tsOptions = $tsOptions;
     }
-
+/*
     protected function containerTypeScript($tag) {
         $inDirPath = str_replace('\\', '/', dirname($this->filePath));
         $cacheDirPath = $this->serviceManager->getSiteManager()->getCurrentSite()->getCacheDirPath();
@@ -72,7 +72,7 @@ class HtmlParserPost extends HtmlParser {
         // Note: node and tsc must be in $PATH.
         cmd("PATH=\$PATH:{$this->nodeBinDirPath} tsc " . implode(' ', $options) . ' ' . escapeshellarg($inFilePath));
     }
-
+*/
     protected function containerBody($tag) {
         $childScriptsHtml = $this->renderScripts();
         $tag['_text'] = $this->filter($tag['_text'])
