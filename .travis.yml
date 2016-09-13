@@ -1,5 +1,5 @@
 language: php
-#sudo: required
+sudo: required
 dist: trusty
 group: edge
 
