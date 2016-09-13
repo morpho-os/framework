@@ -1,5 +1,5 @@
 language: php
-sudo: required
+#sudo: required
 dist: trusty
 group: edge
 
@@ -32,10 +32,9 @@ services:
 install:
     # `node` means `latest stable Node.js release`
     - nvm install node
-    - "node --version && npm install -g typescript@next"
+    - "node --version && npm install -g typescript@next && tsc --version"
 
 before_script:
-    - phpenv config-rm xdebug.ini
     - "id && pwd && uname -a"
     - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
     #- "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
