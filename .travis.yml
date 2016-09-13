@@ -1,7 +1,8 @@
-dist: trusty
-# sudo: true
-
 language: php
+sudo: required
+dist: trusty
+group: edge
+
 php:
     - 7.1
     #- nightly
@@ -22,8 +23,7 @@ services:
 #  9. after_script
 
 install:
-    - nvm install 5
-    - nvm use 5
+    - nvm install node
     - node --version && node install typescript@next
 
 before_script:
