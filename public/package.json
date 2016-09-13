@@ -1,13 +1,11 @@
 {
-  "name": "public",
+  "name": "morpho-os",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": ""
   },
   "author": "",
-  "license": "ISC",
   "private": true,
   "dependencies": {
     "bootstrap-styl": "^5.0.4",
