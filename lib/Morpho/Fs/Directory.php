@@ -23,7 +23,7 @@ class Directory extends Entry {
     public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null)/*: void */ {
         // @TODO: Handle dots and relative paths: '..', '.'
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
-        self::ensureExists($sourceDirPath);
+        self::mustExist($sourceDirPath);
 
         if ($sourceDirPath === $targetDirPath) {
             throw new Exception("Cannot copy the directory '$sourceDirPath' into itself");
@@ -209,7 +209,7 @@ class Directory extends Entry {
      * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
      */
     public static function delete(string $dirPath, bool $deleteSelf = true, bool $ignoreVcsFiles = false)/*: void */ {
-        self::ensureExists($dirPath);
+        self::mustExist($dirPath);
         if ($ignoreVcsFiles && $deleteSelf) {
             throw new \LogicException("The both arguments can't be equal to true");
         }
@@ -332,10 +332,7 @@ class Directory extends Entry {
         return $dirPath;
     }
 
-    /**
-     * @TODO: Rename
-     */
-    public static function ensureExists(string $dirPath)/*: void */ {
+    public static function mustExist(string $dirPath)/*: void*/ {
         if (empty($dirPath)) {
             throw new Exception("The directory path is empty");
         }

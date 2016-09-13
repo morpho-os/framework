@@ -61,7 +61,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function setSite(Site $site, bool $setAsCurrent = true) {
         $siteName = $site->getName();
-        $this->ensureIsAllowedSiteName($siteName);
+        $this->mustBeAllowedSiteName($siteName);
         $this->sites[$siteName] = $site;
         if ($setAsCurrent) {
             $this->currentSiteName = $siteName;
@@ -70,7 +70,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function getSite(string $siteName): Site {
         if (!isset($this->sites[$siteName])) {
-            $this->ensureIsAllowedSiteName($siteName);
+            $this->mustBeAllowedSiteName($siteName);
             $this->sites[$siteName] = $this->createSite($siteName);
         }
         return $this->sites[$siteName];
@@ -99,10 +99,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    /**
-     * @TODO: Rename
-     */
-    protected function ensureIsAllowedSiteName(string $siteName) {
+    protected function mustBeAllowedSiteName(string $siteName) {
         if (false === $this->resolveSiteName($siteName)) {
             throw new \RuntimeException("Not allowed site name was provided");
         }
@@ -160,7 +157,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     protected function createSite(string $siteName): Site {
         $siteDirPath = $this->getAllSitesDirPath() . '/' . $siteName;
-        Directory::ensureExists($siteDirPath);
+        Directory::mustExist($siteDirPath);
         return new Site([
             'name'    => $siteName,
             'dirPath' => $siteDirPath,

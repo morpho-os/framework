@@ -135,7 +135,7 @@ class ArrayTool {
         if (null === $options || count($options) === 0) {
             return $defaultOptions;
         }
-        Assert::hasOnlyKeys($options, array_keys($defaultOptions));
+        Must::haveOnlyKeys($options, array_keys($defaultOptions));
         return array_merge($defaultOptions, $options);
     }
 

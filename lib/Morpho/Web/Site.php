@@ -2,6 +2,7 @@
 namespace Morpho\Web;
 
 use Morpho\Base\Assert;
+use Morpho\Base\Must;
 use Morpho\Fs\Path;
 
 class Site {
@@ -29,7 +30,7 @@ class Site {
     const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
     public function __construct(array $options = []) {
-        Assert::hasOnlyKeys($options, ['dirPath', 'name']);
+        Must::haveOnlyKeys($options, ['dirPath', 'name']);
         if (isset($options['dirPath'])) {
             $this->setDirPath($options['dirPath']);
         }

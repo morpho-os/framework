@@ -241,10 +241,7 @@ class File extends Entry {
         return $uniquePath;
     }
 
-    /**
-     * @TODO: Rename
-     */
-    public static function ensureIsReadable(string $filePath) {
+    public static function mustBeReadable(string $filePath) {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new Exception("The file '$filePath' is not readable");
         }

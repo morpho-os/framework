@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\System;
 
-use Morpho\Base\Assert;
+use Morpho\Base\Must;
 use Morpho\Core\Module as BaseModule;
 use Morpho\Db\Sql\Db;
 use Morpho\Error\ErrorHandler;
@@ -44,7 +44,7 @@ class Module extends BaseModule {
     }
 
     public static function defaultErrorHandler(string $errorType): array {
-        Assert::isOneOf($errorType, [self::NOT_FOUND_ERROR, self::ACCESS_DENIED_ERROR, self::BAD_REQUEST_ERROR, self::UNCAUGHT_ERROR]);
+        Must::beOneOf($errorType, [self::NOT_FOUND_ERROR, self::ACCESS_DENIED_ERROR, self::BAD_REQUEST_ERROR, self::UNCAUGHT_ERROR]);
         return [self::NAME, 'Error', $errorType];
     }
 

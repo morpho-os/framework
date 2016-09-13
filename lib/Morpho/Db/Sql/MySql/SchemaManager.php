@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Db\Sql\MySql;
 
-use Morpho\Base\Assert;
+use Morpho\Base\Must;
 use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 
@@ -136,7 +136,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function tableDefinitionToSql(string $tableName, array $tableDefinition): array {
-        Assert::hasOnlyKeys($tableDefinition, ['columns', 'foreignKeys', 'indexes', 'primaryKey', 'description', 'uniqueKeys']);
+        Must::haveOnlyKeys($tableDefinition, ['columns', 'foreignKeys', 'indexes', 'primaryKey', 'description', 'uniqueKeys']);
 
         list($pkColumns, $columns) = $this->columnsDefinitionToSqlArray($tableDefinition['columns']);
         
@@ -265,7 +265,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function columnDefinitionToSql(string $columnName, array $columnDefinition): string {
-        Assert::hasOnlyKeys($columnDefinition, ['type', 'nullable', 'scale', 'precision', 'default', 'unsigned', 'length']);
+        Must::haveOnlyKeys($columnDefinition, ['type', 'nullable', 'scale', 'precision', 'default', 'unsigned', 'length']);
 
         $columnDefinitionSql = '';
         $columnType = $columnDefinition['type'];

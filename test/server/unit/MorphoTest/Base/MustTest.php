@@ -2,9 +2,9 @@
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
-use Morpho\Base\Assert;
+use Morpho\Base\Must;
 
-class AssertTest extends TestCase {
+class MustTest extends TestCase {
     public function dataForHasKeys_Invalid() {
         return [
             [
@@ -27,7 +27,7 @@ class AssertTest extends TestCase {
      */
     public function testHasKeys_Invalid($actual, $requiredKeys) {
         $this->expectException('\RuntimeException', 'Required items are missing');
-        Assert::hasKeys($actual, $requiredKeys);
+        Must::haveKeys($actual, $requiredKeys);
     }
 
     public function dataForHasKeys_Valid_DoesNotThrowException() {
@@ -51,7 +51,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForHasKeys_Valid_DoesNotThrowException
      */
     public function testHasKeys_Valid_DoesNotThrowException($actual, $requiredKeys) {
-        Assert::hasKeys($actual, $requiredKeys);
+        Must::haveKeys($actual, $requiredKeys);
         $this->markTestAsNotRisky();
     }
 
@@ -76,7 +76,7 @@ class AssertTest extends TestCase {
      */
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
         $this->expectException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
-        Assert::hasOnlyKeys($actual, $allowedKeys);
+        Must::haveOnlyKeys($actual, $allowedKeys);
     }
 
     public function dataForHasOnlyKeys_Valid_DoesNotThrowException() {
@@ -104,7 +104,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForHasOnlyKeys_Valid_DoesNotThrowException
      */
     public function testHasOnlyKeys_Valid_DoesNotThrowException($actual, $allowedKeys) {
-        Assert::hasOnlyKeys($actual, $allowedKeys);
+        Must::haveOnlyKeys($actual, $allowedKeys);
         $this->markTestAsNotRisky();
     }
 
@@ -130,7 +130,7 @@ class AssertTest extends TestCase {
      */
     public function testIsOneOf_Invalid($needle, $haystack) {
         $this->expectException('\RuntimeException', 'The value is not one of the provided values');
-        Assert::isOneOf($needle, $haystack);
+        Must::beOneOf($needle, $haystack);
     }
 
     public function dataForIsOneOf_Valid_DoesNotThrowException() {
@@ -150,7 +150,7 @@ class AssertTest extends TestCase {
      * @dataProvider dataForIsOneOf_Valid_DoesNotThrowException
      */
     public function testIsOneOf_Valid_DoesNotThrowException($needle, $haystack) {
-        Assert::isOneOf($needle, $haystack);
+        Must::beOneOf($needle, $haystack);
         $this->markTestAsNotRisky();
     }
 }
