@@ -24,7 +24,7 @@ services:
 
 install:
     - nvm install node
-    - node --version && node install typescript@next
+    - "node --version && npm install typescript@next"
 
 before_script:
     - "id && pwd && uname -a"
