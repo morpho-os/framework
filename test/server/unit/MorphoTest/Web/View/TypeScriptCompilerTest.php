@@ -39,6 +39,6 @@ class TypeScriptCompilerTest extends TestCase {
         $res = $this->compiler->compileToDir($inFilePath, $outDirPath);
         $this->assertFalse($res->isError());
         $outFilePath = $outDirPath . '/' . basename($inFilePath, '.ts') . '.js';
-        $this->assertRegExp('~\(function \(factory\) \{.*\}\);$~si', trim(file_get_contents($outFilePath)));
+        $this->assertRegExp('~\(function \((dependencies, )?factory\) \{.*\}\);$~si', trim(file_get_contents($outFilePath)));
     }
 }
