@@ -19,8 +19,8 @@ services:
 #  9. after_script
 
 install:
-    - nvm install 6
-    - nvm use 6
+    - nvm install 5
+    - nvm use 5
     - node --version && node install typescript@next
 
 before_script:
