@@ -3,6 +3,11 @@
 Morpho is **PHP 7** framework to build PHP applications: Web-sites, Web-applications, Web-IDEs, Command-line applications.
 
 
+## Status of the code
+
+API not stable and can be changed, don't use in production.
+
+
 ## Documentation (now in Russian only)
 
 <a href="https://morpho-os.github.io/framework/index.html">Документация (@TODO: устарела, требует обновления)</a>
