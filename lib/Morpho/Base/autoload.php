@@ -439,3 +439,9 @@ function appendFn(string $suffix): callable {
         return $s . $suffix;
     };
 }
+
+function partial(callable $fn, ...$args1): \Closure {
+    return function (...$args2) use ($fn, $args1) {
+        return $fn(...array_merge($args1, $args2));
+    };
+}

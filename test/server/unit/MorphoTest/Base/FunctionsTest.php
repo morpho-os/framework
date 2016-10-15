@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prependFn, appendFn
+    partial, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prependFn, appendFn
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -251,6 +251,14 @@ class FunctionsTest extends TestCase {
 
     public function testAppendFn() {
         $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(appendFn('suffix'), ['foo', 'bar', 'baz']));
+    }
+
+    public function testPartial() {
+        $add = function ($a, $b) {
+            return $a + $b;
+        };
+        $add2 = partial($add, '2');
+        $this->assertEquals(5, $add2(3));
     }
 
     protected function assertCommon($fn) {
