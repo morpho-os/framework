@@ -64,7 +64,7 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager = $this->createModuleManager();
 
         $moduleName = 'error-handling-test-module';
-        $module = $moduleManager->addChild(new ErrorHandlingTestModule(['name' => $moduleName]));
+        $module = $moduleManager->addChild((new ErrorHandlingTestModule())->setName($moduleName));
 
         $request = new class($moduleName, 'error-handling-test-controller') extends Request {
             public function __construct($moduleName, $controllerName) {
@@ -122,7 +122,7 @@ class ModuleManagerTest extends DbTestCase {
         $moduleName = __CLASS__ . '\\My';
 
         $moduleClass = $moduleName . '\\Module';
-        $module = new $moduleClass(['name' => $moduleName]);
+        $module = (new $moduleClass())->setName($moduleName);
 
         $moduleManager->addChild($module);
 
@@ -217,7 +217,7 @@ class ModuleManagerTest extends DbTestCase {
     public function testDispatch_CallsDispatchMethodOfController() {
         $moduleManager = $this->createModuleManager();
         $moduleName = 'my-module';
-        $module = new \MorphoTest\Core\ModuleManagerTest\My\Module(['name' => $moduleName]);
+        $module = (new \MorphoTest\Core\ModuleManagerTest\My\Module())->setName($moduleName);
         $moduleManager->addChild($module);
 
         $controllerName = 'my-controller';
@@ -341,7 +341,7 @@ class Module extends \Morpho\Core\Module {
 
     protected function loadChild(string $name): Node {
         if ($name === 'my-controller') {
-            return new MyController(['name' => 'my-controller']);
+            return (new MyController())->setName('my-controller');
         }
         return parent::loadChild($name);
     }

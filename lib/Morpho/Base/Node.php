@@ -21,10 +21,11 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     public function getName(): string {
-        if (null === $this->name) {
-            throw new EmptyPropertyException($this, 'name');
-        }
         return $this->name;
+    }
+
+    public function hasName(): bool {
+        return !empty($this->name);
     }
 
     public function getType(): string {
@@ -35,7 +36,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     public function addChild(Node $node): Node {
-        if (!$node->getName()) {
+        if (!$node->hasName()) {
             throw new \RuntimeException("The node must have name.");
         }
         $node->setParent($this);

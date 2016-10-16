@@ -35,7 +35,6 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected $moduleFs;
     
     public function __construct(Db $db = null, ModuleFs $moduleFs) {
-        parent::__construct([]);
         $this->db = $db;
         $this->moduleFs = $moduleFs;
     }
