@@ -5,9 +5,12 @@ use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use function Morpho\Cli\cmd;
 use Morpho\Cli\CommandResult;
+use Morpho\Fs\File;
 
 class TypeScriptCompiler {
     const MODULE_KIND = 'system';
+
+    const TSCONFIG_FILE = 'tsconfig.json';
 
     protected $options = [
         'experimentalDecorators' => true,
@@ -49,6 +52,10 @@ class TypeScriptCompiler {
             )
         );
         return $this->tsc(implode(' ', $options));
+    }
+
+    public function writeTsconfig(string $dirPath): string {
+        return File::writeJson($dirPath . '/' . self::TSCONFIG_FILE, $this->getOptions());
     }
 
     public function version(): string {

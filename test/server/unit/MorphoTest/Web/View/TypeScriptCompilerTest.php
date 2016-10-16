@@ -10,6 +10,14 @@ class TypeScriptCompilerTest extends TestCase {
         $this->compiler = new TypeScriptCompiler();
     }
 
+    public function testWriteTsconfig() {
+        $dirPath = $this->tmpDirPath();
+        $filePath = $this->compiler->writeTsconfig($dirPath);
+        $this->assertEquals($dirPath . "/tsconfig.json", $filePath);
+        $config = json_decode(file_get_contents($filePath), true);
+        $this->assertArrayHasKey('removeComments', $config);
+    }
+
     public function testVersion() {
         $this->assertRegExp('~^Version\s+\d+\.\d+\.\d+~si', $this->compiler->version());
     }
