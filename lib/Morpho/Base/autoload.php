@@ -428,13 +428,13 @@ function buffer(callable $fn): string {
     return ob_get_clean();
 }
 
-function prependFn(string $prefix): callable {
+function prepend(string $prefix): \Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;
     };
 }
 
-function appendFn(string $suffix): callable {
+function append(string $suffix): \Closure {
     return function (string $s) use ($suffix) {
         return $s . $suffix;
     };

@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    partial, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prependFn, appendFn
+    partial, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prepend, append
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -245,12 +245,12 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo-bar-1', htmlId('FooBar'));
     }
 
-    public function testPrependFn() {
-        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prependFn('prefix'), ['foo', 'bar', 'baz']));
+    public function testPrepend() {
+        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prepend('prefix'), ['foo', 'bar', 'baz']));
     }
 
-    public function testAppendFn() {
-        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(appendFn('suffix'), ['foo', 'bar', 'baz']));
+    public function testAppend() {
+        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(append('suffix'), ['foo', 'bar', 'baz']));
     }
 
     public function testPartial() {
@@ -259,6 +259,12 @@ class FunctionsTest extends TestCase {
         };
         $add2 = partial($add, '2');
         $this->assertEquals(5, $add2(3));
+
+        $concatenate = function ($a, $b, $c, $d, $e, $f) {
+            return $a . $b . $c . $d . $e . $f;
+        };
+        $appendPrefix = partial($concatenate, 'foo', 'bar', 'baz');
+        $this->assertEquals('foobarbazHelloWorld!', $appendPrefix('Hello', 'World', '!'));
     }
 
     protected function assertCommon($fn) {
