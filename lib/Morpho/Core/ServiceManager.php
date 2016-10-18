@@ -25,7 +25,7 @@ abstract class ServiceManager extends BaseServiceManager {
     }
 
     protected function createAutoloaderService() {
-        return composerAutoloader(VENDOR_DIR_PATH . '/' . AUTOLOAD_FILE_NAME);
+        return composerAutoloader();
     }
 
     abstract protected function createModuleManagerService();

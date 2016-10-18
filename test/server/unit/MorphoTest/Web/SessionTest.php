@@ -33,8 +33,8 @@ class SessionTest extends TestCase {
         $this->assertInstanceOf('\ArrayAccess', $this->session);
     }
 
-    public function testGetName() {
-        $this->assertEquals(__CLASS__, $this->session->getName());
+    public function testStorageKey() {
+        $this->assertEquals(__CLASS__, $this->session->storageKey());
     }
 
     public function testMagicMethods() {

@@ -45,25 +45,6 @@ class Environment extends BaseEnvironment {
         return $asBytes ? $maxSize : $maxSizeIni;
     }
 
-    public function initSession() {
-        ini_set('session.use_cookies', '1');
-        ini_set('session.use_only_cookies', '1');
-        ini_set('session.use_trans_sid', '0');
-        ini_set('session.cache_limiter', '');
-        ini_set('session.cookie_httponly', '1');
-
-        if ($this->startSession) {
-            if (isset($_SESSION) || defined('SID') || session_id()) {
-                // Session is already started.
-                return;
-            }
-            if (headers_sent()) {
-                throw new \RuntimeException("Unable to start session: headers were already sent.");
-            }
-            session_start();
-        }
-    }
-
     public function initServerVars(array $serverVars = []) {
         $_SERVER['HTTP_REFERER'] = self::httpReferrer();
         $_SERVER['SERVER_PROTOCOL'] = self::httpProtocolVersion();
@@ -78,10 +59,5 @@ class Environment extends BaseEnvironment {
             'HTTP_USER_AGENT' => null,
         ];
         $_SERVER += $serverVars + $defaultServerVars;
-    }
-
-    protected function _init() {
-        parent::_init();
-        $this->initSession();
     }
 }

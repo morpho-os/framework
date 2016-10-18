@@ -8,6 +8,28 @@ use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
+    protected function init(IServiceManager $serviceManager) {
+        parent::init($serviceManager);
+
+        $iniSettings = $serviceManager->get('siteManager')->getCurrentSite()->getConfig()['iniSettings'];
+        $this->applyIniSettings($iniSettings);
+
+        if (!empty($SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
+            ini_set('cookie_secure', true);
+        }
+    }
+
+    protected function applyIniSettings(array $iniSettings, $parentName = null) {
+        foreach ($iniSettings as $name => $value) {
+            $settingName = $parentName ? $parentName . '.' . $name : $name;
+            if (is_array($value)) {
+                $this->applyIniSettings($value, $settingName);
+            } else {
+                ini_set($settingName, $value);
+            }
+        }
+    }
+
     protected function createServiceManager(): IServiceManager {
         $siteManager = new SiteManager();
         $siteConfig = $siteManager->getCurrentSiteConfig();

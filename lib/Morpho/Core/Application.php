@@ -30,9 +30,7 @@ abstract class Application {
         try {
             $serviceManager = $this->createServiceManager();
 
-            $serviceManager->get('environment')->init();
-
-            $serviceManager->get('errorHandler')->register();
+            $this->init($serviceManager);
 
             $request = $serviceManager->get('request');
 
@@ -70,6 +68,11 @@ abstract class Application {
             return null;
         }
         return Path::normalize($rootDirPath);
+    }
+
+    protected function init(IServiceManager $serviceManager) {
+        $serviceManager->get('environment')->init();
+        $serviceManager->get('errorHandler')->register();
     }
 
     abstract protected function createServiceManager(): IServiceManager;
