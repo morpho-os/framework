@@ -7,7 +7,7 @@ use Morpho\Web\Session;
 class SessionTest extends TestCase {
     public function setUp() {
         $_SESSION = [];
-        $this->session = new Session(__CLASS__, true);
+        $this->session = new Session(__CLASS__, false);
     }
 
     public function testStorageOfClosure() {
@@ -21,7 +21,7 @@ class SessionTest extends TestCase {
 
         unset($this->session);
 
-        $session = new Session(__CLASS__);
+        $session = new Session(__CLASS__, false);
 
         $fn = $session->fn;
         $this->assertEquals($uniqId, $fn());

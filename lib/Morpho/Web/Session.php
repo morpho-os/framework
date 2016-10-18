@@ -10,9 +10,9 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
 
     protected $data;
 
-    public function __construct(string $storageKey) {
+    public function __construct(string $storageKey, bool $start = true) {
         $this->storageKey = $storageKey;
-        $this->init();
+        $this->init($start);
     }
 
     public static function started(): bool {
@@ -119,8 +119,10 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         $this->__unset($key);
     }
 
-    protected function init() {
-        self::start();
+    protected function init(bool $start) {
+        if ($start) {
+            self::start();
+        }
 
         if (!isset($_SESSION[self::KEY])) {
             $_SESSION[self::KEY] = [];
