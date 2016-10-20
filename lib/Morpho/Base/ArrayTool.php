@@ -15,6 +15,10 @@ class ArrayTool {
         throw new NotImplementedException();
     }
 
+    public static function subsets(array $arr) {
+        throw new NotImplementedException();
+    }
+
     /**
      * Compares sets not strictly. Each element of each array must be scalar.
      * @return bool
