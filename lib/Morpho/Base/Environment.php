@@ -79,33 +79,10 @@ abstract class Environment extends Object {
     }
 
     protected function _init()/*: void */ {
-        $this->initErrorSettings();
-        $this->initDate();
-        $this->initServerVars();
-        $this->initLocale();
-        $this->initFs();
-    }
-
-    protected function initErrorSettings()/*: void */ {
         error_reporting(E_ALL | E_STRICT);
         ini_set('display_errors', 0);
-    }
-
-    protected function initDate()/*: void */ {
         ini_set('date.timezone', self::TIMEZONE);
-    }
-
-    abstract protected function initServerVars()/*: void */;
-
-    protected function initLocale()/*: void */ {
-        //setlocale(LC_ALL, 'C');
-        //$enc = self::ENCODING;
         ini_set('default_charset', self::ENCODING);
-        // extension_loaded('mbstring') && mb_internal_encoding($enc);
-        //iconv_set_encoding('internal_encoding', $enc); // Not actual since PHP_VERSION_ID >= 50600
-    }
-
-    protected function initFs()/*: void */ {
         // @TODO: Ensure that we need do this.
         umask(0);
     }

@@ -7,8 +7,9 @@ class Environment extends BaseEnvironment {
     const SUCCESS_CODE = 0;
     const FAILURE_CODE = 1;
 
-    public function initServerVars(array $serverVars = []) {
-        $defaultServerVars = [
+    protected function _init() {
+        parent::_init();
+        $_SERVER += [
             'HTTP_HOST'       => 'localhost',
             'SCRIPT_NAME'     => null,
             'REMOTE_ADDR'     => '127.0.0.1',
@@ -19,6 +20,5 @@ class Environment extends BaseEnvironment {
             'SERVER_PROTOCOL' => 'HTTP/1.0',
             'REQUEST_URI'     => '',
         ];
-        $_SERVER += $serverVars + $defaultServerVars;
     }
 }

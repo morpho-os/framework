@@ -45,12 +45,12 @@ class Environment extends BaseEnvironment {
         return $asBytes ? $maxSize : $maxSizeIni;
     }
 
-    public function initServerVars(array $serverVars = []) {
+    protected function _init() {
+        parent::_init();
         $_SERVER['HTTP_REFERER'] = self::httpReferrer();
         $_SERVER['SERVER_PROTOCOL'] = self::httpProtocolVersion();
         $_SERVER['HTTP_HOST'] = self::httpHost();
-
-        $defaultServerVars = [
+        $_SERVER += [
             'SCRIPT_NAME'     => null,
             'REMOTE_ADDR'     => '127.0.0.1',
             'REQUEST_METHOD'  => 'GET',
@@ -58,6 +58,5 @@ class Environment extends BaseEnvironment {
             'SERVER_SOFTWARE' => null,
             'HTTP_USER_AGENT' => null,
         ];
-        $_SERVER += $serverVars + $defaultServerVars;
     }
 }
