@@ -5,7 +5,7 @@ namespace Morpho\Cli;
 
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\{
-    writeLn, decodeJson, buffer
+    writeLn, buffer
 };
 use Morpho\Base\NotImplementedException;
 
@@ -16,36 +16,39 @@ function writeOk() {
 function writeError(string $string, bool $exit = true) {
     fwrite(STDERR, $string);
     if ($exit) {
-        exit(Enviroment::FAILURE_CODE);
+        exit(Environment::FAILURE_CODE);
     }
+}
+
+function colorize($text, $color) {
+    throw new NotImplementedException();
 }
 
 function writeErrorLn(string $string, bool $exit = true) {
     writeError($string . "\n", $exit);
 }
 
-function escapedArgs(array $args): array {
+function escapeArgs(array $args): array {
     return array_map('escapeshellarg', $args);
 }
 
-function escapedArgsString(array $args): string {
-    return implode(' ', escapedArgs($args));
-}
-
-function cmdSu(string $cmd): CommandResult {
-    return cmd('sudo bash -c "' . $cmd . '"');
-}
-
-function cmd(string $command, array $args = null, array $options = []): CommandResult {
-    $options = ArrayTool::handleOptions($options, [
+function cmd(string $command, array $args = null, array $options = null): CommandResult {
+    $options = ArrayTool::handleOptions((array) $options, [
+        /*
+        'stdIn' => null,
+        'stdOut' => null,
+        'stdErr' => null,
+        */
         'showStdOut' => false,
         'returnStdOut' => true,
-        //'showStdErr' => true,  // @TODO
-        'throwException' => true,
+        'showStdErr' => true,
+        'returnStdErr' => false,
+        'checkExitCode' => true,
     ]);
-    $runCmd = function () use ($command, $args, &$exitCode)/*: void */ {
+    /*
+    $runCmd = function () use ($command, $args, &$exitCode)/*: void * / {
         passthru(
-            $command . (null !== $args ? ' ' . escapedArgsString($args) : ''),
+            $command . (null !== $args ? ' ' . implode(' ', escapeArgs($args)) : ''),
             $exitCode
         );
     };
@@ -68,14 +71,15 @@ function cmd(string $command, array $args = null, array $options = []): CommandR
         $runCmd();
         $result = new CommandResult('', $exitCode);
     }
-    if ($options['throwException'] && $result->isError()) {
+    */
+    if ($options['checkExitCode'] && $result->isError()) {
         throw new Exception((string)$result, $result->getExitCode());
     }
     return $result;
 }
 
-function cmdJson(string $cmd, array $args = null, array $options = []): string {
-    return decodeJson((string)cmd($cmd, $args));
+function cmdSu(string $cmd, array $args = null, array $options = null): CommandResult {
+    return cmd('sudo bash -c "' . $cmd . '"', $args, $options);
 }
 
 function pipe(array $commands) {
