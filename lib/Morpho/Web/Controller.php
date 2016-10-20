@@ -3,6 +3,7 @@ namespace Morpho\Web;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Core\Controller as BaseController;
+use Morpho\Web\Session\Session;
 
 class Controller extends BaseController {
     protected function forwardToAction(string $action, string $controller = null, string $module = null, array $params = null) {
