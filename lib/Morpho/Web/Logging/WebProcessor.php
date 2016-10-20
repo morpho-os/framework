@@ -5,7 +5,7 @@ use Monolog\Processor\WebProcessor as BaseWebProcessor;
 use Morpho\Web\HttpTool;
 
 class WebProcessor extends BaseWebProcessor {
-    public function __invoke(array $record) {
+    public function __invoke(array $record): array {
         $record = parent::__invoke($record);
 
         $record['extra']['ip'] = HttpTool::getIp() ?: HttpTool::UNKNOWN_IP;

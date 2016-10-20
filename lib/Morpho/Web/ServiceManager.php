@@ -16,6 +16,7 @@ use Morpho\Web\Routing\ActionsMetaProvider;
 use Morpho\Web\Routing\FallbackRouter;
 use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\Routing\RoutesMetaProvider;
+use Morpho\Web\Session\Session;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\HtmlParserPost;

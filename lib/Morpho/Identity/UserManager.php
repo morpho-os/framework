@@ -3,7 +3,7 @@ namespace Morpho\Identity;
 
 use Morpho\Base\EntityExistsException;
 use Morpho\Base\NotImplementedException;
-use Morpho\Web\Session;
+use Morpho\Web\Session\Session;
 
 class UserManager {
     protected $session;

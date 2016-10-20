@@ -4,8 +4,8 @@ namespace MorphoTest\Identity;
 use Morpho\Base\EntityNotFoundException;
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
-use Morpho\Web\Session;
 use Morpho\Test\DbTestCase;
+use Morpho\Web\Session\Session;
 
 class UserManagerTest extends DbTestCase {
     public function setUp() {
@@ -43,7 +43,7 @@ class UserManagerTest extends DbTestCase {
             }
         };
         $_SESSION = [];
-        $this->userManager = new UserManager($userRepo, new Session(__CLASS__));
+        $this->userManager = new UserManager($userRepo, new Session(__CLASS__, false));
     }
 
     public function testRegistration() {

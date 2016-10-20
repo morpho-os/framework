@@ -1,8 +1,8 @@
 <?php
-namespace MorphoTest\Web;
+namespace MorphoTest\Web\Session;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\Session;
+use Morpho\Web\Session\Session;
 
 class SessionTest extends TestCase {
     public function setUp() {

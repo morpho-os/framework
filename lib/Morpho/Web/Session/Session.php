@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Web;
+namespace Morpho\Web\Session;
 
 use Morpho\Base\ItemNotSetException;
 

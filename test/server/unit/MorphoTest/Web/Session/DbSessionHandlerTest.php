@@ -1,9 +1,12 @@
 <?php
-
-
 namespace MorphoTest\Web\Session;
 
+use Morpho\Test\DbTestCase;
+use Morpho\Web\Session\DbSessionHandler;
 
-class DbSessionHandlerTest {
-
+class DbSessionHandlerTest extends DbTestCase {
+    public function testInterfaces() {
+        $handler = new DbSessionHandler();
+        $this->assertInstanceOf('\\SessionHandlerInterface', $handler);
+    }
 }
