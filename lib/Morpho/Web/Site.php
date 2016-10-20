@@ -3,6 +3,7 @@ namespace Morpho\Web;
 
 use Morpho\Base\Assert;
 use Morpho\Base\Must;
+use function Morpho\Base\requireFile;
 use Morpho\Fs\Path;
 
 class Site {
@@ -154,6 +155,6 @@ class Site {
             $this->isFallbackConfigUsed = false;
         }
 
-        return require $filePath;
+        return requireFile($filePath);
     }
 }

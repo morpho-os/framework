@@ -1,22 +1,17 @@
 <?php
-/**
- * This class uses parts of the code found in the ClassLoader class from the Composer project
- * (see Morpho\Base\ClassTypeAutoloader).
- */
-
 //declare(strict_types=1);
 
 namespace Morpho\Code;
+
+use function Morpho\Base\requireFile;
 
 abstract class Autoloader {
     public function autoload(string $class): bool {
         $filePath = $this->findFilePath($class);
         if ($filePath) {
             requireFile($filePath);
-
             return true;
         }
-
         return false;
     }
 
@@ -35,13 +30,4 @@ abstract class Autoloader {
      * @return string|false The path (string) if found, any value which can be converted to the false.
      */
     abstract public function findFilePath(string $class);
-}
-
-/**
- * Scope isolated include.
- *
- * Prevents access to $this/self from included files.
- */
-function requireFile($filePath) {
-    require $filePath;
 }

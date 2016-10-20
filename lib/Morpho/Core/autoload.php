@@ -26,7 +26,6 @@ const AUTOLOAD_FILE_NAME = 'autoload.php';
 const MODULE_META_FILE_NAME = 'composer.json';
 const MODULE_CLASS_FILE_NAME = 'Module.php';
 
-// @TODO: Replace with the `const`? Check PHP internals.
 define('LIB_DIR_PATH',  BASE_DIR_PATH . '/' . LIB_DIR_NAME);
 define('MODULE_DIR_PATH',  BASE_DIR_PATH . '/' . MODULE_DIR_NAME);
 define('SITE_DIR_PATH',  BASE_DIR_PATH . '/' . SITE_DIR_NAME);
@@ -42,6 +41,7 @@ const MODULE_SUFFIX = 'Module';
 const REPO_SUFFIX = 'Repo';
 const PLUGIN_SUFFIX = 'Plugin';
 
+// @TODO: Detect precise value.
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
 

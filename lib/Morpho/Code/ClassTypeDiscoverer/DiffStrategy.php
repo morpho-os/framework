@@ -1,12 +1,13 @@
 <?php
 namespace Morpho\Code\ClassTypeDiscoverer;
 
+use function Morpho\Base\requireFile;
 use Morpho\Code\ClassTypeDiscoverer;
 
 class DiffStrategy implements IDiscoverStrategy {
     public function definedClassTypesInFile(string $filePath): array {
         $pre = ClassTypeDiscoverer::definedClassTypes();
-        require $filePath;
+        requireFile($filePath);
         $post = ClassTypeDiscoverer::definedClassTypes();
         return array_values(array_diff($post, $pre));
     }

@@ -2,6 +2,7 @@
 //declare(strict_types = 1);
 namespace Morpho\Code;
 
+use function Morpho\Base\requireFile;
 use Morpho\Fs\File;
 
 class ClassTypeMapAutoloader extends Autoloader {
@@ -53,7 +54,7 @@ class ClassTypeMapAutoloader extends Autoloader {
     protected function createTypeMap(): array {
         $useCache = $this->useCache;
         if ($useCache && is_file($this->mapFilePath)) {
-            return require $this->mapFilePath;
+            return requireFile($this->mapFilePath);
         }
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         $map = $classTypeDiscoverer->definedClassTypesInDir($this->searchDirPaths, $this->processor, ['followSymlinks' => true]);

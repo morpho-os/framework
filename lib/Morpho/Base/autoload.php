@@ -445,3 +445,10 @@ function partial(callable $fn, ...$args1): \Closure {
         return $fn(...array_merge($args1, $args2));
     };
 }
+
+/**
+ * @return mixed
+ */
+function requireFile(string $__filePath) {
+    return require $__filePath;
+}

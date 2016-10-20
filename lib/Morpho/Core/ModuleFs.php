@@ -4,6 +4,7 @@ namespace Morpho\Core;
 //use function Morpho\Base\classify;
 //use function Morpho\Base\dasherize;
 //use function Morpho\Base\head;
+use function Morpho\Base\requireFile;
 use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
@@ -113,7 +114,7 @@ $this->useCache = $useCache;
 
         $filePath = $composerFilesDirPath . '/autoload_namespaces.php';
         if (is_file($filePath)) {
-            $map = require $filePath;
+            $map = requireFile($filePath);
             foreach ($map as $namespace => $path) {
                 $autoloader->set($namespace, $path);
             }
@@ -121,7 +122,7 @@ $this->useCache = $useCache;
 
         $filePath = $composerFilesDirPath . '/autoload_psr4.php';
         if (is_file($filePath)) {
-            $map = require $filePath;
+            $map = requireFile($filePath);
             foreach ($map as $namespace => $path) {
                 $autoloader->setPsr4($namespace, $path);
             }
@@ -134,7 +135,7 @@ $this->useCache = $useCache;
 
         $filePath = $composerFilesDirPath . '/autoload_classmap.php';
         if (is_file($filePath)) {
-            $classMap = require $filePath;
+            $classMap = requireFile($filePath);
             if ($classMap) {
                 $autoloader->addClassMap($classMap);
             }
@@ -149,7 +150,7 @@ $this->useCache = $useCache;
         if (null === $this->moduleCache) {
             $cacheFilePath = $this->getBaseCacheDirPath() . '/' . self::CACHE_FILE_NAME;
             if (is_file($cacheFilePath)) {
-                $this->moduleCache = require $cacheFilePath;
+                $this->moduleCache = requireFile($cacheFilePath);
             } else {
                 $moduleCache = [];
                 $filter = function ($path, $isDir) {

@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web;
 
+use function Morpho\Base\requireFile;
 use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };
@@ -150,7 +151,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     protected function getConfig(): array {
         if (null === $this->config) {
-            $this->config = require $this->getAllSitesDirPath() . '/' . self::CONFIG_FILE_NAME;
+            $this->config = requireFile($this->getAllSitesDirPath() . '/' . self::CONFIG_FILE_NAME);
         }
         return $this->config;
     }

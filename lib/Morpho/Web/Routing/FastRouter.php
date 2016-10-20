@@ -6,6 +6,7 @@ use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
+use function Morpho\Base\requireFile;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 use Morpho\Web\Request;
@@ -21,7 +22,7 @@ class FastRouter extends Router {
         if (!file_exists($cacheFilePath)) {
             $this->rebuildRoutes();
         }
-        $dispatchData = require $cacheFilePath;
+        $dispatchData = requireFile($cacheFilePath);
         $dispatcher = new GroupCountBasedDispatcher($dispatchData);
 
         $routeInfo = $dispatcher->dispatch($request->getMethod(), $uri);
