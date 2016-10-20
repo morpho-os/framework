@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web;
 
+use function Morpho\Base\requireFile;
 use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Core\ModuleFs as BaseModuleFs;
 use Morpho\Di\IServiceManager;
@@ -33,7 +34,7 @@ class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
         if (is_dir($dirPath)) {
             $cacheFilePath = $this->getModuleCacheDirPath($moduleName) . '/autoload_classmap.php';
             if (is_file($cacheFilePath)) {
-                $classTypes = require $cacheFilePath;
+                $classTypes = requireFile($cacheFilePath);
                 if ($classTypes) {
                     $this->autoloader->addClassMap($classTypes);
                 }
