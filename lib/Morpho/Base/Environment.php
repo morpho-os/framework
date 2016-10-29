@@ -11,6 +11,14 @@ abstract class Environment extends Object {
         return self::getBoolIniVal('xdebug.default_enable');
     }
 
+    public static function x64Arch(): bool {
+        return PHP_INT_SIZE === 8;
+    }
+
+    public static function x32Arch(): bool {
+        return PHP_INT_SIZE === 4;
+    }
+
     public static function isCli(): bool {
         return PHP_SAPI == 'cli';
     }

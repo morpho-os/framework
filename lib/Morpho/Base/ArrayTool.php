@@ -139,7 +139,10 @@ class ArrayTool {
         if (null === $options || count($options) === 0) {
             return $defaultOptions;
         }
-        Must::haveOnlyKeys($options, array_keys($defaultOptions));
+        $diff = array_diff_key($options, array_flip(array_keys($defaultOptions)));
+        if (count($diff)) {
+            throw new InvalidOptionsException('Invalid options: ' . shorten(implode(', ', array_keys($diff)), 80));
+        }
         return array_merge($defaultOptions, $options);
     }
 

@@ -31,7 +31,7 @@ class TypeScriptCompiler {
     ];
 
     public function compileToFile(string $inFilePath, string $outFilePath = null): CommandResult {
-        $options = $this->makeSafeOptions(
+        $options = $this->escapeOptions(
             array_merge(
                 $this->getOptions(),
                 [
@@ -44,7 +44,7 @@ class TypeScriptCompiler {
     }
 
     public function compileToDir(string $inFilePath, string $outDirPath = null): CommandResult {
-        $options = $this->makeSafeOptions(
+        $options = $this->escapeOptions(
             array_merge(
                 $this->getOptions(),
                 [
@@ -101,7 +101,7 @@ class TypeScriptCompiler {
         return $this->options;
     }
 
-    protected function makeSafeOptions(array $options): array {
+    protected function escapeOptions(array $options): array {
         $safe = [];
         $sep = ' ';
         foreach ($options as $name => $value) {

@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Test;
 
+use Morpho\Base\Environment;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 
@@ -133,6 +134,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
     protected function markTestAsNotRisky() {
         $this->addToAssertionCount(1);
+    }
+
+    protected function windowsSys(): bool {
+        return Environment::isWindows();
     }
 
     public function expectException($exception, $message = '', $code = null) {

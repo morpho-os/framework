@@ -1,27 +1,136 @@
 <?php
 namespace MorphoTest\Cli;
 
-require_once LIB_DIR_PATH . '/Morpho/Cli/functions.php';
-
-use Morpho\Test\TestCase;
+use Morpho\Base\Environment;
+use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    escapeEachArg, argString
+    cmd, escapeArg, escapeArgs, writeOk, colorize
 };
+use Morpho\Test\TestCase;
 
 class FunctionsTest extends TestCase {
+    public function testWriteOk() {
+        ob_start();
+        writeOk();
+        $this->assertEquals("OK\n", ob_get_clean());
+    }
+
+    public function dataForWriteErrorAndWriteErrorLn() {
+        return [
+            ['writeError', 'Something went wrong', 'Something went wrong'],
+            ['writeErrorLn', "Space cow has arrived!\n", 'Space cow has arrived!'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForWriteErrorAndWriteErrorLn
+     */
+    public function testWriteErrorAndWriteErrorLn($fn, $expectedMessage, $error) {
+        if (Environment::isWindows()) {
+            $this->markTestSkipped();
+        }
+
+        $tmpFilePath = $this->createTmpFile();
+        $autoloadFilePath = BASE_DIR_PATH . '/vendor/autoload.php';
+        file_put_contents($tmpFilePath, <<<OUT
+<?php
+require "$autoloadFilePath";
+echo \\Morpho\\Cli\\$fn("$error");
+OUT
+        );
+
+        $fdSpec = [
+            2 => ["pipe", "w"],  // stdout is a pipe that the child will write to
+        ];
+        $process = proc_open('php ' . escapeshellarg($tmpFilePath), $fdSpec, $pipes);
+
+        $out = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        proc_close($process);
+
+        $this->assertEquals($expectedMessage, $out);
+    }
+
+    public function testColorize() {
+        $magenta = 35;
+        $text = "Hello";
+        $this->assertEquals("\033[" . $magenta . "m$text\033[0m", colorize($text, $magenta));
+    }
+
+    public function testEscapeArg() {
+        $this->assertEquals("''", escapeArg(null));
+    }
+
+    public function testEscapeArgs() {
+        $this->assertEquals(
+            ["'foo'\\''bar'", "'test/'"],
+            escapeArgs(["foo'bar", 'test/'])
+        );
+    }
+
+    public function testCmd_ThrowsExceptionOnInvalidOption() {
+        $this->expectException(InvalidOptionsException::class);
+        cmd('ls', ['some invalid option' => 'value of invalid option']);
+    }
+
+    public function testCmd_CommandAsString() {
+        $result = cmd('ls '  . escapeshellarg(__DIR__));
+        $this->assertEquals(0, $result->exitCode());
+        $this->assertFalse($result->wasError());
+        $this->assertContains(basename(__FILE__), (string)$result);
+    }
+
+    public function testCmd_CommandAsArray() {
+        $this->markTestIncomplete();
+    }
+
+    public function testCmd_CheckExitOption() {
+        $this->markTestIncomplete();
+    }
+
+    public function testCmdSu() {
+        if ($this->windowsSys()) {
+            $this->markTestSkipped();
+        }
+        $this->markTestIncomplete();
+    }
+
+    public function testPipe() {
+        $this->markTestIncomplete();
+    }
+
     public function testAskYesNo() {
-        $this->markTestIncomplete();
-    }
+        if ($this->windowsSys()) {
+            $this->markTestSkipped();
+        }
 
-    public function testRequireFile() {
-        $this->markTestIncomplete();
-    }
+        $tmpFilePath = $this->createTmpFile();
+        $autoloadFilePath = BASE_DIR_PATH . '/vendor/autoload.php';
+        $question = "Do you want to play";
+        file_put_contents($tmpFilePath, <<<OUT
+<?php
+require "$autoloadFilePath";
+echo json_encode(\\Morpho\\Cli\\askYesNo("$question"));
+OUT
+        );
 
-    public function testEscapedArgs() {
-        $this->assertEquals(["'foo'\\''bar'", "'test/'"], \Morpho\Cli\escapedArgs(["foo'bar", 'test/']));
-    }
+        $fdSpec = [
+            0 => ["pipe", "r"],  // stdin is a pipe that the child will read from
+            1 => ["pipe", "w"],  // stdout is a pipe that the child will write to
+        ];
+        $process = proc_open('php ' . escapeshellarg($tmpFilePath), $fdSpec, $pipes);
 
-    public function testEscapedArgsString() {
-        $this->assertEquals("'foo'\\''bar' 'test/'", \Morpho\Cli\escapedArgsString(["foo'bar", 'test/']));
+        fwrite($pipes[0], "what\ny\n");
+
+        $out = stream_get_contents($pipes[1]);
+
+        foreach ($pipes as $pipe) {
+            fclose($pipe);
+        }
+
+        proc_close($process);
+
+        $this->assertEquals("$question? (y/n): Invalid choice, please type y or n\ntrue", $out);
     }
 }

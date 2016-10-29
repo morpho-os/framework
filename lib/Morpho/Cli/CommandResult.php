@@ -3,25 +3,28 @@ declare(strict_types = 1);
 
 namespace Morpho\Cli;
 
+use Symfony\Component\Process\Process;
+
 class CommandResult {
-    protected $result;
+    private $process;
 
-    protected $exitCode;
-
-    public function __construct(string $result, int $exitCode) {
-        $this->result = $result;
-        $this->exitCode = $exitCode;
+    public function __construct(Process $process) {
+        $this->process = $process;
     }
 
-    public function isError(): bool {
-        return $this->exitCode !== Environment::SUCCESS_CODE;
+    public function wasError(): bool {
+        return $this->exitCode() !== Environment::SUCCESS_CODE;
     }
 
-    public function getExitCode(): int {
-        return $this->exitCode;
+    public function exitCode(): int {
+        $exitCode = $this->process->getExitCode();
+        if (null === $exitCode) {
+            throw new \RuntimeException("Process is not terminated yet");
+        }
+        return $exitCode;
     }
 
     public function __toString(): string {
-        return $this->result;
+        return $this->process->getOutput();
     }
 }

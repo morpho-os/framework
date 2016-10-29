@@ -267,6 +267,10 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foobarbazHelloWorld!', $appendPrefix('Hello', 'World', '!'));
     }
 
+    public function testRequireFile() {
+        $this->markTestIncomplete();
+    }
+
     protected function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));

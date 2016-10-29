@@ -1,6 +1,7 @@
 <?php
 namespace MorphoTest\Base;
 
+use Morpho\Base\InvalidOptionsException;
 use Morpho\Test\TestCase;
 use Morpho\Base\ArrayTool;
 
@@ -83,7 +84,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testInitThrowsExceptionForEmptyArray() {
-        $this->expectException("\\UnexpectedValueException", "Empty list");
+        $this->expectException(\UnexpectedValueException::class, "Empty list");
         ArrayTool::init([]);
     }
 
@@ -114,7 +115,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testLastThrowsExceptionForEmptyArray() {
-        $this->expectException("\\UnexpectedValueException", "Empty list");
+        $this->expectException(\UnexpectedValueException::class, "Empty list");
         ArrayTool::last([]);
     }
 
@@ -145,7 +146,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testTailThrowsExceptionForEmptyArray() {
-        $this->expectException("\\UnexpectedValueException", "Empty list");
+        $this->expectException(\UnexpectedValueException::class, "Empty list");
         ArrayTool::tail([]);
     }
 
@@ -176,7 +177,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testHeadThrowsExceptionForEmptyArray() {
-        $this->expectException("\\UnexpectedValueException", "Empty list");
+        $this->expectException(\UnexpectedValueException::class, "Empty list");
         ArrayTool::head([]);
     }
 
@@ -262,9 +263,14 @@ class ArrayToolTest extends TestCase {
         );
     }
 
-    public function testHandleOptionsThrowsExceptionWhenDefaultOptionsAreMissing() {
-        $this->expectException('\RuntimeException', "Not allowed items are present: foo");
+    public function testHandleOptions_ThrowsExceptionWhenDefaultOptionsAreMissing() {
+        $this->expectException(InvalidOptionsException::class, "Invalid options: foo");
         ArrayTool::handleOptions(['foo' => 'bar'], ['one' => 1]);
+    }
+
+    public function testHandleOptions_InvalidOptionsNumericKeys() {
+        $this->expectException(InvalidOptionsException::class, "Invalid options: 2, 5");
+        ArrayTool::handleOPtions([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
     }
 
     public function testUnsetRecursive() {

@@ -1,6 +1,7 @@
 <?php
 namespace MorphoTest\Fs;
 
+use Morpho\Base\InvalidOptionsException;
 use Morpho\Fs\Directory;
 use Morpho\Test\TestCase;
 
@@ -225,7 +226,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_ThrowsExceptionOnInvalidOption() {
-        $this->expectException('\RuntimeException', 'Not allowed items are present');
+        $this->expectException(InvalidOptionsException::class, 'Invalid options: invalid');
         iterator_to_array(Directory::paths($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 

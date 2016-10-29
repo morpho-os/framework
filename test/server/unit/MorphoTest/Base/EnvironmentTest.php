@@ -5,6 +5,8 @@ use Morpho\Test\TestCase;
 use Morpho\Base\Environment;
 
 class EnvironmentTest extends TestCase {
+    private $oldZendEnableGc;
+
     public function setUp() {
         parent::setUp();
         $this->oldZendEnableGc = ini_set('zend.enable_gc', 1);
