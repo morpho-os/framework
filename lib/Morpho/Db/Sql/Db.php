@@ -13,19 +13,23 @@ class Db {
     public function __construct($configOrConnection) {
         $this->conn = $db = $configOrConnection instanceof \PDO
             ? $configOrConnection
-            : static::createConnection($configOrConnection);
+            : static::connect($configOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
     }
 
-    public static function createConnection($config): \PDO {
+    /**
+     * $config must have items: 'driver', 'host', 'db', 'user', 'password'. The 'db' and 'password' can be empty.
+     */
+    public static function connect($config, array $options = null): \PDO {
         $dsn = is_string($config)
             ? $config
             : $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';charset=UTF8';
         return new \PDO(
             $dsn,
             isset($config['user']) ? $config['user'] : '',
-            isset($config['password']) ? $config['password'] : ''
+            isset($config['password']) ? $config['password'] : '',
+            (array) $options
         );
     }
     

@@ -59,6 +59,10 @@ class SchemaManager extends BaseSchemaManager {
         );
     }
 
+    public function userExists(string $userName): bool {
+        return $this->db->selectBool('1 FROM mysql.user WHERE User = ?', [$userName]);
+    }
+
     public function tableNames(): array {
         return $this->db->fetchColumn("SHOW TABLES");
     }
