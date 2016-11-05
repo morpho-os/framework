@@ -18,11 +18,7 @@ abstract class DbTestCase extends TestCase {
         }
     }
 
-    protected function createDbConnection(): \PDO {
-        return Db::createConnection($this->getDbConfig());
-    }
-
-    protected function getDbConfig(): array {
+    protected function dbConfig(): array {
         return [
             'driver'   => 'mysql',
             'host'     => '127.0.0.1',
@@ -33,6 +29,9 @@ abstract class DbTestCase extends TestCase {
     }
 
     protected function db($config = null): Db {
-        return new Db($config ? $config : $this->createDbConnection());
+        if (!$config) {
+            $config = $this->dbConfig();
+        }
+        return new Db($config);
     }
 }

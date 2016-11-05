@@ -9,7 +9,7 @@ class DbTest extends DbTestCase {
     protected $db, $schemaManager;
 
     public function setUp() {
-        $this->db = new Db($this->getDbConfig());
+        $this->db = $this->db();
         $this->schemaManager = new SchemaManager($this->db);
         $this->schemaManager->deleteAllTables();
     }

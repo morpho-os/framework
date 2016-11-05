@@ -13,7 +13,7 @@ class SchemaManagerTest extends DbTestCase {
 
     public function setUp() {
         parent::setUp();
-        $db = new Db($this->getDbConfig());
+        $db = $this->db();
         $this->schemaManager = new SchemaManager($db);
         $this->schemaManager->deleteAllTables();
         $this->db = $db;
