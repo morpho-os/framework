@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Net;
+namespace Morpho\Inet;
 
 use Zend\Mail\Message;
 use Zend\Mail\Transport\Factory as TransportFactory;
@@ -51,7 +51,7 @@ class MailSender {
         return $this;
     }
 
-    public function getDiagnostics(): array {
+    public function diagnostics(): array {
         $diagnostics = [];
         $transport = $this->lastTransport;
         if (null === $transport) {
