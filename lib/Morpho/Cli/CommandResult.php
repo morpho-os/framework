@@ -3,13 +3,12 @@ declare(strict_types = 1);
 
 namespace Morpho\Cli;
 
-use Symfony\Component\Process\Process;
-
 class CommandResult {
-    private $process;
+    protected $exitCode, $output;
 
-    public function __construct(Process $process) {
-        $this->process = $process;
+    public function __construct($exitCode, $output) {
+        $this->exitCode = $exitCode;
+        $this->output = $output;
     }
 
     public function wasError(): bool {
@@ -17,14 +16,10 @@ class CommandResult {
     }
 
     public function exitCode(): int {
-        $exitCode = $this->process->getExitCode();
-        if (null === $exitCode) {
-            throw new \RuntimeException("Process is not terminated yet");
-        }
-        return $exitCode;
+        return $this->exitCode;
     }
 
     public function __toString(): string {
-        return $this->process->getOutput();
+        return $this->output;
     }
 }

@@ -3,10 +3,17 @@ declare(strict_types = 1);
 
 namespace Morpho\Cli;
 
+const STDIN_FD  = 0;
+const STDOUT_FD = 1;
+const STDERR_FD = 2;
+const STD_PIPES = [
+    STDIN_FD  => ['pipe', 'r'],  // child process will read from STDIN
+    STDOUT_FD => ['pipe', 'w'],  // child process will write to STDOUT
+    STDERR_FD => ['pipe', 'w'],  // child process will write to STDERR
+];
+
 use Morpho\Base\ArrayTool;
-use function Morpho\Base\{
-    writeLn, buffer
-};
+use function Morpho\Base\writeLn;
 use Morpho\Base\NotImplementedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
@@ -54,7 +61,7 @@ function colorize(string $text, $code): string {
     static $colorOn = "\033[";
     static $colorOff = "\033[0m";
     return $colorOn . implode(';', (array)$code) . 'm'   // prefix
-        . str_replace([']', '['], ['\\]', '\\['], $text) // text with escaped '[', ']'
+        . $text
         . $colorOff;                                     // suffix
 }
 
@@ -69,76 +76,34 @@ function escapeArgs(array $args): array {
 function cmd($command, array $options = null): CommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
         'checkExitCode' => true,
+        'shell' => true,
     ]);
-    $process = new Process($command);
-    $process->run();
-    if ($options['checkExitCode']) {
-        // @TODO
+    if (PHP_SAPI !== 'cli') {
+        throw new NotImplementedException();
     }
-    $result = new CommandResult($process);
-    return $result;
-    /*
-    $options = ArrayTool::handleOptions((array) $options, [
-        'stdIn' => null,
-        'stdOut' => null,
-        'stdErr' => null,
-/*
-        'showStdOut' => false,
 
-        'stdOut' => null,
-        'stdOut' => null,
-        'stdErr' => null,
-* /
-        'showStdOut' => false,
-        'returnStdOut' => true,
-        'showStdErr' => true,
-        'returnStdErr' => false,
-        'checkExitCode' => true,
-    ]);
-    */
-/*
-    $runCmd = function () use ($command, $args, &$exitCode)/*: void * / {
-        passthru(
-            $command . (null !== $args ? ' ' . implode(' ', escapeArgs($args)) : ''),
-            $exitCode
-        );
-    };
-    if ($options['returnStdOut'] || (!$options['returnStdOut'] && !$options['showStdOut'])) {
-        if ($options['returnStdOut']) {
-            // 1, *
-            $res = trim(buffer($runCmd));
-            if ($options['showStdOut']) {
-                // 1, 1
-                echo $res;
-            }
-            $result = new CommandResult($res, $exitCode);
-        } else {
-            // 0, 0
-            buffer($runCmd);
-            $result = new CommandResult('', $exitCode);
-        }
+    $exitCode = 1;
+    if ($options['shell']) {
+        $output = \Morpho\Base\buffer(function () use ($command, &$exitCode) {
+            passthru($command, $exitCode);
+        });
     } else {
-        // 0, 1
-        $runCmd();
-        $result = new CommandResult('', $exitCode);
+        $process = new Process($command);
+        $process->run();
+        $exitCode = $process->getExitCode();
+        $output = $process->getOutput();
     }
 
-    $result = new CommandResult('', 0);
-    if ($options['checkExitCode'] && $result->wasError()) {
-        throw new Exception((string)$result, $result->exitCode());
+    if ($options['checkExitCode'] && $exitCode !== 0) {
+        throw new \RuntimeException("Command returned non-zero exit code: " . $exitCode);
     }
-    return $result;
-*/
+
+    return new CommandResult($exitCode, $output);
 }
 
 function cmdSu(string $command, array $options = null): CommandResult {
     throw new NotImplementedException();
     //return cmd('sudo bash -c "' . $cmd . '"', $args, $options);
-}
-
-function pipe(array $commands) {
-    // @TODO:
-    throw new NotImplementedException();
 }
 
 function askYesNo(string $question): bool {
@@ -154,8 +119,3 @@ function askYesNo(string $question): bool {
         }
     } while (true);
 }
-/*
-function ask(string $question): string {
-    echo $question;
-    return strtolower(trim(fgets(STDIN)));
-}*/

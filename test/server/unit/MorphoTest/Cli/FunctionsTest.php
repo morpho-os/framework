@@ -81,12 +81,11 @@ OUT
         $this->assertContains(basename(__FILE__), (string)$result);
     }
 
-    public function testCmd_CommandAsArray() {
-        $this->markTestIncomplete();
-    }
-
     public function testCmd_CheckExitOption() {
-        $this->markTestIncomplete();
+        $exitCode = 134;
+        $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
+        cmd('php -r "exit(' . $exitCode . ');"');
+
     }
 
     public function testCmdSu() {
