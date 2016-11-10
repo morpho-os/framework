@@ -22,15 +22,19 @@ function writeOk() {
     writeLn("OK");
 }
 
-function writeError(string $string, bool $exit = true) {
-    fwrite(STDERR, $string);
-    if ($exit) {
-        exit(Environment::FAILURE_CODE);
+function error(string $errMessage = null) {
+    if ($errMessage) {
+        writeError($errMessage);
     }
+    exit(Environment::FAILURE_CODE);
 }
 
-function writeErrorLn(string $string, bool $exit = true) {
-    writeError($string . "\n", $exit);
+function writeError(string $errMessage) {
+    fwrite(STDERR, $errMessage);
+}
+
+function writeErrorLn(string $errMessage) {
+    writeError($errMessage . "\n");
 }
 
 function colorize(string $text, $code): string {
@@ -71,6 +75,13 @@ function escapeArg($arg): string {
 
 function escapeArgs(array $args): array {
     return array_map(__NAMESPACE__ . '\\escapeArg', $args);
+}
+
+function argsString(array $args): string {
+    if (!count($args)) {
+        return '';
+    }
+    return implode(' ', escapeArgs($args));
 }
 
 function cmd($command, array $options = null): CommandResult {

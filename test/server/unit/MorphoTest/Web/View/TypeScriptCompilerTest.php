@@ -35,7 +35,7 @@ class TypeScriptCompilerTest extends TestCase {
         $outFilePath = dirname($inFilePath) . '/' . basename($inFilePath) . '-tsc/bar/test.js';
         $this->compiler->setOption('module', 'system');
         $res = $this->compiler->compileToFile($inFilePath, $outFilePath);
-        $this->assertFalse($res->wasError());
+        $this->assertFalse($res->notSuccess());
         $this->assertRegExp('~^System\.register\(.*\}\);$~si', trim(file_get_contents($outFilePath)));
     }
 
@@ -45,7 +45,7 @@ class TypeScriptCompilerTest extends TestCase {
         $outDirPath = $this->createTmpDir();
         $this->compiler->setOption('module', 'umd');
         $res = $this->compiler->compileToDir($inFilePath, $outDirPath);
-        $this->assertFalse($res->wasError());
+        $this->assertFalse($res->notSuccess());
         $outFilePath = $outDirPath . '/' . basename($inFilePath, '.ts') . '.js';
         $this->assertRegExp('~\(function \((dependencies, )?factory\) \{.*\}\);$~si', trim(file_get_contents($outFilePath)));
     }

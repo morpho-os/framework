@@ -77,7 +77,7 @@ OUT
     public function testCmd_CommandAsString() {
         $result = cmd('ls '  . escapeshellarg(__DIR__));
         $this->assertEquals(0, $result->exitCode());
-        $this->assertFalse($result->wasError());
+        $this->assertFalse($result->notSuccess());
         $this->assertContains(basename(__FILE__), (string)$result);
     }
 

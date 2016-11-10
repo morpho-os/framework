@@ -11,8 +11,12 @@ class CommandResult {
         $this->output = $output;
     }
 
-    public function wasError(): bool {
+    public function notSuccess(): bool {
         return $this->exitCode() !== Environment::SUCCESS_CODE;
+    }
+
+    public function error(): CommandError {
+        throw new \NotImplementedException();
     }
 
     public function exitCode(): int {
@@ -22,4 +26,8 @@ class CommandResult {
     public function __toString(): string {
         return $this->output;
     }
+}
+
+class CommandError {
+
 }
