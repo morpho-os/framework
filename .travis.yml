@@ -46,7 +46,6 @@ install:
     - "node --version && npm install -g typescript@next && tsc --version"
 
 before_script:
-    - test/travis/prepare_db
     - travis_retry composer selfupdate
     - travis_retry composer install
 
