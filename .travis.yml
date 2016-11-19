@@ -44,5 +44,10 @@ install:
     - travis_retry composer selfupdate
     - travis_retry composer install
 
+before_script:
+    - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
+    #- "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
+    #- "mysql -uroot -e \"FLUSH PRIVILEGES;\""
+
 script:
     - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml

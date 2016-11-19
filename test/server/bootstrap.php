@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('UTC');
 
-if (getenv('TRAVIS')) {
+/*if (getenv('TRAVIS')) {
     (function () {
         $dsn = 'mysql:dbname=;127.0.0.1;charset=UTF8';
         $db = new \PDO($dsn, 'root', '');
@@ -16,7 +16,7 @@ if (getenv('TRAVIS')) {
             $db->query($sql);
         }
     })();
-}
+}*/
 
 (function () {
     $classLoader = require __DIR__ . '/../../vendor/autoload.php';
