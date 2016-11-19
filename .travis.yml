@@ -40,14 +40,15 @@ install:
     - "id && pwd && uname -a"
     # - "php -i && mysql -uroot -e \"show variables like 'socket'\""
     # - mysql_config --socket
-
-    # `node` means `latest stable Node.js release`
-    - nvm install node
-    - "node --version && npm install -g typescript@next && tsc --version"
-
-before_script:
-    - travis_retry composer selfupdate
-    - travis_retry composer install
-
-script:
-    - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
+    - "cat /etc/my.cnf && ls -al /etc"
+      #    # `node` means `latest stable Node.js release`
+      #
+      #    - nvm install node
+      #    - "node --version && npm install -g typescript@next && tsc --version"
+      #
+      #before_script:
+      #    - travis_retry composer selfupdate
+      #    - travis_retry composer install
+      #
+      #script:
+      #    - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php

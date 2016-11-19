@@ -9,7 +9,7 @@ if (getenv('TRAVIS')) {
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         $sqls = [
             'DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci',
-            "GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY ''",
+            "GRANT ALL PRIVILEGES ON test.* TO 'root'@'127.0.0.1' IDENTIFIED BY ''",
             "FLUSH PRIVILEGES",
         ];
         foreach ($sqls as $sql) {
