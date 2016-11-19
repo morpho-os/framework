@@ -3,7 +3,7 @@ date_default_timezone_set('UTC');
 
 if (getenv('TRAVIS')) {
     (function () {
-        $dsn = 'mysql:dbname=;localhost;charset=UTF8';
+        $dsn = 'mysql:dbname=;127.0.0.1;charset=UTF8';
         $db = new \PDO($dsn, 'root', '');
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
