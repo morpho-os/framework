@@ -40,9 +40,10 @@ install:
     - "id && pwd && uname -a"
     # - "php -i && mysql -uroot -e \"show variables like 'socket'\""
     # - mysql_config --socket
-    - "sudo cat /etc/mysql-5.6/my.cnf"
+    # - sudo cat /etc/mysql-5.6/my.cnf
+    - php -i
+
       #    # `node` means `latest stable Node.js release`
-      #
       #    - nvm install node
       #    - "node --version && npm install -g typescript@next && tsc --version"
       #
