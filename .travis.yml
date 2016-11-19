@@ -34,22 +34,15 @@ services:
 #  8. OPTIONAL after_deploy
 #  9. after_script
 
-#before_install:
+before_install:
+    - "id && pwd && uname -a"
 
 install:
-    - "id && pwd && uname -a"
-    # - "php -i && mysql -uroot -e \"show variables like 'socket'\""
-    # - mysql_config --socket
-    # - sudo cat /etc/mysql-5.6/my.cnf
-    - php -i
+    # `node` means `latest stable Node.js release`
+    - nvm install node
+    - "node --version && npm install -g typescript@next && tsc --version"
+    - travis_retry composer selfupdate
+    - travis_retry composer install
 
-      #    # `node` means `latest stable Node.js release`
-      #    - nvm install node
-      #    - "node --version && npm install -g typescript@next && tsc --version"
-      #
-      #before_script:
-      #    - travis_retry composer selfupdate
-      #    - travis_retry composer install
-      #
-      #script:
-      #    - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
+script:
+    - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
