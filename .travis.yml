@@ -29,9 +29,16 @@ services:
 #  8. OPTIONAL after_deploy
 #  9. after_script
 
+#before_install:
+
 install:
     - "id && pwd && uname -a"
-    - "php -i && mysql -uroot -e \"show variables like '%sock%';\""
+      #      pdo_mysql.default_socket => /var/run/mysqld/mysqld.sock => /var/run/mysqld/mysqld.sock
+      #    - "php -i && mysql -uroot -e \"show variables like 'socket'\""
+
+    - mysql_config --socket
+
+
     # `node` means `latest stable Node.js release`
     #    - nvm install node
     #    - "node --version && npm install -g typescript@next && tsc --version"
