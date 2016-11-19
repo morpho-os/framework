@@ -31,21 +31,22 @@ services:
 
 install:
     - "id && pwd && uname -a"
+    - "php -i && mysql -uroot -e \"show variables like '%sock%';\""
     # `node` means `latest stable Node.js release`
-    - nvm install node
-    - "node --version && npm install -g typescript@next && tsc --version"
-
-before_script:
-    - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
-    - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
-    - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
-    - travis_retry composer selfupdate
-    - travis_retry composer install
-
-script:
-    - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
-
-matrix:
-    allow_failures:
-        - php: hhvm
-    fast_finish: true
+    #    - nvm install node
+    #    - "node --version && npm install -g typescript@next && tsc --version"
+    #
+    #before_script:
+    #    - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
+    #    - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
+    #    - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
+    #    - travis_retry composer selfupdate
+    #    - travis_retry composer install
+    #
+    #script:
+    #    - vendor/phpunit/phpunit/phpunit -c test/server/phpunit.xml --bootstrap test/server/bootstrap.php
+    #
+    #matrix:
+    #    allow_failures:
+    #        - php: hhvm
+    #    fast_finish: true
