@@ -40,7 +40,7 @@ install:
     - "id && pwd && uname -a"
     # - "php -i && mysql -uroot -e \"show variables like 'socket'\""
     # - mysql_config --socket
-    - "find /etc -name my.cnf -type f"
+    - "sudo find /etc -name my.cnf -type f"
       #    # `node` means `latest stable Node.js release`
       #
       #    - nvm install node
