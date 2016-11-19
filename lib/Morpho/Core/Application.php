@@ -19,6 +19,11 @@ abstract class Application {
         $this->config = $config;
     }
 
+    public function setConfig(array $config) {
+        $this->config = $config;
+        return $this;
+    }
+
     public function getConfig(): array {
         return $this->config;
     }

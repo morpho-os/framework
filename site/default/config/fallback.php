@@ -41,7 +41,7 @@ return [
         'mailTo' => 'admin@localhost',
         'logToFile' => true,
     ],
-    'throwDispatchErrors' => false,
+    'throwDispatchErrors' => true,
     'iniSettings' => [
         'session' => [
             // The commented out settings contain default values from the PHP manual: https://php.net/manual/en/session.configuration.php. The session.upload* settings have not been included here. Settings without comments are fixes for those settings for which it makes sense.

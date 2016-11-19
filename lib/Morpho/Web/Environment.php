@@ -3,10 +3,19 @@ namespace Morpho\Web;
 
 use Morpho\Base\Converter;
 use Morpho\Base\Environment as BaseEnvironment;
+use Morpho\Base\NotImplementedException;
 
 class Environment extends BaseEnvironment {
     protected $startSession = false;
-
+    
+    public static function clientIp(): array {
+        return [
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+            // http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header
+            'realIp' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null,
+        ];
+    }
+    
     public static function httpProtocolVersion(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
             $protocol = $_SERVER['SERVER_PROTOCOL'];
@@ -52,7 +61,7 @@ class Environment extends BaseEnvironment {
         $_SERVER['HTTP_HOST'] = self::httpHost();
         $_SERVER += [
             'SCRIPT_NAME'     => null,
-            'REMOTE_ADDR'     => '127.0.0.1',
+            'REMOTE_ADDR'     => null,
             'REQUEST_METHOD'  => 'GET',
             'SERVER_NAME'     => null,
             'SERVER_SOFTWARE' => null,
