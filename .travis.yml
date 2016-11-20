@@ -30,11 +30,11 @@ before_install:
   - "id && pwd && uname -a"
 
 install:
-#  # `node` means `latest stable Node.js release`
-#  - nvm install node
-#  - "node --version && npm install -g typescript@next && tsc --version"
-#  - travis_retry composer selfupdate
-#  - travis_retry composer install
+    # `node` means `latest stable Node.js release`
+  - nvm install node
+  - "node --version && npm install -g typescript@next && tsc --version"
+  - travis_retry composer selfupdate
+  - travis_retry composer install
 
 before_script:
   - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
@@ -44,6 +44,7 @@ before_script:
 #  - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
+  - php -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
 #  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
 #  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f test/server/db-connection-test.php
-  - php -f test/server/db-connection-test.php
+#  - php -f test/server/db-connection-test.php
