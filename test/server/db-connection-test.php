@@ -14,4 +14,4 @@
         "FLUSH PRIVILEGES",
     ];
     */
-})('localhost', 'root', '', 'test');
+})('127.0.0.1', 'root', '', 'test');
