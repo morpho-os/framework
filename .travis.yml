@@ -1,39 +1,17 @@
-#language: php
-#sudo: required
-#dist: trusty
-#group: edge
-#
-#matrix:
+language: php
+
+php:
+# - hhvm
+  - 7.1
+
+matrix:
 #  allow_failures:
 #    - php: hhvm
-#  fast_finish: true
-#
-#php:
-#  - 7.1
-#  #- nightly
-#  #- hhvm
-
-#addons:
-#  apt:
-#  packages:
-#    - mysql-server-5.6
-#    - mysql-client-core-5.6
-#    - mysql-client-5.6
-#
-#services:
-#  - mysql
-
-
-language: php
-php:
-  - 7.1
-matrix:
   fast_finish: true
-  include:
-    - php: 7.1
-      addons:
-        # versions are listed here https://downloads.mariadb.org/
-        mariadb: 10.0
+
+addons:
+  # versions are listed here https://downloads.mariadb.org/
+  mariadb: 10.0
 
 
 # Build lifecycle, see https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle:
