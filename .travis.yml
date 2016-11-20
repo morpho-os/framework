@@ -1,27 +1,40 @@
+#language: php
+#sudo: required
+#dist: trusty
+#group: edge
+#
+#matrix:
+#  allow_failures:
+#    - php: hhvm
+#  fast_finish: true
+#
+#php:
+#  - 7.1
+#  #- nightly
+#  #- hhvm
+
+#addons:
+#  apt:
+#  packages:
+#    - mysql-server-5.6
+#    - mysql-client-core-5.6
+#    - mysql-client-5.6
+#
+#services:
+#  - mysql
+
+
 language: php
-sudo: required
-dist: trusty
-group: edge
-
-matrix:
-    allow_failures:
-        - php: hhvm
-    fast_finish: true
-
 php:
-    - 7.1
-    #- nightly
-    #- hhvm
+  - 7.1
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+      addons:
+        # versions are listed here https://downloads.mariadb.org/
+        mariadb: 10.0
 
-addons:
-  apt:
-    packages:
-      - mysql-server-5.6
-      - mysql-client-core-5.6
-      - mysql-client-5.6
-
-services:
-    - mysql
 
 # Build lifecycle, see https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle:
 #  1. before_install
@@ -35,22 +48,23 @@ services:
 #  9. after_script
 
 before_install:
-    - "id && pwd && uname -a"
+  - "id && pwd && uname -a"
 
 install:
-#    # `node` means `latest stable Node.js release`
-#    - nvm install node
-#    - "node --version && npm install -g typescript@next && tsc --version"
-#    - travis_retry composer selfupdate
-#    - travis_retry composer install
+#  # `node` means `latest stable Node.js release`
+#  - nvm install node
+#  - "node --version && npm install -g typescript@next && tsc --version"
+#  - travis_retry composer selfupdate
+#  - travis_retry composer install
 
 before_script:
-    - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
-    - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
-    - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'127.0.0.1' IDENTIFIED BY '';\""
-    - "mysql -uroot -e \"UPDATE mysql.user SET plugin='mysql_native_password'; FLUSH PRIVILEGES\""
-    - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
+  - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
+#  - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
+#  - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'127.0.0.1' IDENTIFIED BY '';\""
+#  - "mysql -uroot -e \"UPDATE mysql.user SET plugin='mysql_native_password'; FLUSH PRIVILEGES\""
+#  - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
-#    - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
-    - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f test/server/db-connection-test.php
+#  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
+#  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f test/server/db-connection-test.php
+  - php -f test/server/db-connection-test.php
