@@ -2,16 +2,16 @@
 namespace Morpho\Db\Sql;
 
 class Db {
-    protected $conn;
-    
+    protected $db;
+
     protected $schemaManager;
-    
+
     protected $query;
 
     const MYSQL_DRIVER = 'mysql';
 
     public function __construct($configOrConnection) {
-        $this->conn = $db = $configOrConnection instanceof \PDO
+        $this->db = $db = $configOrConnection instanceof \PDO
             ? $configOrConnection
             : static::connect($configOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -32,7 +32,7 @@ class Db {
             (array) $options
         );
     }
-    
+
     public function query(): Query {
         if (null === $this->query) {
             $class = $this->implNs() . '\\Query';
@@ -40,7 +40,7 @@ class Db {
         }
         return $this->query;
     }
-    
+
     public function schemaManager(): SchemaManager {
         if (null === $this->schemaManager) {
             $class = $this->implNs() . '\\SchemaManager';
@@ -108,7 +108,7 @@ class Db {
     }
 
     public function lastInsertId(string $seqName = null): string {
-        return $this->conn->lastInsertId($seqName);
+        return $this->db->lastInsertId($seqName);
     }
 
     public function insertRow(string $tableName, array $row)/*: void*/ {
@@ -117,7 +117,7 @@ class Db {
         $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->runQuery($sql, array_values($row));
     }
-    
+
     public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100*/)/*: void */ {
         // @TODO: Handle $rowsInBlock
         $args = [];
@@ -178,33 +178,33 @@ class Db {
 
     public function runQuery(string $sql, array $args = null): \PDOStatement {
         if ($args) {
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->db->prepare($sql);
             $stmt->execute($args);
             return $stmt;
         }
-        return $this->conn->query($sql);
+        return $this->db->query($sql);
     }
 
     public function transaction(callable $transaction) {
-        $this->conn->beginTransaction();
+        $this->db->beginTransaction();
         try {
             $result = $transaction($this);
-            $this->conn->commit();
+            $this->db->commit();
         } catch (\Exception $e) {
-            $this->conn->rollBack();
+            $this->db->rollBack();
             throw $e;
         }
         return $result;
     }
 
     public function inTransaction(): bool {
-        return $this->conn->inTransaction();
+        return $this->db->inTransaction();
     }
 
     public function getCurrentDriverName(): string {
-        return $this->conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        return $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME);
     }
-    
+
     public static function getAvailableDrivers(): array {
         return \PDO::getAvailableDrivers();
     }
