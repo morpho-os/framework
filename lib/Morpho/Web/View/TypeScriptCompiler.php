@@ -6,6 +6,7 @@ use function Morpho\Base\trimMore;
 use function Morpho\Cli\cmd;
 use Morpho\Cli\CommandResult;
 use Morpho\Fs\File;
+use Morpho\Fs\Path;
 
 class TypeScriptCompiler {
     const MODULE_KIND = 'system';
@@ -31,16 +32,20 @@ class TypeScriptCompiler {
     ];
 
     public function compileToFile(string $inFilePath, string $outFilePath = null): CommandResult {
+        return $this->tsc($this->compileToFileArgsString($inFilePath, $outFilePath));
+    }
+
+    public function compileToFileArgsString(string $inFilePath, string $outFilePath = null): string {
         $options = $this->escapeOptions(
             array_merge(
                 $this->getOptions(),
                 [
-                    'outFile' => $outFilePath,
+                    'outFile' => $outFilePath ?: Path::changeExt($inFilePath, 'js'),
                     $inFilePath,
                 ]
             )
         );
-        return $this->tsc(implode(' ', $options));
+        return implode(' ', $options);
     }
 
     public function compileToDir(string $inFilePath, string $outDirPath = null): CommandResult {

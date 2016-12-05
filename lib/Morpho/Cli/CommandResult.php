@@ -11,7 +11,7 @@ class CommandResult {
         $this->output = $output;
     }
 
-    public function notSuccess(): bool {
+    public function isError(): bool {
         return $this->exitCode() !== Environment::SUCCESS_CODE;
     }
 
