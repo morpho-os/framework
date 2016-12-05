@@ -31,8 +31,8 @@ class TypeScriptCompiler {
         'allowJs' => true,
     ];
 
-    public function compileToFile(string $inFilePath, string $outFilePath = null): CommandResult {
-        return $this->tsc($this->compileToFileArgsString($inFilePath, $outFilePath));
+    public function compileToFile(string $inFilePath, string $outFilePath = null, array $cmdOptions = null): CommandResult {
+        return $this->tsc($this->compileToFileArgsString($inFilePath, $outFilePath), $cmdOptions);
     }
 
     public function compileToFileArgsString(string $inFilePath, string $outFilePath = null): string {
@@ -73,7 +73,7 @@ class TypeScriptCompiler {
         return (string)$this->tsc('--help');
     }
 
-    public function possibleValuesOfOption(string $optionName) {
+    public function possibleValuesOfOption(string $optionName): array {
         switch ($optionName) {
             case 'module':
                 if (!preg_match('~^.*--module\s+KIND\s+(.*)$~m', $this->help(), $match) || !preg_match_all("~('[^']+')~s", $match[1], $match)) {
@@ -121,7 +121,7 @@ class TypeScriptCompiler {
         return $safe;
     }
 
-    protected function tsc(string $argsString): CommandResult {
-        return cmd('tsc ' . $argsString);
+    protected function tsc(string $argsString, array $cmdOptions = null): CommandResult {
+        return cmd('tsc ' . $argsString, $cmdOptions);
     }
 }
