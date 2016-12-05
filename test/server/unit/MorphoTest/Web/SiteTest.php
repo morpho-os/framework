@@ -67,7 +67,7 @@ class SiteTest extends TestCase {
         $this->assertEquals($name, $this->site->getName());
     }
 
-    public function dataForLoadConfigAndIsFallbackConfigUsed() {
+    public function dataForFallbackConfigUsed() {
         return [
             [
                 true,
@@ -79,21 +79,16 @@ class SiteTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForLoadConfigAndIsFallbackConfigUsed
+     * @dataProvider dataForFallbackConfigUsed
      */
-    public function testLoadConfigAndIsFallbackConfigUsed($isFallback) {
-        $this->site->setConfigDirPath($this->getTestDirPath() . '/' . ($isFallback ? 'fallback' : ''));
+    public function testFallbackConfigUsed($shouldBeUsed) {
+        $this->site->setConfigDirPath($this->getTestDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
         $config = $this->site->getConfig();
         $this->assertInternalType('array', $config);
         $this->assertCount(2, $config);
         $this->assertEquals('some-value', $config['some-key']);
         $this->assertInstanceOf('ArrayIterator', $config['instance']);
-        $this->assertEquals($isFallback, $this->site->isFallbackConfigUsed());
-    }
-
-    public function testIsFallbackConfigUsedThrowsExceptionWhenLoadConfigWasNotCalled() {
-        $this->expectException('\LogicException', 'The loadConfig() must be called first');
-        $this->site->isFallbackConfigUsed();
+        $this->assertEquals($shouldBeUsed, $this->site->fallbackConfigUsed());
     }
 
     public function testGetConfigFilePath() {

@@ -1,7 +1,6 @@
 <?php
 namespace Morpho\Web;
 
-use Morpho\Base\Assert;
 use Morpho\Base\Must;
 use function Morpho\Base\requireFile;
 use Morpho\Fs\Path;
@@ -12,8 +11,6 @@ class Site {
     protected $dirPath;
 
     protected $config;
-
-    protected $isFallbackConfigUsed;
 
     protected $cacheDirPath;
 
@@ -26,6 +23,8 @@ class Site {
     protected $publicDirPath;
 
     protected $configFileName = self::CONFIG_FILE_NAME;
+
+    private $fallbackConfigUsed;
 
     const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
@@ -111,11 +110,9 @@ class Site {
         return $this->publicDirPath;
     }
 
-    public function isFallbackConfigUsed(): bool {
-        if (null === $this->isFallbackConfigUsed) {
-            throw new \LogicException('The loadConfig() must be called first');
-        }
-        return $this->isFallbackConfigUsed;
+    public function fallbackConfigUsed(): bool {
+        $this->initConfig();
+        return $this->fallbackConfigUsed;
     }
 
     public function setConfig(array $config) {
@@ -123,10 +120,7 @@ class Site {
     }
 
     public function getConfig(): array {
-        if (null === $this->config) {
-            $this->config = $this->loadConfig();
-        }
-
+        $this->initConfig();
         return $this->config;
     }
 
@@ -146,15 +140,17 @@ class Site {
         return $this->getConfigDirPath() . '/' . self::FALLBACK_CONFIG_FILE_NAME;
     }
 
-    protected function loadConfig(): array {
-        $filePath = $this->getConfigFilePath();
-        if (!file_exists($filePath) || !is_readable($filePath)) {
-            $filePath = $this->getFallbackConfigFilePath();
-            $this->isFallbackConfigUsed = true;
-        } else {
-            $this->isFallbackConfigUsed = false;
-        }
+    private function initConfig() {
+        if (null === $this->config) {
+            $filePath = $this->getConfigFilePath();
+            if (!file_exists($filePath) || !is_readable($filePath)) {
+                $filePath = $this->getFallbackConfigFilePath();
+                $this->fallbackConfigUsed = true;
+            } else {
+                $this->fallbackConfigUsed = false;
+            }
 
-        return requireFile($filePath);
+            $this->config = requireFile($filePath);
+        }
     }
 }

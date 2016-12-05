@@ -46,7 +46,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         if (null !== $this->isFallbackMode) {
             return $this->isFallbackMode;
         }
-        return $this->getCurrentSite()->isFallbackConfigUsed();
+        return $this->getCurrentSite()->fallbackConfigUsed();
     }
 
     public function getCurrentSite(): Site {
