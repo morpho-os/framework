@@ -105,7 +105,7 @@ class Path {
         return ltrim($ext, '.');
     }
 
-    public static function newExt(string $path, string $ext): string {
+    public static function changeExt(string $path, string $ext): string {
         $parts = explode('/', self::normalize($path));
         $fileName = array_pop($parts);
         if (!empty($ext)) {
