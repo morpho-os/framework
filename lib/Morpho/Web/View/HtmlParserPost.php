@@ -37,7 +37,7 @@ class HtmlParserPost extends HtmlParser {
         $compile = false;
         $baseModuleDirPath = $this->serviceManager->get('moduleFs')->getBaseModuleDirPath();
         foreach (array_map('trim', explode(',', $tag['src'])) as $fileName) {
-            $inFilePath = $inDirPath . '/' . Path::newExt(basename($fileName), 'ts');
+            $inFilePath = $inDirPath . '/' . Path::changeExt(basename($fileName), 'ts');
             if (!is_file($inFilePath)) {
                 throw new \RuntimeException("The '$inFilePath' does not exist");
             }

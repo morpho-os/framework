@@ -295,31 +295,31 @@ class PathTest extends TestCase {
         $this->assertEquals('php', Path::normalizeExt('.php'));
     }
 
-    public function testNewExt() {
-        $this->assertEquals('term.txt', Path::newExt('term.jpg', 'txt'));
-        $this->assertEquals('term.txt', Path::newExt('term.jpg', '.txt'));
+    public function testChangeExt() {
+        $this->assertEquals('term.txt', Path::changeExt('term.jpg', 'txt'));
+        $this->assertEquals('term.txt', Path::changeExt('term.jpg', '.txt'));
 
-        $this->assertEquals('term.txt', Path::newExt('term.txt', 'txt'));
-        $this->assertEquals('term.txt', Path::newExt('term.txt', '.txt'));
+        $this->assertEquals('term.txt', Path::changeExt('term.txt', 'txt'));
+        $this->assertEquals('term.txt', Path::changeExt('term.txt', '.txt'));
 
-        $this->assertEquals('term.txt', Path::newExt('term', 'txt'));
-        $this->assertEquals('term.txt', Path::newExt('term', '.txt'));
+        $this->assertEquals('term.txt', Path::changeExt('term', 'txt'));
+        $this->assertEquals('term.txt', Path::changeExt('term', '.txt'));
 
-        $this->assertEquals('/foo/bar/term.txt', Path::newExt('/foo/bar/term.jpg', 'txt'));
-        $this->assertEquals('/foo/bar/term.txt', Path::newExt('/foo/bar/term.jpg', '.txt'));
-        $this->assertEquals('/foo/bar/term.txt', Path::newExt('/foo/bar/term.', 'txt'));
+        $this->assertEquals('/foo/bar/term.txt', Path::changeExt('/foo/bar/term.jpg', 'txt'));
+        $this->assertEquals('/foo/bar/term.txt', Path::changeExt('/foo/bar/term.jpg', '.txt'));
+        $this->assertEquals('/foo/bar/term.txt', Path::changeExt('/foo/bar/term.', 'txt'));
 
-        $this->assertEquals('dir/foo.d.ts', Path::newExt('dir/foo.d.ts', 'd.ts'));
+        $this->assertEquals('dir/foo.d.ts', Path::changeExt('dir/foo.d.ts', 'd.ts'));
     }
 
-    public function testNewExt_EmptyPathOrExt() {
-        $this->assertEquals('term', Path::newExt('term', ''));
-        $this->assertEquals('term', Path::newExt('term.', ''));
-        $this->assertEquals('/foo/bar/term', Path::newExt('/foo/bar/term', ''));
-        $this->assertEquals('/foo/bar/term', Path::newExt('/foo/bar/term.txt', ''));
-        $this->assertEquals('/foo/bar/term', Path::newExt('/foo/bar/term.', ''));
+    public function testChangeExt_EmptyPathOrExt() {
+        $this->assertEquals('term', Path::changeExt('term', ''));
+        $this->assertEquals('term', Path::changeExt('term.', ''));
+        $this->assertEquals('/foo/bar/term', Path::changeExt('/foo/bar/term', ''));
+        $this->assertEquals('/foo/bar/term', Path::changeExt('/foo/bar/term.txt', ''));
+        $this->assertEquals('/foo/bar/term', Path::changeExt('/foo/bar/term.', ''));
 
-        $this->assertEquals('.jpg', Path::newExt('', '.jpg'));
-        $this->assertEquals('.jpg', Path::newExt('', 'jpg'));
+        $this->assertEquals('.jpg', Path::changeExt('', '.jpg'));
+        $this->assertEquals('.jpg', Path::changeExt('', 'jpg'));
     }
 }
