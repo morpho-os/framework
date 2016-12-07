@@ -56,21 +56,29 @@ class File extends Entry {
         return self::write($filePath, implode("\n", $lines));
     }
 
-    /**
-     * Returns non empty lines from file as array.
-     */
-    public static function readLines(string $filePath): array {
-        // @TODO: replace filterLines() with readLines() and filter()
-        return file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    }
-
-    public static function filterLines(callable $filter, string $filePath): \Generator {
+    public static function readLines(string $filePath, callable $filter = null, array $options = null): \Generator {
+        $options = ArrayTool::handleOptions((array) $options, [
+            'skipEmptyLines' => true,
+            'trim' => true,
+        ]);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
         }
         while (false !== ($line = fgets($handle))) {
-            if ($filter($line)) {
+            if ($options['trim']) {
+                $line = trim($line);
+            }
+            if ($options['skipEmptyLines']) {
+                if (strlen($line) === 0) {
+                    continue;
+                }
+            }
+            if (null !== $filter) {
+                if ($filter($line)) {
+                    yield $line;
+                }
+            } else {
                 yield $line;
             }
         }
@@ -91,14 +99,12 @@ class File extends Entry {
         return self::write($filePath, encodeJson($json));
     }
 
-    public static function readCsv(string $filePath): \Generator {
-        // @TODO: Replace with readLines()?
+    public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): \Generator {
         $handle = fopen($filePath, "r");
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
         }
-        // @TODO: Handle second argument
-        while (false !== ($line = fgetcsv($handle, null, ','))) {
+        while (false !== ($line = fgetcsv($handle, 0, $delimiter, $enclosure, $escape))) {
             yield $line;
         }
         fclose($handle);
