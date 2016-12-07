@@ -18,6 +18,12 @@ class TypeScriptCompilerTest extends TestCase {
         $this->assertArrayHasKey('removeComments', $config);
     }
 
+    public function testOptionsString() {
+        $option = 'strictNullChecks';
+        $this->assertNotContains('--' . $option, $this->compiler->optionsString([$option => false]));
+        $this->assertContains('--' . $option, $this->compiler->optionsString([$option => true]));
+    }
+
     public function testVersion() {
         $this->assertRegExp('~^Version\s+\d+\.\d+\.\d+~si', $this->compiler->version());
     }

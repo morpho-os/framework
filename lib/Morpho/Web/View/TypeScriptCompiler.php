@@ -27,7 +27,7 @@ class TypeScriptCompiler {
         'noUnusedLocals' => true,
         'pretty' => true,
         'removeComments' => true,
-        'strictNullChecks' => true,
+        'strictNullChecks' => false,
         'allowJs' => true,
     ];
 
@@ -36,16 +36,10 @@ class TypeScriptCompiler {
     }
 
     public function compileToFileArgsString(string $inFilePath, string $outFilePath = null): string {
-        $options = $this->escapeOptions(
-            array_merge(
-                $this->getOptions(),
-                [
-                    'outFile' => $outFilePath ?: Path::changeExt($inFilePath, 'js'),
-                    $inFilePath,
-                ]
-            )
-        );
-        return implode(' ', $options);
+        return $this->optionsString([
+            'outFile' => $outFilePath ?: Path::changeExt($inFilePath, 'js'),
+            $inFilePath,
+        ]);
     }
 
     public function compileToDir(string $inFilePath, string $outDirPath = null): CommandResult {
@@ -106,6 +100,10 @@ class TypeScriptCompiler {
         return $this->options;
     }
 
+    public function optionsString(array $options = null): string {
+        return implode(' ', $this->escapeOptions(array_merge($this->getOptions(), (array) $options)));
+    }
+
     protected function escapeOptions(array $options): array {
         $safe = [];
         $sep = ' ';
@@ -113,7 +111,9 @@ class TypeScriptCompiler {
             if (is_numeric($name)) {
                 $safe[] = escapeshellarg($value);
             } elseif (is_bool($value)) {
-                $safe[] = escapeshellarg('--' . $name);
+                if ($value) {
+                    $safe[] = escapeshellarg('--' . $name);
+                }
             } else {
                 $safe[] = escapeshellarg('--' . $name) . $sep . escapeshellarg($value);
             }
