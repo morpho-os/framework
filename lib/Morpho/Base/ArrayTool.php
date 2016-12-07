@@ -95,13 +95,6 @@ class ArrayTool {
         return array_slice($list, 0, -1, true);
     }
 
-    /**
-     * @param array $matrix
-     * @param string $key
-     * @param bool $drop
-     * @return array
-     * @throws \RuntimeException
-     */
     public static function toKeyed(array $matrix, $keyForIndex, bool $drop = false): array {
         $result = [];
         foreach ($matrix as $row) {
@@ -141,7 +134,7 @@ class ArrayTool {
         }
         $diff = array_diff_key($options, array_flip(array_keys($defaultOptions)));
         if (count($diff)) {
-            throw new InvalidOptionsException('Invalid options: ' . shorten(implode(', ', array_keys($diff)), 80));
+            throw new InvalidOptionsException($diff);
         }
         return array_merge($defaultOptions, $options);
     }
