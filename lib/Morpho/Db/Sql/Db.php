@@ -79,7 +79,7 @@ class Db {
     }
 
     public function fetchRows(string $sql, array $args = null): array {
-        return $this->runQuery($sql, (array) $args)
+        return $this->eval($sql, (array) $args)
             ->fetchAll();
     }
 
@@ -87,22 +87,22 @@ class Db {
      * @return array|false
      */
     public function fetchRow(string $sql, array $args = null) {
-        return $this->runQuery($sql, (array) $args)
+        return $this->eval($sql, (array) $args)
             ->fetch(\PDO::FETCH_ASSOC);
     }
 
     public function fetchColumn(string $sql, array $args = null): array {
-        return $this->runQuery($sql, (array) $args)
+        return $this->eval($sql, (array) $args)
             ->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function fetchCell(string $sql, array $args) {
-        return $this->runQuery($sql, $args)
+        return $this->eval($sql, $args)
             ->fetchColumn(0);
     }
 
     public function fetchMap(string $sql, array $args = null): array {
-        return $this->runQuery($sql, (array) $args)
+        return $this->eval($sql, (array) $args)
             ->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
 
@@ -114,7 +114,7 @@ class Db {
         $query = $this->query();
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . '(';
         $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
-        $this->runQuery($sql, array_values($row));
+        $this->eval($sql, array_values($row));
     }
 
     public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100*/)/*: void */ {
@@ -130,7 +130,7 @@ class Db {
         $query = $this->query();
         $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($rows)) . ')';
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
-        $this->runQuery($sql, $args);
+        $this->eval($sql, $args);
     }
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
@@ -141,7 +141,7 @@ class Db {
         }
         $sql = 'DELETE FROM ' . $query->identifier($tableName)
             . (!empty($whereCondition) ? ' WHERE ' . $whereCondition : '');
-        $stmt = $this->runQuery($sql, $whereConditionArgs);
+        $stmt = $this->eval($sql, $whereConditionArgs);
         return $stmt->rowCount();
     }
 
@@ -172,10 +172,10 @@ class Db {
                 $args = array_merge($args, array_values($whereCondition));
             }
         }
-        $this->runQuery($sql, $args);
+        $this->eval($sql, $args);
     }
 
-    public function runQuery(string $sql, array $args = null): \PDOStatement {
+    public function eval(string $sql, array $args = null): \PDOStatement {
         if ($args) {
             $stmt = $this->db->prepare($sql);
             $stmt->execute($args);

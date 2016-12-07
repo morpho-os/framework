@@ -16,7 +16,7 @@ abstract class SchemaManager {
 
     public function createTable(string $tableName, array $tableDefinition)/*: void */ {
         list($sql, $args) = $this->tableDefinitionToSql($tableName, $tableDefinition);
-        $this->db->runQuery($sql, $args);
+        $this->db->eval($sql, $args);
     }
 
     public function recreateTable(string $tableName, array $tableDefinition)/*: void */ {

@@ -205,7 +205,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             $db->transaction(function () use ($moduleName) {
                 $moduleRow = $this->db->selectRow('id, status FROM module WHERE name = ?', [$moduleName]);
                 if ($moduleRow) {
-                    $this->db->runQuery("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
+                    $this->db->eval("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
                     $module = $this->getChild($moduleName);
                     foreach ($this->getEventsMeta($module) as $eventMeta) {
                         $this->db->insertRow('event', array_merge($eventMeta, ['moduleId' => $moduleRow['id']]));

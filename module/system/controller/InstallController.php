@@ -61,7 +61,7 @@ class InstallController extends Controller {
                 $db = new Db($dbConfig);
                 $schemaManager = $db->schemaManager();
                 $schemaManager->createDatabase($dbName);
-                $db->runQuery($db->query()->useDb($dbName));
+                $db->eval($db->query()->useDb($dbName));
                 $dbConfig['db'] = $dbName;
             } else {
                 throw $e;

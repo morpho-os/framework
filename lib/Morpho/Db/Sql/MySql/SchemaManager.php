@@ -19,7 +19,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createDatabase(string $dbName, string $charset = null, string $collation = null)/*: void*/ {
-        $this->db->runQuery("CREATE DATABASE " . $this->db->query()->identifier($dbName)
+        $this->db->eval("CREATE DATABASE " . $this->db->query()->identifier($dbName)
             . " CHARACTER SET " . ($charset ?: self::DEFAULT_CHARSET)
             . " COLLATE " . ($collation ?: self::DEFAULT_COLLATION)
         );
@@ -38,7 +38,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteDatabase(string $dbName)/*: void*/ {
-        $this->db->runQuery("DROP DATABASE " . $this->db->query()->identifier($dbName));
+        $this->db->eval("DROP DATABASE " . $this->db->query()->identifier($dbName));
     }
 
     public function sizeOfDatabases() {
@@ -79,13 +79,13 @@ class SchemaManager extends BaseSchemaManager {
             $isMySql = $this->connection->getDriver() instanceof MySqlDriver;
             if ($isMySql) {
             */
-            $db->runQuery('SET FOREIGN_KEY_CHECKS=0;');
-            $db->runQuery('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
+            $db->eval('SET FOREIGN_KEY_CHECKS=0;');
+            $db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
             /*
             if ($isMySql) {
             }
             */
-            $db->runQuery('SET FOREIGN_KEY_CHECKS=1;');
+            $db->eval('SET FOREIGN_KEY_CHECKS=1;');
         });
     }
 
@@ -98,7 +98,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteTableIfExists(string $tableName)/*: void*/ {
-        $this->db->runQuery('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
+        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
     }
 
     /**
@@ -107,7 +107,7 @@ class SchemaManager extends BaseSchemaManager {
      */
     public function tableDefinition(string $tableName, string $dbName = null): array {
         // The code fragment from the Doctrine MySQL, @TODO: specify where
-        $stmt = $this->db->runQuery(
+        $stmt = $this->db->eval(
             "SELECT
                 COLUMN_NAME AS Field,
                 COLUMN_TYPE AS Type,

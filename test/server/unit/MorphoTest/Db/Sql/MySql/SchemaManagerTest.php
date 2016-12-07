@@ -23,7 +23,7 @@ class SchemaManagerTest extends DbTestCase {
     public function tearDown() {
         parent::tearDown();
         foreach ($this->dbs as $dbName) {
-            $this->db->runQuery("DROP DATABASE IF EXISTS " . $dbName);
+            $this->db->eval("DROP DATABASE IF EXISTS " . $dbName);
         }
     }
 
@@ -262,7 +262,7 @@ OUT
         $size = $this->schemaManager->sizeOfDatabase('mysql');
         $this->assertGreaterThan(0, $size);
         $sum = 0;
-        foreach ($this->db->runQuery("SELECT DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'mysql'") as $row) {
+        foreach ($this->db->eval("SELECT DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'mysql'") as $row) {
             $sum += $row['DATA_LENGTH'] + $row['INDEX_LENGTH'];
         }
         $this->assertEquals($sum, $size);
@@ -357,8 +357,8 @@ OUT
     }
     
     public function testGetCharsetAndCollationOfTables() {
-        $this->db->runQuery("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
-        $this->db->runQuery("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
+        $this->db->eval("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
+        $this->db->eval("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
         $rows = $this->schemaManager->getCharsetAndCollationOfTables(self::DB);
         $this->assertNotEmpty($rows);
         foreach ($rows as $row) {
@@ -393,7 +393,7 @@ OUT
 
     private function callCreateDatabase($dbName, $charset, $collation): string {
         $this->dbs[] = $dbName;
-        $this->db->runQuery("CREATE DATABASE $dbName CHARACTER SET $charset COLLATE $collation");
+        $this->db->eval("CREATE DATABASE $dbName CHARACTER SET $charset COLLATE $collation");
         return $dbName;
     }
 }
