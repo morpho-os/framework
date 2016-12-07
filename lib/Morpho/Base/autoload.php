@@ -66,7 +66,7 @@ function wrap($string, string $wrapper): string {
     return $wrapper . $string . $wrapper;
 }
 
-function quotes($string): string {
+function wrapWithQuotes($string): string {
     return "'$string'";
 }
 
