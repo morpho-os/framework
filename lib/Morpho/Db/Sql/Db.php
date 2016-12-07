@@ -11,10 +11,10 @@ class Db {
     const MYSQL_DRIVER  = 'mysql';
     const SQLITE_DRIVER = 'sqlite';
 
-    public function __construct($configOrConnection) {
-        $this->db = $db = $configOrConnection instanceof \PDO
-            ? $configOrConnection
-            : static::connect($configOrConnection);
+    public function __construct($optionsOrConnection) {
+        $this->db = $db = $optionsOrConnection instanceof \PDO
+            ? $optionsOrConnection
+            : static::connect($optionsOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
     }
