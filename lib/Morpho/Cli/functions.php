@@ -109,7 +109,7 @@ function cmd($command, array $options = null): CommandResult {
         throw new \RuntimeException("Command returned non-zero exit code: " . $exitCode);
     }
 
-    return new CommandResult($exitCode, $output);
+    return new CommandResult($command, $exitCode, $output);
 }
 
 function cmdSu(string $command, array $options = null): CommandResult {
