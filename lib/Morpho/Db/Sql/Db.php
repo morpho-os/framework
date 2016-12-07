@@ -8,7 +8,8 @@ class Db {
 
     protected $query;
 
-    const MYSQL_DRIVER = 'mysql';
+    const MYSQL_DRIVER  = 'mysql';
+    const SQLITE_DRIVER = 'sqlite';
 
     public function __construct($configOrConnection) {
         $this->db = $db = $configOrConnection instanceof \PDO
@@ -18,19 +19,17 @@ class Db {
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
     }
 
-    /**
-     * $config must have items: 'driver', 'host', 'db', 'user', 'password'. The 'db' and 'password' can be empty.
-     */
-    public static function connect($config, array $options = null): \PDO {
-        $dsn = is_string($config)
-            ? $config
-            : $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';charset=UTF8';
-        return new \PDO(
-            $dsn,
-            isset($config['user']) ? $config['user'] : '',
-            isset($config['password']) ? $config['password'] : '',
-            (array) $options
-        );
+    public static function connect($options): \PDO {
+        $driver = $options['driver'];
+        unset($options['driver']);
+        switch ($driver) {
+            case self::MYSQL_DRIVER:
+                return MySql\Db::connect($options);
+            case self::SQLITE_DRIVER:
+                return Sqlite\Db::connect($options);
+            default:
+                throw new \UnexpectedValueException();
+        }
     }
 
     public function query(): Query {
