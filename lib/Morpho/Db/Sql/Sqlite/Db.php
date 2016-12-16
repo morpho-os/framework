@@ -5,6 +5,7 @@ use Morpho\Base\OptionRequiredException;
 
 class Db {
     public static function connect($options): \PDO {
+        // @TODO: Support of the :memory:
         if (empty($options['filePath'])) {
             throw new OptionRequiredException('filePath');
         }

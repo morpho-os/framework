@@ -1,6 +1,8 @@
 <?php
 namespace Morpho\Db\Sql;
 
+use Morpho\Base\NotImplementedException;
+
 class Db {
     protected $db;
 
@@ -17,19 +19,25 @@ class Db {
             : static::connect($optionsOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $db->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
+        // @TODO
+        //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
-    public static function connect($options): \PDO {
+    public static function connect(array $options): \PDO {
         $driver = $options['driver'];
         unset($options['driver']);
         switch ($driver) {
             case self::MYSQL_DRIVER:
-                return MySql\Db::connect($options);
+                $pdo = MySql\Db::connect($options);
+                break;
             case self::SQLITE_DRIVER:
-                return Sqlite\Db::connect($options);
+                $pdo = Sqlite\Db::connect($options);
+                break;
             default:
                 throw new \UnexpectedValueException();
         }
+        return $pdo;
     }
 
     public function query(): Query {
@@ -48,62 +56,8 @@ class Db {
         return $this->schemaManager;
     }
 
-    public function selectRows(string $sql, array $args = null): array {
-        return $this->fetchRows('SELECT ' . $sql, (array) $args);
-    }
-
-    /**
-     * @return array|false
-     */
-    public function selectRow(string $sql, array $args) {
-        return $this->fetchRow('SELECT ' . $sql, $args);
-    }
-
-    public function selectColumn(string $sql, array $args = null): array {
-        return $this->fetchColumn('SELECT ' . $sql, (array) $args);
-    }
-
-    /**
-     * @return string|null|false
-     */
-    public function selectCell(string $sql, array $args = null) {
-        return $this->fetchCell('SELECT ' . $sql, (array) $args);
-    }
-
-    public function selectBool(string $sql, array $args = null): bool {
-        return (bool)$this->selectCell($sql, (array) $args);
-    }
-
-    public function selectMap(string $sql, array $args = null): array {
-        return $this->fetchMap('SELECT ' . $sql, (array) $args);
-    }
-
-    public function fetchRows(string $sql, array $args = null): array {
-        return $this->eval($sql, (array) $args)
-            ->fetchAll();
-    }
-
-    /**
-     * @return array|false
-     */
-    public function fetchRow(string $sql, array $args = null) {
-        return $this->eval($sql, (array) $args)
-            ->fetch(\PDO::FETCH_ASSOC);
-    }
-
-    public function fetchColumn(string $sql, array $args = null): array {
-        return $this->eval($sql, (array) $args)
-            ->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
-    public function fetchCell(string $sql, array $args) {
-        return $this->eval($sql, $args)
-            ->fetchColumn(0);
-    }
-
-    public function fetchMap(string $sql, array $args = null): array {
-        return $this->eval($sql, (array) $args)
-            ->fetchAll(\PDO::FETCH_KEY_PAIR);
+    public function select(string $sql, array $args = null): \PDOStatement {
+        return $this->eval('SELECT ' . $sql, $args);
     }
 
     public function lastInsertId(string $seqName = null): string {
@@ -214,8 +168,11 @@ class Db {
             case self::MYSQL_DRIVER:
                 $ns = __NAMESPACE__ . '\\MySql';
                 break;
+            case self::SQLITE_DRIVER:
+                $ns = __NAMESPACE__ . '\\Sqlite';
+                break;
             default:
-                throw new \RuntimeException("Unable to find Schema Manager for the driver '$driver'");
+                throw new NotImplementedException("Implementation of the SchemaManager for the driver '$driver' is missing");
         }
         return $ns;
     }

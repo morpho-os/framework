@@ -11,17 +11,8 @@ class Repo extends BaseRepo {
     protected $tableName;
 
     protected static $allowedDbMethods = [
-        'selectRows',
-        'selectRow',
-        'selectColumn',
-        'selectCell',
-        'selectMap',
+        'select',
         'transaction',
-        'fetchRows',
-        'fetchRow',
-        'fetchColumn',
-        'fetchCell',
-        'fetchMap',
     ];
 
     public function __call(string $method, array $args = []) {
@@ -55,14 +46,6 @@ class Repo extends BaseRepo {
         } else {
             $this->updateRows($row, "{$this->pkName} = ?", [$row[$this->pkName]]);
         }
-    }
-
-    public function selectRowEx(string $sql, array $args, string $message = null): array {
-        $row = $this->getDb()->selectRow($sql, $args);
-        if (false === $row) {
-            $this->entityNotFoundError($message);
-        }
-        return $row;
     }
 
     /**
