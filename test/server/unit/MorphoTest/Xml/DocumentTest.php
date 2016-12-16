@@ -49,11 +49,11 @@ OUT;
         Document::fromString("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testFromString_FixHtmlEncodingOption() {
+    public function testFromString_FixEncodingOption() {
         $html = <<<OUT
 <!DOCTYPE html><html><body>µ</body></html>
 OUT;
-        $doc = Document::fromString($html, ['fixHtmlEncoding' => true, 'formatOutput' => false]);
+        $doc = Document::fromString($html, ['fixEncoding' => true, 'formatOutput' => false]);
         $this->assertHtmlEquals(<<<OUT
 <!DOCTYPE html>
 <html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body>µ</body></html>
@@ -61,7 +61,7 @@ OUT
             , $doc->saveHTML()
         );
 
-        $doc = Document::fromString($html, ['fixHtmlEncoding' => false, 'formatOutput' => false]);
+        $doc = Document::fromString($html, ['fixEncoding' => false, 'formatOutput' => false]);
         $this->assertHtmlEquals(<<<OUT
 <!DOCTYPE html>
 <html><body>&Acirc;&micro;</body></html>
