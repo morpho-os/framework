@@ -13,7 +13,7 @@ class Document extends DOMDocument {
     const ENCODING = 'utf-8';
 
     /**
-     * @TODO: Make private
+     * @TODO: Make private with PHP 7.1
      * Note: true values are not actual values of the options.
      */
     const CREATE_VALID_OPTIONS = [
@@ -30,7 +30,7 @@ class Document extends DOMDocument {
         'xmlVersion' => true,
     ];
 
-    public static function fromFile(string $filePath, array $options = []): Document {
+    public static function fromFile(string $filePath, array $options = null): Document {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
@@ -38,11 +38,12 @@ class Document extends DOMDocument {
         return self::fromString($source, $options);
     }
 
-    public static function fromString(string $source, array $options = []): Document {
+    public static function fromString(string $source, array $options = null): Document {
         $source = trim($source);
 
-        $fixHtmlEncoding = $options['fixHtmlEncoding'] ?? false;
-        unset($options['fixHtmlEncoding']);
+        $options = (array) $options;
+        $fixEncoding = $options['fixEncoding'] ?? false;
+        unset($options['fixEncoding']);
 
         $doc = self::create($options);
 
@@ -51,7 +52,7 @@ class Document extends DOMDocument {
         if (substr($source, 0, 5) == '<?xml') {
             $result = $doc->loadXML($source);
         } else {
-            if ($fixHtmlEncoding) {
+            if ($fixEncoding) {
                 $source = '<meta http-equiv="content-type" content="text/html; charset=' . escapeHtml($options['encoding'] ?? self::ENCODING) . '">'
                     . $source;
             }
@@ -67,8 +68,8 @@ class Document extends DOMDocument {
         return $doc;
     }
 
-    public static function create(array $options = []): Document {
-        $invalidOptions = array_diff_key($options, self::CREATE_VALID_OPTIONS);
+    public static function create(array $options = null): Document {
+        $invalidOptions = array_diff_key((array) $options, self::CREATE_VALID_OPTIONS);
         if (count($invalidOptions)) {
             throw new InvalidOptionsException($invalidOptions);
         }
