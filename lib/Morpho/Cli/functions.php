@@ -113,8 +113,7 @@ function cmd($command, array $options = null): CommandResult {
 }
 
 function cmdSu(string $command, array $options = null): CommandResult {
-    throw new NotImplementedException();
-    //return cmd('sudo bash -c "' . $cmd . '"', $args, $options);
+    return cmd('sudo bash -c "' . $command . '"', $options);
 }
 
 function askYesNo(string $question): bool {
