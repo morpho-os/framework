@@ -32,14 +32,16 @@ class TypeScriptCompiler {
     ];
 
     public function compileToFile(string $inFilePath, string $outFilePath = null, array $cmdOptions = null): CommandResult {
-        return $this->tsc($this->compileToFileArgsString($inFilePath, $outFilePath), $cmdOptions);
+        return $this->tsc($this->compileToFileOptionsString($inFilePath, $outFilePath), $cmdOptions);
     }
 
-    public function compileToFileArgsString(string $inFilePath, string $outFilePath = null): string {
-        return $this->optionsString([
-            'outFile' => $outFilePath ?: Path::changeExt($inFilePath, 'js'),
-            $inFilePath,
-        ]);
+    public function compileToFileOptionsString(string $inFilePath = null, string $outFilePath = null): string {
+        $options = [];
+        if ($inFilePath) {
+            $options['outFile'] = $outFilePath ?: Path::changeExt($inFilePath, 'js');
+            $options[] = $inFilePath;
+        }
+        return $this->optionsString($options);
     }
 
     public function compileToDir(string $inFilePath, string $outDirPath = null): CommandResult {
