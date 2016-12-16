@@ -64,14 +64,7 @@ abstract class ModuleManager extends Node implements IEventManager {
 
                 $this->trigger('beforeDispatch', ['request' => $request]);
 
-                list($moduleName, $controllerName, $actionName) = $request->getHandler();
-
-                if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
-                    $this->actionNotFound($moduleName, $controllerName, $actionName);
-                }
-
-                $module = $this->getChild($moduleName);
-                $controller = $module->getChild($controllerName);
+                $controller = $this->controller(...$request->getHandler());
                 $controller->dispatch($request);
 
                 $this->trigger('afterDispatch', ['request' => $request]);
@@ -79,6 +72,14 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $this->trigger('dispatchError', ['request' => $request, 'exception' => $e]);
             }
         } while (false === $request->isDispatched());
+    }
+
+    public function controller($moduleName, $controllerName, $actionName) {
+        if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
+            $this->actionNotFound($moduleName, $controllerName, $actionName);
+        }
+        $module = $this->getChild($moduleName);
+        return $module->getChild($controllerName);
     }
 
     public function on(string $eventName, callable $handler)/*: void */ {

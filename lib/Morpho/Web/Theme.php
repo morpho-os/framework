@@ -22,12 +22,12 @@ class Theme extends Module {
 
     private $isThemeDirAdded = false;
     
-    public function getViewFileSuffix() {
-        return $this->suffix;
-    }
-    
     public function setViewFileSuffix(string $suffix) {
         $this->suffix = $suffix;
+    }
+
+    public function getViewFileSuffix() {
+        return $this->suffix;
     }
 
     public function setTemplateEngine($templateEngine) {
@@ -72,15 +72,15 @@ class Theme extends Module {
             }
             $this->isThemeDirAdded = true;
         }
-        $this->addBaseDirPath(
-            $this->getParent('ModuleManager')->getModuleFs()->getModuleViewDirPath($request->getModuleName())
-        );
+
+        $moduleViewDirPath = $this->getParent('ModuleManager')->getModuleFs()->getModuleViewDirPath($request->getModuleName());
+        $this->addBaseDirPath($moduleViewDirPath);
 
         if (isset($args['layout'])) {
             $this->layout = dasherize($args['layout']);
         }
-        $vars['node'] = $args['node'];
-        $relFilePath = dasherize($vars['node']->getName()) . '/' . dasherize($args['name']);
+
+        $relFilePath = dasherize($args['controller']) . '/' . dasherize($args['view']);
         return $this->renderFile(
             $relFilePath,
             $vars,
@@ -127,7 +127,7 @@ class Theme extends Module {
             } else {
                 if (!$response->isRedirect()) {
                     $response->setContent(
-                        $this->renderFile($this->layout, ['body' => $response->getContent(), 'node' => $this])
+                        $this->renderFile($this->layout, ['body' => $response->getContent()])
                     );
                 }
             }
