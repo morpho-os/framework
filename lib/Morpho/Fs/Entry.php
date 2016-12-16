@@ -19,4 +19,12 @@ abstract class Entry {
     public static function find(): Finder {
         return new Finder();
     }
+
+    public static function delete(string $path) {
+        if (is_dir($path)) {
+            Directory::delete($path);
+        } else {
+            File::delete($path);
+        }
+    }
 }
