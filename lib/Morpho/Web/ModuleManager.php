@@ -4,7 +4,7 @@ namespace Morpho\Web;
 use Morpho\Core\ModuleManager as BaseModuleManager;
 
 class ModuleManager extends BaseModuleManager {
-    protected function getFallbackModeEventHandlers(): array {
+    protected function getFallbackModeEventHandlers(): \iterable {
         return [
             'render'         => [
                 [
@@ -32,7 +32,7 @@ class ModuleManager extends BaseModuleManager {
         ];
     }
 
-    protected function actionNotFound($moduleName, $controllerName, $actionName) {
+    protected function actionNotFound($moduleName, $controllerName, $actionName): void {
         $message = [];
         if (empty($moduleName)) {
             $message[] = 'module name is empty';
