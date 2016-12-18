@@ -112,7 +112,7 @@ class DateTime extends \DateTimeImmutable {
 
     public static function createFromFormat($format, $value, $timeZone = null) {
         return new static(
-            parent::createFromFormat($format, $value)
+            parent::createFromFormat($format, $value, $timeZone)
                 ->format(self::DATETIME_FORMAT)
         );
     }
