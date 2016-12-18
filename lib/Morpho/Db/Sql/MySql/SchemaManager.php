@@ -11,7 +11,7 @@ class SchemaManager extends BaseSchemaManager {
     const DEFAULT_COLLATION = 'utf8_general_ci';
     
     public function databaseNames(): array {
-        return $this->db->fetchColumn("SHOW DATABASES");
+        return $this->db->eval("SHOW DATABASES")->column();
     }
 
     /**
@@ -124,7 +124,7 @@ class SchemaManager extends BaseSchemaManager {
         if (!$stmt->rowCount()) {
             throw new \RuntimeException("The table '" . (null === $dbName ? $tableName : $dbName . '.' . $tableName) . "' does not exist");
         }
-        return $stmt->fetchAll();
+        return $stmt->rows();
     }
 
     /**
@@ -132,7 +132,8 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function getCreateTableSql(string $tableName): string {
-        return $this->db->fetchRows("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))[0]['Create Table'];
+        return $this->db->eval("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))
+            ->row()['Create Table'];
     }
 
     /**
@@ -242,14 +243,14 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function sizeOfTables(string $dbName): array {
-        return $this->db->selectRows(
+        return $this->db->eval(
             'TABLE_NAME AS tableName,
             TABLE_TYPE AS tableType,
             DATA_LENGTH + INDEX_LENGTH as sizeInBytes 
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = ? ORDER BY sizeInBytes DESC',
             [$dbName]
-        );
+        )->rows();
     }
 
     /**
@@ -317,14 +318,14 @@ class SchemaManager extends BaseSchemaManager {
         if ($charsets) {
             $where .= ' WHERE CHARSET IN (' . Query::positionalPlaceholdersString($charsets) . ')';
         }
-        return $this->db->fetchRows($sql . $where, $charsets);
+        return $this->db->eval($sql . $where, $charsets)->rows();
     }
 
     /**
      * Returns list of available collations for the given charset.
      */
     public function availableCollationsForCharset(string $charset): array {
-        return $this->db->fetchRows('SHOW COLLATION WHERE CHARSET = ?', [$charset]);
+        return $this->db->eval('SHOW COLLATION WHERE CHARSET = ?', [$charset])->rows();
     }
 
     /**
@@ -346,8 +347,8 @@ class SchemaManager extends BaseSchemaManager {
      */
     public function getCharsetAndCollationVars(): array {
         return array_merge(
-            $this->db->fetchMap('SHOW VARIABLES LIKE "character_set%"'),
-            $this->db->fetchMap('SHOW VARIABLES LIKE "collation%"')
+            $this->db->eval('SHOW VARIABLES LIKE "character_set%"')->map(),
+            $this->db->eval('SHOW VARIABLES LIKE "collation%"')->map()
         );
     }
 
@@ -356,13 +357,13 @@ class SchemaManager extends BaseSchemaManager {
      * @return array|false
      */
     public function getCharsetAndCollationOfDatabase(string $dbName): array {
-        return $this->db->selectRow(
+        return $this->db->select(
             'DEFAULT_CHARACTER_SET_NAME AS charset,
             DEFAULT_COLLATION_NAME AS collation
             FROM information_schema.SCHEMATA
             WHERE SCHEMA_NAME = ?',
             [$dbName]
-        );
+        )->row();
     }
     
     public function setCharsetAndCollationOfDatabase(string $dbName) {
@@ -374,7 +375,7 @@ class SchemaManager extends BaseSchemaManager {
      * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
      */
     public function getCharsetAndCollationOfTables(string $dbName): array {
-        return $this->db->selectRows(
+        return $this->db->select(
             'TABLE_SCHEMA AS dbName,
             TABLE_NAME AS tableName,
             TABLE_TYPE AS tableType,
@@ -383,7 +384,7 @@ class SchemaManager extends BaseSchemaManager {
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = ?',
             [$dbName]
-        );
+        )->rows();
     }
 
     public function getCharsetAndCollationOfTable(string $tableName): array {
