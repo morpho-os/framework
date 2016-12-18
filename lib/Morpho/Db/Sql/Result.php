@@ -25,6 +25,10 @@ class Result extends \PDOStatement {
         return $this->fetchColumn(0);
     }
 
+    public function bool() {
+        return (bool) $this->cell();
+    }
+
     public function map(): array {
         return $this->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
