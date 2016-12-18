@@ -29,16 +29,16 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected $name = 'ModuleManager';
 
     protected $tableName = 'module';
-    
+
     protected $db;
 
     protected $moduleFs;
-    
+
     public function __construct(Db $db = null, ModuleFs $moduleFs) {
         $this->db = $db;
         $this->moduleFs = $moduleFs;
     }
-    
+
     public function getModuleFs(): ModuleFs {
         return $this->moduleFs;
     }
@@ -131,7 +131,7 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     public function uninstallModule(string $moduleName): void {
         $db = $this->db;
-        $moduleId = $db->selectCell("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED]);
+        $moduleId = $db->select("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED])->cell();
         if (!$moduleId) {
             throw new \LogicException("Can't uninstall the module '$moduleName', only disabled modules can be uninstalled");
         }
@@ -149,7 +149,7 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     public function enableModule(string $moduleName): void {
         $db = $this->db;
-        if ($db->selectBool("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])) {
+        if ($db->select("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])->bool()) {
             throw new \LogicException("The module '$moduleName' is already enabled");
         }
         $db->transaction(
@@ -204,7 +204,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $db = $this->db;
         foreach ($modules as $moduleName) {
             $db->transaction(function () use ($moduleName) {
-                $moduleRow = $this->db->selectRow('id, status FROM module WHERE name = ?', [$moduleName]);
+                $moduleRow = $this->db->select('id, status FROM module WHERE name = ?', [$moduleName])->row();
                 if ($moduleRow) {
                     $this->db->eval("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
                     $module = $this->getChild($moduleName);
@@ -257,7 +257,7 @@ abstract class ModuleManager extends Node implements IEventManager {
     public function installedModuleNames(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectColumn("name FROM $this->tableName ORDER BY name, weight");
+            : $this->db->select("name FROM $this->tableName ORDER BY name, weight")->column();
     }
 
     public function uninstalledModuleNames(): array {
@@ -270,13 +270,13 @@ abstract class ModuleManager extends Node implements IEventManager {
     public function enabledModuleNames(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::ENABLED]);
+            : $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::ENABLED])->map();
     }
 
     public function disabledModuleNames(): array {
         return $this->fallbackMode
             ? []
-            : $this->db->selectMap("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED]);
+            : $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED])->map();
     }
 
     public function setDb(Db $db) {
@@ -321,7 +321,7 @@ abstract class ModuleManager extends Node implements IEventManager {
                 ON e.moduleId = m.id
             WHERE m.status = ?
             ORDER BY e.priority DESC, m.weight ASC, m.name ASC";
-            $lines = $this->db->selectRows($sql, [self::ENABLED]);
+            $lines = $this->db->select($sql, [self::ENABLED])->rows();
             if (!count($lines)) {
                 // For some reason the events can be lost in the database, so we need fallback.
                 $this->eventHandlers = $this->getFallbackModeEventHandlers();
