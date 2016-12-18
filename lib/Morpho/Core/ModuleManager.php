@@ -50,7 +50,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $this->fallbackMode;
     }
 
-    public function dispatch($request)/*: void */ {
+    public function dispatch($request): void {
         do {
             try {
                 $request->isDispatched(true);
@@ -82,7 +82,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $module->getChild($controllerName);
     }
 
-    public function on(string $eventName, callable $handler)/*: void */ {
+    public function on(string $eventName, callable $handler): void {
         $this->initEventHandlers();
         $this->eventHandlers[$eventName][] = $handler;
     }
@@ -112,7 +112,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    public function installModule(string $moduleName)/*: void */ {
+    public function installModule(string $moduleName): void {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
@@ -129,7 +129,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->clearCache();
     }
 
-    public function uninstallModule(string $moduleName)/*: void */ {
+    public function uninstallModule(string $moduleName): void {
         $db = $this->db;
         $moduleId = $db->selectCell("id FROM {$this->tableName} WHERE name = ? AND status = ?", [$moduleName, self::DISABLED]);
         if (!$moduleId) {
@@ -147,7 +147,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->clearCache();
     }
 
-    public function enableModule(string $moduleName)/*: void */ {
+    public function enableModule(string $moduleName): void {
         $db = $this->db;
         if ($db->selectBool("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])) {
             throw new \LogicException("The module '$moduleName' is already enabled");
@@ -162,7 +162,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->rebuildEvents($moduleName);
     }
 
-    public function disableModule(string $moduleName)/*: void */ {
+    public function disableModule(string $moduleName): void {
         /*
         $db = $this->db;
         $exists = (bool)$db->selectCell("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED]);
@@ -180,7 +180,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->rebuildEvents($moduleName);
     }
 
-    public function installAndEnableModule(string $moduleName)/*: void */ {
+    public function installAndEnableModule(string $moduleName): void {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
@@ -199,7 +199,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->clearCache();
     }
 
-    public function rebuildEvents($moduleName = null)/*: void */ {
+    public function rebuildEvents($moduleName = null): void {
         $modules = null !== $moduleName ? [$moduleName] : $this->enabledModuleNames();
         $db = $this->db;
         foreach ($modules as $moduleName) {
@@ -283,7 +283,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->db = $db;
     }
 
-    protected function clearCache()/*: void */ {
+    protected function clearCache(): void {
         $this->moduleFs->clearCache();
     }
 
@@ -308,7 +308,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $module->setName($moduleName);
     }
 
-    protected function initEventHandlers()/*: void */ {
+    protected function initEventHandlers(): void {
         if (null !== $this->eventHandlers) {
             return;
         }
@@ -385,5 +385,5 @@ abstract class ModuleManager extends Node implements IEventManager {
         return [];
     }
 
-    abstract protected function actionNotFound($moduleName, $controllerName, $actionName)/*: void */;
+    abstract protected function actionNotFound($moduleName, $controllerName, $actionName): void;
 }
