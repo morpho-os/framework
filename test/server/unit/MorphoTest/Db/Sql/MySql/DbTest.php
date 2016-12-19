@@ -7,7 +7,13 @@ use MorphoTest\Db\Sql\DbTest as BaseDbTest;
 
 class DbTest extends BaseDbTest {
     public function testInsertRows() {
-        $this->markTestIncomplete();
+        $this->db->eval('CREATE TABLE cars (name varchar(20), color varchar(20), country varchar(20))');
+        $rows = [
+            ['name' => "Comaro", 'color' => 'red', 'country' => 'US'],
+            ['name' => 'Mazda RX4', 'color' => 'yellow', 'country' => 'JP'],
+        ];
+        $this->db->insertRows('cars', $rows);
+        $this->assertEquals($rows, $this->db->select('* FROM cars')->rows());
     }
 
     public function testQuery_ReturnsTheSameObject() {

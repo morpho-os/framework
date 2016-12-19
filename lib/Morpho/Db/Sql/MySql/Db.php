@@ -28,8 +28,19 @@ class Db extends BaseDb {
         return $this->schemaManager;
     }
 
-    public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100 */) {
-        throw new NotImplementedException();
+    public function insertRows(string $tableName, array $rows) {
+        $args = [];
+        $keys = null;
+        foreach ($rows as $row) {
+            if (null === $keys) {
+                $keys = array_keys($row);
+            }
+            $args = array_merge($args, array_values($row));
+        }
+        $query = $this->query();
+        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
+        $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
+        $this->eval($sql, $args);
     }
 
     protected function newPdoConnection(array $options): \PDO {
