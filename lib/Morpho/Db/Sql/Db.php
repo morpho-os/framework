@@ -1,14 +1,8 @@
 <?php
 namespace Morpho\Db\Sql;
 
-use Morpho\Base\NotImplementedException;
-
-class Db {
+abstract class Db {
     protected $db;
-
-    protected $schemaManager;
-
-    protected $query;
 
     const MYSQL_DRIVER  = 'mysql';
     const SQLITE_DRIVER = 'sqlite';
@@ -16,7 +10,7 @@ class Db {
     public function __construct($optionsOrConnection) {
         $this->db = $db = $optionsOrConnection instanceof \PDO
             ? $optionsOrConnection
-            : static::connect($optionsOrConnection);
+            : $this->newPdoConnection($optionsOrConnection);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         $db->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
@@ -24,37 +18,25 @@ class Db {
         //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
-    public static function connect(array $options): \PDO {
+    public static function connect(array $options): self {
         $driver = $options['driver'];
         unset($options['driver']);
         switch ($driver) {
             case self::MYSQL_DRIVER:
-                $pdo = MySql\Db::connect($options);
+                $db = new MySql\Db($options);
                 break;
             case self::SQLITE_DRIVER:
-                $pdo = Sqlite\Db::connect($options);
+                $db = new Sqlite\Db($options);
                 break;
             default:
                 throw new \UnexpectedValueException();
         }
-        return $pdo;
+        return $db;
     }
 
-    public function query(): Query {
-        if (null === $this->query) {
-            $class = $this->implNs() . '\\Query';
-            $this->query = new $class();
-        }
-        return $this->query;
-    }
+    abstract public function query(): Query;
 
-    public function schemaManager(): SchemaManager {
-        if (null === $this->schemaManager) {
-            $class = $this->implNs() . '\\SchemaManager';
-            $this->schemaManager = new $class($this);
-        }
-        return $this->schemaManager;
-    }
+    abstract public function schemaManager(): SchemaManager;
 
     public function select(string $sql, array $args = null): \PDOStatement {
         return $this->eval('SELECT ' . $sql, $args);
@@ -71,21 +53,7 @@ class Db {
         $this->eval($sql, array_values($row));
     }
 
-    public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100*/)/*: void */ {
-        // @TODO: Handle $rowsInBlock
-        $args = [];
-        $keys = null;
-        foreach ($rows as $row) {
-            if (null === $keys) {
-                $keys = array_keys($row);
-            }
-            $args = array_merge($args, array_values($row));
-        }
-        $query = $this->query();
-        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($rows)) . ')';
-        $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
-        $this->eval($sql, $args);
-    }
+    abstract public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100*/);
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
         $query = $this->query();
@@ -162,18 +130,5 @@ class Db {
         return \PDO::getAvailableDrivers();
     }
 
-    protected function implNs(): string {
-        $driver = $this->getCurrentDriverName();
-        switch ($driver) {
-            case self::MYSQL_DRIVER:
-                $ns = __NAMESPACE__ . '\\MySql';
-                break;
-            case self::SQLITE_DRIVER:
-                $ns = __NAMESPACE__ . '\\Sqlite';
-                break;
-            default:
-                throw new NotImplementedException("Implementation of the SchemaManager for the driver '$driver' is missing");
-        }
-        return $ns;
-    }
+    abstract protected function newPdoConnection(array $options): \PDO;
 }

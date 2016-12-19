@@ -32,6 +32,6 @@ abstract class DbTestCase extends TestCase {
         if (!$config) {
             $config = $this->dbConfig();
         }
-        return new Db($config);
+        return Db::connect($config);
     }
 }

@@ -5,7 +5,7 @@ use Morpho\Db\Sql\MySql\SchemaManager;
 use Morpho\Db\Sql\Db;
 use Morpho\Test\DbTestCase;
 
-class DbTest extends DbTestCase {
+abstract class DbTest extends DbTestCase {
     protected $db, $schemaManager;
 
     public function setUp() {
@@ -14,9 +14,7 @@ class DbTest extends DbTestCase {
         $this->schemaManager->deleteAllTables();
     }
     
-    public function testInsertRows() {
-        $this->markTestIncomplete();
-    }
+    abstract public function testInsertRows();
 
     public function testLastInsertId_ForNonAutoincrementCol() {
         $this->schemaManager->createTable('foo', [
@@ -44,9 +42,9 @@ class DbTest extends DbTestCase {
         $this->assertEquals('1', $this->db->lastInsertId('some'));
     }
 
-    public function testQuery_ReturnsNotUniqueInstance() {
-        $this->assertNotUniqueInstance([$this->db, 'query'], 'Morpho\Db\Sql\MySql\Query');
-    }
+    abstract public function testQuery_ReturnsTheSameObject();
+
+    abstract public function testSchemaManager_ReturnsNotUniqueInstance();
 
     public function testSelectCell() {
         $this->createTestTableWithData();
@@ -73,10 +71,6 @@ class DbTest extends DbTestCase {
 
     public function testGetDriverName() {
         $this->assertEquals(Db::MYSQL_DRIVER, $this->db->getCurrentDriverName());
-    }
-
-    public function testSchemaManager_ReturnsNotUniqueInstance() {
-        $this->assertNotUniqueInstance([$this->db, 'schemaManager'], 'Morpho\Db\Sql\MySql\SchemaManager');
     }
 
     private function setTestDataForUpdateRows() {
@@ -116,5 +110,9 @@ class DbTest extends DbTestCase {
                 ],
             ]
         );
+    }
+
+    private function assertNotUniqueInstance(callable $fn, string $expectedClass) {
+        $this->assertInstanceUniqueness($fn, $expectedClass, false);
     }
 }

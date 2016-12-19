@@ -115,14 +115,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
-    protected function assertNotUniqueInstance(callable $fn, string $expectedClass) {
-        $this->assertInstanceUniqueness($fn, $expectedClass, false);
-    }
-    
-    protected function assertUniqueInstance(callable $fn, string $expectedClass) {
-        $this->assertInstanceUniqueness($fn, $expectedClass, true);
-    }
-
     protected function setDefaultTimezone() {
         $this->prevTimezone = @date_default_timezone_get();
         date_default_timezone_set(self::TIMEZONE);
@@ -147,18 +139,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         }
         if ($code !== null) {
             $this->expectExceptionCode($code);
-        }
-    }
-
-    private function assertInstanceUniqueness(callable $fn, string $expectedClass, bool $unique) {
-        $instance1 = $fn();
-        $this->assertInstanceOf($expectedClass, $instance1);
-        $instance2 = $fn();
-        $this->assertInstanceOf($expectedClass, $instance2);
-        if ($unique) {
-            $this->assertNotSame($instance1, $instance2);
-        } else {
-            $this->assertSame($instance1, $instance2);
         }
     }
 

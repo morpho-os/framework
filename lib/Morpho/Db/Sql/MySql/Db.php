@@ -2,8 +2,12 @@
 namespace Morpho\Db\Sql\MySql;
 
 use Morpho\Base\ArrayTool;
+use Morpho\Base\NotImplementedException;
+use Morpho\Db\Sql\Db as BaseDb;
+use Morpho\Db\Sql\Query as BaseQuery;
+use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 
-class Db {
+class Db extends BaseDb {
     const DEFAULT_HOST = '127.0.0.1';
     const DEFAULT_PORT = 3306;
     const DEFAULT_USER = 'root';
@@ -11,7 +15,24 @@ class Db {
     const DEFAULT_CHARSET = 'utf8';
     const DEFAULT_DB = '';
 
-    public static function connect($options): \PDO {
+    private $schemaManager;
+
+    public function query(): BaseQuery {
+        return new Query();
+    }
+
+    public function schemaManager(): BaseSchemaManager {
+        if (null === $this->schemaManager) {
+            $this->schemaManager = new SchemaManager($this);
+        }
+        return $this->schemaManager;
+    }
+
+    public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100 */) {
+        throw new NotImplementedException();
+    }
+
+    protected function newPdoConnection(array $options): \PDO {
         $options = ArrayTool::handleOptions($options, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
@@ -21,7 +42,7 @@ class Db {
             'charset' => self::DEFAULT_CHARSET,
             'pdoOptions' => [],
         ]);
-        $dsn = \Morpho\Db\Sql\Db::MYSQL_DRIVER . ':dbname=' . $options['db'] . ';' . $options['host'] . ';' . $options['charset'];
+        $dsn = BaseDb::MYSQL_DRIVER . ':dbname=' . $options['db'] . ';' . $options['host'] . ';' . $options['charset'];
         return new \PDO($dsn, $options['user'], $options['password'], $options['pdoOptions']);
     }
 }
