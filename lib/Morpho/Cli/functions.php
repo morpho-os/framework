@@ -37,7 +37,7 @@ function writeErrorLn(string $errMessage) {
     writeError($errMessage . "\n");
 }
 
-function colorize(string $text, $code): string {
+function stylize(string $text, $codes): string {
     // @TODO:
     // RGB
     // $fg: 38;05;$codes
@@ -64,9 +64,9 @@ function colorize(string $text, $code): string {
     // \033 is ASCII-code of the ESC.
     static $colorOn = "\033[";
     static $colorOff = "\033[0m";
-    return $colorOn . implode(';', (array)$code) . 'm'   // prefix
-        . $text
-        . $colorOff;                                     // suffix
+    return $colorOn . implode(';', (array) $codes) . 'm'   // prefix
+        . $text                                            // text
+        . $colorOff;                                       // suffix
 }
 
 function escapeArg($arg): string {
@@ -128,4 +128,10 @@ function askYesNo(string $question): bool {
             writeLn("Invalid choice, please type y or n");
         }
     } while (true);
+}
+
+function download(string $uri, string $outFilePath = null): string {
+    // @TODO: use curl or wget
+    throw new NotImplementedException();
+    return $outFilePath;
 }
