@@ -43,7 +43,7 @@ class ServiceManager extends BaseServiceManager {
             // Don't connect for the fallback mode.
             $dbConfig['db'] = '';
         }
-        return new Db($dbConfig);
+        return Db::connect($dbConfig);
     }
 
     protected function createSessionService() {
