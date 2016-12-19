@@ -275,7 +275,6 @@ OUT
         $expectedKeys = ['tableName', 'tableType', 'sizeInBytes'];
         foreach ($size as $row) {
             $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $row);
-
         }
     }
 

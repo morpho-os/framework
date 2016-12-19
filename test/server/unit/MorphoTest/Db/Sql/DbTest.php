@@ -50,7 +50,7 @@ class DbTest extends DbTestCase {
 
     public function testSelectCell() {
         $this->createTestTableWithData();
-        $this->assertEquals('some value', $this->db->selectCell("foo FROM test"));
+        $this->assertEquals('some value', $this->db->select("foo FROM test")->cell());
     }
 
     public function testUpdateRows_WhereConditionArray() {
@@ -93,7 +93,7 @@ class DbTest extends DbTestCase {
                 ['foo' => 'second row changed'],
                 ['foo' => 'third row'],
             ],
-            $this->db->selectRows('foo FROM test')
+            $this->db->select('foo FROM test')->rows()
         );
     }
 

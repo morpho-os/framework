@@ -149,7 +149,7 @@ class ModuleController extends Controller {
 
     public function moduleNames(): array {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $this->getDb()->selectRows('* FROM module ORDER BY weight, name');
+        $modules = $this->getDb()->select('* FROM module ORDER BY weight, name')->rows();
         foreach ($moduleManager->uninstalledModuleNames() as $moduleName) {
             $modules[] = [
                 'id' => null,

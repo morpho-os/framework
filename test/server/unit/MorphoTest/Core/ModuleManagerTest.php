@@ -292,7 +292,7 @@ class ErrorHandlingTestModuleException extends \RuntimeException {
 }
 
 class MyModuleManager extends ModuleManager {
-    protected function actionNotFound($moduleName, $controllerName, $actionName) {
+    protected function actionNotFound($moduleName, $controllerName, $actionName): void {
     }
 }
 

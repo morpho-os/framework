@@ -32,13 +32,13 @@ class SettingManager {
         if (isset($this->cache[$name])) {
             return $this->cache[$name];
         }
-        $value = $this->db->selectCell(
+        $value = $this->db->select(
             'value FROM ' . self::TABLE_NAME . ' AS s
                 INNER JOIN module AS m
              ON s.moduleId = m.id
              WHERE s.name = ? AND m.name = ?',
             [$name, $moduleName]
-        );
+        )->cell();
         return unserialize($value);
     }
 
@@ -49,14 +49,14 @@ class SettingManager {
         if (empty($moduleName)) {
             throw new \UnexpectedValueException("Empty module name");
         }
-        $row = $this->db->selectRow(
+        $row = $this->db->select(
             's.name, m.id AS moduleId
             FROM `module` AS m
             LEFT JOIN ' . self::TABLE_NAME . ' AS s
                 ON s.moduleId = m.id AND s.name = ?
             WHERE m.name = ?',
             [$name, $moduleName]
-        );
+        )->row();
         if (!$row) {
             throw new \LogicException("Unable to select module ID");
         }

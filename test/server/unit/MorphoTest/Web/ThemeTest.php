@@ -76,15 +76,12 @@ class ThemeTest extends TestCase {
         $theme = new Theme();
         $viewName = 'my-view-name';
         $viewVars = ['news' => '123'];
-        $controller = new class extends Node {
-            protected $name = 'MyControllerName';
-        };
         $event = [
             'render',
             [
                 'vars' => $viewVars,
-                'node' => $controller,
-                'name' => $viewName,
+                'controller' => 'my-controller-name',
+                'view' => $viewName,
             ]
         ];
         $moduleName = 'foo-bar';
@@ -120,7 +117,6 @@ class ThemeTest extends TestCase {
         $_SERVER['REQUEST_URI'] = '/base/path/test/me?arg=val';
         $viewRelFilePath = 'my-controller-name/' . $viewName;
         $viewAbsFilePath = $moduleDirPath . '/' . $viewRelFilePath . $theme->getViewFileSuffix();
-        $viewVars['node'] = $controller;
         $templateEngine = $this->createMock(\Morpho\Web\View\TemplateEngine::class);
         $expectedRendered = 'abcdefg123';
         $templateEngine->expects($this->once())

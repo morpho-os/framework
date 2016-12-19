@@ -165,7 +165,7 @@ abstract class ModuleManager extends Node implements IEventManager {
     public function disableModule(string $moduleName): void {
         /*
         $db = $this->db;
-        $exists = (bool)$db->selectCell("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED]);
+        $exists = (bool)$db->select("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])->cell();
         if (!$exists) {
             throw new \LogicException("Can't disable the module '$moduleName', only enabled modules can be disabled");
         }

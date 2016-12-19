@@ -8,7 +8,7 @@ abstract class SchemaManager {
         $this->db = $db;
     }
 
-    public function createTables(\iterable: $tableDefinitions): void {
+    public function createTables(iterable $tableDefinitions): void {
         foreach ($tableDefinitions as $tableName => $tableDefinition) {
             $this->createTable($tableName, $tableDefinition);
         }
@@ -24,7 +24,7 @@ abstract class SchemaManager {
         $this->createTable($tableName, $tableDefinition);
     }
 
-    public function deleteTables(\iterable $tableNames): void {
+    public function deleteTables(iterable $tableNames): void {
         foreach ($tableNames as $tableName) {
             $this->deleteTable($tableName);
         }
@@ -42,5 +42,5 @@ abstract class SchemaManager {
 
     abstract public function deleteTableIfExists(string $tableName): void;
 
-    abstract public function tableNames(): Result;
+    abstract public function tableNames(): iterable;
 }

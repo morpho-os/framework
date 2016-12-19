@@ -36,14 +36,14 @@ class Tree {
             $args[] = $parentNodeId;
         }
         $columnPrefix = 'data';
-        $rows = $this->db->selectRows(
+        $rows = $this->db->select(
             't.childId, t.parentId, t.depth, ' . $this->addTableAliasAndColumnPrefix('d', $columnPrefix, $this->dataColumns['columns'])
             . ' FROM ' . $this->db->query()->identifier($this->tableName) . " AS t
             INNER JOIN {$this->dataColumns['table']} as d
                 ON t.childId = d.{$this->dataColumns['columns'][0]}"
             . "\n$whereClause",
             $args
-        );
+        )->rows();
         $nodes = [];
         $dataColumns = function (array $row) use ($columnPrefix) {
             $res = [];

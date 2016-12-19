@@ -4,7 +4,7 @@ namespace Morpho\Web;
 use Morpho\Core\ModuleManager as BaseModuleManager;
 
 class ModuleManager extends BaseModuleManager {
-    protected function getFallbackModeEventHandlers(): \iterable {
+    protected function getFallbackModeEventHandlers(): iterable {
         return [
             'render'         => [
                 [

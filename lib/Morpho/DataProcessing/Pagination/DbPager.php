@@ -13,7 +13,7 @@ abstract class DbPager extends Pager implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function getItemList($offset, $pageSize): \iterable {
+    protected function getItemList($offset, $pageSize): iterable {
         $offset = intval($offset);
         $pageSize = intval($pageSize);
         return $this->getDb()->select('* FROM (' . $this->getSqlQuery() . ") AS t LIMIT $offset, $pageSize");

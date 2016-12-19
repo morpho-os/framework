@@ -18,7 +18,7 @@ class SchemaManager extends BaseSchemaManager {
      * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
      * of the caller to provide safe arguments.
      */
-    public function createDatabase(string $dbName, string $charset = null, string $collation = null)/*: void*/ {
+    public function createDatabase(string $dbName, string $charset = null, string $collation = null): void {
         $this->db->eval("CREATE DATABASE " . $this->db->query()->identifier($dbName)
             . " CHARACTER SET " . ($charset ?: self::DEFAULT_CHARSET)
             . " COLLATE " . ($collation ?: self::DEFAULT_COLLATION)
@@ -37,7 +37,7 @@ class SchemaManager extends BaseSchemaManager {
      * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
      * of the caller to provide safe arguments.
      */
-    public function deleteDatabase(string $dbName)/*: void*/ {
+    public function deleteDatabase(string $dbName): void {
         $this->db->eval("DROP DATABASE " . $this->db->query()->identifier($dbName));
     }
 
@@ -51,20 +51,20 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function sizeOfDatabase(string $dbName) {
-        return $this->db->selectCell(
+        return $this->db->select(
             'SUM(DATA_LENGTH + INDEX_LENGTH)
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = ?',
             [$dbName]
-        );
+        )->cell();
     }
 
     public function userExists(string $userName): bool {
-        return $this->db->selectBool('1 FROM mysql.user WHERE User = ?', [$userName]);
+        return $this->db->select('1 FROM mysql.user WHERE User = ?', [$userName])->bool();
     }
 
-    public function tableNames(): array {
-        return $this->db->fetchColumn("SHOW TABLES");
+    public function tableNames(): iterable {
+        return $this->db->eval("SHOW TABLES")->column();
     }
     
     public function tableExists(string $tableName): bool {
@@ -73,7 +73,7 @@ class SchemaManager extends BaseSchemaManager {
         return in_array($tableName, $this->tableNames(), true);
     }
 
-    public function deleteTable(string $tableName)/*: void*/ {
+    public function deleteTable(string $tableName): void {
         $this->db->transaction(function ($db) use ($tableName) {
             /*
             $isMySql = $this->connection->getDriver() instanceof MySqlDriver;
@@ -89,7 +89,7 @@ class SchemaManager extends BaseSchemaManager {
         });
     }
 
-    public function renameTable(string $oldTableName, string $newTableName)/*: void*/ {
+    public function renameTable(string $oldTableName, string $newTableName): void {
         throw new NotImplementedException();
     }
 
@@ -97,7 +97,7 @@ class SchemaManager extends BaseSchemaManager {
      * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
      * of the caller to provide safe arguments.
      */
-    public function deleteTableIfExists(string $tableName)/*: void*/ {
+    public function deleteTableIfExists(string $tableName): void {
         $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
     }
 
@@ -243,7 +243,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function sizeOfTables(string $dbName): array {
-        return $this->db->eval(
+        return $this->db->select(
             'TABLE_NAME AS tableName,
             TABLE_TYPE AS tableType,
             DATA_LENGTH + INDEX_LENGTH as sizeInBytes 
