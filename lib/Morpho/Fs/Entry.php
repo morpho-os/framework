@@ -4,12 +4,8 @@ namespace Morpho\Fs;
 use Symfony\Component\Finder\Finder;
 
 abstract class Entry {
-    /**
-     * @return int
-     */
-    public static function mode(string $path) {
-        // @TODO: Handle errors.
-        return octdec(substr(sprintf('%o', fileperms($path)), -4));
+    public static function modeString(string $path): string {
+        return substr(sprintf('%o', fileperms($path)), -4);
     }
 
     public static function isEntry(string $path): bool {

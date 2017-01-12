@@ -48,7 +48,7 @@ class Directory extends Entry {
             }
         }
 
-        $targetDirPath = self::create($targetDirPath, self::mode($sourceDirPath));
+        $targetDirPath = self::create($targetDirPath, fileperms($sourceDirPath));
 
         $paths = self::paths(
             $sourceDirPath,

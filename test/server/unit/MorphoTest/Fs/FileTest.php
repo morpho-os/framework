@@ -171,13 +171,6 @@ class FileTest extends TestCase {
         $this->assertTrue(file_exists($copiedFilePath));
     }
 
-    public function testMode() {
-        if (DIRECTORY_SEPARATOR !== '\\') {
-            $this->markTestSkipped();
-        }
-        $this->assertEquals(0666, File::mode(__FILE__));
-    }
-
     public function testUniquePath() {
         $this->assertEquals(__DIR__ . '/something', File::uniquePath(__DIR__ . '/something'));
         $this->assertEquals(__FILE__ . '-0', File::uniquePath(__FILE__));
