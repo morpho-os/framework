@@ -44,7 +44,7 @@ before_script:
 #  - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
-  - php -f vendor/phpunit/phpunit/phpunit -- --debug -c test/server/phpunit.xml
+  - bin/run-tests
 #  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
 #  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f test/server/db-connection-test.php
 #  - php -f test/server/db-connection-test.php

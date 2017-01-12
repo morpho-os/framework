@@ -1,5 +1,5 @@
-# Generated files:
 /bin/*
+!/bin/run-tests
 
 # composer's files.
 vendor/

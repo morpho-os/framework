@@ -3,8 +3,9 @@ namespace Morpho\Test;
 
 use Morpho\Fs\Directory;
 use Morpho\Base\NotImplementedException;
+use PHPUnit\Framework\TestSuite as BaseTestSuite;
 
-abstract class TestSuite extends \PHPUnit_Framework_TestSuite {
+abstract class TestSuite extends BaseTestSuite {
     protected $testFileRegexp = '~(Test|TestSuite)\.php$~s';
 
     public static function suite() {
@@ -14,8 +15,8 @@ abstract class TestSuite extends \PHPUnit_Framework_TestSuite {
     }
 
     /**
-     * @return array An array of test files, that can contain descendants of \PHPUnit_Framework_TestSuite
-     *               or \PHPUnit_Framework_TestCase. Classes can define the suite() static method like
+     * @return array An array of test files, that can contain descendants of \PHPUnit\Framework\TestSuite
+     *               or \PHPUnit\Framework\TestCase. Classes can define the suite() static method like
      *               we do in this class and therefore suites can be nested.
      */
     public function testFilePaths() {

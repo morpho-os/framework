@@ -11,7 +11,7 @@ css:
 	cd $(publicModuleDirPath)/system/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < main.styl > main.css
 
 test:
-	cd test/server && phpunit
+	bin/run-tests
 
 #clean: clean-site-cache
 #	rm -f $(publicModuleDirPath)/**/dest/*

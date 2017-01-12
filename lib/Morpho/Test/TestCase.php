@@ -4,8 +4,9 @@ namespace Morpho\Test;
 use Morpho\Base\Environment;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase {
+abstract class TestCase extends BaseTestCase {
     const EPS = 0.000000001;
     const TIMEZONE = 'UTC';
 
@@ -34,18 +35,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
         }
         $filePath = $this->tmpDirPath() . '/' . $fileName;
         return $this->tmpFilePaths[] = File::createEmpty($filePath);
-    }
-
-    protected function createMock($originalClassName) {
-        if (method_exists('PHPUnit_Framework_TestCase', 'createMock')) {
-            return parent::createMock($originalClassName);
-        }
-        return $this->getMockBuilder($originalClassName)
-            ->disableOriginalConstructor()
-            ->disableOriginalClone()
-            ->disableArgumentCloning()
-            //->disallowMockingUnknownTypes()
-            ->getMock();
     }
 
     protected function assertSetsEqual(array $expected, array $actual) {
