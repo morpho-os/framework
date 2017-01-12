@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Inet;
+namespace Morpho\Inet\Mail;
 
 use Zend\Mail\Message;
 use Zend\Mail\Transport\Factory as TransportFactory;
