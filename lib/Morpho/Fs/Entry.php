@@ -5,7 +5,11 @@ use Symfony\Component\Finder\Finder;
 
 abstract class Entry {
     public static function modeString(string $path): string {
-        return substr(sprintf('%o', fileperms($path)), -4);
+        return sprintf('%o', self::mode($path));
+    }
+
+    public static function mode(string $path): int {
+        return fileperms($path) & 0x1FF;
     }
 
     public static function isEntry(string $path): bool {
