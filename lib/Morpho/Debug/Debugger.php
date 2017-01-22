@@ -139,7 +139,7 @@ class Debugger {
         echo $output;
     }
 
-    public function logToFile($filePath, ...$args) {
+    public function logToFile(string $filePath, ...$args) {
         $oldHtmlMode = $this->isHtmlMode;
         $this->isHtmlMode(false);
         $content = buffer(function () use ($args) {
@@ -153,11 +153,15 @@ class Debugger {
         return $result !== false;
     }
 
-    public function varToString($var, $fix = true): string {
+    public function varToString($var, bool $fixOutput = true): string {
         $output = trim(buffer(function () use ($var) {
-            var_dump($var);
+            if ($var instanceof \Generator) {
+                var_dump("\\Generator which yields the values: " . var_export(iterator_to_array($var, false), true));
+            } else {
+                var_dump($var);
+            }
         }));
-        if ($fix) {
+        if ($fixOutput) {
             $output = preg_replace('~\s*=>\s*~si', ' => ', $output);
         }
         return $this->formatLine($output);
@@ -172,7 +176,7 @@ class Debugger {
         return $this->formatLine("Debugger called at [{$frame['filePath']}:{$frame['line']}]");
     }
 
-    public function on($errorHandlerCallback = null, $errorLevel = null) {
+    public function on(callable $errorHandlerCallback = null, int $errorLevel = null) {
         throw new NotImplementedException();
         /*
         $this->oldDisplayErrors = ini_set('display_errors', 1);
@@ -211,10 +215,7 @@ class Debugger {
         */
     }
 
-    /**
-     * @param bool|null $flag
-     */
-    public function isHtmlMode($flag = null): bool {
+    public function isHtmlMode(bool $flag = null): bool {
         if (null !== $flag) {
             $this->isHtmlMode = $flag;
         } elseif (null === $this->isHtmlMode) {
@@ -235,7 +236,7 @@ class Debugger {
         return $this;
     }
 
-    final public static function getInstance() {
+    final public static function instance() {
         if (null === self::$instance) {
             self::$instance = self::$class ? new self::$class : new self();
         }

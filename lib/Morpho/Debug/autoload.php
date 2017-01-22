@@ -5,21 +5,17 @@ require_once __DIR__ . '/Trace.php';
 require_once __DIR__ . '/Frame.php';
 require_once __DIR__ . '/Debugger.php';
 
-/**
- * @param $args
- * @return void|Debugger
- */
 function d(...$args) {
-    $debugger = Debugger::getInstance();
+    $debugger = Debugger::instance();
     return count($args)
         ? $debugger->ignoreCaller(__FILE__, __LINE__)->dump(...$args)
         : $debugger;
 }
 
-function dd() {
-    exit(Debugger::getInstance()->ignoreCaller(__FILE__)->dump());
+function dd(): void {
+    Debugger::instance()->ignoreCaller(__FILE__)->dump();
 }
 
-function dt() {
-    exit(Debugger::getInstance()->ignoreCaller(__FILE__)->trace());
+function dt(): void {
+    Debugger::instance()->ignoreCaller(__FILE__)->trace();
 }
