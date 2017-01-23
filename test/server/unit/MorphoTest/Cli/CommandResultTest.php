@@ -5,7 +5,7 @@ use Morpho\Test\TestCase;
 use Morpho\Cli\CommandResult;
 
 class CommandResultTest extends TestCase {
-    public function testToLines_DefaultArgs() {
+    public function testLines_DefaultArgs() {
         $res = new CommandResult('foo', 0, <<<OUT
  First line
 
@@ -22,7 +22,7 @@ OUT
                 'Second line',
                 'Third line'
             ],
-            iterator_to_array($res->toLines())
+            iterator_to_array($res->lines())
         );
     }
 }

@@ -26,7 +26,7 @@ class CommandResult {
         return $this->exitCode;
     }
 
-    public function toLines(bool $noEmptyLines = true, bool $trimLines = true): iterable {
+    public function lines(bool $noEmptyLines = true, bool $trimLines = true): iterable {
         foreach (preg_split(EOL_REGEXP, $this->stdout, -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
             if ($trimLines) {
                 $line = trim($line);
