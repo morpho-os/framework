@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Morpho\Cli;
 
+use const Morpho\Base\EOL_REGEXP;
+
 class CommandResult {
     protected $exitCode, $stdout;
 
@@ -22,6 +24,18 @@ class CommandResult {
 
     public function exitCode(): int {
         return $this->exitCode;
+    }
+
+    public function toLines(bool $noEmptyLines = true, bool $trimLines = true): iterable {
+        foreach (preg_split(EOL_REGEXP, $this->stdout, -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
+            if ($trimLines) {
+                $line = trim($line);
+            }
+            if ($noEmptyLines && $line === '') {
+                continue;
+            }
+            yield $line;
+        }
     }
 
     public function __toString(): string {
