@@ -81,16 +81,34 @@ class FunctionsTest extends TestCase {
         $this->assertEquals("", normalizeEols(""));
     }
 
-    public function testWriteLnSingle() {
+    public function testWriteLn_SingleArg() {
         ob_start();
         writeLn("Printed");
         $this->assertEquals("Printed\n", ob_get_clean());
     }
 
-    public function testWriteLnMultiple() {
+    public function testWriteLn_MultipleArgs() {
         ob_start();
         writeLn("bee", "ant");
         $this->assertEquals("bee\nant\n", ob_get_clean());
+    }
+
+    public function testWriteLn_ClosureGeneratorArg() {
+        $gen = function () {
+            foreach (['foo', 'bar', 'baz'] as $v) {
+                yield $v;
+            }
+        };
+        ob_start();
+        writeLn($gen);
+        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
+    }
+
+    public function testWriteLn_IterableArg() {
+        $val = new \ArrayIterator(['foo', 'bar', 'baz']);
+        ob_start();
+        writeLn($val);
+        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
     }
 
     public function testShorten() {

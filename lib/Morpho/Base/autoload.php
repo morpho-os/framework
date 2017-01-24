@@ -71,7 +71,19 @@ function wrapWithQuotes($string): string {
 }
 
 function writeLn(...$messages) {
-    echo implode("\n", $messages) . "\n";
+    foreach ($messages as $message) {
+        if ($message instanceof \Closure) {
+            foreach ($message() as $msg) {
+                echo $msg . "\n";
+            }
+        } elseif (is_iterable($message)) {
+            foreach ($message as $msg) {
+                echo $msg . "\n";
+            }
+        } else {
+            echo $message . "\n";
+        }
+    }
 }
 
 function htmlId($id): string {
