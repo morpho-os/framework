@@ -243,6 +243,29 @@ class DirectoryTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
+    public function testPaths_SavesModifiedPathFromProcessorButUsesNotModifiedPathInTraversing() {
+        $testDirPath = $this->getTestDirPath();
+        $processor = function (&$path) {
+            static $i;
+            $path = $path . 'foo' . ++$i;
+            return $path;
+        };
+        $paths = iterator_to_array(Directory::paths($testDirPath, $processor), false);
+        sort($paths);
+        $expected = [
+            $testDirPath . '/1.txt',
+            $testDirPath . '/2',
+            $testDirPath . '/2/3.php',
+            $testDirPath . '/4',
+            $testDirPath . '/4/5',
+            $testDirPath . '/4/5/6.php',
+        ];
+        $this->assertCount(count($expected), $paths);
+        foreach ($expected as $path) {
+            $this->assertCount(1, preg_grep('~^' . preg_quote($path, '~') . 'foo[1-6]$~si', $paths));
+        }
+    }
+
     public function testDirPaths_WithRegExpAndWithNotRecursiveOption() {
         $testDirPath = $this->getTestDirPath();
         $actual = iterator_to_array(Directory::dirPaths($testDirPath, "~.*/[^4]$~si", ['recursive' => false]), false);
