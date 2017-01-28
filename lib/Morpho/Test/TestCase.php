@@ -56,7 +56,10 @@ abstract class TestCase extends BaseTestCase {
         }
     }
     */
-    
+
+    /**
+     * Note: we can't name this method testDirPath() as it will be considered as test method by PHPUnit.
+     */
     protected function getTestDirPath(): string {
         $classFilePath = $this->classFilePath();
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);

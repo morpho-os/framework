@@ -375,15 +375,15 @@ function normalizeEols(string $s): string {
 /**
  * @param mixed $data
  */
-function encodeJson($data): string {
-    return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+function toJson($data, $options = null): string {
+    return json_encode($data, $options ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**
  * @return mixed
  */
-function decodeJson(string $json) {
-    return json_decode($json, true);
+function fromJson(string $json, bool $objectsToArrays = true) {
+    return json_decode($json, $objectsToArrays);
 }
 
 function endsWith($string, $suffix): bool {

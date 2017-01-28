@@ -6,7 +6,7 @@ namespace Morpho\Fs;
 use Morpho\Base\ArrayTool;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\{
-    decodeJson, encodeJson
+    fromJson, toJson
 };
 use Morpho\Code\CodeTool;
 
@@ -89,14 +89,14 @@ class File extends Entry {
      * @return mixed Returns decoded json file's content.
      */
     public static function readJson(string $filePath) {
-        return decodeJson(self::read($filePath));
+        return fromJson(self::read($filePath));
     }
 
     /**
      * Writes json to the file and returns the file path.
      */
     public static function writeJson(string $filePath, $json): string {
-        return self::write($filePath, encodeJson($json));
+        return self::write($filePath, toJson($json));
     }
 
     public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): \Generator {

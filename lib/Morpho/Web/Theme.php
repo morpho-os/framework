@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Morpho\Web;
 
 use function Morpho\Base\{
-    dasherize, encodeJson
+    dasherize, toJson
 };
 use Morpho\Core\Module;
 use Morpho\Fs\Path;
@@ -63,7 +63,7 @@ class Theme extends Module {
         $request = $this->serviceManager->get('request');
 
         if ($request->isAjax()) {
-            return encodeJson($vars);
+            return toJson($vars);
         }
 
         if (!$this->isThemeDirAdded) {
@@ -119,7 +119,7 @@ class Theme extends Module {
                     if ($response->isContentEmpty()) {
                         $locationHeader = $response->getHeaders()->get('Location');
                         $notEncodedContent = ['success' => ['redirect' => $locationHeader->getUri()]];
-                        $response->setContent(encodeJson($notEncodedContent))
+                        $response->setContent(toJson($notEncodedContent))
                             ->setStatusCode(Response::STATUS_CODE_200)
                             ->getHeaders()->removeHeader($locationHeader);
                     }

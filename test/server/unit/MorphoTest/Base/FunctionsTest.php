@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    partial, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prepend, append
+    fromJson, partial, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prepend, append
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -74,6 +74,19 @@ class FunctionsTest extends TestCase {
      */
     public function testTypeOf($expected, $actual) {
         $this->assertEquals($expected, typeOf($actual));
+    }
+
+    public function testToAndFromJson() {
+        $v = ['foo' => 'bar', 1 => new class {
+            public $t = 123;
+        }];
+        $json = toJson($v);
+        $this->assertInternalType('string', $json);
+        $this->assertNotEmpty($json);
+        $v1 = fromJson($json);
+        $this->assertCount(count($v), $v1);
+        $this->assertEquals($v['foo'], $v1['foo']);
+        $this->assertEquals((array) $v[1], $v1[1]);
     }
 
     public function testNormalizeEols() {

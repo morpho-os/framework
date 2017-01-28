@@ -1,7 +1,7 @@
 <?php
 namespace MorphoTest\Core;
 
-use function Morpho\Base\decodeJson;
+use function Morpho\Base\fromJson;
 use Morpho\Base\Node;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
@@ -53,7 +53,7 @@ class ThemeTest extends TestCase {
         $theme->afterDispatch($event);
 
         $this->assertTrue($theme->isLayoutRendered());
-        $this->assertEquals(['success' => ['redirect' => $redirectUri]], decodeJson($response->getContent()));
+        $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->getContent()));
         $this->assertEquals('application/json', $response->getHeaders()->get('Content-Type')->getFieldValue());
     }
 
@@ -69,7 +69,7 @@ class ThemeTest extends TestCase {
 
         $rendered = $theme->render($event);
 
-        $this->assertEquals($viewVars, decodeJson($rendered));
+        $this->assertEquals($viewVars, fromJson($rendered));
     }
 
     public function testRender_NonAjax() {
