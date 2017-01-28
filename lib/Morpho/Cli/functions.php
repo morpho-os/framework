@@ -13,28 +13,28 @@ const STD_PIPES = [
 ];
 
 use Morpho\Base\ArrayTool;
-use function Morpho\Base\writeLn;
+use function Morpho\Base\showLn;
 use Morpho\Base\NotImplementedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
 
-function writeOk() {
-    writeLn("OK");
+function showOk() {
+    showLn("OK");
 }
 
 function error(string $errMessage = null) {
     if ($errMessage) {
-        writeError($errMessage);
+        showError($errMessage);
     }
     exit(Environment::FAILURE_CODE);
 }
 
-function writeError(string $errMessage) {
+function showError(string $errMessage) {
     fwrite(STDERR, $errMessage);
 }
 
-function writeErrorLn(string $errMessage) {
-    writeError($errMessage . "\n");
+function showErrorLn(string $errMessage) {
+    showError($errMessage . "\n");
 }
 
 function stylize(string $text, $codes): string {
@@ -125,13 +125,13 @@ function askYesNo(string $question): bool {
         } elseif ($answer === 'n') {
             return false;
         } else {
-            writeLn("Invalid choice, please type y or n");
+            showLn("Invalid choice, please type y or n");
         }
     } while (true);
 }
 
 function download(string $uri, string $outFilePath = null): string {
-    // @TODO: use curl or wget
+    // @TODO: use curl, wget or fetch, see the `man parallel`
     throw new NotImplementedException();
     return $outFilePath;
 }

@@ -4,21 +4,21 @@ namespace MorphoTest\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    cmd, escapeArg, escapeArgs, writeOk, stylize
+    cmd, escapeArg, escapeArgs, showOk, stylize
 };
 use Morpho\Test\TestCase;
 
 class FunctionsTest extends TestCase {
-    public function testWriteOk() {
+    public function testShowOk() {
         ob_start();
-        writeOk();
+        showOk();
         $this->assertEquals("OK\n", ob_get_clean());
     }
 
     public function dataForWriteErrorAndWriteErrorLn() {
         return [
-            ['writeError', 'Something went wrong', 'Something went wrong'],
-            ['writeErrorLn', "Space cow has arrived!\n", 'Space cow has arrived!'],
+            ['showError', 'Something went wrong', 'Something went wrong'],
+            ['showErrorLn', "Space cow has arrived!\n", 'Space cow has arrived!'],
         ];
     }
 

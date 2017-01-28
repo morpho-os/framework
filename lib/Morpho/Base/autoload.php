@@ -65,7 +65,7 @@ function wrapWithQuotes($string): string {
     return "'$string'";
 }
 
-function writeLn(...$messages) {
+function showLn(...$messages) {
     if (!count($messages)) {
         echo "\n";
     } else {

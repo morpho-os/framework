@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    appendFn, fromJson, map, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
+    appendFn, fromJson, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -95,39 +95,39 @@ class FunctionsTest extends TestCase {
         $this->assertEquals("", normalizeEols(""));
     }
 
-    public function testWriteLn_NoArgsWritesSingleLine() {
+    public function testShowLn_NoArgsWritesSingleLine() {
         ob_start();
-        writeLn();
+        showLn();
         $this->assertEquals("\n", ob_get_clean());
     }
 
-    public function testWriteLn_SingleArg() {
+    public function testShowLn_SingleArg() {
         ob_start();
-        writeLn("Printed");
+        showLn("Printed");
         $this->assertEquals("Printed\n", ob_get_clean());
     }
 
-    public function testWriteLn_MultipleArgs() {
+    public function testShowLn_MultipleArgs() {
         ob_start();
-        writeLn("bee", "ant");
+        showLn("bee", "ant");
         $this->assertEquals("bee\nant\n", ob_get_clean());
     }
 
-    public function testWriteLn_ClosureGeneratorArg() {
+    public function testShowLn_ClosureGeneratorArg() {
         $gen = function () {
             foreach (['foo', 'bar', 'baz'] as $v) {
                 yield $v;
             }
         };
         ob_start();
-        writeLn($gen);
+        showLn($gen);
         $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
     }
 
-    public function testWriteLn_IterableArg() {
+    public function testShowLn_IterableArg() {
         $val = new \ArrayIterator(['foo', 'bar', 'baz']);
         ob_start();
-        writeLn($val);
+        showLn($val);
         $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
     }
 
