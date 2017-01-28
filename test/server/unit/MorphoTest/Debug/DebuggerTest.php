@@ -7,7 +7,7 @@ use Morpho\Base\Environment;
 
 class DebuggerTest extends TestCase {
     public function setUp() {
-        $this->debugger = Debugger::getInstance();
+        $this->debugger = Debugger::instance();
     }
 
     public function testVarToString() {
