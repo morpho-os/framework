@@ -332,12 +332,13 @@ class Directory extends Entry {
         return $dirPath;
     }
 
-    public static function mustExist(string $dirPath)/*: void*/ {
+    public static function mustExist(string $dirPath): string {
         if (empty($dirPath)) {
             throw new Exception("The directory path is empty");
         }
         if (!is_dir($dirPath)) {
             throw new Exception("The '$dirPath' directory does not exist");
         }
+        return $dirPath;
     }
 }

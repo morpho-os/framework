@@ -9,6 +9,11 @@ class DirectoryTest extends TestCase {
     public function testDeleteEmptyDirs() {
         $this->markTestIncomplete();
     }
+
+    public function testMustExist_ReturnsArg() {
+        $dirPath = __DIR__;
+        $this->assertEquals($dirPath, Directory::mustExist($dirPath));
+    }
     
     public function testIsEmptyDir() {
         $this->assertFalse(Directory::isEmpty($this->getTestDirPath()));
