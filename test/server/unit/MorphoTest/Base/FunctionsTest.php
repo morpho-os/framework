@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    fromJson, partial, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf, prepend, append
+    appendFn, fromJson, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -276,25 +276,25 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo-bar-1', htmlId('FooBar'));
     }
 
-    public function testPrepend() {
-        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prepend('prefix'), ['foo', 'bar', 'baz']));
+    public function testPrependFn() {
+        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prependFn('prefix'), ['foo', 'bar', 'baz']));
     }
 
-    public function testAppend() {
-        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(append('suffix'), ['foo', 'bar', 'baz']));
+    public function testAppendFn() {
+        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(appendFn('suffix'), ['foo', 'bar', 'baz']));
     }
 
-    public function testPartial() {
+    public function testPartialFn() {
         $add = function ($a, $b) {
             return $a + $b;
         };
-        $add2 = partial($add, '2');
+        $add2 = partialFn($add, '2');
         $this->assertEquals(5, $add2(3));
 
         $concatenate = function ($a, $b, $c, $d, $e, $f) {
             return $a . $b . $c . $d . $e . $f;
         };
-        $appendPrefix = partial($concatenate, 'foo', 'bar', 'baz');
+        $appendPrefix = partialFn($concatenate, 'foo', 'bar', 'baz');
         $this->assertEquals('foobarbazHelloWorld!', $appendPrefix('Hello', 'World', '!'));
     }
 
