@@ -1,17 +1,14 @@
 <?php
 namespace MorphoTest\Base;
 
+use Generator;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    appendFn, fromJson, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
+    appendFn, fromJson, map, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
 class FunctionsTest extends TestCase {
-    public function setUp() {
-        //resetState();
-    }
-
     public function tearDown() {
         if (isset($this->tmpHandle)) {
             fclose($this->tmpHandle);
@@ -92,6 +89,12 @@ class FunctionsTest extends TestCase {
     public function testNormalizeEols() {
         $this->assertEquals("foo\nbar\nbaz\n", normalizeEols("foo\r\nbar\rbaz\r\n"));
         $this->assertEquals("", normalizeEols(""));
+    }
+
+    public function testWriteLn_NoArgsWritesSingleLine() {
+        ob_start();
+        writeLn();
+        $this->assertEquals("\n", ob_get_clean());
     }
 
     public function testWriteLn_SingleArg() {
@@ -302,9 +305,15 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    protected function assertCommon($fn) {
+    private function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
         $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
+    }
+
+    private function mapFn() {
+        return function ($v) {
+            return 'abc' . $v;
+        };
     }
 }

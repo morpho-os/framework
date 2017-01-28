@@ -51,8 +51,8 @@ function any(callable $predicate, $arr): bool {
 /**
  * Array filter with changed/fixed order of arguments.
  */
-function filter(callable $filter, array $arr, bool $resetKeys = true, int $flags = 0): array {
-    $arr = array_filter($arr, $filter, $flags);
+function filter(callable $fn, array $arr, bool $resetKeys = true, int $flags = 0): array {
+    $arr = array_filter($arr, $fn, $flags);
     return $resetKeys ? array_values($arr) : $arr;
 }
 
@@ -72,17 +72,21 @@ function wrapWithQuotes($string): string {
 }
 
 function writeLn(...$messages) {
-    foreach ($messages as $message) {
-        if ($message instanceof \Closure) {
-            foreach ($message() as $msg) {
-                echo $msg . "\n";
+    if (!count($messages)) {
+        echo "\n";
+    } else {
+        foreach ($messages as $message) {
+            if ($message instanceof \Closure) {
+                foreach ($message() as $msg) {
+                    echo $msg . "\n";
+                }
+            } elseif (is_iterable($message)) {
+                foreach ($message as $msg) {
+                    echo $msg . "\n";
+                }
+            } else {
+                echo $message . "\n";
             }
-        } elseif (is_iterable($message)) {
-            foreach ($message as $msg) {
-                echo $msg . "\n";
-            }
-        } else {
-            echo $message . "\n";
         }
     }
 }
