@@ -1,7 +1,6 @@
 <?php
 namespace MorphoTest\Base;
 
-use Generator;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
     appendFn, fromJson, map, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, writeLn, normalizeEols, typeOf
@@ -84,6 +83,11 @@ class FunctionsTest extends TestCase {
         $this->assertCount(count($v), $v1);
         $this->assertEquals($v['foo'], $v1['foo']);
         $this->assertEquals((array) $v[1], $v1[1]);
+    }
+
+    public function testFromJson_InvalidJsonThrowsException() {
+        $this->expectException(\RuntimeException::class, "Invalid JSON or too deep data");
+        fromJson('S => {');
     }
 
     public function testNormalizeEols() {

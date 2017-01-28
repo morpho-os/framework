@@ -24,11 +24,8 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-/**
- * @param \Traversable|array $arr
- */
-function all(callable $predicate, $arr): bool {
-    foreach ($arr as $key => $value) {
+function all(callable $predicate, iterable $it): bool {
+    foreach ($it as $key => $value) {
         if (!$predicate($value, $key)) {
             return false;
         }
@@ -36,11 +33,8 @@ function all(callable $predicate, $arr): bool {
     return true;
 }
 
-/**
- * @param \Traversable|array $arr
- */
-function any(callable $predicate, $arr): bool {
-    foreach ($arr as $key => $value) {
+function any(callable $predicate, iterable $it): bool {
+    foreach ($it as $key => $value) {
         if ($predicate($value, $key)) {
             return true;
         }
@@ -388,7 +382,11 @@ function toJson($data, $options = null): string {
  * @return mixed
  */
 function fromJson(string $json, bool $objectsToArrays = true) {
-    return json_decode($json, $objectsToArrays);
+    $res = json_decode($json, $objectsToArrays);
+    if (null === $res) {
+        throw new \RuntimeException("Invalid JSON or too deep data");
+    }
+    return $res;
 }
 
 function endsWith($string, $suffix): bool {
