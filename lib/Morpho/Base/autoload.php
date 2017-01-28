@@ -13,6 +13,7 @@ const RESOURCE_TYPE = 'resource';
 
 const TRIM_CHARS = " \t\n\r\x00\x0B";
 const EOL_REGEXP = '~(?>\r\n|\n|\r)~s';
+const INDENT = '    ';
 
 const SHORTEN_TAIL = '...';
 const SHORTEN_LENGTH = 30;
