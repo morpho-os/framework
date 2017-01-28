@@ -441,19 +441,19 @@ function buffer(callable $fn): string {
     return ob_get_clean();
 }
 
-function prepend(string $prefix): \Closure {
+function prependFn(string $prefix): \Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;
     };
 }
 
-function append(string $suffix): \Closure {
+function appendFn(string $suffix): \Closure {
     return function (string $s) use ($suffix) {
         return $s . $suffix;
     };
 }
 
-function partial(callable $fn, ...$args1): \Closure {
+function partialFn(callable $fn, ...$args1): \Closure {
     return function (...$args2) use ($fn, $args1) {
         return $fn(...array_merge($args1, $args2));
     };
