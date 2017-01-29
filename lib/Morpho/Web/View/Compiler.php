@@ -27,17 +27,20 @@ class Compiler extends BaseFilter {
         return $this->appendSourceInfo;
     }
 
-    public function filter($code) {
+    public function filter($code, bool $print = true) {
         $parser = new Parser(new Lexer());
-        $nodes = $parser->parse($code);
+        $ast = $parser->parse($code);
 
         $traverser = new NodeTraverser();
         $traverser->addVisitor(
-            new Processor($this->filePath, $parser, $this->appendSourceInfo)
+            new Processor($this->filePath, $this, $this->appendSourceInfo)
         );
-        $nodes = $traverser->traverse($nodes);
+        $modified = $traverser->traverse($ast);
 
-        $prettyPrinter = new PrettyPrinter();
-        return $prettyPrinter->prettyPrintFile($nodes);
+        if (!$print) {
+            return $modified;
+        }
+
+        return (new PrettyPrinter())->prettyPrintFile($modified);
     }
 }
