@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Di;
 
-trait THasServiceManager {
+trait TWithServiceManager {
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager) {
