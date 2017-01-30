@@ -23,7 +23,7 @@ class TestSuite extends \Morpho\Test\TestSuite {
                 $baseName = basename($path);
                 return $baseName !== VENDOR_DIR_NAME && $baseName !== LIB_DIR_NAME;
             }
-            return preg_match('~/' . TEST_DIR_NAME . '/.+Test\.php$~s', $path);
+            return (bool) preg_match('~/' . TEST_DIR_NAME . '/.+Test\.php$~s', $path);
         };
         return iterator_to_array(Directory::filePaths(MODULE_DIR_PATH, $filter, ['recursive' => true]), false);
     }

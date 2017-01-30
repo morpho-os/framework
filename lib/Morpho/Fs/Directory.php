@@ -102,8 +102,13 @@ class Directory extends Entry {
                 $path = str_replace('\\', '/', $item->getPathname());
                 $isDir = $item->isDir();
 
-                if (null !== $processor && !$processor($path, $isDir)) {
-                    continue;
+                if (null !== $processor) {
+                    $modifiedPath = $processor($path, $isDir);
+                    if (false === $modifiedPath) {
+                        continue;
+                    } elseif (true !== $modifiedPath && null !== $modifiedPath) {
+                        $path = $modifiedPath;
+                    }
                 }
 
                 if ($isDir) {
@@ -138,7 +143,7 @@ class Directory extends Entry {
         if (is_string($processor)) {
             $regexp = $processor;
             $processor = function ($path) use ($regexp) {
-                return preg_match($regexp, $path);
+                return (bool) preg_match($regexp, $path);
             };
         }
         return self::paths($dirPath, $processor, $options);

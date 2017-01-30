@@ -253,7 +253,7 @@ class DirectoryTest extends TestCase {
         $processor = function (&$path) {
             static $i;
             $path = $path . 'foo' . ++$i;
-            return $path;
+            return true;
         };
         $paths = iterator_to_array(Directory::paths($testDirPath, $processor), false);
         sort($paths);
@@ -269,6 +269,24 @@ class DirectoryTest extends TestCase {
         foreach ($expected as $path) {
             $this->assertCount(1, preg_grep('~^' . preg_quote($path, '~') . 'foo[1-6]$~si', $paths));
         }
+    }
+
+    public function testPaths_YieldsReturnedPathsFromProcessor() {
+        $testDirPath = $this->getTestDirPath();
+        $processor = function ($path) {
+            return basename($path);
+        };
+        $paths = iterator_to_array(Directory::paths($testDirPath, $processor), false);
+        sort($paths);
+        $expected = [
+            '1.txt',
+            '2',
+            '3.php',
+            '4',
+            '5',
+            '6.php',
+        ];
+        $this->assertEquals($expected, $paths);
     }
 
     public function testDirPaths_WithRegExpAndWithNotRecursiveOption() {
