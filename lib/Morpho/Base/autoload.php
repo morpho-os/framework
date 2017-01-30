@@ -402,10 +402,8 @@ function typeOf($val): string {
     if (is_object($val)) {
         return get_class($val);
     }
-    return resolveTypeSynonym(gettype($val));
-}
-
-function resolveTypeSynonym(string $type): string {
+    $type = gettype($val);
+    // @TODO: add void, iterable, callable??
     switch (strtolower($type)) {
         case 'int':
         case 'integer':
@@ -421,7 +419,6 @@ function resolveTypeSynonym(string $type): string {
             return STRING_TYPE;
         case 'null':
             return NULL_TYPE;
-        // @TODO: void type
         case 'array':
             return ARRAY_TYPE;
         case 'resource':
