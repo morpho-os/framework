@@ -5,7 +5,6 @@ use Morpho\Code\ClassTypeDiscoverer\IDiscoverStrategy;
 use Morpho\Code\ClassTypeDiscoverer\TokenStrategy;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
-use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser\Php7 as Parser;
