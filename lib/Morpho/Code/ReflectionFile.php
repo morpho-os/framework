@@ -46,7 +46,6 @@ class ReflectionFile {
             if ($this->isClassType($node)) {
                 yield $node->namespacedName->toString();
             }
-
         }
     }
 

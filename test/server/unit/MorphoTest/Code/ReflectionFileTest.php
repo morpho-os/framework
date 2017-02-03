@@ -4,7 +4,7 @@ namespace MorphoTest\Code;
 use Morpho\Code\ReflectionFile;
 use Morpho\Code\ReflectionNamespace;
 use Morpho\Test\TestCase;
-use ReflectionClass;
+use Morpho\Code\ReflectionClass;
 use ReflectionFunction;
 
 class ReflectionFileTest extends TestCase {

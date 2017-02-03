@@ -2,7 +2,6 @@
 namespace Morpho\Code;
 
 use ReflectionFunction;
-use ReflectionClass;
 
 class ReflectionNamespace {
     private $name;
