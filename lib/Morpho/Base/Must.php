@@ -2,10 +2,30 @@
 namespace Morpho\Base;
 
 class Must {
-    public static function beNotEmpty(...$value)/*: void */ {
-        foreach ($value as $v) {
-            self::beTrue(!empty($v), 'The value is not empty');
+    /**
+     * @return mixed
+     */
+    public static function beNotEmpty(...$args) {
+        if (!count($args)) {
+            throw new \InvalidArgumentException("Empty arguments");
         }
+        foreach ($args as $v) {
+            self::beTrue(!empty($v), 'The value must be non empty');
+        }
+        return count($args) == 1 ? $args[0] : $args;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function beEmpty(...$args) {
+        if (!count($args)) {
+            throw new \InvalidArgumentException("Empty arguments");
+        }
+        foreach ($args as $v) {
+            self::beTrue(empty($v), 'The value must be empty');
+        }
+        return count($args) == 1 ? $args[0] : $args;
     }
 
     public static function beOneOf($needle, array $haystack)/*: void */ {
@@ -40,10 +60,10 @@ class Must {
         self::beTrue($value !== null);
     }
 
-    public static function beTrue($result, string $message = null)/*: void */ {
+    public static function beTrue($result, string $errMessage = null)/*: void */ {
         $result = (bool)$result;
         if ($result === false) {
-            throw new \RuntimeException($message);
+            throw new \RuntimeException($errMessage);
         }
     }
 }

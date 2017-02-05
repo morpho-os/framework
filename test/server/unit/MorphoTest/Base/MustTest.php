@@ -5,6 +5,80 @@ use Morpho\Test\TestCase;
 use Morpho\Base\Must;
 
 class MustTest extends TestCase {
+    public function testBeEmpty_SingleArg_ThrowsExceptionOnNonEmptyValue() {
+        $this->expectException(\RuntimeException::class, "The value must be empty");
+        Must::beEmpty('abc');
+    }
+
+    public function testBeEmpty_MultipleArgs_ThrowsExceptionOnNonEmptyValue() {
+        $this->expectException(\RuntimeException::class, "The value must be empty");
+        Must::beEmpty("", "abc");
+    }
+
+    public function testBeEmpty_ReturnsEmptyValues() {
+        $v = ['', null, 0, false];
+        $this->assertSame($v, Must::beEmpty(...$v));
+
+        $v = '';
+        $this->assertSame($v, Must::beEmpty($v));
+
+        $v = null;
+        $this->assertSame($v, Must::beEmpty($v));
+
+        $v = 0;
+        $this->assertSame($v, Must::beEmpty($v));
+
+        $v = false;
+        $this->assertSame($v, Must::beEmpty($v));
+
+        $v = [];
+        $this->assertSame($v, Must::beEmpty($v));
+
+        $v = 0.0;
+        $this->assertSame($v, Must::beEmpty($v));
+    }
+
+    public function testBeEmpty_ThrowsExceptionOnEmptyArgs() {
+        $this->expectException(\InvalidArgumentException::class, "Empty arguments");
+        Must::beEmpty();
+    }
+
+    public function dataForBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue() {
+        return [
+            [
+                '',
+                false,
+                null,
+                0,
+                0.0,
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue
+     */
+    public function testBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue($v) {
+        $this->expectException(\RuntimeException::class, "The value must be non empty");
+        Must::beNotEmpty($v);
+    }
+
+    public function testBeNotEmpty_MultipleArgs_ThrowsExceptionOnEmptyValue() {
+        $this->expectException(\RuntimeException::class, "The value must be non empty");
+        Must::beNotEmpty("abc", "");
+    }
+
+    public function testBeNotEmpty_ReturnsEmptyValues() {
+        $v = ['foo', 123, 3.14, ["Hello"]];
+        $this->assertSame($v, Must::beNotEmpty(...$v));
+    }
+
+    public function testBeNotEmpty_ThrowsExceptionOnEmptyArgs() {
+        $this->expectException(\InvalidArgumentException::class, "Empty arguments");
+        Must::beNotEmpty();
+    }
+
     public function dataForHasKeys_Invalid() {
         return [
             [
