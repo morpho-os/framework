@@ -69,9 +69,14 @@ class MustTest extends TestCase {
         Must::beNotEmpty("abc", "");
     }
 
-    public function testBeNotEmpty_ReturnsEmptyValues() {
+    public function testBeNotEmpty_ReturnsValues() {
         $v = ['foo', 123, 3.14, ["Hello"]];
         $this->assertSame($v, Must::beNotEmpty(...$v));
+        $this->assertSame($v, Must::beNotEmpty($v));
+
+
+        $v = 'abc';
+        $this->assertSame($v, Must::beNotEmpty($v));
     }
 
     public function testBeNotEmpty_ThrowsExceptionOnEmptyArgs() {
@@ -143,7 +148,6 @@ class MustTest extends TestCase {
             ],
         ];
     }
-
 
     /**
      * @dataProvider dataForHasOnlyKeys_Invalid

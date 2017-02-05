@@ -6,26 +6,28 @@ class Must {
      * @return mixed
      */
     public static function beNotEmpty(...$args) {
-        if (!count($args)) {
+        $n = count($args);
+        if (!$n) {
             throw new \InvalidArgumentException("Empty arguments");
         }
         foreach ($args as $v) {
             self::beTrue(!empty($v), 'The value must be non empty');
         }
-        return count($args) == 1 ? $args[0] : $args;
+        return $n == 1 ? $args[0] : $args;
     }
 
     /**
      * @return mixed
      */
     public static function beEmpty(...$args) {
-        if (!count($args)) {
+        $n = count($args);
+        if (!$n) {
             throw new \InvalidArgumentException("Empty arguments");
         }
         foreach ($args as $v) {
             self::beTrue(empty($v), 'The value must be empty');
         }
-        return count($args) == 1 ? $args[0] : $args;
+        return $n == 1 ? $args[0] : $args;
     }
 
     public static function beOneOf($needle, array $haystack)/*: void */ {
