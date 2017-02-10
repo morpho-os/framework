@@ -86,12 +86,14 @@ abstract class Environment extends Object {
         ini_set('assert.exception', 1);
     }
 
-    protected function _init()/*: void */ {
+    protected function _init(): void {
         error_reporting(E_ALL | E_STRICT);
         ini_set('display_errors', 0);
         ini_set('date.timezone', self::TIMEZONE);
         ini_set('default_charset', self::ENCODING);
-        // @TODO: Ensure that we need do this.
-        umask(0);
+        // Set permissions:
+        //     rwxr-x--- (750) - directories
+        //     rw-r----- (640) - files
+        umask(027);
     }
 }
