@@ -68,7 +68,7 @@ abstract class Environment extends Object {
         return in_array(strtolower($value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
-    public function init()/*: void */ {
+    public function init(): void {
         if (static::$initialized) {
             throw new \RuntimeException("The environment was already initialized.");
         }
@@ -79,7 +79,7 @@ abstract class Environment extends Object {
         static::$initialized = true;
     }
 
-    public static function enableExpectations() {
+    public static function enableExpectations(): void {
         // http://php.net/assert#function.assert.expectations
         Must::beTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini option must be set to 1 for expectations");
         ini_set('assert.active', 1);
