@@ -118,6 +118,7 @@ abstract class TestCase extends BaseTestCase {
 
     protected function markTestAsNotRisky() {
         $this->addToAssertionCount(1);
+        // $this->assertTrue(true) may work too.
     }
 
     protected function windowsSys(): bool {

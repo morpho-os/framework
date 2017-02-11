@@ -3,10 +3,14 @@ namespace MorphoTest\Error;
 
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\HandlerManager;
+use Morpho\Error\NoticeException;
+use RuntimeException;
 
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
 class ErrorHandlerTest extends BaseErrorHandlerTest {
+    private $oldErrorLevel;
+
     public function setUp() {
         parent::setUp();
         $this->oldErrorLevel = ini_get('display_errors');
@@ -17,18 +21,35 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         ini_set('display_errors', $this->oldErrorLevel);
     }
 
+    public function testCheckError_ThrowsErrorExceptionWhenErrorGetLastIsSet() {
+        @$undefVar;
+        $this->expectException(NoticeException::class, 'Undefined variable: undefVar');
+        ErrorHandler::checkError(false, "Op failed");
+    }
+    
+    public function testCheckError_ThrowsRuntimeExceptionWhenErrorGetLastIsNotSet() {
+        $msg = 'Op failed';
+        $this->expectException(RuntimeException::class, $msg);
+        ErrorHandler::checkError(false, $msg);
+    }
+
+    public function testCheckError_DoesNotThrowExceptionWhenPredIsTrueAndNoError() {
+        ErrorHandler::checkError(true); // this call should not throw an exception
+        $this->markTestAsNotRisky();
+    }
+
     public function testGetHashId_TheSameFileDifferentLines() {
         try {
-            throw new \RuntimeException();
-        } catch (\RuntimeException $e1) {
+            throw new RuntimeException();
+        } catch (RuntimeException $e1) {
 
         }
         $hashId1 = ErrorHandler::getHashId($e1);
         $this->assertNotEmpty($hashId1);
         $this->assertEquals($hashId1, ErrorHandler::getHashId($e1));
         try {
-            throw new \RuntimeException();
-        } catch (\RuntimeException $e2) {
+            throw new RuntimeException();
+        } catch (RuntimeException $e2) {
 
         }
         $hashId2 = ErrorHandler::getHashId($e2);

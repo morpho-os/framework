@@ -6,6 +6,8 @@ namespace Morpho\Fs;
 use Morpho\Base\NotImplementedException;
 use Morpho\Base\ArrayTool;
 use DirectoryIterator;
+use Morpho\Error\ErrorHandler;
+use PhpParser\Error;
 
 class Directory extends Entry {
     const FILE = 0x01;
@@ -242,25 +244,12 @@ class Directory extends Entry {
             if (is_dir($filePath)) {
                 self::delete($filePath);
             } else {
-                if (false === @unlink($filePath)) {
-                    $message = "The file '$filePath' can not be deleted";
-                    $error = error_get_last();
-                    error_clear_last();
-                    if (preg_match('~unlink\(.*\): Permission denied~s', $error['message'])) {
-                        $message .= ': permission denied.';
-                    } else {
-                        $message .= '.';
-                    }
-                    throw new Exception($message);
-                }
+                ErrorHandler::checkError(@unlink($filePath), "The file '$filePath' can not be deleted, check permissions");
             }
         }
         $d->close();
         if ($deleteSelf) {
-            $success = @rmdir($absFilePath);
-            if (!$success) {
-                throw new Exception("Unable to delete the directory '$absFilePath': permission denied.");
-            }
+            ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': permission denied");
         }
     }
 
@@ -318,21 +307,7 @@ class Directory extends Entry {
             return $dirPath;
         }
 
-        $oldUmask = umask(0);
-
-        if (!@mkdir($dirPath, $mode, $recursive)) {
-            umask($oldUmask);
-            $error = error_get_last();
-            error_clear_last();
-            $message = "Unable to create the directory '$dirPath' with mode: $mode.";
-            if (null !== $error) {
-                throw new Exception($message . ' ' . $error['message']);
-            } else {
-                throw new Exception($message);
-            }
-        }
-
-        umask($oldUmask);
+        ErrorHandler::checkError(@mkdir($dirPath, $mode, $recursive), "Unable to create the directory '$dirPath' with mode: $mode");
 
         return $dirPath;
     }

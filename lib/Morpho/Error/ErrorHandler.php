@@ -92,6 +92,18 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return $this->exitOnFatalError;
     }
 
+    public static function checkError(bool $pred, string $msg = null) {
+        if (!$pred) {
+            $error = error_get_last();
+            if ($error) {
+                error_clear_last();
+                throw self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null);
+            } else {
+                throw new \RuntimeException($msg);
+            }
+        }
+    }
+
     public static function errorToException($severity, $message, $filePath, $lineNo, $context): \ErrorException {
         $class = self::getExceptionClass($severity);
         return new $class($message, 0, $severity, $filePath, $lineNo);
