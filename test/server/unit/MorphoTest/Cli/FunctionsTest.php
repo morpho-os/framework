@@ -75,7 +75,7 @@ OUT
     }
 
     public function testCmd_CommandAsString() {
-        $result = cmd('ls '  . escapeshellarg(__DIR__));
+        $result = cmd('ls '  . escapeshellarg(__DIR__), ['buffer' => true]);
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
         $this->assertContains(basename(__FILE__), (string)$result);
@@ -85,7 +85,6 @@ OUT
         $exitCode = 134;
         $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
         cmd('php -r "exit(' . $exitCode . ');"');
-
     }
 
     public function testCmdSu() {

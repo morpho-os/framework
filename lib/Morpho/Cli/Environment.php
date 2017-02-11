@@ -7,7 +7,7 @@ class Environment extends BaseEnvironment {
     const SUCCESS_CODE = 0;
     const FAILURE_CODE = 1;
 
-    protected function _init() {
+    protected function _init(): void {
         parent::_init();
         $_SERVER += [
             'HTTP_HOST'       => 'localhost',

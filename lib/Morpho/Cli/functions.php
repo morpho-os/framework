@@ -88,20 +88,33 @@ function cmd($command, array $options = null): CommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
         'checkExitCode' => true,
         'shell' => true,
+        'buffer' => false,
+        // @TODO: tee: buffer and display output
     ]);
     if (PHP_SAPI !== 'cli') {
         throw new NotImplementedException();
     }
 
+    $output = null;
     $exitCode = 1;
     if ($options['shell']) {
-        $output = \Morpho\Base\buffer(function () use ($command, &$exitCode) {
+        if (!$options['buffer']) {
+            // @TODO: How to return $output?
             passthru($command, $exitCode);
-        });
+        } else {
+            $output = \Morpho\Base\buffer(function () use ($command, &$exitCode) {
+                passthru($command, $exitCode);
+            });
+        }
     } else {
         $process = new Process($command);
         $process->run();
+//        $process->setTimeout(null);
         $exitCode = $process->getExitCode();
+
+        throw new NotImplementedException();
+
+        // @TODO: handle $options['buffer'] and handler $output.
         $output = $process->getOutput();
     }
 

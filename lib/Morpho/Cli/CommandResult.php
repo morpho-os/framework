@@ -6,9 +6,10 @@ namespace Morpho\Cli;
 use const Morpho\Base\EOL_REGEXP;
 
 class CommandResult {
-    protected $exitCode, $stdout;
+    protected $exitCode;
+    protected $stdout;
 
-    public function __construct($command, $exitCode, $stdout) {
+    public function __construct(string $command, int $exitCode, ?string $stdout) {
         $this->command = $command;
         $this->exitCode = $exitCode;
         $this->stdout = $stdout;
@@ -26,7 +27,8 @@ class CommandResult {
         return $this->exitCode;
     }
 
-    public function lines(bool $noEmptyLines = true, bool $trimLines = true): iterable {
+    // @TODO: Unify with #152.
+    public function lines(bool $noEmptyLines = true, bool $trimLines = true, int $offset = 0, int $length = null): iterable {
         foreach (preg_split(EOL_REGEXP, $this->stdout, -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
             if ($trimLines) {
                 $line = trim($line);
