@@ -3,11 +3,11 @@ namespace Morpho\Base;
 
 abstract class Pipe implements IFn {
     public function __invoke(...$args) {
-        foreach ($this->compose() as $fn) {
+        foreach ($this->fns() as $fn) {
             $args = $fn(...$args);
         }
         return $args;
     }
 
-    abstract protected function compose();
+    abstract protected function fns();
 }
