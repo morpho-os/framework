@@ -9,5 +9,5 @@ abstract class Pipe implements IFn {
         return $args;
     }
 
-    abstract protected function fns();
+    abstract protected function fns(): iterable;
 }
