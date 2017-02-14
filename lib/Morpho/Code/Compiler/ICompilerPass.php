@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Code\Compiler;
 
-interface ICompilerPass {
+use Morpho\Base\IFn;
 
+interface ICompilerPass extends IFn {
 }

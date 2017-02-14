@@ -3,12 +3,18 @@ namespace Morpho\Code\Compiler;
 
 use Morpho\Base\Pipe;
 
-class Compiler extends Pipe {
-    protected function compose() {
+abstract class Compiler extends Pipe {
+    protected function fns(): iterable {
         return [
-            new Frontend(),
-            new Optimization(),
-            new Backend(),
+            $this->frontend(),
+            $this->optimization(),
+            $this->backend(),
         ];
     }
+
+    abstract protected function frontend(): ICompilerPhase;
+
+    abstract protected function optimization(): ICompilerPhase;
+
+    abstract protected function backend(): ICompilerPhase;
 }

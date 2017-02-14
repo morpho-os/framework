@@ -1,5 +1,7 @@
 <?php
-namespace Morpho\Code\Compiler;
+namespace Morpho\Code\Compiler\Frontend\LexicalAnalysis;
+
+use Morpho\Code\Compiler\ICompilerPass;
 
 /**
  * The base code for Lexer found at: https://github.com/nikic/Phlexy/blob/master/lib/Phlexy/Lexer/Stateless/Simple.php
@@ -16,7 +18,8 @@ class Lexer implements ICompilerPass {
         }
     }
 
-    public function run(string $string): array {
+    public function __invoke(...$args): array {
+        $string = array_shift($args);
         $tokens = [];
 
         $offset = 0;

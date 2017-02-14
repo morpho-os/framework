@@ -2,7 +2,7 @@
 namespace Morpho\Code\Compiler;
 
 class Interpreter {
-    public function evaluate($program, $env = null) {
+    public function eval($program, $env = null) {
         
     }
     /*

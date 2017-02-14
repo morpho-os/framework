@@ -1,7 +1,7 @@
 <?php
-namespace Morpho\Code\Compiler;
+namespace Morpho\Code\Compiler\Backend;
 
-class BytecodeCompiler extends IFn {
+class BytecodeCompiler {
     public function __invoke(...$args) {
         //
     }
