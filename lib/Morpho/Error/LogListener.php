@@ -10,7 +10,7 @@ class LogListener implements IExceptionListener {
         $this->logger = $logger;
     }
 
-    public function onException(\Throwable $exception) {
+    public function onException(\Throwable $exception): void {
         $this->logger->emergency($exception, ['exception' => $exception]);
     }
 }

@@ -2,11 +2,11 @@
 namespace Morpho\Error;
 
 interface IExceptionHandler {
-    public function register();
+    public function register(): void;
 
-    public function unregister();
+    public function unregister(): void;
 
-    public function attachListener(IExceptionListener $listener, $prepend = false);
+    public function attachListener(IExceptionListener $listener, $prepend = false): void;
 
-    public function handleException(\Throwable $e);
+    public function handleException(\Throwable $e): void;
 }

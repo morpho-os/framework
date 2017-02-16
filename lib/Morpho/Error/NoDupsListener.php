@@ -28,7 +28,7 @@ class NoDupsListener implements IExceptionListener {
         $this->listener = $listener;
     }
 
-    public function onException(\Throwable $exception) {
+    public function onException(\Throwable $exception): void {
         $id = $this->createLockId($exception);
 
         if ($this->isLockExpired($id, $exception)) {

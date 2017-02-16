@@ -18,7 +18,7 @@ class ExceptionHandler implements IExceptionHandler {
         }
     }
 
-    public function register() {
+    public function register(): void {
         if ($this->registered) {
             throw new \LogicException();
         }
@@ -26,20 +26,20 @@ class ExceptionHandler implements IExceptionHandler {
         $this->registered = true;
     }
 
-    public function unregister() {
+    public function unregister(): void {
         if (!$this->registered) {
             throw new \LogicException();
         }
         HandlerManager::unregister(HandlerManager::EXCEPTION, [$this, 'handleException']);
     }
 
-    public function handleException(\Throwable $e) {
+    public function handleException(\Throwable $e): void {
         foreach ($this->listeners as $listener) {
             $listener->onException($e);
         }
     }
 
-    public function attachListener(IExceptionListener $handler, $prepend = false) {
+    public function attachListener(IExceptionListener $handler, $prepend = false): void {
         if ($prepend) {
             array_unshift($this->listeners, $handler);
         } else {

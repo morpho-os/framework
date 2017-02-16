@@ -74,7 +74,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $errorHandler = $this->createErrorHandler();
         $oldDisplayErrors = ini_get('display_errors');
         $oldDisplayStartupErrors = ini_get('display_startup_errors');
-        $this->assertInstanceOf('\Morpho\Error\ErrorHandler', $errorHandler->register());
+        $this->assertNull($errorHandler->register());
         $expected = [$errorHandler, 'handleError'];
         $this->assertEquals($expected, HandlerManager::getCurrent(HandlerManager::ERROR));
         $expected = [$errorHandler, 'handleException'];

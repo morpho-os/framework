@@ -4,7 +4,7 @@ namespace Morpho\Error;
 class DumpListener implements IExceptionListener {
     const FAILURE_EXIT_CODE = 1;
     
-    public function onException(\Throwable $exception) {
+    public function onException(\Throwable $exception): void {
         $exAsString = $exception->__toString();
 
         // The d() function can be found in the morpho/debug package.

@@ -19,7 +19,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     private $oldIniSettings = null;
 
-    public function register() {
+    public function register(): void {
         parent::register();
 
         HandlerManager::register(HandlerManager::ERROR, [$this, 'handleError']);
@@ -30,11 +30,9 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         }
 
         $this->setIniSettings();
-
-        return $this;
     }
 
-    public function unregister() {
+    public function unregister(): void {
         parent::unregister();
 
         HandlerManager::unregister(HandlerManager::ERROR, [$this, 'handleError']);
@@ -45,7 +43,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         $this->restoreIniSettings();
     }
 
-    public function handleError($severity, $message, $filePath, $lineNo, $context) {
+    public function handleError($severity, $message, $filePath, $lineNo, $context): void {
         if ($severity & error_reporting()) {
             $exception = self::errorToException($severity, $message, $filePath, $lineNo, $context);
             throw $exception;
@@ -56,7 +54,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
      * @TODO: Check can we catch the E_ERROR, E_CORE_ERROR, E_PARSE errors, if yes, delete this method,
      * as they can will be handled by the handleError().
      */
-    public function handleFatalError() {
+    public function handleFatalError(): void {
         $error = error_get_last();
         error_clear_last();
         if ($this->fatalErrorHandlerActive
@@ -92,7 +90,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return $this->exitOnFatalError;
     }
 
-    public static function checkError(bool $pred, string $msg = null) {
+    public static function checkError(bool $pred, string $msg = null): void {
         if (!$pred) {
             $error = error_get_last();
             if ($error) {
@@ -113,11 +111,11 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return Environment::getBoolIniVal('log_errors') && !empty(ini_get('error_log'));
     }
 
-    public static function getHashId(\Throwable $e) {
+    public static function getHashId(\Throwable $e): string {
         return md5(str_replace("\x00", '', $e->getFile()) . "\x00" . $e->getLine());
     }
 
-    protected function setIniSettings() {
+    protected function setIniSettings(): void {
         $oldIniSettings = [];
         $oldIniSettings['display_errors'] = ini_set('display_errors', 0);
         // @TODO: Do we need set the 'display_startup_errors'?
@@ -125,7 +123,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         $this->oldIniSettings = $oldIniSettings;
     }
 
-    protected function restoreIniSettings() {
+    protected function restoreIniSettings(): void {
         if (null === $this->oldIniSettings) {
             return;
         }

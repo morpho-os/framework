@@ -8,7 +8,7 @@ class CompositeListener implements IExceptionListener {
         $this->listeners = $listeners;
     }
 
-    public function onException(\Throwable $exception) {
+    public function onException(\Throwable $exception): void {
         foreach ($this->listeners as $listener) {
             $listener->onException($exception);
         }
