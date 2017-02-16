@@ -4,20 +4,20 @@ namespace Morpho\Core;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
-use Composer\Script\CommandEvent;
+use Composer\Script\Event;
 
 require_once __DIR__ . '/../Core/autoload.php';
 
 class Installer {
-    public static function postInstall(CommandEvent $event) {
+    public static function postInstall(Event $event) {
         self::initDirectories($event);
     }
 
-    public static function postUpdate(CommandEvent $event) {
+    public static function postUpdate(Event $event) {
         self::initDirectories($event);
     }
 
-    protected static function initDirectories(CommandEvent $event) {
+    protected static function initDirectories(Event $event) {
         /*
         if (self::isTravisEnv()) {
             return;
