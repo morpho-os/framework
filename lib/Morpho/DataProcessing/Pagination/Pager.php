@@ -87,10 +87,7 @@ class Pager extends Node {
         return $this->totalItemsCount;
     }
 
-    /**
-     * @return void
-     */
-    public function rewind() {
+    public function rewind(): void {
         $this->isValid = true;
         $this->setCurrentPageNumber(1);
     }
@@ -102,10 +99,7 @@ class Pager extends Node {
         return $this->getPage($this->getCurrentPageNumber());
     }
 
-    /**
-     * @return bool
-     */
-    public function valid() {
+    public function valid(): bool {
         return $this->isValid && $this->getCurrentPageNumber() <= $this->getTotalPagesCount();
     }
 
@@ -116,10 +110,7 @@ class Pager extends Node {
         return $this->getCurrentPageNumber();
     }
 
-    /**
-     * @return void
-     */
-    public function next() {
+    public function next(): void {
         $nextPageNumber = $this->getCurrentPageNumber() + 1;
         if ($nextPageNumber > $this->getTotalPagesCount()) {
             $this->isValid = false;
@@ -128,10 +119,7 @@ class Pager extends Node {
         }
     }
 
-    /**
-     * @return int
-     */
-    public function count() {
+    public function count(): int {
         return $this->getTotalPagesCount();
     }
 

@@ -111,8 +111,4 @@ abstract class DbTest extends DbTestCase {
             ]
         );
     }
-
-    private function assertNotUniqueInstance(callable $fn, string $expectedClass) {
-        $this->assertInstanceUniqueness($fn, $expectedClass, false);
-    }
 }

@@ -7,7 +7,6 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Base\ArrayTool;
 use DirectoryIterator;
 use Morpho\Error\ErrorHandler;
-use PhpParser\Error;
 
 class Directory extends Entry {
     const FILE = 0x01;

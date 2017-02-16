@@ -157,11 +157,11 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return key($this->children);
     }
 
-    public function next()/*: void */ {
+    public function next(): void {
         next($this->children);
     }
 
-    public function rewind()/*: void */ {
+    public function rewind(): void {
         reset($this->children);
     }
 

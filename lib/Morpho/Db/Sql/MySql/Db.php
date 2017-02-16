@@ -2,7 +2,6 @@
 namespace Morpho\Db\Sql\MySql;
 
 use Morpho\Base\ArrayTool;
-use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\Db as BaseDb;
 use Morpho\Db\Sql\Query as BaseQuery;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
@@ -28,7 +27,7 @@ class Db extends BaseDb {
         return $this->schemaManager;
     }
 
-    public function insertRows(string $tableName, array $rows) {
+    public function insertRows(string $tableName, array $rows, array $options = null) {
         $args = [];
         $keys = null;
         foreach ($rows as $row) {

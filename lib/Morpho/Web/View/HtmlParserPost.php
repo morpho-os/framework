@@ -1,11 +1,6 @@
 <?php
 namespace Morpho\Web\View;
 
-use function Morpho\Base\filter;
-use function Morpho\Cli\{cmd};
-use Morpho\Fs\Directory;
-use Morpho\Fs\File;
-use Morpho\Fs\Path;
 use Morpho\Di\ServiceManager;
 
 class HtmlParserPost extends HtmlParser {

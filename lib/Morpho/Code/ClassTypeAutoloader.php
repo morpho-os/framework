@@ -87,6 +87,7 @@ class ClassTypeAutoloader extends Autoloader {
     public function setPrefixToDirPathMappingPsr0(string $prefix, $paths): self {
         $first = $prefix[0];
         $this->prefixesPsr0[$first][$prefix] = (array)$paths;
+        return $this;
     }
 
     // ------------------------------------------------------------------------

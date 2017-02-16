@@ -2,7 +2,7 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\{
-    classify, htmlId, camelize, dasherize
+    classify, htmlId, dasherize
 };
 use Morpho\Base\EmptyValueException;
 use Morpho\Di\IServiceManager;

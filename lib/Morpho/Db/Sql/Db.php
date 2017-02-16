@@ -53,7 +53,7 @@ abstract class Db {
         $this->eval($sql, array_values($row));
     }
 
-    abstract public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100*/);
+    abstract public function insertRows(string $tableName, array $rows);
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
         $query = $this->query();

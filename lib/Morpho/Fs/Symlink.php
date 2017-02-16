@@ -3,6 +3,8 @@ namespace Morpho\Fs;
 
 class Symlink extends Entry {
     public static function create($targetPath, $linkPath) {
+        // @TODO: Handle the case when the dirname($linkPath) is symlink to some directory
+        // it can be link to file, but in this case it is an error.
         Directory::create(dirname($linkPath));
         if (is_file($targetPath) && is_dir($linkPath)) {
             $linkPath = $linkPath . '/' . basename($targetPath);

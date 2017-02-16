@@ -3,7 +3,6 @@ namespace Morpho\Web;
 
 use Morpho\Base\Converter;
 use Morpho\Base\Environment as BaseEnvironment;
-use Morpho\Base\NotImplementedException;
 
 class Environment extends BaseEnvironment {
     protected $startSession = false;
@@ -54,7 +53,7 @@ class Environment extends BaseEnvironment {
         return $asBytes ? $maxSize : $maxSizeIni;
     }
 
-    protected function _init() {
+    protected function _init(): void {
         parent::_init();
         $_SERVER['HTTP_REFERER'] = self::httpReferrer();
         $_SERVER['SERVER_PROTOCOL'] = self::httpProtocolVersion();

@@ -2,7 +2,7 @@
 namespace Morpho\Web\Routing;
 
 use function Morpho\Base\{
-    classify, dasherize, head, last
+    dasherize, last
 };
 use Morpho\Web\Request;
 

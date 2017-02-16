@@ -2,7 +2,6 @@
 namespace Morpho\Code;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Fs\File;
 use SebastianBergmann\Exporter\Exporter;
 
 class CodeTool {

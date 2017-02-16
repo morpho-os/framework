@@ -25,7 +25,7 @@ class Db extends BaseDb {
         if (empty($options['filePath'])) {
             throw new OptionRequiredException('filePath');
         }
-        $db = new \PDO(\Morpho\Db\Sql\Db::SQLITE_DRIVER . ':' . $options['filePath']);
+        $db = new \PDO(self::SQLITE_DRIVER . ':' . $options['filePath']);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         if (empty($options['noWal'])) {
