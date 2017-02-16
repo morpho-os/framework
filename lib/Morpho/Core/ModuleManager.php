@@ -4,7 +4,6 @@ namespace Morpho\Core;
 
 use Morpho\Base\IEventManager;
 use Morpho\Base\ObjectNotFoundException;
-use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Db\Sql\Db;
 use Morpho\Base\Node as BaseNode;
 
@@ -313,7 +312,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             return;
         }
         if ($this->fallbackMode) {
-            $this->eventHandlers = $this->getFallbackModeEventHandlers();
+            $this->eventHandlers = $this->fallbackModeEventHandlers();
         } else {
             $sql = "e.name as eventName, e.method, m.name AS moduleName
             FROM event e
@@ -324,7 +323,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             $lines = $this->db->select($sql, [self::ENABLED])->rows();
             if (!count($lines)) {
                 // For some reason the events can be lost in the database, so we need fallback.
-                $this->eventHandlers = $this->getFallbackModeEventHandlers();
+                $this->eventHandlers = $this->fallbackModeEventHandlers();
                 return;
             }
             $this->eventHandlers = [];
@@ -381,7 +380,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $events;
     }
 
-    protected function getFallbackModeEventHandlers(): array {
+    protected function fallbackModeEventHandlers(): array {
         return [];
     }
 
