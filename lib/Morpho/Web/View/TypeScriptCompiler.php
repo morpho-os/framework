@@ -124,6 +124,6 @@ class TypeScriptCompiler {
     }
 
     protected function tsc(string $argsString, array $cmdOptions = null): CommandResult {
-        return cmd('tsc ' . $argsString, $cmdOptions);
+        return cmd('tsc ' . $argsString, array_merge((array)$cmdOptions, ['buffer' => true]));
     }
 }
