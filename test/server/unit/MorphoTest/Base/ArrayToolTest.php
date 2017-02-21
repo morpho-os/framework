@@ -325,6 +325,93 @@ class ArrayToolTest extends TestCase {
         $this->assertNotEquals($hash1, $hash3);
     }
 
+    public function testUnion() {
+        // {numeric keys, string keys, mixed keys}
+        $this->assertEquals(['foo' => 'kiwi'], ArrayTool::union(['foo' => 'apple'], ['foo' => 'kiwi']));
+        $this->markTestIncomplete();
+    }
+
+    public function dataForSymmetricDiff() {
+        // for each {numeric keys, string keys, mixed keys}
+        // check {value !=, key !=}
+        return [
+            [
+                ['foo'],
+                ['foo'],
+                [],
+            ],
+            [
+                ['foo'],
+                ['foo'],
+                [],
+            ],
+            [
+                [],
+                [],
+                [],
+            ],
+            // Numeric keys
+            [
+                // Numeric keys: keys ==, values !=
+                ['foo', 'bar', 'baz'],
+                ['foo', 'bar'],
+                ['baz'],
+            ],
+            [
+                // Numeric sequential keys: keys ==, values ==
+                ['banana', 'kiwi', 'cherry'],
+                ['pear', 'banana', 'mango'],
+                ['pear', 'mango', 'kiwi', 'cherry'],
+            ],
+            [
+                // Numeric keys: keys !=, values ==
+                ['foo'],
+                [1 => 'foo', 0 => 'bar'],
+                [3 => 'bar'],
+            ],
+            [
+                // Numeric keys: keys !=, values !=
+                ['pear', 'banana', 'mango', 'kiwi', 'cherry'],
+                [7 => 'pear', 11 => 'banana', 24 => 'mango'],
+                [6 => 'kiwi', 0 => 'cherry'],
+            ],
+
+            // String keys
+            [
+                // String keys: keys !=, values !=
+                ['foo' => 'banana', 'bar' => 'kiwi', 'baz' => 'cherry'],
+                ['foo' => 'banana'],
+                ['bar' => 'kiwi', 'baz' => 'cherry'],
+            ],
+            [
+                // String keys: keys !=, values ==
+                [],
+                ['k1' => 'v1'],
+                ['k2' => 'v1'],
+            ],
+            [
+                // String keys: keys ==, values !=
+                ['k1' => 'v2'],
+                ['k1' => 'v1'],
+                ['k1' => 'v2'],
+            ],
+            [
+                // String keys: keys ==, values ==
+                [],
+                ['k1' => 'v2'],
+                ['k1' => 'v2'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForSymmetricDiff
+     */
+    public function testSymmetricDiff(array $expected, array $a, array $b) {
+        $this->assertEquals($expected, ArrayTool::symmetricDiff($a, $b, true));
+        $this->assertEquals($expected, ArrayTool::symmetricDiff($a, $b));
+    }
+
     protected function getTestArray() {
         return [
             'foo'     => 'test',

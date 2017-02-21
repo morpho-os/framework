@@ -39,15 +39,13 @@ class ArrayTool {
     }
 
     /**
-     * Symmetrical difference of the two sets: ($a \ $b) ∪ ($b \ $a)
+     * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
+     * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
      */
     public static function symmetricDiff(array $a, array $b): array {
-        $diffA = array_diff_assoc($a, $b);
-        $diffB = array_diff_assoc($b, $a);
-        foreach ($diffB as $key => $value) {
-            $diffA[$key] = $value;
-        }
-        return $diffA;
+        $diffA = array_diff($a, $b);
+        $diffB = array_diff($b, $a);
+        return self::union($diffA, $diffB);
     }
 
     public static function flatten(array $arr): array {
