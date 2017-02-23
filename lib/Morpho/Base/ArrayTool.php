@@ -2,6 +2,23 @@
 namespace Morpho\Base;
 
 class ArrayTool {
+    /**
+     * Union for sets, for difference use array_diff(), for intersection use array_intersect().
+     */
+    public static function union(...$arr): array {
+        return array_unique(array_merge(...$arr));
+    }
+
+    /**
+     * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
+     * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
+     */
+    public static function symmetricDiff(array $a, array $b): array {
+        $diffA = array_diff($a, $b);
+        $diffB = array_diff($b, $a);
+        return self::union($diffA, $diffB);
+    }
+
     public static function cartesianProduct(...$arrs) {
         // @TODO
         throw new NotImplementedException();
@@ -29,23 +46,6 @@ class ArrayTool {
 
     public static function itemsWithKeys(array $arr, array $keys): array {
         return array_intersect_key($arr, array_flip(array_values($keys)));
-    }
-
-    /**
-     * Union for sets, for difference use array_diff(), for intersection use array_intersect().
-     */
-    public static function union(...$arr): array {
-        return array_unique(array_merge(...$arr));
-    }
-
-    /**
-     * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
-     * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
-     */
-    public static function symmetricDiff(array $a, array $b): array {
-        $diffA = array_diff($a, $b);
-        $diffB = array_diff($b, $a);
-        return self::union($diffA, $diffB);
     }
 
     public static function flatten(array $arr): array {
