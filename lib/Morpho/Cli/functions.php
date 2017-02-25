@@ -33,7 +33,7 @@ function showError(string $errMessage) {
     fwrite(STDERR, $errMessage);
 }
 
-function showErrorLn(string $errMessage) {
+function showErrorLn(string $errMessage = null) {
     showError($errMessage . "\n");
 }
 
@@ -88,8 +88,8 @@ function cmd($command, array $options = null): CommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
         'checkExitCode' => true,
         'shell' => true,
-        'buffer' => false,
         // @TODO: tee: buffer and display output
+        'buffer' => false,
     ]);
     if (PHP_SAPI !== 'cli') {
         throw new NotImplementedException();
@@ -118,15 +118,21 @@ function cmd($command, array $options = null): CommandResult {
         $output = $process->getOutput();
     }
 
-    if ($options['checkExitCode'] && $exitCode !== 0) {
-        throw new \RuntimeException("Command returned non-zero exit code: " . $exitCode);
+    if ($options['checkExitCode']) {
+        checkExitCode($exitCode);
     }
-
     return new CommandResult($command, $exitCode, $output);
 }
 
 function cmdSu(string $command, array $options = null): CommandResult {
     return cmd('sudo bash -c "' . $command . '"', $options);
+}
+
+function checkExitCode(int $exitCode): int {
+    if ($exitCode !== 0) {
+        throw new \RuntimeException("Command returned non-zero exit code: " . (int)$exitCode);
+    }
+    return $exitCode;
 }
 
 function askYesNo(string $question): bool {
