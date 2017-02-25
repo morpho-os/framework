@@ -82,12 +82,12 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['recursive' => true]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
 
-        $actual = iterator_to_array(Directory::paths($testDirPath), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['recursive' => true]), false);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
@@ -99,12 +99,22 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Directory::DIR]), false);
+        $it = Directory::paths($testDirPath, null, ['type' => Directory::DIR, 'recursive' => true]);
+        $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
+    }
 
-        $actual = iterator_to_array(Directory::dirPaths($testDirPath), false);
+    public function testDirPaths() {
+        $testDirPath = $this->getTestDirPath();
+        $expected = [
+            $testDirPath . '/2',
+            $testDirPath . '/4',
+            $testDirPath . '/4/5',
+        ];
+        $it = Directory::dirPaths($testDirPath, null, ['recursive' => true]);
+        $actual = iterator_to_array($it, false);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
@@ -119,14 +129,15 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Directory::DIR | Directory::FILE]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Directory::DIR | Directory::FILE, 'recursive' => true]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
     }
 
     public function testPaths_WithoutProcessorAndWithoutBothFileAndDirOptions() {
-        $this->assertEquals([], iterator_to_array(Directory::paths($this->getTestDirPath(), null, ['type' => 0]), false));
+        $it = Directory::paths($this->getTestDirPath(), null, ['type' => 0, 'recursive' => true]);
+        $this->assertEquals([], iterator_to_array($it, false));
     }
 
     public function testPaths_WithClosureProcessorAndWithDefaultOptions() {
@@ -143,7 +154,8 @@ class DirectoryTest extends TestCase {
                 $testDirPath,
                 function ($path, $isDir) {
                     return $isDir || basename($path) != '1.txt';
-                }
+                },
+                ['recursive' => true]
             ),
             false
         );
@@ -161,7 +173,8 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath, '~\.php$~si'), false);
+        $it = Directory::paths($testDirPath, '~\.php$~si', ['recursive' => true]);
+        $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -174,7 +187,8 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR]), false);
+        $it = Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR, 'recursive' => true]);
+        $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -189,7 +203,8 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE]), false);
+        $it = Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE, 'recursive' => true]);
+        $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -202,7 +217,7 @@ class DirectoryTest extends TestCase {
                 Directory::paths(
                     $this->getTestDirPath(),
                     '~\.some$~si',
-                    ['type' => Directory::FILE]
+                    ['type' => Directory::FILE, 'recursive' => true]
                 ),
                 false
             )
@@ -255,7 +270,7 @@ class DirectoryTest extends TestCase {
             $path = $path . 'foo' . ++$i;
             return true;
         };
-        $paths = iterator_to_array(Directory::paths($testDirPath, $processor), false);
+        $paths = iterator_to_array(Directory::paths($testDirPath, $processor, ['recursive' => true]), false);
         sort($paths);
         $expected = [
             $testDirPath . '/1.txt',
@@ -276,7 +291,7 @@ class DirectoryTest extends TestCase {
         $processor = function ($path) {
             return basename($path);
         };
-        $paths = iterator_to_array(Directory::paths($testDirPath, $processor), false);
+        $paths = iterator_to_array(Directory::paths($testDirPath, $processor, ['recursive' => true]), false);
         sort($paths);
         $expected = [
             '1.txt',
@@ -427,7 +442,7 @@ class DirectoryTest extends TestCase {
     }
 
     private function pathsInDir(string $dirPath): array {
-        $paths = iterator_to_array(Directory::paths($dirPath), false);
+        $paths = iterator_to_array(Directory::paths($dirPath, null, ['recursive' => true]), false);
         $dirPath = str_replace('\\', '/', $dirPath);
         sort($paths);
         foreach ($paths as &$filePath) {

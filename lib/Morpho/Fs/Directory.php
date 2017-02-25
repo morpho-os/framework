@@ -81,7 +81,7 @@ class Directory extends Entry {
         $options = ArrayTool::handleOptions(
             $options,
             [
-                'recursive'      => true,
+                'recursive'      => false,
                 'followSymlinks' => false,
                 'type'           => self::FILE | self::DIR,
             ]
@@ -174,7 +174,7 @@ class Directory extends Entry {
 
     /**
      * @TODO: Extract linkPaths() method, use it with $processor that will check link and
-     * return true for broken links.
+     * return true for broken links. Add $options
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor

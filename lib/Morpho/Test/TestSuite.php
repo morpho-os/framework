@@ -22,7 +22,8 @@ abstract class TestSuite extends BaseTestSuite {
     public function testFilePaths() {
         return Directory::filePaths(
             $this->getTestDirPath(),
-            $this->testFileRegexp
+            $this->testFileRegexp,
+            ['recursive' => true]
         );
     }
 

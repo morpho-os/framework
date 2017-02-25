@@ -28,7 +28,8 @@ class ClassTypeDiscoverer {
         });
     }
 
-    public function definedClassTypesInDir($dirPaths, string $regExp = null, array $options = []): array {
+    public function definedClassTypesInDir($dirPaths, string $regExp = null, array $options = null): array {
+        $options = (array) $options + ['recursive' => true];
         $filePaths = Directory::filePaths($dirPaths, $regExp ?: Directory::PHP_FILES_REG_EXP, $options);
         $map = [];
         $discoverStrategy = $this->getDiscoverStrategy();

@@ -189,7 +189,7 @@ $this->useCache = $useCache;
             return [];
         }
         return iterator_to_array(
-            Directory::filePaths($dirPath, '~.(Test|TestSuite)\.php$~s'),
+            Directory::filePaths($dirPath, '~.(Test|TestSuite)\.php$~s', ['recursive' => true]),
             false
         );
     }

@@ -11,7 +11,7 @@ class TestSuite extends \Morpho\Test\TestSuite {
                 function ($path) {
                     return $path !== str_replace('\\', '/', __FILE__);
                 },
-                iterator_to_array(Directory::filePaths(__DIR__, $this->testFileRegexp), false)
+                iterator_to_array(Directory::filePaths(__DIR__, $this->testFileRegexp, ['recursive' => true]), false)
             ),
             $this->testFilePathsOfModules()
         );
