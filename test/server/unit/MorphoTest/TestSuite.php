@@ -6,12 +6,13 @@ use Morpho\Fs\Directory;
 
 class TestSuite extends \Morpho\Test\TestSuite {
     public function testFilePaths() {
+        $filePaths = Directory::filePaths(__DIR__, $this->testFileRegexp, ['recursive' => true]);
         return array_merge(
             filter(
                 function ($path) {
                     return $path !== str_replace('\\', '/', __FILE__);
                 },
-                iterator_to_array(Directory::filePaths(__DIR__, $this->testFileRegexp, ['recursive' => true]), false)
+                iterator_to_array($filePaths, false)
             ),
             $this->testFilePathsOfModules()
         );

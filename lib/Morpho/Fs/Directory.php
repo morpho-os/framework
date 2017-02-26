@@ -14,7 +14,7 @@ class Directory extends Entry {
 
     const MODE = 0755;
     
-    const PHP_FILES_REG_EXP = '~.\.php$~si';
+    const PHP_FILES_RE = '~.\.php$~si';
 
     public static function move(string $sourceDirPath, string $targetDirPath)/*: void */ {
         self::copy($sourceDirPath, $targetDirPath);
@@ -76,7 +76,7 @@ class Directory extends Entry {
      */
     public static function paths($dirPaths, $processor = null, array $options = []): \Generator {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
-            throw new Exception();
+            throw new Exception("Invalid processor");
         }
         $options = ArrayTool::handleOptions(
             $options,
@@ -94,6 +94,7 @@ class Directory extends Entry {
             };
         }
 
+        $recursive = $options['recursive'];
         foreach ((array)$dirPaths as $dirPath) {
             foreach (new DirectoryIterator($dirPath) as $item) {
                 if ($item->isDot()) {
@@ -103,31 +104,33 @@ class Directory extends Entry {
                 $path = str_replace('\\', '/', $item->getPathname());
                 $isDir = $item->isDir();
 
-                if (null !== $processor) {
-                    $modifiedPath = $processor($path, $isDir);
-                    if (false === $modifiedPath) {
-                        continue;
-                    } elseif (true !== $modifiedPath && null !== $modifiedPath) {
-                        $path = $modifiedPath;
-                    }
-                }
-
                 if ($isDir) {
-                    if ($options['type'] & self::DIR) {
-                        yield $path;
-                    }
-
-                    if ($options['recursive']) {
-                        if ($item->isLink() && !$options['followSymlinks']) {
-                            continue;
-                        }
-
-                        yield from self::paths($item->getPathname(), $processor, $options);
+                    $match = $options['type'] & self::DIR;
+                } else {
+                    $match = $options['type'] & self::FILE;
+                }
+                if (!$match) {
+                    if (!$isDir || !$recursive) {
+                        continue;
                     }
                 } else {
-                    if ($options['type'] & self::FILE) {
-                        yield $path;
+                    if (null !== $processor) {
+                        $modifiedPath = $processor($path, $isDir);
+                        if (false === $modifiedPath) {
+                            continue;
+                        } elseif (true !== $modifiedPath && null !== $modifiedPath) {
+                            $path = $modifiedPath;
+                        }
                     }
+                    yield $path;
+                }
+
+                if ($isDir && $recursive) {
+                    if ($item->isLink() && !$options['followSymlinks']) {
+                        continue;
+                    }
+
+                    yield from self::paths($item->getPathname(), $processor, $options);
                 }
             }
         }
@@ -141,10 +144,40 @@ class Directory extends Entry {
      */
     public static function dirPaths($dirPath, $processor = null, array $options = []): \Generator {
         $options['type'] = self::DIR;
-        if (is_string($processor)) {
-            $regexp = $processor;
-            $processor = function ($path) use ($regexp) {
-                return (bool) preg_match($regexp, $path);
+        if (null !== $processor) {
+            $processor = function ($path) use ($processor) {
+                if (is_string($processor)) {
+                    return (bool) preg_match($processor, $path);
+                } elseif (!$processor instanceof \Closure) {
+                    throw new Exception("Invalid processor");
+                }
+                return $processor($path, true);
+            };
+        }
+        return self::paths($dirPath, $processor, $options);
+    }
+
+    public static function dirNames($dirPath, $processor = null, array $options = null): \Generator {
+        if (!empty($options['recursive'])) {
+            throw new \LogicException("The 'recursive' option must be false");
+        }
+        $options['type'] = self::DIR;
+        if (null !== $processor) {
+            $processor = function ($path) use ($processor) {
+                $dirName = basename($path);
+                if (is_string($processor)) {
+                    if (preg_match($processor, $dirName)) {
+                        return $dirName;
+                    }
+                    return false;
+                } elseif (!$processor instanceof \Closure) {
+                    throw new Exception("Invalid processor");
+                }
+                return $processor($dirName, $path);
+            };
+        } else {
+            $processor = function ($path) {
+                return basename($path);
             };
         }
         return self::paths($dirPath, $processor, $options);
