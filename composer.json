@@ -44,11 +44,11 @@
         "zendframework/zend-stdlib": "dev-master",
         "zendframework/zend-validator": "dev-master",
         "symfony/process": "dev-master",
-        "symfony/finder": "dev-master"
+        "symfony/finder": "dev-master",
+        "facebook/webdriver": "^1.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "dev-master",
-        "facebook/webdriver": "dev-master"
+        "phpunit/phpunit": "dev-master"
     },
     "autoload": {
         "psr-4": {
