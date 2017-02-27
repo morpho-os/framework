@@ -486,6 +486,21 @@ class DirectoryTest extends TestCase {
         $this->assertEquals(2, $calledTimes);
         $this->assertEquals(['bar', 'foo'], $dirNames);
     }
+    
+    public function testDirNames_ClosureProcessorWhichReturnsBool() {
+        $testDirPath = $this->getTestDirPath();
+        $processor = function ($dirName, $path) use (&$calledTimes) {
+            $this->assertNotContains('/', $dirName);
+            $this->assertRegExp('~^.*/.*/(2|4)$~', $path);
+            $calledTimes++;
+            return true;
+        };
+        $it = Directory::dirNames($testDirPath, $processor);
+        $dirNames = iterator_to_array($it, false);
+        sort($dirNames);
+        $this->assertEquals(2, $calledTimes);
+        $this->assertEquals(['2', '4'], $dirNames);
+    }
 
     public function testFilePaths_RegExpProcessor_Recursive() {
         $testDirPath = $this->getTestDirPath();

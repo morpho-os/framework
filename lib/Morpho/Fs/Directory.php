@@ -173,7 +173,11 @@ class Directory extends Entry {
                 } elseif (!$processor instanceof \Closure) {
                     throw new Exception("Invalid processor");
                 }
-                return $processor($dirName, $path);
+                $res = $processor($dirName, $path);
+                if ($res === true) {
+                    return $dirName;
+                }
+                return $res;
             };
         } else {
             $processor = function ($path) {
