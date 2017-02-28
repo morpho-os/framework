@@ -17,25 +17,25 @@ class Repo extends BaseRepo {
 
     public function __call(string $method, array $args = []) {
         if (in_array($method, static::$allowedDbMethods, true)) {
-            return $this->getDb()->$method(...$args);
+            return $this->db()->$method(...$args);
         }
         throw new \RuntimeException("Invalid call: " . get_class($this) . "->{$method}(), ensure that this method is properly defined");
     }
 
     public function inTransaction(): bool {
-        return $this->getDb()->inTransaction();
+        return $this->db()->inTransaction();
     }
 
     public function lastInsertId(string $seqName = null): string {
-        return $this->getDb()->lastInsertId($seqName);
+        return $this->db()->lastInsertId($seqName);
     }
 
     public function insertRow(array $row)/*: void*/ {
-        $this->getDb()->insertRow($this->tableName, $row);
+        $this->db()->insertRow($this->tableName, $row);
     }
 
     public function insertRowAndGetId(array $row, string $seqName = null): string {
-        $db = $this->getDb();
+        $db = $this->db();
         $db->insertRow($this->tableName, $row);
         return $db->lastInsertId($seqName);
     }
@@ -53,14 +53,14 @@ class Repo extends BaseRepo {
      * @param array|null $whereConditionArgs
      */
     public function updateRows(array $row, $whereCondition, $whereConditionArgs = null)/*: void*/ {
-        $this->getDb()->updateRows($this->tableName, $row, $whereCondition, $whereConditionArgs);
+        $this->db()->updateRows($this->tableName, $row, $whereCondition, $whereConditionArgs);
     }
 
     public function deleteRows($whereCondition, array $whereConditionArgs = null): int {
-        return $this->getDb()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
+        return $this->db()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
     }
 
-    protected function getDb(): Db {
+    protected function db(): Db {
         return $this->serviceManager->get('db');
     }
 

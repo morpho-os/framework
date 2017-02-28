@@ -90,7 +90,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->parent->getName();
     }
 
-    protected function getDb() {
+    protected function db() {
         return $this->serviceManager->get('db');
     }
 

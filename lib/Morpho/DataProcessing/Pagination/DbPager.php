@@ -16,14 +16,14 @@ abstract class DbPager extends Pager implements IServiceManagerAware {
     protected function getItemList($offset, $pageSize): iterable {
         $offset = intval($offset);
         $pageSize = intval($pageSize);
-        return $this->getDb()->select('* FROM (' . $this->getSqlQuery() . ") AS t LIMIT $offset, $pageSize");
+        return $this->db()->select('* FROM (' . $this->getSqlQuery() . ") AS t LIMIT $offset, $pageSize");
     }
 
     protected function calculateTotalItemsCount() {
-        return $this->getDb()->select('COUNT(*) FROM (' . $this->getSqlQuery() . ') AS t')->cell();
+        return $this->db()->select('COUNT(*) FROM (' . $this->getSqlQuery() . ') AS t')->cell();
     }
 
-    protected function getDb() {
+    protected function db() {
         if (null === $this->db) {
             return $this->serviceManager->get('db');
         }
