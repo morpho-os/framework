@@ -98,7 +98,7 @@ class DateTime extends \DateTimeImmutable {
     /**
      * @return int
      */
-    public function getNumberOfDaysInMonth() {
+    public function numberOfDaysInMonth() {
         $month = $this->month();
         if (substr($month, 0, 1) == '0' && strlen($month) == 2) {
             $month = substr($month, 1);

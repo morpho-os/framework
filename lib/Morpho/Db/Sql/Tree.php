@@ -27,7 +27,7 @@ class Tree {
         });
     }
 
-    public function getChildNodes($parentNodeId = null): array {
+    public function childNodes($parentNodeId = null): array {
         $args = [];
         if ($parentNodeId === null) {
             $whereClause = $this->db->query()->whereClause('parentId IS NULL');
@@ -75,31 +75,31 @@ class Tree {
         return implode(', ', $newColumns);
     }
 
-    public function getDescendantNodes(): array {
+    public function descendantNodes(): array {
 
     }
     
-    public function getDescendantOrSelfNodes(): array {
+    public function descendantOrSelfNodes(): array {
         
     }
     
-    public function getPrecedingSiblingNodes(): array {
+    public function precedingSiblingNodes(): array {
         
     }
     
-    public function getFollowingSiblingNodes(): array {
+    public function followingSiblingNodes(): array {
         
     }
     
-    public function getParentNode() {
+    public function parentNode() {
         
     }
 
-    public function getAncestorNodes(): array {
+    public function ancestorNodes(): array {
 
     }
 
-    public function getAncestorOrSelfNodes(): array {
+    public function ancestorOrSelfNodes(): array {
 
     }
 
@@ -143,7 +143,7 @@ class Tree {
         ];
     }
 
-    public function getDataColumns(): array {
+    public function dataColumns(): array {
         return $this->dataColumns;
     }
 }

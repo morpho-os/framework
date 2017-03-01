@@ -26,8 +26,8 @@ class TreeTest extends DbTestCase {
         $this->tree->createDbTable();
     }
 
-    public function testGetChildNodes() {
-        $this->assertEquals([], $this->tree->getChildNodes());
+    public function testChildNodes() {
+        $this->assertEquals([], $this->tree->childNodes());
         $data = ['filePath' => '/etc/nginx/conf.d/default.conf'];
         $nodeId = $this->tree->addChildNode(null, $data);
         $this->assertIntString($nodeId);
@@ -40,7 +40,7 @@ class TreeTest extends DbTestCase {
                     'data' => array_merge($data, ['id' => $nodeId]),
                 ],
             ],
-            $this->tree->getChildNodes()
+            $this->tree->childNodes()
         );
     }
 }

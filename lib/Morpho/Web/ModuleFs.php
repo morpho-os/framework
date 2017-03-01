@@ -11,16 +11,16 @@ use Morpho\Fs\File;
 class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
     protected $serviceManager;
 
-    public function getBaseCacheDirPath(): string {
-        return $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath();
+    public function baseCacheDirPath(): string {
+        return $this->serviceManager->get('siteManager')->currentSite()->cacheDirPath();
     }
 
     public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
     
-    public function getModuleViewDirPath(string $moduleName): string {
-        return $this->getModuleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
+    public function moduleViewDirPath(string $moduleName): string {
+        return $this->moduleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
     }
 
     public function registerModuleAutoloader(string $moduleName) {
@@ -30,9 +30,9 @@ class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
 
         parent::registerModuleAutoloader($moduleName);
 
-        $dirPath = $this->getModuleViewDirPath($moduleName);
+        $dirPath = $this->moduleViewDirPath($moduleName);
         if (is_dir($dirPath)) {
-            $cacheFilePath = $this->getModuleCacheDirPath($moduleName) . '/autoload_classmap.php';
+            $cacheFilePath = $this->moduleCacheDirPath($moduleName) . '/autoload_classmap.php';
             if (is_file($cacheFilePath)) {
                 $classTypes = requireFile($cacheFilePath);
                 if ($classTypes) {

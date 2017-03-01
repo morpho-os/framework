@@ -20,9 +20,9 @@ class ControllerTest extends TestCase {
         $controller->dispatch($request);
 
         $this->assertTrue($request->isDispatched());
-        $response = $request->getResponse();
+        $response = $request->response();
         $this->assertTrue($response->isRedirect());
-        $this->assertEquals("Location: $basePath/some/page", trim($response->getHeaders()->toString()));
+        $this->assertEquals("Location: $basePath/some/page", trim($response->headers()->toString()));
     }
 
     public function testForwardTo() {
@@ -35,10 +35,10 @@ class ControllerTest extends TestCase {
         
         $controller->doForwardToAction($actionName, $controllerName, $moduleName, ['p1' => 'v1']);
         
-        $this->assertEquals($actionName, $request->getActionName());
-        $this->assertEquals($controllerName, $request->getControllerName());
-        $this->assertEquals($moduleName, $request->getModuleName());
-        $this->assertEquals(['p1' => 'v1'], $request->getParams());
+        $this->assertEquals($actionName, $request->actionName());
+        $this->assertEquals($controllerName, $request->controllerName());
+        $this->assertEquals($moduleName, $request->moduleName());
+        $this->assertEquals(['p1' => 'v1'], $request->routingParams());
         $this->assertFalse($request->isDispatched());
     }
 

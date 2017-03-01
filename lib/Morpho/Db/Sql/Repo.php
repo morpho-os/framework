@@ -30,14 +30,12 @@ class Repo extends BaseRepo {
         return $this->db()->lastInsertId($seqName);
     }
 
-    public function insertRow(array $row)/*: void*/ {
-        $this->db()->insertRow($this->tableName, $row);
-    }
-
-    public function insertRowAndGetId(array $row, string $seqName = null): string {
+    public function insertRow(array $row, string $idColumnName = null) {
         $db = $this->db();
         $db->insertRow($this->tableName, $row);
-        return $db->lastInsertId($seqName);
+        if ($idColumnName) {
+            return $db->lastInsertId($idColumnName);
+        }
     }
 
     public function saveRow(array $row)/*: void*/ {

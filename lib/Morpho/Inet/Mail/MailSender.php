@@ -31,7 +31,7 @@ class MailSender {
             ->setFrom($fromEmail)
             ->setSubject($subject)
             ->setBody($body);
-        $transport = $this->getTransport();
+        $transport = $this->transport();
         if ($this->enableDiagnostics) {
             if ($transport instanceof SendmailTransport) {
                 $this->lastMessage= $message;
@@ -76,7 +76,7 @@ class MailSender {
         $this->transport = $transport;
     }
 
-    public function getTransport() {
+    public function transport() {
         if (null === $this->transport) {
             $this->transport = new SendmailTransport();
         }

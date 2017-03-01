@@ -21,14 +21,14 @@ class UserManager {
         $this->session = $session;
     }
 
-    public function getLoggedInUser() {
+    public function loggedInUser() {
         if (null !== $this->user) {
             return $this->user;
         }
         if (!isset($this->session->userId)) {
             throw new \RuntimeException("The user was not logged in");
         }
-        $this->user = $this->getRegisteredUserById($this->session->userId);
+        $this->user = $this->registeredUserById($this->session->userId);
         return $this->user;
     }
 
@@ -44,7 +44,7 @@ class UserManager {
      * Log in into the system by ID without any checks.
      */
     public function logInById($userId)/*: void */ {
-        $registeredUser = $this->getRegisteredUserById($userId);
+        $registeredUser = $this->registeredUserById($userId);
         $this->session->userId = $registeredUser['id'];
         $this->user = $registeredUser;
     }
@@ -104,8 +104,8 @@ class UserManager {
         throw new NotImplementedException();
     }
 
-    private function getRegisteredUserById($id) {
-        $registeredUser = $this->repo->getUserById($id);
+    private function registeredUserById($id) {
+        $registeredUser = $this->repo->userById($id);
         unset($registeredUser['passwordHash']);
         return $registeredUser;
     }

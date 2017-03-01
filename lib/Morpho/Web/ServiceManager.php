@@ -67,7 +67,7 @@ class ServiceManager extends BaseServiceManager {
     protected function createTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
-        $templateEngine->setCacheDirPath($this->get('siteManager')->getCurrentSite()->getCacheDirPath());
+        $templateEngine->setCacheDirPath($this->get('siteManager')->currentSite()->cacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->attach(new HtmlParserPre($this))
             ->attach(new FormPersister($this))
@@ -141,8 +141,8 @@ class ServiceManager extends BaseServiceManager {
     }
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {
-        $site = $this->get('siteManager')->getCurrentSite();
-        $filePath = $site->getLogDirPath() . '/' . $logger->getName() . '.log';
+        $site = $this->get('siteManager')->currentSite();
+        $filePath = $site->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)

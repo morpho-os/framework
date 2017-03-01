@@ -6,28 +6,28 @@ use Morpho\Error\HandlerManager;
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
 class HandlerManagerTest extends BaseErrorHandlerTest {
-    public function testIsRegistered() {
+    public function testIsHandlerRegistered() {
         $callback = [$this, 'myHandler'];
         $handlerTypes = [HandlerManager::ERROR, HandlerManager::EXCEPTION];
         foreach ($handlerTypes as $handlerType) {
-            $this->assertFalse(HandlerManager::isRegistered($handlerType, $callback));
-            HandlerManager::register($handlerType, $callback);
-            $this->assertTrue(HandlerManager::isRegistered($handlerType, $callback));
+            $this->assertFalse(HandlerManager::isHandlerRegistered($handlerType, $callback));
+            HandlerManager::registerHandler($handlerType, $callback);
+            $this->assertTrue(HandlerManager::isHandlerRegistered($handlerType, $callback));
         }
     }
 
-    public function testGetAllDoesNotChangeCurrentHandlers() {
-        $this->assertEquals(1, count(HandlerManager::getAll('error')));
-        $this->assertEquals(0, count(HandlerManager::getAll('exception')));
-        $this->assertEquals(1, count(HandlerManager::getAll('error')));
-        $this->assertEquals(0, count(HandlerManager::getAll('exception')));
+    public function testHandlersOfType_DoesNotChangeCurrentHandlers() {
+        $this->assertEquals(1, count(HandlerManager::handlersOfType('error')));
+        $this->assertEquals(0, count(HandlerManager::handlersOfType('exception')));
+        $this->assertEquals(1, count(HandlerManager::handlersOfType('error')));
+        $this->assertEquals(0, count(HandlerManager::handlersOfType('exception')));
     }
 
     public function testRegisterAndUnregisterHandler() {
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::getCurrent(HandlerManager::ERROR));
+        $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
 
         $callback = [$this, 'myHandler'];
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::register(HandlerManager::ERROR, $callback));
+        $this->assertEquals($this->prevErrorHandler, HandlerManager::registerHandler(HandlerManager::ERROR, $callback));
 
         echo $t;
 
@@ -39,15 +39,15 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         ];
         array_pop($this->handlerArgs);
         $this->assertEquals($expected, $this->handlerArgs);
-        $this->assertEquals($callback, HandlerManager::getCurrent(HandlerManager::ERROR));
+        $this->assertEquals($callback, HandlerManager::handlerOfType(HandlerManager::ERROR));
 
-        HandlerManager::unregister(HandlerManager::ERROR, $callback);
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::getCurrent(HandlerManager::ERROR));
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, $callback);
+        $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
     }
 
     public function testThrowsExceptionIfInvalidHandlerTypeProvided() {
         $class = '\Morpho\Error\HandlerManager';
-        $methods = array_diff(get_class_methods($class), ['getAllExceptionHandlers', 'getAllErrorHandlers', 'getExceptionHandler', 'getErrorHandler']);
+        $methods = array_diff(get_class_methods($class), ['exceptionHandlers', 'errorHandlers', 'exceptionHandler', 'errorHandler']);
         $callback = [$this, 'myHandler'];
         foreach ($methods as $method) {
             try {

@@ -8,6 +8,8 @@ use Morpho\Test\DbTestCase;
 use Morpho\Web\Session\Session;
 
 class UserManagerTest extends DbTestCase {
+    private $userManager;
+    
     public function setUp() {
         parent::setUp();
 
@@ -33,7 +35,7 @@ class UserManagerTest extends DbTestCase {
                 unset($this->users[$user['login']]);
             }
             
-            public function getUserById($id): array {
+            public function userById($id): array {
                 foreach ($this->users as $user) {
                     if ($user['id'] === $id) {
                         return $user;
@@ -49,7 +51,7 @@ class UserManagerTest extends DbTestCase {
     public function testRegistration() {
         $user = ['login' => 'foo', 'password' => 'bar'];
 
-        $this->assertGetLoggedInUserThrowsUserNotLoggedInException();
+        $this->assertLoggedInUserThrowsUserNotLoggedInException();
         $this->assertFalse($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn($user));
 
@@ -57,29 +59,29 @@ class UserManagerTest extends DbTestCase {
 
         $this->assertTrue($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn($user));
-        $this->assertGetLoggedInUserThrowsUserNotLoggedInException();
+        $this->assertLoggedInUserThrowsUserNotLoggedInException();
 
         $this->assertTrue($this->userManager->logIn($user));
 
         $this->assertTrue($this->userManager->isUserRegistered($user));
         $this->assertTrue($this->userManager->isUserLoggedIn());
-        $loggedInUser = $this->userManager->getLoggedInUser();
+        $loggedInUser = $this->userManager->loggedInUser();
         $this->assertEquals($user['login'], $loggedInUser['login']);
         $this->assertEquals($user['password'], $loggedInUser['password']);
         $this->assertNotEmpty($loggedInUser['id']);
-        $this->assertEquals($loggedInUser, $this->userManager->getLoggedInUser());
+        $this->assertEquals($loggedInUser, $this->userManager->loggedInUser());
 
         $this->assertNull($this->userManager->logOut());
 
         $this->assertTrue($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn());
-        $this->assertGetLoggedInUserThrowsUserNotLoggedInException();
+        $this->assertLoggedInUserThrowsUserNotLoggedInException();
 
         $this->userManager->deleteRegisteredUser($user);
 
         $this->assertFalse($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn());
-        $this->assertGetLoggedInUserThrowsUserNotLoggedInException();
+        $this->assertLoggedInUserThrowsUserNotLoggedInException();
     }
 
     public function testRegister_TwiceThrowsException() {
@@ -133,9 +135,9 @@ class UserManagerTest extends DbTestCase {
         $this->assertEquals([UserManager::EMPTY_LOGIN_OR_PASSWORD], $this->userManager->logIn(['login' => $login, 'password' => $password]));
     }
 
-    private function assertGetLoggedInUserThrowsUserNotLoggedInException() {
+    private function assertLoggedInUserThrowsUserNotLoggedInException() {
         try {
-            $this->userManager->getLoggedInUser();
+            $this->userManager->loggedInUser();
             $this->fail();
         } catch (\RuntimeException $e) {
             $this->assertEquals('The user was not logged in', $e->getMessage());

@@ -131,7 +131,7 @@ class SchemaManager extends BaseSchemaManager {
      * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
      * of the caller to provide safe arguments.
      */
-    public function getCreateTableSql(string $tableName): string {
+    public function createTableSql(string $tableName): string {
         return $this->db->eval("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))
             ->row()['Create Table'];
     }
@@ -345,7 +345,7 @@ class SchemaManager extends BaseSchemaManager {
      *     - character_set_database
      *     - collation_database
      */
-    public function getCharsetAndCollationVars(): array {
+    public function charsetAndCollationVars(): array {
         return array_merge(
             $this->db->eval('SHOW VARIABLES LIKE "character_set%"')->map(),
             $this->db->eval('SHOW VARIABLES LIKE "collation%"')->map()
@@ -356,7 +356,7 @@ class SchemaManager extends BaseSchemaManager {
      * Returns an array in format ['charset' => $charset, 'collation' => $collation].
      * @return array|false
      */
-    public function getCharsetAndCollationOfDatabase(string $dbName): array {
+    public function charsetAndCollationOfDatabase(string $dbName): array {
         return $this->db->select(
             'DEFAULT_CHARACTER_SET_NAME AS charset,
             DEFAULT_COLLATION_NAME AS collation
@@ -374,7 +374,7 @@ class SchemaManager extends BaseSchemaManager {
     /**
      * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
      */
-    public function getCharsetAndCollationOfTables(string $dbName): array {
+    public function charsetAndCollationOfTables(string $dbName): array {
         return $this->db->select(
             'TABLE_SCHEMA AS dbName,
             TABLE_NAME AS tableName,
@@ -387,7 +387,7 @@ class SchemaManager extends BaseSchemaManager {
         )->rows();
     }
 
-    public function getCharsetAndCollationOfTable(string $tableName): array {
+    public function charsetAndCollationOfTable(string $tableName): array {
         throw new NotImplementedException();
     }
 
@@ -400,7 +400,7 @@ class SchemaManager extends BaseSchemaManager {
     /**
      * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
      */
-    public function getCharsetAndCollationOfColumns(string $tableName): array {
+    public function charsetAndCollationOfColumns(string $tableName): array {
         throw new NotImplementedException();
         // SHOW FULL COLUMNS FROM table_name;
 /*

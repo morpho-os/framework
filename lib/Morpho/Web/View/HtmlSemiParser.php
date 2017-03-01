@@ -324,7 +324,7 @@ class HtmlSemiParser extends BaseFilter {
     protected function runHandlersForTag(array $tag) {
         $tagName = strtolower($tag['_tagName']);
         // Processing tag or container?
-        $handlers = $this->getHandlersForTag($tagName, isset($tag['_text']));
+        $handlers = $this->handlersOfTag($tagName, isset($tag['_text']));
         // Use all handlers from right to left.
         for ($i = count($handlers) - 1; $i >= 0; $i--) {
             $handler = $handlers[$i];
@@ -339,7 +339,7 @@ class HtmlSemiParser extends BaseFilter {
         return $tag;
     }
 
-    protected function getHandlersForTag($tagName, $isContainerTag) {
+    protected function handlersOfTag($tagName, $isContainerTag) {
         return $isContainerTag ? $this->containerHandlers[$tagName] : $this->tagHandlers[$tagName];
     }
 

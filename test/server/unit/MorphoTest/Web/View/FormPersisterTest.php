@@ -28,7 +28,7 @@ HTML;
     public function testFilter_FormWithoutAction_DefaultMethod_AddsRequestUri() {
         $serviceManager = new ServiceManager();
         $serviceManager->set('request', new class {
-            public function getPath() {
+            public function path() {
                 return '/foo/bar<script?';
             }
 

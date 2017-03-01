@@ -2,7 +2,6 @@
 //declare(strict_types = 1);
 namespace Morpho\Web;
 
-use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\Core\Request as BaseRequest;
 use Zend\Validator\Hostname as HostNameValidator;
@@ -14,16 +13,16 @@ use Zend\Http\Headers;
  * @TODO: Specify what chunks and mark of them specially.
  */
 class Request extends BaseRequest {
-    const OPTIONS_METHOD = 'OPTIONS';
-    const GET_METHOD = 'GET';
-    const HEAD_METHOD = 'HEAD';
-    const POST_METHOD = 'POST';
-    const PUT_METHOD = 'PUT';
+    //const CONNECT_METHOD = 'CONNECT';
     const DELETE_METHOD = 'DELETE';
-    const TRACE_METHOD = 'TRACE';
-    const CONNECT_METHOD = 'CONNECT';
+    const GET_METHOD = 'GET';
+    //const HEAD_METHOD = 'HEAD';
+    //const OPTIONS_METHOD = 'OPTIONS';
     const PATCH_METHOD = 'PATCH';
-    const PROPFIND_METHOD = 'PROPFIND';
+    const POST_METHOD = 'POST';
+    //const PROPFIND_METHOD = 'PROPFIND';
+    const PUT_METHOD = 'PUT';
+    //const TRACE_METHOD = 'TRACE';
 
     protected $headers;
 
@@ -35,30 +34,55 @@ class Request extends BaseRequest {
 
     private $mapPostTo;
 
-    private static $allMethods = [
-        self::OPTIONS_METHOD,
+    private static $methods = [
+//        self::OPTIONS_METHOD,
         self::GET_METHOD,
-        self::HEAD_METHOD,
+//        self::HEAD_METHOD,
         self::POST_METHOD,
         self::PUT_METHOD,
         self::DELETE_METHOD,
-        self::TRACE_METHOD,
-        self::CONNECT_METHOD,
+//        self::TRACE_METHOD,
+//        self::CONNECT_METHOD,
         self::PATCH_METHOD,
-        self::PROPFIND_METHOD,
+//        self::PROPFIND_METHOD,
     ];
 
-    public function getContent(): string {
+    public function content(): string {
         // @TODO
         return file_get_contents('php://input');
     }
 
-    public function getParsedContent(): array {
-        return Uri::stringToQueryArgs($this->getContent());
+    public function parsedContent(): array {
+        // @TODO: Ensure that it is safe.
+        return Uri::stringToQueryArgs($this->content());
     }
 
-    public function getArgs($name = null, bool $trim = true) {
-        return $this->{'get' . $this->getMethod()}($name, $trim);
+    /**
+     * Calls one of:
+     *     - get()
+     *     - patch()
+     *     - post()
+     *     - put()
+     * @TODO:
+     *     - options()
+     *     - head()
+     *     - delete(),
+     *     - trace()
+     *     - connect()
+     *     - propfind()
+     */
+    public function args($name = null, bool $trim = true) {
+        $method = $this->method();
+        switch ($method) {
+            case self::GET_METHOD:
+                return $this->query($name, $trim);
+            case self::POST_METHOD:
+            case self::PATCH_METHOD:
+            case self::PUT_METHOD:
+                return $this->$method($name, $trim);
+            default:
+                new BadRequestException();
+        }
     }
 
     public function data(array $source, $name = null, bool $trim = true) {
@@ -81,40 +105,36 @@ class Request extends BaseRequest {
             : null;
     }
 
-    public function getPatch($name = null, bool $trim = true) {
+    public function patch($name = null, bool $trim = true) {
         return $this->data(
-            $this->mapPostTo === self::PATCH_METHOD ? $_POST : $this->getParsedContent(),
+            $this->mapPostTo === self::PATCH_METHOD ? $_POST : $this->parsedContent(),
             $name,
             $trim
         );
     }
 
-    public function getPut($name = null, bool $trim = true) {
+    public function put($name = null, bool $trim = true) {
         return $this->data(
-            $this->mapPostTo === self::PUT_METHOD ? $_POST : $this->getParsedContent(),
+            $this->mapPostTo === self::PUT_METHOD ? $_POST : $this->parsedContent(),
             $name,
             $trim
         );
-    }
-
-    public function getDelete($name = null, bool $trim = true) {
-        throw new NotImplementedException();
     }
 
     public function hasPost(string $name) {
         return isset($_POST[$name]);
     }
 
-    public function getPost($name = null, bool $trim = true) {
+    public function post($name = null, bool $trim = true) {
         // @TODO: Optimize this method for memory for usage.
         return $this->data($_POST, $name, $trim);
     }
 
-    public function hasGet(string $name) {
+    public function hasQuery(string $name) {
         return isset($_GET[$name]);
     }
 
-    public function getGet($name = null, bool $trim = true) {
+    public function query($name = null, bool $trim = true) {
         // @TODO: Optimize this method for memory usage.
         return $this->data($_GET, $name, $trim);
     }
@@ -126,7 +146,7 @@ class Request extends BaseRequest {
         if (null !== $this->isAjax) {
             return $this->isAjax;
         }
-        $header = $this->getHeaders()->get('X_REQUESTED_WITH');
+        $header = $this->headers()->get('X_REQUESTED_WITH');
         return false !== $header && $header->getFieldValue() == 'XMLHttpRequest';
     }
 
@@ -146,19 +166,19 @@ class Request extends BaseRequest {
         $this->uri = $uri;
     }
 
-    public function getUriPath(): string {
+    public function uriPath(): string {
         if (null === $this->uri) {
             $this->initUri();
         }
-        return $this->uri->getPath();
+        return $this->uri->path();
     }
 
     public function setMethod(string $method): self {
-        $this->method = $this->normalizeMethod($method);
+        $this->method = $this->normalizedMethod($method);
         return $this;
     }
 
-    public function getMethod(): string {
+    public function method(): string {
         if (null === $this->method) {
             // Handle the '_method' like in 'Ruby on Rails'.
             if (isset($_POST['_method'])) {
@@ -169,75 +189,67 @@ class Request extends BaseRequest {
                     return $method;
                 }
             }
-            $this->method = $this->normalizeMethod($_SERVER['REQUEST_METHOD']);
+            $this->method = $this->normalizedMethod(null);
         }
         return $this->method;
     }
 
     public function isOptionsMethod(): bool {
-        return $this->getMethod() === self::OPTIONS_METHOD;
+        return $this->method() === self::OPTIONS_METHOD;
     }
 
     public function isGetMethod(): bool {
-        return $this->getMethod() === self::GET_METHOD;
+        return $this->method() === self::GET_METHOD;
     }
 
     public function isHeadMethod(): bool {
-        return $this->getMethod() === self::HEAD_METHOD;
+        return $this->method() === self::HEAD_METHOD;
     }
 
     public function isPostMethod(): bool {
-        return $this->getMethod() === self::POST_METHOD;
+        return $this->method() === self::POST_METHOD;
     }
 
     public function isPutMethod(): bool {
-        return $this->getMethod() === self::PUT_METHOD;
+        return $this->method() === self::PUT_METHOD;
     }
 
     public function isDeleteMethod(): bool {
-        return $this->getMethod() === self::DELETE_METHOD;
+        return $this->method() === self::DELETE_METHOD;
     }
 
     public function isPatchMethod(): bool {
-        return $this->getMethod() === self::PATCH_METHOD;
+        return $this->method() === self::PATCH_METHOD;
     }
 
     public function isTraceMethod(): bool {
-        return $this->getMethod() === self::TRACE_METHOD;
+        return $this->method() === self::TRACE_METHOD;
     }
 
     public function isConnectMethod(): bool {
-        return $this->getMethod() === self::CONNECT_METHOD;
+        return $this->method() === self::CONNECT_METHOD;
     }
 
     public function isPropfindMethod(): bool {
-        return $this->getMethod() === self::PROPFIND_METHOD;
+        return $this->method() === self::PROPFIND_METHOD;
     }
 
     public static function isValidMethod(string $httpMethod): bool {
-        return in_array($httpMethod, self::getAllMethods(), true);
+        return in_array($httpMethod, self::$methods, true);
     }
 
-    public static function normalizeMethod(string $httpMethod): string {
-        $method = strtoupper($httpMethod);
-        if (!self::isValidMethod($method)) {
-            $method = self::GET_METHOD;
-        }
-        return $method;
+    public static function methods(): array {
+        return self::$methods;
     }
 
-    public static function getAllMethods(): array {
-        return self::$allMethods;
-    }
-
-    public function getHeader($name, $default = false) {
-        $headers = $this->getHeaders();
+    public function header($name, $default = false) {
+        $headers = $this->headers();
         return $headers->has($name)
             ? $headers->get($name)
             : $default;
     }
 
-    public function getHeaders() {
+    public function headers() {
         if (null === $this->headers) {
             $this->initHeaders();
         }
@@ -300,8 +312,8 @@ class Request extends BaseRequest {
         $port = null;
 
         // Set the host
-        if ($this->getHeaders()->get('host')) {
-            $host = $this->getHeaders()->get('host')->getFieldValue();
+        if ($this->headers()->get('host')) {
+            $host = $this->headers()->get('host')->getFieldValue();
 
             // works for regname, IPv4 & IPv6
             if (preg_match('|\:(\d+)$|', $host, $matches)) {
@@ -365,5 +377,16 @@ class Request extends BaseRequest {
             throw new BadRequestException();
         }
         return '/' . $basePath;
+    }
+
+    private static function normalizedMethod($httpMethod): string {
+        if (!$httpMethod) {
+            if (!isset($_SERVER['REQUEST_METHOD'])) {
+                return self::GET_METHOD;
+            }
+            $httpMethod = $_SERVER['REQUEST_METHOD'];
+        }
+        $method = strtoupper($httpMethod);
+        return self::isValidMethod($method) ? $method : self::GET_METHOD;
     }
 }

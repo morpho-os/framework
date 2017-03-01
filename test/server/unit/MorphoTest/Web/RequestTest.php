@@ -5,13 +5,15 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Request;
 
 class RequestTest extends TestCase {
+    private $request;
+
     public function setUp() {
         $this->request = new Request();
     }
 
-    public function testGetResponse_ReturnsTheSameInstance() {
-        $response = $this->request->getResponse();
-        $this->assertSame($response, $this->request->getResponse());
+    public function testResponse_ReturnsTheSameInstance() {
+        $response = $this->request->response();
+        $this->assertSame($response, $this->request->response());
     }
 
     public function testIsAjax_BoolAccessor() {
@@ -19,32 +21,32 @@ class RequestTest extends TestCase {
     }
 
     public function testIsAjax_ByDefaultReturnsValueFromHeaders() {
-        $this->request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
+        $this->request->headers()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
         $this->assertTrue($this->request->isAjax());
-        $this->request->getHeaders()->clearHeaders();
+        $this->request->headers()->clearHeaders();
         $this->assertFalse($this->request->isAjax());
     }
 
     public function testInternalParamAccessors() {
-        $this->assertNull($this->request->getInternalParam('foo'));
-        $this->assertEquals('default', $this->request->getInternalParam('foo', 'default'));
+        $this->assertNull($this->request->internalParam('foo'));
+        $this->assertEquals('default', $this->request->internalParam('foo', 'default'));
         $this->assertNull($this->request->setInternalParam('foo', 'bar'));
-        $this->assertEquals('bar', $this->request->getInternalParam('foo'));
-        $this->assertEquals('bar', $this->request->getInternalParam('foo', 'default'));
+        $this->assertEquals('bar', $this->request->internalParam('foo'));
+        $this->assertEquals('bar', $this->request->internalParam('foo', 'default'));
         $this->assertNull($this->request->unsetInternalParam('foo'));
-        $this->assertNull($this->request->getInternalParam('foo'));
+        $this->assertNull($this->request->internalParam('foo'));
     }
 
     public function testHandlerAccessors() {
         $handler = ['foo', 'bar', 'baz'];
         $this->request->setHandler($handler);
-        $this->assertEquals($handler, $this->request->getHandler());
+        $this->assertEquals($handler, $this->request->handler());
     }
 
-    public function testHasGet() {
-        $this->assertFalse($this->request->hasGet('some'));
+    public function testHasQuery() {
+        $this->assertFalse($this->request->hasQuery('some'));
         $_GET['some'] = 'ok';
-        $this->assertTrue($this->request->hasGet('some'));
+        $this->assertTrue($this->request->hasQuery('some'));
     }
 
     public function testHasPost() {
@@ -64,7 +66,7 @@ class RequestTest extends TestCase {
 
     public function dataForIsHttpMethod() {
         $data = [];
-        foreach (Request::getAllMethods() as $httpMethod) {
+        foreach (Request::methods() as $httpMethod) {
             $data[] = [$httpMethod];
         }
         return $data;
@@ -82,56 +84,43 @@ class RequestTest extends TestCase {
         $this->assertBoolAccessor([$this->request, 'isDispatched'], false);
     }
 
-    public function testParamsAccessors() {
-        $this->assertFalse($this->request->hasParams());
-        $this->request->setParam('foo', 'bar');
-        $this->assertTrue($this->request->hasParams());
-        $this->assertEquals(['foo' => 'bar'], $this->request->getParams());
-        $this->request->setParams([]);
-        $this->assertFalse($this->request->hasParams());
-        $this->request->setParams(['cat' => 'dog']);
-        $this->assertEquals(['cat' => 'dog'], $this->request->getParams());
+    public function testRoutingParamsAccessors() {
+        $this->assertFalse($this->request->hasRoutingParams());
+        $this->request->setRoutingParam('foo', 'bar');
+        $this->assertTrue($this->request->hasRoutingParams());
+        $this->assertEquals(['foo' => 'bar'], $this->request->routingParams());
+        $this->request->setRoutingParams([]);
+        $this->assertFalse($this->request->hasRoutingParams());
+        $this->request->setRoutingParams(['cat' => 'dog']);
+        $this->assertEquals(['cat' => 'dog'], $this->request->routingParams());
     }
 
-    public function dataForTrim() {
-        return [
-            [
-                'GET',
-            ],
-            [
-                'POST',
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForTrim
-     */
-    public function testTrim($httpMethod) {
+    public function testTrim_Query() {
         $val = '   baz  ';
-        if ($httpMethod === 'GET') {
-            $_GET['foo']['bar'] = $val;
-        } else {
-            $_POST['foo']['bar'] = $val;
-        }
+        $_GET['foo']['bar'] = $val;
+        $this->assertEquals('baz', $this->request->query('foo')['bar']);
+        $this->assertEquals($val, $this->request->query('foo', false)['bar']);
+    }
 
-        $this->assertEquals('baz', $this->request->{'get' . $httpMethod}('foo')['bar']);
-
-        $this->assertEquals($val, $this->request->{'get' . $httpMethod}('foo', false)['bar']);
+    public function testTrim_Post() {
+        $val = '   baz  ';
+        $_POST['foo']['bar'] = $val;
+        $this->assertEquals('baz', $this->request->post('foo')['bar']);
+        $this->assertEquals($val, $this->request->post('foo', false)['bar']);
     }
 
     public function testDoesNotChangeGlobals() {
         $_GET['foo'] = ['one' => 1];
 
-        $v = $this->request->getGet('foo');
+        $v = $this->request->query('foo');
         $v['one'] = 2;
 
         $this->assertEquals(['one' => 1], $_GET['foo']);
     }
 
     public function testGetGet_ReturnsNullWhenNotSet() {
-        $this->assertNull($this->request->getGet('foo', true));
-        $this->assertNull($this->request->getGet('foo', false));
+        $this->assertNull($this->request->query('foo', true));
+        $this->assertNull($this->request->query('foo', false));
     }
 
     public function dataForGetArgs() {
@@ -148,14 +137,15 @@ class RequestTest extends TestCase {
     /**
      * @dataProvider dataForGetArgs
      */
-    public function testGetArgs($httpMethod) {
+    public function testArgs($httpMethod) {
+        // @TODO: Test patch, put
         $_SERVER['REQUEST_METHOD'] = $httpMethod;
 
         $GLOBALS['_' . $httpMethod]['foo']['bar'] = 'baz';
 
         $this->assertEquals(
             ['non' => null, 'foo' => ['bar' => 'baz']],
-            $this->request->getArgs(['foo', 'non'])
+            $this->request->args(['foo', 'non'])
         );
     }
 }

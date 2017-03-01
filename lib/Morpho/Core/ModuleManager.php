@@ -38,7 +38,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $this->moduleFs = $moduleFs;
     }
 
-    public function getModuleFs(): ModuleFs {
+    public function moduleFs(): ModuleFs {
         return $this->moduleFs;
     }
 
@@ -63,7 +63,7 @@ abstract class ModuleManager extends Node implements IEventManager {
 
                 $this->trigger('beforeDispatch', ['request' => $request]);
 
-                $controller = $this->controller(...$request->getHandler());
+                $controller = $this->controller(...$request->handler());
                 $controller->dispatch($request);
 
                 $this->trigger('afterDispatch', ['request' => $request]);
@@ -77,8 +77,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
             $this->actionNotFound($moduleName, $controllerName, $actionName);
         }
-        $module = $this->getChild($moduleName);
-        return $module->getChild($controllerName);
+        $module = $this->child($moduleName);
+        return $module->child($controllerName);
     }
 
     public function on(string $eventName, callable $handler): void {
@@ -96,7 +96,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             foreach ($this->eventHandlers[$eventName] as $handler) {
                 if (false === is_callable($handler)) {
                     $handler = [
-                        $this->getChild($handler['moduleName']),
+                        $this->child($handler['moduleName']),
                         $handler['method'],
                     ];
                 }
@@ -115,9 +115,9 @@ abstract class ModuleManager extends Node implements IEventManager {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->getChild($moduleName);
+                $module = $this->child($moduleName);
 
-                $db->schemaManager()->createTables($module->getTableDefinitions());
+                $db->schemaManager()->createTables($module->tableDefinitions());
 
                 $module->install($db);
 
@@ -136,7 +136,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName, $moduleId) {
-                $module = $this->getChild($moduleName);
+                $module = $this->child($moduleName);
                 $module->uninstall($db);
                 $db->deleteRows('event', ['moduleId' => $moduleId]);
                 $db->deleteRows($this->tableName, ['id' => $moduleId]);
@@ -153,7 +153,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->getChild($moduleName);
+                $module = $this->child($moduleName);
                 $module->enable($db);
                 $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
             }
@@ -171,7 +171,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         */
         $this->db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->getChild($moduleName);
+                $module = $this->child($moduleName);
                 $module->disable($db);
                 $db->updateRows($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
             }
@@ -183,9 +183,9 @@ abstract class ModuleManager extends Node implements IEventManager {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->getChild($moduleName);
+                $module = $this->child($moduleName);
 
-                $db->schemaManager()->createTables($module->getTableDefinitions());
+                $db->schemaManager()->createTables($module->tableDefinitions());
 
                 $module->install($db);
                 $db->insertRow($this->tableName, ['name' => $moduleName, 'status' => self::DISABLED]);
@@ -206,8 +206,8 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $moduleRow = $this->db->select('id, status FROM module WHERE name = ?', [$moduleName])->row();
                 if ($moduleRow) {
                     $this->db->eval("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
-                    $module = $this->getChild($moduleName);
-                    foreach ($this->getEventsMeta($module) as $eventMeta) {
+                    $module = $this->child($moduleName);
+                    foreach ($this->eventsMeta($module) as $eventMeta) {
                         $this->db->insertRow('event', array_merge($eventMeta, ['moduleId' => $moduleRow['id']]));
                     }
                 }
@@ -249,7 +249,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         if ($this->fallbackMode) {
             return [];
         }
-        $moduleNames = $this->moduleFs->getModuleNames();
+        $moduleNames = $this->moduleFs->moduleNames();
         return is_array($moduleNames) ? $moduleNames : iterator_to_array($moduleNames, false);
     }
 
@@ -289,7 +289,7 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected function childNameToClass(string $moduleName) {
         $moduleFs = $this->moduleFs;
         $moduleFs->registerModuleAutoloader($moduleName);
-        $class = $moduleFs->getModuleClass($moduleName);
+        $class = $moduleFs->moduleClass($moduleName);
         return $class ?: false;
     }
 
@@ -300,7 +300,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $class = $this->childNameToClass($moduleName);
         if (!$class) {
             $module = new Module();
-            $module->setModuleNamespace($this->moduleFs->getModuleNamespace($moduleName));
+            $module->setModuleNamespace($this->moduleFs->moduleNamespace($moduleName));
         }  else {
             $module = new $class();
         }
@@ -333,7 +333,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    protected function getEventsMeta($module): array {
+    protected function eventsMeta($module): array {
         $rClass = new \ReflectionClass($module);
         $rClasses = [$rClass];
         while ($rClass = $rClass->getParentClass()) {

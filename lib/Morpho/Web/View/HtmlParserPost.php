@@ -23,14 +23,14 @@ class HtmlParserPost extends HtmlParser {
 /*
     protected function containerTypeScript($tag) {
         $inDirPath = str_replace('\\', '/', dirname($this->filePath));
-        $cacheDirPath = $this->serviceManager->getSiteManager()->getCurrentSite()->getCacheDirPath();
+        $cacheDirPath = $this->serviceManager->siteManager()->currentSite()->cacheDirPath();
         $scriptTag = [];
         if (isset($tag['index'])) {
             $scriptTag['index'] = $tag['index'];
         }
         $filesToCompile = [];
         $compile = false;
-        $baseModuleDirPath = $this->serviceManager->get('moduleFs')->getBaseModuleDirPath();
+        $baseModuleDirPath = $this->serviceManager->get('moduleFs')->baseModuleDirPath();
         foreach (array_map('trim', explode(',', $tag['src'])) as $fileName) {
             $inFilePath = $inDirPath . '/' . Path::changeExt(basename($fileName), 'ts');
             if (!is_file($inFilePath)) {

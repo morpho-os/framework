@@ -12,12 +12,12 @@ class MessengerPlugin extends Plugin implements \Countable, IServiceManagerAware
     private $serviceManager;
 
     public function count() {
-        return $this->getMessenger()->count();
+        return $this->messenger()->count();
     }
 
     public function renderPageMessages() {
         $html = '';
-        $messenger = $this->getMessenger();
+        $messenger = $this->messenger();
         if ($this->count()) {
             $renderedMessages = [];
             foreach ($messenger->toArray() as $type => $messages) {
@@ -71,7 +71,7 @@ class MessengerPlugin extends Plugin implements \Countable, IServiceManagerAware
         . '</div>';
     }
 
-    protected function getMessenger() {
+    protected function messenger() {
         return $this->serviceManager->get('messenger');
     }
 }

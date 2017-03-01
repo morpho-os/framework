@@ -157,7 +157,7 @@ class TypeInfoProvider {
         ],
     ];
 
-    public static function getTypeInfo(string $type): array {
+    public static function typeInfo(string $type): array {
         $type = self::resolveSynonymOfType($type);
         if (!isset(self::$typeInfo[$type])) {
             throw new \UnexpectedValueException($type);

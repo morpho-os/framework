@@ -22,7 +22,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     public function register(): void {
         parent::register();
 
-        HandlerManager::register(HandlerManager::ERROR, [$this, 'handleError']);
+        HandlerManager::registerHandler(HandlerManager::ERROR, [$this, 'handleError']);
 
         if ($this->registerAsFatalErrorHandler) {
             register_shutdown_function([$this, 'handleFatalError']);
@@ -35,7 +35,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     public function unregister(): void {
         parent::unregister();
 
-        HandlerManager::unregister(HandlerManager::ERROR, [$this, 'handleError']);
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, [$this, 'handleError']);
 
         // There is no unregister_shutdown_function(), so we emulate it via flag.
         $this->fatalErrorHandlerActive = false;
@@ -103,15 +103,15 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     }
 
     public static function errorToException($severity, $message, $filePath, $lineNo, $context): \ErrorException {
-        $class = self::getExceptionClass($severity);
+        $class = self::exceptionClass($severity);
         return new $class($message, 0, $severity, $filePath, $lineNo);
     }
 
     public static function isErrorLogEnabled(): bool {
-        return Environment::getBoolIniVal('log_errors') && !empty(ini_get('error_log'));
+        return Environment::boolIniVal('log_errors') && !empty(ini_get('error_log'));
     }
 
-    public static function getHashId(\Throwable $e): string {
+    public static function hashId(\Throwable $e): string {
         return md5(str_replace("\x00", '', $e->getFile()) . "\x00" . $e->getLine());
     }
 
@@ -131,7 +131,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         ini_set('display_startup_errors', $this->oldIniSettings['display_startup_errors']);
     }
 
-    protected static function getExceptionClass($severity): string {
+    protected static function exceptionClass($severity): string {
         $levels = [
             E_ERROR             => 'ErrorException',
             E_WARNING           => 'WarningException',

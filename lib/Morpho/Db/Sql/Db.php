@@ -122,11 +122,11 @@ abstract class Db {
         return $this->db->inTransaction();
     }
 
-    public function getCurrentDriverName(): string {
+    public function driverName(): string {
         return $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME);
     }
 
-    public static function getAvailableDrivers(): array {
+    public static function availableDrivers(): array {
         return \PDO::getAvailableDrivers();
     }
 

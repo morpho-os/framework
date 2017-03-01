@@ -8,20 +8,20 @@ abstract class Object {
 
     private $classDirPath;
 
-    public function getNamespace(): string {
+    public function namespace(): string {
         $class = get_class($this);
         return substr($class, 0, strrpos($class, '\\'));
     }
 
-    public function getClassDirPath(): string {
+    public function classDirPath(): string {
         if (null === $this->classDirPath) {
-            $this->classDirPath = dirname($this->getClassFilePath());
+            $this->classDirPath = dirname($this->classFilePath());
         }
 
         return $this->classDirPath;
     }
 
-    public function getClassFilePath(): string {
+    public function classFilePath(): string {
         return str_replace('\\', '/', $this->reflect()->getFileName());
     }
 

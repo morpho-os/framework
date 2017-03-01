@@ -70,13 +70,13 @@ class DateTimeTest extends TestCase {
         $this->assertInstanceOf(DateTime::class, DateTime::createFromFormat('Y-m-d', '2013-06-21'));
     }
 
-    public function testGetNumberOfDaysInMonth() {
+    public function testNumberOfDaysInMonth() {
         $format = 'Y-m-d';
-        $this->assertEquals(29, DateTime::createFromFormat($format, '2008-02-01')->getNumberOfDaysInMonth());
-        $this->assertEquals(28, DateTime::createFromFormat($format, '2009-02-01')->getNumberOfDaysInMonth());
-        $this->assertEquals(31, DateTime::createFromFormat($format, '2009-01-01')->getNumberOfDaysInMonth());
-        $this->assertEquals(31, DateTime::createFromFormat($format, '2009-08-01')->getNumberOfDaysInMonth());
-        $this->assertEquals(31, DateTime::createFromFormat($format, '2009-08-01')->getNumberOfDaysInMonth());
-        $this->assertEquals(30, DateTime::createFromFormat($format, '2009-09-01')->getNumberOfDaysInMonth());
+        $this->assertEquals(29, DateTime::createFromFormat($format, '2008-02-01')->numberOfDaysInMonth());
+        $this->assertEquals(28, DateTime::createFromFormat($format, '2009-02-01')->numberOfDaysInMonth());
+        $this->assertEquals(31, DateTime::createFromFormat($format, '2009-01-01')->numberOfDaysInMonth());
+        $this->assertEquals(31, DateTime::createFromFormat($format, '2009-08-01')->numberOfDaysInMonth());
+        $this->assertEquals(31, DateTime::createFromFormat($format, '2009-08-01')->numberOfDaysInMonth());
+        $this->assertEquals(30, DateTime::createFromFormat($format, '2009-09-01')->numberOfDaysInMonth());
     }
 }

@@ -26,7 +26,7 @@ class ClassTypeAutoloader extends Autoloader {
     // ------------------------------------------------------------------------
     // ClassToFilePath mapping:
 
-    public function getClassToFilePathMap(): array {
+    public function classToFilePathMap(): array {
         return $this->classToFileMap;
     }
 
@@ -66,7 +66,7 @@ class ClassTypeAutoloader extends Autoloader {
     // ------------------------------------------------------------------------
     // PSR-0 mapping:
 
-    public function getPrefixesPsr0(): array {
+    public function prefixesPsr0(): array {
         return !empty($this->prefixesPsr0)
             ? call_user_func_array('array_merge', $this->prefixesPsr0)
             : [];
@@ -93,7 +93,7 @@ class ClassTypeAutoloader extends Autoloader {
     // ------------------------------------------------------------------------
     // PSR-4 mapping:
 
-    public function getPrefixesPsr4(): array {
+    public function prefixesPsr4(): array {
         return $this->prefixDirsPsr4;
     }
 

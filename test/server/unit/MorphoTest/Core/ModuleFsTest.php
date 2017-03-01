@@ -5,6 +5,8 @@ use Morpho\Core\ModuleFs as BaseModuleFs;
 use Morpho\Test\TestCase;
 
 class ModuleFsTest extends TestCase {
+    private $vendorName;
+
     public function setUp() {
         parent::setUp();
         $this->vendorName = 'morpho-test';
@@ -19,46 +21,46 @@ class ModuleFsTest extends TestCase {
     }
 
     public function testBaseModuleDirPathAccessors() {
-        $baseModuleDirPath = $this->getTestDirPath();
+        $baseModuleDirPath = $this->_testDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
-        $this->assertEquals($baseModuleDirPath, $moduleFs->getBaseModuleDirPath());
+        $this->assertEquals($baseModuleDirPath, $moduleFs->baseModuleDirPath());
     }
 
-    public function testGetModuleNames() {
-        $baseModuleDirPath = $this->getTestDirPath();
+    public function testModuleNames() {
+        $baseModuleDirPath = $this->_testDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
-        $moduleNames = $moduleFs->getModuleNames();
+        $moduleNames = $moduleFs->moduleNames();
         $this->assertCount(3, $moduleNames);
         $this->assertContains("{$this->vendorName}/earth", $moduleNames);
         $this->assertContains("{$this->vendorName}/saturn", $moduleNames);
         $this->assertContains("{$this->vendorName}/mars", $moduleNames);
     }
 
-    public function testGetModuleClass_ReturnsFalseWhenClassDoesNotExist() {
-        $moduleFs = $this->createModuleFs($this->getTestDirPath());
-        $this->assertNull($moduleFs->getModuleClass("{$this->vendorName}/saturn"));
+    public function testModuleClass_ReturnsFalseWhenClassDoesNotExist() {
+        $moduleFs = $this->createModuleFs($this->_testDirPath());
+        $this->assertNull($moduleFs->moduleClass("{$this->vendorName}/saturn"));
     }
 
-    public function testGetModuleClass_ReturnsClassWhenClassExists() {
-        $moduleFs = $this->createModuleFs($this->getTestDirPath());
-        $this->assertEquals('MorphoTest\\Core\\ModuleFsTest\\Mars\\Module', $moduleFs->getModuleClass("{$this->vendorName}/mars"));
+    public function testModuleClass_ReturnsClassWhenClassExists() {
+        $moduleFs = $this->createModuleFs($this->_testDirPath());
+        $this->assertEquals('MorphoTest\\Core\\ModuleFsTest\\Mars\\Module', $moduleFs->moduleClass("{$this->vendorName}/mars"));
     }
     
-    public function testGetModuleDirPath() {
-        $baseModuleDirPath = $this->getTestDirPath();
+    public function testModuleDirPath() {
+        $baseModuleDirPath = $this->_testDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $moduleName = "{$this->vendorName}/saturn";
-        $this->assertEquals($baseModuleDirPath . "/saturn", $moduleFs->getModuleDirPath($moduleName));
+        $this->assertEquals($baseModuleDirPath . "/saturn", $moduleFs->moduleDirPath($moduleName));
     }
 
-    public function testGetControllerFilePaths() {
-        $baseModuleDirPath = $this->getTestDirPath();
+    public function testModuleControllerFilePaths() {
+        $baseModuleDirPath = $this->_testDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $this->assertEquals(
             [
                 $baseModuleDirPath . '/saturn/' . CONTROLLER_DIR_NAME . '/FooController.php'
             ],
-            $moduleFs->getModuleControllerFilePaths("{$this->vendorName}/saturn")
+            $moduleFs->moduleControllerFilePaths("{$this->vendorName}/saturn")
         );
     }
 
@@ -75,7 +77,7 @@ class ModuleFs extends BaseModuleFs {
         $this->baseCacheDirPath = $baseCacheDirPath;
     }
 
-    public function getBaseCacheDirPath(): string {
+    public function baseCacheDirPath(): string {
         return $this->baseCacheDirPath;
     }
 

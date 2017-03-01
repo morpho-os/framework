@@ -18,5 +18,5 @@ interface IUserRepo {
      * @param string|int $id
      * @throws \Morpho\Base\EntityNotFoundException if the User with the given ID is not found.
      */
-    public function getUserById($id): array;
+    public function userById($id): array;
 }

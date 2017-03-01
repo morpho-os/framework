@@ -23,7 +23,7 @@ abstract class TemplateEngine extends FilterChain {
      * Renders file that contains code in PHPTemplate language and returns result after of PHP execution.
      */
     public function renderFile(string $filePath, array $vars = []): string {
-        $__filePath = $this->getCompiledFilePath($filePath);
+        $__filePath = $this->compiledFilePath($filePath);
         unset($filePath);
         extract($vars, EXTR_SKIP);
         ob_start();
@@ -86,11 +86,11 @@ abstract class TemplateEngine extends FilterChain {
         $this->vars = $vars;
     }
     
-    public function getVars(): array {
+    public function vars(): array {
         return $this->vars;
     }
 
-    protected function getCompiledFilePath(string $filePath): string {
+    protected function compiledFilePath(string $filePath): string {
         if (!$this->cacheDirPath) {
             throw new EmptyPropertyException($this, 'cacheFilePath');
         }

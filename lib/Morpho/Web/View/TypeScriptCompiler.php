@@ -47,7 +47,7 @@ class TypeScriptCompiler {
     public function compileToDir(string $inFilePath, string $outDirPath = null): CommandResult {
         $options = $this->escapeOptions(
             array_merge(
-                $this->getOptions(),
+                $this->options(),
                 [
                     'outDir' => $outDirPath,
                     $inFilePath,
@@ -58,7 +58,7 @@ class TypeScriptCompiler {
     }
 
     public function writeTsconfig(string $dirPath): string {
-        return File::writeJson($dirPath . '/' . self::TSCONFIG_FILE, $this->getOptions());
+        return File::writeJson($dirPath . '/' . self::TSCONFIG_FILE, $this->options());
     }
 
     public function version(): string {
@@ -90,7 +90,7 @@ class TypeScriptCompiler {
         $this->options[$name] = $value;
     }
 
-    public function getOption(string $name) {
+    public function option(string $name) {
         return $this->options[$name];
     }
 
@@ -98,12 +98,12 @@ class TypeScriptCompiler {
         $this->options = $options;
     }
 
-    public function getOptions(): array {
+    public function options(): array {
         return $this->options;
     }
 
     public function optionsString(array $options = null): string {
-        return implode(' ', $this->escapeOptions(array_merge($this->getOptions(), (array) $options)));
+        return implode(' ', $this->escapeOptions(array_merge($this->options(), (array) $options)));
     }
 
     protected function escapeOptions(array $options): array {

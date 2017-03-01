@@ -20,7 +20,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
 
-    public function getPlugin(string $name) {
+    public function plugin($name, array $options = []) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
             $this->plugins[$name] = $this->createPlugin($name);
@@ -52,7 +52,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function moduleName(): string {
-        $moduleName = $this->request()->getModuleName();
+        $moduleName = $this->request()->moduleName();
         if (empty($moduleName)) {
             throw new EmptyValueException();
         }
@@ -60,7 +60,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function controllerName(): string {
-        $controllerName = $this->request()->getControllerName();
+        $controllerName = $this->request()->controllerName();
         if (empty($controllerName)) {
             throw new EmptyValueException();
         }
@@ -68,7 +68,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function actionName(): string {
-        $actionName = $this->request()->getActionName();
+        $actionName = $this->request()->actionName();
         if (empty($actionName)) {
             throw new EmptyValueException();
         }
@@ -79,8 +79,8 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return $this->serviceManager->get('userManager')->isUserLoggedIn();
     }
 
-    public function getLoggedInUser() {
-        return $this->serviceManager->get('userManager')->getLoggedInUser();
+    public function loggedInUser() {
+        return $this->serviceManager->get('userManager')->loggedInUser();
     }
 
     public function uri(): Uri {
@@ -165,7 +165,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function __call($pluginName, array $args) {
-        $plugin = $this->getPlugin($pluginName);
+        $plugin = $this->plugin($pluginName);
         return $plugin(...$args);
     }
 
@@ -180,8 +180,8 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected function createPlugin(string $name) {
         $serviceManager = $this->serviceManager;
         $class = $serviceManager->get('moduleManager')
-            ->getChild(self::moduleName())
-            ->getNamespace()
+            ->child(self::moduleName())
+            ->namespace()
             . '\\View\\Plugin\\'
                 . classify(self::controllerName())
                 . '\\' . $name . self::PLUGIN_SUFFIX;

@@ -24,7 +24,7 @@ class ModuleController extends Controller {
     }
 
     public function createAction() {
-        $postData = $this->getPost();
+        $postData = $this->post();
         $this->session(__FUNCTION__)->formData = $postData;
 
         $moduleName = classify($postData['module']['name']);
@@ -46,7 +46,7 @@ class ModuleController extends Controller {
         }
 
         if (!empty($postData['module']['enable'])) {
-            $moduleManager = $this->getParent('ModuleManager');
+            $moduleManager = $this->parent('ModuleManager');
             $moduleManager->installAndEnableModule($moduleName);
         }
 

@@ -38,21 +38,21 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->markTestAsNotRisky();
     }
 
-    public function testGetHashId_TheSameFileDifferentLines() {
+    public function testHashId_TheSameFileDifferentLines() {
         try {
             throw new RuntimeException();
         } catch (RuntimeException $e1) {
 
         }
-        $hashId1 = ErrorHandler::getHashId($e1);
+        $hashId1 = ErrorHandler::hashId($e1);
         $this->assertNotEmpty($hashId1);
-        $this->assertEquals($hashId1, ErrorHandler::getHashId($e1));
+        $this->assertEquals($hashId1, ErrorHandler::hashId($e1));
         try {
             throw new RuntimeException();
         } catch (RuntimeException $e2) {
 
         }
-        $hashId2 = ErrorHandler::getHashId($e2);
+        $hashId2 = ErrorHandler::hashId($e2);
         $this->assertNotEmpty($hashId2);
         $this->assertNotEquals($hashId1, $hashId2);
     }
@@ -76,15 +76,15 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $oldDisplayStartupErrors = ini_get('display_startup_errors');
         $this->assertNull($errorHandler->register());
         $expected = [$errorHandler, 'handleError'];
-        $this->assertEquals($expected, HandlerManager::getCurrent(HandlerManager::ERROR));
+        $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::ERROR));
         $expected = [$errorHandler, 'handleException'];
-        $this->assertEquals($expected, HandlerManager::getCurrent(HandlerManager::EXCEPTION));
+        $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
         $this->assertEquals(0, ini_get('display_errors'));
         $this->assertEquals(0, ini_get('display_startup_errors'));
 
         $errorHandler->unregister();
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::getCurrent(HandlerManager::ERROR));
-        $this->assertEquals($this->prevExceptionHandler, HandlerManager::getCurrent(HandlerManager::EXCEPTION));
+        $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
+        $this->assertEquals($this->prevExceptionHandler, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
         $this->assertEquals($oldDisplayErrors, ini_get('display_errors'));
         $this->assertEquals($oldDisplayStartupErrors, ini_get('display_startup_errors'));
     }

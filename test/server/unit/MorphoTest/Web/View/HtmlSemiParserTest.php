@@ -32,8 +32,8 @@ class HtmlSemiParserTest extends TestCase {
 </body>
 HTML;
         $this->parser->filter($html);
-        $this->assertEquals(['href' => '/foo/bar', 'class' => 'my'], $handler->getAttributes());
-        $this->assertEquals('a', $handler->getTagName());
+        $this->assertEquals(['href' => '/foo/bar', 'class' => 'my'], $handler->attributes());
+        $this->assertEquals('a', $handler->tagName());
     }
 
     public function testCallContainerHandler() {
@@ -44,15 +44,15 @@ HTML;
 </div>
 HTML;
         $this->parser->filter($html);
-        $this->assertEquals('<a href="foo">123</a>', $handler->getText());
+        $this->assertEquals('<a href="foo">123</a>', $handler->text());
         $this->assertEquals(
             [
                 'class' => 'my-class',
                 'style' => 'width: 98%;',
             ],
-            $handler->getAttributes()
+            $handler->attributes()
         );
-        $this->assertEquals('div', $handler->getTagName());
+        $this->assertEquals('div', $handler->tagName());
     }
 
     public function testSkipsTagHandlerIfNoTag() {
@@ -65,8 +65,8 @@ HTML;
 </body>
 HTML;
         $this->parser->filter($html);
-        $this->assertNull($handler->getTagName());
-        $this->assertEquals([], $handler->getAttributes());
+        $this->assertNull($handler->tagName());
+        $this->assertEquals([], $handler->attributes());
     }
 
     public function testCanRemoveTag() {
@@ -105,11 +105,11 @@ HTML;
 abstract class TagHandler {
     protected $tag = [];
 
-    public function getTagName() {
+    public function tagName() {
         return isset($this->tag['_tagName']) ? $this->tag['_tagName'] : null;
     }
 
-    public function getAttributes() {
+    public function attributes() {
         $attribs = [];
         foreach ($this->tag as $key => $value) {
             if ($key[0] == '_') {
@@ -126,7 +126,7 @@ class MyContainerHandler extends TagHandler {
         $this->tag = $tag;
     }
 
-    public function getText() {
+    public function text() {
         return trim($this->tag['_text']);
     }
 }

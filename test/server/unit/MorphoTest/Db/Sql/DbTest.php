@@ -69,8 +69,8 @@ abstract class DbTest extends DbTestCase {
         $this->assertSecondRowChanged();
     }
 
-    public function testGetDriverName() {
-        $this->assertEquals(Db::MYSQL_DRIVER, $this->db->getCurrentDriverName());
+    public function testDriverName() {
+        $this->assertEquals(Db::MYSQL_DRIVER, $this->db->driverName());
     }
 
     private function setTestDataForUpdateRows() {

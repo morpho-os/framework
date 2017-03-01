@@ -8,10 +8,10 @@ abstract class DbTestCase extends TestCase {
     const DB = 'test';
     
     protected function createFixtures($db)/*: void*/ {
-        $paths = Directory::paths($this->getTestDirPath(), '~Fixture\.php$~');
+        $paths = Directory::paths($this->testDirPath(), '~Fixture\.php$~');
         foreach ($paths as $path) {
             require_once $path;
-            $class = $this->getNamespace(true) . '\\'
+            $class = $this->namespace(true) . '\\'
                 . basename(dirname($path)) . '\\'
                 . pathinfo($path, PATHINFO_FILENAME);
             (new $class())->load($db);

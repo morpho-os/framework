@@ -18,7 +18,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
 
         $this->request = $request;
 
-        $action = $request->getActionName();
+        $action = $request->actionName();
 
         if (empty($action)) {
             throw new \LogicException("Empty action name");
@@ -36,14 +36,14 @@ abstract class Controller extends Node implements IServiceManagerAware {
 
         if (is_string($actionResult)) {
             // Already rendered View.
-            $this->request->getResponse()
+            $this->request->response()
                 ->setContent($actionResult);
         } elseif ($this->shouldRenderView($actionResult)) {
             $renderedView = $this->renderView(
                 isset($this->specialViewVars['name']) ? $this->specialViewVars['name'] : $action,
                 $actionResult
             );
-            $this->request->getResponse()
+            $this->request->response()
                 ->setContent($renderedView);
         }
     }
@@ -56,12 +56,12 @@ abstract class Controller extends Node implements IServiceManagerAware {
         $this->request = $request;
     }
 
-    public function getRequest() {
+    public function request() {
         return $this->request;
     }
 
     protected function trigger(string $event, array $args = null) {
-        return $this->getParent('ModuleManager')->trigger($event, $args);
+        return $this->parent('ModuleManager')->trigger($event, $args);
     }
 
     /**
@@ -78,24 +78,24 @@ abstract class Controller extends Node implements IServiceManagerAware {
 
     protected function setSetting(string $name, $value, string $moduleName = null)/*: void */ {
         $this->serviceManager->get('settingManager')
-            ->set($name, $value, $moduleName ?: $this->getModuleName());
+            ->set($name, $value, $moduleName ?: $this->moduleName());
     }
 
-    protected function getSetting(string $name, string $moduleName = null) {
+    protected function setting(string $name, string $moduleName = null) {
         return $this->serviceManager->get('settingManager')
-            ->get($name, $moduleName ?: $this->getModuleName());
+            ->get($name, $moduleName ?: $this->moduleName());
     }
 
-    protected function getModuleName(): string {
-        return $this->parent->getName();
+    protected function moduleName(): string {
+        return $this->parent->name();
     }
 
     protected function db() {
         return $this->serviceManager->get('db');
     }
 
-    protected function getRepo(string $name) {
-        return $this->parent->getRepo($name);
+    protected function repo(string $name) {
+        return $this->parent->repo($name);
     }
 
     protected function setView(string $viewName)/*: void */ {
@@ -116,7 +116,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
     }
 
     protected function shouldRenderView($actionResult): bool {
-        return (is_array($actionResult) || !$this->request->getResponse()->isRedirect())
+        return (is_array($actionResult) || !$this->request->response()->isRedirect())
             && $this->request->isDispatched();
     }
 
@@ -126,7 +126,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
             array_merge(
                 $this->specialViewVars,
                 [
-                    'controller' => $this->getName(),
+                    'controller' => $this->name(),
                     'view' => $viewName,
                     'vars' => (array) $viewVars,
                 ]

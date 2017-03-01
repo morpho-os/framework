@@ -15,7 +15,7 @@ class Pager extends Node {
 
     private $totalItemsCount;
 
-    public function getName(): string {
+    public function name(): string {
         if (null === $this->name) {
             $this->name = uniqueName();
         }
@@ -24,7 +24,7 @@ class Pager extends Node {
 
     public function setCurrentPageNumber($pageNumber) {
         $pageNumber = intval($pageNumber);
-        $totalPagesCount = $this->getTotalPagesCount();
+        $totalPagesCount = $this->totalPagesCount();
         if ($pageNumber > $totalPagesCount) {
             $pageNumber = $totalPagesCount;
         } elseif ($pageNumber < 1) {
@@ -34,7 +34,7 @@ class Pager extends Node {
         return $this;
     }
 
-    public function getCurrentPageNumber() {
+    public function currentPageNumber() {
         return $this->currentPageNumber;
     }
 
@@ -45,8 +45,8 @@ class Pager extends Node {
         return $this;
     }
 
-    public function getTotalPagesCount() {
-        return (int)ceil($this->getTotalItemsCount() / $this->getPageSize());
+    public function totalPagesCount() {
+        return (int)ceil($this->totalItemsCount() / $this->pageSize());
     }
 
     public function setPageSize($pageSize) {
@@ -56,30 +56,30 @@ class Pager extends Node {
         return $this;
     }
 
-    public function getPageSize() {
+    public function pageSize() {
         return $this->pageSize;
     }
 
-    public function getCurrentPage() {
-        return $this->getPage($this->getCurrentPageNumber());
+    public function currentPage() {
+        return $this->page($this->currentPageNumber());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPage($pageNumber) {
+    public function page($pageNumber): iterable {
         $pageNumber = max(intval($pageNumber), 1);
-        $pageSize = $this->getPageSize();
+        $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
         return $this->createPage(
-            $this->getItemList(
+            $this->items(
                 $offset,
                 $pageSize
             )
         );
     }
 
-    public function getTotalItemsCount() {
+    public function totalItemsCount() {
         if (null === $this->totalItemsCount) {
             $this->totalItemsCount = $this->calculateTotalItemsCount();
         }
@@ -96,31 +96,31 @@ class Pager extends Node {
      * @return array
      */
     public function current() {
-        return $this->getPage($this->getCurrentPageNumber());
+        return $this->page($this->currentPageNumber());
     }
 
     public function valid(): bool {
-        return $this->isValid && $this->getCurrentPageNumber() <= $this->getTotalPagesCount();
+        return $this->isValid && $this->currentPageNumber() <= $this->totalPagesCount();
     }
 
     /**
      * @return string int float
      */
     public function key() {
-        return $this->getCurrentPageNumber();
+        return $this->currentPageNumber();
     }
 
     public function next(): void {
-        $nextPageNumber = $this->getCurrentPageNumber() + 1;
-        if ($nextPageNumber > $this->getTotalPagesCount()) {
+        $nextPageNumber = $this->currentPageNumber() + 1;
+        if ($nextPageNumber > $this->totalPagesCount()) {
             $this->isValid = false;
         } else {
-            $this->setCurrentPageNumber($this->getCurrentPageNumber() + 1);
+            $this->setCurrentPageNumber($this->currentPageNumber() + 1);
         }
     }
 
     public function count(): int {
-        return $this->getTotalPagesCount();
+        return $this->totalPagesCount();
     }
 
     protected function calculateTotalItemsCount() {
@@ -130,14 +130,14 @@ class Pager extends Node {
     /**
      * Creates a new Page with $items.
      */
-    protected function createPage(array $items) {
+    protected function createPage(array $items): iterable {
         return new Page($items);
     }
 
     /**
      * @return array
      */
-    protected function getItemList($offset, $pageSize) {
+    protected function items($offset, $pageSize) {
         return array_slice($this->items, $offset, $pageSize);
     }
 }

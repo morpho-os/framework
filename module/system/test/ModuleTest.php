@@ -15,7 +15,7 @@ class ModuleTest extends DbTestCase {
         $db = $this->db();
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables();
-        $schemaManager->createTables(SystemModule::getTableDefinitions());
+        $schemaManager->createTables(SystemModule::tableDefinitions());
     }
 
     public function testDispatchError_SetsDefaultHandlerForAccessDenied() {
@@ -70,7 +70,7 @@ class ModuleTest extends DbTestCase {
         $module = new SystemModule();
         $serviceManager = new ServiceManager();
         $siteManager = $this->createMock('\\Morpho\\Web\\SiteManager');
-        $siteManager->method('getCurrentSiteConfig')
+        $siteManager->method('currentSiteConfig')
             ->will($this->returnValue(['throwDispatchErrors' => false]));
         $serviceManager->set('siteManager', $siteManager);
         $serviceManager->set('settingManager', $settingManager);
@@ -105,8 +105,8 @@ class ModuleTest extends DbTestCase {
 
     private function assertRequestHasHandlerAndException(Request $request, array $handler, \Exception $exception) {
         $this->assertFalse($request->isDispatched());
-        $this->assertEquals($handler, $request->getHandler());
-        $this->assertEquals($exception, $request->getInternalParam('error'));
-        $this->assertEquals(Response::STATUS_CODE_403, $request->getResponse()->getStatusCode());
+        $this->assertEquals($handler, $request->handler());
+        $this->assertEquals($exception, $request->internalParam('error'));
+        $this->assertEquals(Response::STATUS_CODE_403, $request->response()->getStatusCode());
     }
 }

@@ -26,7 +26,7 @@ class Theme extends Module {
         $this->suffix = $suffix;
     }
 
-    public function getViewFileSuffix() {
+    public function viewFileSuffix() {
         return $this->suffix;
     }
 
@@ -34,7 +34,7 @@ class Theme extends Module {
         $this->templateEngine = $templateEngine;
     }
 
-    public function getTemplateEngine() {
+    public function templateEngine() {
         if (null === $this->templateEngine) {
             $this->templateEngine = $templateEngine = $this->serviceManager->get('templateEngine');
             $this->initTemplateEngineVars($templateEngine);
@@ -50,7 +50,7 @@ class Theme extends Module {
     }
 
     public function canRender(string $viewPath): bool {
-        return false !== $this->getAbsoluteFilePath($viewPath, false);
+        return false !== $this->absoluteFilePath($viewPath, false);
     }
 
     /**
@@ -68,12 +68,12 @@ class Theme extends Module {
 
         if (!$this->isThemeDirAdded) {
             if (get_class($this) !== __CLASS__) {
-                $this->addBaseDirPath($this->getClassDirPath() . '/' . VIEW_DIR_NAME);
+                $this->addBaseDirPath($this->classDirPath() . '/' . VIEW_DIR_NAME);
             }
             $this->isThemeDirAdded = true;
         }
 
-        $moduleViewDirPath = $this->getParent('ModuleManager')->getModuleFs()->getModuleViewDirPath($request->getModuleName());
+        $moduleViewDirPath = $this->parent('ModuleManager')->moduleFs()->moduleViewDirPath($request->moduleName());
         $this->addBaseDirPath($moduleViewDirPath);
 
         if (isset($args['layout'])) {
@@ -96,9 +96,9 @@ class Theme extends Module {
         //$this->autoDecodeRequestJson();
         /*
         $request = $this->request;
-        $header = $request->getHeader('Content-Type');
+        $header = $request->header('Content-Type');
         if (false !== $header && false !== stripos($header->getFieldValue(), 'application/json')) {
-            $data = Json::decode($request->getContent());
+            $data = Json::decode($request->content());
             $request->replace((array) $data);
         }
     }
@@ -111,13 +111,13 @@ class Theme extends Module {
     public function afterDispatch(array $event) {
         $request = $event[1]['request'];
         if ($request->isDispatched() && false === $this->isLayoutRendered) {
-            $response = $request->getResponse();
+            $response = $request->response();
             if ($request->isAjax()) {
-                $response->getHeaders()
+                $response->headers()
                     ->addHeaderLine('Content-Type', 'application/json');
                 if ($response->isRedirect()) {
                     if ($response->isContentEmpty()) {
-                        $locationHeader = $response->getHeaders()->get('Location');
+                        $locationHeader = $response->headers()->get('Location');
                         $notEncodedContent = ['success' => ['redirect' => $locationHeader->getUri()]];
                         $response->setContent(toJson($notEncodedContent))
                             ->setStatusCode(Response::STATUS_CODE_200)
@@ -127,7 +127,7 @@ class Theme extends Module {
             } else {
                 if (!$response->isRedirect()) {
                     $response->setContent(
-                        $this->renderFile($this->layout, ['body' => $response->getContent()])
+                        $this->renderFile($this->layout, ['body' => $response->content()])
                     );
                 }
             }
@@ -141,7 +141,7 @@ class Theme extends Module {
         }
     }
     
-    public function getBaseDirPaths(): array {
+    public function baseDirPaths(): array {
         return $this->baseDirPaths;
     }
     
@@ -152,7 +152,7 @@ class Theme extends Module {
     /**
      * @return bool|string
      */
-    protected function getAbsoluteFilePath(string $relOrAbsFilePath, bool $throwExIfNotFound = true) {
+    protected function absoluteFilePath(string $relOrAbsFilePath, bool $throwExIfNotFound = true) {
         $relOrAbsFilePath .= $this->suffix;
         if (Path::isAbsolute($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
             return $relOrAbsFilePath;
@@ -179,10 +179,10 @@ class Theme extends Module {
     }
 
     protected function renderFile(string $relFilePath, array $vars, array $instanceVars = null): string {
-        $templateEngine = $this->getTemplateEngine();
+        $templateEngine = $this->templateEngine();
         if (null !== $instanceVars) {
             $templateEngine->mergeVars($instanceVars);
         }
-        return $templateEngine->renderFile($this->getAbsoluteFilePath($relFilePath), $vars);
+        return $templateEngine->renderFile($this->absoluteFilePath($relFilePath), $vars);
     }
 }

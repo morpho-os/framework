@@ -34,7 +34,7 @@ class TreeRendererPlugin extends Plugin {
         return $this;
     }
 
-    public function getInternalNodeRenderer(): callable {
+    public function internalNodeRenderer(): callable {
         if (null === $this->internalNodeRenderer) {
             $this->internalNodeRenderer = function (array $node, string $renderedChildren): string {
                 return '<li class="tree__node tree__node-internal">' . $this->escapeHtml($node['label'])
@@ -51,7 +51,7 @@ class TreeRendererPlugin extends Plugin {
         return $this;
     }
 
-    public function getLeafNodeRenderer(): callable {
+    public function leafNodeRenderer(): callable {
         if (null === $this->leafNodeRenderer) {
             $this->leafNodeRenderer = function (array $node): string {
                 return '<li class="tree__node tree__node-leaf">'
@@ -63,12 +63,12 @@ class TreeRendererPlugin extends Plugin {
     }
 
     protected function renderLeafNode($node): string {
-        $render = $this->getLeafNodeRenderer();
+        $render = $this->leafNodeRenderer();
         return $render($node);
     }
 
     protected function renderInternalNode($node): string {
-        $render = $this->getInternalNodeRenderer();
+        $render = $this->internalNodeRenderer();
         $renderedChildren = '';
         if (!empty($node['nodes'])) {
             array_push($this->parents, $node);

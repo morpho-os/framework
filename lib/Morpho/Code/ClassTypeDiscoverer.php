@@ -32,7 +32,7 @@ class ClassTypeDiscoverer {
         $options = (array) $options + ['recursive' => true];
         $filePaths = Directory::filePaths($dirPaths, $regExp ?: Directory::PHP_FILES_RE, $options);
         $map = [];
-        $discoverStrategy = $this->getDiscoverStrategy();
+        $discoverStrategy = $this->discoverStrategy();
         foreach ($filePaths as $filePath) {
             foreach ($discoverStrategy->definedClassTypesInFile($filePath) as $classType) {
                 if (isset($map[$classType])) {
@@ -46,7 +46,7 @@ class ClassTypeDiscoverer {
 
     public function definedClassTypesInFile(string $filePath): array {
         $map = [];
-        foreach ($this->getDiscoverStrategy()->definedClassTypesInFile($filePath) as $classType) {
+        foreach ($this->discoverStrategy()->definedClassTypesInFile($filePath) as $classType) {
             $map[$classType] = $filePath;
         }
         return $map;
@@ -57,7 +57,7 @@ class ClassTypeDiscoverer {
         return $this;
     }
 
-    public function getDiscoverStrategy(): IDiscoverStrategy {
+    public function discoverStrategy(): IDiscoverStrategy {
         if (null === $this->discoverStrategy) {
             $this->discoverStrategy = new TokenStrategy();
         }

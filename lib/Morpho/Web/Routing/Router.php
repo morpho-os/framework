@@ -31,10 +31,10 @@ abstract class Router implements IServiceManagerAware {
     */
 
     public function dumpRoutes(): array {
-        return iterator_to_array($this->getRoutesMeta(), false);
+        return iterator_to_array($this->routesMeta(), false);
     }
 
-    protected function getRoutesMeta(): \Iterator {
+    protected function routesMeta(): \Traversable {
         return $this->serviceManager->get('routesMetaProvider')
             ->getIterator();
     }

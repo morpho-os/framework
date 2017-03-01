@@ -29,10 +29,10 @@ class TypeScriptCompilerTest extends TestCase {
     }
 
     public function testOptionsAccessors() {
-        $options = $this->compiler->getOptions();
+        $options = $this->compiler->options();
         $this->assertTrue(count($options) > 0);
         $this->assertEquals('LF', $options['newLine']);
-        $this->assertEquals(TypeScriptCompiler::MODULE_KIND, $this->compiler->getOption('module'));
+        $this->assertEquals(TypeScriptCompiler::MODULE_KIND, $this->compiler->option('module'));
     }
 
     public function testCompileToFile() {

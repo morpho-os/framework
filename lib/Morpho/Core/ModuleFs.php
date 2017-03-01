@@ -34,33 +34,33 @@ $this->useCache = $useCache;
     
     public function clearCache()/*: void */ {
         $this->moduleCache = null;
-        File::deleteIfExists($this->getBaseCacheDirPath() . '/' . self::CACHE_FILE_NAME);
+        File::deleteIfExists($this->baseCacheDirPath() . '/' . self::CACHE_FILE_NAME);
     }
     
-    abstract public function getBaseCacheDirPath(): string;
+    abstract public function baseCacheDirPath(): string;
 
-    public function getModuleNamespace(string $moduleName): string {
+    public function moduleNamespace(string $moduleName): string {
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['namespace'];
     }
 
-    public function getModuleCacheDirPath(string $moduleName): string {
-        return $this->getBaseCacheDirPath() . '/' . $moduleName;
+    public function moduleCacheDirPath(string $moduleName): string {
+        return $this->baseCacheDirPath() . '/' . $moduleName;
     }
     
-    public function getModuleControllerDirPath(string $moduleName): string {
-        return $this->getModuleDirPath($moduleName) . '/' . CONTROLLER_DIR_NAME;
+    public function moduleControllerDirPath(string $moduleName): string {
+        return $this->moduleDirPath($moduleName) . '/' . CONTROLLER_DIR_NAME;
     }
     
-    public function getModuleViewDirPath(string $moduleName): string {
-        return $this->getModuleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
+    public function moduleViewDirPath(string $moduleName): string {
+        return $this->moduleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
     }
 
-    public function getBaseModuleDirPath(): string {
+    public function baseModuleDirPath(): string {
         return $this->baseModuleDirPath;
     }
 
-    public function getModuleNames() {
+    public function moduleNames() {
         $this->initModuleCache();
         return array_keys($this->moduleCache);
     }
@@ -73,7 +73,7 @@ $this->useCache = $useCache;
     /**
      * @return string|null Returns null when module does not have the class, return string otherwise.
      */
-    public function getModuleClass(string $moduleName) {
+    public function moduleClass(string $moduleName) {
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['class'];
     }
@@ -81,13 +81,13 @@ $this->useCache = $useCache;
     /**
      * @param string $moduleName
      */
-    public function getModuleDirPath(string $moduleName): string {
+    public function moduleDirPath(string $moduleName): string {
         $this->initModuleCache();
         return $this->baseModuleDirPath . '/' . $this->moduleCache[$moduleName]['dirPath'];
     }
 
-    public function getModuleControllerFilePaths(string $moduleName): array {
-        $dirPath = $this->getModuleControllerDirPath($moduleName);
+    public function moduleControllerFilePaths(string $moduleName): array {
+        $dirPath = $this->moduleControllerDirPath($moduleName);
         if (!is_dir($dirPath)) {
             return [];
         }
@@ -105,7 +105,7 @@ $this->useCache = $useCache;
             return false;
         }
         
-        $moduleDirPath = $this->getModuleDirPath($moduleName);
+        $moduleDirPath = $this->moduleDirPath($moduleName);
         //$autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
         $composerFilesDirPath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/composer';
         $autoloader = $this->autoloader;
@@ -128,7 +128,7 @@ $this->useCache = $useCache;
             }
 
         }
-        $moduleNs = $this->getModuleNamespace($moduleName);
+        $moduleNs = $this->moduleNamespace($moduleName);
         foreach ([CONTROLLER_NS => CONTROLLER_DIR_NAME, DOMAIN_NS => DOMAIN_DIR_NAME] as $ns => $dirName) {
             $autoloader->setPsr4($moduleNs . '\\' . $ns . '\\', $moduleDirPath . '/' . $dirName);
         }
@@ -148,7 +148,7 @@ $this->useCache = $useCache;
 
     protected function initModuleCache() {
         if (null === $this->moduleCache) {
-            $cacheFilePath = $this->getBaseCacheDirPath() . '/' . self::CACHE_FILE_NAME;
+            $cacheFilePath = $this->baseCacheDirPath() . '/' . self::CACHE_FILE_NAME;
             if (is_file($cacheFilePath)) {
                 $this->moduleCache = requireFile($cacheFilePath);
             } else {
@@ -157,7 +157,7 @@ $this->useCache = $useCache;
                     return !$isDir || ($isDir && basename($path) !== VENDOR_DIR_NAME);
                 };
                 $classTypeDiscoverer = new ClassTypeDiscoverer();
-                foreach (Directory::dirPaths($this->getBaseModuleDirPath(), $filter, ['recursive' => false]) as $moduleDirPath) {
+                foreach (Directory::dirPaths($this->baseModuleDirPath(), $filter, ['recursive' => false]) as $moduleDirPath) {
                     $composerFilePath = $moduleDirPath . '/' . MODULE_META_FILE_NAME;
                     if (is_file($composerFilePath)) {
                         $meta = File::readJson($composerFilePath);
@@ -183,8 +183,8 @@ $this->useCache = $useCache;
         }
     }
     /*
-    public function getTestFilePaths(string $moduleName): array {
-        $dirPath = $this->getModuleDirPath($moduleName) . '/' . TEST_DIR_NAME;
+    public function testFilePaths(string $moduleName): array {
+        $dirPath = $this->moduleDirPath($moduleName) . '/' . TEST_DIR_NAME;
         if (!is_dir($dirPath)) {
             return [];
         }
@@ -194,8 +194,8 @@ $this->useCache = $useCache;
         );
     }
 
-    public function getClassTypeMap(string $moduleName): array {
-        $moduleDirPath = $this->getModuleDirPath($moduleName);
+    public function classTypeMap(string $moduleName): array {
+        $moduleDirPath = $this->moduleDirPath($moduleName);
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         $moduleClassFilePath = $moduleDirPath . '/' . MODULE_CLASS_FILE_NAME;
         $map = [];

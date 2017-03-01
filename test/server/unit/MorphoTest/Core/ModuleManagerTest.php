@@ -18,15 +18,15 @@ class ModuleManagerTest extends DbTestCase {
         $db = $this->db();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
-        $schemaManager->createTables(\Morpho\System\Module::getTableDefinitions());
+        $schemaManager->createTables(\Morpho\System\Module::tableDefinitions());
     }
 
-    public function testGetChild_ModuleWithoutModuleClass() {
+    public function testChild_ModuleWithoutModuleClass() {
         $moduleName = 'morpho-test/saturn';
         $moduleNs = __CLASS__ . '\\Saturn';
         $moduleFs = $this->createModuleFs([$moduleName]);
         $moduleFs->expects($this->once())
-            ->method('getModuleNamespace')
+            ->method('moduleNamespace')
             ->with($this->equalTo($moduleName))
             ->will($this->returnValue($moduleNs));
         $moduleFs->expects($this->once())
@@ -34,17 +34,20 @@ class ModuleManagerTest extends DbTestCase {
             ->with($this->equalTo($moduleName))
             ->will($this->returnValue(true));
         $moduleManager = $this->createModuleManager(null, $moduleFs);
-        $module = $moduleManager->getChild($moduleName);
+
+        $module = $moduleManager->child($moduleName);
+
         $this->assertEquals(Module::class, get_class($module));
-        $this->assertEquals($moduleName, $module->getName());
-        $this->assertEquals($moduleNs, $module->getModuleNamespace());
+        $this->assertEquals($moduleName, $module->name());
+        $this->assertEquals($moduleNs, $module->moduleNamespace());
     }
 
-    public function testGetChild_ThrowsExceptionForNonExistingModule() {
+    public function testChild_ThrowsExceptionForNonExistingModule() {
         $moduleName = 'some/non-existing';
         $moduleManager = $this->createModuleManager();
         $this->expectException('\\Morpho\\Base\\ObjectNotFoundException', "Unable to load the module '$moduleName'");
-        $moduleManager->getChild($moduleName);
+
+        $moduleManager->child($moduleName);
     }
 
     public function testUninstalledModuleNames_CanUseComposerNamingStyle() {
@@ -72,11 +75,11 @@ class ModuleManagerTest extends DbTestCase {
                 $this->controllerName = $controllerName;
             }
 
-            public function getModuleName() {
+            public function moduleName() {
                 return $this->moduleName;
             }
 
-            public function getControllerName() {
+            public function controllerName() {
                 return $this->controllerName;
             }
 
@@ -228,11 +231,11 @@ class ModuleManagerTest extends DbTestCase {
                 $this->controllerName = $controllerName;
             }
 
-            public function getModuleName() {
+            public function moduleName() {
                 return $this->moduleName;
             }
 
-            public function getControllerName() {
+            public function controllerName() {
                 return $this->controllerName;
             }
 
@@ -241,11 +244,11 @@ class ModuleManagerTest extends DbTestCase {
             }
         };
 
-        $this->assertFalse($module->getChild($controllerName)->isDispatchCalled());
+        $this->assertFalse($module->child($controllerName)->isDispatchCalled());
 
         $moduleManager->dispatch($request);
 
-        $this->assertTrue($module->getChild($controllerName)->isDispatchCalled());
+        $this->assertTrue($module->child($controllerName)->isDispatchCalled());
     }
 
     private function createModuleManager(Db $db = null, $moduleFs = null) {
@@ -260,7 +263,7 @@ class ModuleManagerTest extends DbTestCase {
     private function createModuleFs(array $modules) {
         $mock = $this->createMock(\Morpho\Core\ModuleFs::class);
         $mock->expects($this->any())
-            ->method('getModuleNames')
+            ->method('moduleNames')
             ->will($this->returnValue(new \ArrayIterator($modules)));
         return $mock;
     }
@@ -277,8 +280,8 @@ class ErrorHandlingTestModule extends Module {
         return $this->errorListenerCalled;
     }
 
-    public function getChild(string $name): Node {
-        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController() : parent::getChild($name);
+    public function child(string $name): Node {
+        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController() : parent::child($name);
     }
 }
 

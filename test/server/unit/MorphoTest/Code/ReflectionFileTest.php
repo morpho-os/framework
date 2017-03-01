@@ -9,19 +9,19 @@ use ReflectionFunction;
 
 class ReflectionFileTest extends TestCase {
     public function testFilePath() {
-        $filePath = $this->getTestDirPath() . '/empty-file.php';
+        $filePath = $this->_testDirPath() . '/empty-file.php';
         $rFile = new ReflectionFile($filePath);
         $this->assertEquals($filePath, $rFile->filePath());
     }
 
     public function testNamespaces_EmptyFile() {
-        $filePath = $this->getTestDirPath() . '/empty-file.php';
+        $filePath = $this->_testDirPath() . '/empty-file.php';
         $rFile = new ReflectionFile($filePath);
         $this->assertGenYields([], $rFile->namespaces());
     }
 
     public function testNamespaces_GlobalNamespace() {
-        $filePath = $this->getTestDirPath() . '/global-ns.php';
+        $filePath = $this->_testDirPath() . '/global-ns.php';
         $rFile = new ReflectionFile($filePath);
         $i = 0;
         foreach ($rFile->namespaces() as $rNamespace) {
@@ -39,7 +39,7 @@ class ReflectionFileTest extends TestCase {
     }
 
     public function dataForNamespaces_MultipleNamespaces() {
-        $testDirPath = $this->getTestDirPath();
+        $testDirPath = $this->_testDirPath();
         return [
             [
                 $testDirPath . '/multiple-bracketed-ns.php',

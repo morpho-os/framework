@@ -33,7 +33,7 @@ class SiteManager extends Object implements IServiceManagerAware {
             $this->useMultiSiting = $flag;
         }
         if (null === $this->useMultiSiting) {
-            $this->useMultiSiting = (bool)$this->getConfig()['useMultiSiting'];
+            $this->useMultiSiting = (bool)$this->config()['useMultiSiting'];
         }
         return $this->useMultiSiting;
     }
@@ -46,10 +46,10 @@ class SiteManager extends Object implements IServiceManagerAware {
         if (null !== $this->isFallbackMode) {
             return $this->isFallbackMode;
         }
-        return $this->getCurrentSite()->fallbackConfigUsed();
+        return $this->currentSite()->fallbackConfigUsed();
     }
 
-    public function getCurrentSite(): Site {
+    public function currentSite(): Site {
         if (null === $this->currentSiteName) {
             $siteName = $this->discoverCurrentSiteName();
             if (!isset($this->sites[$siteName])) {
@@ -61,7 +61,7 @@ class SiteManager extends Object implements IServiceManagerAware {
     }
 
     public function setSite(Site $site, bool $setAsCurrent = true) {
-        $siteName = $site->getName();
+        $siteName = $site->name();
         $this->mustBeAllowedSiteName($siteName);
         $this->sites[$siteName] = $site;
         if ($setAsCurrent) {
@@ -69,7 +69,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         }
     }
 
-    public function getSite(string $siteName): Site {
+    public function site(string $siteName): Site {
         if (!isset($this->sites[$siteName])) {
             $this->mustBeAllowedSiteName($siteName);
             $this->sites[$siteName] = $this->createSite($siteName);
@@ -78,18 +78,18 @@ class SiteManager extends Object implements IServiceManagerAware {
     }
 
     public function setCurrentSiteConfig(array $config) {
-        $this->getCurrentSite()->setConfig($config);
+        $this->currentSite()->setConfig($config);
     }
 
-    public function getCurrentSiteConfig(): array {
-        return $this->getCurrentSite()->getConfig();
+    public function currentSiteConfig(): array {
+        return $this->currentSite()->config();
     }
 
     public function setAllSitesDirPath(string $dirPath) {
         $this->allSitesDirPath = Path::normalize($dirPath);
     }
 
-    public function getAllSitesDirPath(): string {
+    public function allSitesDirPath(): string {
         if (null === $this->allSitesDirPath) {
             $this->allSitesDirPath = SITE_DIR_PATH;
         }
@@ -107,7 +107,7 @@ class SiteManager extends Object implements IServiceManagerAware {
     }
 
     protected function discoverCurrentSiteName(): string {
-        $sites = $this->getConfig()['sites'];
+        $sites = $this->config()['sites'];
         if (!$this->useMultiSiting()) {
             return array_shift($sites);
         }
@@ -131,7 +131,7 @@ class SiteManager extends Object implements IServiceManagerAware {
      */
     protected function resolveSiteName(string $siteName) {
         if (null === $this->allowedSiteNames) {
-            $sites = $this->getConfig()['sites'];
+            $sites = $this->config()['sites'];
             foreach ($sites as $alias => $resolvedSiteName) {
                 if (is_numeric($alias)) {
                     if ($resolvedSiteName === $siteName) {
@@ -149,15 +149,15 @@ class SiteManager extends Object implements IServiceManagerAware {
         throw new BadRequestException($message);
     }
 
-    protected function getConfig(): array {
+    protected function config(): array {
         if (null === $this->config) {
-            $this->config = requireFile($this->getAllSitesDirPath() . '/' . self::CONFIG_FILE_NAME);
+            $this->config = requireFile($this->allSitesDirPath() . '/' . self::CONFIG_FILE_NAME);
         }
         return $this->config;
     }
 
     protected function createSite(string $siteName): Site {
-        $siteDirPath = $this->getAllSitesDirPath() . '/' . $siteName;
+        $siteDirPath = $this->allSitesDirPath() . '/' . $siteName;
         Directory::mustExist($siteDirPath);
         return new Site([
             'name'    => $siteName,

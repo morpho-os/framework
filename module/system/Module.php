@@ -63,7 +63,7 @@ class Module extends BaseModule {
                     ->emergency($exception, ['exception' => $exception]);
             }
 
-            if ($serviceManager->get('siteManager')->getCurrentSiteConfig()['throwDispatchErrors']) {
+            if ($serviceManager->get('siteManager')->currentSiteConfig()['throwDispatchErrors']) {
                 throw $exception;
             }
 
@@ -74,7 +74,7 @@ class Module extends BaseModule {
             }
 
             foreach ($this->thrownExceptions as $prevException) {
-                if (ErrorHandler::getHashId($prevException) === ErrorHandler::getHashId($exception)) {
+                if (ErrorHandler::hashId($prevException) === ErrorHandler::hashId($exception)) {
                     throw new \RuntimeException('Exception loop has been detected', 0, $exception);
                 }
             }
@@ -83,7 +83,7 @@ class Module extends BaseModule {
             $request->setHandler($handler)
                 ->isDispatched(false);
             $request->setInternalParam('error', $exception);
-            $request->getResponse()->setStatusCode($statusCode);
+            $request->response()->setStatusCode($statusCode);
         };
 
         if ($exception instanceof NotFoundException) {
@@ -97,7 +97,7 @@ class Module extends BaseModule {
         }
     }
 
-    public static function getTableDefinitions(): array {
+    public static function tableDefinitions(): array {
         return [
             /*
             'file' => [

@@ -24,7 +24,7 @@ class RoutesMetaProvider implements \IteratorAggregate {
         $this->actionsMetaProvider = $actionsMetaProvider;
     }
 
-    public function getActionsMetaProvider() {
+    public function actionsMetaProvider() {
         return $this->actionsMetaProvider;
     }
 
@@ -40,7 +40,7 @@ class RoutesMetaProvider implements \IteratorAggregate {
     public static function parseDocComment(string $docComment): array {
         $httpMethods = $title = $uri = null;
         if (false !== strpos($docComment, '@')) {
-            $httpMethodsRegexpPart = '(?:' . implode('|', Request::getAllMethods()) . ')';
+            $httpMethodsRegexpPart = '(?:' . implode('|', Request::methods()) . ')';
             $routeRegExp = '~'
                 . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (\s+(?<uri>([^*\s]+)))?                                                                   # uri    (optional)

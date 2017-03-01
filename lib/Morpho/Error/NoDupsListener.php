@@ -20,7 +20,7 @@ class NoDupsListener implements IExceptionListener {
 
     public function __construct(IExceptionListener $listener, string $lockFileDirPath = null, int $periodSec = null) {
         if (null === $lockFileDirPath) {
-            $lockFileDirPath = $this->getDefaultLockFileDirPath();
+            $lockFileDirPath = $this->defaultLockFileDirPath();
         }
         $this->lockFileDirPath = $this->initLockFileDir($lockFileDirPath);
 
@@ -41,7 +41,7 @@ class NoDupsListener implements IExceptionListener {
     }
 
     protected function touch($id, $errFilePath, $errLine) {
-        $filePath = $this->getLockFilePath($id);
+        $filePath = $this->lockFilePath($id);
         file_put_contents($filePath, "$errFilePath:$errLine");
         @chmod($filePath, 0666);
         $this->gc();
@@ -63,7 +63,7 @@ class NoDupsListener implements IExceptionListener {
         return $id;
     }
 
-    protected function getDefaultLockFileDirPath() {
+    protected function defaultLockFileDirPath() {
         return sys_get_temp_dir();
     }
 
@@ -80,16 +80,16 @@ class NoDupsListener implements IExceptionListener {
     }
 
     protected function isLockExpired($id, \Throwable $exception) {
-        $filePath = $this->getLockFilePath($id);
+        $filePath = $this->lockFilePath($id);
         return !file_exists($filePath) || (filemtime($filePath) < time() - $this->period);
     }
 
-    protected function getLockFilePath($id) {
+    protected function lockFilePath($id) {
         return $this->lockFileDirPath . '/' . $id . self::ERROR_FILE_EXT;
     }
 
     protected function gc() {
-        if ($this->gcExecuted || mt_rand(0, 10000) >= $this->getGcProbability() * 10000) {
+        if ($this->gcExecuted || mt_rand(0, 10000) >= $this->gcProbability() * 10000) {
             return;
         }
         foreach (glob("{$this->lockFileDirPath}/*" . self::ERROR_FILE_EXT) as $filePath) {
@@ -100,7 +100,7 @@ class NoDupsListener implements IExceptionListener {
         $this->gcExecuted = true;
     }
 
-    protected function getGcProbability() {
+    protected function gcProbability() {
         return self::GC_PROBABILITY;
     }
 }

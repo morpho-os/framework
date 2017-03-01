@@ -17,7 +17,7 @@ class FileTest extends TestCase {
 
     public function testReadJson() {
         $tmpDirPath = $this->createTmpDir();
-        $targetFilePath = $this->copyFile($this->getTestDirPath() . '/composer.json', $tmpDirPath);
+        $targetFilePath = $this->copyFile($this->_testDirPath() . '/composer.json', $tmpDirPath);
 
         $this->assertEquals([
             'require'     => [
@@ -95,7 +95,7 @@ class FileTest extends TestCase {
     }
 
     public function testCopy_IfSourceIsDirThrowsException() {
-        $sourceFilePath = $this->getTestDirPath();
+        $sourceFilePath = $this->_testDirPath();
         $this->expectException('\Morpho\Fs\Exception', "Unable to copy: the source '$sourceFilePath' is not a file");
         File::copy($sourceFilePath, $this->tmpDirPath());
     }
@@ -187,11 +187,11 @@ class FileTest extends TestCase {
         $options = [
             'binary' => false,
         ];
-        $this->assertEquals("123", File::read($this->getTestDirPath() . '/bom.txt', $options));
+        $this->assertEquals("123", File::read($this->_testDirPath() . '/bom.txt', $options));
     }
 
     public function testReadBinary() {
-        $content = File::read($this->getTestDirPath() . '/binary.jpg');
+        $content = File::read($this->_testDirPath() . '/binary.jpg');
         $this->assertEquals("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01", substr($content, 0, 16));
     }
 

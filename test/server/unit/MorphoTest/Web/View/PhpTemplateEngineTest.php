@@ -64,42 +64,42 @@ class PhpTemplateEngineTest extends TestCase {
             }
         };
 
-        $this->assertEquals([], $this->templateEngine->getVars());
+        $this->assertEquals([], $this->templateEngine->vars());
 
         $this->assertEmpty($templateEngine->called);
         $this->assertFalse(isset($templateEngine->foo));
         $this->assertEquals(['__isset', ['foo']], $templateEngine->called);
-        $this->assertEquals([], $this->templateEngine->getVars());
+        $this->assertEquals([], $this->templateEngine->vars());
 
         $templateEngine->called = null;
         $templateEngine->foo = 'bar';
         $this->assertEquals(['__set', ['foo', 'bar']], $templateEngine->called);
-        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->getVars());
+        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
 
         $templateEngine->called = null;
         $this->assertEquals('bar', $templateEngine->foo);
         $this->assertEquals(['__get', ['foo']], $templateEngine->called);
-        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->getVars());
+        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
 
         $templateEngine->called = null;
         $this->assertTrue(isset($templateEngine->foo));
         $this->assertEquals(['__isset', ['foo']], $templateEngine->called);
-        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->getVars());
+        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
 
         $templateEngine->called = null;
         unset($templateEngine->foo);
         $this->assertEquals(['__unset', ['foo']], $templateEngine->called);
         $this->assertFalse(isset($templateEngine->foo));
-        $this->assertEquals([], $this->templateEngine->getVars());
+        $this->assertEquals([], $this->templateEngine->vars());
     }
 
     public function testVarMethods() {
-        $this->assertEquals([], $this->templateEngine->getVars());
-        $this->templateEngine->setVars(['foo' => 'bar']);
-        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->getVars());
+        $this->assertEquals([], $this->templateEngine->vars());
+        $this->assertNull($this->templateEngine->setVars(['foo' => 'bar']));
+        $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
         $newVals = ['baz' => 'Other', 'foo' => 'New'];
         $this->assertNull($this->templateEngine->mergeVars($newVals));
-        $this->assertEquals($newVals, $this->templateEngine->getVars());
+        $this->assertEquals($newVals, $this->templateEngine->vars());
     }
 
     public function testUseCache() {
@@ -107,12 +107,12 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testRenderFileWithAbsPath() {
-        $dirPath = $this->getTestDirPath();
+        $dirPath = $this->_testDirPath();
         $this->assertEquals('<h1>Hello World!</h1>', $this->templateEngine->renderFile($dirPath . '/my-file.phtml', ['who' => 'World!']));
     }
 
     public function testRenderFileThrowsExceptionWhenNotExist() {
-        $path = $this->getTestDirPath() . '/non-existing.phtml';
+        $path = $this->_testDirPath() . '/non-existing.phtml';
         $this->expectException('\RuntimeException', 'The file \'' . $path . '\' was not found.');
         $this->templateEngine->renderFile($path);
     }
@@ -179,11 +179,11 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testRequire() {
-        $this->assertEquals("<h1>Hey! It is &quot;just quot&quot; works!</h1>", $this->templateEngine->renderFile($this->getTestDirPath() . '/require-test.phtml'));
+        $this->assertEquals("<h1>Hey! It is &quot;just quot&quot; works!</h1>", $this->templateEngine->renderFile($this->_testDirPath() . '/require-test.phtml'));
     }
 
     public function testResolvesDirAndFileConstants() {
-        $expected = 'Dir path: ' . $this->getTestDirPath() . ', file path: ' . $this->getTestDirPath() . '/dir-file-test.phtml';
-        $this->assertEquals($expected, $this->templateEngine->renderFile($this->getTestDirPath() . '/dir-file-test.phtml'));
+        $expected = 'Dir path: ' . $this->_testDirPath() . ', file path: ' . $this->_testDirPath() . '/dir-file-test.phtml';
+        $this->assertEquals($expected, $this->templateEngine->renderFile($this->_testDirPath() . '/dir-file-test.phtml'));
     }
 }

@@ -8,7 +8,7 @@ abstract class Environment extends Object {
     protected static $initialized = false;
 
     public static function isXdebugEnabled(): bool {
-        return self::getBoolIniVal('xdebug.default_enable');
+        return self::boolIniVal('xdebug.default_enable');
     }
 
     public static function x64Arch(): bool {
@@ -42,7 +42,7 @@ abstract class Environment extends Object {
     /**
      * Returns true if the ini setting with the $name can be interpreted as true.
      */
-    public static function getBoolIniVal(string $name): bool {
+    public static function boolIniVal(string $name): bool {
         // @TODO: can we use just (bool) ini_get()?
         return self::iniValToBool(ini_get($name));
     }

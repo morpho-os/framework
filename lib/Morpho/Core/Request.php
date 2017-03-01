@@ -10,7 +10,7 @@ abstract class Request {
 
     protected $actionName;
 
-    protected $params = [];
+    protected $routingParams = [];
 
     protected $internalParams = [];
 
@@ -29,8 +29,8 @@ abstract class Request {
             ->setActionName($handler[2]);
     }
 
-    public function getHandler(): array {
-        return [$this->getModuleName(), $this->getControllerName(), $this->getActionName()];
+    public function handler(): array {
+        return [$this->moduleName(), $this->controllerName(), $this->actionName()];
     }
 
     public function setModuleName(string $moduleName) {
@@ -41,7 +41,7 @@ abstract class Request {
     /**
      * @return string|null
      */
-    public function getModuleName() {
+    public function moduleName() {
         return $this->moduleName;
     }
 
@@ -53,7 +53,7 @@ abstract class Request {
     /**
      * @return string|null
      */
-    public function getControllerName() {
+    public function controllerName() {
         return $this->controllerName;
     }
 
@@ -65,35 +65,35 @@ abstract class Request {
     /**
      * @return string|null
      */
-    public function getActionName() {
+    public function actionName() {
         return $this->actionName;
     }
 
-    public function hasParams(): bool {
-        return count($this->params) > 0;
+    public function hasRoutingParams(): bool {
+        return count($this->routingParams) > 0;
     }
 
-    public function setParams(array $params)/*: void */ {
-        $this->params = $params;
+    public function setRoutingParams(array $params)/*: void */ {
+        $this->routingParams = $params;
     }
 
-    public function getParams(): array {
-        return $this->params;
+    public function routingParams(): array {
+        return $this->routingParams;
     }
 
-    public function setParam(string $name, $value)/*: void */ {
-        $this->params[$name] = $value;
+    public function setRoutingParam(string $name, $value)/*: void */ {
+        $this->routingParams[$name] = $value;
     }
 
-    public function getParam(string $name, $default = null) {
-        return isset($this->params[$name]) ? $this->params[$name] : $default;
+    public function routingParam(string $name, $default = null) {
+        return isset($this->routingParams[$name]) ? $this->routingParams[$name] : $default;
     }
 
     public function setInternalParam(string $name, $value)/*: void */ {
         $this->internalParams[$name] = $value;
     }
 
-    public function getInternalParam(string $name, $default = null) {
+    public function internalParam(string $name, $default = null) {
         return isset($this->internalParams[$name]) ? $this->internalParams[$name] : $default;
     }
 
@@ -105,7 +105,7 @@ abstract class Request {
         $this->response = $response;
     }
 
-    public function getResponse() {
+    public function response() {
         if (null === $this->response) {
             $this->response = $this->createResponse();
         }

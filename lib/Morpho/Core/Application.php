@@ -24,7 +24,7 @@ abstract class Application {
         return $this;
     }
 
-    public function getConfig(): array {
+    public function config(): array {
         return $this->config;
     }
 
@@ -43,7 +43,7 @@ abstract class Application {
 
             $serviceManager->get('dispatcher')->dispatch($request);
 
-            $request->getResponse()->send();
+            $request->response()->send();
 
             return true;
         } catch (\Throwable $e) {

@@ -159,7 +159,7 @@ class ArrayTool {
         return $arr;
     }
 
-    public static function getHash(array $arr): string {
+    public static function hash(array $arr): string {
         return md5(json_encode($arr));
     }
 

@@ -98,7 +98,7 @@ class SchemaManagerTest extends DbTestCase {
         $this->markTestIncomplete();
     }
 
-    public function testGetCreateTableSqlFromDefinition() {
+    public function testCreateTableSqlFromDefinition() {
         $this->markTestIncomplete();
     }
 
@@ -144,7 +144,7 @@ CREATE TABLE `file` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 OUT
             ,
-            $this->schemaManager->getCreateTableSql('file')
+            $this->schemaManager->createTableSql('file')
         );
     }
 
@@ -225,7 +225,7 @@ CREATE TABLE `product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores products'
 OUT
             ,
-            $this->schemaManager->getCreateTableSql('product')
+            $this->schemaManager->createTableSql('product')
         );
         $this->assertEquals(<<<OUT
 CREATE TABLE `order` (
@@ -234,7 +234,7 @@ CREATE TABLE `order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 OUT
             ,
-            $this->schemaManager->getCreateTableSql('order')
+            $this->schemaManager->createTableSql('order')
         );
 
         $this->assertEquals(<<<OUT
@@ -248,7 +248,7 @@ CREATE TABLE `productOrder` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 OUT
             ,
-            $this->schemaManager->getCreateTableSql('productOrder')
+            $this->schemaManager->createTableSql('productOrder')
         );
     }
     
@@ -330,8 +330,8 @@ OUT
         }
     }
     
-    public function testGetCharsetAndCollationVars() {
-        $vars = $this->schemaManager->getCharsetAndCollationVars();
+    public function testCharsetAndCollationVars() {
+        $vars = $this->schemaManager->charsetAndCollationVars();
         $expectedKeys = [
             'character_set_client',
             'character_set_connection',
@@ -348,17 +348,17 @@ OUT
         $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $vars);
     }
 
-    public function testGetCharsetAndCollationOfDatabase() {
+    public function testCharsetAndCollationOfDatabase() {
         $charset = 'gb2312';
         $collation = $charset . '_bin';
         $dbName = $this->callCreateDatabase('t' . md5(__FUNCTION__), $charset, $collation);
-        $this->assertEquals(['charset' => $charset, 'collation' => $collation], $this->schemaManager->getCharsetAndCollationOfDatabase($dbName));
+        $this->assertEquals(['charset' => $charset, 'collation' => $collation], $this->schemaManager->charsetAndCollationOfDatabase($dbName));
     }
     
-    public function testGetCharsetAndCollationOfTables() {
+    public function testCharsetAndCollationOfTables() {
         $this->db->eval("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
         $this->db->eval("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
-        $rows = $this->schemaManager->getCharsetAndCollationOfTables(self::DB);
+        $rows = $this->schemaManager->charsetAndCollationOfTables(self::DB);
         $this->assertNotEmpty($rows);
         foreach ($rows as $row) {
             $this->assertCount(5, $row);
@@ -379,7 +379,7 @@ OUT
         }
     }
     
-    public function testGetCharsetAndCollationOfColumns() {
+    public function testCharsetAndCollationOfColumns() {
         $this->markTestIncomplete();
     }
 

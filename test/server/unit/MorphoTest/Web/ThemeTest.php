@@ -20,7 +20,7 @@ class ThemeTest extends TestCase {
 
         $redirectUri = '/foo/bar';
         $content = 'foo bar baz';
-        $response = $request->getResponse();
+        $response = $request->response();
         $response->redirect($redirectUri);
         $response->setContent($content);
 
@@ -32,7 +32,7 @@ class ThemeTest extends TestCase {
         $theme->afterDispatch($event);
 
         $this->assertTrue($theme->isLayoutRendered());
-        $this->assertEquals($content, $response->getContent());
+        $this->assertEquals($content, $response->content());
     }
 
     public function testAfterDispatch_Redirect_Ajax_SetsAjaxSpecificContent() {
@@ -41,7 +41,7 @@ class ThemeTest extends TestCase {
         $request->isAjax(true);
 
         $redirectUri = '/foo/bar';
-        $response = $request->getResponse();
+        $response = $request->response();
         $response->redirect($redirectUri);
         $response->setContent('');
 
@@ -53,8 +53,8 @@ class ThemeTest extends TestCase {
         $theme->afterDispatch($event);
 
         $this->assertTrue($theme->isLayoutRendered());
-        $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->getContent()));
-        $this->assertEquals('application/json', $response->getHeaders()->get('Content-Type')->getFieldValue());
+        $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->content()));
+        $this->assertEquals('application/json', $response->headers()->get('Content-Type')->getFieldValue());
     }
 
     public function testRender_Ajax() {
@@ -85,7 +85,7 @@ class ThemeTest extends TestCase {
             ]
         ];
         $moduleName = 'foo-bar';
-        $moduleDirPath = $this->getTestDirPath() . '/' . $moduleName;
+        $moduleDirPath = $this->_testDirPath() . '/' . $moduleName;
         $theme->setParent(new class ($moduleName, $moduleDirPath) extends Node {
             protected $name = 'ModuleManager';
 
@@ -96,7 +96,7 @@ class ThemeTest extends TestCase {
                 $this->moduleDirPath = $moduleDirPath;
             }
 
-            public function getModuleFs() {
+            public function moduleFs() {
                 return new class ($this->moduleName, $this->moduleDirPath) {
                     private $moduleDirPath;
 
@@ -104,7 +104,7 @@ class ThemeTest extends TestCase {
                         $this->moduleDirPath[$moduleName] = $moduleDirPath;
                     }
 
-                    public function getModuleViewDirPath($moduleName) {
+                    public function moduleViewDirPath($moduleName) {
                         return $this->moduleDirPath[$moduleName];
                     }
                 };
@@ -116,7 +116,7 @@ class ThemeTest extends TestCase {
         $request->isAjax(false);
         $_SERVER['REQUEST_URI'] = '/base/path/test/me?arg=val';
         $viewRelFilePath = 'my-controller-name/' . $viewName;
-        $viewAbsFilePath = $moduleDirPath . '/' . $viewRelFilePath . $theme->getViewFileSuffix();
+        $viewAbsFilePath = $moduleDirPath . '/' . $viewRelFilePath . $theme->viewFileSuffix();
         $templateEngine = $this->createMock(\Morpho\Web\View\TemplateEngine::class);
         $expectedRendered = 'abcdefg123';
         $templateEngine->expects($this->once())
@@ -136,14 +136,14 @@ class ThemeTest extends TestCase {
     
     public function testBasePathAccessors() {
         $theme = new Theme();
-        $this->assertEquals([], $theme->getBaseDirPaths());
-        $baseDirPath = $this->getTestDirPath() . '/foo/bar';
+        $this->assertEquals([], $theme->baseDirPaths());
+        $baseDirPath = $this->_testDirPath() . '/foo/bar';
         $theme->addBaseDirPath($baseDirPath);
-        $this->assertEquals([$baseDirPath], $theme->getBaseDirPaths());
+        $this->assertEquals([$baseDirPath], $theme->baseDirPaths());
         // Add the same path twice.
         $theme->addBaseDirPath($baseDirPath);
-        $this->assertEquals([$baseDirPath], $theme->getBaseDirPaths());
+        $this->assertEquals([$baseDirPath], $theme->baseDirPaths());
         $theme->clearBaseDirPaths();
-        $this->assertEquals([], $theme->getBaseDirPaths());
+        $this->assertEquals([], $theme->baseDirPaths());
     }
 }

@@ -6,7 +6,7 @@ use Morpho\Web\Controller;
 
 class CacheController extends Controller {
     public function clearAllAction() {
-        $cacheDirPath = $this->serviceManager->get('siteManager')->getCurrentSite()->getCacheDirPath();
+        $cacheDirPath = $this->serviceManager->get('siteManager')->currentSite()->cacheDirPath();
         Directory::delete($cacheDirPath, false, true);
         $this->redirectToHome("The cache has been cleared successfully");
     }

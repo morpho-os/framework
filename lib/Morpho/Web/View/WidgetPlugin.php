@@ -16,8 +16,8 @@ class WidgetPlugin extends Plugin implements IServiceManagerAware {
         $request = $this->serviceManager->get('request');
         return new MenuWidget(
             $this->serviceManager->get('db'),
-            $request->getBaseRelUri(),
-            $request->getRequestUri()
+            $request->baseRelUri(),
+            $request->requestUri()
         );
     }
 

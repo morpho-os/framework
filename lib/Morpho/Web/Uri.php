@@ -16,8 +16,12 @@ class Uri extends BaseUri {
         return strlen($uri) > 2 && false !== strpos($uri, '//');
     }
 
+    public function path() {
+        return $this->path;
+    }
+
     public function isPathEqualTo(string $path): bool {
-        return $this->getPath() === $path;
+        return $this->path() === $path;
     }
 
     public function setBasePath(string $basePath): self {
@@ -25,7 +29,7 @@ class Uri extends BaseUri {
         return $this;
     }
 
-    public function getBasePath(): string {
+    public function basePath(): string {
         return $this->basePath;
     }
 
@@ -34,8 +38,12 @@ class Uri extends BaseUri {
         return $this;
     }
 
+    public function query() {
+        return $this->query;
+    }
+
     public function unsetQueryArg($name): self {
-        $query = $this->getQuery();
+        $query = $this->query();
         if (null !== $query) {
             $queryArgs = self::stringToQueryArgs($query);
             unset($queryArgs[$name]);
@@ -55,7 +63,7 @@ class Uri extends BaseUri {
     }
 
     public function appendQueryArgs(array $queryArgs): self {
-        $query = $this->getQuery();
+        $query = $this->query();
         $this->setQuery(
             $query
             . (!empty($query)
@@ -70,7 +78,7 @@ class Uri extends BaseUri {
      * Returns $path + $queryPart + $fragmentPart.
      */
     public function relativeRef(): string {
-        return $this->getPath()
+        return $this->path()
             . $this->queryPart()
             . $this->fragmentPart();
     }
@@ -79,15 +87,19 @@ class Uri extends BaseUri {
      * Returns the '?' + $query if $query is not empty, returns empty string otherwise.
      */
     public function queryPart(): string {
-        $query = $this->getQuery();
+        $query = $this->query();
         return !empty($query) ? self::QUERY_PART_SEPARATOR . $query : '';
+    }
+
+    public function fragment() {
+        return $this->fragment;
     }
 
     /**
      * Returns the '?' + $fragment if $fragment is not empty, returns empty string otherwise.
      */
     public function fragmentPart(): string {
-        $fragment = $this->getFragment();
+        $fragment = $this->fragment;
         return !empty($fragment) ? self::FRAGMENT_PART_SEPARATOR . $fragment : '';
     }
 
@@ -98,7 +110,7 @@ class Uri extends BaseUri {
         if (Uri::hasAuthority($uri)) {
             return $uri;
         }
-        $basePath = $this->getBasePath();
+        $basePath = $this->basePath();
         if (strlen($uri) && ($uri[0] === self::QUERY_PART_SEPARATOR || $uri[0] === self::FRAGMENT_PART_SEPARATOR)) {
             return $basePath . $uri;
         }

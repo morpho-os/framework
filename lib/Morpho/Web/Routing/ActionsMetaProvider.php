@@ -27,11 +27,11 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
 
     public function getIterator() {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $moduleFs = $moduleManager->getModuleFs();
+        $moduleFs = $moduleManager->moduleFs();
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         foreach ($moduleManager->enabledModuleNames() as $moduleName) {
             $moduleFs->registerModuleAutoloader($moduleName);
-            foreach ($moduleFs->getModuleControllerFilePaths($moduleName) as $controllerFilePath) {
+            foreach ($moduleFs->moduleControllerFilePaths($moduleName) as $controllerFilePath) {
                 $classTypes = $classTypeDiscoverer->definedClassTypesInFile($controllerFilePath);
                 foreach (array_keys($classTypes) as $classType) {
                     if (endsWith($classType, CONTROLLER_SUFFIX)) {
@@ -52,7 +52,7 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
             throw new ClassNotFoundException("Unable to load the class '$controllerClass' for the module '$moduleName', ensure that the class is defined");
         }
         $rClass = new \ReflectionClass($controllerClass);
-        $ignoredMethods = $this->getIgnoredMethods();
+        $ignoredMethods = $this->ignoredMethods();
         foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
             $method = $rMethod->getName();
             if (in_array($method, $ignoredMethods)) {
@@ -76,7 +76,7 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
         return substr($controllerName, 0, -$suffixLength);
     }
 
-    private function getIgnoredMethods() {
+    private function ignoredMethods() {
         if (null === $this->ignoredMethods) {
             $ignoredMethods = [];
             foreach ($this->baseControllerClasses as $class) {

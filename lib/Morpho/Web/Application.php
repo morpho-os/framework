@@ -11,7 +11,7 @@ class Application extends BaseApplication {
     protected function init(IServiceManager $serviceManager) {
         parent::init($serviceManager);
 
-        $iniSettings = $serviceManager->get('siteManager')->getCurrentSite()->getConfig()['iniSettings'];
+        $iniSettings = $serviceManager->get('siteManager')->currentSite()->config()['iniSettings'];
         $this->applyIniSettings($iniSettings);
 
         if (!empty($SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
@@ -32,7 +32,7 @@ class Application extends BaseApplication {
 
     protected function createServiceManager(): IServiceManager {
         $siteManager = new SiteManager();
-        $siteConfig = $siteManager->getCurrentSiteConfig();
+        $siteConfig = $siteManager->currentSiteConfig();
         $services = [
             'app'         => $this,
             'siteManager' => $siteManager,

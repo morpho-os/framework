@@ -9,12 +9,12 @@ use Morpho\Fs\File;
 class InstallController extends Controller {
     public function indexAction() {
         return [
-            'dbConfig' => $this->serviceManager->get('siteManager')->getCurrentSiteConfig()['db'],
+            'dbConfig' => $this->serviceManager->get('siteManager')->currentSiteConfig()['db'],
         ];
     }
 
     public function installAction() {
-        $dbConfig = $this->getArgs();
+        $dbConfig = $this->args();
 
         $dbConfig += [
             'password' => '',
@@ -105,7 +105,7 @@ class InstallController extends Controller {
 
     protected function installModules(Db $db) {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $this->serviceManager->get('siteManager')->getCurrentSiteConfig()['modules']
+        $modules = $this->serviceManager->get('siteManager')->currentSiteConfig()['modules']
             ?? $moduleManager->uninstalledModuleNames();
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {
@@ -122,10 +122,10 @@ class InstallController extends Controller {
     }
 
     protected function saveSiteConfig(array $dbConfig) {
-        $site = $this->serviceManager->get('siteManager')->getCurrentSite();
-        $config = $site->getConfig();
+        $site = $this->serviceManager->get('siteManager')->currentSite();
+        $config = $site->config();
         $config['db'] = $dbConfig;
-        $configFilePath = $site->getConfigFilePath();
+        $configFilePath = $site->configFilePath();
         File::writePhpVar($configFilePath, $config);
         #chmod($configFilePath, 0440);
     }

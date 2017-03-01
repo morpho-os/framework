@@ -7,12 +7,12 @@ use Morpho\Web\Site;
 class SiteTest extends TestCase {
     public function setUp() {
         parent::setUp();
-        $this->site = new Site(['dirPath' => $this->getTestDirPath(), 'name' => 'foo']);
+        $this->site = new Site(['dirPath' => $this->_testDirPath(), 'name' => 'foo']);
     }
 
     public function testConstructor_SettingProperties() {
-        $this->assertEquals($this->site->getDirPath(), $this->site->getDirPath());
-        $this->assertEquals('foo', $this->site->getName());
+        $this->assertEquals($this->site->dirPath(), $this->site->dirPath());
+        $this->assertEquals('foo', $this->site->name());
     }
 
     public function dataForDirectoryAccessors() {
@@ -37,9 +37,9 @@ class SiteTest extends TestCase {
      */
     public function testDirectoryAccessors($dirName) {
         $setter = 'set' . $dirName . 'DirPath';
-        $getter = 'get' . $dirName . 'DirPath';
+        $getter = $dirName . 'DirPath';
         $this->assertEquals(
-            $this->getTestDirPath() . '/' . constant(strtoupper($dirName) . '_DIR_NAME'),
+            $this->_testDirPath() . '/' . constant(strtoupper($dirName) . '_DIR_NAME'),
             $this->site->$getter()
         );
 
@@ -49,22 +49,22 @@ class SiteTest extends TestCase {
     }
 
     public function testPublicDirPathAccessors() {
-        $this->assertEquals(PUBLIC_DIR_PATH, $this->site->getPublicDirPath());
+        $this->assertEquals(PUBLIC_DIR_PATH, $this->site->publicDirPath());
         $newPublicDirPath = '/new/public/dir';
         $this->site->setPublicDirPath($newPublicDirPath);
-        $this->assertEquals($newPublicDirPath, $this->site->getPublicDirPath());
+        $this->assertEquals($newPublicDirPath, $this->site->publicDirPath());
     }
 
     public function testDirPathAccessors() {
         $dirPath = 'foo/bar/baz';
         $this->site->setDirPath($dirPath);
-        $this->assertEquals($dirPath, $this->site->getDirPath());
+        $this->assertEquals($dirPath, $this->site->dirPath());
     }
 
     public function testNameAccessors() {
         $name = 'baz';
         $this->site->setName($name);
-        $this->assertEquals($name, $this->site->getName());
+        $this->assertEquals($name, $this->site->name());
     }
 
     public function dataForFallbackConfigUsed() {
@@ -82,8 +82,8 @@ class SiteTest extends TestCase {
      * @dataProvider dataForFallbackConfigUsed
      */
     public function testFallbackConfigUsed($shouldBeUsed) {
-        $this->site->setConfigDirPath($this->getTestDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
-        $config = $this->site->getConfig();
+        $this->site->setConfigDirPath($this->_testDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
+        $config = $this->site->config();
         $this->assertInternalType('array', $config);
         $this->assertCount(2, $config);
         $this->assertEquals('some-value', $config['some-key']);
@@ -91,7 +91,7 @@ class SiteTest extends TestCase {
         $this->assertEquals($shouldBeUsed, $this->site->fallbackConfigUsed());
     }
 
-    public function testGetConfigFilePath() {
-        $this->assertEquals($this->getTestDirPath() . '/' . CONFIG_DIR_NAME . '/' . Site::CONFIG_FILE_NAME, $this->site->getConfigFilePath());
+    public function testConfigFilePath() {
+        $this->assertEquals($this->_testDirPath() . '/' . CONFIG_DIR_NAME . '/' . Site::CONFIG_FILE_NAME, $this->site->configFilePath());
     }
 }

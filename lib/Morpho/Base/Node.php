@@ -20,7 +20,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return $this;
     }
 
-    public function getName(): string {
+    public function name(): string {
         return $this->name;
     }
 
@@ -28,7 +28,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return !empty($this->name);
     }
 
-    public function getType(): string {
+    public function type(): string {
         if (null === $this->type) {
             throw new EmptyPropertyException($this, 'type');
         }
@@ -40,7 +40,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
             throw new \RuntimeException("The node must have name.");
         }
         $node->setParent($this);
-        $this->children[$node->getName()] = $node;
+        $this->children[$node->name()] = $node;
         return $node;
     }
 
@@ -51,7 +51,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         if (is_string($child)) {
             unset($this->children[$child]);
         } else {
-            $name = $child->getName();
+            $name = $child->name();
             unset($this->children[$name]);
         }
     }
@@ -67,7 +67,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         if (is_string($child)) {
             $name = $child;
         } else {
-            $name = $child->getName();
+            $name = $child->name();
         }
         return isset($this->children[$name])
             || $this->childNameToClass($name) !== false;
@@ -80,7 +80,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return $this->count() == 0;
     }
 
-    public function getChild(string $name): Node {
+    public function child(string $name): Node {
         if (!isset($this->children[$name])) {
             $node = $this->loadChild($name);
             return $this->addChild($node);
@@ -88,16 +88,16 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return $this->children[$name];
     }
 
-    public function getLeaf(string $name): Node {
+    public function leaf(string $name): Node {
         foreach (new \RecursiveIteratorIterator($this, \RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
-            if ($node->getName() == $name) {
+            if ($node->name() == $name) {
                 return $node;
             }
         }
         throw new ObjectNotFoundException("Unable to find a node with the name '$name' in leaf nodes.");
     }
 
-    public function getChildNodes(): array {
+    public function childNodes(): array {
         return $this->children;
     }
 
@@ -109,20 +109,20 @@ class Node extends Object implements \Countable, \RecursiveIterator {
      * @param string|null $name
      * @return Node|null
      */
-    public function getParent($name = null) {
+    public function parent($name = null) {
         $parent = $this->parent;
         if (null !== $name) {
-            while ($parent && $parent->getName() != $name) {
-                $parent = $parent->getParent($name);
+            while ($parent && $parent->name() != $name) {
+                $parent = $parent->parent($name);
             }
         }
         return $parent;
     }
 
-    public function getParentByType(string $type) {
+    public function parentByType(string $type) {
         $parent = $this->parent;
-        while ($parent && $parent->getType() != $type) {
-            $parent = $parent->getParentByType($type);
+        while ($parent && $parent->type() != $type) {
+            $parent = $parent->parentByType($type);
         }
         return $parent;
     }
@@ -188,7 +188,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
      * @return string|false
      */
     protected function childNameToClass(string $name) {
-        $class = $this->getNamespace() . '\\' . $name;
+        $class = $this->namespace() . '\\' . $name;
         return class_exists($class) ? $class : false;
     }
 }

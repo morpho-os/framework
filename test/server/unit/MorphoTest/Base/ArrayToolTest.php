@@ -274,7 +274,7 @@ class ArrayToolTest extends TestCase {
     }
 
     public function testUnsetRecursive() {
-        $array = $this->getTestArray();
+        $array = $this->_testArray();
         $expected = [
             'foo' => 'test',
             'bar' => [
@@ -312,15 +312,15 @@ class ArrayToolTest extends TestCase {
         $this->assertEquals($expected, ArrayTool::underscoreKeys($array));
     }
 
-    public function testGetHash() {
-        $array = $this->getTestArray();
-        $hash1 = ArrayTool::getHash($array);
-        $hash2 = ArrayTool::getHash($array);
+    public function testHash() {
+        $array = $this->_testArray();
+        $hash1 = ArrayTool::hash($array);
+        $hash2 = ArrayTool::hash($array);
         $this->assertTrue(!empty($hash1) && !empty($hash2));
         $this->assertEquals($hash1, $hash2);
 
         $array['other'] = 'item';
-        $hash3 = ArrayTool::getHash($array);
+        $hash3 = ArrayTool::hash($array);
         $this->assertTrue(!empty($hash3));
         $this->assertNotEquals($hash1, $hash3);
     }
@@ -412,7 +412,7 @@ class ArrayToolTest extends TestCase {
         $this->assertEquals($expected, ArrayTool::symmetricDiff($a, $b));
     }
 
-    protected function getTestArray() {
+    protected function _testArray() {
         return [
             'foo'     => 'test',
             'bar'     => [

@@ -6,36 +6,36 @@ use Morpho\Core\Controller as BaseController;
 use Morpho\Web\Session\Session;
 
 class Controller extends BaseController {
-    protected function forwardToAction(string $action, string $controller = null, string $module = null, array $params = null) {
+    protected function forwardToAction(string $action, string $controller = null, string $module = null, array $routingParams = null) {
         $request = $this->request;
 
         if (null === $module) {
-            $module = $this->getParent()->getName();
+            $module = $this->parent()->name();
         }
         if (null === $controller) {
-            $controller = $this->getName();
+            $controller = $this->name();
         }
 
         $request->setModuleName($module)
             ->setControllerName($controller)
             ->setActionName($action);
 
-        if (null !== $params) {
-            $request->setParams($params);
+        if (null !== $routingParams) {
+            $request->setRoutingParams($routingParams);
         }
 
         $request->isDispatched(false);
     }
 
-    protected function redirectToAction(string $action, string $httpMethod = null, string $controller = null, string $module = null, array $params = null) {
+    protected function redirectToAction(string $action, string $httpMethod = null, string $controller = null, string $module = null, array $routingParams = null) {
         // @TODO
         throw new NotImplementedException(__METHOD__);
         /*
         if (null === $controller) {
-            $controller = $this->request->getControllerName();
+            $controller = $this->request->controllerName();
         }
         if (null === $module) {
-            $module = $this->request->getModuleName();
+            $module = $this->request->moduleName();
         }
         if (null === $httpMethod) {
             $httpMethod = Request::GET_METHOD;
@@ -50,10 +50,10 @@ class Controller extends BaseController {
 
     protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
         $request = $this->request;
-        if ($request->hasGet('redirect')) {
-            $uri = (new Uri($request->getGet('redirect')))->unsetQueryArg('redirect')->__toString();
+        if ($request->hasQuery('redirect')) {
+            $uri = (new Uri($request->query('redirect')))->unsetQueryArg('redirect')->__toString();
         }
-        $response = $request->getResponse();
+        $response = $request->response();
         $response->redirect($request->uri()->prependWithBasePath($uri), $httpStatusCode);
     }
 
@@ -96,7 +96,7 @@ class Controller extends BaseController {
         */
     }
 
-    protected function getMessages(bool $clear = true): array {
+    protected function messages(bool $clear = true): array {
         $messenger = $this->serviceManager->get('messenger');
         $messages = $messenger->toArray();
         if ($clear) {
@@ -133,12 +133,8 @@ class Controller extends BaseController {
         return new Session(get_class($this) . ($key ?: ''));
     }
 
-    protected function getParam($name) {
-        return $this->request->getParam($name);
-    }
-
-    public function getArgs($name = null, bool $trim = true) {
-        return $this->request->getArgs($name, $trim);
+    public function args($name = null, bool $trim = true) {
+        return $this->request->args($name, $trim);
     }
 
     protected function data(array $source, $name = null, bool $trim = true) {
@@ -149,19 +145,19 @@ class Controller extends BaseController {
         return $this->request->isPostMethod();
     }
 
-    protected function getPost($name = null, bool $trim = true) {
-        return $this->request->getPost($name, $trim);
+    protected function post($name = null, bool $trim = true) {
+        return $this->request->post($name, $trim);
     }
 
-    protected function getGet($name = null, bool $trim = true) {
-        return $this->request->getGet($name, $trim);
+    protected function query($name = null, bool $trim = true) {
+        return $this->request->query($name, $trim);
     }
 
     protected function setLayout(string $name) {
         $this->setSpecialViewVar('layout', $name);
     }
 
-    protected function getUserManager() {
+    protected function userManager() {
         return $this->serviceManager->get('userManager');
     }
 }

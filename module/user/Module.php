@@ -12,12 +12,12 @@ class Module extends BaseModule {
      */
     public function beforeDispatch(array $event) {
         if (!$this->initialized) {
-            $this->serviceManager->set('userManager', new UserManager($this->getRepo('User'), $this->serviceManager->get('session')));
+            $this->serviceManager->set('userManager', new UserManager($this->repo('User'), $this->serviceManager->get('session')));
             $this->initialized = true;
         }
     }
 
-    public static function getTableDefinitions(): array {
+    public static function tableDefinitions(): array {
         return [
             'user' => [
                 'columns' => [

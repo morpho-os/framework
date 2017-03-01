@@ -9,12 +9,12 @@ class ObjectTest extends TestCase {
         $this->object = new MyObject();
     }
 
-    public function testGetClassFilePath() {
-        $this->assertEquals(str_replace('\\', '/', __FILE__), $this->object->getClassFilePath());
+    public function testClassFilePath() {
+        $this->assertEquals(str_replace('\\', '/', __FILE__), $this->object->classFilePath());
     }
 
-    public function testGetClassDirPath() {
-        $this->assertEquals(str_replace('\\', '/', __DIR__), $this->object->getClassDirPath());
+    public function testClassDirPath() {
+        $this->assertEquals(str_replace('\\', '/', __DIR__), $this->object->classDirPath());
     }
 }
 

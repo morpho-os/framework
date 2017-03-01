@@ -6,6 +6,8 @@ use Morpho\Fs\Symlink;
 use Morpho\Test\TestCase;
 
 class SymlinkTest extends TestCase {
+    private $tmpDirPath;
+
     public function setUp() {
         parent::setUp();
         $this->tmpDirPath = $this->createTmpDir(__FUNCTION__);

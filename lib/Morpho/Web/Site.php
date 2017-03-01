@@ -43,7 +43,7 @@ class Site {
         $this->dirPath = $dirPath;
     }
 
-    public function getDirPath(): string {
+    public function dirPath(): string {
         return $this->dirPath;
     }
 
@@ -51,7 +51,7 @@ class Site {
         $this->name = $name;
     }
 
-    public function getName(): string {
+    public function name(): string {
         return $this->name;
     }
 
@@ -59,9 +59,9 @@ class Site {
         $this->cacheDirPath = Path::normalize($dirPath);
     }
 
-    public function getCacheDirPath(): string {
+    public function cacheDirPath(): string {
         if (null === $this->cacheDirPath) {
-            $this->cacheDirPath = $this->getDirPath() . '/' . CACHE_DIR_NAME;
+            $this->cacheDirPath = $this->dirPath() . '/' . CACHE_DIR_NAME;
         }
         return $this->cacheDirPath;
     }
@@ -70,9 +70,9 @@ class Site {
         $this->configDirPath = Path::normalize($dirPath);
     }
 
-    public function getConfigDirPath(): string {
+    public function configDirPath(): string {
         if (null === $this->configDirPath) {
-            $this->configDirPath = $this->getDirPath() . '/' . CONFIG_DIR_NAME;
+            $this->configDirPath = $this->dirPath() . '/' . CONFIG_DIR_NAME;
         }
         return $this->configDirPath;
     }
@@ -81,9 +81,9 @@ class Site {
         $this->logDirPath = Path::normalize($dirPath);
     }
 
-    public function getLogDirPath(): string {
+    public function logDirPath(): string {
         if (null === $this->logDirPath) {
-            $this->logDirPath = $this->getDirPath() . '/' . LOG_DIR_NAME;
+            $this->logDirPath = $this->dirPath() . '/' . LOG_DIR_NAME;
         }
         return $this->logDirPath;
     }
@@ -92,9 +92,9 @@ class Site {
         $this->uploadDirPath = Path::normalize($dirPath);
     }
 
-    public function getUploadDirPath(): string {
+    public function uploadDirPath(): string {
         if (null === $this->uploadDirPath) {
-            $this->uploadDirPath = $this->getDirPath() . '/' . UPLOAD_DIR_NAME;
+            $this->uploadDirPath = $this->dirPath() . '/' . UPLOAD_DIR_NAME;
         }
         return $this->uploadDirPath;
     }
@@ -103,7 +103,7 @@ class Site {
         $this->publicDirPath = Path::normalize($dirPath);
     }
 
-    public function getPublicDirPath(): string {
+    public function publicDirPath(): string {
         if (null === $this->publicDirPath) {
             $this->publicDirPath = PUBLIC_DIR_PATH;
         }
@@ -119,7 +119,7 @@ class Site {
         $this->config = $config;
     }
 
-    public function getConfig(): array {
+    public function config(): array {
         $this->initConfig();
         return $this->config;
     }
@@ -128,23 +128,23 @@ class Site {
         $this->configFileName = $fileName;
     }
 
-    public function getConfigFileName(): string {
+    public function configFileName(): string {
         return $this->configFileName;
     }
 
-    public function getConfigFilePath(): string {
-        return $this->getConfigDirPath() . '/' . $this->configFileName;
+    public function configFilePath(): string {
+        return $this->configDirPath() . '/' . $this->configFileName;
     }
 
-    public function getFallbackConfigFilePath(): string {
-        return $this->getConfigDirPath() . '/' . self::FALLBACK_CONFIG_FILE_NAME;
+    public function fallbackConfigFilePath(): string {
+        return $this->configDirPath() . '/' . self::FALLBACK_CONFIG_FILE_NAME;
     }
 
     private function initConfig() {
         if (null === $this->config) {
-            $filePath = $this->getConfigFilePath();
+            $filePath = $this->configFilePath();
             if (!file_exists($filePath) || !is_readable($filePath)) {
-                $filePath = $this->getFallbackConfigFilePath();
+                $filePath = $this->fallbackConfigFilePath();
                 $this->fallbackConfigUsed = true;
             } else {
                 $this->fallbackConfigUsed = false;

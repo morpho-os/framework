@@ -3,13 +3,13 @@ namespace Morpho\Web\Routing;
 
 class FallbackRouter {
     public function route($request) {
-        $path = rtrim($request->uri()->getPath(), '/');
+        $path = rtrim($request->uri()->path(), '/');
         $parts = array_slice(array_filter(explode('/', $path)), 0, 9);
         $routes = [
             //'GET'  => ['check-env'],
             'POST' => ['install'],
         ];
-        $httpMethod = $request->getMethod();
+        $httpMethod = $request->method();
         $action = 'index';
         if (isset($routes[$httpMethod])) {
             $allowedActions = $routes[$httpMethod];

@@ -12,10 +12,10 @@ class UserRepo extends Repo implements IUserRepo {
      * @return array|false Returns an array with information about User on success, false otherwise.
      */
     public function findUserByLogin(string $login) {
-        return $this->getDb()->select("* FROM $this->tableName WHERE login = ?", [$login])->row();
+        return $this->db()->select("* FROM $this->tableName WHERE login = ?", [$login])->row();
     }
 
-    public function getUserById($id): array {
+    public function userById($id): array {
         return $this->selectRowEx("* FROM $this->tableName WHERE id = ?", [$id]);
     }
 

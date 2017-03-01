@@ -22,8 +22,8 @@ class Module extends Node {
     public function disable(Db $db) {
     }
 
-    public function getRepo($name) {
-        return $this->getChild(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
+    public function repo($name) {
+        return $this->child(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
     }
     
     public function setModuleNamespace(string $namespace) {
@@ -33,27 +33,27 @@ class Module extends Node {
     /**
      * @return string|null
      */
-    public function getModuleNamespace() {
+    public function moduleNamespace() {
         return $this->moduleNamespace;
     }
 
-    public static function getTableDefinitions(): array {
+    public static function tableDefinitions(): array {
         return [];
     }
 
     protected function trigger(string $event, array $args = null) {
-        return $this->getParent('ModuleManager')
+        return $this->parent('ModuleManager')
             ->trigger($event, $args);
     }
 
     protected function setSetting(string $name, $value, string $moduleName = null) {
         $this->serviceManager->get('settingManager')
-            ->set($name, $value, $moduleName ?: $this->getName());
+            ->set($name, $value, $moduleName ?: $this->name());
     }
 
-    protected function getSetting(string $name, string $moduleName = null) {
+    protected function setting(string $name, string $moduleName = null) {
         return $this->serviceManager->get('settingManager')
-            ->get($name, $moduleName ?: $this->getName());
+            ->get($name, $moduleName ?: $this->name());
     }
 
     protected function childNameToClass(string $name) {

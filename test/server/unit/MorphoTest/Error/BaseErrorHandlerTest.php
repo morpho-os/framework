@@ -4,6 +4,8 @@ namespace MorphoTest\Error;
 use Morpho\Test\TestCase;
 
 abstract class BaseErrorHandlerTest extends TestCase {
+    protected $prevErrorHandler, $prevExceptionHandler, $handlerArgs;
+
     public function setUp() {
         $handler = set_error_handler([$this, 'setUp']);
         restore_error_handler();
@@ -17,8 +19,8 @@ abstract class BaseErrorHandlerTest extends TestCase {
     }
 
     public function tearDown() {
-        \Morpho\Error\HandlerManager::unregister('error', $this->prevErrorHandler);
-        \Morpho\Error\HandlerManager::unregister('exception', $this->prevExceptionHandler);
+        \Morpho\Error\HandlerManager::unregisterHandler('error', $this->prevErrorHandler);
+        \Morpho\Error\HandlerManager::unregisterHandler('exception', $this->prevExceptionHandler);
     }
 
     public function myHandler() {
