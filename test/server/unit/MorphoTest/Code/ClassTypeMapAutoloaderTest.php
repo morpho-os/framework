@@ -14,7 +14,7 @@ class ClassTypeMapAutoloaderTest extends TestCase {
 
     public function testAutoload() {
         $regexp = '{\.php$}si';
-        $dirPath = $this->_testDirPath();
+        $dirPath = $this->getTestDirPath();
         $mapFilePath = $this->mapFilePath();
         $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath, $regexp);
 
@@ -31,14 +31,14 @@ class ClassTypeMapAutoloaderTest extends TestCase {
     }
 
     public function testClearMap_ClearEmptyMapDoesNotThrowException() {
-        $autoloader = new ClassTypeMapAutoloader($this->mapFilePath(), $this->_testDirPath());
+        $autoloader = new ClassTypeMapAutoloader($this->mapFilePath(), $this->getTestDirPath());
         $autoloader->clearMap();
         $this->markTestAsNotRisky();
     }
 
     public function testCaching() {
         $mapFilePath = $this->mapFilePath();
-        $dirPath = $this->_testDirPath();
+        $dirPath = $this->getTestDirPath();
         $class = __CLASS__ . '\\Foo1';
 
         $this->assertFalse(file_exists($mapFilePath));

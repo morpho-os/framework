@@ -10,7 +10,7 @@ class ActionsMetaProviderTest extends TestCase {
         parent::setUp();
         $this->vendorName = 'morpho-os-test';
 
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         require_once $testDirPath . '/My1Controller.php';
         require_once $testDirPath . '/My2Controller.php';
         require_once $testDirPath . '/My3Controller.php';
@@ -24,7 +24,7 @@ class ActionsMetaProviderTest extends TestCase {
     }
 
     public function testIterator_Inheritance() {
-        $baseModuleDirPath = $this->_testDirPath();
+        $baseModuleDirPath = $this->getTestDirPath();
         $projectName = 'inheritance';
         $controllerFilePaths = [
             "{$this->vendorName}/$projectName" => ["$baseModuleDirPath/$projectName/ChildController.php"],
@@ -59,7 +59,7 @@ class ActionsMetaProviderTest extends TestCase {
     }
 
     public function testIterator() {
-        $baseDirPath = $this->_testDirPath();
+        $baseDirPath = $this->getTestDirPath();
         $controllerFilePaths = [
             "{$this->vendorName}/bar" => [$baseDirPath . '/My1Controller.php'],
             "{$this->vendorName}/baz" => [$baseDirPath . '/My2Controller.php'],

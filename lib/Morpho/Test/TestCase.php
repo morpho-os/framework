@@ -60,7 +60,7 @@ abstract class TestCase extends BaseTestCase {
     /**
      * Note: we can't use name testDirPath as it will be considered as test method.
      */
-    protected function _testDirPath(): string {
+    protected function getTestDirPath(): string {
         $classFilePath = $this->classFilePath();
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
     }

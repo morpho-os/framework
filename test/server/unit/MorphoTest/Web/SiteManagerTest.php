@@ -8,7 +8,7 @@ use Morpho\Web\Site;
 class SiteManagerTest extends TestCase {
     public function setUp() {
         $this->siteManager = new SiteManager();
-        $this->siteManager->setAllSitesDirPath($this->_testDirPath());
+        $this->siteManager->setAllSitesDirPath($this->getTestDirPath());
     }
 
     public function testSetSite_SetsSiteAsCurrentByDefault() {
@@ -87,7 +87,7 @@ class SiteManagerTest extends TestCase {
         $_SERVER['HTTP_HOST'] = $siteName;
         $this->siteManager->useMultiSiting(true);
         $this->assertEquals(
-            $this->_testDirPath() . '/' . ($expectedSite ?: $siteName),
+            $this->getTestDirPath() . '/' . ($expectedSite ?: $siteName),
             $this->siteManager->currentSite()->dirPath()
         );
     }

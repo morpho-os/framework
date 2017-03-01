@@ -107,12 +107,12 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testRenderFileWithAbsPath() {
-        $dirPath = $this->_testDirPath();
+        $dirPath = $this->getTestDirPath();
         $this->assertEquals('<h1>Hello World!</h1>', $this->templateEngine->renderFile($dirPath . '/my-file.phtml', ['who' => 'World!']));
     }
 
     public function testRenderFileThrowsExceptionWhenNotExist() {
-        $path = $this->_testDirPath() . '/non-existing.phtml';
+        $path = $this->getTestDirPath() . '/non-existing.phtml';
         $this->expectException('\RuntimeException', 'The file \'' . $path . '\' was not found.');
         $this->templateEngine->renderFile($path);
     }
@@ -179,11 +179,11 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testRequire() {
-        $this->assertEquals("<h1>Hey! It is &quot;just quot&quot; works!</h1>", $this->templateEngine->renderFile($this->_testDirPath() . '/require-test.phtml'));
+        $this->assertEquals("<h1>Hey! It is &quot;just quot&quot; works!</h1>", $this->templateEngine->renderFile($this->getTestDirPath() . '/require-test.phtml'));
     }
 
     public function testResolvesDirAndFileConstants() {
-        $expected = 'Dir path: ' . $this->_testDirPath() . ', file path: ' . $this->_testDirPath() . '/dir-file-test.phtml';
-        $this->assertEquals($expected, $this->templateEngine->renderFile($this->_testDirPath() . '/dir-file-test.phtml'));
+        $expected = 'Dir path: ' . $this->getTestDirPath() . ', file path: ' . $this->getTestDirPath() . '/dir-file-test.phtml';
+        $this->assertEquals($expected, $this->templateEngine->renderFile($this->getTestDirPath() . '/dir-file-test.phtml'));
     }
 }

@@ -17,7 +17,7 @@ class DirectoryTest extends TestCase {
     }
     
     public function testIsEmptyDir() {
-        $this->assertFalse(Directory::isEmpty($this->_testDirPath()));
+        $this->assertFalse(Directory::isEmpty($this->getTestDirPath()));
         $this->assertTrue(Directory::isEmpty($this->createTmpDir()));
     }
 
@@ -74,7 +74,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithoutProcessorAndWithDefaultOptions() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
@@ -94,7 +94,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithoutProcessorAndWithDirOption() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/4',
@@ -108,7 +108,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithoutProcessor_WithDirOrFileOption() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
@@ -124,12 +124,12 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithoutProcessorAndWithoutBothFileAndDirOptions() {
-        $it = Directory::paths($this->_testDirPath(), null, ['type' => 0, 'recursive' => true]);
+        $it = Directory::paths($this->getTestDirPath(), null, ['type' => 0, 'recursive' => true]);
         $this->assertEquals([], iterator_to_array($it, false));
     }
 
     public function testPaths_WithClosureProcessorAndWithDefaultOptions() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/2/3.php',
@@ -153,7 +153,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithRegExpProcessorAndWithDefaultOptions() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/2/3.php',
@@ -169,7 +169,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithRegExpProcessorAndWithDirOption() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/4',
@@ -183,7 +183,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithRegExpProcessorAndWithBothFileAndDirOptions() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/2/3.php',
@@ -203,7 +203,7 @@ class DirectoryTest extends TestCase {
             [],
             iterator_to_array(
                 Directory::paths(
-                    $this->_testDirPath(),
+                    $this->getTestDirPath(),
                     '~\.some$~si',
                     ['type' => Directory::FILE, 'recursive' => true]
                 ),
@@ -213,7 +213,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_WithRegExpProcessorAndWithBothBothFileAndDirOptionsWithoutRecursiveOption() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
             $testDirPath . '/2',
@@ -235,11 +235,11 @@ class DirectoryTest extends TestCase {
 
     public function testPaths_ThrowsExceptionOnInvalidOption() {
         $this->expectException(InvalidOptionsException::class, 'Invalid options: invalid');
-        iterator_to_array(Directory::paths($this->_testDirPath(), null, ['invalid' => 'foo']), false);
+        iterator_to_array(Directory::paths($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 
     public function testPaths_WithNotRecursiveOption() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $actual = iterator_to_array(Directory::paths($testDirPath, null, ['recursive' => false]), false);
         $expected = [
             $testDirPath . '/1.txt',
@@ -252,7 +252,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_SavesModifiedPathFromProcessorButUsesNotModifiedPathInTraversing() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $processor = function (&$path) {
             static $i;
             $path = $path . 'foo' . ++$i;
@@ -275,7 +275,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testPaths_YieldsReturnedPathsFromProcessor() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $processor = function ($path) {
             return basename($path);
         };
@@ -411,7 +411,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testDirPaths_WithoutProcessor_Recursive() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
             $testDirPath . '/4',
@@ -424,7 +424,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testDirPaths_RegExpProcessor_NotRecursive() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $it = Directory::dirPaths($testDirPath, "~.*/[^4]$~si", ['recursive' => false]);
         $actual = iterator_to_array($it, false);
         $expected = [
@@ -436,7 +436,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testDirPaths_ClosureProcessor_NotRecursive() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $processor = function ($path) use (&$calledTimes) {
             $this->assertTrue(is_dir($path));
             $calledTimes++;
@@ -450,7 +450,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testDirNames_WithoutProcessor_NotRecursive() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $it = Directory::dirNames($testDirPath);
         $dirNames = iterator_to_array($it, false);
         sort($dirNames);
@@ -459,18 +459,18 @@ class DirectoryTest extends TestCase {
 
     public function testDirNames_WithoutProcessor_RecursiveLogicThrowsException() {
         $this->expectException(LogicException::class, "The 'recursive' option must be false");
-        Directory::dirNames($this->_testDirPath(), null, ['recursive' => true]);
+        Directory::dirNames($this->getTestDirPath(), null, ['recursive' => true]);
     }
 
     public function testDirNames_RegExpProcessor() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $it = Directory::dirNames($testDirPath, '~^2$~si');
         $dirNames = iterator_to_array($it, false);
         $this->assertEquals(['2'], $dirNames);
     }
 
     public function testDirNames_ClosureProcessor() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $processor = function ($dirName, $path) use (&$calledTimes) {
             $this->assertRegExp('~^.*/.*/(2|4)$~', $path);
             $calledTimes++;
@@ -488,7 +488,7 @@ class DirectoryTest extends TestCase {
     }
     
     public function testDirNames_ClosureProcessorWhichReturnsBool() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $processor = function ($dirName, $path) use (&$calledTimes) {
             $this->assertNotContains('/', $dirName);
             $this->assertRegExp('~^.*/.*/(2|4)$~', $path);
@@ -503,7 +503,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testFilePaths_RegExpProcessor_Recursive() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $it = Directory::filePaths($testDirPath, '~\.(txt|php)$~s', ['recursive' => true]);
         $filePaths = iterator_to_array($it, false);
         sort($filePaths);
@@ -518,7 +518,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testFilePaths_RegExpProcessor_NotRecursive() {
-        $testDirPath = $this->_testDirPath();
+        $testDirPath = $this->getTestDirPath();
         $it = Directory::filePaths($testDirPath, '~\.(txt|php)$~s');
         $filePaths = iterator_to_array($it, false);
         sort($filePaths);

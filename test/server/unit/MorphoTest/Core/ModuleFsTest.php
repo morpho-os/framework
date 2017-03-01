@@ -21,13 +21,13 @@ class ModuleFsTest extends TestCase {
     }
 
     public function testBaseModuleDirPathAccessors() {
-        $baseModuleDirPath = $this->_testDirPath();
+        $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $this->assertEquals($baseModuleDirPath, $moduleFs->baseModuleDirPath());
     }
 
     public function testModuleNames() {
-        $baseModuleDirPath = $this->_testDirPath();
+        $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $moduleNames = $moduleFs->moduleNames();
         $this->assertCount(3, $moduleNames);
@@ -37,24 +37,24 @@ class ModuleFsTest extends TestCase {
     }
 
     public function testModuleClass_ReturnsFalseWhenClassDoesNotExist() {
-        $moduleFs = $this->createModuleFs($this->_testDirPath());
+        $moduleFs = $this->createModuleFs($this->getTestDirPath());
         $this->assertNull($moduleFs->moduleClass("{$this->vendorName}/saturn"));
     }
 
     public function testModuleClass_ReturnsClassWhenClassExists() {
-        $moduleFs = $this->createModuleFs($this->_testDirPath());
+        $moduleFs = $this->createModuleFs($this->getTestDirPath());
         $this->assertEquals('MorphoTest\\Core\\ModuleFsTest\\Mars\\Module', $moduleFs->moduleClass("{$this->vendorName}/mars"));
     }
     
     public function testModuleDirPath() {
-        $baseModuleDirPath = $this->_testDirPath();
+        $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $moduleName = "{$this->vendorName}/saturn";
         $this->assertEquals($baseModuleDirPath . "/saturn", $moduleFs->moduleDirPath($moduleName));
     }
 
     public function testModuleControllerFilePaths() {
-        $baseModuleDirPath = $this->_testDirPath();
+        $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->createModuleFs($baseModuleDirPath);
         $this->assertEquals(
             [

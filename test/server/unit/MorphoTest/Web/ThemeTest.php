@@ -85,7 +85,7 @@ class ThemeTest extends TestCase {
             ]
         ];
         $moduleName = 'foo-bar';
-        $moduleDirPath = $this->_testDirPath() . '/' . $moduleName;
+        $moduleDirPath = $this->getTestDirPath() . '/' . $moduleName;
         $theme->setParent(new class ($moduleName, $moduleDirPath) extends Node {
             protected $name = 'ModuleManager';
 
@@ -137,7 +137,7 @@ class ThemeTest extends TestCase {
     public function testBasePathAccessors() {
         $theme = new Theme();
         $this->assertEquals([], $theme->baseDirPaths());
-        $baseDirPath = $this->_testDirPath() . '/foo/bar';
+        $baseDirPath = $this->getTestDirPath() . '/foo/bar';
         $theme->addBaseDirPath($baseDirPath);
         $this->assertEquals([$baseDirPath], $theme->baseDirPaths());
         // Add the same path twice.

@@ -7,7 +7,7 @@ use Morpho\Web\Site;
 class SiteTest extends TestCase {
     public function setUp() {
         parent::setUp();
-        $this->site = new Site(['dirPath' => $this->_testDirPath(), 'name' => 'foo']);
+        $this->site = new Site(['dirPath' => $this->getTestDirPath(), 'name' => 'foo']);
     }
 
     public function testConstructor_SettingProperties() {
@@ -39,7 +39,7 @@ class SiteTest extends TestCase {
         $setter = 'set' . $dirName . 'DirPath';
         $getter = $dirName . 'DirPath';
         $this->assertEquals(
-            $this->_testDirPath() . '/' . constant(strtoupper($dirName) . '_DIR_NAME'),
+            $this->getTestDirPath() . '/' . constant(strtoupper($dirName) . '_DIR_NAME'),
             $this->site->$getter()
         );
 
@@ -82,7 +82,7 @@ class SiteTest extends TestCase {
      * @dataProvider dataForFallbackConfigUsed
      */
     public function testFallbackConfigUsed($shouldBeUsed) {
-        $this->site->setConfigDirPath($this->_testDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
+        $this->site->setConfigDirPath($this->getTestDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
         $config = $this->site->config();
         $this->assertInternalType('array', $config);
         $this->assertCount(2, $config);
@@ -92,6 +92,6 @@ class SiteTest extends TestCase {
     }
 
     public function testConfigFilePath() {
-        $this->assertEquals($this->_testDirPath() . '/' . CONFIG_DIR_NAME . '/' . Site::CONFIG_FILE_NAME, $this->site->configFilePath());
+        $this->assertEquals($this->getTestDirPath() . '/' . CONFIG_DIR_NAME . '/' . Site::CONFIG_FILE_NAME, $this->site->configFilePath());
     }
 }
