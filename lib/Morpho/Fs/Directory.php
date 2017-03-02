@@ -250,23 +250,31 @@ class Directory extends Entry {
      * potential to erase everything that the current user has access to.
      *
      * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
+     *
+     * @param string|iterable $dirPath
      */
-    public static function delete(string $dirPath, bool $deleteSelf = true, bool $ignoreVcsFiles = false)/*: void */ {
-        self::mustExist($dirPath);
+    public static function delete($dirPath, bool $deleteSelf = true, bool $ignoreVcsFiles = false): void {
+        if (is_iterable($dirPath)) {
+            foreach ($dirPath as $path) {
+                static::delete($path, $deleteSelf, $ignoreVcsFiles);
+            }
+            return;
+        }
+        static::mustExist($dirPath);
         if ($ignoreVcsFiles && $deleteSelf) {
             throw new \LogicException("The both arguments can't be equal to true");
         }
         $absFilePath = realpath($dirPath);
         if (!$absFilePath) {
-            throw new Exception("The directory '$dirPath' could not be found.");
+            throw new Exception("The directory '$dirPath' could not be found");
         }
         $d = @dir($absFilePath);
         if (!$d) {
-            throw new Exception("The directory '$dirPath' can not be opened for reading.");
+            throw new Exception("The directory '$dirPath' can not be opened for reading");
         }
         // Check if we can delete the dir.
         if (!is_writable(realpath($dirPath . '/' . '..'))) {
-            throw new Exception("The directory '$dirPath' can not be opened for writing.");
+            throw new Exception("The directory '$dirPath' can not be opened for writing");
         }
         // Loop over contents.
         while (($fileName = $d->read()) !== false) {
@@ -278,7 +286,7 @@ class Directory extends Entry {
             }
             $filePath = $absFilePath . '/' . $fileName;
             if (is_dir($filePath)) {
-                self::delete($filePath);
+                static::delete($filePath);
             } else {
                 ErrorHandler::checkError(@unlink($filePath), "The file '$filePath' can not be deleted, check permissions");
             }

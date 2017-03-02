@@ -179,7 +179,13 @@ class File extends Entry {
     /**
      * Deletes the file.
      */
-    public static function delete(string $filePath)/*: void */ {
+    public static function delete($filePath): void {
+        if (is_iterable($filePath)) {
+            foreach ($filePath as $path) {
+                static::delete($path);
+            }
+            return;
+        }
         if (!@unlink($filePath)) {
             throw new FileNotFoundException($filePath);
         }

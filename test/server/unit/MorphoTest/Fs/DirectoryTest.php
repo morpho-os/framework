@@ -7,8 +7,16 @@ use Morpho\Fs\Directory;
 use Morpho\Test\TestCase;
 
 class DirectoryTest extends TestCase {
-    public function testDeleteEmptyDirs() {
+    public function testDelete_EmptyDir() {
         $this->markTestIncomplete();
+
+        // @TODO: Test both: iterable and string first argument
+    }
+
+    public function testDelete_NotEmptyDir() {
+        $this->markTestIncomplete();
+
+        // @TODO: Test both: iterable and string first argument
     }
 
     public function testMustExist_ReturnsArg() {
@@ -46,10 +54,6 @@ class DirectoryTest extends TestCase {
     public function testTmpDirPath() {
         $tmpDirPath = Directory::tmpDirPath();
         $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
-    }
-    
-    public function testDelete() {
-        $this->markTestIncomplete();
     }
 
     public function testCreate_CantCreateEmptyDir() {
