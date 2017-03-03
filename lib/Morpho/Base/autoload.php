@@ -57,12 +57,19 @@ function reduce(callable $fn, array $arr, $initial = null) {
     return array_reduce($arr, $fn, $initial);
 }
 
-function wrap($string, string $wrapper): string {
+function wrap($string, string $wrapper) {
+    if (is_array($string)) {
+        $r = [];
+        foreach ($string as $k => $s) {
+            $r[$k] = $wrapper . $s . $wrapper;
+        }
+        return $r;
+    }
     return $wrapper . $string . $wrapper;
 }
 
-function wrapWithQuotes($string): string {
-    return "'$string'";
+function wrapQ($string) {
+    return wrap($string, "'");
 }
 
 function showLn(...$messages) {

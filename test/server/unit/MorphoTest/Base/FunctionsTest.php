@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    appendFn, fromJson, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf
+    appendFn, fromJson, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -309,15 +309,42 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
+    public function dataForWrapQ() {
+        return [
+            ["'Hello'", 'Hello'],
+            [
+                [
+                    "'foo'",
+                    "'bar'",
+                ],
+                [
+                    'foo',
+                    'bar'
+                ],
+            ],
+            [
+                [
+                    'a' => "'foo'",
+                    'b' => "'bar'",
+                ],
+                [
+                    'a' => 'foo',
+                    'b' => 'bar',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForWrapQ
+     */
+    public function testWrapQ($expected, $actual) {
+        $this->assertSame($expected, wrapQ($actual));
+    }
+
     private function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
         $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
-    }
-
-    private function mapFn() {
-        return function ($v) {
-            return 'abc' . $v;
-        };
     }
 }
