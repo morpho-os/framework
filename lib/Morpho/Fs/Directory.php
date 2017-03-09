@@ -9,19 +9,20 @@ use DirectoryIterator;
 use Morpho\Error\ErrorHandler;
 
 class Directory extends Entry {
-    const FILE = 0x01;
-    const DIR = 0x02;
+    public const FILE = 0x01;
+    public const DIR = 0x02;
 
-    const MODE = 0755;
-    
-    const PHP_FILES_RE = '~.\.php$~si';
+    public const MODE = 0755;
 
-    public static function move(string $sourceDirPath, string $targetDirPath)/*: void */ {
+    public const PHP_FILES_RE = '~.\.php$~si';
+
+    public static function move(string $sourceDirPath, string $targetDirPath): string {
         self::copy($sourceDirPath, $targetDirPath);
         self::delete($sourceDirPath);
+        return $targetDirPath;
     }
 
-    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null)/*: void */ {
+    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null): string {
         // @TODO: Handle dots and relative paths: '..', '.'
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         self::mustExist($sourceDirPath);
@@ -68,6 +69,8 @@ class Directory extends Entry {
                 self::copy($path, $targetPath, $processor, $options);
             }
         }
+
+        return $targetDirPath;
     }
 
     /**
@@ -304,7 +307,7 @@ class Directory extends Entry {
         return true;
     }
 
-    public static function deleteEmptyDirs(string $dirPath)/*: void */ {
+    public static function deleteEmptyDirs(string $dirPath): void {
         $it = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dirPath, \FilesystemIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST

@@ -42,7 +42,7 @@ class DirectoryTest extends TestCase {
         $this->assertFalse(is_dir($targetDirPath . '/bar'));
         $this->assertFalse(is_file($targetDirPath . '/bar/1.txt'));
 
-        Directory::move($sourceDirPath, $targetDirPath);
+        $this->assertEquals($targetDirPath, Directory::move($sourceDirPath, $targetDirPath));
 
         $this->assertFalse(is_dir($sourceDirPath . '/bar'));
         $this->assertFalse(is_file($sourceDirPath . '/bar/1.txt'));
@@ -320,7 +320,12 @@ class DirectoryTest extends TestCase {
         $targetDirPath = $this->createTmpDir();
         mkdir($targetDirPath . '/test1/foo', Directory::MODE, true);
 
-        Directory::copy($sourceDirPath . '/test1', $targetDirPath);
+        $sourceDirPath = $sourceDirPath . '/test1';
+
+        $this->assertEquals(
+            $targetDirPath . '/' . basename($sourceDirPath),
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
 
         $this->assertEquals(['test1', 'test1/foo'], $this->pathsInDir($targetDirPath));
     }
@@ -329,7 +334,12 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $this->createTmpDir() . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $this->createTmpDir() . '/bar';
-        Directory::copy($sourceDirPath, $targetDirPath);
+
+        $this->assertEquals(
+            $targetDirPath,
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
+
         $this->assertEquals([], $this->pathsInDir($targetDirPath));
     }
 
@@ -337,7 +347,12 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $this->createTmpDir() . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $this->createTmpDir() . '/bar/foo';
-        Directory::copy($sourceDirPath, $targetDirPath);
+
+        $this->assertEquals(
+            $targetDirPath,
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
+
         $this->assertEquals([], $this->pathsInDir($targetDirPath));
     }
 
@@ -346,7 +361,12 @@ class DirectoryTest extends TestCase {
         mkdir($sourceDirPath);
         $targetDirPath = $this->createTmpDir() . '/bar';
         mkdir($targetDirPath);
-        Directory::copy($sourceDirPath, $targetDirPath);
+
+        $this->assertEquals(
+            $targetDirPath . '/' . basename($sourceDirPath),
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
+
         $this->assertEquals(['foo'], $this->pathsInDir($targetDirPath));
     }
 
@@ -355,11 +375,16 @@ class DirectoryTest extends TestCase {
         mkdir($sourceDirPath);
         $targetDirPath = $this->createTmpDir() . '/bar';
         mkdir($targetDirPath . '/foo', Directory::MODE, true);
-        Directory::copy($sourceDirPath, $targetDirPath);
+
+        $this->assertEquals(
+            $targetDirPath . '/' . basename($sourceDirPath),
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
+
         $this->assertEquals(['foo'], $this->pathsInDir($targetDirPath));
     }
 
-    public function testCopy_NestedTargetDirExists() {
+    public function testCopy_TargetDirExists_NestedDirExists() {
         $sourceDirPath = $this->createTmpDir();
         mkdir($sourceDirPath . '/public/module/system', Directory::MODE, true);
         touch($sourceDirPath . '/public/module/system/composer.json');
@@ -367,7 +392,12 @@ class DirectoryTest extends TestCase {
         $targetDirPath = $this->createTmpDir();
         mkdir($targetDirPath . '/public/module/bootstrap', Directory::MODE, true);
 
-        Directory::copy($sourceDirPath . '/public', $targetDirPath);
+        $sourceDirPath = $sourceDirPath . '/public';
+
+        $this->assertEquals(
+            $targetDirPath . '/' . basename($sourceDirPath),
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
 
         $paths = iterator_to_array(Directory::paths($targetDirPath, null, ['recursive' => true]), false);
         sort($paths);
@@ -395,7 +425,10 @@ class DirectoryTest extends TestCase {
         mkdir($targetDirPath . '/dir1');
         touch($targetDirPath . '/dir1/file2.txt');
 
-        Directory::copy($sourceDirPath, $targetDirPath);
+        $this->assertEquals(
+            $targetDirPath . '/' . basename($sourceDirPath),
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
 
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath . '/' . basename($sourceDirPath));
     }
@@ -409,7 +442,10 @@ class DirectoryTest extends TestCase {
         $targetDirPath = $this->createTmpDir() . '/target';
         $this->assertFalse(is_dir($targetDirPath));
 
-        Directory::copy($sourceDirPath, $targetDirPath);
+        $this->assertEquals(
+            $targetDirPath,
+            Directory::copy($sourceDirPath, $targetDirPath)
+        );
 
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath);
     }
