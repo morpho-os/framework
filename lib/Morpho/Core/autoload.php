@@ -16,7 +16,6 @@ const CONTROLLER_DIR_NAME = 'controller';
 const LIB_DIR_NAME = 'lib';
 const LOG_DIR_NAME = 'log';
 const MODULE_DIR_NAME = 'module';
-const SITE_DIR_NAME = 'site';
 const TEST_DIR_NAME = 'test';
 const TMP_DIR_NAME = 'tmp';
 const VENDOR_DIR_NAME = 'vendor';
@@ -28,7 +27,6 @@ const MODULE_CLASS_FILE_NAME = 'Module.php';
 
 define('LIB_DIR_PATH',  BASE_DIR_PATH . '/' . LIB_DIR_NAME);
 define('MODULE_DIR_PATH',  BASE_DIR_PATH . '/' . MODULE_DIR_NAME);
-define('SITE_DIR_PATH',  BASE_DIR_PATH . '/' . SITE_DIR_NAME);
 define('TEST_DIR_PATH',  BASE_DIR_PATH . '/' . TEST_DIR_NAME);
 define('VENDOR_DIR_PATH',  BASE_DIR_PATH . '/' . VENDOR_DIR_NAME);
 
