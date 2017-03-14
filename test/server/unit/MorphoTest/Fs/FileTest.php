@@ -64,23 +64,33 @@ class FileTest extends TestCase {
         $this->assertEquals(0, filesize($filePath));
     }
 
-    public function testMove() {
+    public function testMove_ToNotExistentDirAndFile() {
         $sourceFilePath = $this->createTmpDir() . '/' . basename(md5(__METHOD__));
         $this->assertFileNotExists($sourceFilePath);
         copy(__FILE__, $sourceFilePath);
         $this->assertFileExists($sourceFilePath);
         $targetFilePath = $this->createTmpDir() . '/some/new/name.php';
         $this->assertFileNotExists($targetFilePath);
+
         $this->assertEquals($targetFilePath, File::move($sourceFilePath, $targetFilePath));
+
         $this->assertFileExists($targetFilePath);
         $this->assertEquals(filesize(__FILE__), filesize($targetFilePath));
     }
 
-    public function testMoveNotExistentFileThrowsException() {
+    public function testMove_NotExistentSourceFileThrowsException() {
         $sourceFilePath = __FILE__ . 'some';
         $targetFilePath = $this->tmpDirPath() . '/some';
         $this->expectException('\Morpho\Fs\Exception', "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
         File::move($sourceFilePath, $targetFilePath);
+    }
+
+    public function testMove_ToExistentDirWithTheSameNameAndWithoutFileName() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMove_ToExistentDirWithDifferentNameAndWithoutFileName() {
+        $this->markTestIncomplete();
     }
 
     public function testCopy() {
