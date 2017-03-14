@@ -29,6 +29,13 @@ function error(string $errMessage = null) {
     exit(Environment::FAILURE_CODE);
 }
 
+function errorLn(string $errMessage = null) {
+    if ($errMessage) {
+        showErrorLn($errMessage);
+    }
+    exit(Environment::FAILURE_CODE);
+}
+
 function showError(string $errMessage) {
     fwrite(STDERR, $errMessage);
 }
