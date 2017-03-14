@@ -124,6 +124,11 @@ class Site {
         return $this->config;
     }
 
+    public function reloadConfig(): void {
+        $this->config = null;
+        $this->initConfig();
+    }
+
     public function setConfigFileName(string $fileName) {
         $this->configFileName = $fileName;
     }

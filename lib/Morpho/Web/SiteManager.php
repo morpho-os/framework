@@ -62,7 +62,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function setSite(Site $site, bool $setAsCurrent = true) {
         $siteName = $site->name();
-        $this->mustBeAllowedSiteName($siteName);
+        $this->checkSiteName($siteName);
         $this->sites[$siteName] = $site;
         if ($setAsCurrent) {
             $this->currentSiteName = $siteName;
@@ -71,7 +71,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function site(string $siteName): Site {
         if (!isset($this->sites[$siteName])) {
-            $this->mustBeAllowedSiteName($siteName);
+            $this->checkSiteName($siteName);
             $this->sites[$siteName] = $this->createSite($siteName);
         }
         return $this->sites[$siteName];
@@ -100,7 +100,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function mustBeAllowedSiteName(string $siteName) {
+    protected function checkSiteName(string $siteName): void {
         if (false === $this->resolveSiteName($siteName)) {
             throw new \RuntimeException("Not allowed site name was provided");
         }
