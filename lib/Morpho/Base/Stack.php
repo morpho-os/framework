@@ -21,8 +21,7 @@ class Stack extends \SplStack {
 
     /**
      * Works like pop() but doesn't remove an item.
-     */
     public function peek() {
         return $this->top();
-    }
+    }*/
 }

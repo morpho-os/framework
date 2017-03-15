@@ -23,20 +23,6 @@ class StackTest extends TestCase {
         $this->assertEquals(0, count($stack));
     }
 
-    public function testPeekThrowsExceptionForEmptyStack() {
-        $stack = new Stack();
-        $this->expectException('\RuntimeException');
-        $stack->peek();
-    }
-
-    public function testPeek() {
-        $stack = new Stack();
-        $stack->push('foo');
-        $stack->push('bar');
-        $this->assertEquals('bar', $stack->peek());
-        $this->assertEquals(2, $stack->count());
-    }
-
     public function testReplace() {
         $stack = new Stack();
         $stack->push('foo');
