@@ -3,31 +3,34 @@ namespace Morpho\Web;
 
 use Morpho\Base\Must;
 use function Morpho\Base\requireFile;
+use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
 class Site {
-    protected $name;
+    private $name;
 
-    protected $dirPath;
+    private $dirPath;
 
-    protected $config;
+    private $config;
 
-    protected $cacheDirPath;
+    private $cacheDirPath;
 
-    protected $configDirPath;
+    private $configDirPath;
 
-    protected $logDirPath;
+    private $logDirPath;
 
-    protected $uploadDirPath;
+    private $uploadDirPath;
 
-    protected $publicDirPath;
+    private $publicDirPath;
 
-    protected $configFileName = self::CONFIG_FILE_NAME;
+    private $configFileName = self::CONFIG_FILE_NAME;
+
+    private $viewDirPath;
 
     private $fallbackConfigUsed;
 
-    const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
-    const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
+    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+    public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
     public function __construct(array $options = []) {
         Must::haveOnlyKeys($options, ['dirPath', 'name']);
@@ -39,7 +42,7 @@ class Site {
         }
     }
 
-    public function setDirPath(string $dirPath) {
+    public function setDirPath(string $dirPath): void {
         $this->dirPath = $dirPath;
     }
 
@@ -47,7 +50,7 @@ class Site {
         return $this->dirPath;
     }
 
-    public function setName(string $name) {
+    public function setName(string $name): void {
         $this->name = $name;
     }
 
@@ -55,7 +58,7 @@ class Site {
         return $this->name;
     }
 
-    public function setCacheDirPath(string $dirPath) {
+    public function setCacheDirPath(string $dirPath): void {
         $this->cacheDirPath = Path::normalize($dirPath);
     }
 
@@ -66,7 +69,7 @@ class Site {
         return $this->cacheDirPath;
     }
 
-    public function setConfigDirPath(string $dirPath) {
+    public function setConfigDirPath(string $dirPath): void {
         $this->configDirPath = Path::normalize($dirPath);
     }
 
@@ -77,7 +80,7 @@ class Site {
         return $this->configDirPath;
     }
 
-    public function setLogDirPath(string $dirPath) {
+    public function setLogDirPath(string $dirPath): void {
         $this->logDirPath = Path::normalize($dirPath);
     }
 
@@ -88,7 +91,7 @@ class Site {
         return $this->logDirPath;
     }
 
-    public function setUploadDirPath(string $dirPath) {
+    public function setUploadDirPath(string $dirPath): void {
         $this->uploadDirPath = Path::normalize($dirPath);
     }
 
@@ -99,7 +102,7 @@ class Site {
         return $this->uploadDirPath;
     }
 
-    public function setPublicDirPath(string $dirPath) {
+    public function setPublicDirPath(string $dirPath): void {
         $this->publicDirPath = Path::normalize($dirPath);
     }
 
@@ -110,12 +113,7 @@ class Site {
         return $this->publicDirPath;
     }
 
-    public function fallbackConfigUsed(): bool {
-        $this->initConfig();
-        return $this->fallbackConfigUsed;
-    }
-
-    public function setConfig(array $config) {
+    public function setConfig(array $config): void {
         $this->config = $config;
     }
 
@@ -129,7 +127,21 @@ class Site {
         $this->initConfig();
     }
 
-    public function setConfigFileName(string $fileName) {
+    public function writeConfig(array $config): void {
+        File::writePhpVar($this->configFilePath(), $config);
+        $this->config = null;
+    }
+
+    public function setConfigFilePath(string $filePath): void {
+        $this->setConfigDirPath(dirname($filePath));
+        $this->setConfigFileName(basename($filePath));
+    }
+
+    public function configFilePath(): string {
+        return $this->configDirPath() . '/' . $this->configFileName;
+    }
+
+    public function setConfigFileName(string $fileName): void {
         $this->configFileName = $fileName;
     }
 
@@ -137,15 +149,27 @@ class Site {
         return $this->configFileName;
     }
 
-    public function configFilePath(): string {
-        return $this->configDirPath() . '/' . $this->configFileName;
+    public function fallbackConfigUsed(): bool {
+        $this->initConfig();
+        return $this->fallbackConfigUsed;
     }
 
     public function fallbackConfigFilePath(): string {
         return $this->configDirPath() . '/' . self::FALLBACK_CONFIG_FILE_NAME;
     }
 
-    private function initConfig() {
+    public function setViewDirPath(string $dirPath): void {
+        $this->viewDirPath = $dirPath;
+    }
+
+    public function viewDirPath(): string {
+        if (null === $this->viewDirPath) {
+            $this->viewDirPath = $this->dirPath . '/' . VIEW_DIR_NAME;
+        }
+        return $this->viewDirPath;
+    }
+
+    private function initConfig(): void {
         if (null === $this->config) {
             $filePath = $this->configFilePath();
             if (!file_exists($filePath) || !is_readable($filePath)) {
