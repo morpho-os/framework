@@ -51,7 +51,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function currentSite(): Site {
         if (null === $this->currentSiteName) {
-            $siteName = $this->discoverCurrentSiteName();
+            $siteName = $this->detectSiteName();
             if (!isset($this->sites[$siteName])) {
                 $this->sites[$siteName] = $this->createSite($siteName);
             }
@@ -60,7 +60,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->sites[$this->currentSiteName];
     }
 
-    public function setSite(Site $site, bool $setAsCurrent = true) {
+    public function setSite(Site $site, bool $setAsCurrent = true): void {
         $siteName = $site->name();
         $this->checkSiteName($siteName);
         $this->sites[$siteName] = $site;
@@ -77,7 +77,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->sites[$siteName];
     }
 
-    public function setCurrentSiteConfig(array $config) {
+    public function setCurrentSiteConfig(array $config): void {
         $this->currentSite()->setConfig($config);
     }
 
@@ -85,7 +85,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->currentSite()->config();
     }
 
-    public function setAllSitesDirPath(string $dirPath) {
+    public function setAllSitesDirPath(string $dirPath): void {
         $this->allSitesDirPath = Path::normalize($dirPath);
     }
 
@@ -96,7 +96,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->allSitesDirPath;
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 
@@ -106,22 +106,42 @@ class SiteManager extends Object implements IServiceManagerAware {
         }
     }
 
-    protected function discoverCurrentSiteName(): string {
-        $sites = $this->config()['sites'];
+    protected function detectSiteName(): string {
         if (!$this->useMultiSiting()) {
+            // No multi-siting -> use first found site.
+            $sites = $this->config()['sites'];
             return array_shift($sites);
         }
-        $siteName = $_SERVER['HTTP_HOST'] ?? null;
-        if (empty($siteName)) {
-            $this->invalidSiteError("Empty value of the 'Host' field");
+
+        // Use the `Host` header field-value, see https://tools.ietf.org/html/rfc3986#section-3.2.2
+        $host = $_SERVER['HTTP_HOST'] ?? null;
+
+        if (empty($host)) {
+            $this->invalidHostError("Empty value of the 'Host' field");
         }
-        $siteName = explode(':', strtolower((string)$siteName), 2)[0];
-        if (substr($siteName, 0, 4) === 'www.' && strlen($siteName) > 4) {
-            $siteName = substr($siteName, 4);
+
+        // @TODO: Unicode and internationalized domains, see https://tools.ietf.org/html/rfc5892
+        if (false !== ($startOff = strpos($host, '['))) {
+            if ($startOff !== 0) {
+                $this->invalidHostError("Invalid value of the 'Host' field");
+            }
+            // IPv6 or later.
+            $endOff = strrpos($host, ']', 2);
+            if (false === $endOff) {
+                $this->invalidHostError("Invalid value of the 'Host' field");
+            }
+            $hostWithoutPort = strtolower(substr($host, 0, $endOff + 1));
+        } else {
+            // IPv4 or domain name
+            $hostWithoutPort = explode(':', strtolower((string)$host), 2)[0];
+            if (substr($hostWithoutPort, 0, 4) === 'www.' && strlen($hostWithoutPort) > 4) {
+                $hostWithoutPort = substr($hostWithoutPort, 4);
+            }
         }
-        $siteName = $this->resolveSiteName($siteName);
+
+        $siteName = $this->resolveSiteName($hostWithoutPort);
         if (false === $siteName) {
-            $this->invalidSiteError("Invalid value of the 'Host' field");
+            $this->invalidHostError("Invalid value of the 'Host' field");
         }
         return $siteName;
     }
@@ -145,10 +165,6 @@ class SiteManager extends Object implements IServiceManagerAware {
         return false;
     }
 
-    protected function invalidSiteError(string $message) {
-        throw new BadRequestException($message);
-    }
-
     protected function config(): array {
         if (null === $this->config) {
             $this->config = requireFile($this->allSitesDirPath() . '/' . self::CONFIG_FILE_NAME);
@@ -160,8 +176,12 @@ class SiteManager extends Object implements IServiceManagerAware {
         $siteDirPath = $this->allSitesDirPath() . '/' . $siteName;
         Directory::mustExist($siteDirPath);
         return new Site([
-            'name'    => $siteName,
+            'name' => $siteName,
             'dirPath' => $siteDirPath,
         ]);
+    }
+
+    private function invalidHostError(string $message): void {
+        throw new BadRequestException($message);
     }
 }
