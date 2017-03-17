@@ -36,6 +36,7 @@
         "nikic/php-parser": "dev-master",
         "nikic/fast-route": "dev-master",
         "monolog/monolog": "dev-master",
+        "morpho-os/modulizer": "dev-master",
         "zendframework/zend-http": "dev-master",
         "zendframework/zend-uri": "dev-master",
         "zendframework/zend-filter": "dev-master",
@@ -50,6 +51,12 @@
     "require-dev": {
         "phpunit/phpunit": "dev-master"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "git@github.com:morpho-os/modulizer.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Morpho\\": "lib/Morpho/"
