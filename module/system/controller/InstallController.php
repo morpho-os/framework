@@ -9,7 +9,7 @@ use Morpho\Fs\File;
 class InstallController extends Controller {
     public function indexAction() {
         return [
-            'dbConfig' => $this->serviceManager->get('siteManager')->currentSiteConfig()['db'],
+            'dbConfig' => $this->serviceManager->get('siteManager')->currentSite()->config()['db'],
         ];
     }
 
@@ -105,7 +105,7 @@ class InstallController extends Controller {
 
     protected function installModules(Db $db) {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $this->serviceManager->get('siteManager')->currentSiteConfig()['modules']
+        $modules = $this->serviceManager->get('siteManager')->currentSite()->config()['modules']
             ?? $moduleManager->uninstalledModuleNames();
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {

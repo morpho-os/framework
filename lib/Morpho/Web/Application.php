@@ -32,7 +32,7 @@ class Application extends BaseApplication {
 
     protected function createServiceManager(): IServiceManager {
         $siteManager = new SiteManager();
-        $siteConfig = $siteManager->currentSiteConfig();
+        $siteConfig = $siteManager->currentSite()->config();
         $services = [
             'app'         => $this,
             'siteManager' => $siteManager,
@@ -46,6 +46,7 @@ class Application extends BaseApplication {
     }
 
     protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null) {
+        d($e);
         if (null !== $serviceManager) {
             try {
                 // Last chance handler.
