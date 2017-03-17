@@ -1,8 +1,10 @@
 <?php
 namespace MorphoTest\Web;
 
+use Morpho\Core\Module;
 use Morpho\Fs\File;
 use Morpho\Test\TestCase;
+use Morpho\Web\Host;
 use Morpho\Web\Site;
 
 class SiteTest extends TestCase {
@@ -10,34 +12,33 @@ class SiteTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->site = new Site(['dirPath' => $this->getTestDirPath(), 'name' => 'foo']);
+        $this->site = new Site(null, $this->getTestDirPath());
     }
 
-    public function testConstructor_SettingProperties() {
-        $this->assertEquals($this->site->dirPath(), $this->site->dirPath());
-        $this->assertEquals('foo', $this->site->name());
+    public function testSubtyping() {
+        $this->assertInstanceOf(Module::class, $this->site);
     }
 
     public function dataForDirectoryAccessors() {
         return [
             [
-                'log',
+                LOG_DIR_NAME,
             ],
             [
-                'cache',
+                CACHE_DIR_NAME,
             ],
             [
-                'upload',
+                UPLOAD_DIR_NAME,
             ],
             [
-                'config',
+                CONFIG_DIR_NAME,
             ],
         ];
     }
 
     /**
      * @dataProvider dataForDirectoryAccessors
-     * Test methods: set(log|cache|upload|config)DirPath() and respective reader.
+     * Tests methods: set(log|cache|upload|config)DirPath() and respective reader.
      */
     public function testDirectoryAccessors($dirName) {
         $setter = 'set' . $dirName . 'DirPath';
@@ -46,16 +47,15 @@ class SiteTest extends TestCase {
             $this->getTestDirPath() . '/' . constant(strtoupper($dirName) . '_DIR_NAME'),
             $this->site->$getter()
         );
-
         $newDirPath = '/some/random/dir';
-        $this->site->$setter($newDirPath);
+        $this->assertNull($this->site->$setter($newDirPath));
         $this->assertEquals($newDirPath, $this->site->$getter());
     }
 
     public function testPublicDirPathAccessors() {
         $this->assertEquals(PUBLIC_DIR_PATH, $this->site->publicDirPath());
         $newPublicDirPath = '/new/public/dir';
-        $this->site->setPublicDirPath($newPublicDirPath);
+        $this->assertNull($this->site->setPublicDirPath($newPublicDirPath));
         $this->assertEquals($newPublicDirPath, $this->site->publicDirPath());
     }
 
@@ -65,10 +65,11 @@ class SiteTest extends TestCase {
         $this->assertEquals($dirPath, $this->site->dirPath());
     }
 
-    public function testNameAccessors() {
-        $name = 'baz';
-        $this->site->setName($name);
-        $this->assertEquals($name, $this->site->name());
+    public function testHostAccessors() {
+        $host = new Host('foo', 'bar');
+        $this->assertNull($this->site->host());
+        $this->assertInstanceOf(Site::class, $this->site->setHost($host));
+        $this->assertSame($host, $this->site->host());
     }
 
     public function dataForFallbackConfigUsed() {

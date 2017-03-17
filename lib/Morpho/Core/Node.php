@@ -9,7 +9,7 @@ use Morpho\Di\{IServiceManagerAware, IServiceManager};
 abstract class Node extends BaseNode implements IServiceManagerAware {
     protected $serviceManager;
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 

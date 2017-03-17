@@ -38,7 +38,7 @@ class InstallController extends Controller {
         return $this->error();
     }
 
-    protected function beforeEach() {
+    protected function beforeEach(): void {
         parent::beforeEach();
         if ($this->isInstalled()) {
             $this->accessDenied();

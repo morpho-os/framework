@@ -13,7 +13,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
 
     private $specialViewVars = [];
 
-    public function dispatch($request)/*: void */ {
+    public function dispatch($request): void {
         $this->viewVars = $this->specialViewVars = [];
 
         $this->request = $request;
@@ -48,11 +48,11 @@ abstract class Controller extends Node implements IServiceManagerAware {
         }
     }
 
-    public function setServiceManager(IServiceManager $serviceManager)/*: void */ {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 
-    public function setRequest($request)/*: void */ {
+    public function setRequest($request): void {
         $this->request = $request;
     }
 
@@ -67,16 +67,16 @@ abstract class Controller extends Node implements IServiceManagerAware {
     /**
      * Called before calling of any action.
      */
-    protected function beforeEach()/*: void */ {
+    protected function beforeEach(): void {
     }
 
     /**
      * Called after calling of any action.
      */
-    protected function afterEach()/*: void */ {
+    protected function afterEach(): void {
     }
 
-    protected function setSetting(string $name, $value, string $moduleName = null)/*: void */ {
+    protected function setSetting(string $name, $value, string $moduleName = null): void {
         $this->serviceManager->get('settingManager')
             ->set($name, $value, $moduleName ?: $this->moduleName());
     }
@@ -98,15 +98,15 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->parent->repo($name);
     }
 
-    protected function setView(string $viewName)/*: void */ {
+    protected function setView(string $viewName): void {
         $this->specialViewVars['name'] = $viewName;
     }
 
-    protected function setSpecialViewVar(string $name, $value)/*: void */ {
+    protected function setSpecialViewVar(string $name, $value): void {
         $this->specialViewVars[$name] = $value;
     }
 
-    protected function setViewInstanceVars(array $vars)/*: void */ {
+    protected function setViewInstanceVars(array $vars): void {
         $this->specialViewVars['instanceVars'] = array_merge(
             isset($this->specialViewVars['instanceVars'])
                 ? $this->specialViewVars['instanceVars']

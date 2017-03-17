@@ -10,7 +10,7 @@ use Morpho\Fs\Path;
 use Morpho\Base\Object;
 
 class SiteManager extends Object implements IServiceManagerAware {
-    protected $currentSiteName;
+    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
 
     protected $allSitesDirPath;
 
@@ -22,11 +22,9 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     private $isFallbackMode;
 
-    private $allowedSiteNames;
-
     private $config;
 
-    const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+    private $current;
 
     public function useMultiSiting(bool $flag = null): bool {
         if (null !== $flag) {
@@ -50,39 +48,47 @@ class SiteManager extends Object implements IServiceManagerAware {
     }
 
     public function currentSite(): Site {
-        if (null === $this->currentSiteName) {
-            $siteName = $this->detectSiteName();
-            if (!isset($this->sites[$siteName])) {
-                $this->sites[$siteName] = $this->createSite($siteName);
+        if (null === $this->current) {
+            $hostName = $this->detectHostName();
+            $alias = $this->aliasByHostName($hostName);
+            if (!$alias) {
+                throw new BadRequestException("Invalid Host");
             }
-            $this->currentSiteName = $siteName;
+            if (!isset($this->sites[$alias])) {
+                $site = new Site(
+                    new Host($alias, $hostName),
+                    $this->allSitesDirPath() . '/' . $alias
+                );
+                $this->sites[$alias] = $site;
+            }
+            $this->current = $alias;
         }
-        return $this->sites[$this->currentSiteName];
+        return $this->sites[$this->current];
     }
 
     public function setSite(Site $site, bool $setAsCurrent = true): void {
-        $siteName = $site->name();
-        $this->checkSiteName($siteName);
-        $this->sites[$siteName] = $site;
+        $host = $site->host();
+        if (!$this->hostNameByAlias($host->alias)) {
+            throw new \RuntimeException("Invalid host alias");
+        }
+        $this->sites[$host->alias] = $site;
         if ($setAsCurrent) {
-            $this->currentSiteName = $siteName;
+            $this->current = $host->alias;
         }
     }
 
-    public function site(string $siteName): Site {
-        if (!isset($this->sites[$siteName])) {
-            $this->checkSiteName($siteName);
-            $this->sites[$siteName] = $this->createSite($siteName);
+    public function site(string $alias): Site {
+        if (!isset($this->sites[$alias])) {
+            $hostName = $this->hostNameByAlias($alias);
+            if (!$hostName) {
+                throw new \RuntimeException("Invalid host alias");
+            }
+            $this->sites[$alias] = new Site(
+                new Host($alias, $hostName),
+                $this->allSitesDirPath() . '/' . $alias
+            );
         }
-        return $this->sites[$siteName];
-    }
-
-    public function setCurrentSiteConfig(array $config): void {
-        $this->currentSite()->setConfig($config);
-    }
-
-    public function currentSiteConfig(): array {
-        return $this->currentSite()->config();
+        return $this->sites[$alias];
     }
 
     public function setAllSitesDirPath(string $dirPath): void {
@@ -100,13 +106,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function checkSiteName(string $siteName): void {
-        if (false === $this->resolveSiteName($siteName)) {
-            throw new \RuntimeException("Not allowed site name was provided");
-        }
-    }
-
-    protected function detectSiteName(): string {
+    protected function detectHostName(): string {
         if (!$this->useMultiSiting()) {
             // No multi-siting -> use first found site.
             $sites = $this->config()['sites'];
@@ -117,18 +117,18 @@ class SiteManager extends Object implements IServiceManagerAware {
         $host = $_SERVER['HTTP_HOST'] ?? null;
 
         if (empty($host)) {
-            $this->invalidHostError("Empty value of the 'Host' field");
+            throw new BadRequestException("Empty value of the 'Host' field");
         }
 
         // @TODO: Unicode and internationalized domains, see https://tools.ietf.org/html/rfc5892
         if (false !== ($startOff = strpos($host, '['))) {
-            if ($startOff !== 0) {
-                $this->invalidHostError("Invalid value of the 'Host' field");
-            }
             // IPv6 or later.
+            if ($startOff !== 0) {
+                throw new BadRequestException("Invalid value of the 'Host' field");
+            }
             $endOff = strrpos($host, ']', 2);
             if (false === $endOff) {
-                $this->invalidHostError("Invalid value of the 'Host' field");
+                throw new BadRequestException("Invalid value of the 'Host' field");
             }
             $hostWithoutPort = strtolower(substr($host, 0, $endOff + 1));
         } else {
@@ -138,31 +138,7 @@ class SiteManager extends Object implements IServiceManagerAware {
                 $hostWithoutPort = substr($hostWithoutPort, 4);
             }
         }
-
-        $siteName = $this->resolveSiteName($hostWithoutPort);
-        if (false === $siteName) {
-            $this->invalidHostError("Invalid value of the 'Host' field");
-        }
-        return $siteName;
-    }
-
-    /**
-     * @param string|bool Returns site name on success and false otherwise.
-     */
-    protected function resolveSiteName(string $siteName) {
-        if (null === $this->allowedSiteNames) {
-            $sites = $this->config()['sites'];
-            foreach ($sites as $alias => $resolvedSiteName) {
-                if (is_numeric($alias)) {
-                    if ($resolvedSiteName === $siteName) {
-                        return $siteName;
-                    }
-                } elseif ($alias === $siteName) {
-                    return $resolvedSiteName;
-                }
-            }
-        }
-        return false;
+        return $hostWithoutPort;
     }
 
     protected function config(): array {
@@ -172,16 +148,40 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->config;
     }
 
-    protected function createSite(string $siteName): Site {
-        $siteDirPath = $this->allSitesDirPath() . '/' . $siteName;
-        Directory::mustExist($siteDirPath);
-        return new Site([
-            'name' => $siteName,
-            'dirPath' => $siteDirPath,
-        ]);
+    /**
+     * @return string|false
+     */
+    protected function hostNameByAlias(string $alias) {
+        if (empty($alias)) {
+            return false;
+        }
+        $sites = $this->config()['sites'];
+        foreach ($sites as $alias1 => $name) {
+            if (is_numeric($alias1)) {
+                if ($name === $alias) {
+                    return $name;
+                }
+            } elseif ($alias1 === $alias) {
+                return $name;
+            }
+        }
+        return false;
     }
 
-    private function invalidHostError(string $message): void {
-        throw new BadRequestException($message);
+    /**
+     * @return string|false
+     */
+    protected function aliasByHostName(string $hostWithoutPort) {
+        $knownHosts = $this->config()['sites'];
+        foreach ($knownHosts as $alias => $name) {
+            if (is_numeric($alias)) {
+                if ($name === $hostWithoutPort) {
+                    return $name;
+                }
+            } elseif ($name === $hostWithoutPort) {
+                return $alias;
+            }
+        }
+        return false;
     }
 }

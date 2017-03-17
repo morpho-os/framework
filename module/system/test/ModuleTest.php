@@ -69,9 +69,15 @@ class ModuleTest extends DbTestCase {
         $event = [null, ['exception' => $exception, 'request' => $request]];
         $module = new SystemModule();
         $serviceManager = new ServiceManager();
-        $siteManager = $this->createMock('\\Morpho\\Web\\SiteManager');
-        $siteManager->method('currentSiteConfig')
-            ->will($this->returnValue(['throwDispatchErrors' => false]));
+        $siteManager = new class {
+            public function currentSite() {
+                return new class {
+                    public function config() {
+                        return ['throwDispatchErrors' => false];
+                    }
+                };
+            }
+        };
         $serviceManager->set('siteManager', $siteManager);
         $serviceManager->set('settingManager', $settingManager);
         $module->setServiceManager($serviceManager);

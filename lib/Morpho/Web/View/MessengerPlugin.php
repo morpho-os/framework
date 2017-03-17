@@ -29,7 +29,7 @@ class MessengerPlugin extends Plugin implements \Countable, IServiceManagerAware
         return $html;
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 

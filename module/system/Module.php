@@ -63,7 +63,7 @@ class Module extends BaseModule {
                     ->emergency($exception, ['exception' => $exception]);
             }
 
-            if ($serviceManager->get('siteManager')->currentSiteConfig()['throwDispatchErrors']) {
+            if ($serviceManager->get('siteManager')->currentSite()->config()['throwDispatchErrors']) {
                 throw $exception;
             }
 

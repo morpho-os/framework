@@ -15,7 +15,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     protected $parent;
 
-    public function setName($name): Node {
+    public function setName(string $name): Node {
         $this->name = $name;
         return $this;
     }

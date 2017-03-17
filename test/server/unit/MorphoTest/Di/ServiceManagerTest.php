@@ -7,6 +7,8 @@ use Morpho\Test\TestCase;
 use Morpho\Di\ServiceManager;
 
 class ServiceManagerTest extends TestCase {
+    private $serviceManager;
+
     public function setUp() {
         $this->serviceManager = new MyServiceManager;
     }
@@ -15,7 +17,7 @@ class ServiceManagerTest extends TestCase {
         $service = new class implements IServiceManagerAware {
             private $serviceManager;
 
-            public function setServiceManager(IServiceManager $serviceManager) {
+            public function setServiceManager(IServiceManager $serviceManager): void {
                 $this->serviceManager = $serviceManager;
             }
 

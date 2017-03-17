@@ -42,7 +42,7 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
         }
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 

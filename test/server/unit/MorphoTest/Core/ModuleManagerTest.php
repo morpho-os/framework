@@ -286,7 +286,7 @@ class ErrorHandlingTestModule extends Module {
 }
 
 class ErrorHandlingTestController extends Controller {
-    public function dispatch($request) {
+    public function dispatch($request): void {
         throw new ErrorHandlingTestModuleException('Some exception message');
     }
 }
@@ -350,10 +350,10 @@ class Module extends \Morpho\Core\Module {
     }
 }
 
-class MyController extends \Morpho\Base\Node {
+class MyController extends \Morpho\Core\Controller {
     public $dispatchCalled = false;
 
-    public function dispatch() {
+    public function dispatch($request): void {
         $this->dispatchCalled = true;
     }
 

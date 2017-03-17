@@ -26,6 +26,7 @@ abstract class ModuleManager extends Node implements IEventManager {
     protected $eventHandlers;
 
     protected $name = 'ModuleManager';
+    protected $type = 'ModuleManager';
 
     protected $tableName = 'module';
 
@@ -73,7 +74,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         } while (false === $request->isDispatched());
     }
 
-    public function controller($moduleName, $controllerName, $actionName) {
+    public function controller($moduleName, $controllerName, $actionName): Controller {
         if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
             $this->actionNotFound($moduleName, $controllerName, $actionName);
         }

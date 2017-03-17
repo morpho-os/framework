@@ -1,9 +1,9 @@
 <?php
 return [
     'sites'       => [
-        'some' => 'first-site',
-        'default',
-        '192.0.2.3' => 'by-ip',
+        'first-site' => 'some',
+        'localhost',
+        'by-ip' => '192.0.2.3',
         'foo',
     ],
     'useMultiSiting' => false,

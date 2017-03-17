@@ -15,7 +15,7 @@ class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
         return $this->serviceManager->get('siteManager')->currentSite()->cacheDirPath();
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
     

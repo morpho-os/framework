@@ -1,61 +1,92 @@
 <?php
+declare(strict_types = 1);
+
 namespace Morpho\Web;
 
-use Morpho\Base\Must;
 use function Morpho\Base\requireFile;
+use Morpho\Core\Module;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
-class Site {
-    private $name;
-
+class Site extends Module {
+    /**
+     * @var ?string
+     */
     private $dirPath;
 
+    /**
+     * @var ?array
+     */
     private $config;
 
+    /**
+     * @var ?string
+     */
     private $cacheDirPath;
 
+    /**
+     * @var ?string
+     */
     private $configDirPath;
 
+    /**
+     * @var ?string
+     */
     private $logDirPath;
 
+    /**
+     * @var ?string
+     */
     private $uploadDirPath;
 
+    /**
+     * @var ?string
+     */
     private $publicDirPath;
 
+    /**
+     * @var ?string
+     */
+    private $viewDirPath;
+    /**
+     * @var string
+     */
     private $configFileName = self::CONFIG_FILE_NAME;
 
-    private $viewDirPath;
-
+    /**
+     * @var ?bool
+     */
     private $fallbackConfigUsed;
+
+    /**
+     * var ?Host
+     */
+    private $host;
 
     public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
-    public function __construct(array $options = []) {
-        Must::haveOnlyKeys($options, ['dirPath', 'name']);
-        if (isset($options['dirPath'])) {
-            $this->setDirPath($options['dirPath']);
-        }
-        if (isset($options['name'])) {
-            $this->setName($options['name']);
-        }
-    }
-
-    public function setDirPath(string $dirPath): void {
+    public function __construct(?Host $host, ?string $dirPath) {
+        $this->host = $host;
         $this->dirPath = $dirPath;
     }
 
-    public function dirPath(): string {
+    public function setDirPath(string $dirPath): self {
+        $this->dirPath = $dirPath;
+        return $this;
+    }
+
+    public function dirPath(): ?string {
         return $this->dirPath;
     }
 
-    public function setName(string $name): void {
-        $this->name = $name;
+    public function setHost(Host $host): self {
+        $this->host = $host;
+        return $this;
     }
 
-    public function name(): string {
-        return $this->name;
+    public function host(): ?Host {
+        return $this->host;
     }
 
     public function setCacheDirPath(string $dirPath): void {
@@ -113,6 +144,23 @@ class Site {
         return $this->publicDirPath;
     }
 
+    public function setConfigFilePath(string $filePath): void {
+        $this->setConfigDirPath(dirname($filePath));
+        $this->setConfigFileName(basename($filePath));
+    }
+
+    public function configFilePath(): string {
+        return $this->configDirPath() . '/' . $this->configFileName;
+    }
+
+    public function setConfigFileName(string $fileName): void {
+        $this->configFileName = $fileName;
+    }
+
+    public function configFileName(): string {
+        return $this->configFileName;
+    }
+
     public function setConfig(array $config): void {
         $this->config = $config;
     }
@@ -130,23 +178,6 @@ class Site {
     public function writeConfig(array $config): void {
         File::writePhpVar($this->configFilePath(), $config);
         $this->config = null;
-    }
-
-    public function setConfigFilePath(string $filePath): void {
-        $this->setConfigDirPath(dirname($filePath));
-        $this->setConfigFileName(basename($filePath));
-    }
-
-    public function configFilePath(): string {
-        return $this->configDirPath() . '/' . $this->configFileName;
-    }
-
-    public function setConfigFileName(string $fileName): void {
-        $this->configFileName = $fileName;
-    }
-
-    public function configFileName(): string {
-        return $this->configFileName;
     }
 
     public function fallbackConfigUsed(): bool {
