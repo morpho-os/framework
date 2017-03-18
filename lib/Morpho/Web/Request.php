@@ -372,6 +372,7 @@ class Request extends BaseRequest {
     }
 
     protected function detectBasePath(): string {
+        // @TODO: Check on Windows.
         $basePath = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
         if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();

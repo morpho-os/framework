@@ -65,6 +65,7 @@ class Site extends Module {
 
     public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
+    private $usesOwnPublicDir = false;
 
     public function __construct(?Host $host, ?string $dirPath) {
         $this->host = $host;
@@ -142,6 +143,20 @@ class Site extends Module {
             $this->publicDirPath = PUBLIC_DIR_PATH;
         }
         return $this->publicDirPath;
+    }
+
+    public function useOwnPublicDir(): void {
+        $this->setPublicDirPath($this->dirPath() . '/' . PUBLIC_DIR_NAME);
+        $this->usesOwnPublicDir = true;
+    }
+    
+    public function useCommonPublicDir(): void {
+        $this->setPublicDirPath(PUBLIC_DIR_PATH);
+        $this->usesOwnPublicDir = false;
+    }
+    
+    public function usesOwnPublicDir(): bool {
+        return $this->usesOwnPublicDir;
     }
 
     public function setConfigFilePath(string $filePath): void {

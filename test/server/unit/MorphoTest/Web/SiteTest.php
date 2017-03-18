@@ -146,4 +146,8 @@ class SiteTest extends TestCase {
 
         $this->assertEquals($newConfig, $this->site->config());
     }
+
+    public function testPublicDirAccessors() {
+        $this->markTestIncomplete();
+    }
 }
