@@ -5,7 +5,6 @@ use function Morpho\Base\requireFile;
 use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };
-use Morpho\Fs\Directory;
 use Morpho\Fs\Path;
 use Morpho\Base\Object;
 

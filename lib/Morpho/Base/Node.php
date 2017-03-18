@@ -47,7 +47,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     /**
      * @param string|Node
      */
-    public function removeChild($child)/*: void */ {
+    public function removeChild($child): void {
         if (is_string($child)) {
             unset($this->children[$child]);
         } else {
@@ -56,7 +56,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         }
     }
 
-    public function removeAll()/*: void */ {
+    public function removeAll(): void {
         $this->children = [];
     }
 
@@ -101,27 +101,23 @@ class Node extends Object implements \Countable, \RecursiveIterator {
         return $this->children;
     }
 
-    public function setParent(Node $parent) {
+    public function setParent(Node $parent): void {
         $this->parent = $parent;
     }
 
-    /**
-     * @param string|null $name
-     * @return Node|null
-     */
-    public function parent($name = null) {
+    public function parent(?string $name = null): ?Node {
         $parent = $this->parent;
         if (null !== $name) {
-            while ($parent && $parent->name() != $name) {
+            while ($parent && $parent->name() !== $name) {
                 $parent = $parent->parent($name);
             }
         }
         return $parent;
     }
 
-    public function parentByType(string $type) {
+    public function parentByType(string $type): ?Node {
         $parent = $this->parent;
-        while ($parent && $parent->type() != $type) {
+        while ($parent && $parent->type() !== $type) {
             $parent = $parent->parentByType($type);
         }
         return $parent;

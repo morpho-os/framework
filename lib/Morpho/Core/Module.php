@@ -8,7 +8,21 @@ class Module extends Node {
 
     protected $type = 'Module';
     
+    /**
+     * @var string
+     */
+    private $dirPath;
+
     protected $moduleNamespace;
+
+    public function setDirPath(string $dirPath): self {
+        $this->dirPath = $dirPath;
+        return $this;
+    }
+
+    public function dirPath(): string {
+        return $this->dirPath;
+    }
 
     public function install(Db $db) {
     }
@@ -25,7 +39,7 @@ class Module extends Node {
     public function repo($name) {
         return $this->child(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
     }
-    
+
     public function setModuleNamespace(string $namespace) {
         $this->moduleNamespace = $namespace;
     }

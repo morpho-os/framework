@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Core\VersionTest;
+namespace MorphoTest\Core;
 
 use Morpho\Test\TestCase;
 use Morpho\Core\Version;

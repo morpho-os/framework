@@ -5,6 +5,7 @@ use Morpho\Core\Module;
 use Morpho\Fs\File;
 use Morpho\Test\TestCase;
 use Morpho\Web\Host;
+use Morpho\Web\LocalHost;
 use Morpho\Web\Site;
 
 class SiteTest extends TestCase {
@@ -12,7 +13,7 @@ class SiteTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->site = new Site(null, $this->getTestDirPath());
+        $this->site = new Site(new LocalHost(), $this->getTestDirPath());
     }
 
     public function testSubtyping() {
@@ -59,16 +60,9 @@ class SiteTest extends TestCase {
         $this->assertEquals($newPublicDirPath, $this->site->publicDirPath());
     }
 
-    public function testDirPathAccessors() {
-        $dirPath = 'foo/bar/baz';
-        $this->site->setDirPath($dirPath);
-        $this->assertEquals($dirPath, $this->site->dirPath());
-    }
-
     public function testHostAccessors() {
         $host = new Host('foo', 'bar');
-        $this->assertNull($this->site->host());
-        $this->assertInstanceOf(Site::class, $this->site->setHost($host));
+        $this->assertNull($this->site->setHost($host));
         $this->assertSame($host, $this->site->host());
     }
 

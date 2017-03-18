@@ -20,7 +20,7 @@ class SiteManagerTest extends TestCase {
     }
 
     public function testSetSite_SetSiteAsCurrent() {
-        $site = new Site(new LocalHost(), null);
+        $site = new Site(new LocalHost(), $this->getTestDirPath() . '/localhost');
         $this->siteManager->setSite($site);
         $this->assertSame($site, $this->siteManager->currentSite());
     }

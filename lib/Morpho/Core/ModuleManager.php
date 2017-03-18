@@ -295,16 +295,18 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     protected function loadChild(string $moduleName): BaseNode {
-        if (!$this->moduleFs->doesModuleExist($moduleName)) {
+        $moduleFs = $this->moduleFs;
+        if (!$moduleFs->doesModuleExist($moduleName)) {
             throw new ObjectNotFoundException("Unable to load the module '$moduleName'");
         }
         $class = $this->childNameToClass($moduleName);
         if (!$class) {
             $module = new Module();
-            $module->setModuleNamespace($this->moduleFs->moduleNamespace($moduleName));
+            $module->setModuleNamespace($moduleFs->moduleNamespace($moduleName));
         }  else {
             $module = new $class();
         }
+        $module->setDirPath($moduleFs->moduleDirPath($moduleName));
         return $module->setName($moduleName);
     }
 

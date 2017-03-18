@@ -10,11 +10,6 @@ use Morpho\Fs\Path;
 
 class Site extends Module {
     /**
-     * @var ?string
-     */
-    private $dirPath;
-
-    /**
      * @var ?array
      */
     private $config;
@@ -42,6 +37,16 @@ class Site extends Module {
     /**
      * @var ?string
      */
+    private $tmpDirPath;
+
+    /**
+     * @var ?string
+     */
+    private $testDirPath;
+
+    /**
+     * @var ?string
+     */
     private $publicDirPath;
 
     /**
@@ -59,7 +64,7 @@ class Site extends Module {
     private $fallbackConfigUsed;
 
     /**
-     * var ?Host
+     * var Host
      */
     private $host;
 
@@ -67,26 +72,16 @@ class Site extends Module {
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
     private $usesOwnPublicDir = false;
 
-    public function __construct(?Host $host, ?string $dirPath) {
+    public function __construct(Host $host, string $dirPath) {
         $this->host = $host;
-        $this->dirPath = $dirPath;
+        $this->setDirPath($dirPath);
     }
 
-    public function setDirPath(string $dirPath): self {
-        $this->dirPath = $dirPath;
-        return $this;
-    }
-
-    public function dirPath(): ?string {
-        return $this->dirPath;
-    }
-
-    public function setHost(Host $host): self {
+    public function setHost(Host $host): void {
         $this->host = $host;
-        return $this;
     }
 
-    public function host(): ?Host {
+    public function host(): Host {
         return $this->host;
     }
 
@@ -132,6 +127,28 @@ class Site extends Module {
             $this->uploadDirPath = $this->dirPath() . '/' . UPLOAD_DIR_NAME;
         }
         return $this->uploadDirPath;
+    }
+
+    public function setTmpDirPath(string $dirPath): void {
+        $this->tmpDirPath = Path::normalize($dirPath);
+    }
+
+    public function tmpDirPath(): string {
+        if (null === $this->tmpDirPath) {
+            $this->tmpDirPath = $this->dirPath() . '/' . TMP_DIR_NAME;
+        }
+        return $this->tmpDirPath;
+    }
+
+    public function setTestDirPath(string $dirPath): void {
+        $this->testDirPath = Path::normalize($dirPath);
+    }
+
+    public function testDirPath(): string {
+        if (null === $this->testDirPath) {
+            $this->testDirPath = $this->dirPath() . '/' . TEST_DIR_NAME;
+        }
+        return $this->testDirPath;
     }
 
     public function setPublicDirPath(string $dirPath): void {
@@ -210,7 +227,7 @@ class Site extends Module {
 
     public function viewDirPath(): string {
         if (null === $this->viewDirPath) {
-            $this->viewDirPath = $this->dirPath . '/' . VIEW_DIR_NAME;
+            $this->viewDirPath = $this->dirPath() . '/' . VIEW_DIR_NAME;
         }
         return $this->viewDirPath;
     }
