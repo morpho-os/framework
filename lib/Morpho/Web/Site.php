@@ -42,17 +42,8 @@ class Site extends Module {
     /**
      * @var ?string
      */
-    private $testDirPath;
-
-    /**
-     * @var ?string
-     */
     private $publicDirPath;
 
-    /**
-     * @var ?string
-     */
-    private $viewDirPath;
     /**
      * @var string
      */
@@ -140,17 +131,6 @@ class Site extends Module {
         return $this->tmpDirPath;
     }
 
-    public function setTestDirPath(string $dirPath): void {
-        $this->testDirPath = Path::normalize($dirPath);
-    }
-
-    public function testDirPath(): string {
-        if (null === $this->testDirPath) {
-            $this->testDirPath = $this->dirPath() . '/' . TEST_DIR_NAME;
-        }
-        return $this->testDirPath;
-    }
-
     public function setPublicDirPath(string $dirPath): void {
         $this->publicDirPath = Path::normalize($dirPath);
     }
@@ -219,17 +199,6 @@ class Site extends Module {
 
     public function fallbackConfigFilePath(): string {
         return $this->configDirPath() . '/' . self::FALLBACK_CONFIG_FILE_NAME;
-    }
-
-    public function setViewDirPath(string $dirPath): void {
-        $this->viewDirPath = $dirPath;
-    }
-
-    public function viewDirPath(): string {
-        if (null === $this->viewDirPath) {
-            $this->viewDirPath = $this->dirPath() . '/' . VIEW_DIR_NAME;
-        }
-        return $this->viewDirPath;
     }
 
     private function initConfig(): void {

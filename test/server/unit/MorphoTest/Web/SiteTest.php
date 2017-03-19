@@ -104,15 +104,6 @@ class SiteTest extends TestCase {
         $this->assertSame($newConfig, $this->site->config());
     }
 
-    public function testViewDirPathAccessors() {
-        $oldViewDirPath = $this->site->viewDirPath();
-        $this->assertNotEmpty($oldViewDirPath);
-
-        $newViewDirPath = '/a/b/c';
-        $this->assertNull($this->site->setViewDirPath($newViewDirPath));
-        $this->assertSame($newViewDirPath, $this->site->viewDirPath());
-    }
-
     public function testReadingConfigAfterWriting() {
         $configFilePath = $this->createTmpFile();
         $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
