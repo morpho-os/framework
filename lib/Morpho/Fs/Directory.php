@@ -307,7 +307,7 @@ class Directory extends Entry {
         return true;
     }
 
-    public static function deleteEmptyDirs(string $dirPath): void {
+    public static function deleteEmptyDirs(string $dirPath, callable $predicate = null): void {
         $it = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dirPath, \FilesystemIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST
@@ -315,6 +315,9 @@ class Directory extends Entry {
         foreach ($it as $fileInfo) {
             $path = $fileInfo->getPathname();
             if (is_dir($path) && self::isEmpty($path)) {
+                if ($predicate && !$predicate($path)) {
+                    continue;
+                }
                 Directory::delete($path);
             }
         }
