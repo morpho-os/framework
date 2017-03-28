@@ -4,7 +4,12 @@ declare(strict_types = 1);
 namespace Morpho\Web;
 
 use function Morpho\Base\requireFile;
+use const Morpho\Core\CACHE_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_FILE_NAME;
+use const Morpho\Core\LOG_DIR_NAME;
 use Morpho\Core\Module;
+use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
@@ -59,9 +64,10 @@ class Site extends Module {
      */
     private $host;
 
+    private $usesOwnPublicDir = false;
+
     public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
-    private $usesOwnPublicDir = false;
 
     public function __construct(Host $host, string $dirPath) {
         $this->host = $host;

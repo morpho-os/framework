@@ -9,6 +9,7 @@ use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
+use const Morpho\Web\DOMAIN_DIR_NAME;
 
 abstract class ModuleFs {
     protected $baseModuleDirPath;
@@ -52,10 +53,6 @@ $this->useCache = $useCache;
         return $this->moduleDirPath($moduleName) . '/' . CONTROLLER_DIR_NAME;
     }
     
-    public function moduleViewDirPath(string $moduleName): string {
-        return $this->moduleDirPath($moduleName) . '/' . VIEW_DIR_NAME;
-    }
-
     public function baseModuleDirPath(): string {
         return $this->baseModuleDirPath;
     }

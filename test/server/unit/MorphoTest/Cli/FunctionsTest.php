@@ -4,9 +4,10 @@ namespace MorphoTest\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    cmd, escapeArg, escapeArgs, showOk, stylize
+    cmd, escapeArgs, showOk, stylize
 };
 use Morpho\Test\TestCase;
+use const Morpho\Core\BASE_DIR_PATH;
 
 class FunctionsTest extends TestCase {
     public function testShowOk() {
@@ -56,10 +57,6 @@ OUT
         $magenta = 35;
         $text = "Hello";
         $this->assertEquals("\033[" . $magenta . "m$text\033[0m", stylize($text, $magenta));
-    }
-
-    public function testEscapeArg() {
-        $this->assertEquals("''", escapeArg(null));
     }
 
     public function testEscapeArgs() {

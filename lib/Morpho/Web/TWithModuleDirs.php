@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web;
 
+use const Morpho\Core\TEST_DIR_NAME;
 use Morpho\Fs\Path;
 
 trait TWithModuleDirs {

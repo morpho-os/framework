@@ -2,6 +2,7 @@
 namespace Morpho\Web;
 
 use function Morpho\Base\requireFile;
+use const Morpho\Core\CONFIG_FILE_NAME;
 use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };

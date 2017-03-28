@@ -2,6 +2,10 @@
 namespace MorphoTest;
 
 use function Morpho\Base\filter;
+use const Morpho\Core\LIB_DIR_NAME;
+use const Morpho\Core\MODULE_DIR_PATH;
+use const Morpho\Core\TEST_DIR_NAME;
+use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Fs\Directory;
 
 class TestSuite extends \Morpho\Test\TestSuite {

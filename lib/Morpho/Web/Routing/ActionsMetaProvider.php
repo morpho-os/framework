@@ -6,6 +6,8 @@ use function Morpho\Base\{
     endsWith, last
 };
 use Morpho\Code\ClassTypeDiscoverer;
+use const Morpho\Core\ACTION_SUFFIX;
+use const Morpho\Core\CONTROLLER_SUFFIX;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
 

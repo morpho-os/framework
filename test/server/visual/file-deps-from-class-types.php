@@ -2,6 +2,7 @@
 namespace Morpho\Test;
 
 use function Morpho\Base\showLn;
+use const Morpho\Core\VENDOR_DIR_PATH;
 use Morpho\Fs\Directory;
 
 require __DIR__ . '/../../../vendor/autoload.php';

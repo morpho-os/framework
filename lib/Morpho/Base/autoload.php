@@ -18,6 +18,10 @@ const INDENT = '    ';
 const SHORTEN_TAIL = '...';
 const SHORTEN_LENGTH = 30;
 
+// @TODO: Detect precise value.
+// Can be used in comparison operations with real numbers.
+const EPS = 0.00001;
+
 function unpackArgs(array $args): array {
     return count($args) === 1 && is_array($args[0])
         ? $args[0]

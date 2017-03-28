@@ -9,6 +9,7 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
+use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;

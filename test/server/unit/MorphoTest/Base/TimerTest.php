@@ -2,6 +2,7 @@
 namespace MorphoTest\Base;
 
 use Morpho\Base\Timer;
+use const Morpho\Base\EPS;
 use Morpho\Test\TestCase;
 
 class TimerTest extends TestCase {

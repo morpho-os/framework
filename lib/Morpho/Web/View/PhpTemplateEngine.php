@@ -5,6 +5,7 @@ use function Morpho\Base\{
     classify, htmlId, dasherize
 };
 use Morpho\Base\EmptyValueException;
+use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
 use Morpho\Web\Uri;

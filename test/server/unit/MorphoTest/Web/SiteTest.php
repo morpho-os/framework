@@ -1,12 +1,17 @@
 <?php
 namespace MorphoTest\Web;
 
+use const Morpho\Core\CACHE_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\LOG_DIR_NAME;
+use const Morpho\Web\PUBLIC_DIR_PATH;
 use Morpho\Core\Module;
 use Morpho\Fs\File;
 use Morpho\Test\TestCase;
 use Morpho\Web\Host;
 use Morpho\Web\LocalHost;
 use Morpho\Web\Site;
+use const Morpho\Web\UPLOAD_DIR_NAME;
 
 class SiteTest extends TestCase {
     private $site;
@@ -21,17 +26,22 @@ class SiteTest extends TestCase {
     }
 
     public function dataForDirectoryAccessors() {
+        $testDirPath = $this->getTestDirPath();
         return [
             [
+                $testDirPath . '/' . LOG_DIR_NAME,
                 LOG_DIR_NAME,
             ],
             [
+                $testDirPath . '/' . CACHE_DIR_NAME,
                 CACHE_DIR_NAME,
             ],
             [
+                $testDirPath . '/' . UPLOAD_DIR_NAME,
                 UPLOAD_DIR_NAME,
             ],
             [
+                $testDirPath . '/' . CONFIG_DIR_NAME,
                 CONFIG_DIR_NAME,
             ],
         ];
@@ -41,11 +51,11 @@ class SiteTest extends TestCase {
      * @dataProvider dataForDirectoryAccessors
      * Tests methods: set(log|cache|upload|config)DirPath() and respective reader.
      */
-    public function testDirectoryAccessors($dirName) {
+    public function testDirectoryAccessors($expectedDirPath, $dirName) {
         $setter = 'set' . $dirName . 'DirPath';
         $getter = $dirName . 'DirPath';
         $this->assertEquals(
-            $this->getTestDirPath() . '/' . constant(strtoupper($dirName) . '_DIR_NAME'),
+            $expectedDirPath,
             $this->site->$getter()
         );
         $newDirPath = '/some/random/dir';

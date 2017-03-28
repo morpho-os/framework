@@ -5,6 +5,8 @@ use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 use Composer\Script\Event;
+use const Morpho\Web\PUBLIC_DIR_NAME;
+use const Morpho\Web\SITE_DIR_NAME;
 
 require_once __DIR__ . '/../Core/autoload.php';
 

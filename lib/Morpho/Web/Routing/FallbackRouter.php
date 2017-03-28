@@ -1,6 +1,8 @@
 <?php
 namespace Morpho\Web\Routing;
 
+use const Morpho\Core\SYSTEM_MODULE;
+
 class FallbackRouter {
     public function route($request) {
         $path = rtrim($request->uri()->path(), '/');

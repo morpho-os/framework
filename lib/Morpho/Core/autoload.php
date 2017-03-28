@@ -1,4 +1,6 @@
 <?php
+namespace Morpho\Core;
+
 use Morpho\Fs\Path;
 
 /**
@@ -29,18 +31,20 @@ function findBaseDirPath(string $dirPath = null, bool $throwEx = true) {
     } while ($chunks);
     if (null === $baseDirPath) {
         if ($throwEx) {
-            throw new \RuntimeException("Unable to find path of root directory.");
+            throw new \RuntimeException("Unable to find path of root directory");
         }
         return null;
     }
     return Path::normalize($baseDirPath);
 }
 
-if (!defined('BASE_DIR_PATH')) {
-    define('BASE_DIR_PATH', findBaseDirPath(__DIR__));
+if (defined('BASE_DIR_PATH')) {
+    define(__NAMESPACE__ . '\\BASE_DIR_PATH', BASE_DIR_PATH);
+} else {
+    define(__NAMESPACE__ . '\\BASE_DIR_PATH', findBaseDirPath(__DIR__));
 }
 if (!Path::isNormalized(BASE_DIR_PATH)) {
-    throw new \RuntimeException("The 'BASE_DIR_PATH' must be normalized: replace backslashes with forward slashes and remove the last right slash.");
+    throw new \RuntimeException("The 'BASE_DIR_PATH' must be normalized: replace backslashes with forward slashes and remove the last right slash");
 }
 
 // @TODO: Move constants under the Morpho\Core namespace.
@@ -64,10 +68,10 @@ const AUTOLOAD_FILE_NAME = 'autoload.php';
 const MODULE_META_FILE_NAME = 'composer.json';
 const MODULE_CLASS_FILE_NAME = 'Module.php';
 
-define('LIB_DIR_PATH',  BASE_DIR_PATH . '/' . LIB_DIR_NAME);
-define('MODULE_DIR_PATH',  BASE_DIR_PATH . '/' . MODULE_DIR_NAME);
-define('TEST_DIR_PATH',  BASE_DIR_PATH . '/' . TEST_DIR_NAME);
-define('VENDOR_DIR_PATH',  BASE_DIR_PATH . '/' . VENDOR_DIR_NAME);
+define(__NAMESPACE__ . '\\LIB_DIR_PATH',  BASE_DIR_PATH . '/' . LIB_DIR_NAME);
+define(__NAMESPACE__ . '\\MODULE_DIR_PATH',  BASE_DIR_PATH . '/' . MODULE_DIR_NAME);
+define(__NAMESPACE__ . '\\TEST_DIR_PATH',  BASE_DIR_PATH . '/' . TEST_DIR_NAME);
+define(__NAMESPACE__ . '\\VENDOR_DIR_PATH',  BASE_DIR_PATH . '/' . VENDOR_DIR_NAME);
 
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';
@@ -77,9 +81,5 @@ const DOMAIN_NS = 'Domain';
 const MODULE_SUFFIX = 'Module';
 const REPO_SUFFIX = 'Repo';
 const PLUGIN_SUFFIX = 'Plugin';
-
-// @TODO: Detect precise value.
-// Can be used in comparison operations with real numbers.
-const EPS = 0.00001;
 
 const SYSTEM_MODULE = 'morpho-os/system';

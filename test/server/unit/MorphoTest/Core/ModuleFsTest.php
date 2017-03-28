@@ -1,6 +1,7 @@
 <?php
 namespace MorphoTest\Core;
 
+use const Morpho\Core\CONTROLLER_DIR_NAME;
 use Morpho\Core\ModuleFs as BaseModuleFs;
 use Morpho\Test\TestCase;
 
