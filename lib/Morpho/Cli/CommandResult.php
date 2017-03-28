@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Morpho\Cli;
 
 use const Morpho\Base\EOL_REGEXP;
+use Morpho\Base\NotImplementedException;
 
 class CommandResult {
     protected $exitCode;
@@ -19,12 +20,20 @@ class CommandResult {
         return $this->command;
     }
 
-    public function isError(): bool {
-        return $this->exitCode() !== Environment::SUCCESS_CODE;
+    public function stdout(): string {
+        throw new NotImplementedException(__METHOD__);
+    }
+
+    public function stderr(): string {
+        throw new NotImplementedException(__METHOD__);
     }
 
     public function exitCode(): int {
         return $this->exitCode;
+    }
+
+    public function isError(): bool {
+        return $this->exitCode() !== Environment::SUCCESS_CODE;
     }
 
     // @TODO: Unify with #152.
