@@ -46,7 +46,6 @@ class Application extends BaseApplication {
     }
 
     protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null) {
-        d($e);
         if (null !== $serviceManager) {
             try {
                 // Last chance handler.
