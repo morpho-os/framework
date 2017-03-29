@@ -25,7 +25,5 @@ const JS_DIR_NAME = 'js';
 const PUBLIC_MODULE_DIR_NAME = 'module';
 const PUBLIC_MODULE_DIR_PATH = PUBLIC_DIR_PATH . '/' . PUBLIC_MODULE_DIR_NAME;
 const SCRIPT_DIR_NAME = 'script';
-const SITE_DIR_NAME = MODULE_DIR_NAME;
-const SITE_DIR_PATH =  BASE_DIR_PATH . '/' . SITE_DIR_NAME;
 const UPLOAD_DIR_NAME = 'upload';
 const VIEW_DIR_NAME = 'view';

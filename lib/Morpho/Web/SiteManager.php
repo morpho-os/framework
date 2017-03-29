@@ -3,6 +3,7 @@ namespace Morpho\Web;
 
 use function Morpho\Base\requireFile;
 use const Morpho\Core\CONFIG_FILE_NAME;
+use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Di\{
     IServiceManager, IServiceManagerAware
 };
@@ -97,7 +98,7 @@ class SiteManager extends Object implements IServiceManagerAware {
 
     public function allSitesDirPath(): string {
         if (null === $this->allSitesDirPath) {
-            $this->allSitesDirPath = SITE_DIR_PATH;
+            $this->allSitesDirPath = MODULE_DIR_PATH;
         }
         return $this->allSitesDirPath;
     }

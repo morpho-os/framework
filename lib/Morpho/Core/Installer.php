@@ -6,7 +6,6 @@ use Morpho\Fs\File;
 use Morpho\Fs\Path;
 use Composer\Script\Event;
 use const Morpho\Web\PUBLIC_DIR_NAME;
-use const Morpho\Web\SITE_DIR_NAME;
 
 require_once __DIR__ . '/../Core/autoload.php';
 
@@ -110,23 +109,23 @@ class Installer {
             LOG_DIR_NAME,
         ];
         foreach ($dirNames as $dirName) {
-            $targetDirPath = $baseDirPath . '/' . SITE_DIR_NAME . '/default/' . $dirName;
+            $targetDirPath = $baseDirPath . '/' . MODULE_DIR_NAME . '/default/' . $dirName;
             if (is_dir($targetDirPath)) {
-                $io->write("Deleting the old '" . SITE_DIR_NAME . '/default/' . $dirName . "/' directory... ", false);
+                $io->write("Deleting the old '" . MODULE_DIR_NAME . '/default/' . $dirName . "/' directory... ", false);
                 Directory::delete($targetDirPath);
                 $io->write("OK", true);
             }
 
-            $io->write("Creating the '" . SITE_DIR_NAME . '/default/' . $dirName . "' directory... ", false);
+            $io->write("Creating the '" . MODULE_DIR_NAME . '/default/' . $dirName . "' directory... ", false);
             Directory::create($targetDirPath, 750);
             $io->write("OK\n", true);
         }
 
-        $targetDirPath = $baseDirPath . '/' . SITE_DIR_NAME . '/default/' . CONFIG_DIR_NAME;
+        $targetDirPath = $baseDirPath . '/' . MODULE_DIR_NAME . '/default/' . CONFIG_DIR_NAME;
         if (!is_dir($targetDirPath)) {
-            $io->write("Creating the '" . SITE_DIR_NAME . '/default/' . CONFIG_DIR_NAME . "' directory... ", false);
+            $io->write("Creating the '" . MODULE_DIR_NAME . '/default/' . CONFIG_DIR_NAME . "' directory... ", false);
             Directory::copy(
-                $frameworkBaseDirPath . '/' . SITE_DIR_NAME . '/default/' . CONFIG_DIR_NAME,
+                $frameworkBaseDirPath . '/' . MODULE_DIR_NAME . '/default/' . CONFIG_DIR_NAME,
                 $targetDirPath
             );
             $io->write("OK", true);

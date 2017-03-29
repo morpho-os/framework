@@ -6,15 +6,15 @@ use Morpho\Fs\Path;
 /**
  * @return false|string
  */
-function findVendorDirPath() {
+function detectVendorDirPath() {
     throw new \Morpho\Base\NotImplementedException();
 }
 
 /**
- * @TODO: Use findVendorDir()
+ * @TODO: Use detectVendorDir()
  * @return false|string
  */
-function findBaseDirPath(string $dirPath = null, bool $throwEx = true) {
+function detectBaseDirPath(string $dirPath = null, bool $throwEx = true) {
     if (null === $dirPath) {
         $dirPath = __DIR__;
     }
@@ -41,7 +41,7 @@ function findBaseDirPath(string $dirPath = null, bool $throwEx = true) {
 if (defined('BASE_DIR_PATH')) {
     define(__NAMESPACE__ . '\\BASE_DIR_PATH', BASE_DIR_PATH);
 } else {
-    define(__NAMESPACE__ . '\\BASE_DIR_PATH', findBaseDirPath(__DIR__));
+    define(__NAMESPACE__ . '\\BASE_DIR_PATH', detectBaseDirPath(__DIR__));
 }
 if (!Path::isNormalized(BASE_DIR_PATH)) {
     throw new \RuntimeException("The 'BASE_DIR_PATH' must be normalized: replace backslashes with forward slashes and remove the last right slash");
