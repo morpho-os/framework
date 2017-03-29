@@ -40,7 +40,7 @@ class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
                 }
             } else {
                 $classTypeDiscoverer = new ClassTypeDiscoverer();
-                $classTypes = $classTypeDiscoverer->definedClassTypesInDir($dirPath);
+                $classTypes = $classTypeDiscoverer->classTypesDefinedInDir($dirPath);
                 if ($classTypes) {
                     $this->autoloader->addClassMap($classTypes);
                 }

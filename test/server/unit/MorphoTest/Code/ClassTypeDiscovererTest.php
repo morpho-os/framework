@@ -5,25 +5,27 @@ use Morpho\Test\TestCase;
 use Morpho\Code\ClassTypeDiscoverer;
 
 class ClassTypeDiscovererTest extends TestCase {
+    private $classTypeDiscoverer;
+
     public function setUp() {
         $this->classTypeDiscoverer = new ClassTypeDiscoverer();
     }
 
-    public function testDefinedClassTypesInDir_UsingDefaultStrategy() {
-        $this->assertEquals(str_replace('\\', '/', __FILE__), $this->classTypeDiscoverer->definedClassTypesInDir(__DIR__)[__CLASS__]);
+    public function testClassTypesDefinedInDir_UsingDefaultStrategy() {
+        $this->assertEquals(str_replace('\\', '/', __FILE__), $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__)[__CLASS__]);
     }
 
     public function testDefaultStrategy() {
         $this->assertInstanceOf('\Morpho\Code\ClassTypeDiscoverer\TokenStrategy', $this->classTypeDiscoverer->discoverStrategy());
     }
 
-    public function testDefinedClassTypesInDir_UsingCustomStrategy() {
+    public function testClassTypesDefinedInDir_UsingCustomStrategy() {
         $discoverStrategy = $this->createMock(ClassTypeDiscoverer::class . '\\IDiscoverStrategy');
         $discoverStrategy->expects($this->atLeastOnce())
-            ->method('definedClassTypesInFile')
+            ->method('classTypesDefinedInFile')
             ->will($this->returnValue([]));
         $this->assertInstanceOf(get_class($this->classTypeDiscoverer), $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy));
-        $this->classTypeDiscoverer->definedClassTypesInDir(__DIR__);
+        $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__);
     }
 
     public function dataForClassTestFilePath() {

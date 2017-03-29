@@ -28,13 +28,13 @@ class ClassTypeDiscoverer {
         });
     }
 
-    public function definedClassTypesInDir($dirPaths, string $regExp = null, array $options = null): array {
+    public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $options = null): array {
         $options = (array) $options + ['recursive' => true];
         $filePaths = Directory::filePaths($dirPaths, $regExp ?: Directory::PHP_FILES_RE, $options);
         $map = [];
         $discoverStrategy = $this->discoverStrategy();
         foreach ($filePaths as $filePath) {
-            foreach ($discoverStrategy->definedClassTypesInFile($filePath) as $classType) {
+            foreach ($discoverStrategy->classTypesDefinedInFile($filePath) as $classType) {
                 if (isset($map[$classType])) {
                     throw new \RuntimeException("Cannot redeclare the class|interface|trait '$classType' in '$filePath'");
                 }
@@ -44,9 +44,9 @@ class ClassTypeDiscoverer {
         return $map;
     }
 
-    public function definedClassTypesInFile(string $filePath): array {
+    public function classTypesDefinedInFile(string $filePath): array {
         $map = [];
-        foreach ($this->discoverStrategy()->definedClassTypesInFile($filePath) as $classType) {
+        foreach ($this->discoverStrategy()->classTypesDefinedInFile($filePath) as $classType) {
             $map[$classType] = $filePath;
         }
         return $map;

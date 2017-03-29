@@ -164,7 +164,7 @@ $this->useCache = $useCache;
                             $moduleFilePath = $moduleDirPath . '/' . MODULE_CLASS_FILE_NAME;
                             $class = null;
                             if (is_file($moduleFilePath)) {
-                                $classTypes = $classTypeDiscoverer->definedClassTypesInFile($moduleFilePath);
+                                $classTypes = $classTypeDiscoverer->classTypesDefinedInFile($moduleFilePath);
                                 if (count($classTypes)) {
                                     $class = key($classTypes);
                                 }
@@ -197,9 +197,9 @@ $this->useCache = $useCache;
         $moduleClassFilePath = $moduleDirPath . '/' . MODULE_CLASS_FILE_NAME;
         $map = [];
         if (is_file($moduleClassFilePath)) {
-            $map = array_merge($map, $classTypeDiscoverer->definedClassTypesInFile($moduleClassFilePath));
+            $map = array_merge($map, $classTypeDiscoverer->classTypesDefinedInFile($moduleClassFilePath));
         }
-        $map = array_merge($map, $classTypeDiscoverer->definedClassTypesInDir(
+        $map = array_merge($map, $classTypeDiscoverer->classTypesDefinedInDir(
             array_filter(
                 array_map(
                     function ($dirName) use ($moduleDirPath) {

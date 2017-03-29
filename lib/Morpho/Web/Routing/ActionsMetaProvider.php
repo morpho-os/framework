@@ -34,7 +34,7 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
         foreach ($moduleManager->enabledModuleNames() as $moduleName) {
             $moduleFs->registerModuleAutoloader($moduleName);
             foreach ($moduleFs->moduleControllerFilePaths($moduleName) as $controllerFilePath) {
-                $classTypes = $classTypeDiscoverer->definedClassTypesInFile($controllerFilePath);
+                $classTypes = $classTypeDiscoverer->classTypesDefinedInFile($controllerFilePath);
                 foreach (array_keys($classTypes) as $classType) {
                     if (endsWith($classType, CONTROLLER_SUFFIX)) {
                         yield from $this->collectActionsMeta($classType, $moduleName, $this->classToControllerName($classType));

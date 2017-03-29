@@ -57,7 +57,7 @@ class ClassTypeMapAutoloader extends Autoloader {
             return requireFile($this->mapFilePath);
         }
         $classTypeDiscoverer = new ClassTypeDiscoverer();
-        $map = $classTypeDiscoverer->definedClassTypesInDir($this->searchDirPaths, $this->processor, ['followSymlinks' => true]);
+        $map = $classTypeDiscoverer->classTypesDefinedInDir($this->searchDirPaths, $this->processor, ['followSymlinks' => true]);
         if ($useCache) {
             File::write($this->mapFilePath, '<?php return ' . var_export($map, true) . ';');
         }

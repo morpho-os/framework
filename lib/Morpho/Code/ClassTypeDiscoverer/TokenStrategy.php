@@ -6,7 +6,7 @@ class TokenStrategy implements IDiscoverStrategy {
      * The source of this method was copied from the \Composer\Autoload\ClassMapGenerator::findClasses()
      * and changed slightly.
      */
-    public function definedClassTypesInFile(string $filePath): array {
+    public function classTypesDefinedInFile(string $filePath): array {
         $contents = file_get_contents($filePath);
         try {
             if (!preg_match('{\b(?:class|interface|trait)\b}i', $contents)) {
