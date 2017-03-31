@@ -259,52 +259,25 @@ class Directory extends Entry {
     public static function delete($dirPath, bool $deleteSelf = true, bool $ignoreVcsFiles = false): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
-                static::delete($path, $deleteSelf, $ignoreVcsFiles);
+                self::deleteDir($path, $deleteSelf, $ignoreVcsFiles);
             }
-            return;
-        }
-        static::mustExist($dirPath);
-        if ($ignoreVcsFiles && $deleteSelf) {
-            throw new \LogicException("The both arguments can't be equal to true");
-        }
-        $absFilePath = realpath($dirPath);
-        if (!$absFilePath) {
-            throw new Exception("The directory '$dirPath' could not be found");
-        }
-        $d = @dir($absFilePath);
-        if (!$d) {
-            throw new Exception("The directory '$dirPath' can not be opened for reading");
-        }
-        // Check if we can delete the dir.
-        if (!is_writable(realpath($dirPath . '/' . '..'))) {
-            throw new Exception("The directory '$dirPath' can not be opened for writing");
-        }
-        // Loop over contents.
-        while (($fileName = $d->read()) !== false) {
-            if ($fileName == '.' || $fileName == '..') {
-                continue;
-            }
-            if ($ignoreVcsFiles && in_array($fileName, ['.git', '.gitmodules', '.gitignore'])) {
-                continue;
-            }
-            $filePath = $absFilePath . '/' . $fileName;
-            if (is_dir($filePath)) {
-                static::delete($filePath);
-            } else {
-                ErrorHandler::checkError(@unlink($filePath), "The file '$filePath' can not be deleted, check permissions");
-            }
-        }
-        $d->close();
-        if ($deleteSelf) {
-            ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': permission denied");
+        } else {
+            self::deleteDir($dirPath, $deleteSelf, $ignoreVcsFiles);
         }
     }
 
-    public static function isEmpty($dirPath): bool {
-        foreach (self::paths($dirPath, null, ['recursive' => false]) as $path) {
-            return false;
+    public static function deleteIfExists($dirPath, bool $deleteSelf = true): void {
+        if (is_iterable($dirPath)) {
+            foreach ($dirPath as $path) {
+                if (is_dir($path)) {
+                    self::deleteDir($path, $deleteSelf, false);
+                }
+            }
+        } else {
+            if (is_dir($dirPath)) {
+                self::deleteDir($dirPath, $deleteSelf, false);
+            }
         }
-        return true;
     }
 
     public static function deleteEmptyDirs(string $dirPath, callable $predicate = null): void {
@@ -321,6 +294,13 @@ class Directory extends Entry {
                 Directory::delete($path);
             }
         }
+    }
+
+    public static function isEmpty($dirPath): bool {
+        foreach (self::paths($dirPath, null, ['recursive' => false]) as $path) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -370,5 +350,43 @@ class Directory extends Entry {
             throw new Exception("The '$dirPath' directory does not exist");
         }
         return $dirPath;
+    }
+
+    private static function deleteDir(string $dirPath, bool $deleteSelf, bool $ignoreVcsFiles): void {
+        static::mustExist($dirPath);
+        if ($ignoreVcsFiles && $deleteSelf) {
+            throw new \LogicException("The both arguments can't be equal to true");
+        }
+        $absFilePath = realpath($dirPath);
+        if (!$absFilePath) {
+            throw new Exception("The directory '$dirPath' could not be found");
+        }
+        $d = @dir($absFilePath);
+        if (!$d) {
+            throw new Exception("The directory '$dirPath' can not be opened for reading");
+        }
+        // Check if we can delete the dir.
+        if (!is_writable(realpath($dirPath . '/' . '..'))) {
+            throw new Exception("The directory '$dirPath' can not be opened for writing");
+        }
+        // Loop over contents.
+        while (($fileName = $d->read()) !== false) {
+            if ($fileName == '.' || $fileName == '..') {
+                continue;
+            }
+            if ($ignoreVcsFiles && in_array($fileName, ['.git', '.gitmodules', '.gitignore'])) {
+                continue;
+            }
+            $filePath = $absFilePath . '/' . $fileName;
+            if (is_dir($filePath)) {
+                static::delete($filePath);
+            } else {
+                ErrorHandler::checkError(@unlink($filePath), "The file '$filePath' can not be deleted, check permissions");
+            }
+        }
+        $d->close();
+        if ($deleteSelf) {
+            ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': permission denied");
+        }
     }
 }
