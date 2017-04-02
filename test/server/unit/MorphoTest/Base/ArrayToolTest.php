@@ -6,6 +6,84 @@ use Morpho\Test\TestCase;
 use Morpho\Base\ArrayTool;
 
 class ArrayToolTest extends TestCase {
+    public function dataForIsSubset() {
+        return [
+            [
+                true, [], [],
+            ],
+            [
+                false, [], ['a', 'b']
+            ],
+            [
+                true, ['a', 'b'], [],
+            ],
+            [
+                true, ['a', 'b'], ['a'],
+            ],
+            [
+                true, ['a', 'b'], ['a', 'b'],
+            ],
+            [
+                false, ['a', 'b'], ['a', 'b', 'c'],
+            ],
+            [
+                false, [2 => 'a'], [3 => 'a'],
+            ],
+            [
+                true, [3 => 'a'], [3 => 'a'],
+            ],
+            [
+                true, ['foo' => 'a'], [],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b'], ['foo' => 'a'],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b'], ['foo' => 'a', 'bar' => 'b'],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['foo' => 'a', 'bar' => 'b'],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['pizza'],
+            ],
+            [
+                false, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['pizza', 'bar' => 'foo'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForIsSubset
+     */
+    public function testIsSubset($expected, $a, $b) {
+        $this->assertSame($expected, ArrayTool::isSubset($a, $b));
+    }
+
+    public function testSubsets() {
+        $this->assertEquals([[]], ArrayTool::subsets([]));
+        $this->assertEquals([[], [1]], ArrayTool::subsets([1]));
+        $check = function ($expected, $actual) {
+            $this->assertCount(count($expected), $actual);
+            foreach ($expected as $val) {
+                $this->assertContains($val, $actual);
+            }
+        };
+        $check(
+            [
+                [],
+                ['a'],
+                ['b'],
+                ['c'],
+                ['a', 'b'],
+                ['b', 'c'],
+                ['a', 'c'],
+                ['a', 'b', 'c']
+            ],
+            ArrayTool::subsets(['a', 'b', 'c'])
+        );
+    }
+
     public function dataForSetsEqual() {
         return [
             [
@@ -408,7 +486,6 @@ class ArrayToolTest extends TestCase {
      * @dataProvider dataForSymmetricDiff
      */
     public function testSymmetricDiff(array $expected, array $a, array $b) {
-        $this->assertEquals($expected, ArrayTool::symmetricDiff($a, $b, true));
         $this->assertEquals($expected, ArrayTool::symmetricDiff($a, $b));
     }
 

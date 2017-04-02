@@ -9,6 +9,10 @@ class ArrayTool {
         return array_unique(array_merge(...$arr));
     }
 
+    public static function intersect(...$arr): array {
+        return array_intersect_key(...$arr);
+    }
+
     /**
      * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
      * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
@@ -25,6 +29,7 @@ class ArrayTool {
     }
 
     public static function permutations(array $arr, int $n, bool $allowDups = false): array {
+        // https://en.wikipedia.org/wiki/Heap%27s_algorithm
         throw new NotImplementedException();
     }
 
@@ -32,8 +37,36 @@ class ArrayTool {
         throw new NotImplementedException();
     }
 
-    public static function subsets(array $arr) {
-        throw new NotImplementedException();
+    /**
+     * Returns set with power 2^count($arr)
+     *
+     * of all subsets,the number of elements of the output is 2^count($arr).
+     * The $arr must be either empty or non-empty and have numeric keys.
+     */
+    public static function subsets(array $arr): array {
+        if (count($arr) > (8 * PHP_INT_SIZE)) {
+            throw new \OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
+        }
+        $subsets = [];
+        $n = count($arr);
+        // Original algo is written by Brahmananda (https://www.quora.com/How-do-I-generate-all-subsets-of-a-set-in-Java-iteratively)
+        // 1 << count($arr) is 2^n - the number of all subsets.
+        for ($i = 0; $i < (1 << $n); $i++) {
+            $subsetBits = $i;
+            $subset = [];
+            for ($j = 0; $j < $n; $j++) { // $n is the width of the bit field, number of elements in the input set.
+                if ($subsetBits & 1) {  // is the right bit is 1?
+                    $subset[] = $arr[$j];
+                }
+                $subsetBits = $subsetBits >> 1; // process next bit
+             }
+             $subsets[] = $subset;
+        }
+        return $subsets;
+    }
+
+    public static function isSubset(array $a, array $b): bool {
+        return self::intersect($a, $b) == $b;
     }
 
     /**
@@ -45,7 +78,7 @@ class ArrayTool {
     }
 
     public static function itemsWithKeys(array $arr, array $keys): array {
-        return array_intersect_key($arr, array_flip(array_values($keys)));
+        return self::intersect($arr, array_flip(array_values($keys)));
     }
 
     public static function flatten(array $arr): array {
