@@ -4,7 +4,9 @@ namespace MorphoTest\Code\ClassTypeDiscoverer;
 use Morpho\Test\TestCase;
 
 abstract class DiscoverStrategyTest extends TestCase {
-    public function __construct() {
+    private $strategy;
+
+    public function setUp() {
         $this->strategy = $this->createDiscoverStrategy();
     }
 
