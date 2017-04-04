@@ -51,8 +51,8 @@ class DirectoryTest extends TestCase {
         $this->assertTrue(is_file($targetDirPath . '/bar/1.txt'));
     }
 
-    public function testTmpDirPath() {
-        $tmpDirPath = Directory::tmpDirPath();
+    public function testTmpPath() {
+        $tmpDirPath = Directory::tmpPath();
         $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
     }
 

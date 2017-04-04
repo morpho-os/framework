@@ -282,4 +282,15 @@ class File extends Entry {
         }
         return $flags;
     }
+
+    public static function withTmp(callable $fn, string $tmpDirPath = null) {
+        $tmpFilePath = tempnam($tmpDirPath ?: Directory::tmpPath(), __FUNCTION__);
+        try {
+            $fn($tmpFilePath);
+        } finally {
+            if (is_file($tmpFilePath)) {
+                unlink($tmpFilePath);
+            }
+        }
+    }
 }

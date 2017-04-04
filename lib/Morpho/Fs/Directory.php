@@ -231,16 +231,16 @@ class Directory extends Entry {
         }
     }
 
-    public static function tmpDirPath(): string {
+    public static function tmpPath(): string {
         return Path::normalize(sys_get_temp_dir());
     }
 
     /**
      * @return Path to the created directory.
      */
-    public static function createTmpDir(string $relativeDirPath, int $mode = self::MODE): string {
+    public static function createTmp(string $relativeDirPath, int $mode = self::MODE): string {
         return self::create(
-            Path::combine(self::tmpDirPath(), $relativeDirPath),
+            Path::combine(self::tmpPath(), $relativeDirPath),
             $mode
         );
     }

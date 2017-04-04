@@ -77,7 +77,7 @@ abstract class TestCase extends BaseTestCase {
     }
 
     protected function tmpDirPath(): string {
-        return Directory::tmpDirPath();
+        return Directory::tmpPath();
     }
 
     protected function copyFile($srcFilePath, $targetFilePath): string {

@@ -209,4 +209,23 @@ class FileTest extends TestCase {
         // @TODO: Write tests for other read*() methods for non-existence also.
         $this->markTestIncomplete();
     }
+
+    public function testWithFile_DefaultTmpDir() {
+        File::withTmp(function ($filePath) use (&$usedFilePath) {
+            $this->assertSame(0, filesize($filePath));
+            $usedFilePath = $filePath;
+        });
+        $this->assertNotEmpty($usedFilePath);
+        $this->assertFileNotExists($usedFilePath);
+    }
+
+    public function testWithTmp_NonDefaultTmpDir() {
+        $tmpDirPath = $this->createTmpDir(__FUNCTION__);
+        File::withTmp(function ($filePath) use (&$usedFilePath) {
+            $this->assertSame(0, filesize($filePath));
+            $usedFilePath = $filePath;
+        }, $tmpDirPath);
+        $this->assertContains(__FUNCTION__, $usedFilePath);
+        $this->assertFileNotExists($usedFilePath);
+    }
 }
