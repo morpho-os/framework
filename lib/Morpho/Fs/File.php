@@ -259,6 +259,16 @@ class File extends Entry {
         }
     }
 
+    public static function mustExist(string $filePath): string {
+        if (empty($filePath)) {
+            throw new Exception("The file path is empty");
+        }
+        if (!is_file($filePath)) {
+            throw new Exception("The file does not exist");
+        }
+        return $filePath;
+    }
+
     protected static function filePutContentsOptionsToFlags(array $options): int {
         $options = ArrayTool::handleOptions(
             $options,
@@ -286,11 +296,12 @@ class File extends Entry {
     public static function withTmp(callable $fn, string $tmpDirPath = null) {
         $tmpFilePath = tempnam($tmpDirPath ?: Directory::tmpPath(), __FUNCTION__);
         try {
-            $fn($tmpFilePath);
+            $res = $fn($tmpFilePath);
         } finally {
             if (is_file($tmpFilePath)) {
                 unlink($tmpFilePath);
             }
         }
+        return $res;
     }
 }

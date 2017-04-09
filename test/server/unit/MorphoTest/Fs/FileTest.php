@@ -1,10 +1,22 @@
 <?php
 namespace MorphoTest\Fs;
 
+use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\File;
+use Morpho\Fs\FileNotFoundException;
 use Morpho\Test\TestCase;
 
 class FileTest extends TestCase {
+    public function testMustExist_EmptyFilePath() {
+        $this->expectException(FsException::class, "The file path is empty");
+        File::mustExist('');
+    }
+
+    public function testMustExist_NonExistentFile() {
+        $this->expectException(FsException::class, "The file does not exist");
+        File::mustExist(__FILE__ . '123');
+    }
+
     public function testIsEmpty() {
         $tmpFilePath = $this->createTmpDir() . '/123';
         touch($tmpFilePath);
@@ -49,7 +61,7 @@ class FileTest extends TestCase {
     }
 
     public function testDeleteNonExistentFileThrowsException() {
-        $this->expectException('\Morpho\Fs\FileNotFoundException');
+        $this->expectException(FileNotFoundException::class);
         File::delete($this->tmpDirPath() . '/' . md5(uniqid()) . '.php');
     }
 
@@ -81,7 +93,7 @@ class FileTest extends TestCase {
     public function testMove_NotExistentSourceFileThrowsException() {
         $sourceFilePath = __FILE__ . 'some';
         $targetFilePath = $this->tmpDirPath() . '/some';
-        $this->expectException('\Morpho\Fs\Exception', "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
+        $this->expectException(FsException::class, "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
         File::move($sourceFilePath, $targetFilePath);
     }
 
@@ -106,7 +118,7 @@ class FileTest extends TestCase {
 
     public function testCopy_IfSourceIsDirThrowsException() {
         $sourceFilePath = $this->getTestDirPath();
-        $this->expectException('\Morpho\Fs\Exception', "Unable to copy: the source '$sourceFilePath' is not a file");
+        $this->expectException(FsException::class, "Unable to copy: the source '$sourceFilePath' is not a file");
         File::copy($sourceFilePath, $this->tmpDirPath());
     }
 
@@ -120,7 +132,7 @@ class FileTest extends TestCase {
     }
 
     public function testWrite_CantWriteToEmptyFile() {
-        $this->expectException('\Morpho\Fs\Exception', "The file path is empty.");
+        $this->expectException(FsException::class, "The file path is empty.");
         File::write('', 'Test');
     }
 
@@ -141,7 +153,7 @@ class FileTest extends TestCase {
         try {
             File::copy($sourceFilePath, $targetFilePath, false);
             $this->fail();
-        } catch (\Morpho\Fs\Exception $e) {
+        } catch (FsException $e) {
         }
 
         $this->assertEquals(0, filesize($targetFilePath));
@@ -189,7 +201,7 @@ class FileTest extends TestCase {
     public function testUniquePathShouldThrowExceptionWhenNumberOfAttempsReached() {
         $filePath = __FILE__;
         $expectedMessage = "Unable to generate unique path for file '$filePath' (tried 0 times).";
-        $this->expectException('\Morpho\Fs\Exception', $expectedMessage);
+        $this->expectException(FsException::class, $expectedMessage);
         File::uniquePath($filePath, 0);
     }
 
@@ -211,20 +223,22 @@ class FileTest extends TestCase {
     }
 
     public function testWithFile_DefaultTmpDir() {
-        File::withTmp(function ($filePath) use (&$usedFilePath) {
+        $this->assertSame('ok', File::withTmp(function ($filePath) use (&$usedFilePath) {
             $this->assertSame(0, filesize($filePath));
             $usedFilePath = $filePath;
-        });
+            return 'ok';
+        }));
         $this->assertNotEmpty($usedFilePath);
         $this->assertFileNotExists($usedFilePath);
     }
 
     public function testWithTmp_NonDefaultTmpDir() {
         $tmpDirPath = $this->createTmpDir(__FUNCTION__);
-        File::withTmp(function ($filePath) use (&$usedFilePath) {
+        $this->assertSame('ok', File::withTmp(function ($filePath) use (&$usedFilePath) {
             $this->assertSame(0, filesize($filePath));
             $usedFilePath = $filePath;
-        }, $tmpDirPath);
+            return 'ok';
+        }, $tmpDirPath));
         $this->assertContains(__FUNCTION__, $usedFilePath);
         $this->assertFileNotExists($usedFilePath);
     }
