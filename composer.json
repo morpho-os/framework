@@ -54,7 +54,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url":  "git@github.com:morpho-os/modulizer.git"
+            "url": "git@github.com:morpho-os/modulizer.git"
         }
     ],
     "autoload": {

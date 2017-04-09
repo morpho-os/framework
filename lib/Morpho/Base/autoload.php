@@ -451,6 +451,16 @@ function buffer(callable $fn): string {
     return ob_get_clean();
 }
 
+function prepend(array $it, string $prefix) {
+    // @TODO: iterable
+    return array_map(prependFn($prefix), $it);
+}
+
+function append(array $it, string $suffix) {
+    // @TODO: iterable
+    return array_map(appendFn($suffix), $it);
+}
+
 function prependFn(string $prefix): \Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;

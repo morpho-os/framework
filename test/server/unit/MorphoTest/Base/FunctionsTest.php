@@ -8,10 +8,16 @@ use function Morpho\Base\{
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
 class FunctionsTest extends TestCase {
+    private $tmpHandle;
+
     public function tearDown() {
         if (isset($this->tmpHandle)) {
             fclose($this->tmpHandle);
         }
+    }
+
+    public function testPrependAndAppend() {
+        $this->markTestIncomplete();
     }
 
     public function dataForTypeOf() {

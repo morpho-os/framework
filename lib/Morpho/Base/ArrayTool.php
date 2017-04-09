@@ -6,6 +6,7 @@ class ArrayTool {
      * Union for sets, for difference use array_diff(), for intersection use array_intersect().
      */
     public static function union(...$arr): array {
+        // @TODO: make it work for array of arrays and other cases.
         return array_unique(array_merge(...$arr));
     }
 
