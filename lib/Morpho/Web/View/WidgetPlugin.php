@@ -8,6 +8,7 @@ use Morpho\Di\IServiceManagerAware;
 use Morpho\Db\Sql\Db;
 
 class WidgetPlugin extends Plugin implements IServiceManagerAware {
+    private $serviceManager;
     public function __invoke(...$args) {
         $name = $args[0];
         if ($name !== 'Menu') {

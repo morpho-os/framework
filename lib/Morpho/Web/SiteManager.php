@@ -103,7 +103,7 @@ class SiteManager extends Object implements IServiceManagerAware {
         return $this->allSitesDirPath;
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
 

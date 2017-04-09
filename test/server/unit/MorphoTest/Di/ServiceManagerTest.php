@@ -17,7 +17,7 @@ class ServiceManagerTest extends TestCase {
         $service = new class implements IServiceManagerAware {
             private $serviceManager;
 
-            public function setServiceManager(IServiceManager $serviceManager): void {
+            public function setServiceManager(IServiceManager $serviceManager) {
                 $this->serviceManager = $serviceManager;
             }
 

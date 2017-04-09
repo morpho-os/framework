@@ -6,5 +6,6 @@ trait TWithServiceManager {
 
     public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
+        return $this;
     }
 }

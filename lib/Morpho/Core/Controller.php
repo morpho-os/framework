@@ -48,7 +48,7 @@ abstract class Controller extends Node implements IServiceManagerAware {
         }
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
 
