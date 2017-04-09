@@ -8,7 +8,7 @@ use const Morpho\Core\VENDOR_DIR_NAME;
 date_default_timezone_set('UTC');
 
 (function () {
-    $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
+    $classLoader = require __DIR__ . '/../../../vendor/autoload.php';
     $classLoader->addPsr4('MorphoTest\\', __DIR__);
     foreach (glob(MODULE_DIR_PATH . '/*') as $moduleDirPath) {
         $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;

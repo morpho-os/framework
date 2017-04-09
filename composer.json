@@ -59,16 +59,16 @@
     ],
     "autoload": {
         "psr-4": {
-            "Morpho\\": "lib/Morpho/"
+            "Morpho\\": "lib/"
         },
         "files": [
-            "lib/Morpho/Base/autoload.php",
-            "lib/Morpho/Debug/autoload.php",
-            "lib/Morpho/Error/autoload.php",
-            "lib/Morpho/Core/autoload.php",
-            "lib/Morpho/Web/autoload.php",
-            "lib/Morpho/Cli/autoload.php",
-            "lib/Morpho/Code/autoload.php"
+            "lib/Base/autoload.php",
+            "lib/Debug/autoload.php",
+            "lib/Error/autoload.php",
+            "lib/Core/autoload.php",
+            "lib/Web/autoload.php",
+            "lib/Cli/autoload.php",
+            "lib/Code/autoload.php"
         ]
     },
     "config": {
