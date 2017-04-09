@@ -35,3 +35,7 @@ export class Uri {
     }
 }
 export var uri = new Uri();
+
+export function isGenerator(fn) {
+    return fn.constructor.name === 'GeneratorFunction';
+}
