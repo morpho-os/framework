@@ -4,28 +4,38 @@ declare(strict_types = 1);
 namespace Morpho\Cli;
 
 use const Morpho\Base\EOL_REGEXP;
-use Morpho\Base\NotImplementedException;
 
 class CommandResult {
+    /**
+     * @var int
+     */
     protected $exitCode;
+    /**
+     * @var null|string
+     */
     protected $stdout;
+    /**
+     * @var null|string
+     */
+    private $stderr;
 
-    public function __construct(string $command, int $exitCode, ?string $stdout) {
+    public function __construct(string $command, int $exitCode, ?string $stdout, string $stderr = null) {
         $this->command = $command;
         $this->exitCode = $exitCode;
         $this->stdout = $stdout;
+        $this->stderr = $stderr;
     }
 
     public function command(): string {
         return $this->command;
     }
 
-    public function stdout(): string {
-        throw new NotImplementedException(__METHOD__);
+    public function stdout(): ?string {
+        return $this->stdout;
     }
 
-    public function stderr(): string {
-        throw new NotImplementedException(__METHOD__);
+    public function stderr(): ?string {
+        return $this->stderr;
     }
 
     public function exitCode(): int {
@@ -50,6 +60,6 @@ class CommandResult {
     }
 
     public function __toString(): string {
-        return $this->stdout;
+        return (string) $this->stdout();
     }
 }
