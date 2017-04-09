@@ -27,7 +27,7 @@ class Db extends BaseDb {
         return $this->schemaManager;
     }
 
-    public function insertRows(string $tableName, array $rows, array $options = null) {
+    public function insertRows(string $tableName, array $rows, array $options = null): void {
         $args = [];
         $keys = null;
         foreach ($rows as $row) {
@@ -52,7 +52,7 @@ class Db extends BaseDb {
             'charset' => self::DEFAULT_CHARSET,
             'pdoOptions' => [],
         ]);
-        $dsn = BaseDb::MYSQL_DRIVER . ':dbname=' . $options['db'] . ';' . $options['host'] . ';' . $options['charset'];
+        $dsn = self::MYSQL_DRIVER . ':dbname=' . $options['db'] . ';' . $options['host'] . ';' . $options['charset'];
         return new \PDO($dsn, $options['user'], $options['password'], $options['pdoOptions']);
     }
 }

@@ -4,8 +4,8 @@ namespace Morpho\Db\Sql;
 abstract class Db {
     protected $db;
 
-    const MYSQL_DRIVER  = 'mysql';
-    const SQLITE_DRIVER = 'sqlite';
+    public const MYSQL_DRIVER  = 'mysql';
+    public const SQLITE_DRIVER = 'sqlite';
 
     public function __construct($optionsOrConnection) {
         $this->db = $db = $optionsOrConnection instanceof \PDO
@@ -46,14 +46,14 @@ abstract class Db {
         return $this->db->lastInsertId($seqName);
     }
 
-    public function insertRow(string $tableName, array $row)/*: void*/ {
+    public function insertRow(string $tableName, array $row): void {
         $query = $this->query();
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . '(';
         $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->eval($sql, array_values($row));
     }
 
-    abstract public function insertRows(string $tableName, array $rows);
+    abstract public function insertRows(string $tableName, array $rows): void;
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
         $query = $this->query();
@@ -71,7 +71,7 @@ abstract class Db {
      * @param array|string $whereCondition
      * @param array|null $whereConditionArgs
      */
-    public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null)/*: void */ {
+    public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null): void {
         $query = $this->query();
         $sql = 'UPDATE ' . $query->identifier($tableName)
             . ' SET ' . implode(', ', $query->namedPlaceholders($row));

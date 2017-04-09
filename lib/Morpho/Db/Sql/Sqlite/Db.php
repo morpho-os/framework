@@ -16,7 +16,7 @@ class Db extends BaseDb {
         return new SchemaManager($this);
     }
 
-    public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100 */) {
+    public function insertRows(string $tableName, array $rows/* @TODO:, int $rowsInBlock = 100 */): void {
         throw new NotImplementedException();
     }
 
