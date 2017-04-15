@@ -1,4 +1,6 @@
 <?php
+declare(strict_types = 1);
+
 namespace MorphoTest\Fs;
 
 use LogicException;
@@ -7,16 +9,43 @@ use Morpho\Fs\Directory;
 use Morpho\Test\TestCase;
 
 class DirectoryTest extends TestCase {
-    public function testDelete_EmptyDir() {
-        $this->markTestIncomplete();
-
-        // @TODO: Test both: iterable and string first argument
+    public function testDelete_PredicateForParentEntries() {
+        $tmpDirPath = $this->createTmpDir();
+        touch($tmpDirPath . '/foo');
+        touch($tmpDirPath . '/bar');
+        mkdir($tmpDirPath . '/baz');
+        Directory::delete($tmpDirPath, function ($filePath) {
+            return basename($filePath) !== 'bar';
+        });
+        $this->assertSame(['baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
-    public function testDelete_NotEmptyDir() {
-        $this->markTestIncomplete();
+    public function testDelete_PredicateForChildEntries() {
+        $tmpDirPath = $this->createTmpDir();
+        touch($tmpDirPath . '/foo');
+        mkdir($tmpDirPath . '/bar');
+        touch($tmpDirPath . '/bar/cow');
+        touch($tmpDirPath . '/bar/wolf');
+        touch($tmpDirPath . '/baz');
+        Directory::delete($tmpDirPath, function ($filePath) {
+            return basename($filePath) !== 'wolf';
+        });
+        $this->assertSame(['bar' , 'bar/cow', 'baz', 'foo'], $this->pathsInDir($tmpDirPath));
+    }
 
-        // @TODO: Test both: iterable and string first argument
+    public function testDelete_InvalidArg() {
+        $tmpDirPath = $this->createTmpDir();
+        $this->expectException(\InvalidArgumentException::class, 'The second argument must be bool or callable');
+        Directory::delete($tmpDirPath, '123');
+    }
+    
+    public function testDelete_DeleteSelf() {
+        $tmpDirPath = $this->createTmpDir();
+        $this->assertTrue(is_dir($tmpDirPath));
+        Directory::delete($tmpDirPath, false);
+        $this->assertTrue(is_dir($tmpDirPath));
+        Directory::delete($tmpDirPath, true);
+        $this->assertFalse(is_dir($tmpDirPath));
     }
 
     public function testMustExist_ReturnsArg() {
@@ -72,7 +101,7 @@ class DirectoryTest extends TestCase {
 
     public function testUniquePath_ThrowsExceptionWhenNumberOfAttemptsReached() {
         $dirPath = __DIR__;
-        $expectedMessage = "Unable to generate an unique path for the directory '$dirPath' (tried 0 times).";
+        $expectedMessage = "Unable to generate an unique path for the directory '$dirPath' (tried 0 times)";
         $this->expectException('\\Morpho\\Fs\\Exception', $expectedMessage);
         Directory::uniquePath($dirPath, 0);
     }
@@ -570,7 +599,7 @@ class DirectoryTest extends TestCase {
         );
     }
 
-    private function assertDirContentsEqual($dirPathExpectedContent, $dirPathActualContent) {
+    private function assertDirContentsEqual(string $dirPathExpectedContent, string $dirPathActualContent) {
         $expected = $this->pathsInDir($dirPathExpectedContent);
         $actual = $this->pathsInDir($dirPathActualContent);
         $this->assertTrue(count($actual) > 0);

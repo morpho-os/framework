@@ -255,27 +255,32 @@ class Directory extends Entry {
      * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
      *
      * @param string|iterable $dirPath
+     * @param bool|callable $deleteSelfOrPredicate
      */
-    public static function delete($dirPath, bool $deleteSelf = true, bool $ignoreVcsFiles = false): void {
+    public static function delete($dirPath, $deleteSelfOrPredicate = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
-                self::deleteDir($path, $deleteSelf, $ignoreVcsFiles);
+                self::deleteDir($path, $deleteSelfOrPredicate);
             }
         } else {
-            self::deleteDir($dirPath, $deleteSelf, $ignoreVcsFiles);
+            self::deleteDir($dirPath, $deleteSelfOrPredicate);
         }
     }
 
-    public static function deleteIfExists($dirPath, bool $deleteSelf = true): void {
+    /**
+     * @param string|iterable $dirPath
+     * @param bool|callable $deleteSelfOrPredicate
+     */
+    public static function deleteIfExists($dirPath, $deleteSelfOrPredicate = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
                 if (is_dir($path)) {
-                    self::deleteDir($path, $deleteSelf, false);
+                    self::deleteDir($path, $deleteSelfOrPredicate);
                 }
             }
         } else {
             if (is_dir($dirPath)) {
-                self::deleteDir($dirPath, $deleteSelf, false);
+                self::deleteDir($dirPath, $deleteSelfOrPredicate);
             }
         }
     }
@@ -313,7 +318,7 @@ class Directory extends Entry {
             $uniquePath = $dirPath . '-' . $i;
         }
         if ($i == $numberOfAttempts && is_dir($uniquePath)) {
-            throw new Exception("Unable to generate an unique path for the directory '$dirPath' (tried $i times).");
+            throw new Exception("Unable to generate an unique path for the directory '$dirPath' (tried $i times)");
         }
 
         return $uniquePath;
@@ -352,10 +357,15 @@ class Directory extends Entry {
         return $dirPath;
     }
 
-    private static function deleteDir(string $dirPath, bool $deleteSelf, bool $ignoreVcsFiles): void {
+    /**
+     * @param string $dirPath
+     * @param bool|callable $deleteSelfOrPredicate Predicate selects entries which will be not deleted.
+     */
+    private static function deleteDir(string $dirPath, $deleteSelfOrPredicate = null): void {
         static::mustExist($dirPath);
-        if ($ignoreVcsFiles && $deleteSelf) {
-            throw new \LogicException("The both arguments can't be equal to true");
+        $isBoolArg = is_bool($deleteSelfOrPredicate);
+        if (!$isBoolArg && !is_callable($deleteSelfOrPredicate)) {
+            throw new \InvalidArgumentException('The second argument must be bool or callable');
         }
         $absFilePath = realpath($dirPath);
         if (!$absFilePath) {
@@ -374,18 +384,23 @@ class Directory extends Entry {
             if ($fileName == '.' || $fileName == '..') {
                 continue;
             }
-            if ($ignoreVcsFiles && in_array($fileName, ['.git', '.gitmodules', '.gitignore'])) {
-                continue;
-            }
             $filePath = $absFilePath . '/' . $fileName;
             if (is_dir($filePath)) {
-                static::delete($filePath);
+                static::deleteDir($filePath, $deleteSelfOrPredicate);
             } else {
+                if (!$isBoolArg && $deleteSelfOrPredicate($filePath)) {
+                    continue;
+                }
                 ErrorHandler::checkError(@unlink($filePath), "The file '$filePath' can not be deleted, check permissions");
             }
         }
         $d->close();
-        if ($deleteSelf) {
+        if (!$isBoolArg) {
+            $skip = $deleteSelfOrPredicate($absFilePath);
+        } else {
+            $skip = !$deleteSelfOrPredicate;
+        }
+        if (!$skip) {
             ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': permission denied");
         }
     }
