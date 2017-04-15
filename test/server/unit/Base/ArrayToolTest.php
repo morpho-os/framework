@@ -420,8 +420,8 @@ class ArrayToolTest extends TestCase {
             ],
             [
                 ['foo'],
-                ['foo'],
                 [],
+                ['foo'],
             ],
             [
                 [],
@@ -486,7 +486,7 @@ class ArrayToolTest extends TestCase {
      * @dataProvider dataForSymmetricDiff
      */
     public function testSymmetricDiff(array $expected, array $a, array $b) {
-        $this->assertEquals($expected, ArrayTool::symmetricDiff($a, $b));
+        $this->assertSame($expected, ArrayTool::symmetricDiff($a, $b));
     }
 
     protected function _testArray() {

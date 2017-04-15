@@ -485,3 +485,9 @@ function partialFn(callable $fn, ...$args1): \Closure {
 function requireFile(string $__filePath) {
     return require $__filePath;
 }
+
+function toArray($arrOrTraversable, bool $useKeys = false): array {
+    return is_array($arrOrTraversable)
+        ? $arrOrTraversable
+        : iterator_to_array($arrOrTraversable, $useKeys);
+}
