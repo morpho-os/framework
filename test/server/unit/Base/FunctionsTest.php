@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    appendFn, fromJson, partialFn, prependFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ
+    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -16,8 +16,97 @@ class FunctionsTest extends TestCase {
         }
     }
 
-    public function testPrependAndAppend() {
+    public function dataForStartsWith() {
+        return [
+            [
+                true, '', '',
+            ],
+            [
+                false, '', 'foo',
+            ],
+            [
+                true, 'foo', '',
+            ],
+            [
+                true, 'foo', 'foo',
+            ],
+            [
+                false, 'foo', 'foob',
+            ],
+            [
+                true, 'foo', 'fo',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForStartsWith
+     */
+    public function testStartsWith($expected, $s, $prefix) {
+        $this->assertSame($expected, startsWith($s, $prefix));
+    }
+
+    public function dataForEndsWith() {
+        return [
+            [
+                true, '', '',
+            ],
+            [
+                true, 'abc', 'c',
+            ],
+            [
+                true, 'abc', 'bc',
+            ],
+            [
+                true, 'abc', 'abc',
+            ],
+            [
+                false, 'abc', 'eabc',
+            ],
+            [
+                false, '', 'abc',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForEndsWith
+     */
+    public function testEndsWith($expected, $s, $suffix) {
+        $this->assertSame($expected, endsWith($s, $suffix));
+    }
+
+    /**
+     * @dataProvider dataForStartsWith
+     */
+    public function testHasPrefixFn($expected, $s, $prefix) {
+        $fn = hasPrefixFn($prefix);
+        $this->assertSame($expected, $fn($s));
+    }
+
+    /**
+     * @dataProvider dataForEndsWith
+     */
+    public function testHasSuffixFn($expected, $s, $suffix) {
+        $fn = hasSuffixFn($suffix);
+        $this->assertSame($expected, $fn($s));
+    }
+
+    public function testPrepend_ArrayArg() {
         $this->markTestIncomplete();
+    }
+
+    public function testAppend_ArrayArg() {
+        $this->markTestIncomplete();
+    }
+
+    public function testNotFn() {
+        $fn = notFn(function (...$args) use (&$calledWithArgs) {
+            $calledWithArgs = $args;
+            return true;
+        });
+        $this->assertFalse($fn('foo', 'bar'));
+        $this->assertEquals(['foo', 'bar'], $calledWithArgs);
     }
 
     public function dataForTypeOf() {
@@ -289,12 +378,12 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo-bar-1', htmlId('FooBar'));
     }
 
-    public function testPrependFn() {
-        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prependFn('prefix'), ['foo', 'bar', 'baz']));
+    public function testPrefixFn() {
+        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prefixFn('prefix'), ['foo', 'bar', 'baz']));
     }
 
-    public function testAppendFn() {
-        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(appendFn('suffix'), ['foo', 'bar', 'baz']));
+    public function testSuffixFn() {
+        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(suffixFn('suffix'), ['foo', 'bar', 'baz']));
     }
 
     public function testPartialFn() {

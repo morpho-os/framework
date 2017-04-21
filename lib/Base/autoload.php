@@ -410,7 +410,9 @@ function endsWith($string, $suffix): bool {
 }
 
 function startsWith($string, $prefix): bool {
-    // @TODO: Use substr() as for endsWith?
+    if ($prefix === '') {
+        return true;
+    }
     return 0 === strpos($string, $prefix);
 }
 
@@ -458,23 +460,41 @@ function buffer(callable $fn): string {
 
 function prepend(array $it, string $prefix) {
     // @TODO: iterable
-    return array_map(prependFn($prefix), $it);
+    return array_map(prefixFn($prefix), $it);
 }
 
 function append(array $it, string $suffix) {
     // @TODO: iterable
-    return array_map(appendFn($suffix), $it);
+    return array_map(suffixFn($suffix), $it);
 }
 
-function prependFn(string $prefix): Closure {
+function prefixFn(string $prefix): Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;
     };
 }
 
-function appendFn(string $suffix): Closure {
+function suffixFn(string $suffix): Closure {
     return function (string $s) use ($suffix) {
         return $s . $suffix;
+    };
+}
+
+function notFn(callable $predicateFn): Closure {
+    return function (...$args) use ($predicateFn) {
+        return !$predicateFn(...$args);
+    };
+}
+
+function hasPrefixFn(string $prefix): Closure {
+    return function ($s) use ($prefix) {
+        return startsWith($s, $prefix);
+    };
+}
+
+function hasSuffixFn(string $suffix): Closure {
+    return function ($s) use ($suffix) {
+        return endsWith($s, $suffix);
     };
 }
 
