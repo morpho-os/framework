@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Base;
 
-class MethodNotFoundException extends \BadMethodCallException {
+use BadMethodCallException;
+
+class MethodNotFoundException extends BadMethodCallException {
     /**
      * @param string|object $object
      * @param string $method

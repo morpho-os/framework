@@ -1,16 +1,19 @@
 <?php
 namespace Morpho\Base;
 
-class DateTime extends \DateTimeImmutable {
+use DateTimeImmutable;
+use DateTimeZone;
+
+class DateTime extends DateTimeImmutable {
     const DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * @param null|string|\DateTimeZone $timezone
+     * @param null|string|DateTimeZone $timezone
      * @return DateTime
      */
     public static function now($timezone = null): self {
         if (is_string($timezone)) {
-            $timezone = new \DateTimeZone($timezone);
+            $timezone = new DateTimeZone($timezone);
         }
         return new static('now', $timezone);
     }

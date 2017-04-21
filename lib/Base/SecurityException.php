@@ -1,5 +1,7 @@
 <?php
 namespace Morpho\Base;
 
-class SecurityException extends \RuntimeException {
+use RuntimeException;
+
+class SecurityException extends RuntimeException {
 }

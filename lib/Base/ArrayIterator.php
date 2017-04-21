@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Base;
 
-class ArrayIterator extends \ArrayIterator {
+use ArrayIterator as BaseArrayIterator;
+
+class ArrayIterator extends BaseArrayIterator {
     public function toArray() {
         return $this->getArrayCopy();
     }

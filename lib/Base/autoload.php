@@ -3,6 +3,11 @@ declare(strict_types = 1);
 
 namespace Morpho\Base;
 
+use Closure;
+use RuntimeException;
+use Throwable;
+use UnexpectedValueException;
+
 const INT_TYPE      = 'int';
 const FLOAT_TYPE    = 'float';
 const BOOL_TYPE     = 'bool';
@@ -81,7 +86,7 @@ function showLn(...$messages) {
         echo "\n";
     } else {
         foreach ($messages as $message) {
-            if ($message instanceof \Closure) {
+            if ($message instanceof Closure) {
                 foreach ($message() as $msg) {
                     echo $msg . "\n";
                 }
@@ -377,7 +382,7 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
 function normalizeEols(string $s): string {
     $res = preg_replace(EOL_REGEXP, "\n", $s);
     if (null === $res) {
-        throw new \RuntimeException("Unable to replace EOL");
+        throw new RuntimeException("Unable to replace EOL");
     }
     return $res;
 }
@@ -395,7 +400,7 @@ function toJson($data, $options = null): string {
 function fromJson(string $json, bool $objectsToArrays = true) {
     $res = json_decode($json, $objectsToArrays);
     if (null === $res) {
-        throw new \RuntimeException("Invalid JSON or too deep data");
+        throw new RuntimeException("Invalid JSON or too deep data");
     }
     return $res;
 }
@@ -435,7 +440,7 @@ function typeOf($val): string {
         case 'resource':
             return RESOURCE_TYPE;
         default:
-            throw new \UnexpectedValueException("Unexpected value of type: '$type'");
+            throw new UnexpectedValueException("Unexpected value of type: '$type'");
     }
 }
 
@@ -443,7 +448,7 @@ function buffer(callable $fn): string {
     ob_start();
     try {
         $fn();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         // Don't output any result in case of Error
         ob_end_clean();
         throw $e;
@@ -461,19 +466,19 @@ function append(array $it, string $suffix) {
     return array_map(appendFn($suffix), $it);
 }
 
-function prependFn(string $prefix): \Closure {
+function prependFn(string $prefix): Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;
     };
 }
 
-function appendFn(string $suffix): \Closure {
+function appendFn(string $suffix): Closure {
     return function (string $s) use ($suffix) {
         return $s . $suffix;
     };
 }
 
-function partialFn(callable $fn, ...$args1): \Closure {
+function partialFn(callable $fn, ...$args1): Closure {
     return function (...$args2) use ($fn, $args1) {
         return $fn(...array_merge($args1, $args2));
     };

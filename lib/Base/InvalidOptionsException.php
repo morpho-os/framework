@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Base;
 
-class InvalidOptionsException extends \RuntimeException {
+use RuntimeException;
+
+class InvalidOptionsException extends RuntimeException {
     public function __construct($message = null) {
         if (is_array($message)) {
             // invalid options have been passed as array

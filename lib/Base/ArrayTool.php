@@ -1,6 +1,10 @@
 <?php
 namespace Morpho\Base;
 
+use OutOfBoundsException;
+use RuntimeException;
+use UnexpectedValueException;
+
 class ArrayTool {
     /**
      * Union for sets, for difference use array_diff(), for intersection use array_intersect().
@@ -46,7 +50,7 @@ class ArrayTool {
      */
     public static function subsets(array $arr): array {
         if (count($arr) > (8 * PHP_INT_SIZE)) {
-            throw new \OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
+            throw new OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
         }
         $subsets = [];
         $n = count($arr);
@@ -97,7 +101,7 @@ class ArrayTool {
     public static function head(array $list) {
         // @TODO: Move to the \Base
         if (!count($list)) {
-            throw new \UnexpectedValueException("Empty list");
+            throw new UnexpectedValueException("Empty list");
         }
         return array_shift($list);
     }
@@ -105,7 +109,7 @@ class ArrayTool {
     public static function tail(array $list) {
         // @TODO: Move to the \Base
         if (!count($list)) {
-            throw new \UnexpectedValueException("Empty list");
+            throw new UnexpectedValueException("Empty list");
         }
         array_shift($list);
         return $list;
@@ -114,7 +118,7 @@ class ArrayTool {
     public static function last(array $list) {
         // @TODO: Move to the \Base
         if (!count($list)) {
-            throw new \UnexpectedValueException("Empty list");
+            throw new UnexpectedValueException("Empty list");
         }
         return array_pop($list);
     }
@@ -122,7 +126,7 @@ class ArrayTool {
     public static function init(array $list) {
         // @TODO: Move to the \Base
         if (!count($list)) {
-            throw new \UnexpectedValueException("Empty list");
+            throw new UnexpectedValueException("Empty list");
         }
         return array_slice($list, 0, -1, true);
     }
@@ -131,7 +135,7 @@ class ArrayTool {
         $result = [];
         foreach ($matrix as $row) {
             if (!isset($row[$keyForIndex])) {
-                throw new \RuntimeException();
+                throw new RuntimeException();
             }
             $k = $row[$keyForIndex];
             if ($drop) {

@@ -1,5 +1,7 @@
 <?php
 namespace Morpho\Base;
 
-class ObjectNotFoundException extends \RuntimeException {
+use RuntimeException;
+
+class ObjectNotFoundException extends RuntimeException {
 }

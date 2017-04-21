@@ -3,6 +3,10 @@ declare(strict_types = 1);
 
 namespace Morpho\Base;
 
+use InvalidArgumentException;
+use OutOfRangeException;
+use RuntimeException;
+
 class Must {
     /**
      * @return mixed
@@ -10,7 +14,7 @@ class Must {
     public static function beNotEmpty(...$args) {
         $n = count($args);
         if (!$n) {
-            throw new \InvalidArgumentException("Empty arguments");
+            throw new InvalidArgumentException("Empty arguments");
         }
         foreach ($args as $v) {
             self::beTrue(!empty($v), 'The value must be non empty');
@@ -24,7 +28,7 @@ class Must {
     public static function beEmpty(...$args) {
         $n = count($args);
         if (!$n) {
-            throw new \InvalidArgumentException("Empty arguments");
+            throw new InvalidArgumentException("Empty arguments");
         }
         foreach ($args as $v) {
             self::beTrue(empty($v), 'The value must be empty');
@@ -39,14 +43,14 @@ class Must {
     public static function haveOnlyKeys(array $arr, array $allowedKeys): void {
         $diff = array_diff_key($arr, array_flip($allowedKeys));
         if (count($diff)) {
-            throw new \RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
+            throw new RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
         }
     }
 
     public static function haveKeys(array $arr, array $requiredKeys): void {
         $intersection = array_intersect_key(array_flip($requiredKeys), $arr);
         if (count($intersection) != count($requiredKeys)) {
-            throw new \RuntimeException("Required items are missing");
+            throw new RuntimeException("Required items are missing");
         }
     }
 
@@ -56,7 +60,7 @@ class Must {
 
     public static function beInRange($value, $start, $end): void {
         if ($value < $start || $value > $end) {
-            throw new \OutOfRangeException("The value $value is out of range");
+            throw new OutOfRangeException("The value $value is out of range");
         }
     }
 
@@ -71,7 +75,7 @@ class Must {
     public static function beTrue($result, string $errMessage = null): void {
         $result = (bool)$result;
         if ($result === false) {
-            throw new \RuntimeException($errMessage);
+            throw new RuntimeException($errMessage);
         }
     }
 }

@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Base;
 
-class Stack extends \SplStack {
+use SplStack;
+
+class Stack extends SplStack {
     /**
      * Removes all items from stack.
      */

@@ -3,7 +3,13 @@ declare(strict_types = 1);
 
 namespace Morpho\Base;
 
-class Node extends Object implements \Countable, \RecursiveIterator {
+use Countable;
+use LogicException;
+use RecursiveIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+
+class Node extends Object implements Countable, RecursiveIterator {
     protected $children = [];
 
     /**
@@ -37,7 +43,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
 
     public function addChild(Node $node): Node {
         if (!$node->hasName()) {
-            throw new \RuntimeException("The node must have name.");
+            throw new RuntimeException("The node must have name.");
         }
         $node->setParent($this);
         $this->children[$node->name()] = $node;
@@ -89,7 +95,7 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     public function leaf(string $name): Node {
-        foreach (new \RecursiveIteratorIterator($this, \RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
+        foreach (new RecursiveIteratorIterator($this, RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
             if ($node->name() == $name) {
                 return $node;
             }
@@ -124,11 +130,11 @@ class Node extends Object implements \Countable, \RecursiveIterator {
     }
 
     /**
-     * @return \RecursiveIterator|null
+     * @return RecursiveIterator|null
      */
     public function getChildren() {
         if (!$this->hasChildren()) {
-            throw new \LogicException("Node doesn't have children.");
+            throw new LogicException("Node doesn't have children.");
         }
         return $this->current();
     }

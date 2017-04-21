@@ -1,5 +1,7 @@
 <?php
 namespace Morpho\Base;
 
-class EntityExistsException extends \RuntimeException {
+use RuntimeException;
+
+class EntityExistsException extends RuntimeException {
 }

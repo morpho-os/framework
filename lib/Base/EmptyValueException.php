@@ -1,5 +1,7 @@
 <?php
 namespace Morpho\Base;
 
-class EmptyValueException extends \RuntimeException {
+use RuntimeException;
+
+class EmptyValueException extends RuntimeException {
 }

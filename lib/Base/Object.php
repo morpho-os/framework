@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Morpho\Base;
 
+use ReflectionObject;
+
 abstract class Object {
     private $reflected;
 
@@ -25,9 +27,9 @@ abstract class Object {
         return str_replace('\\', '/', $this->reflect()->getFileName());
     }
 
-    protected function reflect(): \ReflectionObject {
+    protected function reflect(): ReflectionObject {
         if (null === $this->reflected) {
-            $this->reflected = new \ReflectionObject($this);
+            $this->reflected = new ReflectionObject($this);
         }
         return $this->reflected;
     }
