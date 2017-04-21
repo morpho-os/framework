@@ -368,6 +368,9 @@ class Directory extends Entry {
             throw new \InvalidArgumentException('The second argument must be bool or callable');
         }
         $absFilePath = realpath($dirPath);
+        if (defined('PHP_WINDOWS_VERSION_BUILD')) {
+            $absFilePath = str_replace('\\', '/', $absFilePath);
+        }
         if (!$absFilePath) {
             throw new Exception("The directory '$dirPath' could not be found");
         }
@@ -401,7 +404,7 @@ class Directory extends Entry {
             $skip = !$deleteSelfOrPredicate;
         }
         if (!$skip) {
-            ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': permission denied");
+            ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': it may be not empty or doesn't have relevant permissions");
         }
     }
 }

@@ -156,6 +156,7 @@ class File extends Entry {
      */
     public static function createEmpty(string $filePath): string {
         Directory::create(dirname($filePath));
+        // @TODO: Why not touch()?
         self::truncate($filePath);
         return $filePath;
     }
@@ -163,7 +164,7 @@ class File extends Entry {
     /**
      * Truncates the file to zero length.
      */
-    public static function truncate(string $filePath)/*: void */ {
+    public static function truncate(string $filePath): void {
         $handle = @fopen($filePath, 'w');
         if (false === $handle) {
             throw new Exception("Unable to open the file '$filePath' for writing.");
