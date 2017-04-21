@@ -72,13 +72,15 @@ class ClassTypeDiscoverer {
     }
     
     public static function fileDependsFromClassTypes(string $filePath, bool $excludeStdClasses = true): array {
+        $phpCode = File::read($filePath);
+
         $parser = new Parser(new Lexer());
 
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new NameResolver());
-        $depsCollector = new ClassTypeDepsCollector();
-        $statements = $traverser->traverse($parser->parse(File::read($filePath)));
+        $statements = $traverser->traverse($parser->parse($phpCode));
 
+        $depsCollector = new ClassTypeDepsCollector();
         $traverser->addVisitor($depsCollector);
         $traverser->traverse($statements);
         return $excludeStdClasses
