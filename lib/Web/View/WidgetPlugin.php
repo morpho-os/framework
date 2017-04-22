@@ -10,9 +10,10 @@ use Morpho\Db\Sql\Db;
 class WidgetPlugin extends Plugin implements IServiceManagerAware {
     private $serviceManager;
     public function __invoke(...$args) {
+        throw new NotImplementedException();
+        /*
         $name = $args[0];
         if ($name !== 'Menu') {
-            throw new NotImplementedException();
         }
         $request = $this->serviceManager->get('request');
         return new MenuWidget(
@@ -20,13 +21,14 @@ class WidgetPlugin extends Plugin implements IServiceManagerAware {
             $request->baseRelUri(),
             $request->requestUri()
         );
+        */
     }
 
     public function setServiceManager(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
 }
-
+/*
 class MenuWidget {
     public function __construct(Db $db, $baseUri, $requestUri) {
         $this->db = $db;
@@ -71,3 +73,4 @@ class MenuWidget {
         return $html;
     }
 }
+*/
