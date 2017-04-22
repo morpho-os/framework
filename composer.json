@@ -17,39 +17,35 @@
         "module"
     ],
     "require": {
-        "php": "~7.1",
-        "ext-curl": "*",
+        "php-64bit": "~7.1",
         "ext-date": "*",
         "ext-dom": "*",
-        "ext-gd": "*",
-        "ext-hash": "*",
-        "ext-iconv": "*",
-        "ext-intl": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "ext-mbstring": "*",
-        "ext-openssl": "*",
         "ext-pcre": "*",
-        "ext-pdo_mysql": "*",
+        "ext-pdo": "*",
+        "ext-reflection": "*",
+        "ext-session": "*",
+        "ext-spl": "*",
         "ext-tokenizer": "*",
-        "ext-xml": "*",
-        "nikic/php-parser": "dev-master",
-        "nikic/fast-route": "dev-master",
         "monolog/monolog": "dev-master",
-        "morpho-os/modulizer": "dev-master",
-        "zendframework/zend-http": "dev-master",
-        "zendframework/zend-uri": "dev-master",
-        "zendframework/zend-filter": "dev-master",
-        "zendframework/zend-json": "dev-master",
-        "zendframework/zend-mail": "dev-master",
-        "zendframework/zend-stdlib": "dev-master",
-        "zendframework/zend-validator": "dev-master",
-        "symfony/process": "dev-master",
+        "nikic/fast-route": "dev-master",
+        "nikic/php-parser": "dev-master",
+        "psr/log": "dev-master",
+        "sebastian/exporter": "dev-master",
         "symfony/finder": "dev-master",
-        "facebook/webdriver": "^1.3"
+        "symfony/process": "dev-master",
+        "zendframework/zend-filter": "dev-master",
+        "zendframework/zend-http": "dev-master",
+        "zendframework/zend-mail": "dev-master",
+        "zendframework/zend-math": "dev-master",
+        "zendframework/zend-stdlib": "dev-master",
+        "zendframework/zend-uri": "dev-master",
+        "zendframework/zend-validator": "dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": "dev-master"
+        "phpunit/phpunit": "dev-master",
+        "facebook/webdriver": "^1.3"
     },
     "repositories": [
         {
@@ -72,7 +68,8 @@
         ]
     },
     "config": {
-        "bin-dir": "bin"
+        "bin-dir": "bin",
+        "discard-changes": true
     },
     "minimum-stability": "dev",
     "extra": {
