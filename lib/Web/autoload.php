@@ -1,18 +1,16 @@
 <?php
 namespace Morpho\Web;
 
-use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Core\BASE_DIR_PATH;
 
 // Below are some constants for the web-application-level, see the Morpho/Core/autoload.php for the Core-level constants.
 
 const PUBLIC_DIR_NAME = 'public';
 
-if (defined('PUBLIC_DIR_PATH')) {
-    define('PUBLIC_DIR_PATH', PUBLIC_DIR_PATH);
-} else {
-    define(__NAMESPACE__ . '\\PUBLIC_DIR_PATH', BASE_DIR_PATH . '/' . PUBLIC_DIR_NAME);
-}
+define(
+    __NAMESPACE__ . '\\PUBLIC_DIR_PATH',
+    defined('PUBLIC_DIR_PATH') ? PUBLIC_DIR_PATH : BASE_DIR_PATH . '/' . PUBLIC_DIR_NAME
+);
 if (PHP_SAPI !== 'cli' && !chdir(PUBLIC_DIR_PATH)) {
     throw new \RuntimeException("Unable to change directory to the web directory path.");
 }
