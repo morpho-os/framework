@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\Error;
 
 use Morpho\Error\HandlerManager;

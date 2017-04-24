@@ -349,16 +349,16 @@ function tail($string, $separator) {
  * Removes duplicated characters from the string.
  *
  * @param string|int $string Source string with duplicated characters.
- * @param string $chars Either a set of characters to use in character class or a reg-exp pattern that must match
+ * @param string|int $chars Either a set of characters to use in character class or a reg-exp pattern that must match
  *                               all duplicated characters that must be removed.
  * @return string                String with removed duplicates.
  */
-function deleteDups($string, string $chars, bool $isCharClass = true) {
+function deleteDups($string, $chars, bool $isCharClass = true) {
     $regExp = $isCharClass
-        ? '/([' . preg_quote($chars, '/') . '])+/si'
+        ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
         : "/($chars)+/si";
 
-    return preg_replace($regExp, '\1', $string);
+    return preg_replace($regExp, '\1', (string)$string);
 }
 
 function filterStringArgs($string, array $args, callable $filterFn): string {

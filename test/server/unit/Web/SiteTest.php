@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\Web;
 
 use const Morpho\Core\CACHE_DIR_NAME;

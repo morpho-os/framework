@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\DataProcessing\Validation;
 
 use Morpho\Test\TestCase;

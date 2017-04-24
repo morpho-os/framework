@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\Web\Messages;
 
 use Morpho\Test\TestCase;

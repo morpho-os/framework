@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
@@ -9,7 +9,7 @@ class EnvironmentTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->oldZendEnableGc = ini_set('zend.enable_gc', 1);
+        $this->oldZendEnableGc = ini_set('zend.enable_gc', '1'); // we change this setting below.
     }
 
     public function tearDown() {
@@ -27,10 +27,10 @@ class EnvironmentTest extends TestCase {
         $setting = 'zend.enable_gc';
         $this->assertTrue(Environment::boolIniVal($setting));
 
-        ini_set($setting, 0);
+        ini_set($setting, '0');
         $this->assertFalse(Environment::boolIniVal($setting));
 
-        ini_set($setting, 1);
+        ini_set($setting, '1');
         $this->assertTrue(Environment::boolIniVal($setting));
 
         // Names are case sensitive, so such setting should not exist.

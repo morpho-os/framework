@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\DataProcessing\Pagination;
 
 use Morpho\DataProcessing\Pagination\Pager;

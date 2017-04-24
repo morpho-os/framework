@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\Core;
 
 use const Morpho\Core\CONTROLLER_DIR_NAME;

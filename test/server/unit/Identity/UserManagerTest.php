@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest\Identity;
 
 use Morpho\Base\EntityNotFoundException;

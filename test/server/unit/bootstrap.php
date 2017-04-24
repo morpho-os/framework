@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MorphoTest;
 
 use const Morpho\Core\AUTOLOAD_FILE_NAME;

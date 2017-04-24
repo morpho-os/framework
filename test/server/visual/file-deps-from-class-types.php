@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Morpho\Test;
 
 use function Morpho\Base\showLn;
