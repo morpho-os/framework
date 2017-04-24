@@ -38,11 +38,10 @@ function detectBaseDirPath(string $dirPath = null, bool $throwEx = true) {
     return Path::normalize($baseDirPath);
 }
 
-if (defined('BASE_DIR_PATH')) {
-    define(__NAMESPACE__ . '\\BASE_DIR_PATH', BASE_DIR_PATH);
-} else {
-    define(__NAMESPACE__ . '\\BASE_DIR_PATH', detectBaseDirPath(__DIR__));
-}
+define(
+    __NAMESPACE__ . '\\BASE_DIR_PATH',
+    defined('BASE_DIR_PATH') ? BASE_DIR_PATH : detectBaseDirPath(__DIR__)
+);
 if (!Path::isNormalized(BASE_DIR_PATH)) {
     throw new \RuntimeException("The 'BASE_DIR_PATH' must be normalized: replace backslashes with forward slashes and remove the last right slash");
 }
