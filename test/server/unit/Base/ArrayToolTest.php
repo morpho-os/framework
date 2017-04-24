@@ -351,6 +351,10 @@ class ArrayToolTest extends TestCase {
         ArrayTool::handleOPtions([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
     }
 
+    public function testHandleOptions_AcceptsNullAsOptionsArg() {
+        $this->assertEquals(['foo' => 'bar'], ArrayTool::handleOptions(null, ['foo' => 'bar']));
+    }
+
     public function testUnsetRecursive() {
         $array = $this->_testArray();
         $expected = [
