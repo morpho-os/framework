@@ -15,6 +15,8 @@ class TypeScriptCompiler {
 
     protected $options = [
         // see http://json.schemastore.org/tsconfig for compiler options
+        'allowJs' => true,
+        'alwaysStrict' => true,
         'experimentalDecorators' => true,
         'forceConsistentCasingInFileNames' => true,
         'jsx' => 'preserve',
@@ -28,7 +30,6 @@ class TypeScriptCompiler {
         'pretty' => true,
         'removeComments' => true,
         'strictNullChecks' => false,
-        'allowJs' => true,
     ];
 
     public function compileToFile(string $inFilePath, string $outFilePath = null, array $cmdOptions = null): CommandResult {
