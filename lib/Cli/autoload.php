@@ -16,7 +16,6 @@ use Morpho\Base\ArrayTool;
 use function Morpho\Base\showLn;
 use Morpho\Base\NotImplementedException;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessUtils;
 
 function showOk() {
     showLn("OK");
