@@ -22,7 +22,11 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
     protected $classTypes = [];
 
     public function classTypes(): array {
-        return $this->classTypes;
+        $classTypes = $this->classTypes;
+        if (in_array('self', $classTypes) || in_array('static', $classTypes) || in_array('parent', $classTypes)) {
+            throw new \RuntimeException("self|static|parent should not be present as class type");
+        }
+        return $classTypes;
     }
 
     public function enterNode(Node $node) {
