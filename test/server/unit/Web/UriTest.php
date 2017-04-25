@@ -14,6 +14,8 @@ class UriTest extends TestCase {
         $this->assertEquals('/base/path/system?bar=baz#some', $uri->prependWithBasePath('/system?bar=baz#some'));
         $this->assertEquals('/base/path/system?bar=baz#some', $uri->prependWithBasePath('system?bar=baz#some'));
         $this->assertEquals('/base/path?bar=baz#some', $uri->prependWithBasePath('?bar=baz#some'));
+
+        $this->assertEquals('/base/path', $uri->prependWithBasePath(''));
     }
 
     public function testAppendQueryArgs() {
