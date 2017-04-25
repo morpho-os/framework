@@ -15,11 +15,14 @@ abstract class HtmlParser extends HtmlSemiParser {
         parent::__construct();
     }
 
-    public function setFilePath(string $filePath)/*: void */ {
+    public function setFilePath(string $filePath): void {
         $this->filePath = $filePath;
     }
 
     protected function prependUriWithBasePath(string $uri): string {
+        if (substr($uri, 0, 2) === '<?') {
+            return $uri;
+        }
         return $this->request()
             ->uri()
             ->prependWithBasePath($uri);
