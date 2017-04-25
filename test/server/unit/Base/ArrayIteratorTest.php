@@ -5,6 +5,8 @@ use Morpho\Base\ArrayIterator;
 use Morpho\Test\TestCase;
 
 class ArrayIteratorTest extends TestCase {
+    private $it;
+
     public function setUp() {
         $this->it = new ArrayIterator();
     }

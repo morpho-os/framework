@@ -8,6 +8,7 @@ use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Web\Response;
 use Morpho\System\Module as SystemModule;
+use Morpho\Web\Site;
 
 class ModuleTest extends DbTestCase {
     public function setUp() {
@@ -69,16 +70,12 @@ class ModuleTest extends DbTestCase {
         $event = [null, ['exception' => $exception, 'request' => $request]];
         $module = new SystemModule();
         $serviceManager = new ServiceManager();
-        $siteManager = new class {
-            public function currentSite() {
-                return new class {
-                    public function config() {
-                        return ['throwDispatchErrors' => false];
-                    }
-                };
-            }
-        };
-        $serviceManager->set('siteManager', $siteManager);
+        $site = $this->createMock(Site::class);
+        $site->method('config')
+            ->willReturn([
+                'throwDispatchErrors'=> false,
+            ]);
+        $serviceManager->set('site', $site);
         $serviceManager->set('settingManager', $settingManager);
         $module->setServiceManager($serviceManager);
         return [$module, $event, $request];

@@ -9,7 +9,7 @@ use Morpho\Fs\File;
 class InstallController extends Controller {
     public function indexAction() {
         return [
-            'dbConfig' => $this->serviceManager->get('siteManager')->currentSite()->config()['db'],
+            'dbConfig' => $this->serviceManager->get('site')->config()['db'],
         ];
     }
 
@@ -47,18 +47,18 @@ class InstallController extends Controller {
     }
 
     protected function isInstalled(): bool {
-        return $this->serviceManager->get('siteManager')->isFallbackMode() === false;
+        return $this->serviceManager->get('site')->isFallbackMode() === false;
     }
 
     protected function install(array $dbConfig, bool $dropTables): bool {
         $schemaManager = null;
         try {
-            $db = new Db($dbConfig);
+            $db = Db::connect($dbConfig);
         } catch (\PDOException $e) {
             if (false !== stripos($e->getMessage(), 'SQLSTATE[HY000] [1049] Unknown database')) {
                 $dbName = $dbConfig['db'];
                 $dbConfig['db'] = '';
-                $db = new Db($dbConfig);
+                $db = Db::connect($dbConfig);
                 $schemaManager = $db->schemaManager();
                 $schemaManager->createDatabase($dbName);
                 $db->eval($db->query()->useDb($dbName));
@@ -105,7 +105,7 @@ class InstallController extends Controller {
 
     protected function installModules(Db $db) {
         $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $this->serviceManager->get('siteManager')->currentSite()->config()['modules']
+        $modules = $this->serviceManager->get('site')->config()['modules']
             ?? $moduleManager->uninstalledModuleNames();
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {
@@ -118,11 +118,11 @@ class InstallController extends Controller {
     protected function initNewEnv(Db $db) {
         $serviceManager = $this->serviceManager;
         $serviceManager->set('db', $db);
-        $serviceManager->get('siteManager')->isFallbackMode(false);
+        $serviceManager->get('site')->isFallbackMode(false);
     }
 
     protected function saveSiteConfig(array $dbConfig) {
-        $site = $this->serviceManager->get('siteManager')->currentSite();
+        $site = $this->serviceManager->get('site');
         $config = $site->config();
         $config['db'] = $dbConfig;
         $configFilePath = $site->configFilePath();

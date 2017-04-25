@@ -12,7 +12,7 @@ class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
     protected $serviceManager;
 
     public function baseCacheDirPath(): string {
-        return $this->serviceManager->get('siteManager')->currentSite()->cacheDirPath();
+        return $this->serviceManager->get('site')->cacheDirPath();
     }
 
     public function setServiceManager(IServiceManager $serviceManager) {

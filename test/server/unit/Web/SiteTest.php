@@ -8,8 +8,6 @@ use const Morpho\Web\PUBLIC_DIR_PATH;
 use Morpho\Core\Module;
 use Morpho\Fs\File;
 use Morpho\Test\TestCase;
-use Morpho\Web\Host;
-use Morpho\Web\LocalHost;
 use Morpho\Web\Site;
 use const Morpho\Web\UPLOAD_DIR_NAME;
 
@@ -18,7 +16,7 @@ class SiteTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->site = new Site(new LocalHost(), $this->getTestDirPath());
+        $this->site = new Site('localhost', $this->getTestDirPath());
     }
 
     public function testSubtyping() {
@@ -70,13 +68,7 @@ class SiteTest extends TestCase {
         $this->assertEquals($newPublicDirPath, $this->site->publicDirPath());
     }
 
-    public function testHostAccessors() {
-        $host = new Host('foo', 'bar');
-        $this->assertNull($this->site->setHost($host));
-        $this->assertSame($host, $this->site->host());
-    }
-
-    public function dataForFallbackConfigUsed() {
+    public function dataForIsFallbackMode() {
         return [
             [
                 true,
@@ -88,16 +80,16 @@ class SiteTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForFallbackConfigUsed
+     * @dataProvider dataForIsFallbackMode
      */
-    public function testFallbackConfigUsed($shouldBeUsed) {
+    public function testIsFallbackMode($shouldBeUsed) {
         $this->site->setConfigDirPath($this->getTestDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
         $config = $this->site->config();
         $this->assertInternalType('array', $config);
         $this->assertCount(2, $config);
         $this->assertEquals('some-value', $config['some-key']);
         $this->assertInstanceOf('ArrayIterator', $config['instance']);
-        $this->assertEquals($shouldBeUsed, $this->site->fallbackConfigUsed());
+        $this->assertEquals($shouldBeUsed, $this->site->isFallbackMode());
     }
 
     public function testConfigFilePath() {
@@ -110,7 +102,7 @@ class SiteTest extends TestCase {
         $this->assertNotEmpty($oldConfig);
         $this->assertSame($oldConfig, $this->site->config());
         $newConfig = ['foo' => 'bar'];
-        $this->assertNull($this->site->setConfig($newConfig));
+        $this->assertInstanceOf(Site::class, $this->site->setConfig($newConfig));
         $this->assertSame($newConfig, $this->site->config());
     }
 

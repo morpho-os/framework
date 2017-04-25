@@ -16,12 +16,7 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected $fallbackMode = false;
 
-    protected $fallbackModules = [
-        SYSTEM_MODULE,
-        // @TODO: Move these literals from here to some other place.
-        'morpho-os/user',
-        'morpho-os/bootstrap',
-    ];
+    protected $fallbackModules = [];
 
     protected $eventHandlers;
 

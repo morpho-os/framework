@@ -3,7 +3,7 @@ namespace Morpho\Web;
 
 use const Morpho\Core\BASE_DIR_PATH;
 
-// Below are some constants for the web-application-level, see the Morpho/Core/autoload.php for the Core-level constants.
+// Below are some constants for the web-application, see the Morpho/Core/autoload.php for the Core-level constants.
 
 const PUBLIC_DIR_NAME = 'public';
 

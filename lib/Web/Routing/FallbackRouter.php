@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\Web\Routing;
 
-use const Morpho\Core\SYSTEM_MODULE;
+use Morpho\Web\ModuleManager;
 
 class FallbackRouter {
     public function route($request) {
@@ -19,7 +19,7 @@ class FallbackRouter {
                 $action = $parts[0];
             }
         }
-        $request->setModuleName(SYSTEM_MODULE)
+        $request->setModuleName(ModuleManager::SYSTEM_MODULE)
             ->setControllerName('Install')
             ->setActionName($action);
     }

@@ -80,5 +80,3 @@ const DOMAIN_NS = 'Domain';
 const MODULE_SUFFIX = 'Module';
 const REPO_SUFFIX = 'Repo';
 const PLUGIN_SUFFIX = 'Plugin';
-
-const SYSTEM_MODULE = 'morpho-os/system';

@@ -59,27 +59,14 @@ class Site extends Module {
      */
     private $fallbackConfigUsed;
 
-    /**
-     * var Host
-     */
-    private $host;
-
     private $usesOwnPublicDir = false;
 
     public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
-    public function __construct(Host $host, string $dirPath) {
-        $this->host = $host;
+    public function __construct(string $name, string $dirPath) {
+        $this->name = $name;
         $this->setDirPath($dirPath);
-    }
-
-    public function setHost(Host $host): void {
-        $this->host = $host;
-    }
-
-    public function host(): Host {
-        return $this->host;
     }
 
     public function setCacheDirPath(string $dirPath): void {
@@ -179,8 +166,9 @@ class Site extends Module {
         return $this->configFileName;
     }
 
-    public function setConfig(array $config): void {
+    public function setConfig(array $config): self {
         $this->config = $config;
+        return $this;
     }
 
     public function config(): array {
@@ -198,7 +186,7 @@ class Site extends Module {
         $this->config = null;
     }
 
-    public function fallbackConfigUsed(): bool {
+    public function isFallbackMode(): bool {
         $this->initConfig();
         return $this->fallbackConfigUsed;
     }

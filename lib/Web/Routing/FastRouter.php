@@ -7,9 +7,9 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use function Morpho\Base\requireFile;
-use const Morpho\Core\SYSTEM_MODULE;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
+use Morpho\Web\ModuleManager;
 use Morpho\Web\Request;
 
 class FastRouter extends Router {
@@ -59,9 +59,7 @@ class FastRouter extends Router {
     }
 
     protected function cacheFilePath(): string {
-        return $this->serviceManager->get('siteManager')
-            ->currentSite()
-            ->cacheDirPath() . '/route.php';
+        return $this->serviceManager->get('site')->cacheDirPath() . '/route.php';
     }
 
     protected function normalizedUri($request): string {
@@ -73,7 +71,7 @@ class FastRouter extends Router {
         if ($uri === '/') {
             $handler = $this->serviceManager
                 ->get('settingManager')
-                ->get('homeHandler', SYSTEM_MODULE);
+                ->get('homeHandler', ModuleManager::SYSTEM_MODULE);
             if (false !== $handler) {
                 $request->setHandler($handler)
                     ->setMethod(Request::GET_METHOD);

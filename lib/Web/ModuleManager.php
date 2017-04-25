@@ -4,23 +4,33 @@ namespace Morpho\Web;
 use Morpho\Core\ModuleManager as BaseModuleManager;
 
 class ModuleManager extends BaseModuleManager {
+    const SYSTEM_MODULE    = 'morpho-os/system';
+    const USER_MODULE      = 'morpho-os/user';
+    const BOOTSTRAP_MODULE = 'morpho-os/bootstrap';
+
+    protected $fallbackModules = [
+        self::SYSTEM_MODULE,
+        self::USER_MODULE,
+        self::BOOTSTRAP_MODULE,
+    ];
+
     protected function fallbackModeEventHandlers(): array {
         return [
             'render'         => [
                 [
-                    'moduleName' => 'morpho-os/bootstrap',
+                    'moduleName' => self::BOOTSTRAP_MODULE,
                     'method'     => 'render',
                 ],
             ],
             'afterDispatch'  => [
                 [
-                    'moduleName' => 'morpho-os/bootstrap',
+                    'moduleName' => self::BOOTSTRAP_MODULE,
                     'method'     => 'afterDispatch',
                 ],
             ],
             'beforeDispatch' => [
                 [
-                    'moduleName' => 'morpho-os/bootstrap',
+                    'moduleName' => self::BOOTSTRAP_MODULE,
                     'method'     => 'beforeDispatch',
                 ],
             ],
