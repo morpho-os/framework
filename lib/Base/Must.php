@@ -74,8 +74,15 @@ class Must {
 
     public static function beTrue($result, string $errMessage = null): void {
         $result = (bool)$result;
-        if ($result === false) {
-            throw new RuntimeException($errMessage);
+        if (false === $result) {
+            throw new RuntimeException((string)$errMessage);
         }
+    }
+
+    public static function beNotFalse($result, string $errMessage = null) {
+        if (false === $result) {
+            throw new RuntimeException((string)$errMessage);
+        }
+        return $result;
     }
 }

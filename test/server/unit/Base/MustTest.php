@@ -5,6 +5,15 @@ use Morpho\Test\TestCase;
 use Morpho\Base\Must;
 
 class MustTest extends TestCase {
+    public function testMustBeNotFalse_ReturnsPassedArgumentIfNotFalse() {
+        $this->assertSame(STDERR, Must::beNotFalse(STDERR));
+    }
+
+    public function testMustBeNotFalse_ThrowsExceptionIfFalse() {
+        $this->expectException(\RuntimeException::class);
+        Must::beNotFalse(false);
+    }
+
     public function testBeEmpty_SingleArg_ThrowsExceptionOnNonEmptyValue() {
         $this->expectException(\RuntimeException::class, "The value must be empty");
         Must::beEmpty('abc');
