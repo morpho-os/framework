@@ -242,4 +242,37 @@ class FileTest extends TestCase {
         $this->assertContains(__FUNCTION__, $usedFilePath);
         $this->assertFileNotExists($usedFilePath);
     }
+
+    public function testWriteLines_Generator() {
+        $tmpFilePath = $this->createTmpFile();
+        $gen = function () {
+            yield 'First';
+            yield 'Second';
+            yield 'Third';
+        };
+        File::writeLines($tmpFilePath, $gen());
+        $this->assertEquals(['First', 'Second', 'Third'], file($tmpFilePath, FILE_IGNORE_NEW_LINES));
+    }
+
+    public function testWriteLines_Array() {
+        $tmpFilePath = $this->createTmpFile();
+        $lines = [
+            'First',
+            'Second',
+            'Third',
+        ];
+        File::writeLines($tmpFilePath, $lines);
+        $this->assertEquals($lines, file($tmpFilePath, FILE_IGNORE_NEW_LINES));
+    }
+
+    public function testWriteLines_Iterator() {
+        $tmpFilePath = $this->createTmpFile();
+        $lines = [
+            'First',
+            'Second',
+            'Third',
+        ];
+        File::writeLines($tmpFilePath, new \ArrayIterator($lines));
+        $this->assertEquals($lines, file($tmpFilePath, FILE_IGNORE_NEW_LINES));
+    }
 }

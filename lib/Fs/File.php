@@ -52,8 +52,16 @@ class File extends Entry {
         return $content;
     }
 
-    public static function writeLines(string $filePath, array $lines): string {
-        return self::write($filePath, implode("\n", $lines));
+    public static function writeLines(string $filePath, iterable $lines): string {
+        if (is_array($lines)) {
+            return self::write($filePath, implode("\n", $lines));
+        }
+        $handle = fopen($filePath, 'w');
+        foreach ($lines as $line) {
+            fwrite($handle, $line . "\n");
+        }
+        fclose($handle);
+        return $filePath;
     }
 
     public static function readLines(string $filePath, callable $filter = null, array $options = null): \Generator {
