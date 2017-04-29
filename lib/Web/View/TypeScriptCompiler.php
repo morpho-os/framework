@@ -3,10 +3,8 @@ namespace Morpho\Web\View;
 
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
-use function Morpho\Cli\argsString;
 use function Morpho\Cli\cmd;
 use Morpho\Cli\CommandResult;
-use function Morpho\Cli\escapeArgs;
 use Morpho\Fs\File;
 
 class TypeScriptCompiler {
@@ -17,7 +15,7 @@ class TypeScriptCompiler {
 
     // See https://www.typescriptlang.org/docs/handbook/compiler-options.html
     protected $options = [
-        //'allowJs' => true,
+        'allowJs' => true,
         // @TODO: "allowSyntheticDefaultImports": true,
         'alwaysStrict' => true,
         'experimentalDecorators' => true,
@@ -35,6 +33,7 @@ class TypeScriptCompiler {
         'pretty' => true,
         'removeComments' => true,
         'strictNullChecks' => false,
+        'target' => 'es5',
     ];
 
     /**
@@ -66,15 +65,18 @@ class TypeScriptCompiler {
     }
 
     public function writeTsconfig(string $dirPath, array $config = null): string {
-        // see http://json.schemastore.org/tsconfig for schema and the https://www.typescriptlang.org/docs/handbook/tsconfig-json.html for description.
+        // Schema: http://json.schemastore.org/tsconfig
+        // Description: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
         return File::writeJson(
             $dirPath . '/' . self::TSCONFIG_FILE,
             array_merge_recursive(
                 [
                     'compilerOptions' => $this->options(),
+                    /*
                     'exclude' => [
-                        '**/*.js',
+                        '** /*.js',
                     ],
+                    */
                 ],
                 (array)$config
             )
