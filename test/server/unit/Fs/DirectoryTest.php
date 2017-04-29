@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-declare(strict_types = 1);
 
 namespace MorphoTest\Fs;
 
@@ -569,6 +568,51 @@ class DirectoryTest extends TestCase {
         sort($dirNames);
         $this->assertEquals(2, $calledTimes);
         $this->assertEquals(['2', '4'], $dirNames);
+    }
+
+    public function testFileNames_NotRecursiveWithoutProcessor() {
+        $this->assertEquals(
+            ['1.txt'],
+            iterator_to_array(
+                Directory::fileNames($this->getTestDirPath()),
+                false
+            )
+        );
+    }
+
+    public function testFileNames_RecursiveWithoutProcessor() {
+        $fileNames = Directory::fileNames($this->getTestDirPath(), null, ['recursive' => true]);
+        $fileNames = iterator_to_array($fileNames, false);
+        sort($fileNames);
+        $this->assertEquals(
+            [
+                '1.txt',
+                '3.php',
+                '6.php',
+            ],
+            $fileNames
+        );
+    }
+
+    public function testFileNames_RecursiveWithProcessor() {
+        $processor = function (...$args) use (&$calledTimes) {
+            $this->assertNotContains('/', $args[0]);
+            $this->assertContains('/', $args[1]);
+            $this->assertCount(2, $args);
+            $calledTimes++;
+            return $args[0] !== '6.php';
+        };
+        $fileNames = Directory::fileNames($this->getTestDirPath(), $processor, ['recursive' => true]);
+        $fileNames = iterator_to_array($fileNames, false);
+        sort($fileNames);
+        $this->assertEquals(3, $calledTimes);
+        $this->assertEquals(
+            [
+                '1.txt',
+                '3.php',
+            ],
+            $fileNames
+        );
     }
 
     public function testFilePaths_RegExpProcessor_Recursive() {

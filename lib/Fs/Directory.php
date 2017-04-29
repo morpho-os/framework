@@ -139,6 +139,32 @@ class Directory extends Entry {
         }
     }
 
+    public static function baseNames($dirPath, $processor, array $options = null): \Generator {
+        if (null !== $processor) {
+            $processor = function ($path) use ($processor) {
+                $baseName = basename($path);
+                if (is_string($processor)) {
+                    if (preg_match($processor, $baseName)) {
+                        return $baseName;
+                    }
+                    return false;
+                } elseif (!$processor instanceof \Closure) {
+                    throw new Exception("Invalid processor");
+                }
+                $res = $processor($baseName, $path);
+                if ($res === true) {
+                    return $baseName;
+                }
+                return $res;
+            };
+        } else {
+            $processor = function ($path) {
+                return basename($path);
+            };
+        }
+        return self::paths($dirPath, $processor, $options);
+    }
+
     /**
      * Shortcut for the paths() with $options['type'] == self::DIR option.
      *
@@ -165,29 +191,7 @@ class Directory extends Entry {
             throw new \LogicException("The 'recursive' option must be false");
         }
         $options['type'] = self::DIR;
-        if (null !== $processor) {
-            $processor = function ($path) use ($processor) {
-                $dirName = basename($path);
-                if (is_string($processor)) {
-                    if (preg_match($processor, $dirName)) {
-                        return $dirName;
-                    }
-                    return false;
-                } elseif (!$processor instanceof \Closure) {
-                    throw new Exception("Invalid processor");
-                }
-                $res = $processor($dirName, $path);
-                if ($res === true) {
-                    return $dirName;
-                }
-                return $res;
-            };
-        } else {
-            $processor = function ($path) {
-                return basename($path);
-            };
-        }
-        return self::paths($dirPath, $processor, $options);
+        return self::baseNames($dirPath, $processor, $options);
     }
 
     /**
@@ -206,6 +210,11 @@ class Directory extends Entry {
             $extensions[$k] = preg_quote($extension, '/');
         }
         return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $options);
+    }
+
+    public static function fileNames($dirPath, $processor = null, array $options = []): \Generator {
+        $options['type'] = self::FILE;
+        return self::baseNames($dirPath, $processor, $options);
     }
 
     public static function linkPaths(string $dirPath, $processor = null): \Generator {
