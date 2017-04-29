@@ -13,5 +13,8 @@
     "es5-shim": "latest",
     "stacktrace-js": "latest",
     "systemjs": "0.x"
+  },
+  "devDependencies": {
+    "@types/jquery": "^2.0.41"
   }
 }

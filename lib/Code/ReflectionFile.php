@@ -1,24 +1,27 @@
 <?php
 namespace Morpho\Code;
 
+use PhpParser\Node;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Function_ as FunctionStmt;
+use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
+use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
+use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\ParserFactory;
-use PhpParser\Node\Stmt;
 
 class ReflectionFile {
     public function __construct(string $filePath) {
         $this->filePath = $filePath;
     }
 
-    public function filePath() {
+    public function filePath(): string {
         return $this->filePath;
     }
 
     public function namespaces(): iterable {
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-
-        $stmts = $parser->parse(file_get_contents($this->filePath));
+        $stmts = parseFile($this->filePath);
 
         $traverser = new NodeTraverser();
 
@@ -28,12 +31,12 @@ class ReflectionFile {
 
         $globalClassTypes = $globalFunctions = [];
         foreach ($stmts as $stmt) {
-            if ($stmt instanceof Stmt\Namespace_) {
+            if ($stmt instanceof NamespaceStmt) {
                 yield new ReflectionNamespace($this->filePath(), $stmt->name->toString(), $this->classTypes($stmt), $this->functions($stmt), false);
             } elseif ($this->isClassType($stmt)) {
-                $globalClassTypes[] = $stmt->name;
+                $globalClassTypes[] = $this->nodeName($stmt);
             } elseif ($this->isFunction($stmt)) {
-                $globalFunctions[] = $stmt->name;
+                $globalFunctions[] = $this->nodeName($stmt);
             }
         }
         if (count($globalClassTypes) || count($globalFunctions)) {
@@ -41,7 +44,7 @@ class ReflectionFile {
         }
     }
 
-    private function classTypes($nsNode) {
+    private function classTypes(NamespaceStmt $nsNode): iterable {
         foreach ($nsNode->stmts as $node) {
             if ($this->isClassType($node)) {
                 yield $node->namespacedName->toString();
@@ -49,7 +52,7 @@ class ReflectionFile {
         }
     }
 
-    private function functions($nsNode) {
+    private function functions(NamespaceStmt $nsNode): iterable {
         foreach ($nsNode->stmts as $node) {
             if ($this->isFunction($node)) {
                 yield $node->namespacedName->toString();
@@ -57,14 +60,20 @@ class ReflectionFile {
         }
     }
 
-    private function isFunction($node) {
-        return $node instanceof Stmt\Function_;
+    private function isFunction(Node $node): bool {
+        return $node instanceof FunctionStmt;
     }
 
-    private function isClassType($node) {
-        return $node instanceof Stmt\Class_
-            || $node instanceof Stmt\Trait_
-            || $node instanceof Stmt\Interface_;
+    private function isClassType(Node $node): bool {
+        return $node instanceof ClassStmt
+            || $node instanceof TraitStmt
+            || $node instanceof InterfaceStmt;
+    }
+
+    private function nodeName(Node $node): string {
+        if ($node->name instanceof Identifier) {
+            return $node->name->name;
+        }
+        return $node->name;
     }
 }
-
