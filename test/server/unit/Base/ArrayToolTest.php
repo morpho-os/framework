@@ -311,6 +311,16 @@ class ArrayToolTest extends TestCase {
     public function dataForHandleOptions() {
         return [
             [
+                [],
+                [],
+                [],
+            ],
+            [
+                [],
+                null,
+                [],
+            ],
+            [
                 ['foo' => 'my-default'],
                 [],
                 ['foo' => 'my-default'],
@@ -324,6 +334,11 @@ class ArrayToolTest extends TestCase {
                 ['foo' => 'my-option'],
                 ['foo' => 'my-option'],
                 ['foo' => 'my-default'],
+            ],
+            [
+                ['foo' => 'bar'],
+                null,
+                ['foo' => 'bar']
             ],
         ];
     }
@@ -349,10 +364,6 @@ class ArrayToolTest extends TestCase {
     public function testHandleOptions_InvalidOptionsNumericKeys() {
         $this->expectException(InvalidOptionsException::class, "Invalid options: 2, 5");
         ArrayTool::handleOPtions([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
-    }
-
-    public function testHandleOptions_AcceptsNullAsOptionsArg() {
-        $this->assertEquals(['foo' => 'bar'], ArrayTool::handleOptions(null, ['foo' => 'bar']));
     }
 
     public function testUnsetRecursive() {

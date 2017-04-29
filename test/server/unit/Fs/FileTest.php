@@ -275,4 +275,28 @@ class FileTest extends TestCase {
         File::writeLines($tmpFilePath, new \ArrayIterator($lines));
         $this->assertEquals($lines, file($tmpFilePath, FILE_IGNORE_NEW_LINES));
     }
+
+    public function testReadLines_DefaultOptions() {
+        $tmpFilePath = $this->createTmpFile();
+        file_put_contents($tmpFilePath, <<<OUT
+    First
+       
+   Second	
+     Third
+ 
+OUT
+        );
+        $expected = [
+            '    First',
+            '   Second',
+            '     Third',
+        ];
+        $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath), false));
+    }
+
+    public function testReadLines_ThrowsExceptionIfBothLastArgumentsAreArrays() {
+        $tmpFilePath = $this->createTmpFile();
+        $this->expectException(\InvalidArgumentException::class);
+        foreach (File::readLines($tmpFilePath, [], []) as $line);
+    }
 }

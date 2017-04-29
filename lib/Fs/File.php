@@ -64,26 +64,33 @@ class File extends Entry {
         return $filePath;
     }
 
-    public static function readLines(string $filePath, callable $filter = null, array $options = null): \Generator {
+    public static function readLines(string $filePath, $filterOrOptions = null, array $options = null): \Generator {
+        if (is_array($filterOrOptions)) {
+            if (is_array($options)) {
+                throw new \InvalidArgumentException();
+            }
+            $options = $filterOrOptions;
+            $filterOrOptions = null;
+        }
         $options = ArrayTool::handleOptions((array) $options, [
             'skipEmptyLines' => true,
-            'trim' => true,
+            'rtrim' => true,
         ]);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
         }
         while (false !== ($line = fgets($handle))) {
-            if ($options['trim']) {
-                $line = trim($line);
+            if ($options['rtrim']) {
+                $line = rtrim($line);
             }
             if ($options['skipEmptyLines']) {
                 if (strlen($line) === 0) {
                     continue;
                 }
             }
-            if (null !== $filter) {
-                if ($filter($line)) {
+            if (null !== $filterOrOptions) {
+                if ($filterOrOptions($line)) {
                     yield $line;
                 }
             } else {
