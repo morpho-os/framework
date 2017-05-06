@@ -13,15 +13,12 @@ class StatTest extends TestCase {
         }
     }
 
-    public function testModeString() {
-        if (DIRECTORY_SEPARATOR === '\\') {
-            $this->markTestSkipped();
-        }
-        $this->assertEquals("0644", Stat::modeString(__FILE__));
-    }
-
-    public function testMode() {
-        $this->assertEquals(0644, Stat::mode(__FILE__));
+    public function testModeAndModeString() {
+        $tmpFilePath = $this->createTmpFile();
+        $mode = 0644;
+        $this->assertTrue(chmod($tmpFilePath, $mode));
+        $this->assertSame($mode, Stat::mode(__FILE__));
+        $this->assertSame('644', Stat::modeString(__FILE__));
     }
 
     public function testIsBlockDev() {
