@@ -29,6 +29,7 @@ addons:
 before_install:
   - "id && pwd && uname -a"
   - php -m
+  - ls -al /sys/block
 
 install:
     # `node` means `latest stable Node.js release`
