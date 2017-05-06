@@ -29,11 +29,8 @@ addons:
 before_install:
   - "id && pwd && uname -a"
   - php -m
-  - ls -al /sys/block
-  - "ls -al /dev/"
-  - "ls -al /"
-  - find / -type b
-  - exit 1
+  # For testing operations with a block device:
+  - "sudo mknod -m 0777 /tmp/block-dev-test b 125 1; sudo chown $(id -u):$(id -g) /tmp/block-dev-test"
 
 install:
     # `node` means `latest stable Node.js release`

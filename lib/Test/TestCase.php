@@ -135,6 +135,10 @@ abstract class TestCase extends BaseTestCase {
         }
     }
 
+    protected function isTravis(): bool {
+        return !empty(getenv('TRAVIS'));
+    }
+
     private function deleteTmpDirs() {
         foreach ($this->tmpDirPaths as $tmpDirPath) {
             if (is_dir($tmpDirPath)) {
