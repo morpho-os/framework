@@ -105,6 +105,10 @@ class Path {
         return ltrim($ext, '.');
     }
 
+    public static function dropExt(string $path): string {
+        return self::changeExt($path, '');
+    }
+
     public static function changeExt(string $path, string $ext): string {
         $parts = explode('/', self::normalize($path));
         $fileName = array_pop($parts);

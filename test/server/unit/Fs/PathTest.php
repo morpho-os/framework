@@ -322,4 +322,10 @@ class PathTest extends TestCase {
         $this->assertEquals('.jpg', Path::changeExt('', '.jpg'));
         $this->assertEquals('.jpg', Path::changeExt('', 'jpg'));
     }
+
+    public function testDropExt() {
+        $this->assertEquals('C:/foo/bar/test', Path::dropExt('C:\\foo\\bar\\test'));
+        $this->assertEquals('/foo/bar/test', Path::dropExt('/foo/bar/test.php'));
+        $this->assertEquals('test', Path::dropExt('test.php'));
+    }
 }
