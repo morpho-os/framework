@@ -14,7 +14,7 @@ function detectVendorDirPath() {
  * @TODO: Use detectVendorDir()
  * @return false|string
  */
-function detectBaseDirPath(string $dirPath = null, bool $throwEx = true) {
+function detectBaseDirPath(string $dirPath, bool $throwEx = true) {
     if (null === $dirPath) {
         $dirPath = __DIR__;
     }
