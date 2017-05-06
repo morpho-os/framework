@@ -1,12 +1,17 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Fs;
 
+use Morpho\Fs\Entry;
 use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\File;
 use Morpho\Fs\FileNotFoundException;
 use Morpho\Test\TestCase;
 
 class FileTest extends TestCase {
+    public function testInheritance() {
+        $this->assertEquals(Entry::class, get_parent_class(File::class));
+    }
+
     public function testMustExist_EmptyFilePath() {
         $this->expectException(FsException::class, "The file path is empty");
         File::mustExist('');
@@ -295,8 +300,7 @@ OUT
     }
 
     public function testReadLines_ThrowsExceptionIfBothLastArgumentsAreArrays() {
-        $tmpFilePath = $this->createTmpFile();
         $this->expectException(\InvalidArgumentException::class);
-        foreach (File::readLines($tmpFilePath, [], []) as $line);
+        foreach (File::readLines(__FILE__, [], []) as $line);
     }
 }
