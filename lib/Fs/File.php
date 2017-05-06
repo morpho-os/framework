@@ -125,7 +125,7 @@ class File extends Entry {
         fclose($handle);
     }
 
-    public static function writeCsv(string $filePath) {
+    public static function writeCsv(string $filePath): string {
         throw new NotImplementedException(__METHOD__);
     }
 
@@ -207,7 +207,7 @@ class File extends Entry {
         }
     }
     
-    public static function deleteIfExists(string $filePath)/*: void */ {
+    public static function deleteIfExists(string $filePath): void {
         if (is_file($filePath)) {
             self::delete($filePath);
         }
@@ -269,7 +269,7 @@ class File extends Entry {
         return $uniquePath;
     }
 
-    public static function mustBeReadable(string $filePath) {
+    public static function mustBeReadable(string $filePath): void {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new Exception("The file '$filePath' is not readable");
         }
@@ -309,6 +309,9 @@ class File extends Entry {
         return $flags;
     }
 
+    /**
+     * @return mixed
+     */
     public static function withTmp(callable $fn, string $tmpDirPath = null) {
         $tmpFilePath = tempnam($tmpDirPath ?: Directory::tmpPath(), __FUNCTION__);
         try {
