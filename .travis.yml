@@ -28,6 +28,7 @@ addons:
 
 before_install:
   - "id && pwd && uname -a"
+  - php -m
 
 install:
     # `node` means `latest stable Node.js release`
