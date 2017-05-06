@@ -30,6 +30,7 @@ before_install:
   - "id && pwd && uname -a"
   - php -m
   - ls -al /sys/block
+  - "ls -al /dev/ | grep ^br"
 
 install:
     # `node` means `latest stable Node.js release`
