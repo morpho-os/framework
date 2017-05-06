@@ -25,4 +25,8 @@ OUT
             iterator_to_array($res->lines())
         );
     }
+
+    public function testInterfaces() {
+        $this->assertInstanceOf(\IteratorAggregate::class, new CommandResult('foo', 0, ''));
+    }
 }
