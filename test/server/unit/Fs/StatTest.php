@@ -17,8 +17,8 @@ class StatTest extends TestCase {
         $tmpFilePath = $this->createTmpFile();
         $mode = 0644;
         $this->assertTrue(chmod($tmpFilePath, $mode));
-        $this->assertSame($mode, Stat::mode(__FILE__));
-        $this->assertSame('644', Stat::modeString(__FILE__));
+        $this->assertSame($mode, Stat::mode($tmpFilePath));
+        $this->assertSame('644', Stat::modeString($tmpFilePath));
     }
 
     public function testIsBlockDev() {
