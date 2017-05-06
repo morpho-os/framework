@@ -9,9 +9,9 @@ use Morpho\Fs\File;
 
 class TypeScriptCompiler {
     // Possible values: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
-    const MODULE_KIND = 'system';
+    private const TSCONFIG_FILE = 'tsconfig.json';
 
-    const TSCONFIG_FILE = 'tsconfig.json';
+    public const MODULE_KIND = 'amd';
 
     // See https://www.typescriptlang.org/docs/handbook/compiler-options.html
     protected $options = [
