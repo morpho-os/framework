@@ -340,8 +340,15 @@ class PathTest extends TestCase {
         $this->assertSame(str_replace('\\', '/', $uniquePath), Path::unique($uniquePath));
     }
 
-    public function testUnique_ExistingFile() {
-        $this->assertEquals(__FILE__ . '-0', Path::unique(__FILE__));
+    public function testUnique_ExistingFileWithExt() {
+        $this->assertEquals(__DIR__ . '/' . basename(__FILE__, '.php') . '-0.php', Path::unique(__FILE__));
+    }
+
+    public function testUnique_ExistingFileWithoutExt() {
+        $tmpDirPath = $this->createTmpDir();
+        $tmpFilePath = $tmpDirPath . '/abc';
+        touch($tmpFilePath);
+        $this->assertEquals($tmpFilePath . '-0', Path::unique($tmpFilePath));
     }
 
     public function testUnique_ExistingDirectory() {
@@ -352,13 +359,13 @@ class PathTest extends TestCase {
         $filePath = __FILE__;
         $expectedMessage = "Unable to generate an unique path for the '$filePath' (tried 0 times)";
         $this->expectException(FsException::class, $expectedMessage);
-        Path::unique($filePath, 0);
+        Path::unique($filePath, true, 0);
     }
 
     public function testUnique_ThrowsExceptionWhenNumberOfAttemptsReachedForDirectory() {
         $dirPath = __DIR__;
         $expectedMessage = "Unable to generate an unique path for the '$dirPath' (tried 0 times)";
         $this->expectException(FsException::class, $expectedMessage);
-        Path::unique($dirPath, 0);
+        Path::unique($dirPath, true, 0);
     }
 }
