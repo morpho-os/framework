@@ -12,8 +12,12 @@ class Stat {
         return fileperms($path) & 0x1FF;
     }
 
+    /**
+     * Returns true if the $path is valid path of any of:
+     * Directory, Character device, Block device, Regular file, FIFO/Named pipe, Symbolic link, Socket.
+     */
     public static function isEntry(string $path): bool {
-        return is_file($path) || is_dir($path) || is_link($path) || self::isBlockDev($path) || self::isCharDev($path) || self::isNamedPipe($path) || self::isSocket($path);
+        return file_exists($path);
     }
 
     public static function isBlockDev(string $path): bool {
