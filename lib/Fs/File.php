@@ -254,21 +254,6 @@ class File extends Entry {
         return $targetFilePath;
     }
 
-    /**
-     * Returns unique path for the file. Does not support concurrent access to the same directory.
-     */
-    public static function uniquePath(string $filePath, int $numberOfAttempts = 10000): string {
-        $uniquePath = $filePath;
-        for ($i = 0; is_file($uniquePath) && $i < $numberOfAttempts; $i++) {
-            $uniquePath = $filePath . '-' . $i;
-        }
-        if ($i == $numberOfAttempts && is_file($uniquePath)) {
-            throw new Exception("Unable to generate unique path for file '$filePath' (tried $i times).");
-        }
-
-        return $uniquePath;
-    }
-
     public static function mustBeReadable(string $filePath): void {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new Exception("The file '$filePath' is not readable");

@@ -317,22 +317,6 @@ class Directory extends Entry {
         return true;
     }
 
-    /**
-     * Generates unique path for directory if the directory with
-     * the given path already exists.
-     */
-    public static function uniquePath(string $dirPath, int $numberOfAttempts = 1000): string {
-        $uniquePath = $dirPath;
-        for ($i = 0; is_dir($uniquePath) && $i < $numberOfAttempts; $i++) {
-            $uniquePath = $dirPath . '-' . $i;
-        }
-        if ($i == $numberOfAttempts && is_dir($uniquePath)) {
-            throw new Exception("Unable to generate an unique path for the directory '$dirPath' (tried $i times)");
-        }
-
-        return $uniquePath;
-    }
-
     public static function recreate(string $dirPath, int $mode = self::MODE, bool $recursive = true): string {
         if (is_dir($dirPath)) {
             self::delete($dirPath);

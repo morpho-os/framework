@@ -3,6 +3,7 @@ namespace MorphoTest\Fs;
 
 use Morpho\Test\TestCase;
 use Morpho\Fs\Path;
+use Morpho\Fs\Exception as FsException;
 
 class PathTest extends TestCase {
     public function dataForIsAbsolute() {
@@ -327,5 +328,37 @@ class PathTest extends TestCase {
         $this->assertEquals('C:/foo/bar/test', Path::dropExt('C:\\foo\\bar\\test'));
         $this->assertEquals('/foo/bar/test', Path::dropExt('/foo/bar/test.php'));
         $this->assertEquals('test', Path::dropExt('test.php'));
+    }
+
+    public function testUnique_ThrowsExceptionWhenParentDirDoesNotExist() {
+        $this->expectException(FsException::class, "does not exist");
+        Path::unique(__FILE__ . '/foo');
+    }
+
+    public function testUnique_ParentDirExistUniquePathPassedAsArg() {
+        $uniquePath = __DIR__ . '/unique123';
+        $this->assertSame(str_replace('\\', '/', $uniquePath), Path::unique($uniquePath));
+    }
+
+    public function testUnique_ExistingFile() {
+        $this->assertEquals(__FILE__ . '-0', Path::unique(__FILE__));
+    }
+
+    public function testUnique_ExistingDirectory() {
+        $this->assertEquals(__DIR__ . '-0', Path::unique(__DIR__));
+    }
+
+    public function testUnique_ThrowsExceptionWhenNumberOfAttemptsReachedForFile() {
+        $filePath = __FILE__;
+        $expectedMessage = "Unable to generate an unique path for the '$filePath' (tried 0 times)";
+        $this->expectException(FsException::class, $expectedMessage);
+        Path::unique($filePath, 0);
+    }
+
+    public function testUnique_ThrowsExceptionWhenNumberOfAttemptsReachedForDirectory() {
+        $dirPath = __DIR__;
+        $expectedMessage = "Unable to generate an unique path for the '$dirPath' (tried 0 times)";
+        $this->expectException(FsException::class, $expectedMessage);
+        Path::unique($dirPath, 0);
     }
 }

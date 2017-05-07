@@ -93,18 +93,6 @@ class DirectoryTest extends TestCase {
         $this->assertEquals(__DIR__, Directory::create(__DIR__));
     }
 
-    public function testUniquePath() {
-        $this->assertEquals(__DIR__ . '/something', Directory::uniquePath(__DIR__ . '/something'));
-        $this->assertEquals(__DIR__ . '-0', Directory::uniquePath(__DIR__));
-    }
-
-    public function testUniquePath_ThrowsExceptionWhenNumberOfAttemptsReached() {
-        $dirPath = __DIR__;
-        $expectedMessage = "Unable to generate an unique path for the directory '$dirPath' (tried 0 times)";
-        $this->expectException('\\Morpho\\Fs\\Exception', $expectedMessage);
-        Directory::uniquePath($dirPath, 0);
-    }
-
     public function testPaths_WithoutProcessorAndWithDefaultOptions() {
         $testDirPath = $this->getTestDirPath();
         $expected = [

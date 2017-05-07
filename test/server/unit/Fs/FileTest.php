@@ -198,18 +198,6 @@ class FileTest extends TestCase {
         $this->assertTrue(file_exists($copiedFilePath));
     }
 
-    public function testUniquePath() {
-        $this->assertEquals(__DIR__ . '/something', File::uniquePath(__DIR__ . '/something'));
-        $this->assertEquals(__FILE__ . '-0', File::uniquePath(__FILE__));
-    }
-
-    public function testUniquePathShouldThrowExceptionWhenNumberOfAttempsReached() {
-        $filePath = __FILE__;
-        $expectedMessage = "Unable to generate unique path for file '$filePath' (tried 0 times).";
-        $this->expectException(FsException::class, $expectedMessage);
-        File::uniquePath($filePath, 0);
-    }
-
     public function testReadTextFileWithBom() {
         $options = [
             'binary' => false,

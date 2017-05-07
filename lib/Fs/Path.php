@@ -127,4 +127,19 @@ class Path {
             ? implode('/', $parts) . '/' . $baseName . $ext
             : $baseName . $ext;
     }
+
+    /**
+     * Returns unique path for a file system entry.
+     */
+    public static function unique(string $path, int $numberOfAttempts = 10000): string {
+        Directory::mustExist(dirname($path));
+        $uniquePath = self::normalize($path);
+        for ($i = 0; file_exists($uniquePath) && $i < $numberOfAttempts; $i++) {
+            $uniquePath = $path . '-' . $i;
+        }
+        if ($i == $numberOfAttempts && file_exists($uniquePath)) {
+            throw new Exception("Unable to generate an unique path for the '$path' (tried $i times)");
+        }
+        return $uniquePath;
+    }
 }
