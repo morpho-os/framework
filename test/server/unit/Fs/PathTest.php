@@ -337,7 +337,7 @@ class PathTest extends TestCase {
 
     public function testUnique_ParentDirExistUniquePathPassedAsArg() {
         $uniquePath = __DIR__ . '/unique123';
-        $this->assertSame(str_replace('\\', '/', $uniquePath), Path::unique($uniquePath));
+        $this->assertSame($uniquePath, Path::unique($uniquePath));
     }
 
     public function testUnique_ExistingFileWithExt() {

@@ -133,7 +133,7 @@ class Path {
      */
     public static function unique(string $path, ?bool $handleExtsForFiles = true, int $numberOfAttempts = 10000): string {
         Directory::mustExist(dirname($path));
-        $uniquePath = self::normalize($path);
+        $uniquePath = $path;
         $isFile = is_file($path);
         for ($i = 0; file_exists($uniquePath) && $i < $numberOfAttempts; $i++) {
             if ($isFile && $handleExtsForFiles) {
