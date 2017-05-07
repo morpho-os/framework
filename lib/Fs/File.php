@@ -30,7 +30,7 @@ class File extends Entry {
                 'useIncludePath' => false,
                 'context'        => null,
                 'binary'         => true,
-                'handleBom'      => true,
+                'removeBom'      => true,
             ]
         );
 
@@ -45,7 +45,7 @@ class File extends Entry {
         }
 
         // Handle BOM.
-        if ($options['handleBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
+        if ($options['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
             return substr($content, 3);
         }
 
