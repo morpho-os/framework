@@ -13,7 +13,7 @@ addons:
   # versions are listed here https://downloads.mariadb.org/
   mariadb: 10.1
 
-#If you require sudo, add 'sudo: required' to your .travis.yml
+#If you need sudo, add 'sudo: required' to your .travis.yml
 
 # Build lifecycle, see https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle:
 #  1. before_install
