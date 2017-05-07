@@ -13,8 +13,7 @@ class Stat {
     }
 
     /**
-     * Returns true if the $path is valid path of any of:
-     * Directory, Character device, Block device, Regular file, FIFO/Named pipe, Symbolic link, Socket.
+     * @return bool Returns true if the $path is valid path of any of: Directory, Character device, Block device, Regular file, FIFO/Named pipe, Symbolic link, Socket.
      */
     public static function isEntry(string $path): bool {
         return file_exists($path);
