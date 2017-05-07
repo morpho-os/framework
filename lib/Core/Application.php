@@ -4,26 +4,26 @@ namespace Morpho\Core;
 use Morpho\Di\IServiceManager;
 
 abstract class Application {
-    protected $config = [];
+    protected $config;
 
     /**
      * @return mixed Returns true on success and any value !== true on error.
      */
-    public static function main(array $config = []) {
+    public static function main(array $config = null) {
         return (new static($config))
             ->run();
     }
 
-    public function __construct(array $config = []) {
+    public function __construct(array $config = null) {
         $this->config = $config;
     }
 
-    public function setConfig(array $config) {
+    public function setConfig(array $config): self {
         $this->config = $config;
         return $this;
     }
 
-    public function config(): array {
+    public function config(): ?array {
         return $this->config;
     }
 
@@ -50,12 +50,12 @@ abstract class Application {
         }
     }
 
-    protected function init(IServiceManager $serviceManager) {
+    protected function init(IServiceManager $serviceManager): void {
         $serviceManager->get('environment')->init();
         $serviceManager->get('errorHandler')->register();
     }
 
     abstract protected function createServiceManager(): IServiceManager;
 
-    abstract protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null);
+    abstract protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null): void;
 }

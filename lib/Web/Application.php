@@ -10,13 +10,42 @@ use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
-    protected function init(IServiceManager $serviceManager) {
+    /**
+     * @var ?array
+     */
+    protected $config;
+
+    /**
+     * @var ?Site
+     */
+    private $site;
+
+    public function config(): ?array {
+        if (null === $this->config) {
+            $this->config = require MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME;
+        }
+        return $this->config;
+    }
+
+    public function setSite(Site $site): self {
+        $this->site = $site;
+        return $this;
+    }
+
+    public function site(): Site {
+        if (null === $this->site) {
+            $this->site = $this->newSite();
+        }
+        return $this->site;
+    }
+
+    protected function init(IServiceManager $serviceManager): void {
         parent::init($serviceManager);
         $iniSettings = $serviceManager->get('site')->config()['iniSettings'];
         $this->applyIniSettings($iniSettings);
     }
 
-    protected function applyIniSettings(array $iniSettings, $parentName = null) {
+    protected function applyIniSettings(array $iniSettings, $parentName = null): void {
         foreach ($iniSettings as $name => $value) {
             $settingName = $parentName ? $parentName . '.' . $name : $name;
             if (is_array($value)) {
@@ -31,31 +60,7 @@ class Application extends BaseApplication {
     }
 
     protected function createServiceManager(): IServiceManager {
-        $moduleDirPath = MODULE_DIR_PATH;
-
-        $config = require $moduleDirPath . '/' . CONFIG_FILE_NAME;
-
-        $sites = $config['sites'];
-        $current = null;
-        if (!$config['useMultiSiting']) {
-            // No multi-siting -> use first found site.
-            $current = array_shift($sites);
-        } else {
-            $hostName = $this->detectHostName();
-            foreach ($sites as $hostName1 => $moduleName) {
-                if ($hostName === $hostName1) {
-                    $current = $moduleName;
-                    break;
-                }
-            }
-        }
-        if (null === $current) {
-            throw new BadRequestException("Unable to detect the current site");
-        }
-
-        $siteDirPath = $moduleDirPath . '/' . explode('/', $current)[1];
-        $site = new Site($current, $siteDirPath);
-
+        $site = $this->site();
         $siteConfig = $site->config();
         $services = [
             'app'  => $this,
@@ -69,7 +74,8 @@ class Application extends BaseApplication {
         return $serviceManager;
     }
 
-    protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null) {
+    protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null): void {
+        // @TODO: begin: check how error logging works on PHP core level, remove unnecessary calls and checks.
         if (null !== $serviceManager) {
             try {
                 // Last chance handler.
@@ -80,7 +86,11 @@ class Application extends BaseApplication {
                     error_log(addslashes((string)$e));
                 }
             }
+        } else {
+            error_log(addslashes((string)$e));
         }
+        // @TODO: end
+
         $header = null;
         if ($e instanceof NotFoundException) {
             $header = Environment::httpProtocolVersion() . ' 404 Not Found';
@@ -101,6 +111,33 @@ class Application extends BaseApplication {
         }
         while (@ob_end_clean());
         die(escapeHtml($message) . '.');
+    }
+
+    protected function newSite(): Site {
+        $config = $this->config();
+
+        $sites = $config['sites'];
+        $siteName = null;
+        if (!$config['useMultiSiting']) {
+            // No multi-siting -> use first found site.
+            $siteName = array_shift($sites);
+        } else {
+            $hostName = $this->detectHostName();
+            foreach ($sites as $hostName1 => $moduleName) {
+                if ($hostName === $hostName1) {
+                    $siteName = $moduleName;
+                    break;
+                }
+            }
+        }
+        if (null === $siteName) {
+            throw new BadRequestException("Unable to detect the current site");
+        }
+
+        $siteDirPath = MODULE_DIR_PATH . '/' . explode('/', $siteName)[1];
+
+        $site = new Site($siteName, $siteDirPath);
+        return $site;
     }
 
     protected function detectHostName(): string {
