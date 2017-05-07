@@ -12,12 +12,19 @@ class TypeScriptCompilerTest extends TestCase {
         $this->compiler = new TypeScriptCompiler();
     }
 
-    public function testWriteTsconfig() {
+    public function testWriteTsconfig_Default() {
         $dirPath = $this->tmpDirPath();
         $filePath = $this->compiler->writeTsconfig($dirPath);
         $this->assertEquals($dirPath . "/tsconfig.json", $filePath);
         $config = json_decode(file_get_contents($filePath), true);
         $this->assertTrue($config['compilerOptions']['removeComments']);
+    }
+
+    public function testWriteTsConfig_OverwriteCompilerOption() {
+        $tmpDirPath = $this->createTmpDir();
+        $tsConfigFilePath = $this->compiler->writeTsconfig($tmpDirPath, ['compilerOptions' => ['removeComments' => true]]);
+        $json = json_decode(file_get_contents($tsConfigFilePath), true);
+        $this->assertTrue($json['compilerOptions']['removeComments']);
     }
 
     public function testOptionsString() {

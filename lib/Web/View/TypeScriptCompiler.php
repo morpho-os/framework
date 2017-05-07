@@ -6,6 +6,7 @@ use function Morpho\Base\trimMore;
 use function Morpho\Cli\cmd;
 use Morpho\Cli\CommandResult;
 use Morpho\Fs\File;
+use Zend\Stdlib\ArrayUtils;
 
 class TypeScriptCompiler {
     // Possible values: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
@@ -35,6 +36,8 @@ class TypeScriptCompiler {
         'strictNullChecks' => false,
         'target' => 'es5',
     ];
+
+    private $pathEnvVar;
 
     /**
      * @param string|iterable $inFilePath
@@ -69,7 +72,7 @@ class TypeScriptCompiler {
         // Description: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
         return File::writeJson(
             $dirPath . '/' . self::TSCONFIG_FILE,
-            array_merge_recursive(
+            ArrayUtils::merge(
                 [
                     'compilerOptions' => $this->options(),
                     /*
@@ -129,6 +132,11 @@ class TypeScriptCompiler {
         return implode(' ', $this->escapeOptions(array_merge($this->options(), (array) $options)));
     }
 
+    public function setPathEnvVar(string $value): self {
+        $this->pathEnvVar = $value;
+        return $this;
+    }
+
     protected function escapeOptions(array $options): array {
         $safe = [];
         $sep = ' ';
@@ -149,6 +157,13 @@ class TypeScriptCompiler {
     }
 
     protected function tsc(string $argsString, array $cmdOptions = null): CommandResult {
-        return cmd('tsc ' . $argsString, array_merge((array)$cmdOptions, ['buffer' => true]));
+        return cmd(
+            ($this->pathEnvVar ? 'PATH=' . escapeshellarg($this->pathEnvVar) . ' ' : '')
+            . 'tsc '
+            . $argsString,
+            array_merge(
+                (array)$cmdOptions, ['buffer' => true]
+            )
+        );
     }
 }
