@@ -9,7 +9,7 @@ use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Fs\Directory;
 
 class TestSuite extends \Morpho\Test\TestSuite {
-    public function testFilePaths() {
+    public function testFilePaths(): iterable {
         $filePaths = Directory::filePaths(__DIR__, $this->testFileRegexp, ['recursive' => true]);
         return array_merge(
             filter(
