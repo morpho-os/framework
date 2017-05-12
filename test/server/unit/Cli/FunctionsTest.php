@@ -4,7 +4,7 @@ namespace MorphoTest\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    cmd, escapeArgs, showOk, stylize
+    argsString, cmd, escapeArgs, showOk, stylize
 };
 use Morpho\Test\TestCase;
 use const Morpho\Core\BASE_DIR_PATH;
@@ -64,6 +64,11 @@ OUT
             ["'foo'\\''bar'", "'test/'"],
             escapeArgs(["foo'bar", 'test/'])
         );
+    }
+
+    public function testArgsString() {
+        $this->assertEquals(" 'foo'", argsString('foo'));
+        $this->assertEquals(" 'foo' 'bar'", argsString(['foo', 'bar']));
     }
 
     public function testCmd_ThrowsExceptionOnInvalidOption() {

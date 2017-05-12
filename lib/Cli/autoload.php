@@ -79,7 +79,8 @@ function escapeArgs(array $args): array {
     return array_map('escapeshellarg', $args);
 }
 
-function argsString(array $args): string {
+function argsString($args): string {
+    $args = (array)$args;
     if (!count($args)) {
         return '';
     }
