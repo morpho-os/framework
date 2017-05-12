@@ -27,6 +27,7 @@ class Db extends BaseDb {
         return $this->schemaManager;
     }
 
+    // @TODO: Move to Query
     public function insertRows(string $tableName, array $rows, array $options = null): void {
         $args = [];
         $keys = null;
