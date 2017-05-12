@@ -44,7 +44,7 @@ class Module extends BaseModule {
     }
 
     public static function defaultErrorHandler(string $errorType): array {
-        Must::beOneOf($errorType, [self::NOT_FOUND_ERROR, self::ACCESS_DENIED_ERROR, self::BAD_REQUEST_ERROR, self::UNCAUGHT_ERROR]);
+        Must::contain([self::NOT_FOUND_ERROR, self::ACCESS_DENIED_ERROR, self::BAD_REQUEST_ERROR, self::UNCAUGHT_ERROR], $errorType);
         return [self::NAME, 'Error', $errorType];
     }
 

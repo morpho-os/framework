@@ -36,10 +36,6 @@ class Must {
         return $n == 1 ? $args[0] : $args;
     }
 
-    public static function beOneOf($needle, array $haystack): void {
-        self::beTrue(in_array($needle, $haystack, true), 'The value is not one of the provided values');
-    }
-
     public static function haveOnlyKeys(array $arr, array $allowedKeys): void {
         $diff = array_diff_key($arr, array_flip($allowedKeys));
         if (count($diff)) {
@@ -52,10 +48,6 @@ class Must {
         if (count($intersection) != count($requiredKeys)) {
             throw new RuntimeException("Required items are missing");
         }
-    }
-
-    public static function beInArray($value, $array): void {
-        self::beTrue(in_array($value, $array, true), "Value '$value' was not found in array");
     }
 
     public static function beInRange($value, $start, $end): void {
@@ -79,10 +71,18 @@ class Must {
         }
     }
 
+    /**
+     * @param mixed $result
+     * @return mixed
+     */
     public static function beNotFalse($result, string $errMessage = null) {
         if (false === $result) {
             throw new RuntimeException((string)$errMessage);
         }
         return $result;
+    }
+
+    public static function contain($haystack, $needle, string $errMessage = null): void {
+        self::beTrue(contains($haystack, $needle), $errMessage ?: 'A haystack does not contain a needle');
     }
 }

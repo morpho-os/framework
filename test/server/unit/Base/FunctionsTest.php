@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith
+    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -435,6 +435,16 @@ class FunctionsTest extends TestCase {
      */
     public function testWrapQ($expected, $actual) {
         $this->assertSame($expected, wrapQ($actual));
+    }
+
+    public function testContains_Unicode() {
+        $haystack = 'ℚ ⊂ ℝ ⊂ ℂ';
+        $this->assertTrue(contains($haystack, ''));
+        $this->assertTrue(contains($haystack, $haystack));
+        $this->assertTrue(contains($haystack, 'ℚ ⊂'));
+        $this->assertTrue(contains($haystack, '⊂ ℂ'));
+        $this->assertTrue(contains($haystack, '⊂ ℝ ⊂'));
+        $this->assertFalse(contains($haystack, 'abc'));
     }
 
     private function assertCommon($fn) {

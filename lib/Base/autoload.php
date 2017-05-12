@@ -516,3 +516,18 @@ function toArray($arrOrTraversable, bool $useKeys = false): array {
         ? $arrOrTraversable
         : iterator_to_array($arrOrTraversable, $useKeys);
 }
+
+function contains($haystack, $needle): bool {
+    if (is_string($haystack)) {
+        if ($needle === '') {
+            return true;
+        }
+        //mb_strpos() ??
+        return false !== strpos($haystack, $needle);
+    } elseif (is_array($haystack)) {
+        return in_array($needle, $haystack, true);
+    } else {
+        // @TODO: iterable
+        throw new NotImplementedException();
+    }
+}

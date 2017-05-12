@@ -5,11 +5,69 @@ use Morpho\Test\TestCase;
 use Morpho\Base\Must;
 
 class MustTest extends TestCase {
-    public function testMustBeNotFalse_ReturnsPassedArgumentIfNotFalse() {
+    public function testContain_String_Valid() {
+        $this->assertNull(Must::contain('foo/bar', '/'));
+    }
+
+    public function testContain_String_Invalid() {
+        $this->expectException(\RuntimeException::class, 'A haystack does not contain a needle');
+        Must::contain('foo-bar', '/');
+    }
+
+    public function dataForContain_Array_Valid() {
+        return [
+            [
+                [null, 0, '', false],
+                '',
+            ],
+            [
+                ['bar', 'baz', 'foo'],
+                'foo',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForContain_Array_Valid
+     */
+    public function testContain_Array_Valid($haystack, $needle) {
+        $this->assertNull(Must::contain($haystack, $needle));
+    }
+
+    public function dataForContain_Array_Invalid() {
+        return [
+            [
+                [],
+                null,
+            ],
+            [
+                [null, 0, false],
+                '',
+            ],
+            [
+                ['bar', 'baz'],
+                'foo',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForContain_Array_Invalid
+     */
+    public function testContain_Array_Invalid($haystack, $needle) {
+        $this->expectException(\RuntimeException::class, 'A haystack does not contain a needle');
+        Must::contain($haystack, $needle);
+    }
+
+    public function testContain_ArrayInArray_Valid() {
+        $this->markTestIncomplete();
+    }
+
+    public function testBeNotFalse_ReturnsPassedArgumentIfNotFalse() {
         $this->assertSame(STDERR, Must::beNotFalse(STDERR));
     }
 
-    public function testMustBeNotFalse_ThrowsExceptionIfFalse() {
+    public function testBeNotFalse_ThrowsExceptionIfFalse() {
         $this->expectException(\RuntimeException::class);
         Must::beNotFalse(false);
     }
@@ -192,52 +250,6 @@ class MustTest extends TestCase {
      */
     public function testHasOnlyKeys_Valid_DoesNotThrowException($actual, $allowedKeys) {
         Must::haveOnlyKeys($actual, $allowedKeys);
-        $this->markTestAsNotRisky();
-    }
-
-    public function dataForIsOneOf_Invalid() {
-        return [
-            [
-                null,
-                []
-            ],
-            [
-                '',
-                [null, 0, false]
-            ],
-            [
-                'foo',
-                ['bar', 'baz']
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForIsOneOf_Invalid
-     */
-    public function testIsOneOf_Invalid($needle, $haystack) {
-        $this->expectException('\RuntimeException', 'The value is not one of the provided values');
-        Must::beOneOf($needle, $haystack);
-    }
-
-    public function dataForIsOneOf_Valid_DoesNotThrowException() {
-        return [
-            [
-                '',
-                [null, 0, '', false]
-            ],
-            [
-                'foo',
-                ['bar', 'baz', 'foo']
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForIsOneOf_Valid_DoesNotThrowException
-     */
-    public function testIsOneOf_Valid_DoesNotThrowException($needle, $haystack) {
-        Must::beOneOf($needle, $haystack);
         $this->markTestAsNotRisky();
     }
 }
