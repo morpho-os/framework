@@ -8,6 +8,18 @@ use Morpho\Fs\Directory;
 use Morpho\Test\TestCase;
 
 class DirectoryTest extends TestCase {
+    public function testPhpFilesRe() {
+        $this->assertEquals(1, preg_match(Directory::PHP_FILES_RE, __FILE__));
+        $this->assertEquals(1, preg_match(Directory::PHP_FILES_RE, basename(__FILE__)));
+        $this->assertEquals(1, preg_match(Directory::PHP_FILES_RE, 'foo/.php'));
+        $this->assertEquals(1, preg_match(Directory::PHP_FILES_RE, '.php'));
+
+        $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, __FILE__ . '.ts'));
+        $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, basename(__FILE__) . '.ts'));
+        $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, 'foo/.ts'));
+        $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, '.ts'));
+    }
+
     public function testDelete_PredicateForParentEntries() {
         $tmpDirPath = $this->createTmpDir();
         touch($tmpDirPath . '/foo');

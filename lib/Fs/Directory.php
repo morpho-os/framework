@@ -14,9 +14,10 @@ class Directory extends Entry {
 
     public const MODE = 0755;
 
-    public const PHP_FILES_RE = '~.\.php$~si';
+    public const PHP_FILES_RE = '~\.php$~si';
 
     public static function move(string $sourceDirPath, string $targetDirPath): string {
+        // @TODO: why not rename()?
         self::copy($sourceDirPath, $targetDirPath);
         self::delete($sourceDirPath);
         return $targetDirPath;
