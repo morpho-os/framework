@@ -531,3 +531,13 @@ function contains($haystack, $needle): bool {
         throw new NotImplementedException();
     }
 }
+
+function bytesToString(string $bytes, string $format = null): string {
+    $n = strlen($bytes);
+    $s = '';
+    $format = $format ?: '\x%02x';
+    for ($i = 0; $i < $n; $i++) {
+        $s .= sprintf($format, ord($bytes[$i]));
+    }
+    return $s;
+}

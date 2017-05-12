@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains
+    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, bytesToString
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -445,6 +445,12 @@ class FunctionsTest extends TestCase {
         $this->assertTrue(contains($haystack, '⊂ ℂ'));
         $this->assertTrue(contains($haystack, '⊂ ℝ ⊂'));
         $this->assertFalse(contains($haystack, 'abc'));
+    }
+
+    public function testBytesToString() {
+        $bytes = "\x2f\xe0\xab\x00\x01\xe0";
+        $this->assertEquals('\x2f\xe0\xab\x00\x01\xe0', bytesToString($bytes));
+        $this->assertEquals('\x2F\xE0\xAB\x00\x01\xE0', bytesToString($bytes, '\x%02X'));
     }
 
     private function assertCommon($fn) {
