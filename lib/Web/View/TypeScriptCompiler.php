@@ -112,16 +112,18 @@ class TypeScriptCompiler {
         unset($this->options[$name]);
     }
 
-    public function setOption(string $name, $value) {
+    public function setOption(string $name, $value): self {
         $this->options[$name] = $value;
+        return $this;
     }
 
     public function option(string $name) {
         return $this->options[$name];
     }
 
-    public function setOptions(array $options) {
+    public function setOptions(array $options): self {
         $this->options = $options;
+        return $this;
     }
 
     public function options(): array {
