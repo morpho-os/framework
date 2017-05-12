@@ -94,9 +94,13 @@ abstract class TestCase extends BaseTestCase {
     }
 
     protected function assertHtmlEquals($expected, $actual, $message = '') {
-        $expected = preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($expected));
-        $actual = preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($actual));
+        $expected = $this->normalizeHtml($expected);
+        $actual = $this->normalizeHtml($actual);
         self::assertEquals($expected, $actual, $message);
+    }
+
+    protected function normalizeHtml(string $html) {
+        return preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($html));
     }
 
     protected function assertBoolAccessor(callable $callback, $initialValue) {
