@@ -16,7 +16,7 @@ class Symlink extends Entry {
     
     public static function isBroken(string $linkPath): bool {
         if (!is_link($linkPath)) {
-            throw new Exception("The '$linkPath' is not a link");
+            throw new Exception('The passed path is not a symlink');
         }
         $targetPath = readlink($linkPath);
         if (false === $targetPath) {
