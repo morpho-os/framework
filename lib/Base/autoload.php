@@ -532,6 +532,8 @@ function contains($haystack, $needle): bool {
     }
 }
 
+// @TODO: Move to Byte??, merge with Converter
+
 function bytesToString(string $bytes, string $format = null): string {
     $n = strlen($bytes);
     $s = '';
