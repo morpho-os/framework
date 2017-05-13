@@ -32,15 +32,15 @@ class Stat {
     }
 
     public static function isBlockDev(string $path): bool {
-        return @filetype($path) === 'block';
+        return filetype($path) === 'block';
     }
 
     public static function isCharDev(string $path): bool {
-        return @filetype($path) === 'char';
+        return filetype($path) === 'char';
     }
 
     public static function isNamedPipe(string $path): bool {
-        return @filetype($path) === 'fifo';
+        return filetype($path) === 'fifo';
     }
 
     /* Use is_file()
@@ -56,6 +56,6 @@ class Stat {
     */
 
     public static function isSocket(string $path): bool {
-        return @filetype($path) === 'socket';
+        return filetype($path) === 'socket';
     }
 }
