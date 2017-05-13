@@ -4,6 +4,18 @@ declare(strict_types=1);
 namespace Morpho\Fs;
 
 class Stat {
+    // Changed file types from /usr/include/bits/stat.h
+    // ENTRY = DIR | CHAR_DEV | BLOCK_DEV | REG_FILE | FIFO | SYMLINK | SOCKET
+    public const ENTRY     = 0170000;                  // Any file system entry
+    public const DIR       = 0040000;                  // Directory
+    public const CHAR_DEV  = 0020000;                  // Character device
+    public const BLOCK_DEV = 0060000;                  // Block device
+    public const FILE      = 0100000;                  // Regular file
+    public const FIFO      = 0010000;                  // FIFO
+    public const SYMLINK   = 0120000;                  // Symbolic link
+    public const SOCKET    = 0140000;                  // Socket
+    public const NOT_DIR   = self::ENTRY ^ self::DIR;  // Anything except directory.
+
     public static function modeString(string $path): string {
         return sprintf('%o', self::mode($path));
     }

@@ -5,7 +5,9 @@ namespace MorphoTest\Fs;
 use LogicException;
 use Morpho\Base\InvalidOptionsException;
 use Morpho\Fs\Directory;
+use Morpho\Fs\Stat;
 use Morpho\Test\TestCase;
+use Morpho\Fs\Exception as FsException;
 
 class DirectoryTest extends TestCase {
     public function testPhpFilesRe() {
@@ -20,18 +22,58 @@ class DirectoryTest extends TestCase {
         $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, '.ts'));
     }
 
-    public function testDelete_PredicateForParentEntries() {
+    public function testDelete_KeepSomeDirectories() {
+        $tmpDirPath = $this->createTmpDir();
+        mkdir($tmpDirPath . '/foo');
+        mkdir($tmpDirPath . '/fox');
+        touch($tmpDirPath . '/foo/test.txt');
+        mkdir($tmpDirPath . '/foo/bar');
+        mkdir($tmpDirPath . '/foo/bar/baz');
+        touch($tmpDirPath . '/foo/bar/bird.txt');
+        $delete = function ($path, $isDir) use (&$called, $tmpDirPath) {
+            $called++;
+            switch ($path) {
+                case $tmpDirPath:
+                    return false; // keep
+                case $tmpDirPath . '/foo':
+                    $this->assertTrue($isDir);
+                    return false; // keep
+                case $tmpDirPath . '/fox':
+                    $this->assertTrue($isDir);
+                    return false; // keep
+                case $tmpDirPath . '/foo/test.txt':
+                    $this->assertFalse($isDir);
+                    return false; // keep
+                case $tmpDirPath . '/foo/bar':
+                    $this->assertTrue($isDir);
+                    return true; // delete this directory and all its content.
+                case $tmpDirPath . '/foo/bar/baz':
+                    $this->fail('must not be called as the parent directory will be deleted');
+                    break;
+                case $tmpDirPath . '/foo/bar/bird.txt':
+                    $this->fail('must not be called as the parent directory will be deleted');
+                    break;
+                default:
+                    $this->fail('Unknown path: ' . $path);
+            }
+            $this->assertEquals(2, func_num_args());
+        };
+        Directory::delete($tmpDirPath, $delete);
+        $this->assertTrue($called > 0);
+    }
+
+    public function testDelete_Predicate_Depth1() {
         $tmpDirPath = $this->createTmpDir();
         touch($tmpDirPath . '/foo');
         touch($tmpDirPath . '/bar');
         mkdir($tmpDirPath . '/baz');
         Directory::delete($tmpDirPath, function ($filePath) {
-            return basename($filePath) !== 'bar';
+            return basename($filePath) === 'bar';
         });
         $this->assertSame(['baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
-    public function testDelete_PredicateForChildEntries() {
+    public function testDelete_Predicate_Depth2() {
         $tmpDirPath = $this->createTmpDir();
         touch($tmpDirPath . '/foo');
         mkdir($tmpDirPath . '/bar');
@@ -39,29 +81,85 @@ class DirectoryTest extends TestCase {
         touch($tmpDirPath . '/bar/wolf');
         touch($tmpDirPath . '/baz');
         Directory::delete($tmpDirPath, function ($filePath) {
-            return basename($filePath) !== 'wolf';
+            return basename($filePath) === 'wolf';
         });
         $this->assertSame(['bar' , 'bar/cow', 'baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
     public function testDelete_InvalidArg() {
         $tmpDirPath = $this->createTmpDir();
-        $this->expectException(\InvalidArgumentException::class, 'The second argument must be bool or callable');
+        $this->expectException(\InvalidArgumentException::class, 'The second argument must be either bool or callable');
         Directory::delete($tmpDirPath, '123');
     }
-    
+
     public function testDelete_DeleteSelf() {
         $tmpDirPath = $this->createTmpDir();
-        $this->assertTrue(is_dir($tmpDirPath));
+        mkdir($tmpDirPath . '/foo');
+        touch($tmpDirPath . '/foo/test.txt');
+        mkdir($tmpDirPath . '/foo/bar');
+        touch($tmpDirPath . '/foo/bar/bird.txt');
+
         Directory::delete($tmpDirPath, false);
         $this->assertTrue(is_dir($tmpDirPath));
+        $this->assertSame([], $this->pathsInDir($tmpDirPath));
+
         Directory::delete($tmpDirPath, true);
         $this->assertFalse(is_dir($tmpDirPath));
     }
 
-    public function testMustExist_ReturnsArg() {
-        $dirPath = __DIR__;
-        $this->assertEquals($dirPath, Directory::mustExist($dirPath));
+    public function testDeleteIfExist_DeleteSelf() {
+        $tmpDirPath = $this->createTmpDir();
+        mkdir($tmpDirPath . '/foo');
+        touch($tmpDirPath . '/foo/test.txt');
+        mkdir($tmpDirPath . '/foo/bar');
+        touch($tmpDirPath . '/foo/bar/bird.txt');
+
+        Directory::deleteIfExists($tmpDirPath, false);
+        $this->assertTrue(is_dir($tmpDirPath));
+        $this->assertSame([], $this->pathsInDir($tmpDirPath));
+
+        Directory::deleteIfExists($tmpDirPath, true);
+        $this->assertFalse(is_dir($tmpDirPath));
+    }
+
+    public function testBrokenLinkPaths() {
+        $tmpDirPath = $this->createTmpDir();
+        symlink($tmpDirPath . '/foo', $tmpDirPath . '/bar');
+        touch($tmpDirPath . '/dest');
+        symlink($tmpDirPath . '/dest', $tmpDirPath . '/src');
+        $paths = Directory::brokenLinkPaths($tmpDirPath);
+        $this->assertEquals([$tmpDirPath . '/bar'], iterator_to_array($paths, false));
+    }
+
+    public function testEmptyDirPaths() {
+        $tmpDirPath = $this->createTmpDir();
+        mkdir($tmpDirPath . '/foo/bar/baz', 0777, true);
+        mkdir($tmpDirPath . '/foo/test');
+        touch($tmpDirPath . '/foo/pig.txt');
+        $emptyDirPaths = iterator_to_array(Directory::emptyDirPaths($tmpDirPath), false);
+        sort($emptyDirPaths);
+        $this->assertEquals([$tmpDirPath . '/foo/bar/baz', $tmpDirPath . '/foo/test'], $emptyDirPaths);
+    }
+
+    public function testDeleteEmptyDirs() {
+        $tmpDirPath = $this->createTmpDir();
+        mkdir($tmpDirPath . '/foo/bar/baz', 0777, true);
+        mkdir($tmpDirPath . '/foo/test');
+        touch($tmpDirPath . '/foo/pig.txt');
+        Directory::deleteEmptyDirs($tmpDirPath);
+        $this->assertEquals(['foo', 'foo/pig.txt'], $this->pathsInDir($tmpDirPath));
+    }
+
+    public function testMustExist_RelativePath_0AsArg() {
+        $tmpDirPath = $this->createTmpDir();
+        $dirPath = $tmpDirPath . '/0';
+        mkdir($dirPath);
+        chdir($tmpDirPath);
+        $this->assertEquals('0', Directory::mustExist('0'));
+    }
+
+    public function testMustExist_AbsPath() {
+        $this->assertEquals(__DIR__, Directory::mustExist(__DIR__));
     }
     
     public function testIsEmptyDir() {
@@ -77,7 +175,6 @@ class DirectoryTest extends TestCase {
         $this->assertTrue(is_file($sourceDirPath . '/bar/1.txt'));
 
         $targetDirPath = $this->createTmpDir('some') . '/target';
-
         $this->assertFalse(is_dir($targetDirPath . '/bar'));
         $this->assertFalse(is_dir($targetDirPath . '/bar'));
         $this->assertFalse(is_file($targetDirPath . '/bar/1.txt'));
@@ -97,7 +194,7 @@ class DirectoryTest extends TestCase {
     }
 
     public function testCreate_CantCreateEmptyDir() {
-        $this->expectException('\Morpho\Fs\Exception', "The directory path is empty.");
+        $this->expectException(FsException::class, "The directory path is empty");
         Directory::create('');
     }
 
@@ -132,7 +229,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $it = Directory::paths($testDirPath, null, ['type' => Directory::DIR, 'recursive' => true]);
+        $it = Directory::paths($testDirPath, null, ['type' => Stat::DIR, 'recursive' => true]);
         $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
@@ -149,7 +246,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Directory::DIR | Directory::FILE, 'recursive' => true]), false);
+        $actual = iterator_to_array(Directory::paths($testDirPath, null, ['type' => Stat::DIR | Stat::FILE, 'recursive' => true]), false);
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -207,7 +304,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4',
             $testDirPath . '/4/5',
         ];
-        $it = Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR, 'recursive' => true]);
+        $it = Directory::paths($testDirPath, '~\.php$~si', ['type' => Stat::DIR, 'recursive' => true]);
         $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
@@ -223,7 +320,7 @@ class DirectoryTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $it = Directory::paths($testDirPath, '~\.php$~si', ['type' => Directory::DIR | Directory::FILE, 'recursive' => true]);
+        $it = Directory::paths($testDirPath, '~\.php$~si', ['type' => Stat::DIR | Stat::FILE, 'recursive' => true]);
         $actual = iterator_to_array($it, false);
         sort($expected);
         sort($actual);
@@ -237,7 +334,7 @@ class DirectoryTest extends TestCase {
                 Directory::paths(
                     $this->getTestDirPath(),
                     '~\.some$~si',
-                    ['type' => Directory::FILE, 'recursive' => true]
+                    ['type' => Stat::FILE, 'recursive' => true]
                 ),
                 false
             )
@@ -255,7 +352,7 @@ class DirectoryTest extends TestCase {
             $testDirPath,
             '~\.txt$~si',
             [
-                'type'      => Directory::DIR | Directory::FILE,
+                'type'      => Stat::DIR | Stat::FILE,
                 'recursive' => false,
             ]
         );
@@ -328,7 +425,7 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $this->createTmpDir() . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $sourceDirPath;
-        $this->expectException(\Morpho\Fs\Exception::class, "Cannot copy the directory '$sourceDirPath' into itself");
+        $this->expectException(FsException::class, "Cannot copy the directory '$sourceDirPath' into itself");
         Directory::copy($sourceDirPath, $targetDirPath);
     }
 
@@ -337,7 +434,7 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $tmpDirPath . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $tmpDirPath;
-        $this->expectException(\Morpho\Fs\Exception::class, "The '$tmpDirPath' directory already contains the 'foo'");
+        $this->expectException(FsException::class, "The '$tmpDirPath' directory already contains the 'foo'");
         Directory::copy($sourceDirPath, $targetDirPath);
     }
 

@@ -23,12 +23,12 @@ class Symlink extends Entry {
             return false;
         }
         if (Path::isAbsolute($targetPath)) {
-            return !self::isEntry($targetPath);
+            return !Stat::isEntry($targetPath);
         }
         $curDirPath = getcwd();
         chdir(dirname($linkPath));
         try {
-            return !self::isEntry($targetPath);
+            return !Stat::isEntry($targetPath);
         } finally {
             chdir($curDirPath);
         }

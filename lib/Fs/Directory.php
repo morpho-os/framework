@@ -1,17 +1,14 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Fs;
 
-use Morpho\Base\NotImplementedException;
 use Morpho\Base\ArrayTool;
 use DirectoryIterator;
 use Morpho\Error\ErrorHandler;
+use InvalidArgumentException;
 
 class Directory extends Entry {
-    public const FILE = 0x01;
-    public const DIR = 0x02;
-
+    // @TODO: Move to Stat
     public const MODE = 0755;
 
     public const PHP_FILES_RE = '~\.php$~si';
@@ -58,7 +55,7 @@ class Directory extends Entry {
             $processor,
             [
                 'recursive' => false,
-                'type' => self::FILE | self::DIR,
+                'type' => Stat::ENTRY,
                 'followSymlinks' => $options['followSymlinks'],
             ]
         );
@@ -87,7 +84,7 @@ class Directory extends Entry {
             [
                 'recursive'      => false,
                 'followSymlinks' => false,
-                'type'           => self::FILE | self::DIR,
+                'type'           => Stat::ENTRY,
             ]
         );
 
@@ -109,9 +106,9 @@ class Directory extends Entry {
                 $isDir = $item->isDir();
 
                 if ($isDir) {
-                    $match = $options['type'] & self::DIR;
+                    $match = $options['type'] & Stat::DIR;
                 } else {
-                    $match = $options['type'] & self::FILE;
+                    $match = $options['type'] & Stat::FILE;
                 }
                 if (!$match) {
                     if (!$isDir || !$recursive) {
@@ -167,13 +164,13 @@ class Directory extends Entry {
     }
 
     /**
-     * Shortcut for the paths() with $options['type'] == self::DIR option.
+     * Shortcut for the paths() with $options['type'] == Stat::DIR option.
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
     public static function dirPaths($dirPath, $processor = null, array $options = []): \Generator {
-        $options['type'] = self::DIR;
+        $options['type'] = Stat::DIR;
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 if (is_string($processor)) {
@@ -191,18 +188,18 @@ class Directory extends Entry {
         if (!empty($options['recursive'])) {
             throw new \LogicException("The 'recursive' option must be false");
         }
-        $options['type'] = self::DIR;
+        $options['type'] = Stat::DIR;
         return self::baseNames($dirPath, $processor, $options);
     }
 
     /**
-     * Shortcut for the paths() with $options['type'] == self::FILE option.
+     * Shortcut for the paths() with $options['type'] == Stat::FILE option.
      *
      * @param string|array $dirPath
      * @param string|\Closure $processor
      */
     public static function filePaths($dirPath, $processor = null, array $options = []): \Generator {
-        $options['type'] = self::FILE;
+        $options['type'] = Stat::FILE;
         return self::paths($dirPath, $processor, $options);
     }
 
@@ -214,31 +211,26 @@ class Directory extends Entry {
     }
 
     public static function fileNames($dirPath, $processor = null, array $options = []): \Generator {
-        $options['type'] = self::FILE;
+        $options['type'] = Stat::FILE;
         return self::baseNames($dirPath, $processor, $options);
     }
 
-    public static function linkPaths(string $dirPath, $processor = null): \Generator {
-        throw new NotImplementedException(__METHOD__);
-    }
-
-    /**
-     * @TODO: Extract linkPaths() method, use it with $processor that will check link and
-     * return true for broken links. Add $options
-     *
-     * @param string|array $dirPath
-     * @param string|\Closure $processor
-     */
-    public static function brokenLinkPaths($dirPath, $processor = null): \Generator {
-        foreach (Directory::paths($dirPath, $processor) as $linkOrOtherEntryPath) {
-            if (is_link($linkOrOtherEntryPath)) {
-                $targetPath = readlink($linkOrOtherEntryPath);
-                // @TODO: Handle relative paths, see Symlink::isBroken()
-                if (false === $targetPath || !self::isEntry($targetPath)) {
-                    yield $linkOrOtherEntryPath => $targetPath;
+    public static function linkPaths(string $dirPath, callable $filter): \Generator {
+        foreach (Directory::paths($dirPath) as $path) {
+            if (is_link($path)) {
+                if ($filter) {
+                    if ($filter($path)) {
+                        yield $path;
+                    }
+                } else {
+                    yield $path;
                 }
             }
         }
+    }
+
+    public static function brokenLinkPaths($dirPath): \Generator {
+        return Directory::linkPaths($dirPath, [Symlink::class, 'isBroken']);
     }
 
     public static function tmpPath(): string {
@@ -258,56 +250,77 @@ class Directory extends Entry {
     /**
      * Deletes files and directories recursively from a file system.
      *
-     * This method recursively removes the $dirPath and all its contents.
-     * You should be extremely careful with this method as it has the
-     * potential to erase everything that the current user has access to.
-     *
-     * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
+     * This method recursively removes the $dirPath and all its contents. You should be extremely careful with this method as it has the potential to erase everything that the current user has access to.
      *
      * @param string|iterable $dirPath
-     * @param bool|callable $deleteSelfOrPredicate
+     * @param bool|callable $predicateOrDeleteSelf If callable then it must return true for the all entries which will be deleted and false otherwise. If boolean it must return true if the directory $dirPath must be deleted and false otherwise.
      */
-    public static function delete($dirPath, $deleteSelfOrPredicate = true): void {
+    public static function delete($dirPath, $predicateOrDeleteSelf = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
-                self::deleteDir($path, $deleteSelfOrPredicate);
+                static::delete_($path, $predicateOrDeleteSelf);
             }
         } else {
-            self::deleteDir($dirPath, $deleteSelfOrPredicate);
+            static::delete_($dirPath, $predicateOrDeleteSelf);
         }
     }
 
     /**
      * @param string|iterable $dirPath
-     * @param bool|callable $deleteSelfOrPredicate
+     * @param bool|callable $predicate
      */
-    public static function deleteIfExists($dirPath, $deleteSelfOrPredicate = true): void {
+    public static function deleteIfExists($dirPath, $predicate = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
                 if (is_dir($path)) {
-                    self::deleteDir($path, $deleteSelfOrPredicate);
+                    self::delete_($path, $predicate);
                 }
             }
         } else {
             if (is_dir($dirPath)) {
-                self::deleteDir($dirPath, $deleteSelfOrPredicate);
+                self::delete_($dirPath, $predicate);
             }
         }
     }
 
-    public static function deleteEmptyDirs(string $dirPath, callable $predicate = null): void {
-        $it = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dirPath, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($it as $fileInfo) {
-            $path = $fileInfo->getPathname();
-            if (is_dir($path) && self::isEmpty($path)) {
-                if ($predicate && !$predicate($path)) {
-                    continue;
-                }
-                Directory::delete($path);
+    public static function emptyDirPaths($dirPath, callable $predicate = null): iterable {
+        /*
+foreach ((array) $dirPath as $path) {
+    foreach (new DirectoryIterator($path) as $item) {
+        if ($item->isDot()) {
+            continue;
+        }
+        if ($item->isDir()) {
+            $dirPath = $item->getPathname();
+            if (self::isEmpty($dirPath)) {
+                yield str_replace('\\', '/', $dirPath);
+            } else {
+                yield from self::emptyDirPaths($dirPath);
             }
+        }
+    }
+}
+        */
+        foreach ((array)$dirPath as $dPath) {
+            $it = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dPath, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($it as $fileInfo) {
+                $path = $fileInfo->getPathname();
+                if (is_dir($path) && self::isEmpty($path)) {
+                    if ($predicate && !$predicate($path)) {
+                        continue;
+                    }
+                    yield $path;
+                }
+            }
+        }
+    }
+
+    public static function deleteEmptyDirs($dirPath, callable $predicate = null): void {
+        foreach (self::emptyDirPaths($dirPath, $predicate) as $dPath) {
+            self::delete($dPath);
         }
     }
 
@@ -328,8 +341,8 @@ class Directory extends Entry {
     }
 
     public static function create(string $dirPath, int $mode = self::MODE, bool $recursive = true): string {
-        if (empty($dirPath)) {
-            throw new Exception("The directory path is empty.");
+        if ('' === $dirPath) {
+            throw new Exception("The directory path is empty");
         }
 
         if (is_dir($dirPath)) {
@@ -342,7 +355,7 @@ class Directory extends Entry {
     }
 
     public static function mustExist(string $dirPath): string {
-        if (empty($dirPath)) {
+        if ('' === $dirPath) {
             throw new Exception("The directory path is empty");
         }
         if (!is_dir($dirPath)) {
@@ -351,54 +364,74 @@ class Directory extends Entry {
         return $dirPath;
     }
 
+    private static function delete_(string $dirPath, $predicateOrDeleteSelf) {
+        if (is_callable($predicateOrDeleteSelf)) {
+            self::delete__($dirPath, $predicateOrDeleteSelf);
+        } elseif (is_bool($predicateOrDeleteSelf)) {
+            if ($predicateOrDeleteSelf) {
+                // Delete self
+                $predicate = null;
+            } else {
+                // Not delete self
+                $predicate = function ($path, $isDir) use ($dirPath) {
+                    return $isDir && $path !== $dirPath;
+                };
+            }
+            self::delete__($dirPath, $predicate);
+        } else {
+            throw new InvalidArgumentException('The second argument must be either bool or callable');
+        }
+    }
+
     /**
-     * @param string $dirPath
-     * @param bool|callable $deleteSelfOrPredicate Predicate selects entries which will be not deleted.
+     * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
+     * @param callable|null $predicate Predicate selects entries which will be deleted.
      */
-    private static function deleteDir(string $dirPath, $deleteSelfOrPredicate = null): void {
-        static::mustExist($dirPath);
-        $isBoolArg = is_bool($deleteSelfOrPredicate);
-        if (!$isBoolArg && !is_callable($deleteSelfOrPredicate)) {
-            throw new \InvalidArgumentException('The second argument must be bool or callable');
-        }
-        $absFilePath = realpath($dirPath);
+    private static function delete__(string $dirPath, ?callable $predicate): void {
+        self::mustExist($dirPath);
+        $absPath = realpath($dirPath);
         if (defined('PHP_WINDOWS_VERSION_BUILD')) {
-            $absFilePath = str_replace('\\', '/', $absFilePath);
+            $absPath = str_replace('\\', '/', $absPath);
         }
-        if (!$absFilePath) {
+        if (!$absPath) {
             throw new Exception("The directory '$dirPath' could not be found");
         }
-        $d = @dir($absFilePath);
-        if (!$d) {
+        $dir = @dir($absPath);
+        if (!$dir) {
             throw new Exception("The directory '$dirPath' can not be opened for reading");
         }
         // Check if we can delete the dir.
-        if (!is_writable(realpath($dirPath . '/' . '..'))) {
+        if (!is_writable(realpath($dirPath . '/..'))) {
             throw new Exception("The directory '$dirPath' can not be opened for writing");
         }
-        // Loop over contents.
-        while (($fileName = $d->read()) !== false) {
-            if ($fileName == '.' || $fileName == '..') {
+        while (false !== ($entryName = $dir->read())) {
+            if ($entryName == '.' || $entryName == '..') {
                 continue;
             }
-            $filePath = $absFilePath . '/' . $fileName;
-            if (is_dir($filePath)) {
-                static::deleteDir($filePath, $deleteSelfOrPredicate);
-            } else {
-                if (!$isBoolArg && $deleteSelfOrPredicate($filePath)) {
-                    continue;
+            $entryPath = $absPath . '/' . $entryName;
+
+            $isDir = is_dir($entryPath);
+            if ($isDir) {
+                if (null !== $predicate) {
+                    if ($predicate($entryPath, true)) {
+                        // If it is a directory and we need to delete this directory, delete contents regardless of the $predicate, so pass the `null` as the second argument.
+                        self::delete__($entryPath, null);
+                    } else {
+                        // The $predicate can be used for the directory contents, so pass it as the argument.
+                        self::delete__($entryPath, $predicate);
+                    }
+                } else {
+                    self::delete__($entryPath, null);
                 }
-                ErrorHandler::checkError(@unlink($filePath), "The file '$filePath' can not be deleted, check permissions");
+            } else {
+                if (null === $predicate || (null !== $predicate && $predicate($entryPath, false))) {
+                    ErrorHandler::checkError(@unlink($entryPath), "The file '$entryPath' can not be deleted, check permissions");
+                }
             }
         }
-        $d->close();
-        if (!$isBoolArg) {
-            $skip = $deleteSelfOrPredicate($absFilePath);
-        } else {
-            $skip = !$deleteSelfOrPredicate;
-        }
-        if (!$skip) {
-            ErrorHandler::checkError(@rmdir($absFilePath), "Unable to delete the directory '$absFilePath': it may be not empty or doesn't have relevant permissions");
+        $dir->close();
+        if (null === $predicate || (null !== $predicate && $predicate($absPath, true))) {
+            ErrorHandler::checkError(@rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
         }
     }
 }
