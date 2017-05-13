@@ -440,10 +440,10 @@ class DirectoryTest extends TestCase {
 
     public function testCopy_TargetDirContainsTheSameSubdir() {
         $sourceDirPath = $this->createTmpDir();
-        mkdir($sourceDirPath . '/test1/foo', Directory::MODE, true);
+        mkdir($sourceDirPath . '/test1/foo', Stat::DIR_MODE, true);
 
         $targetDirPath = $this->createTmpDir();
-        mkdir($targetDirPath . '/test1/foo', Directory::MODE, true);
+        mkdir($targetDirPath . '/test1/foo', Stat::DIR_MODE, true);
 
         $sourceDirPath = $sourceDirPath . '/test1';
 
@@ -499,7 +499,7 @@ class DirectoryTest extends TestCase {
         $sourceDirPath = $this->createTmpDir() . '/foo';
         mkdir($sourceDirPath);
         $targetDirPath = $this->createTmpDir() . '/bar';
-        mkdir($targetDirPath . '/foo', Directory::MODE, true);
+        mkdir($targetDirPath . '/foo', Stat::DIR_MODE, true);
 
         $this->assertEquals(
             $targetDirPath . '/' . basename($sourceDirPath),
@@ -511,11 +511,11 @@ class DirectoryTest extends TestCase {
 
     public function testCopy_TargetDirExists_NestedDirExists() {
         $sourceDirPath = $this->createTmpDir();
-        mkdir($sourceDirPath . '/public/module/system', Directory::MODE, true);
+        mkdir($sourceDirPath . '/public/module/system', Stat::DIR_MODE, true);
         touch($sourceDirPath . '/public/module/system/composer.json');
 
         $targetDirPath = $this->createTmpDir();
-        mkdir($targetDirPath . '/public/module/bootstrap', Directory::MODE, true);
+        mkdir($targetDirPath . '/public/module/bootstrap', Stat::DIR_MODE, true);
 
         $sourceDirPath = $sourceDirPath . '/public';
 

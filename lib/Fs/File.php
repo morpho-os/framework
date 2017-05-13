@@ -11,8 +11,6 @@ use function Morpho\Base\{
 use Morpho\Code\CodeTool;
 
 class File extends Entry {
-    const MODE = 0644;
-
     /**
      * Reads file as string.
      */
@@ -278,7 +276,7 @@ class File extends Entry {
                 'lock'           => true,
                 'append'         => false,
                 'context'        => null,
-                'mode'           => self::MODE,
+                'mode'           => Stat::FILE_MODE,
             ]
         );
         $flags = 0;

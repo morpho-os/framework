@@ -8,9 +8,6 @@ use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
 
 class Directory extends Entry {
-    // @TODO: Move to Stat
-    public const MODE = 0755;
-
     public const PHP_FILES_RE = '~\.php$~si';
 
     public static function move(string $sourceDirPath, string $targetDirPath): string {
@@ -240,7 +237,7 @@ class Directory extends Entry {
     /**
      * @return Path to the created directory.
      */
-    public static function createTmp(string $relativeDirPath, int $mode = self::MODE): string {
+    public static function createTmp(string $relativeDirPath, int $mode = Stat::DIR_MODE): string {
         return self::create(
             Path::combine(self::tmpPath(), $relativeDirPath),
             $mode
@@ -331,7 +328,7 @@ foreach ((array) $dirPath as $path) {
         return true;
     }
 
-    public static function recreate(string $dirPath, int $mode = self::MODE, bool $recursive = true): string {
+    public static function recreate(string $dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true): string {
         if (is_dir($dirPath)) {
             self::delete($dirPath);
         }
@@ -340,7 +337,7 @@ foreach ((array) $dirPath as $path) {
         return $dirPath;
     }
 
-    public static function create(string $dirPath, int $mode = self::MODE, bool $recursive = true): string {
+    public static function create(string $dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true): string {
         if ('' === $dirPath) {
             throw new Exception("The directory path is empty");
         }
