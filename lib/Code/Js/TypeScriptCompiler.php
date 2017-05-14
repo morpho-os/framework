@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Web\View;
+namespace Morpho\Code\Js;
 
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;

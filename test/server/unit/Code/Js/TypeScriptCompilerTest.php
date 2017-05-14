@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web\View;
+namespace MorphoTest\Code\Js;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\View\TypeScriptCompiler;
+use Morpho\Code\Js\TypeScriptCompiler;
 
 class TypeScriptCompilerTest extends TestCase {
     private $compiler;
