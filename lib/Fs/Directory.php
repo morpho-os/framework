@@ -281,23 +281,6 @@ class Directory extends Entry {
     }
 
     public static function emptyDirPaths($dirPath, callable $predicate = null): iterable {
-        /*
-foreach ((array) $dirPath as $path) {
-    foreach (new DirectoryIterator($path) as $item) {
-        if ($item->isDot()) {
-            continue;
-        }
-        if ($item->isDir()) {
-            $dirPath = $item->getPathname();
-            if (self::isEmpty($dirPath)) {
-                yield str_replace('\\', '/', $dirPath);
-            } else {
-                yield from self::emptyDirPaths($dirPath);
-            }
-        }
-    }
-}
-        */
         foreach ((array)$dirPath as $dPath) {
             $it = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($dPath, \FilesystemIterator::SKIP_DOTS),
@@ -371,7 +354,7 @@ foreach ((array) $dirPath as $path) {
             } else {
                 // Not delete self
                 $predicate = function ($path, $isDir) use ($dirPath) {
-                    return $isDir && $path !== $dirPath;
+                    return $path !== $dirPath;
                 };
             }
             self::delete__($dirPath, $predicate);

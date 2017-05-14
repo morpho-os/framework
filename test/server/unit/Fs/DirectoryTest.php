@@ -94,6 +94,7 @@ class DirectoryTest extends TestCase {
 
     public function testDelete_DeleteSelf() {
         $tmpDirPath = $this->createTmpDir();
+        touch($tmpDirPath . '/orange.dat');
         mkdir($tmpDirPath . '/foo');
         touch($tmpDirPath . '/foo/test.txt');
         mkdir($tmpDirPath . '/foo/bar');
@@ -109,6 +110,7 @@ class DirectoryTest extends TestCase {
 
     public function testDeleteIfExist_DeleteSelf() {
         $tmpDirPath = $this->createTmpDir();
+        touch($tmpDirPath . '/orange.dat');
         mkdir($tmpDirPath . '/foo');
         touch($tmpDirPath . '/foo/test.txt');
         mkdir($tmpDirPath . '/foo/bar');
