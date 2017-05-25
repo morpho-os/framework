@@ -31,7 +31,7 @@ function detectBaseDirPath(string $dirPath, bool $throwEx = true) {
     } while ($chunks);
     if (null === $baseDirPath) {
         if ($throwEx) {
-            throw new \RuntimeException("Unable to find path of root directory");
+            throw new \RuntimeException("Unable to find a path of the root directory");
         }
         return null;
     }
