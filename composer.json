@@ -48,6 +48,12 @@
         "phpunit/phpunit": "dev-master",
         "facebook/webdriver": "dev-community"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "git@github.com:morpho-os/php-webdriver.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Morpho\\": "lib/"

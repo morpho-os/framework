@@ -36,7 +36,7 @@ install:
     # `node` means `latest stable Node.js release`
   - nvm install node
   - "node --version && npm install -g typescript@next && tsc --version"
-  - travis_retry composer selfupdate
+  - "travis_retry composer selfupdate && composer --version"
   - travis_retry composer install
 
 before_script:
