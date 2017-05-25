@@ -33,4 +33,16 @@ class HttpClient extends Client {
         }
         return $this->send($request);
     }
+
+    public function maxNumberOfRedirects(): int {
+        return $this->config['maxredirects'];
+    }
+
+    public function setMaxNumberOfRedirects(int $n): self {
+        if ($n < 0) {
+            throw new \InvalidArgumentException("The value must be >= 0");
+        }
+        $this->config['maxredirects'] = $n;
+        return $this;
+    }
 }
