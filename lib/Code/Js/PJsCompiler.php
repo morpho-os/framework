@@ -2,80 +2,40 @@
 declare(strict_types=1);
 namespace Morpho\Code\Js;
 
-use Morpho\Base\ArrayObject;
-use function Morpho\Code\parseFile;
-use PhpParser\PrettyPrinterAbstract;
+use function Morpho\Code\parse;
+use PhpParser\NodeTraverser;
 
 // @TODO: Unify with the TypeScriptCompiler.
 class PJsCompiler {
-    public function compile(): CompilationUnit {
+    public function newCompilation(): CompilationUnit {
         return new CompilationUnit($this);
     }
 
-    public function compileUnit(CompilationUnit $compUnit): void {
-        foreach ($compUnit->inFilePaths() as $filePath) {
-            $compUnit->appendResult($this->compileFile($filePath));
+    public function compileFile($compUnit): void {
+        foreach ($compUnit->sourceFiles() as $sourceFile) {
+            $compUnit->appendResult($this->compileFile_($sourceFile));
         }
     }
 
-    public function compileFile(string $filePath): CompilationResult {
+    private function compileFile_($sourceFile): CompilationResult {
         $res = new CompilationResult();
-        $res->filePath = $filePath;
+        //$res->filePath = $filePath;
 
-        $ast = parseFile($filePath);
+        //$ast = parseFile($filePath);
 
-        //$ast = $this->rewriteTree($ast);
+        $ast = parse($sourceFile);
 
-        $res->output = (new Generator())->__invoke($ast, $res);
+        $ast = $this->rewrite($ast);
+
+        $res->output = (new CodeGenerator())->prettyPrintFile($ast);
         return $res;
     }
-}
 
-class Generator extends PrettyPrinterAbstract {
-    public function __invoke(array $ast, CompilationResult $compRes): string {
-
-        // apply "this go to that" functions
-
-
-
-        return 'abc';
+    private function rewrite(array $ast): array {
+        $traverser = new NodeTraverser;
+        $traverser->addVisitor(new TreeRewriter());
+        $ast = $traverser->traverse($ast);
+        return $ast;
     }
 }
 
-class CompilationUnit {
-    private $compiler;
-    private $outFilePath;
-    private $inFilePaths;
-    private $result = [];
-
-    public function __construct(PJsCompiler $compiler) {
-        $this->compiler = $compiler;
-        $this->result = new CompilationResult();
-    }
-
-    public function inFilePath(string $filePath): self {
-        $this->inFilePaths[] = $filePath;
-        return $this;
-    }
-
-    public function outFilePath(string $filePath): self {
-        $this->outFilePath = $filePath;
-        return $this;
-    }
-
-    public function run(): CompilationResult {
-        $this->compiler->compileUnit($this);
-        return $this->result;
-    }
-
-    public function inFilePaths(): iterable {
-        return $this->inFilePaths;
-    }
-
-    public function appendResult(CompilationResult $result) {
-        $this->result[] = $result;
-    }
-}
-
-class CompilationResult extends ArrayObject {
-}
