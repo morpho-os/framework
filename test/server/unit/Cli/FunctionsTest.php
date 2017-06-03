@@ -69,6 +69,11 @@ OUT
     public function testArgsString() {
         $this->assertEquals(" 'foo'", argsString('foo'));
         $this->assertEquals(" 'foo' 'bar'", argsString(['foo', 'bar']));
+        $gen = function () {
+            yield 'foo';
+            yield 'bar';
+        };
+        $this->assertEquals(" 'foo' 'bar'", argsString($gen()));
     }
 
     public function testCmd_ThrowsExceptionOnInvalidOption() {

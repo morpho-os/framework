@@ -75,16 +75,26 @@ function stylize(string $text, $codes): string {
         . $colorOff;                                       // suffix
 }
 
-function escapeArgs(array $args): array {
-    return array_map('escapeshellarg', $args);
+function escapeArgs(iterable $args): array {
+    $res = [];
+    foreach ($args as $arg) {
+        $res[] = escapeshellarg($arg);
+    }
+    return $res;
 }
 
 function argsString($args): string {
-    $args = (array)$args;
-    if (!count($args)) {
-        return '';
+    if (!is_array($args)) {
+        if (!$args instanceof \Traversable) {
+            $args = (array)$args;
+        }
+    } else {
+        if (!count($args)) {
+            return '';
+        }
     }
-    return ' ' . implode(' ', escapeArgs($args));
+    $suffix = implode(' ', escapeArgs($args));
+    return $suffix === '' ? '' : ' ' . $suffix;
 }
 
 function cmd($command, array $options = null): CommandResult {
