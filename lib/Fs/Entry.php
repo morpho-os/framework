@@ -8,6 +8,12 @@ abstract class Entry {
         return new Finder();
     }
 
+    public static function copy(string $srcPath, string $destPath): string {
+        return is_dir($srcPath)
+            ? Directory::copy($srcPath, $destPath)
+            : File::copy($srcPath, $destPath);
+    }
+
     /**
      * @param iterable|string $entryPath
      */
