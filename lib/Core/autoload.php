@@ -61,6 +61,7 @@ const SRC_DIR_NAME = 'src';
 const TEST_DIR_NAME = 'test';
 const TMP_DIR_NAME = 'tmp';
 const VENDOR_DIR_NAME = 'vendor';
+const VENDOR = 'morpho-os';
 
 const CONFIG_FILE_NAME = 'config.php';
 const AUTOLOAD_FILE_NAME = 'autoload.php';

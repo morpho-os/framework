@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Web\Routing;
 
+use const Morpho\Core\VENDOR;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Routing\ActionsMetaProvider;
@@ -8,7 +9,7 @@ use Morpho\Web\Routing\ActionsMetaProvider;
 class ActionsMetaProviderTest extends TestCase {
     public function setUp() {
         parent::setUp();
-        $this->vendorName = 'morpho-os-test';
+        $this->vendorName = VENDOR . '-test';
 
         $testDirPath = $this->getTestDirPath();
         require_once $testDirPath . '/My1Controller.php';

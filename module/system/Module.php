@@ -3,6 +3,7 @@ namespace Morpho\System;
 
 use Morpho\Base\Must;
 use Morpho\Core\Module as BaseModule;
+use const Morpho\Core\VENDOR;
 use Morpho\Db\Sql\Db;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
@@ -11,7 +12,7 @@ use Morpho\Web\NotFoundException;
 use Morpho\Web\Response;
 
 class Module extends BaseModule {
-    const NAME = 'morpho-os/system';
+    const NAME = VENDOR . '/system';
 
     const BAD_REQUEST_ERROR    = 'badRequest';
     const ACCESS_DENIED_ERROR  = 'accessDenied';

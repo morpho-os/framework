@@ -1,7 +1,7 @@
 <?php
 return [
     'sites' => [
-        'morpho-os/localhost',
+        \Morpho\Core\VENDOR . '/localhost',
     ],
     'useMultiSiting' => false,
 ];

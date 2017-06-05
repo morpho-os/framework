@@ -60,12 +60,22 @@ class Site extends Module {
 
     private $usesOwnPublicDir = false;
 
+    /**
+     * @var ?string
+     */
+    private $hostName;
+
     public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
-    public function __construct(string $name, string $dirPath) {
+    public function __construct(string $name, string $dirPath, ?string $hostName) {
         $this->name = $name;
         $this->setDirPath($dirPath);
+        $this->hostName = $hostName;
+    }
+
+    public function hostName(): ?string {
+        return $this->hostName;
     }
 
     public function setCacheDirPath(string $dirPath): void {

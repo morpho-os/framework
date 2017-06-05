@@ -4,6 +4,7 @@ namespace MorphoTest\Web;
 use const Morpho\Core\CACHE_DIR_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\LOG_DIR_NAME;
+use const Morpho\Core\VENDOR;
 use const Morpho\Web\PUBLIC_DIR_PATH;
 use Morpho\Core\Module;
 use Morpho\Fs\File;
@@ -14,16 +15,26 @@ use const Morpho\Web\UPLOAD_DIR_NAME;
 class SiteTest extends TestCase {
     private $site;
 
+    private $moduleName = VENDOR . '/localhost';
+
+    private $hostName = 'example.com';
+
     public function setUp() {
         parent::setUp();
-        $this->site = new Site('localhost', $this->getTestDirPath());
+        $this->site = new Site($this->moduleName, $this->getTestDirPath(), $this->hostName);
+    }
+
+    public function testGettersOfConstructorParams() {
+        $this->assertEquals($this->moduleName, $this->site->name());
+        $this->assertEquals($this->getTestDirPath(), $this->site->dirPath());
+        $this->assertEquals($this->hostName, $this->site->hostName());
     }
 
     public function testSubtyping() {
         $this->assertInstanceOf(Module::class, $this->site);
     }
 
-    public function dataForDirectoryAccessors() {
+    public function dataForDirPathAccessors() {
         $testDirPath = $this->getTestDirPath();
         return [
             [
@@ -46,10 +57,10 @@ class SiteTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForDirectoryAccessors
+     * @dataProvider dataForDirPathAccessors
      * Tests methods: set(log|cache|upload|config)DirPath() and respective reader.
      */
-    public function testDirectoryAccessors($expectedDirPath, $dirName) {
+    public function testDirPathAccessors($expectedDirPath, $dirName) {
         $setter = 'set' . $dirName . 'DirPath';
         $getter = $dirName . 'DirPath';
         $this->assertEquals(

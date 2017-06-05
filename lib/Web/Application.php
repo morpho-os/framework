@@ -117,7 +117,7 @@ class Application extends BaseApplication {
         $config = $this->config();
 
         $sites = $config['sites'];
-        $siteName = null;
+        $hostName = $siteName = null;
         if (!$config['useMultiSiting']) {
             // No multi-siting -> use first found site.
             $siteName = array_shift($sites);
@@ -136,7 +136,7 @@ class Application extends BaseApplication {
 
         $siteDirPath = MODULE_DIR_PATH . '/' . explode('/', $siteName)[1];
 
-        $site = new Site($siteName, $siteDirPath);
+        $site = new Site($siteName, $siteDirPath, $hostName);
         return $site;
     }
 

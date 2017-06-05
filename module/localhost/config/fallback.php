@@ -11,9 +11,9 @@ return [
         'port' => '3306',
     ],
     'modules' => [
-        'morpho-os/system',
-        'morpho-os/user',
-        'morpho-os/bootstrap',
+        \Morpho\Core\VENDOR . '/system',
+        \Morpho\Core\VENDOR . '/user',
+        \Morpho\Core\VENDOR . '/bootstrap',
     ],
     'moduleAutoloader' => [
         'useCache' => false,

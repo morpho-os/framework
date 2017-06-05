@@ -2,11 +2,12 @@
 namespace Morpho\Web;
 
 use Morpho\Core\ModuleManager as BaseModuleManager;
+use const Morpho\Core\VENDOR;
 
 class ModuleManager extends BaseModuleManager {
-    const SYSTEM_MODULE    = 'morpho-os/system';
-    const USER_MODULE      = 'morpho-os/user';
-    const BOOTSTRAP_MODULE = 'morpho-os/bootstrap';
+    const SYSTEM_MODULE    = VENDOR . '/system';
+    const USER_MODULE      = VENDOR . '/user';
+    const BOOTSTRAP_MODULE = VENDOR . '/bootstrap';
 
     protected $fallbackModules = [
         self::SYSTEM_MODULE,
