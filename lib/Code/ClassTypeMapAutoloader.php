@@ -29,7 +29,7 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     public function findFilePath(string $class) {
         if (null === $this->map) {
-            $this->map = $this->createTypeMap();
+            $this->map = $this->newTypeMap();
         }
         return isset($this->map[$class]) ? $this->map[$class] : false;
     }
@@ -41,17 +41,14 @@ class ClassTypeMapAutoloader extends Autoloader {
         }
     }
 
-    /**
-     * @param null|bool $flag
-     */
-    public function useCache($flag = null): bool {
+    public function useCache(bool $flag = null): bool {
         if (null !== $flag) {
             $this->useCache = $flag;
         }
         return $this->useCache;
     }
 
-    protected function createTypeMap(): array {
+    protected function newTypeMap(): array {
         $useCache = $this->useCache;
         if ($useCache && is_file($this->mapFilePath)) {
             return requireFile($this->mapFilePath);

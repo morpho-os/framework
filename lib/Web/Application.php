@@ -59,7 +59,7 @@ class Application extends BaseApplication {
         }
     }
 
-    protected function createServiceManager(): IServiceManager {
+    protected function newServiceManager(): IServiceManager {
         $site = $this->site();
         $siteConfig = $site->config();
         $services = [

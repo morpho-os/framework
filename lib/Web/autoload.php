@@ -21,7 +21,6 @@ const DOMAIN_DIR_NAME = 'domain';
 const FONT_DIR_NAME = 'font';
 const IMG_DIR_NAME = 'img';
 const JS_DIR_NAME = 'js';
-const PUBLIC_MODULE_DIR_PATH = PUBLIC_DIR_PATH . '/' . MODULE_DIR_NAME;
 const SCRIPT_DIR_NAME = 'script';
 const UPLOAD_DIR_NAME = 'upload';
 const VIEW_DIR_NAME = 'view';

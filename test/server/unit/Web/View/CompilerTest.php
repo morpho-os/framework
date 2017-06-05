@@ -6,7 +6,7 @@ use Morpho\Web\View\Compiler;
 
 class CompilerTest extends TestCase {
     public function testAppendSourceInfo() {
-        $this->assertBoolAccessor([new Compiler, 'appendSourceInfo'], true);
+        $this->checkBoolAccessor([new Compiler, 'appendSourceInfo'], true);
     }
 }
 

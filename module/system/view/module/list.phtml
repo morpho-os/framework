@@ -27,7 +27,7 @@ $uriToAction = function ($action) {
             <th style="width: 50%;">Module name</th>
             <th>Actions</th>
         </tr>
-        <?php foreach ($node->moduleNames() as $module): ?>
+        <?php foreach ($this->controller()->moduleNames() as $module): ?>
             <tr>
                 <?php //          <td><input type="checkbox"></td> ?>
                 <?php /*
@@ -36,10 +36,10 @@ $uriToAction = function ($action) {
                 <td style="width: 50%;"><?= $module['name'] ?></td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <?php if (!$node->isInstalledModule($module)): ?>
+                        <?php if (!$this->controller()->isInstalledModule($module)): ?>
                             <button class="btn btn-default" name="install[<?= $module['name'] ?>]" formaction="<?= $uriToAction('install') ?>">Install</button>
                             <button class="btn btn-default" name="deleteFromFs[<?= $module['name'] ?>]" onclick="return confirm('Are you sure?');" formaction="<?= $uriToAction('delete-from-disk') ?>">Delete from disk</button>
-                        <?php elseif ($node->isEnabledModule($module)): ?>
+                        <?php elseif ($this->controller()->isEnabledModule($module)): ?>
                             <button class="btn btn-default" name="disable[<?= $module['name'] ?>]" formaction="<?= $uriToAction('disable') ?>"><i class="fa fa-ban"></i> Disable</button>
                             <button class="btn btn-default" name="configure[<?= $module['name'] ?>]" formaction="<?= $uriToAction('configure') ?>"><i class="fa fa-wrench"></i> Configure</button>
                         <?php else: ?>

@@ -1,19 +1,12 @@
-/// <reference path="widget" />
-/// <reference path="message" />
-/// <reference path="system"/>
-/// <reference path="bom"/>
-/// <reference path="error"/>
+import {Message, MessageType} from "./message";
+import {NotImplementedException} from "./error";
+import {tr, redirectTo, showUnknownError} from "./system";
+import {Widget} from "./widget";
 
-/**
- * Definitions:
- * Error = FormError | ElError.
- * Element = JQuery object
- * FormError is common Error for 
- */
 export class Form extends Widget {
     private _wasValidated = false;
     private _isValid: boolean = null;
-    protected messages: {[type: number]: Message[]} = {};
+    protected messages: { [type: number]: Message[] } = {};
 
     public wasAtLeastOnceValidated(): boolean {
         return this._wasValidated;
@@ -32,42 +25,42 @@ export class Form extends Widget {
         return this._isValid;
     }
 
-    public getEls(): JQuery {
+    public els(): JQuery {
         return $((<any>this.el[0]).elements);
     }
 
-    public getElsToValidate(): JQuery {
-        return this.getEls().filter(function () {
+    public elsToValidate(): JQuery {
+        return this.els().filter(function (this: JQuery) {
             const $el = $(this);
             return $el.is(':not(input[type=submit])') && $el.is(':not(button)');
         });
     }
 
-    public getSubmitButtonEls(): JQuery {
-        return this.getEls().filter(function () {
+    public submitButtonEls(): JQuery {
+        return this.els().filter(function (this: JQuery) {
             return $(this).is(':submit');
         });
     };
 
-    public getInvalidEls(): JQuery {
+    public invalidEls(): JQuery {
         if (!this.wasAtLeastOnceValidated()) {
             return $();
         }
-        return this.getEls().filter(function () {
+        return this.els().filter(function (this: JQuery) {
             return $(this).hasClass('invalid');
         });
     }
 
     public addFormMessage(message: Message): void {
-        var type = message.type;
+        const type = message.type;
         if (typeof this.messages[type] === 'undefined') {
             this.messages[type] = [];
         }
         this.messages[type].push(message);
     }
 
-    public getFormMessages(type: MessageType = null): Message[] {
-        var messages: Message[] = [],
+    public formMessages(type: MessageType = null): Message[] {
+        let messages: Message[] = [],
             concatMessages = (type: MessageType) => {
                 if (typeof this.messages[type] !== 'undefined') {
                     messages = messages.concat(this.messages[type]);
@@ -97,7 +90,7 @@ export class Form extends Widget {
     }
 
     public showAddedFormMessages(): void {
-        this.forEach(this.getFormErrorMessages, this.showAddedFormMessage);
+        this.forEach(this.formErrorMessages, this.showAddedFormMessage);
     }
 
     public showAddedFormMessage(message: Message): void {
@@ -122,8 +115,8 @@ export class Form extends Widget {
         this.showFormMessage(new Message(MessageType.Error, text));
     }
 
-    public getFormErrorMessages(): Message[] {
-        return this.getFormMessages(MessageType.Error);
+    public formErrorMessages(): Message[] {
+        return this.formMessages(MessageType.Error);
     }
 
     public addFormErrorMessage(text: string): void {
@@ -137,13 +130,13 @@ export class Form extends Widget {
 
     protected _showAddedFormMessage(message: Message): void {
         this.showEl(
-            this.getMessageContainerEl()
+            this.messageContainerEl()
                 .append(this.formatFormMessage(message))
         );
     }
 
     protected removeElsErrors(): void {
-        this.forEachEl(this.getElsToValidate(), this.removeElErrors);
+        this.forEachEl(this.elsToValidate(), this.removeElErrors);
     }
 
     protected removeElErrors($el: JQuery): void {
@@ -154,15 +147,15 @@ export class Form extends Widget {
     }
 
     protected removeFormErrors(): void {
-        var $messageContainer = this.getMessageContainerEl();
+        const $messageContainer = this.messageContainerEl();
         $messageContainer.find('.alert-error').remove();
         if ($messageContainer.is(':empty')) {
             this.hideEl($messageContainer);
         }
     }
 
-    protected getMessageContainerEl(): JQuery {
-        var containerCssClass = 'messages',
+    protected messageContainerEl(): JQuery {
+        let containerCssClass = 'messages',
             $containerEl = this.el.find('.' + containerCssClass);
         if (!$containerEl.length) {
             $containerEl = $('<div class="' + containerCssClass + '"></div>').prependTo(this.el);
@@ -187,24 +180,25 @@ export class Form extends Widget {
         // @TODO: Decide where to escape message.text
         return '<div class="alert alert-error">' + message.text + '</div>';
     }
-/*
-    protected showUnknownError(message: string = null, context: any = null): void {
-        this.showErrorMessage(message ? message : tr("Unknown error, please contact support"));
-        this.notifyAboutError(message, context);
-    }
 
-    protected notifyAboutError(message: string = null, context: any = null): void {
-        // @TODO: Send notification to server.
-    }
-*/
+    /*
+     protected showUnknownError(message: string = null, context: any = null): void {
+     this.showErrorMessage(message ? message : tr("Unknown error, please contact support"));
+     this.notifyAboutError(message, context);
+     }
+
+     protected notifyAboutError(message: string = null, context: any = null): void {
+     // @TODO: Send notification to server.
+     }
+     */
     protected _validate(): boolean {
         this.clearErrors();
         return this.validateEls();
     }
 
     protected validateEls(): boolean {
-        var isValid = true;
-        this.forEachEl(this.getElsToValidate(), ($el: JQuery) => {
+        let isValid = true;
+        this.forEachEl(this.elsToValidate(), ($el: JQuery) => {
             if (!this.validateEl($el)) {
                 isValid = false;
             }
@@ -221,7 +215,7 @@ export class Form extends Widget {
     }
 
     protected validateRequiredEl($el: JQuery): boolean {
-        var val = $el.val().trim();
+        const val = $el.val().trim();
         if (!val.length) {
             $el.addClass('invalid');
             this.showValueRequiredElError($el);
@@ -231,7 +225,7 @@ export class Form extends Widget {
     }
 
     protected showValueRequiredElError($el: JQuery): void {
-        this.showElMessage($el, new Message(MessageType.Error, tr('This field is required')));
+        this.showElMessage($el, new Message(MessageType.Error, tr('Это поле обязательно для заполнения.')));
     }
 
     protected showElMessage($el: JQuery, message: Message): void {
@@ -270,30 +264,30 @@ export class Form extends Widget {
 
     protected submit(): void {
         this.disableSubmitButtonEls();
-        this.sendFormData(this.getUri(), this.getFormData());
+        this.sendFormData(this.uri(), this.formData());
     }
 
-    protected getUri(): string {
+    protected uri(): string {
         return this.el.attr('action') || (<any>window).location.href;
     }
 
-    protected getFormData(): Array<JQuerySerializeArrayElement> {
+    protected formData(): Array<JQuerySerializeArrayElement> {
         // @TODO: see the serializeArray() method: $('form').serializeArray()?
-        var data: Array<JQuerySerializeArrayElement> = [];
-        this.getEls().each((index, node) => {
-            var name = node.getAttribute('name');
+        const data: Array<JQuerySerializeArrayElement> = [];
+        this.els().each((index, node) => {
+            const name = node.getAttribute('name');
             if (!name) {
                 return;
             }
             data.push({
                 name: name,
-                value: this.getElValue($(node))
+                value: this.elValue($(node))
             });
         });
         return data;
     }
 
-    protected getElValue($el: JQuery): any {
+    protected elValue($el: JQuery): any {
         if ((<any>$el.get(0))['type'] == 'checkbox') {
             return $el.is(':checked') ? 1 : 0;
         }
@@ -301,7 +295,7 @@ export class Form extends Widget {
     }
 
     protected sendFormData(uri: string, requestData: Object): JQueryXHR {
-        var ajaxSettings = this.ajaxSettings();
+        const ajaxSettings = this.ajaxSettings();
         ajaxSettings.url = uri;
         ajaxSettings.data = requestData;
         return this.sendAjaxRequest(ajaxSettings);
@@ -312,7 +306,7 @@ export class Form extends Widget {
     }
 
     protected ajaxSettings(): JQueryAjaxSettings {
-        var self = this;
+        const self = this;
         return {
             beforeSend: function (jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any {
                 return self.beforeSend(jqXHR, settings);
@@ -346,11 +340,11 @@ export class Form extends Widget {
     }
 
     protected enableSubmitButtonEls() {
-        this.getSubmitButtonEls().prop('disabled', false);
+        this.submitButtonEls().prop('disabled', false);
     }
 
     protected disableSubmitButtonEls() {
-        this.getSubmitButtonEls().prop('disabled', true);
+        this.submitButtonEls().prop('disabled', true);
     }
 
     protected handleResponse(responseData: JsonResponse): void {

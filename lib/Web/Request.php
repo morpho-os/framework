@@ -13,16 +13,16 @@ use Zend\Http\Headers;
  * @TODO: Specify what chunks and mark of them specially.
  */
 class Request extends BaseRequest {
-    //const CONNECT_METHOD = 'CONNECT';
-    const DELETE_METHOD = 'DELETE';
-    const GET_METHOD = 'GET';
-    //const HEAD_METHOD = 'HEAD';
-    //const OPTIONS_METHOD = 'OPTIONS';
-    const PATCH_METHOD = 'PATCH';
-    const POST_METHOD = 'POST';
-    //const PROPFIND_METHOD = 'PROPFIND';
-    const PUT_METHOD = 'PUT';
-    //const TRACE_METHOD = 'TRACE';
+    public const CONNECT_METHOD = 'CONNECT';
+    public const DELETE_METHOD = 'DELETE';
+    public const GET_METHOD = 'GET';
+    public const HEAD_METHOD = 'HEAD';
+    public const OPTIONS_METHOD = 'OPTIONS';
+    public const PATCH_METHOD = 'PATCH';
+    public const POST_METHOD = 'POST';
+    public const PROPFIND_METHOD = 'PROPFIND';
+    public const PUT_METHOD = 'PUT';
+    public const TRACE_METHOD = 'TRACE';
 
     protected $headers;
 
@@ -266,7 +266,7 @@ class Request extends BaseRequest {
      * }
      */
 
-    protected function createResponse(): Response {
+    protected function newResponse(): Response {
         return new Response();
     }
 

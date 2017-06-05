@@ -51,7 +51,7 @@ class ClassTypeMapAutoloaderTest extends TestCase {
     }
 
     public function testUseCache() {
-        $this->assertBoolAccessor([new ClassTypeMapAutoloader(null, null), 'useCache'], true);
+        $this->checkBoolAccessor([new ClassTypeMapAutoloader(null, null), 'useCache'], true);
     }
 
     protected function mapFilePath() {

@@ -32,7 +32,7 @@ abstract class Application {
      */
     public function run() {
         try {
-            $serviceManager = $this->createServiceManager();
+            $serviceManager = $this->newServiceManager();
 
             $this->init($serviceManager);
 
@@ -55,7 +55,7 @@ abstract class Application {
         $serviceManager->get('errorHandler')->register();
     }
 
-    abstract protected function createServiceManager(): IServiceManager;
+    abstract protected function newServiceManager(): IServiceManager;
 
     abstract protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null): void;
 }

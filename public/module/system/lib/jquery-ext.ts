@@ -1,24 +1,29 @@
-/// <reference path="d.ts/jquery-ext.d.ts" />
+interface JQueryStatic {
+    resolvedPromise(value?: any, ...args: any[]): JQueryPromise<any>;
+    isPromise(value: any): boolean;
+    isDomNode(obj: any): boolean;
+}
+interface JQuery {
+    once(this: JQuery, fn: (key: any, value: any) => any): JQuery;
+}
 
-var uniqId: number = 0;
-$.fn.once = function (fn: (key: any, value: any) => any): void {
-    var cssClass: string = String(uniqId++) + '-processed';
+let uniqId: number = 0;
+$.fn.once = function (this: JQuery, fn: (key: any, value: any) => any): JQuery {
+    let cssClass: string = String(uniqId++) + '-processed';
     return this.not('.' + cssClass)
         .addClass(cssClass)
         .each(fn);
 };
 
-// @TODO: Use $.extend to extend jQuery instead of (<any>$)?
-
-(<any>$).resolvedPromise = function (value?: any, ...args: any[]): JQueryPromise<any> {
+$.resolvedPromise = function (value?: any, ...args: any[]): JQueryPromise<any> {
     return $.Deferred().resolve(value, ...args).promise();
 };
 
-(<any>$).isPromise = function (value: any): boolean {
+$.isPromise = function (value: any): boolean {
     return value && $.isFunction(value.promise);
 };
 
-// found at Jasmine Testing framework, j$.isDomNode.
-(<any>$).isDomNode = function (obj: any): boolean {
+// found at Jasmine Testing framework, $.isDomNode.
+$.isDomNode = function (obj: any): boolean {
     return obj.nodeType > 0;
 };

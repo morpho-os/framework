@@ -1,6 +1,4 @@
-/// <reference path="bom" />
-/// <reference path="jquery-ext" />
-/// <reference path="event-manager" />
+import {EventManager} from "./event-manager";
 
 export abstract class Widget extends EventManager {
     protected el: JQuery;
@@ -38,19 +36,20 @@ export abstract class Widget extends EventManager {
         });
     }
 }
+/*
+ class ProgressBar extends Widget {
 
-class ProgressBar extends Widget {
+ }
 
-}
+ class Menu extends Widget {
 
-class Menu extends Widget {
-
-}
-
+ }
+ */
 export class Window extends Widget {
 
 }
+/*
+ class ModalWindow extends Window {
 
-class ModalWindow extends Window {
-
-}
+ }
+ */

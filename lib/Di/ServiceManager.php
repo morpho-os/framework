@@ -48,7 +48,7 @@ class ServiceManager implements IServiceManager {
         }
         $this->loading[$id] = true;
         try {
-            $this->services[$id] = $service = $this->createService($id);
+            $this->services[$id] = $service = $this->newService($id);
         } catch (\Exception $e) {
             unset($this->loading[$id]);
             throw $e;
@@ -76,8 +76,8 @@ class ServiceManager implements IServiceManager {
         }
     }
 
-    protected function createService($id) {
-        $method = 'create' . $id . 'Service';
+    protected function newService($id) {
+        $method = 'new' . $id . 'Service';
         if (method_exists($this, $method)) {
             $this->beforeCreate($id);
             $service = $this->$method();

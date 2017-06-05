@@ -29,7 +29,7 @@ class NoDupsListener implements IExceptionListener {
     }
 
     public function onException(\Throwable $exception): void {
-        $id = $this->createLockId($exception);
+        $id = $this->lockId($exception);
 
         if ($this->isLockExpired($id, $exception)) {
             $this->listener->onException($exception);
@@ -47,7 +47,7 @@ class NoDupsListener implements IExceptionListener {
         $this->gc();
     }
 
-    protected function createLockId(\Throwable $e): string {
+    protected function lockId(\Throwable $e): string {
         $file = $e->getFile();
         $line = $e->getLine();
         $id = md5(

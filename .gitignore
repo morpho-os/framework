@@ -1,5 +1,5 @@
-/bin/*
-!/bin/run-tests
+/bin/php-parse
+/bin/phpunit
 
 # composer's files.
 vendor/

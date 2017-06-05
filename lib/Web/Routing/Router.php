@@ -20,9 +20,9 @@ abstract class Router implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    abstract public function route($request);
+    abstract public function route($request): void;
 
-    abstract public function rebuildRoutes();
+    abstract public function rebuildRoutes(): void;
 
     /*
     public function assemble(string $httpMethod, array $handler, array $params = null): string {

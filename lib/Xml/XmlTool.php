@@ -3,7 +3,7 @@ namespace Morpho\Xml;
 
 class XmlTool {
     public static function arrayToDomDoc(array $data, array $options = []): Document {
-        $doc = Document::create($options);
+        $doc = Document::new($options);
         self::arrayToXml($data, $doc);
         return $doc;
     }
@@ -30,8 +30,8 @@ class XmlTool {
         $innerHTML = "";
         $children = $element->childNodes;
         foreach ($children as $child) {
-            $tmp_dom = XmlTool::createDomDoc();
-            $tmp_dom->appendChild($tmp_dom->importNode($child, true));
+            $tmpDom = XmlTool::newDomDoc();
+            $tmpDom->appendChild($tmp_dom->importNode($child, true));
             $innerHTML.=trim($tmp_dom->saveHTML());
         }
 

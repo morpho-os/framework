@@ -89,7 +89,8 @@ class SiteTest extends TestCase {
         $this->assertCount(2, $config);
         $this->assertEquals('some-value', $config['some-key']);
         $this->assertInstanceOf('ArrayIterator', $config['instance']);
-        $this->assertEquals($shouldBeUsed, $this->site->isFallbackMode());
+
+        $this->checkBoolAccessor([$this->site, 'isFallbackMode'], $shouldBeUsed);
     }
 
     public function testConfigFilePath() {

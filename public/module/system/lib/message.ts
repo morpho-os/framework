@@ -1,4 +1,4 @@
-/// <reference path="widget" />
+import {Widget} from "./widget";
 
 export const enum MessageType {
     Error = 1,
@@ -8,24 +8,32 @@ export const enum MessageType {
     All = Error | Warning | Info | Debug
 }
 
-export class MessageManager extends Morpho.System.Widget {
-    protected getNumberOfMessages(): number {
-        return this.getMessageEls().length;
-    }
+interface MyWindow extends Window {
+    pageMessenger: PageMessenger;
+}
+declare const window: MyWindow;
 
-    protected getMessageEls(): JQuery {
-        return this.el.find('.alert');
-    }
+export function initPageMessenger(): PageMessenger {
+    window.pageMessenger = new PageMessenger('#page-messages');
+    return window.pageMessenger;
 }
 
-export class PageMessageManager extends MessageManager {
+export class PageMessenger extends Widget {
+    protected numberOfMessages(): number {
+        return this.messageEls().length;
+    }
+
+    protected messageEls(): JQuery {
+        return this.el.find('.alert');
+    }
+
     protected registerEventHandlers(): void {
         super.registerEventHandlers();
         this.registerCloseMessageHandler();
     }
 
     protected registerCloseMessageHandler(): void {
-        var self = this;
+        const self = this;
 
         function hideElWithAnim($el: JQuery, fn: () => void) {
             $el.fadeOut(fn);
@@ -39,10 +47,10 @@ export class PageMessageManager extends MessageManager {
         }
 
         function closeMessageWithAnim($message: JQuery): any {
-            if (self.getNumberOfMessages() === 1) {
+            if (self.numberOfMessages() === 1) {
                 hideMainContainerWithAnim();
             } else {
-                var $messageContainer = $message.closest('.messages');
+                const $messageContainer = $message.closest('.messages');
                 if ($messageContainer.find('.alert').length === 1) {
                     hideElWithAnim($messageContainer, function () {
                         $messageContainer.remove();
@@ -55,7 +63,7 @@ export class PageMessageManager extends MessageManager {
             }
         }
 
-        this.el.on('click', 'button.close', function () {
+        this.el.on('click', 'button.close', function (this: JQuery) {
             closeMessageWithAnim($(this).closest('.alert'));
         });
         setTimeout(function () {

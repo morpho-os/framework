@@ -80,7 +80,7 @@ class Theme extends Module {
             $this->layout = dasherize($args['layout']);
         }
 
-        $relFilePath = dasherize($args['controller']) . '/' . dasherize($args['view']);
+        $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($args['view']);
         return $this->renderFile(
             $relFilePath,
             $vars,

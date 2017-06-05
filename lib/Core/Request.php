@@ -73,7 +73,7 @@ abstract class Request {
         return count($this->routingParams) > 0;
     }
 
-    public function setRoutingParams(array $params)/*: void */ {
+    public function setRoutingParams(array $params): void {
         $this->routingParams = $params;
     }
 
@@ -81,7 +81,7 @@ abstract class Request {
         return $this->routingParams;
     }
 
-    public function setRoutingParam(string $name, $value)/*: void */ {
+    public function setRoutingParam(string $name, $value): void {
         $this->routingParams[$name] = $value;
     }
 
@@ -89,7 +89,7 @@ abstract class Request {
         return isset($this->routingParams[$name]) ? $this->routingParams[$name] : $default;
     }
 
-    public function setInternalParam(string $name, $value)/*: void */ {
+    public function setInternalParam(string $name, $value): void {
         $this->internalParams[$name] = $value;
     }
 
@@ -97,20 +97,20 @@ abstract class Request {
         return isset($this->internalParams[$name]) ? $this->internalParams[$name] : $default;
     }
 
-    public function unsetInternalParam(string $name)/*: void */ {
+    public function unsetInternalParam(string $name): void {
         unset($this->internalParams[$name]);
     }
 
-    public function setResponse($response)/*: void */ {
+    public function setResponse($response): void {
         $this->response = $response;
     }
 
     public function response() {
         if (null === $this->response) {
-            $this->response = $this->createResponse();
+            $this->response = $this->newResponse();
         }
         return $this->response;
     }
 
-    protected abstract function createResponse();
+    protected abstract function newResponse();
 } 

@@ -126,7 +126,6 @@ abstract class Controller extends Node implements IServiceManagerAware {
             array_merge(
                 $this->specialViewVars,
                 [
-                    'controller' => $this->name(),
                     'view' => $viewName,
                     'vars' => (array) $viewVars,
                 ]

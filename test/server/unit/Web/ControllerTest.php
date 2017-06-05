@@ -11,7 +11,7 @@ class ControllerTest extends TestCase {
     public function testDispatch_Redirect() {
         $controller = new MyController();
         $basePath = '/some/base/path';
-        $request = $this->createRequest($basePath);
+        $request = $this->newRequest($basePath);
         $uri = new Uri();
         $uri->setBasePath($basePath);
         $request->setUri($uri);
@@ -27,7 +27,7 @@ class ControllerTest extends TestCase {
 
     public function testForwardTo() {
         $controller = new MyController();
-        $request = $this->createRequest();
+        $request = $this->newRequest();
         $controller->setRequest($request);
         $actionName = 'forward-here';
         $controllerName = 'my-other';
@@ -73,7 +73,7 @@ class ControllerTest extends TestCase {
         );
     }
 
-    private function createRequest() {
+    private function newRequest() {
         $request = new Request();
         $request->isDispatched(true);
         return $request;

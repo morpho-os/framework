@@ -10,7 +10,7 @@ use Morpho\Web\Theme;
 
 class ThemeTest extends TestCase {
     public function testIsLayoutRendered() {
-        $this->assertBoolAccessor([new Theme(), 'isLayoutRendered'], false);
+        $this->checkBoolAccessor([new Theme(), 'isLayoutRendered'], false);
     }
 
     public function testAfterDispatch_Redirect_NonAjax_DoesNotChangeResponseContent() {
@@ -80,7 +80,6 @@ class ThemeTest extends TestCase {
             'render',
             [
                 'vars' => $viewVars,
-                'controller' => 'my-controller-name',
                 'view' => $viewName,
             ]
         ];
@@ -112,7 +111,8 @@ class ThemeTest extends TestCase {
         });
 
         $request = new Request();
-        $request->setModuleName($moduleName);
+        $request->setModuleName($moduleName)
+            ->setControllerName('my-controller-name');
         $request->isAjax(false);
         $_SERVER['REQUEST_URI'] = '/base/path/test/me?arg=val';
         $viewRelFilePath = 'my-controller-name/' . $viewName;

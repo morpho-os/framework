@@ -71,7 +71,7 @@ class Pager extends Node {
         $pageNumber = max(intval($pageNumber), 1);
         $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
-        return $this->createPage(
+        return $this->newPage(
             $this->items(
                 $offset,
                 $pageSize
@@ -130,7 +130,7 @@ class Pager extends Node {
     /**
      * Creates a new Page with $items.
      */
-    protected function createPage(array $items): iterable {
+    protected function newPage(array $items): iterable {
         return new Page($items);
     }
 

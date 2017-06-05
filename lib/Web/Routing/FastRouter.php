@@ -13,7 +13,7 @@ use Morpho\Web\ModuleManager;
 use Morpho\Web\Request;
 
 class FastRouter extends Router {
-    public function route($request)/*: void*/ {
+    public function route($request): void {
         $uri = $this->normalizedUri($request);
         if ($this->handleHomeUri($request, $uri)) {
             return;
@@ -39,7 +39,7 @@ class FastRouter extends Router {
         }
     }
 
-    public function rebuildRoutes()/*: void*/ {
+    public function rebuildRoutes(): void {
         $cacheFilePath = $this->cacheFilePath();
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
         foreach ($this->routesMeta() as $routeMeta) {

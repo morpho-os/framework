@@ -30,7 +30,7 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Db\Sql\Db;
 
 class ServiceManager extends BaseServiceManager {
-    public function createRouterService() {
+    public function newRouterService() {
         if ($this->isFallbackMode()) {
             return new FallbackRouter();
         }
@@ -38,7 +38,7 @@ class ServiceManager extends BaseServiceManager {
         return new FastRouter();
     }
 
-    protected function createDbService() {
+    protected function newDbService() {
         $dbConfig = $this->config['db'];
         if ($this->isFallbackMode()) {
             // Don't connect for the fallback mode.
@@ -47,25 +47,25 @@ class ServiceManager extends BaseServiceManager {
         return Db::connect($dbConfig);
     }
 
-    protected function createSessionService() {
+    protected function newSessionService() {
         return new Session(__CLASS__);
     }
 
-    protected function createRequestService() {
+    protected function newRequestService() {
         return new Request();
     }
 
-    protected function createEnvironmentService() {
+    protected function newEnvironmentService() {
         return new Environment();
     }
     
-    protected function createDebugLoggerService() {
+    protected function newDebugLoggerService() {
         $logger = new Logger('debug');
         $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
         return $logger;
     }
 
-    protected function createTemplateEngineService() {
+    protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
         $templateEngine->setCacheDirPath($this->get('site')->cacheDirPath());
@@ -77,15 +77,15 @@ class ServiceManager extends BaseServiceManager {
         return $templateEngine;
     }
 
-    protected function createMessengerService() {
+    protected function newMessengerService() {
         return new Messenger();
     }
     
-    protected function createModuleFsService() {
+    protected function newModuleFsService() {
         return new ModuleFs(MODULE_DIR_PATH, $this->get('autoloader'));
     }
 
-    protected function createModuleManagerService() {
+    protected function newModuleManagerService() {
         $moduleManager = new ModuleManager(
             $this->get('db'),
             $this->get('moduleFs')
@@ -94,7 +94,7 @@ class ServiceManager extends BaseServiceManager {
         return $moduleManager;
     }
 
-    protected function createErrorHandlerService() {
+    protected function newErrorHandlerService() {
         $listeners = [];
         $listeners[] = new NoDupsListener(new LogListener($this->get('errorLogger')));
         if ($this->config['errorHandler']['addDumpListener']) {
@@ -103,7 +103,7 @@ class ServiceManager extends BaseServiceManager {
         return new ErrorHandler($listeners);
     }
 
-    protected function createErrorLoggerService() {
+    protected function newErrorLoggerService() {
         $logger = (new Logger('error'))
             ->pushProcessor(new WebProcessor())
             ->pushProcessor(new MemoryUsageProcessor())
@@ -128,7 +128,7 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
-    protected function createRoutesMetaProviderService() {
+    protected function newRoutesMetaProviderService() {
         $routesMetaProvider = new RoutesMetaProvider();
         $actionsMetaProvider = new ActionsMetaProvider();
         $actionsMetaProvider->setServiceManager($this);

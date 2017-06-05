@@ -96,7 +96,7 @@ class InstallController extends Controller {
 
     protected function initRoutes() {
         $serviceManager = $this->serviceManager;
-        $router = $serviceManager->createRouterService();
+        $router = $serviceManager->newRouterService();
         if ($router instanceof IServiceManagerAware) {
             $router->setServiceManager($serviceManager);
         }

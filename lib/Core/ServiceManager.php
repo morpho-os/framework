@@ -24,18 +24,18 @@ abstract class ServiceManager extends BaseServiceManager {
         throw new MethodNotFoundException($this, $method);
     }
 
-    protected function createAutoloaderService() {
+    protected function newAutoloaderService() {
         return composerAutoloader();
     }
 
-    abstract protected function createModuleManagerService();
+    abstract protected function newModuleManagerService();
 
-    protected function createViewService() {
+    protected function newViewService() {
         return $this->get('moduleManager')
             ->get($this->config['view']);
     }
 
-    protected function createSettingManagerService() {
+    protected function newSettingManagerService() {
         return new SettingManager($this->get('db'));
     }
 }

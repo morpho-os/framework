@@ -26,7 +26,7 @@ array(1) {
     }
 
     public function testIsHtmlMode() {
-        $this->assertBoolAccessor([$this->debugger, 'isHtmlMode'], false);
+        $this->checkBoolAccessor([$this->debugger, 'isHtmlMode'], false);
     }
 
     public function testCalledAt() {

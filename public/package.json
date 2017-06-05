@@ -8,11 +8,11 @@
   "author": "",
   "private": true,
   "dependencies": {
-    "bootstrap-styl": "5.x",
-    "jquery": "2.x",
-    "es5-shim": "latest",
-    "stacktrace-js": "latest",
-    "systemjs": "0.x"
+    "bootstrap-styl": "^5.0.4",
+    "es5-shim": "^4.4.0",
+    "imd": "github:morpho-os/imd",
+    "jquery": "^2.1.4",
+    "stacktrace-js": "^1.0.1"
   },
   "devDependencies": {
     "@types/jquery": "^2.0.41"

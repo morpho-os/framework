@@ -32,7 +32,7 @@ class ActionsMetaProviderTest extends TestCase {
         $enabledModules = [
             "{$this->vendorName}/$projectName",
         ];
-        $actionsMetaProvider = $this->createActionsMetaProvider($controllerFilePaths, $enabledModules);
+        $actionsMetaProvider = $this->newActionsMetaProvider($controllerFilePaths, $enabledModules);
         $this->assertSetsEqual(
             [
                 [
@@ -69,7 +69,7 @@ class ActionsMetaProviderTest extends TestCase {
             "{$this->vendorName}/foo",
             "{$this->vendorName}/baz",
         ];
-        $actionsMetaProvider = $this->createActionsMetaProvider($controllerFilePaths, $enabledModules);
+        $actionsMetaProvider = $this->newActionsMetaProvider($controllerFilePaths, $enabledModules);
         $expected = [
             [
                 'module' => "$this->vendorName/foo",
@@ -118,7 +118,7 @@ class ActionsMetaProviderTest extends TestCase {
         $this->assertSetsEqual($expected, $actual);
     }
 
-    private function createActionsMetaProvider(array $controllerFilePaths, array $enabledModules) {
+    private function newActionsMetaProvider(array $controllerFilePaths, array $enabledModules) {
         $moduleFs = new class ($controllerFilePaths) {
             private $controllerFilePaths;
             

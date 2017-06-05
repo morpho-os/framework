@@ -17,7 +17,7 @@ class RequestTest extends TestCase {
     }
 
     public function testIsAjax_BoolAccessor() {
-        $this->assertBoolAccessor([$this->request, 'isAjax'], false);
+        $this->checkBoolAccessor([$this->request, 'isAjax'], false);
     }
 
     public function testIsAjax_ByDefaultReturnsValueFromHeaders() {
@@ -81,7 +81,7 @@ class RequestTest extends TestCase {
     }
 
     public function testIsDispatched() {
-        $this->assertBoolAccessor([$this->request, 'isDispatched'], false);
+        $this->checkBoolAccessor([$this->request, 'isDispatched'], false);
     }
 
     public function testRoutingParamsAccessors() {

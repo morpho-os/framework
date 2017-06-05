@@ -103,7 +103,7 @@ abstract class TestCase extends BaseTestCase {
         return preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($html));
     }
 
-    protected function assertBoolAccessor(callable $callback, $initialValue) {
+    protected function checkBoolAccessor(callable $callback, $initialValue) {
         $this->assertSame($initialValue, $callback());
         $this->assertTrue($callback(true), 'Returns the passed true');
         $this->assertTrue($callback(), 'Returns the previous value that was set: true');

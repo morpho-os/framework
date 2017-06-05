@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Core;
 
 use Morpho\Base\Node as BaseNode;

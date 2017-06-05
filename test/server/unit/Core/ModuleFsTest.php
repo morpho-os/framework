@@ -23,13 +23,13 @@ class ModuleFsTest extends TestCase {
 
     public function testBaseModuleDirPathAccessors() {
         $baseModuleDirPath = $this->getTestDirPath();
-        $moduleFs = $this->createModuleFs($baseModuleDirPath);
+        $moduleFs = $this->newModuleFs($baseModuleDirPath);
         $this->assertEquals($baseModuleDirPath, $moduleFs->baseModuleDirPath());
     }
 
     public function testModuleNames() {
         $baseModuleDirPath = $this->getTestDirPath();
-        $moduleFs = $this->createModuleFs($baseModuleDirPath);
+        $moduleFs = $this->newModuleFs($baseModuleDirPath);
         $moduleNames = $moduleFs->moduleNames();
         $this->assertCount(3, $moduleNames);
         $this->assertContains("{$this->vendorName}/earth", $moduleNames);
@@ -38,25 +38,25 @@ class ModuleFsTest extends TestCase {
     }
 
     public function testModuleClass_ReturnsFalseWhenClassDoesNotExist() {
-        $moduleFs = $this->createModuleFs($this->getTestDirPath());
+        $moduleFs = $this->newModuleFs($this->getTestDirPath());
         $this->assertNull($moduleFs->moduleClass("{$this->vendorName}/saturn"));
     }
 
     public function testModuleClass_ReturnsClassWhenClassExists() {
-        $moduleFs = $this->createModuleFs($this->getTestDirPath());
+        $moduleFs = $this->newModuleFs($this->getTestDirPath());
         $this->assertEquals('MorphoTest\\Core\\ModuleFsTest\\Mars\\Module', $moduleFs->moduleClass("{$this->vendorName}/mars"));
     }
     
     public function testModuleDirPath() {
         $baseModuleDirPath = $this->getTestDirPath();
-        $moduleFs = $this->createModuleFs($baseModuleDirPath);
+        $moduleFs = $this->newModuleFs($baseModuleDirPath);
         $moduleName = "{$this->vendorName}/saturn";
         $this->assertEquals($baseModuleDirPath . "/saturn", $moduleFs->moduleDirPath($moduleName));
     }
 
     public function testModuleControllerFilePaths() {
         $baseModuleDirPath = $this->getTestDirPath();
-        $moduleFs = $this->createModuleFs($baseModuleDirPath);
+        $moduleFs = $this->newModuleFs($baseModuleDirPath);
         $this->assertEquals(
             [
                 $baseModuleDirPath . '/saturn/' . CONTROLLER_DIR_NAME . '/FooController.php'
@@ -65,7 +65,7 @@ class ModuleFsTest extends TestCase {
         );
     }
 
-    private function createModuleFs(string $baseModuleDirPath) {
+    private function newModuleFs(string $baseModuleDirPath) {
         return new ModuleFs($baseModuleDirPath, new \stdClass(), $this->tmpDirPath());
     }
 }

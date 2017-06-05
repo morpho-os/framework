@@ -24,7 +24,7 @@ class ModuleManagerTest extends DbTestCase {
     public function testChild_ModuleWithoutModuleClass() {
         $moduleName = 'morpho-test/saturn';
         $moduleNs = __CLASS__ . '\\Saturn';
-        $moduleFs = $this->createModuleFs([$moduleName]);
+        $moduleFs = $this->newModuleFs([$moduleName]);
         $moduleFs->expects($this->once())
             ->method('moduleNamespace')
             ->with($this->equalTo($moduleName))
@@ -52,12 +52,12 @@ class ModuleManagerTest extends DbTestCase {
 
     public function testUninstalledModuleNames_CanUseComposerNamingStyle() {
         $modules = ['galaxy/earth', 'galaxy/saturn'];
-        $moduleManager = $this->createModuleManager(null, $this->createModuleFs($modules));
+        $moduleManager = $this->createModuleManager(null, $this->newModuleFs($modules));
         $this->assertEquals($modules, $moduleManager->uninstalledModuleNames());
     }
 
     public function testFallbackMode() {
-        $this->assertBoolAccessor(
+        $this->checkBoolAccessor(
             [$this->createModuleManager(), 'isFallbackMode'],
             false
         );
@@ -83,7 +83,7 @@ class ModuleManagerTest extends DbTestCase {
                 return $this->controllerName;
             }
 
-            public function createResponse() {
+            public function newResponse() {
 
             }
         };
@@ -98,7 +98,7 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testModuleOperations() {
-        $moduleFs = $this->createModuleFs([
+        $moduleFs = $this->newModuleFs([
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ]);
@@ -239,7 +239,7 @@ class ModuleManagerTest extends DbTestCase {
                 return $this->controllerName;
             }
 
-            public function createResponse() {
+            public function newResponse() {
 
             }
         };
@@ -254,13 +254,13 @@ class ModuleManagerTest extends DbTestCase {
     private function createModuleManager(Db $db = null, $moduleFs = null) {
         $moduleManager = new MyModuleManager(
             $db ?: $this->db(),
-            $moduleFs ?: $this->createModuleFs([])
+            $moduleFs ?: $this->newModuleFs([])
         );
         $moduleManager->setServiceManager(new ServiceManager());
         return $moduleManager;
     }
 
-    private function createModuleFs(array $modules) {
+    private function newModuleFs(array $modules) {
         $mock = $this->createMock(\Morpho\Core\ModuleFs::class);
         $mock->expects($this->any())
             ->method('moduleNames')

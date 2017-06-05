@@ -127,7 +127,7 @@ class DateTime extends DateTimeImmutable {
         return $this->format(self::DATETIME_FORMAT);
     }
 
-    public function getTimestamp() {
+    public function getTimestamp(): int {
         return PHP_INT_SIZE === 4 ? $this->format('U') : parent::getTimestamp();
     }
 
@@ -139,7 +139,7 @@ class DateTime extends DateTimeImmutable {
         return is_numeric($value) && preg_match('~^\d+$~s', $value) && strlen($value) === 10;
     }
 
-    public static function createFromTimestamp($timestamp) {
+    public static function newFromTimestamp($timestamp) {
         return (new static())->setTimestamp($timestamp);
     }
 }

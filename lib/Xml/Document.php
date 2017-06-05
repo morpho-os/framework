@@ -45,7 +45,7 @@ class Document extends DOMDocument {
         $fixEncoding = $options['fixEncoding'] ?? false;
         unset($options['fixEncoding']);
 
-        $doc = self::create($options);
+        $doc = self::new($options);
 
         libxml_use_internal_errors(true);
 
@@ -68,7 +68,7 @@ class Document extends DOMDocument {
         return $doc;
     }
 
-    public static function create(array $options = null): Document {
+    public static function new(array $options = null): Document {
         $invalidOptions = array_diff_key((array) $options, self::CREATE_VALID_OPTIONS);
         if (count($invalidOptions)) {
             throw new InvalidOptionsException($invalidOptions);

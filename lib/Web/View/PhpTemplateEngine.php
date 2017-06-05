@@ -8,6 +8,7 @@ use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
+use Morpho\Web\Controller;
 use Morpho\Web\Uri;
 
 class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
@@ -24,7 +25,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     public function plugin($name, array $options = []) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
-            $this->plugins[$name] = $this->createPlugin($name);
+            $this->plugins[$name] = $this->newPlugin($name);
         }
         return $this->plugins[$name];
     }
@@ -50,6 +51,12 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     public function pageCssId(): string {
         return dasherize(self::moduleName()) . '-' . dasherize(self::controllerName()) . '-' . dasherize(self::actionName());
+    }
+
+    public function controller(): Controller {
+        [$moduleName, $controllerName, ] = $this->request()->handler();
+        $module = $this->serviceManager->get('ModuleManager')->child($moduleName);
+        return $module->child($controllerName);
     }
 
     public function moduleName(): string {
@@ -178,7 +185,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 
-    protected function createPlugin(string $name) {
+    protected function newPlugin(string $name) {
         $serviceManager = $this->serviceManager;
         $class = $serviceManager->get('moduleManager')
             ->child(self::moduleName())

@@ -4,14 +4,14 @@ publicDirPath = $(baseDirPath)/public
 publicModuleDirPath := $(publicDirPath)/module
 
 js:
-	bin/compile-ts $(publicModuleDirPath)
+	bin/tsc $(publicModuleDirPath)
 
 css:
 	# To compress add the `-c` option
 	cd $(publicModuleDirPath)/system/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < main.styl > main.css
 
 test:
-	bin/run-tests
+	bin/test
 
 #clean: clean-site-cache
 #	rm -f $(publicModuleDirPath)/**/dest/*

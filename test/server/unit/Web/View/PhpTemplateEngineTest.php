@@ -103,7 +103,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testUseCache() {
-        $this->assertBoolAccessor([new PhpTemplateEngine(), 'useCache'], true);
+        $this->checkBoolAccessor([new PhpTemplateEngine(), 'useCache'], true);
     }
 
     public function testRenderFileWithAbsPath() {

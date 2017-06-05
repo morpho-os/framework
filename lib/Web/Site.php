@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Web;
 
 use function Morpho\Base\requireFile;
@@ -186,8 +185,12 @@ class Site extends Module {
         $this->config = null;
     }
 
-    public function isFallbackMode(): bool {
-        $this->initConfig();
+    public function isFallbackMode(bool $flag = null): bool {
+        if (null !== $flag) {
+            $this->fallbackConfigUsed = $flag;
+        } else {
+            $this->initConfig();
+        }
         return $this->fallbackConfigUsed;
     }
 

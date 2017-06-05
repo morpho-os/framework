@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "alwaysStrict": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "preserve",
+        "module": "amd",
+        "moduleResolution": "node",
+        "newLine": "LF",
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "preserveConstEnums": true,
+        "pretty": true,
+        "removeComments": true,
+        "strictNullChecks": false,
+        "target": "es5",
+        "baseUrl": "./module",
+        "typeRoots": [
+            "node_modules/@types",
+            "module/*/lib/**/*.ts"
+        ]
+    },
+    "include": [
+        "module/*/lib/**/*.ts",
+        "module/*/app/**/*.ts"
+    ]
+}

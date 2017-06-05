@@ -1,5 +1,5 @@
 export class EventManager {
-    private eventHandlers: {[eventName: string]: ((...args: any[]) => any)[]} = {};
+    private eventHandlers: { [eventName: string]: ((...args: any[]) => any)[] } = {};
 
     public on(eventName: string, handler: (...args: any[]) => any): void {
         this.eventHandlers[eventName] = this.eventHandlers[eventName] || [];

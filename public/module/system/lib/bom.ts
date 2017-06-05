@@ -1,9 +1,23 @@
-/// <reference path="d.ts/bom.d.ts" />
+interface Math {
+    EPS: number;
+    roundFloat(val: number, precision: number): number;
+    isFloatLessThanZero(val: number): boolean;
+    isFloatGreaterThanZero(val: number): boolean;
+    isFloatEqualZero(val: number): boolean;
+    isFloatEqual(a: number, b: number): boolean;
+}
+
+interface String {
+    escapeHtml(): string;
+    titleize(): string;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 Math.EPS = 0.000001;
 
 Math.roundFloat = function (val: number, precision = 2): number {
-    var dd = Math.pow(10, precision);
+    const dd = Math.pow(10, precision);
     return Math.round(val * dd) / dd;
 };
 Math.isFloatLessThanZero = function (val: number): boolean {
@@ -15,14 +29,14 @@ Math.isFloatGreaterThanZero = function (val: number): boolean {
 Math.isFloatEqualZero = function (val: number): boolean {
     return Math.abs(val) <= Math.EPS;
 };
-Math.isFloatsEqual = function (a: number, b: number): boolean {
+Math.isFloatEqual = function (a: number, b: number): boolean {
     return Math.isFloatEqualZero(a - b);
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-String.prototype.escapeHtml = function () {
-    var entityMap = {
+String.prototype.escapeHtml = function (this: String): string {
+    const entityMap = {
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
@@ -35,7 +49,7 @@ String.prototype.escapeHtml = function () {
     });
 };
 
-String.prototype.titleize = function () {
+String.prototype.titleize = function (this: String): string {
     // @TODO:
     return this.charAt(0).toUpperCase() + this.slice(1)
 };

@@ -1,8 +1,4 @@
-/// <reference path="bom" />
-/// <reference path="jquery-ext" />
-/// <reference path="widget" />
-
-export class CommonRegExp {
+export class Re {
     public static EMAIL = /^[^@]+@[^@]+$/;
 }
 
@@ -34,8 +30,8 @@ export class Uri {
         return uri;
     }
 }
-export var uri = new Uri();
+export const uri = new Uri();
 
-export function isGenerator(fn) {
-    return fn.constructor.name === 'GeneratorFunction';
+export function isGenerator(fn: Function) {
+    return (<any>fn.constructor).name === 'GeneratorFunction';
 }

@@ -39,9 +39,9 @@ OUT;
         $this->assertEquals(3, $i);
     }
 
-    public function testCreate_ThrowsExceptionOnInvalidOptions() {
+    public function testNew_ThrowsExceptionOnInvalidOptions() {
         $this->expectException(\Morpho\Base\InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
-        Document::create(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
+        Document::new(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
     public function testFromString_ThrowsExceptionOnInvalidOptions() {

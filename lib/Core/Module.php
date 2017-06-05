@@ -4,6 +4,9 @@ namespace Morpho\Core;
 use Morpho\Db\Sql\Db;
 
 class Module extends Node {
+    /**
+     * @var ?string
+     */
     protected $name;
 
     protected $type = 'Module';

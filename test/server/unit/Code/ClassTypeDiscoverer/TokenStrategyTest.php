@@ -2,7 +2,7 @@
 namespace MorphoTest\Code\ClassTypeDiscoverer;
 
 class TokenStrategyTest extends DiscoverStrategyTest {
-    protected function createDiscoverStrategy() {
+    protected function newDiscoverStrategy() {
         return new \Morpho\Code\ClassTypeDiscoverer\TokenStrategy();
     }
 }
