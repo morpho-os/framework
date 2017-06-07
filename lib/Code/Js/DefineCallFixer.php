@@ -80,7 +80,7 @@ class DefineFnCallParser {
         $this->reader = new StringReader($line);
         $this->tokens = [];
 
-        $this->reader->skip('define(');
+        $this->reader->read('define(');
         if ($this->reader->peek1() !== '[') {
             $this->moduleId();
             $this->skipArgSep();
@@ -99,7 +99,7 @@ class DefineFnCallParser {
 
     private function deps(): void {
         $deps = [];
-        $this->reader->skip('[');
+        $this->reader->read('[');
         while (true) {
             if ($this->reader->peek1() === ']') {
                 break;
@@ -111,17 +111,17 @@ class DefineFnCallParser {
             }
             $this->skipArgSep();
         }
-        $this->reader->skip(']');
+        $this->reader->read(']');
         $this->emit(__FUNCTION__, $deps);
     }
 
     private function moduleInitializer() {
-        $s = $this->reader->readRe('~function\s*\([^)]*?\)\s*\{~si');
+        $s = $this->reader->readMatching('~function\s*\([^)]*?\)\s*\{~si');
         $this->emit(__FUNCTION__, $s);
     }
 
     private function skipArgSep() {
-        $this->reader->readRe('~,\s+~si');
+        $this->reader->readMatching('~,\s+~si');
     }
 
     private function emit(string $name, $value): void {

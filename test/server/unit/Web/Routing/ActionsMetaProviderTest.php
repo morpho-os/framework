@@ -7,6 +7,8 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Routing\ActionsMetaProvider;
 
 class ActionsMetaProviderTest extends TestCase {
+    private $vendorName;
+
     public function setUp() {
         parent::setUp();
         $this->vendorName = VENDOR . '-test';

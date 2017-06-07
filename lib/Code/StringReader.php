@@ -3,13 +3,19 @@ declare(strict_types=1);
 
 namespace Morpho\Code;
 
-use const Morpho\Base\EOL_RE;
+use const Morpho\Base\EOL_FULL_RE;
 use Morpho\Base\Must;
+use Morpho\Base\NotImplementedException;
 
+/**
+ * Signatures of some methods taken from http://ruby-doc.org/stdlib-2.4.1/libdoc/strscan/rdoc/StringScanner.html, in particular:
+ * - scan(pattern) => String
+ * - eos?()
+ */
 class StringReader {
-    private $input;
-    private $offset = 0;
-    private $lineNo = 1;
+    protected $input;
+    protected $offset = 0;
+    protected $lineNo = 1;
 
     public function __construct(string $input) {
         $this->input = $input;
@@ -36,7 +42,7 @@ class StringReader {
      */
     public function read1() {
         $ch = $this->peek1();
-        if (false !== $ch) {
+        if (null !== $ch) {
             $this->offset++;
             if ($ch === "\n") {
                 $this->lineNo++;
@@ -48,17 +54,14 @@ class StringReader {
     public function readN(int $n): string {
         $s = $this->peekN($n);
         $this->offset += $n;
-        $this->lineNo += preg_match_all(EOL_RE, $s);
+        $this->lineNo += preg_match_all(EOL_FULL_RE, $s);
         return $s;
     }
 
-    /**
-     * @return bool|string
-     */
-    public function peek1() {
+    public function peek1(): ?string {
         $ch = substr($this->input, $this->offset, 1);
         if ($ch === '' || $ch === false) {
-            return false;
+            return null;
         }
         return $ch;
     }
@@ -90,18 +93,38 @@ class StringReader {
         return $ch;
     }
 
-    public function skip(string $expected): void {
+    public function read(string $expected): string {
         $s = $this->readN(strlen($expected));
         if ($s !== $expected) {
             throw new SyntaxError("Read input doesn't match expected input: expected: '$expected', got: '$s'");
         }
+        return $s;
     }
 
-    public function readRe(string $re): string {
+    public function matches(string $re): bool {
+        return (bool) preg_match($re, $this->input, $m, 0, $this->offset);
+    }
+
+    public function scan(string $re): ?string {
+        /**
+         * To match from the current position use the `A/PCRE_ANCHORED` modifier, e.g.:
+         *     $s = ' ab';
+         *     preg_match('~ab~', $s);  // evaluates to 1
+         *     preg_match('~ab~A', $s); // evaluates to 0
+         */
+        if (preg_match($re, $this->input, $m, 0, $this->offset)) {
+            $s = array_shift($m);
+            $this->offset += strlen($s);
+            return $s;
+        }
+        return null;
+    }
+
+    public function readMatching(string $re): string {
         if (!preg_match($re, $this->input, $m, 0, $this->offset)) {
             throw new SyntaxError();
         }
-        $s = array_pop($m);
+        $s = array_shift($m);
         $this->offset += strlen($s);
         return $s;
     }
@@ -114,5 +137,13 @@ class StringReader {
         $str = $match['doubleQuotedString'];
         $this->offset += strlen($str);
         return $str;
+    }
+
+    public function readUntil(callable $predicate): string {
+        throw new NotImplementedException();
+    }
+
+    public function eos(): bool {
+        return $this->offset >= strlen($this->input);
     }
 }
