@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes
+    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, composeFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 
@@ -465,6 +465,16 @@ class FunctionsTest extends TestCase {
         };
         $appendPrefix = partialFn($concatenate, 'foo', 'bar', 'baz');
         $this->assertEquals('foobarbazHelloWorld!', $appendPrefix('Hello', 'World', '!'));
+    }
+
+    public function testComposeFn() {
+        $g = function ($a) {
+            return 'g' . $a;
+        };
+        $f = function ($b) {
+            return 'f' . $b;
+        };
+        $this->assertEquals('fghello', composeFn($f, $g)('hello'));
     }
 
     public function testRequireFile() {

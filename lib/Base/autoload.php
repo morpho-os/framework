@@ -526,6 +526,12 @@ function partialFn(callable $fn, ...$args1): Closure {
     };
 }
 
+function composeFn(callable $f, callable $g): Closure {
+    return function ($v) use ($f, $g) {
+        return $f($g($v));
+    };
+}
+
 /**
  * @return mixed
  */
