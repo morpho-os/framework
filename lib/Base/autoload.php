@@ -317,16 +317,22 @@ function trimMore($string, $charlist = null) {
     return trim((string)$string, $charlist . TRIM_CHARS);
 }
 
-function head($string, $separator) {
-    // @TODO: Handle arrays too
+function head($string, string $separator = null) {
+    if (is_array($string)) {
+        return array_shift($string);
+    }
+    // @TODO: Handle iterable
     $pos = strpos($string, $separator);
     return false === $pos
         ? $string
         : substr($string, 0, $pos);
 }
 
-function last($string, $separator) {
-    // @TODO: Handle arrays too
+function last($string, string $separator = null) {
+    if (is_array($string)) {
+        return array_pop($string);
+    }
+    // @TODO: Handle iterable
     $pos = strrpos($string, $separator);
     return false === $pos
         ? $string
@@ -334,7 +340,7 @@ function last($string, $separator) {
 }
 
 function init($string, $separator) {
-    // @TODO: Handle arrays too
+    // @TODO: Handle iterable
     $pos = strrpos($string, $separator);
     return false === $pos
         ? $string
@@ -415,6 +421,21 @@ function startsWith($string, $prefix): bool {
         return true;
     }
     return 0 === strpos($string, $prefix);
+}
+
+function contains($haystack, $needle): bool {
+    if (is_string($haystack)) {
+        if ($needle === '') {
+            return true;
+        }
+        //mb_strpos() ??
+        return false !== strpos($haystack, $needle);
+    } elseif (is_array($haystack)) {
+        return in_array($needle, $haystack, true);
+    } else {
+        // @TODO: iterable
+        throw new NotImplementedException();
+    }
 }
 
 function typeOf($val): string {
@@ -516,21 +537,6 @@ function toArray($arrOrTraversable, bool $useKeys = false): array {
     return is_array($arrOrTraversable)
         ? $arrOrTraversable
         : iterator_to_array($arrOrTraversable, $useKeys);
-}
-
-function contains($haystack, $needle): bool {
-    if (is_string($haystack)) {
-        if ($needle === '') {
-            return true;
-        }
-        //mb_strpos() ??
-        return false !== strpos($haystack, $needle);
-    } elseif (is_array($haystack)) {
-        return in_array($needle, $haystack, true);
-    } else {
-        // @TODO: iterable
-        throw new NotImplementedException();
-    }
 }
 
 // @TODO: Move to Byte??, merge with Converter

@@ -275,18 +275,85 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('ff', trimMore('__ ff  ', '_'));
     }
 
-    public function testLast() {
+    public function testLast_String() {
         $this->assertEquals('StringTest', last('MorphoTest\\Base\\StringTest', '\\'));
         $this->assertEquals('', last('MorphoTest\\Base\\StringTest\\', '\\'));
         $this->assertEquals('Foo', last('Foo', '\\'));
         $this->assertEquals('', last('', '\\'));
     }
 
-    public function testHead() {
+    public function testHead_String() {
         $this->assertEquals('MorphoTest', head('MorphoTest\\Base\\StringTest', '\\'));
         $this->assertEquals('', head('\\MorphoTest\\Base\\StringTest', '\\'));
         $this->assertEquals('Foo', head('Foo', '\\'));
         $this->assertEquals('', head('', '\\'));
+    }
+
+    public function dataForHeadAndLast_Array() {
+        $lastFn = 'Morpho\\Base\\last';
+        $headFn = 'Morpho\\Base\\head';
+        $numericKeysScalarEls = ['a', 'b', 'c'];
+        $nonNumericKeysScalarEls = ['foo' => 'a', 'bar' => 'b', 'baz' => 'c'];
+        $numericKeysArrayEls = [['foo' => 'a'], ['bar' => 'b'], ['baz' => 'c']];
+        $nonNumericKeysArrayEls = ['Jupiter' => ['foo' => 'a'], 'Saturn' => ['bar' => 'b'], 'Uranus' => ['baz' => 'c']];
+        return [
+            // Numeric keys scalars
+            [
+                'c',
+                $numericKeysScalarEls,
+                $lastFn,
+            ],
+            [
+                'a',
+                $numericKeysScalarEls,
+                $headFn,
+            ],
+
+            // Non-numeric keys scalars
+            [
+                'c',
+                $nonNumericKeysScalarEls,
+                $lastFn,
+            ],
+            [
+                'a',
+                $nonNumericKeysScalarEls,
+                $headFn,
+            ],
+
+            // Numeric keys arrays
+            [
+                ['baz' => 'c'],
+                $numericKeysArrayEls,
+                $lastFn,
+            ],
+            [
+                ['foo' => 'a'],
+                $numericKeysArrayEls,
+                $headFn,
+            ],
+
+            // Non-numeric keys arrays
+            [
+                ['baz' => 'c'],
+                $nonNumericKeysArrayEls,
+                $lastFn,
+            ],
+            [
+                ['foo' => 'a'],
+                $nonNumericKeysArrayEls,
+                $headFn,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForHeadAndLast_Array
+     */
+    public function testHeadAndLast_Array($expected, array $arr, callable $fn) {
+        $copy = $arr;
+        $this->assertEquals($expected, $fn($arr));
+        $this->assertEquals($copy, $arr);
     }
 
     public function testInit() {
