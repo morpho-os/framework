@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Fs;
 
 use Morpho\Base\ArrayTool;
@@ -50,6 +49,9 @@ class File extends Entry {
         return $content;
     }
 
+    /**
+     * NB: To read a file and then write to it use the construct: File::writeLines($filePath, toArray(File::readLines($filePath))
+     */
     public static function writeLines(string $filePath, iterable $lines): string {
         if (is_array($lines)) {
             return self::write($filePath, implode("\n", $lines));
@@ -70,10 +72,14 @@ class File extends Entry {
             $options = $filterOrOptions;
             $filterOrOptions = null;
         }
-        $options = ArrayTool::handleOptions((array) $options, [
+        $defaultOptions = [
             'skipEmptyLines' => true,
             'rtrim' => true,
-        ]);
+        ];
+        if ($filterOrOptions) { // If a filter was specified, don't ignore empty lines.
+            $defaultOptions['skipEmptyLines'] = false;
+        }
+        $options = ArrayTool::handleOptions((array) $options, $defaultOptions);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
@@ -268,7 +274,22 @@ class File extends Entry {
         return $filePath;
     }
 
-    protected static function filePutContentsOptionsToFlags(array $options): int {
+    /**
+     * @return mixed
+     */
+    public static function withTmp(callable $fn, string $tmpDirPath = null) {
+        $tmpFilePath = tempnam($tmpDirPath ?: Directory::tmpPath(), __FUNCTION__);
+        try {
+            $res = $fn($tmpFilePath);
+        } finally {
+            if (is_file($tmpFilePath)) {
+                unlink($tmpFilePath);
+            }
+        }
+        return $res;
+    }
+
+    private static function filePutContentsOptionsToFlags(array $options): int {
         $options = ArrayTool::handleOptions(
             $options,
             [
@@ -290,20 +311,5 @@ class File extends Entry {
             $flags |= FILE_USE_INCLUDE_PATH;
         }
         return $flags;
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function withTmp(callable $fn, string $tmpDirPath = null) {
-        $tmpFilePath = tempnam($tmpDirPath ?: Directory::tmpPath(), __FUNCTION__);
-        try {
-            $res = $fn($tmpFilePath);
-        } finally {
-            if (is_file($tmpFilePath)) {
-                unlink($tmpFilePath);
-            }
-        }
-        return $res;
     }
 }

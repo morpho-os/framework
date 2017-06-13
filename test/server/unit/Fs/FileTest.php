@@ -291,4 +291,25 @@ OUT
         $this->expectException(\InvalidArgumentException::class);
         foreach (File::readLines(__FILE__, [], []) as $line);
     }
+
+
+    public function testReadLines_DoesNotSkipEmptyLinesIfFilterProvided() {
+        $tmpFilePath = $this->createTmpFile();
+        file_put_contents($tmpFilePath, <<<OUT
+    First
+       
+   Second	
+     Third
+ 
+OUT
+        );
+        $expected = [
+            '    First',
+            '',
+            '   Second',
+            '     Third',
+            '',
+        ];
+        $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath, function () { return true; }), false));
+    }
 }
