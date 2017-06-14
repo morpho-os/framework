@@ -13,7 +13,9 @@ css:
 test:
 	bin/test
 
-clean: clean-site-cache
+clean:
+	rm -rf module/localhost/log/*
+	rm -rf module/localhost/cache/*
 #	rm -f $(publicModuleDirPath)/**/dest/*
 #	rm -f $(publicModuleDirPath)/**/src/*.d.ts
 #	rm -f $(publicModuleDirPath)/**/src/*.js.map
@@ -21,13 +23,10 @@ clean: clean-site-cache
 #	rm -f $(publicModuleDirPath)/**/src/**/*.js
 #	rm -f $(publicModuleDirPath)/**/src/*.js
 
-clean-site-cache:
-	rm -rf site/**/cache/*
-
 update:
 	composer update
 	# We use `install` instead of `update` to run the [scripts](https://docs.npmjs.com/misc/scripts#description) defined in the package.json file.
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test clean clean-site-cache update
+.PHONY: js css test clean update

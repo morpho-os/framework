@@ -6,4 +6,11 @@ set -euo pipefail
 SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
 
-php -f $SCRIPT_DIR_PATH/../vendor/phpunit/phpunit/phpunit -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c $SCRIPT_DIR_PATH/../test/server/unit/phpunit.xml "$@"
+baseDirPath="$SCRIPT_DIR_PATH/.."
+phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
+phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
+phpUnitConfigFilePath="$baseDirPath/test/server/unit/phpunit.xml"
+
+#$phpUnitBinFilePath --version
+
+php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@"

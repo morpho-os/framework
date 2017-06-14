@@ -2,7 +2,7 @@
 /bin/phpunit
 
 # composer's files.
-vendor/
+/vendor/
 composer.lock
 
 # bower
