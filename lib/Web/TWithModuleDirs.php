@@ -1,7 +1,9 @@
 <?php
 namespace Morpho\Web;
 
-use const Morpho\Core\TEST_DIR_NAME;
+use const Morpho\Core\{
+    CONTROLLER_DIR_NAME, LIB_DIR_NAME, MODULE_META_FILE_NAME, RC_DIR_NAME, TEST_DIR_NAME
+};
 use Morpho\Fs\Path;
 
 trait TWithModuleDirs {
@@ -15,7 +17,6 @@ trait TWithModuleDirs {
      */
     private $viewDirPath;
 
-    abstract public function dirPath(): string;
 
     public function setTestDirPath(string $dirPath): void {
         $this->testDirPath = Path::normalize($dirPath);
@@ -37,5 +38,21 @@ trait TWithModuleDirs {
             $this->viewDirPath = $this->dirPath() . '/' . VIEW_DIR_NAME;
         }
         return $this->viewDirPath;
+    }
+
+    public function controllerDirPath(): string {
+        return $this->dirPath() . '/' . CONTROLLER_DIR_NAME;
+    }
+
+    public function libDirPath(): string {
+        return $this->dirPath() . '/' . LIB_DIR_NAME;
+    }
+
+    public function rcDirPath(): string {
+        return $this->dirPath() . '/' . RC_DIR_NAME;
+    }
+
+    public function moduleMetaFilePath(): string {
+        return $this->dirPath() . '/' . MODULE_META_FILE_NAME;
     }
 }

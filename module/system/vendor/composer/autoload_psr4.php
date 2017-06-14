@@ -6,5 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Morpho\\System\\' => array($baseDir . '/'),
+    'Morpho\\System\\Controller\\' => array($baseDir . '/controller'),
+    'Morpho\\System\\' => array($baseDir . '/lib'),
 );

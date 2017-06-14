@@ -69,8 +69,7 @@ class Site extends Module {
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
     public function __construct(string $name, string $dirPath, ?string $hostName) {
-        $this->name = $name;
-        $this->setDirPath($dirPath);
+        parent::__construct($name, $dirPath);
         $this->hostName = $hostName;
     }
 

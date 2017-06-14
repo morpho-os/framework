@@ -5,6 +5,7 @@ use Morpho\Di\IServiceManagerAware;
 use Morpho\Web\Controller;
 use Morpho\Db\Sql\Db;
 use Morpho\Fs\File;
+use Morpho\Web\ModuleManager;
 
 class InstallController extends Controller {
     public function indexAction() {
@@ -80,15 +81,12 @@ class InstallController extends Controller {
         }
 
         // Set the new DB instance for all services.
-        $this->serviceManager->get('settingManager')
+        $this->serviceManager->get('settingsManager')
             ->setDb($db);
 
         $this->initNewEnv($db);
-
         $this->installModules($db);
-
         $this->initRoutes();
-
         $this->saveSiteConfig($dbConfig);
 
         return true;
@@ -113,6 +111,8 @@ class InstallController extends Controller {
             $moduleManager->enableModule($moduleName);
         }
         $moduleManager->isFallbackMode(false);
+        $this->serviceManager->get('settingsManager')
+            ->set('homeHandler', [ModuleManager::SYSTEM_MODULE, 'Module', 'index'], ModuleManager::SYSTEM_MODULE);
     }
 
     protected function initNewEnv(Db $db) {

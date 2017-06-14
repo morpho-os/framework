@@ -69,9 +69,8 @@ class FastRouter extends Router {
 
     protected function handleHomeUri(Request $request, $uri): bool {
         if ($uri === '/') {
-            $handler = $this->serviceManager
-                ->get('settingManager')
-                ->get('homeHandler', ModuleManager::SYSTEM_MODULE);
+            $settingsManager = $this->serviceManager->get('settingsManager');
+            $handler = $settingsManager->get('homeHandler', ModuleManager::SYSTEM_MODULE);
             if (false !== $handler) {
                 $request->setHandler($handler)
                     ->setMethod(Request::GET_METHOD);

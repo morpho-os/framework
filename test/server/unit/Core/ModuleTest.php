@@ -8,7 +8,7 @@ class ModuleTest extends TestCase {
     private $module;
 
     public function setUp() {
-        $this->module = new Module();
+        $this->module = new Module('fooo/bar', $this->getTestDirPath());
     }
 
     public function testDirPathAccessors() {

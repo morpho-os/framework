@@ -13,7 +13,7 @@ css:
 test:
 	bin/test
 
-#clean: clean-site-cache
+clean: clean-site-cache
 #	rm -f $(publicModuleDirPath)/**/dest/*
 #	rm -f $(publicModuleDirPath)/**/src/*.d.ts
 #	rm -f $(publicModuleDirPath)/**/src/*.js.map
@@ -30,4 +30,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test clean-site-cache update
+.PHONY: js css test clean clean-site-cache update

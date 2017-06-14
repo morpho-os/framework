@@ -82,7 +82,7 @@ class ServiceManager extends BaseServiceManager {
     }
     
     protected function newModuleFsService() {
-        return new ModuleFs(MODULE_DIR_PATH, $this->get('autoloader'));
+        return new ModuleFs(MODULE_DIR_PATH);//, $this->get('autoloader'));
     }
 
     protected function newModuleManagerService() {
@@ -130,9 +130,7 @@ class ServiceManager extends BaseServiceManager {
 
     protected function newRoutesMetaProviderService() {
         $routesMetaProvider = new RoutesMetaProvider();
-        $actionsMetaProvider = new ActionsMetaProvider();
-        $actionsMetaProvider->setServiceManager($this);
-        $actionsMetaProvider->setModuleManager($this->get('moduleManager'));
+        $actionsMetaProvider = new ActionsMetaProvider($this->get('moduleManager'));
         $routesMetaProvider->setActionsMetaProvider($actionsMetaProvider);
         return $routesMetaProvider;
     }

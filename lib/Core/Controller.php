@@ -77,12 +77,12 @@ abstract class Controller extends Node implements IServiceManagerAware {
     }
 
     protected function setSetting(string $name, $value, string $moduleName = null): void {
-        $this->serviceManager->get('settingManager')
+        $this->serviceManager->get('settingsManager')
             ->set($name, $value, $moduleName ?: $this->moduleName());
     }
 
     protected function setting(string $name, string $moduleName = null) {
-        return $this->serviceManager->get('settingManager')
+        return $this->serviceManager->get('settingsManager')
             ->get($name, $moduleName ?: $this->moduleName());
     }
 

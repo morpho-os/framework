@@ -1,7 +1,7 @@
 <?php
 namespace Morpho\User;
 
-use Morpho\Core\Module as BaseModule;
+use Morpho\Web\Module as BaseModule;
 use Morpho\Identity\UserManager;
 
 class Module extends BaseModule {
@@ -12,7 +12,9 @@ class Module extends BaseModule {
      */
     public function beforeDispatch(array $event) {
         if (!$this->initialized) {
-            $this->serviceManager->set('userManager', new UserManager($this->repo('User'), $this->serviceManager->get('session')));
+            $userRepo = $this->repo('User');
+            $session = $this->serviceManager->get('session');
+            $this->serviceManager->set('userManager', new UserManager($userRepo, $session));
             $this->initialized = true;
         }
     }

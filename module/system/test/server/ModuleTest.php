@@ -1,7 +1,7 @@
 <?php
 namespace MorphoTest\SystemTest;
 
-use Morpho\Core\SettingManager;
+use Morpho\Core\SettingsManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\Request;
@@ -20,9 +20,9 @@ class ModuleTest extends DbTestCase {
     }
 
     public function testDispatchError_SetsDefaultHandlerForAccessDenied() {
-        $settingManager = $this->createSettingManager(false);
+        $settingsManager = $this->newSettingsManager(false);
         $exception = $this->throwAccessDenied();
-        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingManager);
+        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingsManager);
 
         $module->dispatchError($event);
 
@@ -35,9 +35,9 @@ class ModuleTest extends DbTestCase {
 
     public function testDispatchError_SetsUserDefinedHandlerIfSetForAccessDenied() {
         $handler = ['My', 'Foo', 'handleMe'];
-        $settingManager = $this->createSettingManager($handler);
+        $settingsManager = $this->newSettingsManager($handler);
         $exception = $this->throwAccessDenied();
-        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingManager);
+        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingsManager);
 
         $module->dispatchError($event);
 
@@ -46,9 +46,9 @@ class ModuleTest extends DbTestCase {
 
     public function testDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         $handler = ['My', 'Foo', 'handleMe'];
-        $settingManager = $this->createSettingManager($handler);
+        $settingsManager = $this->newSettingsManager($handler);
         $exception = $this->throwAccessDenied();
-        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingManager);
+        list($module, $event, $request) = $this->initModuleForDispatchError($exception, $settingsManager);
 
         $module->dispatchError($event);
 
@@ -64,11 +64,11 @@ class ModuleTest extends DbTestCase {
         }
     }
 
-    private function initModuleForDispatchError(\Exception $exception, $settingManager) {
+    private function initModuleForDispatchError(\Exception $exception, $settingsManager) {
         $request = new Request();
         $request->isDispatched(true);
         $event = [null, ['exception' => $exception, 'request' => $request]];
-        $module = new SystemModule();
+        $module = new SystemModule('foo/bar', $this->getTestDirPath());
         $serviceManager = new ServiceManager();
         $site = $this->createMock(Site::class);
         $site->method('config')
@@ -76,7 +76,7 @@ class ModuleTest extends DbTestCase {
                 'throwDispatchErrors'=> false,
             ]);
         $serviceManager->set('site', $site);
-        $serviceManager->set('settingManager', $settingManager);
+        $serviceManager->set('settingsManager', $settingsManager);
         $module->setServiceManager($serviceManager);
         return [$module, $event, $request];
     }
@@ -89,8 +89,8 @@ class ModuleTest extends DbTestCase {
         return $e;
     }
 
-    private function createSettingManager($valueToReturn): SettingManager {
-        return new class($valueToReturn) extends SettingManager {
+    private function newSettingsManager($valueToReturn): SettingsManager {
+        return new class($valueToReturn) extends SettingsManager {
             private $value;
 
             public function __construct($value) {

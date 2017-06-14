@@ -1,4 +1,8 @@
 {
     "name": "morpho-test/mars",
-    "require": {}
+    "autoload": {
+        "psr-4": {
+            "MorphoTest\\Core\\ModuleFsTest\\Mars\\": "foo/bar/baz"
+        }
+    }
 }

@@ -1,15 +1,19 @@
 <?php
 namespace Morpho\System\Controller;
 
-use function Morpho\Base\{classify, dasherize};
+use function Morpho\Base\{classify};
 use Morpho\Fs\{File, Directory, Path};
 use Morpho\Web\Controller;
 use Morpho\Web\ModuleManager;
 use PhpParser\BuilderFactory;
 use PhpParser\PrettyPrinter;
-use PhpParser\Node;
 
 class ModuleController extends Controller {
+    public function indexAction() {
+        $this->setView('list');
+        return $this->listAction();
+    }
+
     /**
      * @Title List modules
      */
@@ -171,7 +175,7 @@ class ModuleController extends Controller {
     }
 
     protected function moduleDirPath(string $moduleName): string {
-        return $this->serviceManager->get('moduleManager')->getModuleFs()->getModuleDirPath($moduleName);
+        return $this->serviceManager->get('moduleManager')->moduleFs()->moduleDirPath($moduleName);
     }
 
     protected function writeModuleClass(string $moduleName, bool $isTheme) {

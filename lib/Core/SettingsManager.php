@@ -4,7 +4,7 @@ namespace Morpho\Core;
 use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\Db;
 
-class SettingManager {
+class SettingsManager {
     protected $db;
 
     private $cache = [];

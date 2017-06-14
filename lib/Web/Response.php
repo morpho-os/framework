@@ -5,7 +5,7 @@ use Zend\Http\Headers;
 use Zend\Http\PhpEnvironment\Response as BaseResponse;
 
 class Response extends BaseResponse {
-    public function redirect($uri, $httpStatusCode = null) {
+    public function redirect($uri, $httpStatusCode = null): void {
         $this->headers()->addHeaderLine('Location', (string)$uri);
         $this->setStatusCode($httpStatusCode ?: self::STATUS_CODE_302);
     }

@@ -8,13 +8,12 @@ use function Morpho\Base\{
 use Morpho\Code\ClassTypeDiscoverer;
 use const Morpho\Core\ACTION_SUFFIX;
 use const Morpho\Core\CONTROLLER_SUFFIX;
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Fs\Directory;
+use Morpho\Web\Module;
+use Morpho\Web\ModuleManager;
 
-class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
-    protected $moduleManager;
-
-    protected $serviceManager;
+class ActionsMetaProvider implements \IteratorAggregate {
+    private $moduleManager;
 
     protected $baseControllerClasses = [
         'Morpho\\Core\\Controller',
@@ -22,18 +21,17 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
     ];
 
     private $ignoredMethods;
+    private $controllerFilePathsProvider;
 
-    public function setModuleManager($moduleManager) {
+    public function __construct($moduleManager) {
         $this->moduleManager = $moduleManager;
     }
 
     public function getIterator() {
-        $moduleManager = $this->serviceManager->get('moduleManager');
-        $moduleFs = $moduleManager->moduleFs();
         $classTypeDiscoverer = new ClassTypeDiscoverer();
-        foreach ($moduleManager->enabledModuleNames() as $moduleName) {
-            $moduleFs->registerModuleAutoloader($moduleName);
-            foreach ($moduleFs->moduleControllerFilePaths($moduleName) as $controllerFilePath) {
+        $controllerFilePathsProvider = $this->controllerFilePathsProvider();
+        foreach ($this->moduleManager->enabledModuleNames() as $moduleName) {
+            foreach ($controllerFilePathsProvider($moduleName) as $controllerFilePath) {
                 $classTypes = $classTypeDiscoverer->classTypesDefinedInFile($controllerFilePath);
                 foreach (array_keys($classTypes) as $classType) {
                     if (endsWith($classType, CONTROLLER_SUFFIX)) {
@@ -44,8 +42,15 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
         }
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
+    public function setControllerFilePathsProvider($provider) {
+        $this->controllerFilePathsProvider = $provider;
+    }
+
+    public function controllerFilePathsProvider() {
+        if (null === $this->controllerFilePathsProvider) {
+            $this->controllerFilePathsProvider = new ControllerFilePathsProvider($this->moduleManager);
+        }
+        return $this->controllerFilePathsProvider;
     }
 
     protected function collectActionsMeta(string $controllerClass, string $moduleName, string $controllerName) {
@@ -93,5 +98,23 @@ class ActionsMetaProvider implements \IteratorAggregate, IServiceManagerAware {
             $this->ignoredMethods = $ignoredMethods;
         }
         return $this->ignoredMethods;
+    }
+}
+
+class ControllerFilePathsProvider {
+    private $moduleManager;
+
+    public function __construct(ModuleManager $moduleManager) {
+        $this->moduleManager = $moduleManager;
+    }
+
+    public function __invoke(string $moduleName): iterable {
+        $moduleDirPath = $this->moduleManager->moduleFs()->moduleDirPath($moduleName);
+        $module = new Module($moduleName, $moduleDirPath);
+        $controllerDirPath = $module->controllerDirPath();
+        if (!is_dir($controllerDirPath)) {
+            return [];
+        }
+        return Directory::filePaths($controllerDirPath, '~.Controller\.php$~s', ['recursive' => true]);
     }
 }

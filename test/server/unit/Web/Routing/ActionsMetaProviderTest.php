@@ -2,7 +2,6 @@
 namespace MorphoTest\Web\Routing;
 
 use const Morpho\Core\VENDOR;
-use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Routing\ActionsMetaProvider;
 
@@ -23,7 +22,7 @@ class ActionsMetaProviderTest extends TestCase {
     }
     
     public function testInterfaces() {
-        $this->assertInstanceOf('\Traversable', new ActionsMetaProvider());
+        $this->assertInstanceOf('\Traversable', new ActionsMetaProvider(new \stdClass()));
     }
 
     public function testIterator_Inheritance() {
@@ -122,41 +121,27 @@ class ActionsMetaProviderTest extends TestCase {
     }
 
     private function newActionsMetaProvider(array $controllerFilePaths, array $enabledModules) {
-        $moduleFs = new class ($controllerFilePaths) {
-            private $controllerFilePaths;
-            
-            public function __construct(array $controllerFilePaths) {
-                $this->controllerFilePaths = $controllerFilePaths;
-            }
+        $moduleManager = new class ($enabledModules) {
+            private $enabledModules;
 
-            public function moduleControllerFilePaths($moduleName) {
-                return $this->controllerFilePaths[$moduleName] ?? [];
-            }
-
-            public function registerModuleAutoloader() {
-
-            }
-        };
-        $moduleManager = new class ($moduleFs, $enabledModules) {
-            private $moduleFs, $enabledModules;
-            
-            public function __construct($moduleFs, array $enabledModules) {
-                $this->moduleFs = $moduleFs;
+            public function __construct(array $enabledModules) {
                 $this->enabledModules = $enabledModules;
             }
 
             public function enabledModuleNames() {
                 return $this->enabledModules;
             }
-
-            public function moduleFs() {
-                return $this->moduleFs;
-            }
         };
-        $serviceManager = new ServiceManager();
-        $serviceManager->set('moduleManager', $moduleManager);
-        $actionsMetaProvider = new ActionsMetaProvider();
-        $actionsMetaProvider->setServiceManager($serviceManager);
+        $actionsMetaProvider = new ActionsMetaProvider($moduleManager);
+        $actionsMetaProvider->setControllerFilePathsProvider(new class ($controllerFilePaths) {
+            private $paths;
+            public function __construct(array $paths) {
+                $this->paths = $paths;
+            }
+            public function __invoke(string $moduleName): iterable {
+                return $this->paths[$moduleName];
+            }
+        });
         return $actionsMetaProvider;
     }
 }

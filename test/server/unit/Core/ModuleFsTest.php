@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Core;
 
-use const Morpho\Core\CONTROLLER_DIR_NAME;
 use Morpho\Core\ModuleFs as BaseModuleFs;
 use Morpho\Test\TestCase;
 
@@ -11,14 +10,6 @@ class ModuleFsTest extends TestCase {
     public function setUp() {
         parent::setUp();
         $this->vendorName = 'morpho-test';
-    }
-
-    public function tearDown() {
-        parent::tearDown();
-        $cacheFilePath = $this->tmpDirPath() . '/' . ModuleFs::CACHE_FILE_NAME;
-        if (is_file($cacheFilePath)) {
-            unlink($cacheFilePath);
-        }
     }
 
     public function testBaseModuleDirPathAccessors() {
@@ -37,16 +28,16 @@ class ModuleFsTest extends TestCase {
         $this->assertContains("{$this->vendorName}/mars", $moduleNames);
     }
 
-    public function testModuleClass_ReturnsFalseWhenClassDoesNotExist() {
+    public function testModuleClass_ClassDoesNotExist() {
         $moduleFs = $this->newModuleFs($this->getTestDirPath());
-        $this->assertNull($moduleFs->moduleClass("{$this->vendorName}/saturn"));
+        $this->assertFalse($moduleFs->moduleClass("{$this->vendorName}/saturn"));
     }
 
-    public function testModuleClass_ReturnsClassWhenClassExists() {
+    public function testModuleClass_ClassExists() {
         $moduleFs = $this->newModuleFs($this->getTestDirPath());
-        $this->assertEquals('MorphoTest\\Core\\ModuleFsTest\\Mars\\Module', $moduleFs->moduleClass("{$this->vendorName}/mars"));
+        $this->assertEquals(self::class . '\\Mars\\Module', $moduleFs->moduleClass("{$this->vendorName}/mars"));
     }
-    
+
     public function testModuleDirPath() {
         $baseModuleDirPath = $this->getTestDirPath();
         $moduleFs = $this->newModuleFs($baseModuleDirPath);
@@ -54,35 +45,20 @@ class ModuleFsTest extends TestCase {
         $this->assertEquals($baseModuleDirPath . "/saturn", $moduleFs->moduleDirPath($moduleName));
     }
 
-    public function testModuleControllerFilePaths() {
-        $baseModuleDirPath = $this->getTestDirPath();
-        $moduleFs = $this->newModuleFs($baseModuleDirPath);
-        $this->assertEquals(
-            [
-                $baseModuleDirPath . '/saturn/' . CONTROLLER_DIR_NAME . '/FooController.php'
-            ],
-            $moduleFs->moduleControllerFilePaths("{$this->vendorName}/saturn")
-        );
-    }
-
     private function newModuleFs(string $baseModuleDirPath) {
-        return new ModuleFs($baseModuleDirPath, new \stdClass(), $this->tmpDirPath());
+        return new ModuleFs($baseModuleDirPath, $this->createTmpDir());
     }
 }
 
 class ModuleFs extends BaseModuleFs {
-    private $baseCacheDirPath;
+    private $cacheDirPath;
 
-    public function __construct($baseModuleDirPath, $autoloader, $baseCacheDirPath) {
-        parent::__construct($baseModuleDirPath, $autoloader);
-        $this->baseCacheDirPath = $baseCacheDirPath;
+    public function __construct($baseModuleDirPath, $cacheDirPath) {
+        parent::__construct($baseModuleDirPath);
+        $this->cacheDirPath = $cacheDirPath;
     }
 
-    public function baseCacheDirPath(): string {
-        return $this->baseCacheDirPath;
-    }
-
-    public function registerModuleAutoloader(string $moduleName): bool {
-        return false;
+    public function cacheDirPath(): string {
+        return $this->cacheDirPath;
     }
 }

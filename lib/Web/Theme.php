@@ -6,11 +6,10 @@ namespace Morpho\Web;
 use function Morpho\Base\{
     dasherize, toJson
 };
-use Morpho\Core\Module;
 use Morpho\Fs\Path;
 
 class Theme extends Module {
-    protected $suffix = '.phtml';
+    public const VIEW_FILE_EXT = '.phtml';
 
     protected $layout = 'index';
 
@@ -21,14 +20,6 @@ class Theme extends Module {
     private $isLayoutRendered = false;
 
     private $isThemeDirAdded = false;
-    
-    public function setViewFileSuffix(string $suffix) {
-        $this->suffix = $suffix;
-    }
-
-    public function viewFileSuffix() {
-        return $this->suffix;
-    }
 
     public function setTemplateEngine($templateEngine) {
         $this->templateEngine = $templateEngine;
@@ -68,13 +59,16 @@ class Theme extends Module {
 
         if (!$this->isThemeDirAdded) {
             if (get_class($this) !== __CLASS__) {
-                $this->addBaseDirPath($this->classDirPath() . '/' . VIEW_DIR_NAME);
+                $this->addBaseDirPath($this->viewDirPath());
             }
             $this->isThemeDirAdded = true;
         }
 
-        $moduleViewDirPath = $this->parent('ModuleManager')->moduleFs()->moduleViewDirPath($request->moduleName());
-        $this->addBaseDirPath($moduleViewDirPath);
+        $this->addBaseDirPath(
+            $this->parent('ModuleManager')
+                ->child($request->moduleName())
+                ->viewDirPath()
+        );
 
         if (isset($args['layout'])) {
             $this->layout = dasherize($args['layout']);
@@ -145,7 +139,7 @@ class Theme extends Module {
         return $this->baseDirPaths;
     }
     
-    public function clearBaseDirPaths() {
+    public function clearBaseDirPaths(): void {
         $this->baseDirPaths = [];
     }
 
@@ -153,7 +147,7 @@ class Theme extends Module {
      * @return bool|string
      */
     protected function absoluteFilePath(string $relOrAbsFilePath, bool $throwExIfNotFound = true) {
-        $relOrAbsFilePath .= $this->suffix;
+        $relOrAbsFilePath .= self::VIEW_FILE_EXT;
         if (Path::isAbsolute($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
             return $relOrAbsFilePath;
         }
@@ -172,7 +166,7 @@ class Theme extends Module {
         return false;
     }
 
-    protected function initTemplateEngineVars($templateEngine) {
+    protected function initTemplateEngineVars($templateEngine): void {
         $templateEngine->setVars([
             'uri' => $this->serviceManager->get('request')->uri(),
         ]);

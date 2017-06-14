@@ -16,7 +16,10 @@ class Module extends Node {
      */
     private $dirPath;
 
-    protected $moduleNamespace;
+    public function __construct(string $name, string $dirPath) {
+        $this->name = $name;
+        $this->dirPath = $dirPath;
+    }
 
     public function setDirPath(string $dirPath): self {
         $this->dirPath = $dirPath;
@@ -43,17 +46,6 @@ class Module extends Node {
         return $this->child(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
     }
 
-    public function setModuleNamespace(string $namespace) {
-        $this->moduleNamespace = $namespace;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function moduleNamespace() {
-        return $this->moduleNamespace;
-    }
-
     public static function tableDefinitions(): array {
         return [];
     }
@@ -64,12 +56,12 @@ class Module extends Node {
     }
 
     protected function setSetting(string $name, $value, string $moduleName = null) {
-        $this->serviceManager->get('settingManager')
+        $this->serviceManager->get('settingsManager')
             ->set($name, $value, $moduleName ?: $this->name());
     }
 
     protected function setting(string $name, string $moduleName = null) {
-        return $this->serviceManager->get('settingManager')
+        return $this->serviceManager->get('settingsManager')
             ->get($name, $moduleName ?: $this->name());
     }
 
@@ -78,10 +70,8 @@ class Module extends Node {
             // By default any child is Controller.
             $name = CONTROLLER_NS . '\\' . $name . CONTROLLER_SUFFIX;
         }
-        if (null !== $this->moduleNamespace) {
-            $class = $this->moduleNamespace . '\\' . $name;
-            return class_exists($class) ? $class : false;
-        }
-        return parent::childNameToClass($name);
+        $moduleNs = $this->serviceManager->get('moduleFs')->moduleNamespace($this->name());
+        $class = $moduleNs . '\\' . $name;
+        return class_exists($class) ? $class : false;
     }
 }

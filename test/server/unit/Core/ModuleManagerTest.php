@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Core;
 
+use Morpho\Base\ClassNotFoundException;
 use Morpho\Base\Node;
-// Triggers an error for some reason in Travis environment.
-//use Morpho\Core\ModuleFs;
+use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Core\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\ModuleManager;
@@ -13,40 +13,37 @@ use Morpho\Di\ServiceManager;
 use Morpho\Web\Controller;
 
 class ModuleManagerTest extends DbTestCase {
+    private $vendor = 'morpho-test';
+
     public function setUp() {
         parent::setUp();
         $db = $this->db();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
+        require MODULE_DIR_PATH . '/system/vendor/autoload.php';
         $schemaManager->createTables(\Morpho\System\Module::tableDefinitions());
     }
 
     public function testChild_ModuleWithoutModuleClass() {
-        $moduleName = 'morpho-test/saturn';
-        $moduleNs = __CLASS__ . '\\Saturn';
+        $moduleName = $this->vendor . '/saturn';
         $moduleFs = $this->newModuleFs([$moduleName]);
+
         $moduleFs->expects($this->once())
-            ->method('moduleNamespace')
+            ->method('moduleClass')
             ->with($this->equalTo($moduleName))
-            ->will($this->returnValue($moduleNs));
-        $moduleFs->expects($this->once())
-            ->method('doesModuleExist')
-            ->with($this->equalTo($moduleName))
-            ->will($this->returnValue(true));
+            ->will($this->returnValue(Module::class));
         $moduleManager = $this->createModuleManager(null, $moduleFs);
 
         $module = $moduleManager->child($moduleName);
 
         $this->assertEquals(Module::class, get_class($module));
         $this->assertEquals($moduleName, $module->name());
-        $this->assertEquals($moduleNs, $module->moduleNamespace());
     }
 
     public function testChild_ThrowsExceptionForNonExistingModule() {
         $moduleName = 'some/non-existing';
         $moduleManager = $this->createModuleManager();
-        $this->expectException('\\Morpho\\Base\\ObjectNotFoundException', "Unable to load the module '$moduleName'");
-
+        $this->expectException(ClassNotFoundException::class, "Unable to load the module '$moduleName'");
         $moduleManager->child($moduleName);
     }
 
@@ -67,24 +64,12 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager = $this->createModuleManager();
 
         $moduleName = 'error-handling-test-module';
-        $module = $moduleManager->addChild((new ErrorHandlingTestModule())->setName($moduleName));
+        $module = $moduleManager->addChild(
+            new ErrorHandlingTestModule($moduleName, $this->getTestDirPath())
+        );
 
-        $request = new class($moduleName, 'error-handling-test-controller') extends Request {
-            public function __construct($moduleName, $controllerName) {
-                $this->moduleName = $moduleName;
-                $this->controllerName = $controllerName;
-            }
-
-            public function moduleName() {
-                return $this->moduleName;
-            }
-
-            public function controllerName() {
-                return $this->controllerName;
-            }
-
-            public function newResponse() {
-
+        $request = new class() extends Request {
+            protected function newResponse() {
             }
         };
 
@@ -125,7 +110,7 @@ class ModuleManagerTest extends DbTestCase {
         $moduleName = __CLASS__ . '\\My';
 
         $moduleClass = $moduleName . '\\Module';
-        $module = (new $moduleClass())->setName($moduleName);
+        $module = new $moduleClass($moduleName, $this->getTestDirPath());
 
         $moduleManager->addChild($module);
 
@@ -220,29 +205,14 @@ class ModuleManagerTest extends DbTestCase {
     public function testDispatch_CallsDispatchMethodOfController() {
         $moduleManager = $this->createModuleManager();
         $moduleName = 'my-module';
-        $module = (new \MorphoTest\Core\ModuleManagerTest\My\Module())->setName($moduleName);
+        $module = new ModuleManagerTest\My\Module($moduleName, $this->getTestDirPath());
         $moduleManager->addChild($module);
-
         $controllerName = 'my-controller';
-
         $request = new class($moduleName, $controllerName) extends Request {
-            public function __construct($moduleName, $controllerName) {
-                $this->moduleName = $moduleName;
-                $this->controllerName = $controllerName;
-            }
-
-            public function moduleName() {
-                return $this->moduleName;
-            }
-
-            public function controllerName() {
-                return $this->controllerName;
-            }
-
             public function newResponse() {
-
             }
         };
+        $request->setHandler([$moduleName, $controllerName, 'some']);
 
         $this->assertFalse($module->child($controllerName)->isDispatchCalled());
 
@@ -296,6 +266,7 @@ class ErrorHandlingTestModuleException extends \RuntimeException {
 
 class MyModuleManager extends ModuleManager {
     protected function actionNotFound($moduleName, $controllerName, $actionName): void {
+        throw new \RuntimeException();
     }
 }
 

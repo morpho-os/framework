@@ -35,7 +35,7 @@ abstract class ServiceManager extends BaseServiceManager {
             ->get($this->config['view']);
     }
 
-    protected function newSettingManagerService() {
-        return new SettingManager($this->get('db'));
+    protected function newSettingsManagerService() {
+        return new SettingsManager($this->get('db'));
     }
 }

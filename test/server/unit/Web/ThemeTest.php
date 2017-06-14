@@ -2,15 +2,17 @@
 namespace MorphoTest\Core;
 
 use function Morpho\Base\fromJson;
-use Morpho\Base\Node;
+use Morpho\Base\Node as BaseNode;
+use Morpho\Core\Node;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
+use Morpho\Web\Module;
 use Morpho\Web\Request;
 use Morpho\Web\Theme;
 
 class ThemeTest extends TestCase {
     public function testIsLayoutRendered() {
-        $this->checkBoolAccessor([new Theme(), 'isLayoutRendered'], false);
+        $this->checkBoolAccessor([$this->newTheme(), 'isLayoutRendered'], false);
     }
 
     public function testAfterDispatch_Redirect_NonAjax_DoesNotChangeResponseContent() {
@@ -25,7 +27,7 @@ class ThemeTest extends TestCase {
         $response->setContent($content);
 
         $event = ['afterDispatch', ['request' => $request]];
-        $theme = new Theme();
+        $theme = $this->newTheme();
 
         $this->assertFalse($theme->isLayoutRendered());
 
@@ -46,7 +48,7 @@ class ThemeTest extends TestCase {
         $response->setContent('');
 
         $event = ['afterDispatch', ['request' => $request]];
-        $theme = new Theme();
+        $theme = $this->newTheme();
 
         $this->assertFalse($theme->isLayoutRendered());
 
@@ -58,7 +60,7 @@ class ThemeTest extends TestCase {
     }
 
     public function testRender_Ajax() {
-        $theme = new Theme();
+        $theme = $this->newTheme();
         $viewVars = ['foo' => 'bar'];
         $event = ['render', ['vars' => $viewVars]];
 
@@ -73,9 +75,60 @@ class ThemeTest extends TestCase {
     }
 
     public function testRender_NonAjax() {
-        $theme = new Theme();
+        $theme = $this->newTheme();
+
+        $moduleName = 'foo-bar';
+        $controllerName = 'my-controller-name';
+        $moduleDirPath = $this->getTestDirPath() . '/' . $moduleName;
         $viewName = 'my-view-name';
         $viewVars = ['news' => '123'];
+
+        $request = new Request();
+        $request->setModuleName($moduleName)
+            ->setControllerName($controllerName);
+        $request->isAjax(false);
+        $_SERVER['REQUEST_URI'] = '/base/path/test/me?arg=val';
+        
+        $viewAbsFilePath = $moduleDirPath . '/' . $controllerName . '/' . $viewName . Theme::VIEW_FILE_EXT;
+        $expectedRendered = 'abcdefg123';
+
+        $templateEngine = $this->createMock(\Morpho\Web\View\TemplateEngine::class);
+        $templateEngine->expects($this->once())
+            ->method('renderFile')
+            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
+            ->will($this->returnValue($expectedRendered));
+
+        $serviceManager = new ServiceManager([
+            'request' => $request,
+            'templateEngine' => $templateEngine,
+        ]);
+        $theme->setServiceManager($serviceManager);
+
+        $module = $this->createMock(Module::class);
+        $module->expects($this->any())
+            ->method('viewDirPath')
+            ->willReturn($moduleDirPath);
+        $module->expects($this->any())
+            ->method('name')
+            ->willReturn($moduleName);
+        $moduleManager = new class ($module) extends Node {
+            protected $name = 'ModuleManager';
+
+            private $module;
+
+            public function __construct($module) {
+                $this->module = $module;
+            }
+
+            public function child(string $name): BaseNode {
+                if ($name === $this->module->name()) {
+                    return $this->module;
+                }
+                throw new \RuntimeException();
+            }
+        };
+        $theme->setParent($moduleManager);
+
         $event = [
             'render',
             [
@@ -83,59 +136,14 @@ class ThemeTest extends TestCase {
                 'view' => $viewName,
             ]
         ];
-        $moduleName = 'foo-bar';
-        $moduleDirPath = $this->getTestDirPath() . '/' . $moduleName;
-        $theme->setParent(new class ($moduleName, $moduleDirPath) extends Node {
-            protected $name = 'ModuleManager';
-
-            private $moduleName, $moduleDirPath;
-
-            public function __construct($moduleName, $moduleDirPath) {
-                $this->moduleName = $moduleName;
-                $this->moduleDirPath = $moduleDirPath;
-            }
-
-            public function moduleFs() {
-                return new class ($this->moduleName, $this->moduleDirPath) {
-                    private $moduleDirPath;
-
-                    public function __construct($moduleName, $moduleDirPath) {
-                        $this->moduleDirPath[$moduleName] = $moduleDirPath;
-                    }
-
-                    public function moduleViewDirPath($moduleName) {
-                        return $this->moduleDirPath[$moduleName];
-                    }
-                };
-            }
-        });
-
-        $request = new Request();
-        $request->setModuleName($moduleName)
-            ->setControllerName('my-controller-name');
-        $request->isAjax(false);
-        $_SERVER['REQUEST_URI'] = '/base/path/test/me?arg=val';
-        $viewRelFilePath = 'my-controller-name/' . $viewName;
-        $viewAbsFilePath = $moduleDirPath . '/' . $viewRelFilePath . $theme->viewFileSuffix();
-        $templateEngine = $this->createMock(\Morpho\Web\View\TemplateEngine::class);
-        $expectedRendered = 'abcdefg123';
-        $templateEngine->expects($this->once())
-            ->method('renderFile')
-            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
-            ->will($this->returnValue($expectedRendered));
-        $serviceManager = new ServiceManager([
-            'request' => $request,
-            'templateEngine' => $templateEngine,
-        ]);
-        $theme->setServiceManager($serviceManager);
 
         $actualRendered = $theme->render($event);
 
         $this->assertEquals($expectedRendered, $actualRendered);
     }
-    
+
     public function testBasePathAccessors() {
-        $theme = new Theme();
+        $theme = $this->newTheme();
         $this->assertEquals([], $theme->baseDirPaths());
         $baseDirPath = $this->getTestDirPath() . '/foo/bar';
         $theme->addBaseDirPath($baseDirPath);
@@ -145,5 +153,9 @@ class ThemeTest extends TestCase {
         $this->assertEquals([$baseDirPath], $theme->baseDirPaths());
         $theme->clearBaseDirPaths();
         $this->assertEquals([], $theme->baseDirPaths());
+    }
+
+    private function newTheme() {
+        return new Theme('foo/bar', $this->getTestDirPath());
     }
 }

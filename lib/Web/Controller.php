@@ -27,7 +27,7 @@ class Controller extends BaseController {
         $request->isDispatched(false);
     }
 
-    protected function redirectToAction(string $action, string $httpMethod = null, string $controller = null, string $module = null, array $routingParams = null) {
+    protected function redirectToAction(string $action, string $controller = null, string $module = null, string $httpMethod = null, array $routingParams = null) {
         // @TODO
         throw new NotImplementedException(__METHOD__);
         /*
@@ -117,15 +117,15 @@ class Controller extends BaseController {
         $this->serviceManager->get('messenger')->addWarningMessage($message, $args);
     }
 
-    protected function accessDenied() {
+    protected function accessDenied(): void {
         throw new AccessDeniedException();
     }
 
-    protected function notFound() {
+    protected function notFound(): void {
         throw new NotFoundException();
     }
     
-    protected function badRequest() {
+    protected function badRequest(): void {
         throw new BadRequestException();
     }
 
@@ -153,7 +153,7 @@ class Controller extends BaseController {
         return $this->request->query($name, $trim);
     }
 
-    protected function setLayout(string $name) {
+    protected function setLayout(string $name): void {
         $this->setSpecialViewVar('layout', $name);
     }
 

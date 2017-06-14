@@ -2,7 +2,7 @@
 namespace Morpho\System;
 
 use Morpho\Base\Must;
-use Morpho\Core\Module as BaseModule;
+use Morpho\Web\Module as BaseModule;
 use const Morpho\Core\VENDOR;
 use Morpho\Db\Sql\Db;
 use Morpho\Error\ErrorHandler;
@@ -68,7 +68,7 @@ class Module extends BaseModule {
                 throw $exception;
             }
 
-            $handler = $serviceManager->get('settingManager')
+            $handler = $serviceManager->get('settingsManager')
                 ->get($errorType . 'Handler', self::NAME);
             if (false === $handler) {
                 $handler = static::defaultErrorHandler($errorType);
