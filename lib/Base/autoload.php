@@ -1,6 +1,9 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file use some ideas (or fragments) found at https://github.com/nikic/iter.
+ */
 
+declare(strict_types = 1);
 namespace Morpho\Base;
 
 use Closure;
@@ -34,8 +37,8 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function all(callable $predicate, iterable $it): bool {
-    foreach ($it as $key => $value) {
+function all(callable $predicate, iterable $list): bool {
+    foreach ($list as $key => $value) {
         if (!$predicate($value, $key)) {
             return false;
         }
@@ -43,8 +46,8 @@ function all(callable $predicate, iterable $it): bool {
     return true;
 }
 
-function any(callable $predicate, iterable $it): bool {
-    foreach ($it as $key => $value) {
+function any(callable $predicate, iterable $list): bool {
+    foreach ($list as $key => $value) {
         if ($predicate($value, $key)) {
             return true;
         }
@@ -52,12 +55,21 @@ function any(callable $predicate, iterable $it): bool {
     return false;
 }
 
+function map(callable $fn, $list): iterable {
+    foreach ($list as $k => $v) {
+        yield $k => $fn($v, $k);
+    }
+}
+
 /**
- * Array filter with changed/fixed order of arguments.
+ * @return iterable Generator if $list argument is not an array
  */
-function filter(callable $fn, array $arr, bool $resetKeys = true, int $flags = 0): array {
-    $arr = array_filter($arr, $fn, $flags);
-    return $resetKeys ? array_values($arr) : $arr;
+function filter(callable $predicate, iterable $list): iterable {
+    foreach ($list as $k => $v) {
+        if ($predicate($v, $k)) {
+            yield $k => $v;
+        }
+    }
 }
 
 /**
@@ -323,19 +335,31 @@ function head($list, string $separator = null) {
             throw new \RuntimeException('Empty list');
         }
         return array_shift($list);
+    } elseif (is_string($list)) {
+        if ($list === '') {
+            throw new \RuntimeException('Empty list');
+        }
+        // @TODO, mb_substr()
+        if (null === $separator) {
+            return substr($list, 0, 1);
+        }
+        $pos = strpos($list, $separator);
+        return false === $pos
+            ? $list
+            : substr($list, 0, $pos);
+    } else {
+        $empty = true;
+        $head = null;
+        foreach ($list as $v) {
+            $empty = false;
+            $head = $v;
+            break;
+        }
+        if ($empty) {
+            throw new \RuntimeException('Empty list');
+        }
+        return $head;
     }
-    if ($list === '') {
-        throw new \RuntimeException('Empty list');
-    }
-    // @TODO, mb_substr()
-    // @TODO: handle iterable
-    if (null === $separator) {
-        return substr($list, 0, 1);
-    }
-    $pos = strpos($list, $separator);
-    return false === $pos
-        ? $list
-        : substr($list, 0, $pos);
 }
 
 function last($list, string $separator = null) {
@@ -344,60 +368,95 @@ function last($list, string $separator = null) {
             throw new \RuntimeException('Empty list');
         }
         return array_pop($list);
+    } elseif (is_string($list)) {
+        if ($list === '') {
+            throw new \RuntimeException('Empty list');
+        }
+        // @TODO, mb_substr()
+        if (null === $separator) {
+            return substr($list, -1);
+        }
+        $pos = strrpos($list, $separator);
+        return false === $pos
+            ? $list
+            : substr($list, $pos + 1);
+    } else {
+        $empty = true;
+        $last = null;
+        foreach ($list as $v) {
+            $empty = false;
+            $last = $v;
+        }
+        if ($empty) {
+            throw new \RuntimeException('Empty list');
+        }
+        return $last;
     }
-    if ($list === '') {
-        throw new \RuntimeException('Empty list');
-    }
-    // @TODO, mb_substr()
-    // @TODO: Handle iterable
-    if (null === $separator) {
-        return substr($list, -1);
-    }
-    $pos = strrpos($list, $separator);
-    return false === $pos
-        ? $list
-        : substr($list, $pos + 1);
 }
 
-function init($list, $separator) {
+function init($list, string $separator = null) {
     if (is_array($list)) {
         if (!count($list)) {
             throw new \RuntimeException('Empty list');
         }
         throw new NotImplementedException();
+    } elseif (is_string($list)) {
+        if ($list === '') {
+            throw new \RuntimeException('Empty list');
+        }
+        /*
+        $parts = explode($separator, $list);
+        array_pop($parts);
+        return implode('\\', $parts);
+        */
+        // @TODO, mb_substr()
+        $pos = strrpos($list, $separator);
+        return false === $pos
+            ? ''
+            : substr($list, 0, $pos);
+    } else {
+        $empty = true;
+        foreach ($list as $v) {
+            $empty = false;
+        }
+        if ($empty) {
+            throw new \RuntimeException('Empty list');
+        }
+        throw new NotImplementedException();
     }
-    if ($list === '') {
-        throw new \RuntimeException('Empty list');
-    }
-    /*
-    $parts = explode($separator, $list);
-    array_pop($parts);
-    return implode('\\', $parts);
-    */
-    // @TODO, mb_substr()
-    // @TODO: Handle iterable
-    $pos = strrpos($list, $separator);
-    return false === $pos
-        ? ''
-        : substr($list, 0, $pos);
 }
 
-function tail($list, $separator) {
+function tail($list, string $separator = null) {
     if (is_array($list)) {
         if (!count($list)) {
             throw new \RuntimeException('Empty list');
         }
         throw new NotImplementedException();
+    } elseif (is_string($list)) {
+        if ($list === '') {
+            throw new \RuntimeException('Empty list');
+        }
+        // @TODO, mb_substr()
+        $pos = strpos($list, $separator);
+        return false === $pos
+            ? ''
+            : substr($list, $pos + 1);
+    } else {
+        $empty = true;
+        $gen = function () use ($list, &$empty) {
+            foreach ($list as $v) {
+                if ($empty) {
+                    $empty = false;
+                } else {
+                    yield $v;
+                }
+            }
+            if ($empty) {
+                throw new \RuntimeException('Empty list');
+            }
+        };
+        return $gen();
     }
-    if ($list === '') {
-        throw new \RuntimeException('Empty list');
-    }
-    // @TODO, mb_substr()
-    // @TODO: Handle iterable
-    $pos = strpos($list, $separator);
-    return false === $pos
-        ? ''
-        : substr($list, $pos + 1);
 }
 
 /**
