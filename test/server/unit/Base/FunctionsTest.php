@@ -3,7 +3,7 @@ namespace MorphoTest\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, composeFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes
+    endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, composeFn, prefixFn, toJson, uniqueName, deleteDups, head, tail, init, last, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -400,10 +400,14 @@ class FunctionsTest extends TestCase {
         $this->assertEquals($copy, $arr);
     }
 
-    public function testInit_String() {
+    public function testInit_String_WithSeparator() {
         $this->assertEquals('Foo\\Bar', init('Foo\\Bar\\Baz', '\\'));
         $this->assertEquals('\\Foo\\Bar', init('\\Foo\\Bar\\Baz', '\\'));
-        $this->assertEquals('Foo', init('Foo', '\\'));
+        $this->assertEquals('', init('Foo', '\\'));
+    }
+
+    public function testInit_String_WithoutSeparator() {
+        $this->markTestIncomplete();
     }
 
     /**
@@ -412,6 +416,16 @@ class FunctionsTest extends TestCase {
     public function testInit_EmptyList($v, $sep) {
         $this->expectEmptyListException();
         init($v, $sep);
+    }
+
+    public function testTail_String_WithSeparator() {
+        $this->assertEquals('Bar\\Baz', tail('Foo\\Bar\\Baz', '\\'));
+        $this->assertEquals('Bar\\Baz\\', tail('Foo\\Bar\\Baz\\', '\\'));
+        $this->assertEquals('', tail('Foo', '\\'));
+    }
+
+    public function testTail_String_WithoutSeparator() {
+        $this->markTestIncomplete();
     }
 
     public function testSanitize() {

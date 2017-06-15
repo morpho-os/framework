@@ -369,18 +369,26 @@ function init($list, $separator) {
     if ($list === '') {
         throw new \RuntimeException('Empty list');
     }
+    /*
+    $parts = explode($separator, $list);
+    array_pop($parts);
+    return implode('\\', $parts);
+    */
     // @TODO, mb_substr()
     // @TODO: Handle iterable
     $pos = strrpos($list, $separator);
     return false === $pos
-        ? $list
+        ? ''
         : substr($list, 0, $pos);
 }
 
-function tail($string, $separator) {
+function tail($list, $separator) {
     // @TODO, mb_substr()
     // @TODO: Handle iterable
-    throw new NotImplementedException();
+    $pos = strpos($list, $separator);
+    return false === $pos
+        ? ''
+        : substr($list, $pos + 1);
 }
 
 /**
