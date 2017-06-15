@@ -30,7 +30,7 @@ class XPathResult implements \Iterator, Countable {
         return $this->item($this->offset);
     }
 
-    public function next()/*: void */ {
+    public function next(): void {
         $this->offset++;
     }
 
@@ -38,7 +38,7 @@ class XPathResult implements \Iterator, Countable {
         return $this->offset;
     }
 
-    public function rewind()/*: void */ {
+    public function rewind(): void {
         $this->offset = 0;
     }
 

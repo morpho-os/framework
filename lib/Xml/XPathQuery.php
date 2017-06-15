@@ -61,4 +61,8 @@ class XPathQuery {
     public function position($xPath) {
         return $this->xPath("count($xPath/preceding-sibling::*)+1");
     }
+
+    public function __call($method, $args) {
+        return call_user_func_array([$this->xPath, $method], $args);
+    }
 }
