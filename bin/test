@@ -9,7 +9,7 @@ SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 baseDirPath="$SCRIPT_DIR_PATH/.."
 phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
-phpUnitConfigFilePath="$baseDirPath/test/server/unit/phpunit.xml"
+phpUnitConfigFilePath="$baseDirPath/test/phpunit.xml"
 
 #$phpUnitBinFilePath --version
 
