@@ -40,6 +40,25 @@ class StringScannerTest extends TestCase {
     }
 
     public function testByte() {
+        $s = 'ab';
+        $scanner = new StringScanner($s);
+
+        $this->assertEquals('a', $scanner->byte());
+        $this->assertEquals(1, $scanner->offset());
+        $this->assertEquals(1, $scanner->charOffset());
+        $this->assertFalse($scanner->eos());
+
+        $this->assertEquals('b', $scanner->byte());
+        $this->assertEquals(2, $scanner->offset());
+        $this->assertEquals(2, $scanner->charOffset());
+        $this->assertTrue($scanner->eos());
+
+        $this->assertNull($scanner->byte());
+        $this->assertEquals(2, $scanner->offset());
+        $this->assertEquals(2, $scanner->charOffset());
+        $this->assertTrue($scanner->eos());
+        
+        
         $scanner = new StringScanner("\244\242", 'EUC-JP'); # Japanese hira-kana "A" in EUC-JP
         $this->assertEquals("\244", $scanner->byte());
         $this->assertEquals(1, $scanner->offset());
