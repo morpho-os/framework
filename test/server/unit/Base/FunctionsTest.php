@@ -428,6 +428,14 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
+    /**
+     * @dataProvider dataForEmptyList
+     */
+    public function testTail_EmptyList($v, $sep) {
+        $this->expectEmptyListException();
+        tail($v, $sep);
+    }
+
     public function testSanitize() {
         $input = "foo[\"1][b'ar]\x00`ls`;&quot;<>";
         $this->assertEquals('foo1barlsquot', sanitize($input, '_'));

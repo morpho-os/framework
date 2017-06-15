@@ -383,6 +383,15 @@ function init($list, $separator) {
 }
 
 function tail($list, $separator) {
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new \RuntimeException('Empty list');
+        }
+        throw new NotImplementedException();
+    }
+    if ($list === '') {
+        throw new \RuntimeException('Empty list');
+    }
     // @TODO, mb_substr()
     // @TODO: Handle iterable
     $pos = strpos($list, $separator);
