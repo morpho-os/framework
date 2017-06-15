@@ -6,6 +6,7 @@ use function Morpho\Base\{
     endsWith, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, composeFn, prefixFn, toJson, uniqueName, deleteDups, last, head, classify, escapeHtml, unescapeHtml, trimMore, init, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
+use RuntimeException;
 
 class FunctionsTest extends TestCase {
     private $tmpHandle;
@@ -181,7 +182,7 @@ class FunctionsTest extends TestCase {
     }
 
     public function testFromJson_InvalidJsonThrowsException() {
-        $this->expectException(\RuntimeException::class, "Invalid JSON or too deep data");
+        $this->expectException(RuntimeException::class, "Invalid JSON or too deep data");
         fromJson('S => {');
     }
 
@@ -275,18 +276,61 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('ff', trimMore('__ ff  ', '_'));
     }
 
-    public function testLast_String() {
+    public function testLast_String_WithSeparator() {
         $this->assertEquals('StringTest', last('MorphoTest\\Base\\StringTest', '\\'));
         $this->assertEquals('', last('MorphoTest\\Base\\StringTest\\', '\\'));
         $this->assertEquals('Foo', last('Foo', '\\'));
-        $this->assertEquals('', last('', '\\'));
     }
 
-    public function testHead_String() {
+    public function testLast_String_WithoutSeparator() {
+        $this->assertEquals(' ', last('   '));
+        $this->assertEquals('4', last('01234'));
+        $this->assertEquals('c', last('abc'));
+    }
+
+    public function testHead_String_WithSeparator() {
         $this->assertEquals('MorphoTest', head('MorphoTest\\Base\\StringTest', '\\'));
         $this->assertEquals('', head('\\MorphoTest\\Base\\StringTest', '\\'));
         $this->assertEquals('Foo', head('Foo', '\\'));
-        $this->assertEquals('', head('', '\\'));
+    }
+
+    public function testHead_String_WithoutSeparator() {
+        $this->assertEquals(' ', head('   '));
+        $this->assertEquals('0', head('01234'));
+        $this->assertEquals('a', head('abc'));
+    }
+
+    public function dataForEmptyList() {
+        return [
+            [
+                [],
+                null,
+            ],
+            [
+                '',
+                null,
+            ],
+            [
+                '',
+                '\\'
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForEmptyList
+     */
+    public function testHead_EmptyList($v, $sep) {
+        $this->expectEmptyListException();
+        head($v, $sep);
+    }
+
+    /**
+     * @dataProvider dataForEmptyList
+     */
+    public function testLast_EmptyList($v, $sep) {
+        $this->expectEmptyListException();
+        last($v, $sep);
     }
 
     public function dataForHeadAndLast_Array() {
@@ -356,11 +400,18 @@ class FunctionsTest extends TestCase {
         $this->assertEquals($copy, $arr);
     }
 
-    public function testInit() {
+    public function testInit_String() {
         $this->assertEquals('Foo\\Bar', init('Foo\\Bar\\Baz', '\\'));
         $this->assertEquals('\\Foo\\Bar', init('\\Foo\\Bar\\Baz', '\\'));
         $this->assertEquals('Foo', init('Foo', '\\'));
-        $this->assertEquals('', init('', '\\'));
+    }
+
+    /**
+     * @dataProvider dataForEmptyList
+     */
+    public function testInit_EmptyList($v, $sep) {
+        $this->expectEmptyListException();
+        init($v, $sep);
     }
 
     public function testSanitize() {
@@ -534,5 +585,9 @@ class FunctionsTest extends TestCase {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
         $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
+    }
+
+    private function expectEmptyListException() {
+        $this->expectException(RuntimeException::class, 'Empty list');
     }
 }

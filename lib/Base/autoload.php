@@ -317,38 +317,69 @@ function trimMore($string, $charlist = null) {
     return trim((string)$string, $charlist . TRIM_CHARS);
 }
 
-function head($string, string $separator = null) {
-    if (is_array($string)) {
-        return array_shift($string);
+function head($list, string $separator = null) {
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new \RuntimeException('Empty list');
+        }
+        return array_shift($list);
     }
-    // @TODO: Handle iterable
-    $pos = strpos($string, $separator);
+    if ($list === '') {
+        throw new \RuntimeException('Empty list');
+    }
+    // @TODO, mb_substr()
+    // @TODO: handle iterable
+    if (null === $separator) {
+        return substr($list, 0, 1);
+    }
+    $pos = strpos($list, $separator);
     return false === $pos
-        ? $string
-        : substr($string, 0, $pos);
+        ? $list
+        : substr($list, 0, $pos);
 }
 
-function last($string, string $separator = null) {
-    if (is_array($string)) {
-        return array_pop($string);
+function last($list, string $separator = null) {
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new \RuntimeException('Empty list');
+        }
+        return array_pop($list);
     }
+    if ($list === '') {
+        throw new \RuntimeException('Empty list');
+    }
+    // @TODO, mb_substr()
     // @TODO: Handle iterable
-    $pos = strrpos($string, $separator);
+    if (null === $separator) {
+        return substr($list, -1);
+    }
+    $pos = strrpos($list, $separator);
     return false === $pos
-        ? $string
-        : substr($string, $pos + 1);
+        ? $list
+        : substr($list, $pos + 1);
 }
 
-function init($string, $separator) {
+function init($list, $separator) {
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new \RuntimeException('Empty list');
+        }
+        throw new NotImplementedException();
+    }
+    if ($list === '') {
+        throw new \RuntimeException('Empty list');
+    }
+    // @TODO, mb_substr()
     // @TODO: Handle iterable
-    $pos = strrpos($string, $separator);
+    $pos = strrpos($list, $separator);
     return false === $pos
-        ? $string
-        : substr($string, 0, $pos);
+        ? $list
+        : substr($list, 0, $pos);
 }
 
 function tail($string, $separator) {
-    // @TODO: Handle arrays too
+    // @TODO, mb_substr()
+    // @TODO: Handle iterable
     throw new NotImplementedException();
 }
 
