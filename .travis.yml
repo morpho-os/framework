@@ -1,6 +1,3 @@
-#jdk:
-#  - oraclejdk8
-
 language: php
 
 php:
