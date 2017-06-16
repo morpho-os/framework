@@ -33,21 +33,22 @@ before_install:
   - "sudo mknod -m 0777 /tmp/block-dev-test b 125 1; sudo chown $(id -u):$(id -g) /tmp/block-dev-test"
 
 install:
+  # To running Selenium && firefox
+  - export DISPLAY=':99.0'
+  # - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
+
     # `node` means `latest stable Node.js release`
   - nvm install node
   - "node --version && npm install -g typescript@next && tsc --version"
+
+    # Composer
   - "travis_retry composer selfupdate && composer --version"
   - travis_retry composer install
 
 before_script:
   - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
-#  - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY '';\""
-#  - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'root'@'127.0.0.1' IDENTIFIED BY '';\""
-#  - "mysql -uroot -e \"UPDATE mysql.user SET plugin='mysql_native_password'; FLUSH PRIVILEGES\""
-#  - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
 
 script:
   - bin/test
-#  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f vendor/phpunit/phpunit/phpunit -- -c test/server/phpunit.xml
-#  - php -d pdo_mysql.default_socket=/run/mysql-5.6/mysqld.sock -f test/server/db-connection-test.php
-#  - php -f test/server/db-connection-test.php
+

@@ -111,6 +111,16 @@ abstract class TestCase extends BaseTestCase {
         $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
+    protected function checkAccessors($object, $initialValue, $newValue, $methodName) {
+        if ($initialValue instanceof \Closure) {
+            $initialValue($object->$methodName());
+        } else {
+            $this->assertSame($initialValue, $object->$methodName());
+        }
+        $this->assertSame($object, $object->{'set' . $methodName}($newValue));
+        $this->assertSame($newValue, $object->$methodName());
+    }
+
     protected function setDefaultTimezone() {
         $this->prevTimezone = @date_default_timezone_get();
         date_default_timezone_set(self::TIMEZONE);

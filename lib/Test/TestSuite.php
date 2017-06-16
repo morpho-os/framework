@@ -1,8 +1,6 @@
 <?php
 namespace Morpho\Test;
 
-use Morpho\Fs\Directory;
-use Morpho\Base\NotImplementedException;
 use PHPUnit\Framework\TestSuite as BaseTestSuite;
 
 abstract class TestSuite extends BaseTestSuite {
@@ -14,21 +12,14 @@ abstract class TestSuite extends BaseTestSuite {
         return $suite;
     }
 
-    /**
-     * @return iterable Paths of files with descendants of \PHPUnit\Framework\TestSuite or \PHPUnit\Framework\TestCase. Classes can define the suite() static method like we do in this class and therefore suites can be nested.
-     */
-    public function testFilePaths(): iterable {
-        return Directory::filePaths(
-            $this->getTestDirPath(),
-            $this->testFileRegexp,
-            ['recursive' => true]
-        );
-    }
+    abstract public function testFilePaths(): iterable;
 
-    /**
-     * @return array|string
-     */
-    protected function getTestDirPath() {
-        throw new NotImplementedException(__METHOD__);
+    protected function testFilesInDir(string $dirPath) {
+        return new \RegexIterator(
+            new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dirPath)
+            ),
+            $this->testFileRegexp
+        );
     }
 }

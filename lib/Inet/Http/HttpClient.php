@@ -1,6 +1,7 @@
 <?php
-namespace Morpho\Web;
+namespace Morpho\Inet\Http;
 
+use function Morpho\Cli\cmd;
 use Zend\Http\Client;
 use Zend\Http\Response;
 use Zend\Stdlib\Parameters;
@@ -36,6 +37,15 @@ class HttpClient extends Client {
 
     public function maxNumberOfRedirects(): int {
         return $this->config['maxredirects'];
+    }
+
+    public static function downloadFile(string $uri, string $destFilePath = null): string {
+        if (null === $destFilePath) {
+            $destFilePath = getcwd() . '/' . basename($uri);
+        }
+        // @TODO: Implement without call of the external tool.
+        cmd('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
+        return $destFilePath;
     }
 
     public function setMaxNumberOfRedirects(int $n): self {

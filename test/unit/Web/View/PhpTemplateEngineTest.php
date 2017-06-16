@@ -113,7 +113,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testRenderFileThrowsExceptionWhenNotExist() {
         $path = $this->getTestDirPath() . '/non-existing.phtml';
-        $this->expectException('\RuntimeException', 'The file \'' . $path . '\' was not found.');
+        $this->expectException('\RuntimeException', 'The file \'' . $path . '\' does not exist');
         $this->templateEngine->renderFile($path);
     }
 
