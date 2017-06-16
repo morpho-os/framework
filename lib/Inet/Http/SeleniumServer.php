@@ -67,6 +67,17 @@ class SeleniumServer {
                 throw new FileNotFoundException($serverJarFilePath);
             }
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
+
+            // @TODO Debugging
+            echo 'java'
+                . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
+                //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
+                . ' -jar ' . escapeshellarg($serverJarFilePath)
+                . ($this->logFilePath ? ' -log ' . escapeshellarg($this->logFilePath()) : '')
+                . ' &> /dev/null &' . "\n";
+            cmd('java -version && ls -al ' . escapeshellarg(\Morpho\Core\BASE_DIR_PATH . '/test/functional'));
+
+
             cmd(
                 'java'
                 . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
