@@ -68,21 +68,15 @@ class SeleniumServer {
                 throw new FileNotFoundException($serverJarFilePath);
             }
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
-            showLn("Starting server: " . 'java'
+            $cmd = 'java'
                 . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
                 //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
                 . ' -jar ' . escapeshellarg($serverJarFilePath)
                 . ($this->logFilePath ? ' -log ' . escapeshellarg($this->logFilePath()) : '')
-                . ' &> /dev/null &');
-            // proc_close(proc_open($cmd, [], $pipes));
-            cmd(
-                'java'
-                . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
-                //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
-                . ' -jar ' . escapeshellarg($serverJarFilePath)
-                . ($this->logFilePath ? ' -log ' . escapeshellarg($this->logFilePath()) : '')
-                . ' &> /dev/null &'
-            );
+                . ' &> /dev/null &';
+            showLn("Starting server: " . $cmd);
+            proc_close(proc_open($cmd, [], $pipes));
+            //cmd($cmd);
             $i = 0;
             do {
                 showLn("Server started, i == " . $i);
