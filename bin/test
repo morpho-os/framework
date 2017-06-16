@@ -13,4 +13,22 @@ phpUnitConfigFilePath="$baseDirPath/test/phpunit.xml"
 
 #$phpUnitBinFilePath --version
 
-php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@"
+#php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@"
+
+
+set +e
+echo -----------------------------nc---------------------------------------------
+nc -help
+echo -----------------------------lsof-------------------------------------------
+lsof --help
+echo -------------------------------kill-----------------------------------------
+kill --help
+echo --------------------------------killall---------------------------------------
+killall --help
+echo ---------------------------------geckodriver---------------------------------------
+geckodriver --help
+echo -------------------------------------java----------------------------------
+java -version
+echo --------------------------------------printf----------------------------------
+printf "%s" OK
+echo --------------------------------------------------------------------------
