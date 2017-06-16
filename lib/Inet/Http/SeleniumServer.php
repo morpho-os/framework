@@ -1,5 +1,6 @@
 <?php
 namespace Morpho\Inet\Http;
+use function Morpho\Base\showLn;
 use function Morpho\Cli\cmd;
 use Morpho\Fs\FileNotFoundException;
 
@@ -67,6 +68,13 @@ class SeleniumServer {
                 throw new FileNotFoundException($serverJarFilePath);
             }
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
+            showLn("Starting server: " . 'java'
+                . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
+                //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
+                . ' -jar ' . escapeshellarg($serverJarFilePath)
+                . ($this->logFilePath ? ' -log ' . escapeshellarg($this->logFilePath()) : '')
+                . ' &> /dev/null &');
+            // proc_close(proc_open($cmd, [], $pipes));
             cmd(
                 'java'
                 . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
@@ -77,12 +85,14 @@ class SeleniumServer {
             );
             $i = 0;
             do {
+                showLn("Server started, i == " . $i);
                 usleep(200000);
                 $i++;
             } while (!$this->listening() && $i < 25);
             if ($i == 25) {
                 throw new \RuntimeException("Unable to start Selenium Server");
             }
+            showLn("Running tests...");
         }
         return $this;
     }
