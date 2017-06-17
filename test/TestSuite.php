@@ -6,7 +6,6 @@ use const Morpho\Core\TEST_DIR_NAME;
 
 class TestSuite extends \Morpho\Test\TestSuite {
     public function testFilePaths(): iterable {
-        /*
         foreach ($this->testFilesInDir(__DIR__ . '/unit') as $file) {
             yield $file->getPathname();
         }
@@ -21,7 +20,6 @@ class TestSuite extends \Morpho\Test\TestSuite {
                 }
             }
         }
-        */
         yield __DIR__ . '/functional/TestSuite.php';
     }
 }

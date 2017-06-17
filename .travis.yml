@@ -36,7 +36,8 @@ env:
 #  9. after_script
 
 before_install:
-  - "id && pwd && uname -a && ip addr show && cat /etc/hosts"
+  - "id && pwd && uname -a"
+  #- "ip addr show && cat /etc/hosts"
   - php -m
 
 install:

@@ -21,4 +21,5 @@ php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$ph
     echo Selenium log:
     echo ---------------------------------------------------------------
     [[ -f "$seleniumLogFilePath" ]] && cat "$seleniumLogFilePath"
+    exit 1
 }

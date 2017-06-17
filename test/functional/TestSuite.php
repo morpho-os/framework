@@ -2,7 +2,6 @@
 namespace MorphoTest\Functional;
 
 use function Morpho\Base\fromJson;
-use function Morpho\Base\showLn;
 use function Morpho\Cli\cmd;
 use Morpho\Inet\Http\SeleniumServerDownloader;
 use const Morpho\Web\PUBLIC_DIR_PATH;
@@ -18,18 +17,18 @@ class TestSuite extends BrowserTestSuite {
 
     public function setUp() {
         parent::setUp();
-        //if (getenv('TRAVIS')) {
-            showLn("Starting PHP server...");
+        if (getenv('TRAVIS')) {
+            //showLn("Starting PHP server...");
             $address = 'localhost:7654';
             $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
             //cmd($cmd);
             proc_close(proc_open($cmd, [], $pipes));
             sleep(3); // @TODO: better way to check that the server is started
             TestSettings::set('siteUri', 'http://' . $address);
-            showLn("PHP server started");
-        //} else {
-//            TestSettings::set('siteUri', 'http://framework');
-//        }
+            //showLn("PHP server started");
+        } else {
+            TestSettings::set('siteUri', 'http://framework');
+        }
     }
 
     protected function startSeleniumServer(): SeleniumServer {
@@ -39,7 +38,7 @@ class TestSuite extends BrowserTestSuite {
         $geckoBinFilePath = $this->downloadGeckoDriver($toolsDirPath);
         return (new SeleniumServer())
             ->setGeckoBinFilePath($geckoBinFilePath)
-            ->setLogFilePath(__DIR__ . '/selenium.log')
+            ->setLogFilePath($toolsDirPath . '/selenium.log')
             ->setServerJarFilePath($seleniumStandaloneFilePath)
             ->setPort(SeleniumServer::PORT)
             ->start();

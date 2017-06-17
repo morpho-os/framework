@@ -15,3 +15,6 @@ node_modules/
 /module/*/cache/*
 
 *.log
+
+/test/functional/geckodriver
+/test/functional/selenium-server-standalone-*.jar  
