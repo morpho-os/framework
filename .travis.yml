@@ -1,3 +1,6 @@
+sudo: enabled
+dist: trusty
+
 language: php
 
 php:
@@ -12,9 +15,13 @@ matrix:
 addons:
   # versions are listed here https://downloads.mariadb.org/
   mariadb: 10.1
+  firefox: latest
   apt:
     packages:
       - oracle-java8-set-default
+
+env:
+  - localhost=localhost.localdomain DISPLAY=:99
 
 #If you need sudo, add 'sudo: required' to your .travis.yml
 
