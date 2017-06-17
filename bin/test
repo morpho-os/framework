@@ -9,8 +9,16 @@ SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 baseDirPath="$SCRIPT_DIR_PATH/.."
 phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
-phpUnitConfigFilePath="$baseDirPath/test/phpunit.xml"
+testDirPath="$baseDirPath/test"
+phpUnitConfigFilePath="$testDirPath/phpunit.xml"
+
+seleniumLogFilePath="$testDirPath/functional/selenium.log"
 
 #$phpUnitBinFilePath --version
 
-php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@"
+php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@" || {
+    echo ---------------------------------------------------------------
+    echo Selenium log:
+    echo ---------------------------------------------------------------
+    [[ -f "$seleniumLogFilePath" ]] && cat "$seleniumLogFilePath"
+}
