@@ -18,7 +18,7 @@ class TestSuite extends BrowserTestSuite {
 
     public function setUp() {
         parent::setUp();
-        if (getenv('TRAVIS')) {
+        //if (getenv('TRAVIS')) {
             showLn("Starting PHP server...");
             $address = 'localhost:7654';
             $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
@@ -27,9 +27,9 @@ class TestSuite extends BrowserTestSuite {
             sleep(3); // @TODO: better way to check that the server is started
             TestSettings::set('siteUri', 'http://' . $address);
             showLn("PHP server started");
-        } else {
-            TestSettings::set('siteUri', 'http://framework');
-        }
+        //} else {
+//            TestSettings::set('siteUri', 'http://framework');
+//        }
     }
 
     protected function startSeleniumServer(): SeleniumServer {

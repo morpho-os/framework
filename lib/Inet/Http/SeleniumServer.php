@@ -69,7 +69,7 @@ class SeleniumServer {
             }
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
             $cmd = 'java'
-                . (' -Dwebdriver.gecko.bin=' . escapeshellarg($geckoBinFilePath))
+                . (' -Dwebdriver.gecko.driver=' . escapeshellarg($geckoBinFilePath))
                 //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
                 . ' -jar ' . escapeshellarg($serverJarFilePath)
                 . ($this->logFilePath ? ' -log ' . escapeshellarg($this->logFilePath()) : '')

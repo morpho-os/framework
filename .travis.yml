@@ -15,15 +15,14 @@ matrix:
 addons:
   # versions are listed here https://downloads.mariadb.org/
   mariadb: 10.1
-  firefox: latest
+#  firefox: latest
   apt:
     packages:
+      # For Selenium server.
       - oracle-java8-set-default
 
 env:
-  - localhost=localhost.localdomain DISPLAY=:99
-
-#If you need sudo, add 'sudo: required' to your .travis.yml
+  - DISPLAY=:99
 
 # Build lifecycle, see https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle:
 #  1. before_install
@@ -37,12 +36,13 @@ env:
 #  9. after_script
 
 before_install:
-  - "id && pwd && uname -a"
+  - "id && pwd && uname -a && ip addr show && cat /etc/hosts"
   - php -m
+
+install:
   # For testing operations with a block device:
   - "sudo mknod -m 0777 /tmp/block-dev-test b 125 1; sudo chown $(id -u):$(id -g) /tmp/block-dev-test"
 
-install:
   # To running Selenium && firefox, see https://docs.travis-ci.com/user/gui-and-headless-browsers/
   - export DISPLAY=':99.0'
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
