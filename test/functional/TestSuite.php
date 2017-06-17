@@ -22,7 +22,9 @@ class TestSuite extends BrowserTestSuite {
             showLn("Starting PHP server...");
             $address = 'localhost:7654';
             $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
-            cmd($cmd);
+            //cmd($cmd);
+            proc_close(proc_open($cmd, [], $pipes));
+            sleep(3); // @TODO: better way to check that the server is started
             TestSettings::set('siteUri', 'http://' . $address);
             showLn("PHP server started");
         } else {
