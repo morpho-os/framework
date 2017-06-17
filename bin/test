@@ -17,9 +17,11 @@ seleniumLogFilePath="$testDirPath/functional/selenium.log"
 #$phpUnitBinFilePath --version
 
 php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@" || {
-    echo ---------------------------------------------------------------
-    echo Selenium log:
-    echo ---------------------------------------------------------------
-    [[ -f "$seleniumLogFilePath" ]] && cat "$seleniumLogFilePath"
+    if [[ -n ${TRAVIS:-} ]]; then
+        echo ---------------------------------------------------------------
+        echo Selenium log:
+        echo ---------------------------------------------------------------
+        [[ -f "$seleniumLogFilePath" ]] && cat "$seleniumLogFilePath"
+    fi
     exit 1
 }

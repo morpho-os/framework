@@ -13,9 +13,11 @@ css:
 test:
 	bin/test
 
+func-test:
+	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/functional/TestSuite.php
+
 clean:
-	rm -rf module/localhost/log/*
-	rm -rf module/localhost/cache/*
+	sudo rm -rf module/localhost/log/* module/localhost/cache/*
 #	rm -f $(publicModuleDirPath)/**/dest/*
 #	rm -f $(publicModuleDirPath)/**/src/*.d.ts
 #	rm -f $(publicModuleDirPath)/**/src/*.js.map
@@ -29,4 +31,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test clean update
+.PHONY: js css test func-test clean update
