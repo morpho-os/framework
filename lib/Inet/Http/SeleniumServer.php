@@ -88,6 +88,10 @@ class SeleniumServer {
             }
             showLn("Running tests...");
         }
+            exit(1);
+
+
+
         return $this;
     }
 
