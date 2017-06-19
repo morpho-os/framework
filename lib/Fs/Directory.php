@@ -394,10 +394,19 @@ class Directory extends Entry {
         if (!$dir) {
             throw new Exception("The directory '$dirPath' can not be opened for reading");
         }
-        // Check if we can delete the dir.
-        if (!is_writable(realpath($dirPath . '/..'))) {
-            throw new Exception("The directory '$dirPath' can not be opened for writing");
+
+        $parentDirPath = realpath($dirPath . '/..');
+        if (!is_writable($parentDirPath)) {
+            if (null !== $predicate) {
+                // This directory must be deleted if $predicate returns true
+                if ($predicate($dirPath, true)) {
+                    throw new Exception("The directory '$dirPath' can not be opened for writing");
+                }
+            } else {
+                throw new Exception("The directory '$dirPath' can not be opened for writing");
+            }
         }
+
         while (false !== ($entryName = $dir->read())) {
             if ($entryName == '.' || $entryName == '..') {
                 continue;
@@ -423,6 +432,7 @@ class Directory extends Entry {
                 }
             }
         }
+
         $dir->close();
         if (null === $predicate || (null !== $predicate && $predicate($absPath, true))) {
             ErrorHandler::checkError(@rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");

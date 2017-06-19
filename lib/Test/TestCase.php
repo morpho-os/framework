@@ -1,12 +1,10 @@
 <?php
 namespace Morpho\Test;
 
-use Morpho\Base\Environment;
-use Morpho\Fs\Directory;
-use Morpho\Fs\File;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase {
+    // @TODO: Find exact value.
     const EPS = 0.000000001;
     const TIMEZONE = 'UTC';
 
@@ -34,10 +32,14 @@ abstract class TestCase extends BaseTestCase {
             $fileName .= '.' . ltrim($ext, '.');
         }
         $filePath = $this->tmpDirPath() . '/' . $fileName;
-        return $this->tmpFilePaths[] = File::createEmpty($filePath);
+        touch($filePath);
+        if (!is_file($filePath)) {
+            throw new \RuntimeException();
+        }
+        return $this->tmpFilePaths[] = $filePath;
     }
 
-    protected function assertSetsEqual(array $expected, array $actual) {
+    protected function assertSetsEqual(array $expected, array $actual): void {
         $this->assertCount(count($expected), $actual);
         foreach ($expected as $expect) {
             // @TODO: Better implementation, not O(n^2)?
@@ -65,23 +67,19 @@ abstract class TestCase extends BaseTestCase {
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
     }
 
-    protected function createTmpDir($dirName = null): string {
+    protected function createTmpDir(string $dirName = null): string {
         $tmpDirPath = $this->tmpDirPath() . '/' . md5(uniqid('', true));
         $this->tmpDirPaths[] = $tmpDirPath;
         $tmpDirPath .= null !== $dirName ? '/' . $dirName : '';
         if (is_dir($tmpDirPath)) {
             throw new \RuntimeException("The directory '$tmpDirPath' is already exists.");
         }
-
-        return Directory::create($tmpDirPath);
+        mkdir($tmpDirPath, 0777, true);
+        return $tmpDirPath;
     }
 
     protected function tmpDirPath(): string {
-        return Directory::tmpPath();
-    }
-
-    protected function copyFile($srcFilePath, $targetFilePath): string {
-        return File::copy($srcFilePath, $targetFilePath);
+        return sys_get_temp_dir();
     }
 
 /*    protected function namespace($useFqn = false) {
@@ -89,11 +87,11 @@ abstract class TestCase extends BaseTestCase {
         return ($useFqn ? '\\' : '') . substr($class, 0, strrpos($class, '\\'));
     }*/
 
-    protected function assertIntString($val) {
+    protected function assertIntString($val): void {
         $this->assertRegExp('~^[-+]?\d+$~si', $val, "The value is not either an integer or an integer string");
     }
 
-    protected function assertHtmlEquals($expected, $actual, $message = '') {
+    protected function assertHtmlEquals($expected, $actual, $message = ''): void {
         $expected = $this->normalizeHtml($expected);
         $actual = $this->normalizeHtml($actual);
         self::assertEquals($expected, $actual, $message);
@@ -103,7 +101,7 @@ abstract class TestCase extends BaseTestCase {
         return preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($html));
     }
 
-    protected function checkBoolAccessor(callable $callback, $initialValue) {
+    protected function checkBoolAccessor(callable $callback, $initialValue): void {
         $this->assertSame($initialValue, $callback());
         $this->assertTrue($callback(true), 'Returns the passed true');
         $this->assertTrue($callback(), 'Returns the previous value that was set: true');
@@ -111,7 +109,7 @@ abstract class TestCase extends BaseTestCase {
         $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
-    protected function checkAccessors($object, $initialValue, $newValue, $methodName) {
+    protected function checkAccessors($object, $initialValue, $newValue, string $methodName): void {
         if ($initialValue instanceof \Closure) {
             $initialValue($object->$methodName());
         } else {
@@ -121,25 +119,25 @@ abstract class TestCase extends BaseTestCase {
         $this->assertSame($newValue, $object->$methodName());
     }
 
-    protected function setDefaultTimezone() {
+    protected function setDefaultTimezone(): void {
         $this->prevTimezone = @date_default_timezone_get();
         date_default_timezone_set(self::TIMEZONE);
     }
 
-    protected function randomString() {
+    protected function randomString(): string {
         return md5(uniqid(microtime(true)));
     }
 
-    protected function markTestAsNotRisky() {
+    protected function markTestAsNotRisky(): void {
         $this->addToAssertionCount(1);
         // $this->assertTrue(true) may work too.
     }
 
     protected function windowsSys(): bool {
-        return Environment::isWindows();
+        return defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
-    public function expectException($exception, $message = '', $code = null) {
+    public function expectException($exception, $message = '', $code = null): void {
         parent::expectException($exception);
         if ($message !== null && $message !== '') {
             $this->expectExceptionMessage($message);
@@ -153,18 +151,47 @@ abstract class TestCase extends BaseTestCase {
         return !empty(getenv('TRAVIS'));
     }
 
-    private function deleteTmpDirs() {
+    private function deleteTmpDirs(): void {
+        $sysTmpDirPath = $this->tmpDirPath();
         foreach ($this->tmpDirPaths as $tmpDirPath) {
             if (is_dir($tmpDirPath)) {
-                Directory::delete($tmpDirPath);
+                foreach (new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($tmpDirPath, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::CHILD_FIRST
+                ) as $path => $_) {
+                    if (false !== strpos($path, $sysTmpDirPath) && $path !== $sysTmpDirPath) {
+                        if (is_dir($path)) {
+                            if (false === $this->tryDeleteDir($path)) {
+                                $parentDirPath = realpath($path . '/..');
+                                if ($parentDirPath !== $sysTmpDirPath) {
+                                    if ($this->fixPerms($parentDirPath)) {
+                                        rmdir($path);
+                                    }
+                                }
+                            }
+                        } else {
+                            if (false === $this->tryDeleteFile($path)) {
+                                $parentDirPath = realpath($path . '/..');
+                                if ($parentDirPath !== $sysTmpDirPath) {
+                                    if ($this->fixPerms($parentDirPath)) {
+                                        unlink($path);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (false !== strpos($tmpDirPath, $sysTmpDirPath)) {
+                    rmdir($tmpDirPath);
+                }
             }
         }
     }
 
-    private function deleteTmpFiles() {
+    private function deleteTmpFiles(): void {
         foreach ($this->tmpFilePaths as $tmpFilePath) {
             if (is_file($tmpFilePath)) {
-                File::delete($tmpFilePath);
+                $this->tryDeleteFile($tmpFilePath);
             }
         }
     }
@@ -175,5 +202,23 @@ abstract class TestCase extends BaseTestCase {
         }
 
         return $this->classFilePath;
+    }
+
+    private function tryDeleteDir(string $dirPath): bool {
+        $this->fixPerms($dirPath);
+        return @rmdir($dirPath);
+    }
+
+    private function tryDeleteFile(string $filePath): bool {
+        $this->fixPerms($filePath);
+        return @unlink($filePath);
+    }
+
+    private function fixPerms(string $path): bool {
+        $prevMode = @fileperms($path) & 07777;
+        if (!$prevMode) {
+            return false;
+        }
+        return @chmod($path, $prevMode | 0200); // set the write bit (in octal)
     }
 }

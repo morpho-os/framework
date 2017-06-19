@@ -175,7 +175,7 @@ class File extends Entry {
      */
     public static function createEmpty(string $filePath): string {
         Directory::create(dirname($filePath));
-        // @TODO: Why not touch()?
+        // NB: touch() does not truncate the file, so we don't use it.
         self::truncate($filePath);
         return $filePath;
     }

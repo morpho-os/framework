@@ -25,7 +25,7 @@ class Stat {
     }
 
     public static function mode(string $path): int {
-        return fileperms($path) & 0x1FF;
+        return fileperms($path) & 07777;
     }
 
     /**

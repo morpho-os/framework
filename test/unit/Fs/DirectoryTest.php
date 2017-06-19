@@ -37,6 +37,28 @@ class DirectoryTest extends TestCase {
         $this->assertEquals($curDirPath, getcwd());
     }
 
+    public function testDelete_WhenParentNotWritable_BoolPredicate() {
+        $tmpDirPath = $this->createTmpDir();
+        $parentDirPath = $tmpDirPath . '/foo';
+        $childDirPath = $parentDirPath . '/bar';
+        $testFilePath = $childDirPath . '/test';
+
+        mkdir($childDirPath, 0700, true);
+        touch($testFilePath);
+        chmod($parentDirPath, 0500);
+
+        $this->assertTrue(is_file($testFilePath));
+
+        Directory::delete($childDirPath, false);
+
+        $this->assertFalse(is_file($testFilePath));
+        $this->assertTrue(is_dir($parentDirPath));
+    }
+
+    public function testDelete_WhenParentNotWritable_ClosurePredicate() {
+        $this->markTestIncomplete();
+    }
+
     public function testDelete_KeepSomeDirectories() {
         $tmpDirPath = $this->createTmpDir();
         mkdir($tmpDirPath . '/foo');
