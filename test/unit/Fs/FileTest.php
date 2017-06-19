@@ -34,7 +34,8 @@ class FileTest extends TestCase {
 
     public function testReadJson() {
         $tmpDirPath = $this->createTmpDir();
-        $targetFilePath = copy($this->getTestDirPath() . '/composer.json', $tmpDirPath);
+        $targetFilePath = $tmpDirPath . '/composer.json';
+        copy($this->getTestDirPath() . '/composer.json', $targetFilePath);
 
         $this->assertEquals([
             'require'     => [
