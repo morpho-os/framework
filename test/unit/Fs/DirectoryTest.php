@@ -22,6 +22,21 @@ class DirectoryTest extends TestCase {
         $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, '.ts'));
     }
 
+    public function testUsingAnother() {
+        $curDirPath = getcwd();
+        $otherDirPath = $this->createTmpDir();
+        $fn = function ($otherDirPathArg) use ($otherDirPath, &$called) {
+            $this->assertEquals($otherDirPath, getcwd());
+            $this->assertEquals($otherDirPath, $otherDirPathArg);
+            $called = true;
+            return 'res from fn';
+        };
+        $res = Directory::usingAnother($otherDirPath, $fn);
+        $this->assertEquals('res from fn', $res);
+        $this->assertTrue($called);
+        $this->assertEquals($curDirPath, getcwd());
+    }
+
     public function testDelete_KeepSomeDirectories() {
         $tmpDirPath = $this->createTmpDir();
         mkdir($tmpDirPath . '/foo');

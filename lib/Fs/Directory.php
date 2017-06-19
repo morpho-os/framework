@@ -344,6 +344,20 @@ class Directory extends Entry {
         return $dirPath;
     }
 
+    /**
+     * @return mixed
+     */
+    public static function usingAnother(string $otherDirPath, callable $fn) {
+        $curDirPath = getcwd();
+        try {
+            chdir($otherDirPath);
+            $res = $fn($otherDirPath);
+        } finally {
+            chdir($curDirPath);
+        }
+        return $res;
+    }
+
     private static function delete_(string $dirPath, $predicateOrDeleteSelf) {
         if (is_callable($predicateOrDeleteSelf)) {
             self::delete__($dirPath, $predicateOrDeleteSelf);
