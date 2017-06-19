@@ -27,3 +27,4 @@ $.isPromise = function (value: any): boolean {
 $.isDomNode = function (obj: any): boolean {
     return obj.nodeType > 0;
 };
+

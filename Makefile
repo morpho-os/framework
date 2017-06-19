@@ -16,19 +16,19 @@ test:
 func-test:
 	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/functional/TestSuite.php
 
+unit-test:
+	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/unit/TestSuite.php
+
 clean:
 	sudo rm -rf module/localhost/log/* module/localhost/cache/*
-#	rm -f $(publicModuleDirPath)/**/dest/*
-#	rm -f $(publicModuleDirPath)/**/src/*.d.ts
-#	rm -f $(publicModuleDirPath)/**/src/*.js.map
-#	rm -f $(publicModuleDirPath)/**/test/*.js
-#	rm -f $(publicModuleDirPath)/**/src/**/*.js
-#	rm -f $(publicModuleDirPath)/**/src/*.js
 
 update:
 	composer update
 	# We use `install` instead of `update` to run the [scripts](https://docs.npmjs.com/misc/scripts#description) defined in the package.json file.
 	cd public && npm install
 
+reset: clean
+	sudo rm -f module/localhost/config/config.php
+
 .SILENT:
-.PHONY: js css test func-test clean update
+.PHONY: js css test func-test clean update reset

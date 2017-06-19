@@ -66,8 +66,8 @@ class HtmlParserPost extends HtmlParser {
     }
 
     private function renderChildScripts(): string {
-        $html = $this->renderScripts();
-        if ($html === '') {
+        $htmlOfScripts = $this->renderScripts();
+        if ($htmlOfScripts === '') {
             [$module, $controller, $action] = $this->request()->handler();
             $publicDirPath = $this->serviceManager->get('site')->publicDirPath();
             // @TODO: Add automatic compilation of ts
@@ -75,8 +75,8 @@ class HtmlParserPost extends HtmlParser {
             $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';
             $jsFilePath = $publicDirPath . '/' . $relJsFilePath;
             if (is_file($jsFilePath)) {
-                $html .= '<script src="' . $this->prependUriWithBasePath($relJsFilePath) . '"></script>' . "\n";
-                $html .= '<script>
+                $htmlOfScripts .= '<script src="' . $this->prependUriWithBasePath($relJsFilePath) . '"></script>' . "\n";
+                $htmlOfScripts .= '<script>
 $(function () {
     define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) {
         module.main();
@@ -85,7 +85,7 @@ $(function () {
 </script>';
             }
         }
-        return $html;
+        return $htmlOfScripts;
     }
     /*
         protected function containerTypeScript($tag) {

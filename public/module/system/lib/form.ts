@@ -385,3 +385,4 @@ export interface JsonResponse {
     error: any;
     success: any;
 }
+

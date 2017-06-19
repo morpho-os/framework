@@ -51,6 +51,7 @@ install:
     # `node` means `latest stable Node.js release`
   - nvm install node
   - "node --version && npm install -g typescript@next && tsc --version"
+  - "cd public && npm install"
 
     # Composer
   - "travis_retry composer selfupdate && composer --version"

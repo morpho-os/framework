@@ -1,7 +1,6 @@
-
-/*'use strict';
-
 /*
+'use strict';
+
  'toBe',
  'toBeCloseTo',
  'toBeDefined',
@@ -19,7 +18,6 @@
  'toMatch',
  'toThrow',
  'toThrowError'
- ],
 
 describe("Morpho", function () {
     it("Math.roundFloat", () => expect(Math.isFloatsEqual(Math.roundFloat(Math.PI, 2), 3.14)).toBeTruthy());
@@ -89,6 +87,5 @@ describe("Morpho", function () {
             expect(new Form() instanceof Widget).toBeTruthy();
         });
     });
-});
 
 */
