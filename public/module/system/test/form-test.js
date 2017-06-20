@@ -1,7 +1,3 @@
-/// <reference path="../src/d.ts/form.d.ts"/>
-/// <reference path="../src/d.ts/test-case.d.ts"/>
-/// <reference path="../src/d.ts/message.d.ts"/>
-"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -12,30 +8,25 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
-var Form = System.Form;
-var TestCase = System.TestCase;
-var FormTest = (function (_super) {
-    __extends(FormTest, _super);
-    function FormTest() {
-        return _super !== null && _super.apply(this, arguments) || this;
+define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/test-case"], function (require, exports, form_1, test_case_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var FormTest = (function (_super) {
+        __extends(FormTest, _super);
+        function FormTest() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        FormTest.prototype.testValidate_EmptyForm = function () {
+            var form = new form_1.Form($('form:eq(0)'));
+            this.assertFalse(form.wasValidated());
+        };
+        return FormTest;
+    }(test_case_1.TestCase));
+    exports.FormTest = FormTest;
+    function tests() {
+        return [
+            new FormTest()
+        ];
     }
-    FormTest.prototype.testValidate_EmptyForm = function () {
-        var form = new Form($('form:eq(0)'));
-        this.assertFalse(form.wasValidated());
-        this.assertTrue(form.validate());
-        this.assertTrue(form.wasValidated());
-        this.assertTrue(form.isValid());
-    };
-    FormTest.prototype.testValidate_RequiredElements = function () {
-        var form = new Form($('form:eq(2)'));
-        this.assertFalse(form.validate());
-        var $invalidEls = form.getInvalidEls();
-    };
-    FormTest.prototype.testGetInvalidEls_BeforeValidation = function () {
-        var form = new Form($('form:eq(2)'));
-        this.assertEquals([], form.getInvalidEls());
-    };
-    return FormTest;
-}(TestCase));
-exports.FormTest = FormTest;
+    exports.tests = tests;
+});

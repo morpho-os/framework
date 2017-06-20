@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\DataProcessing\Pagination;
 
+use Countable;
+use Iterator;
+use Morpho\DataProcessing\Pagination\Page;
 use Morpho\DataProcessing\Pagination\Pager;
 use Morpho\Test\TestCase;
 
@@ -8,12 +11,12 @@ class PagerTest extends TestCase {
     private $pager;
 
     public function setUp() {
-        $this->pager = new Pager();
+        $this->pager = new Pager('foo');
     }
 
     public function testInterfaces() {
-        $this->assertInstanceOf('\Iterator', $this->pager);
-        $this->assertInstanceOf('\Countable', $this->pager);
+        $this->assertInstanceOf(Iterator::class, $this->pager);
+        $this->assertInstanceOf(Countable::class, $this->pager);
     }
 
     public function testDefaultPageSize() {
@@ -47,7 +50,7 @@ class PagerTest extends TestCase {
         $this->pager->setItems([]);
         $this->assertEquals(0, $this->pager->totalPagesCount());
 
-        $pager = new Pager();
+        $pager = new Pager('foo');
         $pager->setItems([]);
         $pager->setCurrentPageNumber(2);
         $this->assertEquals(0, $pager->totalPagesCount());
@@ -76,7 +79,7 @@ class PagerTest extends TestCase {
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(1, $this->pager->key());
-        $this->assertInstanceOf('\Morpho\DataProcessing\Pagination\Page', $this->pager->current());
+        $this->assertInstanceOf(Page::class, $this->pager->current());
         $this->assertEquals([1, 2], $this->pager->current()->toArray());
 
         $this->assertNull($this->pager->next());

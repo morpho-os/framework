@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Web;
 
 use function Morpho\Base\{

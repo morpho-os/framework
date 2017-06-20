@@ -17,7 +17,7 @@ class Module extends Node {
     private $dirPath;
 
     public function __construct(string $name, string $dirPath) {
-        $this->name = $name;
+        parent::__construct($name);
         $this->dirPath = $dirPath;
     }
 

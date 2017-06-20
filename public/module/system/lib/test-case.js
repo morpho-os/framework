@@ -1,12 +1,12 @@
-define("system/lib/test-case", ["require", "exports"], function (require, exports) {
+define("system/test/../lib/test-case", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var TestCase = (function () {
         function TestCase() {
-            this.setUp();
-            this.run();
         }
         TestCase.prototype.setUp = function () {
+        };
+        TestCase.prototype.tearDown = function () {
         };
         TestCase.prototype.assertEquals = function (expected, actual) {
             if (!eq(expected, actual, [], [])) {
@@ -22,51 +22,6 @@ define("system/lib/test-case", ["require", "exports"], function (require, export
             if (actual !== false) {
                 throw new Error(this.valueToString(actual) + ' !== false');
             }
-        };
-        TestCase.prototype.run = function () {
-            this.runTests();
-        };
-        TestCase.prototype.runTests = function () {
-            var _this = this;
-            this.getTests().forEach(function (fn) {
-                _this.runTest.call(_this, fn);
-            });
-        };
-        TestCase.prototype.runTestInIsolatedEnv = function (test) {
-            test.call(this);
-        };
-        TestCase.prototype.runTest = function (test) {
-            function functionName(fn) {
-                return fn.displayName || fn.name || (/function ([^\(]+)?\(/.exec(fn.toString()) || [])[1] || null;
-            }
-            function showSuccess(message) {
-                document.body.innerHTML += '<div style="background: green; color: white; padding: .5em; border-radius: 5px;">' + message + '</div>';
-            }
-            function showError(error) {
-                var trace = '';
-                var message = error.message.escapeHtml();
-                if (!message.length) {
-                    message = '&mdash;';
-                }
-                document.body.innerHTML += '<div style="background: red; color: white; padding: .5em; border-radius: 5px;">Failed</div><div>Error message: ' + message + "</div><pre>Stack trace:\n" + trace + '</pre>';
-            }
-            try {
-                this.runTestInIsolatedEnv(test);
-                showSuccess(functionName(test) + '() passed');
-            }
-            catch (e) {
-                showError(e);
-            }
-        };
-        TestCase.prototype.getTests = function () {
-            var isTest = /^test[a-zA-Z_$]+/;
-            var fns = [];
-            for (var prop in this) {
-                if (isTest.test(prop) && typeof this[prop] === 'function') {
-                    fns.push(this[prop]);
-                }
-            }
-            return fns;
         };
         TestCase.prototype.valueToString = function (value) {
             if (value === undefined) {

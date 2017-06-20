@@ -8,7 +8,7 @@ export class Form extends Widget {
     private _isValid: boolean = null;
     protected messages: { [type: number]: Message[] } = {};
 
-    public wasAtLeastOnceValidated(): boolean {
+    public wasValidated(): boolean {
         return this._wasValidated;
     }
 
@@ -19,7 +19,7 @@ export class Form extends Widget {
     }
 
     public isValid(): boolean {
-        if (!this.wasAtLeastOnceValidated()) {
+        if (!this.wasValidated()) {
             throw new Error("Unable to check state, the form should be validated first");
         }
         return this._isValid;
@@ -43,7 +43,7 @@ export class Form extends Widget {
     };
 
     public invalidEls(): JQuery {
-        if (!this.wasAtLeastOnceValidated()) {
+        if (!this.wasValidated()) {
             return $();
         }
         return this.els().filter(function (this: JQuery) {

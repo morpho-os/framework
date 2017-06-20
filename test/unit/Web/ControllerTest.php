@@ -9,7 +9,7 @@ use Morpho\Web\Uri;
 
 class ControllerTest extends TestCase {
     public function testDispatch_Redirect() {
-        $controller = new MyController();
+        $controller = new MyController('foo');
         $basePath = '/some/base/path';
         $request = $this->newRequest($basePath);
         $uri = new Uri();
@@ -26,7 +26,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testForwardTo() {
-        $controller = new MyController();
+        $controller = new MyController('foo');
         $request = $this->newRequest();
         $controller->setRequest($request);
         $actionName = 'forward-here';
@@ -45,7 +45,7 @@ class ControllerTest extends TestCase {
     public function testRedirectToAction() {
         $this->markTestIncomplete();
 
-        $controller = new MyOtherController();
+        $controller = new MyOtherController('foo');
 
         $serviceManager = new ServiceManager();
 

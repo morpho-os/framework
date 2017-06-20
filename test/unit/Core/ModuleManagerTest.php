@@ -251,7 +251,7 @@ class ErrorHandlingTestModule extends Module {
     }
 
     public function child(string $name): Node {
-        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController() : parent::child($name);
+        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController($name) : parent::child($name);
     }
 }
 
@@ -315,7 +315,7 @@ class Module extends \Morpho\Core\Module {
 
     protected function loadChild(string $name): Node {
         if ($name === 'my-controller') {
-            return (new MyController())->setName('my-controller');
+            return new MyController('my-controller');
         }
         return parent::loadChild($name);
     }

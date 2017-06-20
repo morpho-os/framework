@@ -109,13 +109,13 @@ class Path {
         return self::changeExt($path, '');
     }
 
-    public static function changeExt(string $path, string $ext): string {
+    public static function changeExt(string $path, string $newExt): string {
         $parts = explode('/', self::normalize($path));
         $fileName = array_pop($parts);
-        if (!empty($ext)) {
-            $ext = '.' . self::normalizeExt($ext);
-            $extLength = strlen($ext);
-            if (substr($path, -$extLength) === $ext) {
+        if (!empty($newExt)) {
+            $newExt = '.' . self::normalizeExt($newExt);
+            $extLength = strlen($newExt);
+            if (substr($path, -$extLength) === $newExt) {
                 $baseName = substr($fileName, 0, -$extLength);
             } else {
                 $baseName = self::nameWithoutExt($fileName);
@@ -124,8 +124,8 @@ class Path {
             $baseName = self::nameWithoutExt($fileName);
         }
         return count($parts)
-            ? implode('/', $parts) . '/' . $baseName . $ext
-            : $baseName . $ext;
+            ? implode('/', $parts) . '/' . $baseName . $newExt
+            : $baseName . $newExt;
     }
 
     /**

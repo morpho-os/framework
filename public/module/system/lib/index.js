@@ -300,7 +300,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             _this.messages = {};
             return _this;
         }
-        Form.prototype.wasAtLeastOnceValidated = function () {
+        Form.prototype.wasValidated = function () {
             return this._wasValidated;
         };
         Form.prototype.validate = function () {
@@ -309,7 +309,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             return this._isValid;
         };
         Form.prototype.isValid = function () {
-            if (!this.wasAtLeastOnceValidated()) {
+            if (!this.wasValidated()) {
                 throw new Error("Unable to check state, the form should be validated first");
             }
             return this._isValid;
@@ -330,7 +330,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         };
         ;
         Form.prototype.invalidEls = function () {
-            if (!this.wasAtLeastOnceValidated()) {
+            if (!this.wasValidated()) {
                 return $();
             }
             return this.els().filter(function () {

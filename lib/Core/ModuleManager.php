@@ -227,7 +227,10 @@ abstract class ModuleManager extends Node implements IEventManager {
         return in_array($moduleName, $this->installedModuleNames(), true);
     }
 
-    public function moduleNames($state): array {
+    public function moduleNames(int $state = null): array {
+        if (null === $state) {
+            $state = self::ALL;
+        }
         $modules = [];
         if ($state & self::ENABLED) {
             $modules = array_merge($modules, array_values($this->enabledModuleNames()));

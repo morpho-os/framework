@@ -20,9 +20,8 @@ class Node extends Object implements Countable, RecursiveIterator {
 
     protected $parent;
 
-    public function setName(string $name): Node {
+    public function __construct(string $name) {
         $this->name = $name;
-        return $this;
     }
 
     public function name(): string {
@@ -42,7 +41,7 @@ class Node extends Object implements Countable, RecursiveIterator {
 
     public function addChild(Node $node): Node {
         if (!$node->hasName()) {
-            throw new RuntimeException("The node must have name.");
+            throw new RuntimeException("The node must have name");
         }
         $node->setParent($this);
         $this->children[$node->name()] = $node;
@@ -182,7 +181,7 @@ class Node extends Object implements Countable, RecursiveIterator {
         if (!$class) {
             throw new ObjectNotFoundException("Unable to load a child node with the name '$name'");
         }
-        return (new $class())->setName($name);
+        return (new $class($name));
     }
 
     /**

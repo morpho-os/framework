@@ -26,6 +26,7 @@
     },
     "include": [
         "module/*/lib/**/*.ts",
-        "module/*/app/**/*.ts"
+        "module/*/app/**/*.ts",
+        "module/*/test/**/*.ts"
     ]
 }
