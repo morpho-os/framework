@@ -7,7 +7,9 @@ use Morpho\Test\BrowserTest;
 use Morpho\Web\Application;
 
 class InstallerTest extends BrowserTest {
-    public function testShouldInstall() {
+    private const DB_NAME = 'test';
+
+    public function testInstallation() {
         $application = new Application();
         $site = $application->site();
 
@@ -30,7 +32,7 @@ class InstallerTest extends BrowserTest {
         $assertElValue($fallbackDbConfig['host'], By::cssSelector('input[name=host]'));
         $assertElValue($fallbackDbConfig['port'], By::cssSelector('input[name=port]'));
 
-        $this->browser->findElement(By::id('db'))->sendKeys('foo');
+        $this->browser->findElement(By::id('db'))->sendKeys(self::DB_NAME);
         $this->browser->findElement(By::id('drop-tables'))->click();
 
         $this->browser->findElement(By::id('install'))->click();
