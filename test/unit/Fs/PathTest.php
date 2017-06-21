@@ -250,6 +250,10 @@ class PathTest extends TestCase {
         $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\bar\baz/'));
     }
 
+    public function testNormalize_RelativeBetween() {
+        $this->assertEquals('/foo/bar/setosa/versicolor', Path::normalize('/foo/bar/baz/../setosa/versicolor'));
+    }
+
     public function testToRelative() {
         $baseDirPath = __DIR__ . '/../../..';
         $this->assertEquals('module/foo/bar', Path::toRelative($baseDirPath, $baseDirPath . '/module/foo/bar'));

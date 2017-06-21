@@ -1,16 +1,20 @@
 import {Form} from "../lib/form"
-import {TestCase} from "../lib/test-case"
 
-export class FormTest extends TestCase {
-    protected testValidate_EmptyForm(): void {
-        const form = new Form($('form:eq(0)'));
-        this.assertFalse(form.wasValidated());
+describe("Form", function() {
+    let form: Form;
+
+    beforeEach(function() {
+        form = new Form($('form:eq(0)'));
+    });
+
+    it("Validate of the empty form", function() {
+        expect(form.wasValidated()).toBeFalsy();
         /*
         this.assertTrue(form.validate());
         this.assertTrue(form.wasValidated());
         this.assertTrue(form.isValid());
         */
-    }
+    });
 /*
     protected testValidate_RequiredElements(): void {
         var form = new Form($('form:eq(2)'));
@@ -23,14 +27,10 @@ export class FormTest extends TestCase {
         var form = new Form($('form:eq(2)'));
         this.assertEquals([], form.getInvalidEls());
     }
-*/
-}
 
-export function tests(): TestCase[] {
-    return [
-        new FormTest()
-    ]
-}
+
+*/
+});
 /*
     protected testGetEls(): void {
         var form = new Form($('form:eq(0)'));

@@ -3,6 +3,7 @@ namespace Morpho\Fs;
 
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
+use Zend\Uri\Uri;
 
 class Path {
     public static function isAbsolute(string $path): bool {
@@ -25,9 +26,15 @@ class Path {
     }
 
     public static function normalize(string $path): string {
+        if ($path === '') {
+            return $path;
+        }
         $path = str_replace('\\', '/', $path);
         if ($path === '/') {
             return $path;
+        }
+        if (false !== strpos($path, '/..')) {
+            $path = Uri::removePathDotSegments($path);
         }
         return rtrim($path, '/');
     }

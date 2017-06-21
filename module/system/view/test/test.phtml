@@ -1,4 +1,5 @@
 <?php require __DIR__ . '/../../../bootstrap/view/_page-top.phtml' ?>
+<link rel="stylesheet" type="text/css" href="/node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
 <?php require __DIR__ . '/../../../bootstrap/view/widget/main-menu.phtml' ?>
 <div id="main-container" class="container">
     <?php /*
@@ -18,13 +19,9 @@
         </div>
     </div>
 </div>
-<script src="/node_modules/es5-shim/es5-shim.js"></script>
-<script src="/node_modules/jquery/dist/jquery.js"></script>
-<script src="/node_modules/bootstrap-styl/js/dropdown.js"></script>
-<script src="/node_modules/bootstrap-styl/js/collapse.js"></script>
-<script src="/node_modules/imd/imd.js"></script>
-<script src="/module/system/lib/index.js"></script>
-<script src="/module/system/lib/test-case.js"></script>
-<script src="/module/system/lib/test-suite.js"></script>
+<?php require __DIR__ . '/../../../bootstrap/view/_lib.phtml' ?>
+<script type="text/javascript" src="/node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script type="text/javascript" src="/node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script type="text/javascript" src="/node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ namespace Morpho\Code\Js;
 
 use Morpho\Code\StringReader;
 use Morpho\Fs\Path;
+use function Morpho\Base\contains;
 
 class DefineCallFixer {
     public static function fixDefineCall(string $line, string $baseDirPath, string $jsFilePath): string {
@@ -19,12 +20,13 @@ class DefineCallFixer {
                         if ($moduleId === 'require' || $moduleId === 'exports') {
                             throw new \UnexpectedValueException("The 'require' or 'exports' names can't be used as module ID");
                         }
-                        $values[] = self::quote(self::resolvePath($moduleId, $baseDirPath, $jsFilePath));
+                        $values[] = self::quote(self::fixModuleId($moduleId, $baseDirPath, $jsFilePath));
                         $hasModuleId = true;
                         break;
                     case 'deps':
                         if (!$hasModuleId) {
-                            $values[] = self::quote(Path::dropExt(Path::toRelative($baseDirPath, $jsFilePath)));
+
+                            $values[] = self::quote(self::moduleIdFromPath($baseDirPath, $jsFilePath));
                         }
                         $value = '[';
                         $deps = [];
@@ -33,7 +35,7 @@ class DefineCallFixer {
                             if ($unquoted === 'require' ||$unquoted === 'exports') {
                                 $deps[] = self::quote($unquoted);
                             } else {
-                                $deps[] = self::quote(self::resolvePath($unquoted, $baseDirPath, $jsFilePath));
+                                $deps[] = self::quote(self::fixModuleId($unquoted, $baseDirPath, $jsFilePath));
                             }
                         }
                         $value .= implode(', ', $deps);
@@ -49,7 +51,6 @@ class DefineCallFixer {
             }
             return implode(', ', $values);
         };
-
         return 'define(' . $eval($tokens);
     }
 
@@ -61,11 +62,16 @@ class DefineCallFixer {
         return trim($s, '"');
     }
 
-    private static function resolvePath(string $moduleId, string $baseDirPath, string $curTsFilePath): string {
-        if ($moduleId[0] === '.') {
+    private static function fixModuleId(string $moduleId, string $baseDirPath, string $jsFilePath): string {
+        if ($moduleId[0] === '.' || contains($moduleId, '/')) {
             return $moduleId;
         }
-        return Path::toRelative($baseDirPath, dirname($curTsFilePath)) . '/' . $moduleId;
+        $newModuleId = Path::toRelative($baseDirPath, dirname($jsFilePath) . '/' . $moduleId);
+        return $newModuleId;
+    }
+
+    private static function moduleIdFromPath(string $baseDirPath, string $jsFilePath): string {
+        return Path::dropExt(Path::toRelative($baseDirPath, $jsFilePath));
     }
 }
 

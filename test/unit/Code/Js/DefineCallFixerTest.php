@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 namespace MorphoTest\Code\Js;
 
 use Morpho\Code\Js\DefineCallFixer;
@@ -41,5 +40,22 @@ class DefineCallFixerTest extends TestCase {
         $line = 'define("' . $name . '", [], function () {';
         $this->expectException(\UnexpectedValueException::class, "The 'require' or 'exports' names can't be used as module ID");
         DefineCallFixer::fixDefineCall($line, __DIR__, __DIR__ . '/foo');
+    }
+
+    public function testFixDefineCall_AlreadyFixed() {
+        $moduleId = 'system/test/form-test';
+        $line = 'define("' . $moduleId . '", ["require", "exports", "../lib/test-case"], function (require, exports, test_case_1) {';
+        $this->assertEquals(
+            $line,
+            DefineCallFixer::fixDefineCall($line, __DIR__, __DIR__ . '/' . $moduleId . '.js')
+        );
+    }
+    
+    public function testFixDefineCall_RelativeJsFilePath() {
+        $line = 'define(["require", "exports"], function (require, exports) {';
+        $this->assertEquals(
+            'define("system/lib/test-case", ["require", "exports"], function (require, exports) {',
+            DefineCallFixer::fixDefineCall($line, __DIR__, __DIR__ . '/system/test/../lib/test-case.js')
+        );
     }
 }
