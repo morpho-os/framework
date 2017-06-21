@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Base;
+namespace MorphoTest\Unit\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
@@ -301,8 +301,8 @@ class FunctionsTest extends TestCase {
     // last()
 
     public function testLast_String_WithSeparator() {
-        $this->assertEquals('StringTest', last('MorphoTest\\Base\\StringTest', '\\'));
-        $this->assertEquals('', last('MorphoTest\\Base\\StringTest\\', '\\'));
+        $this->assertEquals('StringTest', last('MorphoTest\Unit\\Base\\StringTest', '\\'));
+        $this->assertEquals('', last('MorphoTest\Unit\\Base\\StringTest\\', '\\'));
         $this->assertEquals('Foo', last('Foo', '\\'));
     }
 
@@ -337,8 +337,8 @@ class FunctionsTest extends TestCase {
     }
 
     public function testHead_String_WithSeparator() {
-        $this->assertEquals('MorphoTest', head('MorphoTest\\Base\\StringTest', '\\'));
-        $this->assertEquals('', head('\\MorphoTest\\Base\\StringTest', '\\'));
+        $this->assertEquals('MorphoTest', head('MorphoTest\Unit\\Base\\StringTest', '\\'));
+        $this->assertEquals('', head('\\MorphoTest\Unit\\Base\\StringTest', '\\'));
         $this->assertEquals('Foo', head('Foo', '\\'));
     }
 

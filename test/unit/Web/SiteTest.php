@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web;
+namespace MorphoTest\Unit\Web;
 
 use const Morpho\Core\CACHE_DIR_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;

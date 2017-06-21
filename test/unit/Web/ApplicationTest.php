@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MorphoTest\Web;
+namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\Application;

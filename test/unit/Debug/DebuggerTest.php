@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Debug;
+namespace MorphoTest\Unit\Debug;
 
 use Morpho\Test\TestCase;
 use Morpho\Debug\Debugger;

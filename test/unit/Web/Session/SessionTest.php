@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web\Session;
+namespace MorphoTest\Unit\Web\Session;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\Session\Session;

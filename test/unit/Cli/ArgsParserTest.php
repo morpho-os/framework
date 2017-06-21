@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Cli;
+namespace MorphoTest\Unit\Cli;
 
 use Morpho\Test\TestCase;
 

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Inet\Http;
+namespace MorphoTest\Unit\Inet\Http;
 
 use Morpho\Inet\Http\SeleniumServer;
 use Morpho\Test\TestCase;

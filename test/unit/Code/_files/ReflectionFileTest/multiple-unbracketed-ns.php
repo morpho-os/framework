@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Code\ReflectionFileTest_Ns1Unbracketed;
+namespace MorphoTest\Unit\Code\ReflectionFileTest_Ns1Unbracketed;
 class First {
 
 }
@@ -16,7 +16,7 @@ function bar() {
 
 }
 
-namespace MorphoTest\Code\ReflectionFileTest_Ns2Unbracketed;
+namespace MorphoTest\Unit\Code\ReflectionFileTest_Ns2Unbracketed;
 
 class Third {
 

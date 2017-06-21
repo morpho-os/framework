@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Xml;
+namespace MorphoTest\Unit\Xml;
 
 use Morpho\Test\TestCase;
 use Morpho\Xml\Document;

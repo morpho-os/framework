@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Fs;
+namespace MorphoTest\Unit\Fs;
 
 use Morpho\Base\Environment;
 use Morpho\Fs\Stat;

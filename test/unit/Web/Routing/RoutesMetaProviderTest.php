@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web\Routing;
+namespace MorphoTest\Unit\Web\Routing;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\Routing\RoutesMetaProvider;

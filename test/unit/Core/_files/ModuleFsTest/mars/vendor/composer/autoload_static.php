@@ -9,12 +9,12 @@ class ComposerStaticInit2c0ab736fdd7903d4a16e5d07599d454
     public static $prefixLengthsPsr4 = array (
         'M' => 
         array (
-            'MorphoTest\\Core\\ModuleFsTest\\Mars\\' => 34,
+            'MorphoTest\\Unit\\Core\\ModuleFsTest\\Mars\\' => 39,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'MorphoTest\\Core\\ModuleFsTest\\Mars\\' => 
+        'MorphoTest\\Unit\\Core\\ModuleFsTest\\Mars\\' => 
         array (
             0 => __DIR__ . '/../..' . '/foo/bar/baz',
         ),

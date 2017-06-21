@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Code\ClassTypeDiscoverer;
+namespace MorphoTest\Unit\Code\ClassTypeDiscoverer;
 
 class RegexpStrategyTest extends DiscoverStrategyTest {
     protected function newDiscoverStrategy() {

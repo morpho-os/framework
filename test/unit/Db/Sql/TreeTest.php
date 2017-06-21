@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Db\Sql;
+namespace MorphoTest\Unit\Db\Sql;
 
 use Morpho\Db\Sql\Tree;
 use Morpho\Test\DbTestCase;

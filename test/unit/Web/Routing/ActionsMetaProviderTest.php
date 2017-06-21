@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web\Routing;
+namespace MorphoTest\Unit\Web\Routing;
 
 use const Morpho\Core\VENDOR;
 use Morpho\Test\TestCase;

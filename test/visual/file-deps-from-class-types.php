@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Test;
+namespace MorphoTest\Visual;
 
 use function Morpho\Base\showLn;
 use const Morpho\Core\VENDOR_DIR_PATH;

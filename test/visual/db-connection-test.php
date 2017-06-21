@@ -1,4 +1,6 @@
 <?php declare(strict_types=1);
+namespace MorphoTest\Visual;
+
 (function ($host, $user, $password, $dbName) {
     $dsn = 'mysql:dbname=' . $dbName . ';' . $host . ';charset=UTF8';
     $db = new \PDO($dsn, $user, $password);

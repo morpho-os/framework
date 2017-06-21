@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Cli;
+namespace MorphoTest\Unit\Cli;
 
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;

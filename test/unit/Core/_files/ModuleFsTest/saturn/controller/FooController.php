@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Core\ModuleFsTest\Saturn\Controller;
+namespace MorphoTest\Unit\Core\ModuleFsTest\Saturn\Controller;
 
 class FooController {
 

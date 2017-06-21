@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web\Messages;
+namespace MorphoTest\Unit\Web\Messages;
 
 use Morpho\Test\TestCase;
 use Morpho\Base\ArrayIterator;

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Code\Js;
+namespace MorphoTest\Unit\Code\Js;
 
 use Morpho\Code\Js\PJsCompiler;
 use Morpho\Test\TestCase;

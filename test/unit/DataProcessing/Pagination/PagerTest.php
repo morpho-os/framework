@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\DataProcessing\Pagination;
+namespace MorphoTest\Unit\DataProcessing\Pagination;
 
 use Countable;
 use Iterator;

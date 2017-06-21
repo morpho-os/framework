@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Code;
+namespace MorphoTest\Unit\Code;
 
 use Morpho\Code\StringReader;
 use Morpho\Code\SyntaxError;

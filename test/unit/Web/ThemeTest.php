@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Core;
+namespace MorphoTest\Unit\Core;
 
 use function Morpho\Base\fromJson;
 use Morpho\Base\Node as BaseNode;

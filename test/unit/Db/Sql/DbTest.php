@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Db\Sql;
+namespace MorphoTest\Unit\Db\Sql;
 
 use Morpho\Db\Sql\MySql\SchemaManager;
 use Morpho\Db\Sql\Db;

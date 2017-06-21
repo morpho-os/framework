@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Di;
+namespace MorphoTest\Unit\Di;
 
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;

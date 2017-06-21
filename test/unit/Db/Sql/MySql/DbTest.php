@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Db\Sql\MySql;
+namespace MorphoTest\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\MySql\Query;
 use Morpho\Db\Sql\MySql\SchemaManager;
-use MorphoTest\Db\Sql\DbTest as BaseDbTest;
+use MorphoTest\Unit\Db\Sql\DbTest as BaseDbTest;
 
 class DbTest extends BaseDbTest {
     public function testInsertRows() {

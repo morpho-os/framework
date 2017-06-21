@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Base;
+namespace MorphoTest\Unit\Base;
 
 use Morpho\Test\TestCase;
 use Morpho\Base\Must;

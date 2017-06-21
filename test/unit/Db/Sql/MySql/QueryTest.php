@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Db\Sql\MySql;
+namespace MorphoTest\Unit\Db\Sql\MySql;
 
 use Morpho\Test\TestCase;
 

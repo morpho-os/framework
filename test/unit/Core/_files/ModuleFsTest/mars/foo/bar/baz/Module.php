@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Core\ModuleFsTest\Mars;
+namespace MorphoTest\Unit\Core\ModuleFsTest\Mars;
 
 class Module {
 

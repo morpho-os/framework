@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Identity;
+namespace MorphoTest\Unit\Identity;
 
 use Morpho\Base\EntityNotFoundException;
 use Morpho\Identity\IUserRepo;

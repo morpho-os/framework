@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Fs;
+namespace MorphoTest\Unit\Fs;
 
 use Morpho\Fs\Entry;
 use Morpho\Test\TestCase;

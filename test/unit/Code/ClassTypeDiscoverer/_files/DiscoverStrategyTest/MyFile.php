@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Code\ClassTypeDiscoverer\StrategyTest1;
+namespace MorphoTest\Unit\Code\ClassTypeDiscoverer\StrategyTest1;
 
 trait FooTrait {
     public function test() {
@@ -18,7 +18,7 @@ class BarClass {
     }
 }
 
-namespace MorphoTest\Code\ClassTypeDiscoverer\StrategyTest2;
+namespace MorphoTest\Unit\Code\ClassTypeDiscoverer\StrategyTest2;
 
 interface BazInterface {
 }

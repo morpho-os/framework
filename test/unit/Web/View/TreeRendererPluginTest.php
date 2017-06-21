@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Web\View;
+namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\View\TreeRendererPlugin;

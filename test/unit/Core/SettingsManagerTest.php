@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Core;
+namespace MorphoTest\Unit\Core;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Test\DbTestCase;

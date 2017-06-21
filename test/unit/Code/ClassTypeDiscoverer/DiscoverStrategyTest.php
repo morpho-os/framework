@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Code\ClassTypeDiscoverer;
+namespace MorphoTest\Unit\Code\ClassTypeDiscoverer;
 
 use Morpho\Test\TestCase;
 

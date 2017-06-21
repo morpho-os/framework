@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\DataProcessing\Filtering;
+namespace MorphoTest\Unit\DataProcessing\Filtering;
 
 use Morpho\Test\TestCase;
 use Morpho\DataProcessing\Filtering\FileNameNoWeightFilter;

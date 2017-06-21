@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\DataProcessing\Validation;
+namespace MorphoTest\Unit\DataProcessing\Validation;
 
 use Morpho\Test\TestCase;
 use Morpho\DataProcessing\Validation\HostNameValidator;

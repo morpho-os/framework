@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Error;
+namespace MorphoTest\Unit\Error;
 
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\HandlerManager;

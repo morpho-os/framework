@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Core;
+namespace MorphoTest\Unit\Core;
 
 use Morpho\Base\ClassNotFoundException;
 use Morpho\Base\Node;
@@ -270,7 +270,7 @@ class MyModuleManager extends ModuleManager {
     }
 }
 
-namespace MorphoTest\Core\ModuleManagerTest\My;
+namespace MorphoTest\Unit\Core\ModuleManagerTest\My;
 
 use Morpho\Base\Node;
 use Morpho\Db\Sql\Db;

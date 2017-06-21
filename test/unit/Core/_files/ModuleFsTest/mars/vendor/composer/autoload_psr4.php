@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'MorphoTest\\Core\\ModuleFsTest\\Mars\\' => array($baseDir . '/foo/bar/baz'),
+    'MorphoTest\\Unit\\Core\\ModuleFsTest\\Mars\\' => array($baseDir . '/foo/bar/baz'),
 );

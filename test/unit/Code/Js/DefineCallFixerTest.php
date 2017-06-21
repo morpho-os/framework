@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Code\Js;
+namespace MorphoTest\Unit\Code\Js;
 
 use Morpho\Code\Js\DefineCallFixer;
 use Morpho\Test\TestCase;

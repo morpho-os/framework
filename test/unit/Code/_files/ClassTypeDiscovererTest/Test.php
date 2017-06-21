@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Code\ClassTypeDiscovererTest;
+namespace MorphoTest\Unit\Code\ClassTypeDiscovererTest;
 
 class MyClass {}
 
