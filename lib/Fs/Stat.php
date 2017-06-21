@@ -25,6 +25,7 @@ class Stat {
     }
 
     public static function mode(string $path): int {
+        clearstatcache();
         return fileperms($path) & 07777;
     }
 
