@@ -1,74 +1,74 @@
 import {Form} from "../lib/form"
+import {Message, MessageType} from "../lib/message";
 
 describe("Form", function() {
-    let form: Form;
+/*    let form: Form;
 
     beforeEach(function() {
         form = new Form($('form:eq(0)'));
-    });
+    });*/
 
-    it("Validate of the empty form", function() {
+    it("validate() of the empty form", function() {
+        const form = new Form($('form:eq(0)'));
         expect(form.wasValidated()).toBeFalsy();
-        /*
-        this.assertTrue(form.validate());
-        this.assertTrue(form.wasValidated());
-        this.assertTrue(form.isValid());
-        */
+        expect(form.validate()).toBeTruthy();
+        expect(form.wasValidated()).toBeTruthy();
+        expect(form.isValid()).toBeTruthy();
     });
-/*
-    protected testValidate_RequiredElements(): void {
-        var form = new Form($('form:eq(2)'));
-        this.assertFalse(form.validate());
-        var $invalidEls = form.getInvalidEls();
 
-    }
+    it('validate() with require elements', function () {
+        const form = new Form($('form:eq(2)'));
 
-    protected testGetInvalidEls_BeforeValidation(): void {
-        var form = new Form($('form:eq(2)'));
-        this.assertEquals([], form.getInvalidEls());
-    }
+        expect(form.validate()).toBeFalsy();
 
+        const $invalidEls = form.invalidEls();
 
-*/
-});
-/*
-    protected testGetEls(): void {
-        var form = new Form($('form:eq(0)'));
-        this.assertEquals(0, form.getEls().length);
+        expect($invalidEls.length).toEqual(2);
 
-        var form = new Form($('form:eq(1)'));
+        expect($invalidEls.get(0).tagName.toLowerCase()).toEqual('input');
+        expect($invalidEls.eq(0).attr('type')).toEqual('text');
+
+        expect($invalidEls.get(1).tagName.toLowerCase()).toEqual('textarea');
+    });
+
+    it('invalidEls() before validation', function () {
+        const form = new Form($('form:eq(2)'));
+        expect(form.invalidEls().length).toEqual(0);
+    });
+
+    it('els() empty form', function () {
+        const form = new Form($('form:eq(0)'));
+        expect(form.els().length).toEqual(0);
+    });
+
+    it('els() non-empty form', function () {
+        const form = new Form($('form:eq(1)'));
         // all elements except type="image"
-        this.assertEquals(26, form.getEls().length);
-    }
+        expect(form.els().length).toEqual(26);
+    });
 
-    protected testHasErrors_ThrowsExceptionIfWasNotValidated(): void {
-        var form = new Form($('form:eq(2)'));
-        try {
-            form.hasErrors();
-            this.fail();
-        } catch (e) {
-            this.assertEquals("Unable to check state, the form should be validated first", e.message);
-        }
-    }
+    it('hasErrors() throws exception if was not validated', function () {
+        const form = new Form($('form:eq(2)'));
+        expect(() => form.hasErrors()).toThrowError("Unable to check state, the form should be validated first");
+    });
 
-    protected testGenericMessageInterface(): void {
-        var form = new Form($('form:eq(2)'));
-        this.assertEquals([], form.getMessages(MessageType.Error));
+    it('formMessages()', function () {
+        const form = new Form($('form:eq(2)'));
+        expect(form.formMessages(MessageType.Error).length).toEqual(0);
 
-        var message = new Message(MessageType.Error, 'test');
-        form.addMessage(<Message>message);
+        const message = new Message(MessageType.Error, 'test');
+        form.addFormMessage(<Message>message);
 
-        this.assertEquals([message], form.getMessages(MessageType.Error));
-        this.assertEquals([], form.getMessages(MessageType.Info));
-    }
+        expect(form.formMessages(MessageType.Error)).toEqual([message]);
+        expect(form.formMessages(MessageType.Info)).toEqual([]);
+    });
 
-    protected testSpecificMessageInterface(): void {
-        var form = new Form($('form:eq(2)'));
-        this.assertEquals([], form.getErrorMessages());
+    it('formErrorMessages', function () {
+        const form = new Form($('form:eq(2)'));
+        expect(form.formErrorMessages()).toEqual([]);
 
-        form.addErrorMessage("Test");
+        form.addFormErrorMessage('Something wrong');
 
-        this.fail();
-    }
-}
-*/
+        expect(form.formErrorMessages().length).toEqual(1);
+    });
+});
