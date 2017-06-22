@@ -1,15 +1,13 @@
 <?php
 namespace Morpho\Web\View;
 
-use function Morpho\Base\escapeHtml;
 use Morpho\Base\NotImplementedException;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
-use Morpho\Db\Sql\Db;
 
 class WidgetPlugin extends Plugin implements IServiceManagerAware {
     private $serviceManager;
-    public function __invoke(...$args) {
+    public function __invoke($value) {
         throw new NotImplementedException();
         /*
         $name = $args[0];

@@ -174,7 +174,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     public function __call($pluginName, array $args) {
         $plugin = $this->plugin($pluginName);
-        return $plugin(...$args);
+        return $plugin($args);
     }
 
     public function setServiceManager(IServiceManager $serviceManager) {

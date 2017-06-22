@@ -8,8 +8,8 @@ class TreeRendererPlugin extends Plugin {
 
     private $parents = [];
 
-    public function __invoke(...$args) {
-        return $this->render($args[0]);
+    public function __invoke($value) {
+        return $this->render($value);
     }
 
     public function render(array $nodes): string {
