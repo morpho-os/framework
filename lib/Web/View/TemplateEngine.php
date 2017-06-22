@@ -3,10 +3,10 @@ namespace Morpho\Web\View;
 
 use Morpho\Base\EmptyPropertyException;
 use Morpho\Base\ItemNotSetException;
+use Morpho\Base\Pipe;
 use Morpho\Fs\File;
-use Zend\Filter\FilterChain;
 
-abstract class TemplateEngine extends FilterChain {
+abstract class TemplateEngine extends Pipe {
     protected $useCache = true;
 
     protected $vars = [];
@@ -15,7 +15,7 @@ abstract class TemplateEngine extends FilterChain {
 
     protected $uniqueFileHash = '';
 
-    public function setCacheDirPath(string $dirPath)/*: void */ {
+    public function setCacheDirPath(string $dirPath): void {
         $this->cacheDirPath = $dirPath;
     }
 
@@ -44,7 +44,7 @@ abstract class TemplateEngine extends FilterChain {
         extract($vars, EXTR_SKIP);
         ob_start();
         try {
-            eval('?>' . $this->filter($phpEngineCode));
+            eval('?>' . $this->__invoke($phpEngineCode));
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
@@ -59,7 +59,7 @@ abstract class TemplateEngine extends FilterChain {
         return $this->useCache;
     }
 
-    public function __set(string $varName, $value)/*: void */ {
+    public function __set(string $varName, $value): void {
         $this->vars[$varName] = $value;
     }
 
@@ -74,18 +74,18 @@ abstract class TemplateEngine extends FilterChain {
         return isset($this->vars[$varName]);
     }
 
-    public function __unset(string $name)/*: void */ {
+    public function __unset(string $name): void {
         unset($this->vars[$name]);
     }
 
-    public function mergeVars(array $vars)/*: void */ {
+    public function mergeVars(array $vars): void {
         $this->vars = array_merge($this->vars, $vars);
     }
 
-    public function setVars(array $vars)/*: void */ {
+    public function setVars(array $vars): void {
         $this->vars = $vars;
     }
-    
+
     public function vars(): array {
         return $this->vars;
     }
@@ -97,10 +97,10 @@ abstract class TemplateEngine extends FilterChain {
         $this->uniqueFileHash = md5($this->uniqueFileHash . '|' . $filePath);
         $cacheFilePath = $this->cacheDirPath . '/' . $this->uniqueFileHash . '.php';
         if (!is_file($cacheFilePath) || !$this->useCache()) {
-            foreach ($this->filters as $filter) {
-                $filter->setFilePath($filePath);
+            foreach ($this as $fn) {
+                $fn->setFilePath($filePath);
             }
-            $php = $this->filter(
+            $php = $this->__invoke(
                 File::read($filePath)
             );
             file_put_contents($cacheFilePath, $php);

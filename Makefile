@@ -13,10 +13,10 @@ css:
 test:
 	bin/test
 
-func-test:
+ftest:
 	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/functional/TestSuite.php
 
-unit-test:
+utest:
 	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/unit/TestSuite.php
 
 clean:
@@ -31,4 +31,4 @@ reset: clean
 	sudo rm -f module/localhost/config/config.php
 
 .SILENT:
-.PHONY: js css test func-test clean update reset
+.PHONY: js css test ftest utest clean update reset

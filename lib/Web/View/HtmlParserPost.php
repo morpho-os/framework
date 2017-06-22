@@ -28,7 +28,7 @@ class HtmlParserPost extends HtmlParser {
 
     protected function containerBody($tag) {
         $childScriptsHtml = $this->renderChildScripts();
-        $tag['_text'] = $this->filter($tag['_text']) // collect scripts on the current page
+        $tag['_text'] = $this->__invoke($tag['_text']) // collect scripts on the current page
             . $this->renderScripts()                 // then render the collected scripts
             . "\n" . $childScriptsHtml;              // then append the rendered child scripts
         return $tag;

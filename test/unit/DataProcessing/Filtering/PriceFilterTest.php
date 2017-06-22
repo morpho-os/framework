@@ -5,6 +5,8 @@ use Morpho\Test\TestCase;
 use Morpho\DataProcessing\Filtering\PriceFilter;
 
 class PriceFilterTest extends TestCase {
+    private $filter;
+
     public function setUp() {
         $this->filter = new PriceFilter();
     }

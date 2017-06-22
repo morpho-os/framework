@@ -5,7 +5,7 @@ use Morpho\Test\DbTestCase;
 use Morpho\Web\Session\DbSessionHandler;
 
 class DbSessionHandlerTest extends DbTestCase {
-    public function testInterfaces() {
+    public function testInterface() {
         $handler = new DbSessionHandler();
         $this->assertInstanceOf('\\SessionHandlerInterface', $handler);
     }

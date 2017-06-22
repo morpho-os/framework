@@ -1,14 +1,13 @@
 <?php
 namespace Morpho\Web\View;
-
-use Zend\Filter\AbstractFilter as BaseFilter;
+use Morpho\Base\IFn;
 
 /**
  * This class is changed version of HTML_SemiParser class originally written by Dmitry Koterov:
  * http://forum.dklab.ru/users/DmitryKoterov/, original code was found at:
  * https://github.com/DmitryKoterov/html_formpersister
  */
-class HtmlSemiParser extends BaseFilter {
+class HtmlSemiParser implements IFn {
     protected $tagHandlerPrefix = 'tag';
     protected $containerHandlerPrefix = 'container';
 
@@ -132,7 +131,7 @@ class HtmlSemiParser extends BaseFilter {
      * @param string $html
      * @return string Text after all replacements.
      */
-    public function filter($html) {
+    public function __invoke($html) {
         $reTagIn = $this->regexpTagIn;
 
         // Remove ignored container bodies from the string.

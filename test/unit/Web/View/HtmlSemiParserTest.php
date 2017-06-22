@@ -5,6 +5,8 @@ use Morpho\Web\View\HtmlSemiParser;
 use Morpho\Test\TestCase;
 
 class HtmlSemiParserTest extends TestCase {
+    private $parser;
+
     public function setUp() {
         $this->parser = new HtmlSemiParser();
     }
@@ -18,7 +20,7 @@ class HtmlSemiParserTest extends TestCase {
         };
         $this->parser->attachTagHandler('form', $handler);
         $html = '<form method="post"<?= isset($provider) ? \'\' : \'\' ?>></form>';
-        $filtered = $this->parser->filter($html);
+        $filtered = $this->parser->__invoke($html);
         $this->assertTrue($called);
         $this->assertEquals('!!!!', $filtered);
         */
@@ -31,7 +33,7 @@ class HtmlSemiParserTest extends TestCase {
     <a href="/foo/bar" class="my">Some text</a>
 </body>
 HTML;
-        $this->parser->filter($html);
+        $this->parser->__invoke($html);
         $this->assertEquals(['href' => '/foo/bar', 'class' => 'my'], $handler->attributes());
         $this->assertEquals('a', $handler->tagName());
     }
@@ -43,7 +45,7 @@ HTML;
     <a href="foo">123</a>
 </div>
 HTML;
-        $this->parser->filter($html);
+        $this->parser->__invoke($html);
         $this->assertEquals('<a href="foo">123</a>', $handler->text());
         $this->assertEquals(
             [
@@ -64,7 +66,7 @@ HTML;
     </form>
 </body>
 HTML;
-        $this->parser->filter($html);
+        $this->parser->__invoke($html);
         $this->assertNull($handler->tagName());
         $this->assertEquals([], $handler->attributes());
     }
@@ -82,7 +84,7 @@ HTML;
 <br>
 </body>
 HTML;
-        $this->assertEquals($expected, $this->parser->filter($html));
+        $this->assertEquals($expected, $this->parser->__invoke($html));
     }
 
     public function testCanRemoveContainer() {
@@ -98,7 +100,7 @@ HTML;
 <script src="main.dart"></script>
 </body>
 HTML;
-        $this->assertEquals($expected, $this->parser->filter($html));
+        $this->assertEquals($expected, $this->parser->__invoke($html));
     }
 }
 

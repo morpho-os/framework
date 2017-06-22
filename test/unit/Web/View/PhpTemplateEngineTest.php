@@ -6,6 +6,7 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
 use Morpho\Web\View\HtmlParserPost;
 use Morpho\Web\View\HtmlParserPre;
+use Morpho\Web\View\MessengerPlugin;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\Request;
@@ -15,15 +16,17 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function setUp() {
         $this->templateEngine = new PhpTemplateEngine();
+
+        $serviceManager = $this->newServiceManager();
+
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
-        $request = new Request();
-        $request->setUri((new Uri())->setBasePath('/base/path'));
-        $serviceManager = new ServiceManager(['request' => $request]);
-        $this->templateEngine->attach(new HtmlParserPre($serviceManager))
-            ->attach($compiler)
-            ->attach(new HtmlParserPost($serviceManager, true, '', []));
+        $this->templateEngine->append(new HtmlParserPre($serviceManager))
+            ->append($compiler)
+            ->append(new HtmlParserPost($serviceManager, true, '', []));
+
         $this->templateEngine->setServiceManager($serviceManager);
+
         $this->templateEngine->setCacheDirPath($this->tmpDirPath());
         $this->templateEngine->useCache(false);
         $this->setDefaultTimezone();
@@ -138,44 +141,44 @@ class PhpTemplateEngineTest extends TestCase {
         );
     }
 
-    public function testFilter_NotClosedLink() {
-        $this->assertEquals('<a href="', $this->templateEngine->filter('<a href="'));
+    public function testInvoke_NotClosedLink() {
+        $this->assertEquals('<a href="', $this->templateEngine->__invoke('<a href="'));
     }
 
-    public function testFilter_AbsLink() {
+    public function testInvoke_AbsLink() {
         $this->assertEquals(
             '<a href="/base/path/my/link">Link text</a>',
-            $this->templateEngine->filter('<a href="/my/link">Link text</a>')
+            $this->templateEngine->__invoke('<a href="/my/link">Link text</a>')
         );
     }
 
-    public function testFilter_MultipleAbsLinks() {
+    public function testInvoke_MultipleAbsLinks() {
         $this->assertEquals(
             '<a href="/base/path/my/link">Link text</a><a href="/base/path/my1/link1">Link text 1</a>',
-            $this->templateEngine->filter('<a href="/my/link">Link text</a><a href="/my1/link1">Link text 1</a>')
+            $this->templateEngine->__invoke('<a href="/my/link">Link text</a><a href="/my1/link1">Link text 1</a>')
         );
     }
 
-    public function testFilter_RelLink() {
+    public function testInvoke_RelLink() {
         $html = '<a href="foo/bar">Link text</a>';
-        $this->assertEquals($html, $this->templateEngine->filter($html));
+        $this->assertEquals($html, $this->templateEngine->__invoke($html));
     }
 
-    public function testFilter_EscapesVars() {
-        $this->assertRegExp('~^<h1>\s*<\?php\s+echo htmlspecialchars\(\$var, ENT_QUOTES\);\s+\?>\s*</h1>$~si', $this->templateEngine->filter('<h1><?= $var ?></h1>'));
+    public function testInvoke_EscapesVars() {
+        $this->assertRegExp('~^<h1>\s*<\?php\s+echo htmlspecialchars\(\$var, ENT_QUOTES\);\s+\?>\s*</h1>$~si', $this->templateEngine->__invoke('<h1><?= $var ?></h1>'));
     }
 
-    public function testFilter_PrintDoesNotEscapeVars() {
+    public function testInvoke_PrintDoesNotEscapeVars() {
         $expected = '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~s';
-        $this->assertRegexp($expected, $this->templateEngine->filter("<?php print '<div><span>Text</span></div>'; ?>"));
+        $this->assertRegexp($expected, $this->templateEngine->__invoke("<?php print '<div><span>Text</span></div>'; ?>"));
         $expected = '~^<\?php\s+print\s+"<div><span>Text</span></div>";$~s';
-        $this->assertRegexp($expected, $this->templateEngine->filter('<?php print("<div><span>Text</span></div>");'));
+        $this->assertRegexp($expected, $this->templateEngine->__invoke('<?php print("<div><span>Text</span></div>");'));
     }
 
-    public function testFilter_ThrowsSyntaxError() {
+    public function testInvoke_ThrowsSyntaxError() {
         $php = '<?php some invalid code; ?>';
         $this->expectException('\PhpParser\Error');
-        $this->templateEngine->filter($php);
+        $this->templateEngine->__invoke($php);
     }
 
     public function testRequire() {
@@ -185,5 +188,44 @@ class PhpTemplateEngineTest extends TestCase {
     public function testResolvesDirAndFileConstants() {
         $expected = 'Dir path: ' . $this->getTestDirPath() . ', file path: ' . $this->getTestDirPath() . '/dir-file-test.phtml';
         $this->assertEquals($expected, $this->templateEngine->renderFile($this->getTestDirPath() . '/dir-file-test.phtml'));
+    }
+    
+    public function testPlugin_ReturnsTheSamePluginInstance() {
+        $serviceManager = $this->newServiceManager();
+        $serviceManager->set('moduleManager', new class (__CLASS__ . '\\Foo') {
+            private $ns;
+
+            public function __construct($ns) {
+                $this->ns = $ns;
+            }
+
+            public function child(string $name) {
+                return new class ($this->ns) {
+                    private $ns;
+
+                    public function __construct($ns) {
+                        $this->ns = $ns;
+                    }
+
+                    public function namespace(): string {
+                        return $this->ns;
+                    }
+                };
+            }
+        });
+        $this->templateEngine->setServiceManager($serviceManager);
+
+        $pluginName = 'messenger';
+        $plugin = $this->templateEngine->plugin($pluginName);
+        $this->assertInstanceOf(MessengerPlugin::class, $plugin);
+        $this->assertSame($plugin, $this->templateEngine->plugin($pluginName));
+    }
+
+    private function newServiceManager(): ServiceManager {
+        $request = new Request();
+        $request->setUri((new Uri())->setBasePath('/base/path'));
+        $request->setHandler(['foo/bar', 'Test', 'Some']);
+        $serviceManager = new ServiceManager(['request' => $request]);
+        return $serviceManager;
     }
 }

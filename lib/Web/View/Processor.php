@@ -79,7 +79,7 @@ class Processor extends NodeVisitorAbstract {
     protected function evalRequire(Expr $expr) {
         $filePath = $this->evalExpr($expr);
         $code = file_get_contents($filePath);
-        return $this->compiler->filter($code, false);
+        return $this->compiler->__invoke($code, false);
     }
 
     protected function evalExpr(Expr $expr) {

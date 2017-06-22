@@ -73,7 +73,7 @@ class NodeTest extends TestCase {
         $this->assertTrue($this->node->hasChild('bar'));
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf('\Morpho\Base\Object', $this->node);
         $this->assertInstanceOf('\RecursiveIterator', $this->node);
         $this->assertInstanceOf('\Countable', $this->node);

@@ -197,7 +197,7 @@ class ModuleManagerTest extends DbTestCase {
         );
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $moduleManager = $this->createModuleManager();
         $this->assertInstanceOf('\Morpho\Base\Node', $moduleManager);
     }

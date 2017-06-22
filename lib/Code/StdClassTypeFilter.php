@@ -1,9 +1,9 @@
 <?php
 namespace Morpho\Code;
 
-use Zend\Filter\FilterInterface;
+use Morpho\DataProcessing\Filtering\Filter;
 
-class StdClassTypeFilter implements FilterInterface {
+class StdClassTypeFilter extends Filter {
     public static $stdClasses = [
         'AppendIterator',
         'ArithmeticError',

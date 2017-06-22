@@ -26,7 +26,7 @@ OUT
         );
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf(\IteratorAggregate::class, new CommandResult('foo', 0, ''));
     }
 }

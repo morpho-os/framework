@@ -5,7 +5,7 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Routing\RoutesMetaProvider;
 
 class RoutesMetaProviderTest extends TestCase {
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf('\Traversable', new RoutesMetaProvider());
     }
 

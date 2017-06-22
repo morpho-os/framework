@@ -5,7 +5,7 @@ use Morpho\Base\Stack;
 use Morpho\Test\TestCase;
 
 class StackTest extends TestCase {
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf('\SplStack', new Stack());
     }
 

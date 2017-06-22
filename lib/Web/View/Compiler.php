@@ -1,13 +1,13 @@
 <?php
 namespace Morpho\Web\View;
 
-use Zend\Filter\AbstractFilter as BaseFilter;
+use Morpho\Base\IFn;
 use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 
-class Compiler extends BaseFilter {
+class Compiler implements IFn {
     protected $filePath;
 
     protected $appendSourceInfo = true;
@@ -27,7 +27,7 @@ class Compiler extends BaseFilter {
         return $this->appendSourceInfo;
     }
 
-    public function filter($code, bool $print = true) {
+    public function __invoke($code, bool $print = true) {
         $parser = new Parser(new Lexer());
         $ast = $parser->parse($code);
 

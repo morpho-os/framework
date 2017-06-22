@@ -21,7 +21,7 @@ class ActionsMetaProviderTest extends TestCase {
         require_once $testDirPath . '/inheritance/ChildController.php';
     }
     
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf('\Traversable', new ActionsMetaProvider(new \stdClass()));
     }
 

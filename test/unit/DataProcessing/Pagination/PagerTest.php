@@ -14,7 +14,7 @@ class PagerTest extends TestCase {
         $this->pager = new Pager('foo');
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf(Iterator::class, $this->pager);
         $this->assertInstanceOf(Countable::class, $this->pager);
     }

@@ -20,9 +20,11 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     private $request;
 
-    const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
+    private $plugins;
 
-    public function plugin($name, array $options = []) {
+    private const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
+
+    public function plugin($name) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
             $this->plugins[$name] = $this->newPlugin($name);
@@ -190,9 +192,9 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         $class = $serviceManager->get('moduleManager')
             ->child(self::moduleName())
             ->namespace()
-            . '\\View\\Plugin\\'
-                . classify(self::controllerName())
-                . '\\' . $name . self::PLUGIN_SUFFIX;
+            . '\\' . classify(self::controllerName())
+            . '\\View'
+            . '\\' . $name . self::PLUGIN_SUFFIX;
         if (!class_exists($class)) {
             $class1 = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
             if (!class_exists($class1)) {

@@ -8,10 +8,11 @@ namespace Morpho\Web\View;
  */
 class FormPersister extends HtmlParser {
     const DEFAULT_METHOD = 'post';
+    private $fp_autoindexes;
 
-    public function filter($html) {
+    public function __invoke($html) {
         $this->fp_autoindexes = [];
-        return parent::filter($html);
+        return parent::__invoke($html);
     }
 
     protected function tagForm($tag) {

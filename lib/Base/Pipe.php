@@ -1,13 +1,16 @@
 <?php
 namespace Morpho\Base;
 
-abstract class Pipe implements IFn {
+class Pipe extends \ArrayObject implements IFn {
     public function __invoke($value) {
-        foreach ($this->fns() as $fn) {
+        foreach ($this as $fn) {
             $value = $fn($value);
         }
         return $value;
     }
 
-    abstract protected function fns(): iterable;
+    public function append($value): self {
+        parent::append($value);
+        return $this;
+    }
 }

@@ -70,10 +70,10 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine = new PhpTemplateEngine();
         $templateEngine->setCacheDirPath($this->get('site')->cacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
-        $templateEngine->attach(new HtmlParserPre($this))
-            ->attach(new FormPersister($this))
-            ->attach(new Compiler())
-            ->attach(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']));
+        $templateEngine->append(new HtmlParserPre($this))
+            ->append(new FormPersister($this))
+            ->append(new Compiler())
+            ->append(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']));
         return $templateEngine;
     }
 
