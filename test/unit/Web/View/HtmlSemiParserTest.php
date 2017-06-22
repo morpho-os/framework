@@ -20,9 +20,9 @@ class HtmlSemiParserTest extends TestCase {
         };
         $this->parser->attachTagHandler('form', $handler);
         $html = '<form method="post"<?= isset($provider) ? \'\' : \'\' ?>></form>';
-        $filtered = $this->parser->__invoke($html);
+        $processed = $this->parser->__invoke($html);
         $this->assertTrue($called);
-        $this->assertEquals('!!!!', $filtered);
+        $this->assertEquals('!!!!', $processed);
         */
     }
 

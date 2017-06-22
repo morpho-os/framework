@@ -151,12 +151,12 @@ class FunctionsTest extends TestCase {
                 new \stdClass,
             ],
             [
-                'ArrayObject',
+                \ArrayObject::class,
                 new \ArrayObject(),
             ],
             [
-                'Morpho\\Base\\ArrayObject',
-                new \Morpho\Base\ArrayObject,
+                \Morpho\Base\DateTime::class,
+                new \Morpho\Base\DateTime,
             ],
         ];
     }
