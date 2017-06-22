@@ -1,8 +1,15 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Unit\Base;
 
+use Countable;
+use LogicException;
+use Morpho\Base\EmptyPropertyException;
 use Morpho\Base\Node;
+use Morpho\Base\Object;
+use Morpho\Base\ObjectNotFoundException;
 use Morpho\Test\TestCase;
+use RecursiveIterator;
+use RuntimeException;
 
 class NodeTest extends TestCase {
     private $node;
@@ -18,7 +25,7 @@ class NodeTest extends TestCase {
     }
 
     public function testLeaf_ThrowsExceptionForNotLeaf() {
-        $this->expectException('\Morpho\Base\ObjectNotFoundException', "Unable to find a node with the name 'firstLevel' in leaf nodes.");
+        $this->expectException(ObjectNotFoundException::class, "Unable to find a node with the name 'firstLevel' in leaf nodes.");
         $firstLevelChild = $this->node->addChild(new Node('firstLevel'));
         $secondLevelChild = $firstLevelChild->addChild(new Node('secondLevel'));
         $this->assertSame($secondLevelChild, $this->node->leaf('secondLevel'));
@@ -27,7 +34,7 @@ class NodeTest extends TestCase {
 
     public function testNewNode_WithoutTypeThrowsException() {
         $comp = new Node('foo');
-        $this->expectException('\Morpho\Base\EmptyPropertyException', "The property 'Morpho\\Base\\Node::type' is empty");
+        $this->expectException(EmptyPropertyException::class, "The property 'Morpho\\Base\\Node::type' is empty");
         $comp->type();
     }
 
@@ -47,7 +54,7 @@ class NodeTest extends TestCase {
 
     public function testAddChild_CantAddNodeWithoutName() {
         $node = new Node('parent');
-        $this->expectException('\RuntimeException', 'The node must have name');
+        $this->expectException(RuntimeException::class, 'The node must have name');
         $node->addChild(new Node(''));
     }
 
@@ -74,9 +81,9 @@ class NodeTest extends TestCase {
     }
 
     public function testInterface() {
-        $this->assertInstanceOf('\Morpho\Base\Object', $this->node);
-        $this->assertInstanceOf('\RecursiveIterator', $this->node);
-        $this->assertInstanceOf('\Countable', $this->node);
+        $this->assertInstanceOf(Object::class, $this->node);
+        $this->assertInstanceOf(RecursiveIterator::class, $this->node);
+        $this->assertInstanceOf(Countable::class, $this->node);
     }
 
     public function testRemoveChildAndIsEmpty() {
@@ -101,8 +108,7 @@ class NodeTest extends TestCase {
     }
 
     public function testNonExistingChildThrowsException() {
-        $this->expectException('\RuntimeException', "Unable to load a child node with the name 'some'");
-
+        $this->expectException(RuntimeException::class, "Unable to load a child node with the name 'some'");
         $this->node->child('some');
     }
 
@@ -159,7 +165,7 @@ class NodeTest extends TestCase {
 
     public function testGetChildren_ThrowsLogicExceptionWhenNodeDoesNotHaveChildren() {
         $node = new Node('foo');
-        $this->expectException('\LogicException', "Node doesn't have children");
+        $this->expectException(LogicException::class, "Node doesn't have children");
         $node->getChildren();
     }
 

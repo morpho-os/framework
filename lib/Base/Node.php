@@ -28,10 +28,6 @@ class Node extends Object implements Countable, RecursiveIterator {
         return $this->name;
     }
 
-    public function hasName(): bool {
-        return !empty($this->name);
-    }
-
     public function type(): string {
         if (null === $this->type) {
             throw new EmptyPropertyException($this, 'type');
@@ -40,7 +36,7 @@ class Node extends Object implements Countable, RecursiveIterator {
     }
 
     public function addChild(Node $node): Node {
-        if (!$node->hasName()) {
+        if (empty($node->name())) {
             throw new RuntimeException("The node must have name");
         }
         $node->setParent($this);
