@@ -1,10 +1,10 @@
 interface Math {
     EPS: number;
     roundFloat(val: number, precision: number): number;
-    isFloatLessThanZero(val: number): boolean;
-    isFloatGreaterThanZero(val: number): boolean;
-    isFloatEqualZero(val: number): boolean;
-    isFloatEqual(a: number, b: number): boolean;
+    floatLessThanZero(val: number): boolean;
+    floatGreaterThanZero(val: number): boolean;
+    floatEqualZero(val: number): boolean;
+    floatsEqual(a: number, b: number): boolean;
 }
 
 interface String {

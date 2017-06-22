@@ -8,17 +8,17 @@ Math.roundFloat = function (val: number, precision = 2): number {
     const dd = Math.pow(10, precision);
     return Math.round(val * dd) / dd;
 };
-Math.isFloatLessThanZero = function (val: number): boolean {
+Math.floatLessThanZero = function (val: number): boolean {
     return val < -Math.EPS;
 };
-Math.isFloatGreaterThanZero = function (val: number): boolean {
+Math.floatGreaterThanZero = function (val: number): boolean {
     return val > Math.EPS;
 };
-Math.isFloatEqualZero = function (val: number): boolean {
+Math.floatEqualZero = function (val: number): boolean {
     return Math.abs(val) <= Math.EPS;
 };
-Math.isFloatEqual = function (a: number, b: number): boolean {
-    return Math.isFloatEqualZero(a - b);
+Math.floatsEqual = function (a: number, b: number): boolean {
+    return Math.floatEqualZero(a - b);
 };
 
 // ---------------------------------------------------------------------------------------------------------------------

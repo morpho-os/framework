@@ -1,7 +1,10 @@
-define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/message"], function (require, exports, form_1, message_1) {
+define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/message", "../lib/widget"], function (require, exports, form_1, message_1, widget_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     describe("Form", function () {
+        it('Inheritance', function () {
+            expect(new form_1.Form($()) instanceof widget_1.Widget).toBeTruthy();
+        });
         it("validate() of the empty form", function () {
             var form = new form_1.Form($('form:eq(0)'));
             expect(form.wasValidated()).toBeFalsy();

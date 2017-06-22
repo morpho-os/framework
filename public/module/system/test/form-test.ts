@@ -1,5 +1,6 @@
 import {Form} from "../lib/form"
 import {Message, MessageType} from "../lib/message";
+import {Widget} from "../lib/widget";
 
 describe("Form", function() {
 /*    let form: Form;
@@ -7,6 +8,10 @@ describe("Form", function() {
     beforeEach(function() {
         form = new Form($('form:eq(0)'));
     });*/
+
+    it('Inheritance', function () {
+        expect(new Form($()) instanceof Widget).toBeTruthy();
+    });
 
     it("validate() of the empty form", function() {
         const form = new Form($('form:eq(0)'));

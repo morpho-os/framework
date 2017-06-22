@@ -18,6 +18,7 @@
         "removeComments": true,
         "strictNullChecks": false,
         "target": "es5",
+        "listFiles": true,
         "baseUrl": "./module",
         "typeRoots": [
             "node_modules/@types",

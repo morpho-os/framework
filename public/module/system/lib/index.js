@@ -15,17 +15,17 @@ Math.roundFloat = function (val, precision) {
     var dd = Math.pow(10, precision);
     return Math.round(val * dd) / dd;
 };
-Math.isFloatLessThanZero = function (val) {
+Math.floatLessThanZero = function (val) {
     return val < -Math.EPS;
 };
-Math.isFloatGreaterThanZero = function (val) {
+Math.floatGreaterThanZero = function (val) {
     return val > Math.EPS;
 };
-Math.isFloatEqualZero = function (val) {
+Math.floatEqualZero = function (val) {
     return Math.abs(val) <= Math.EPS;
 };
-Math.isFloatEqual = function (a, b) {
-    return Math.isFloatEqualZero(a - b);
+Math.floatsEqual = function (a, b) {
+    return Math.floatEqualZero(a - b);
 };
 String.prototype.escapeHtml = function () {
     var entityMap = {
