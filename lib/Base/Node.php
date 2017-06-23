@@ -2,13 +2,10 @@
 declare(strict_types = 1);
 namespace Morpho\Base;
 
-use Countable;
-use LogicException;
 use RecursiveIterator;
-use RecursiveIteratorIterator;
 use RuntimeException;
 
-class Node extends Object implements Countable, RecursiveIterator {
+class Node extends Object {
     protected $children = [];
 
     /**
@@ -35,70 +32,26 @@ class Node extends Object implements Countable, RecursiveIterator {
         return $this->type;
     }
 
-    public function addChild(Node $node): Node {
+    public function append($node): self {
         if (empty($node->name())) {
             throw new RuntimeException("The node must have name");
         }
         $node->setParent($this);
-        $this->children[$node->name()] = $node;
-        return $node;
+        $this->offsetSet($node->name, $node);
+        return $this;
     }
 
-    /**
-     * @param string|Node
-     */
-    public function removeChild($child): void {
-        if (is_string($child)) {
-            unset($this->children[$child]);
-        } else {
-            $name = $child->name();
-            unset($this->children[$name]);
+    public function offsetExists($name): bool {
+        return parent::offsetExists($name) || false !== $this->childNameToClass($name);
+    }
+
+    public function offsetGet($key) {
+        if (!parent::offsetExists($key)) {
+            $node = $this->loadChild($key);
+            $this->append($node);
+            return $node;
         }
-    }
-
-    public function removeAll(): void {
-        $this->children = [];
-    }
-
-    /**
-     * @param string|Node $child
-     */
-    public function hasChild($child): bool {
-        if (is_string($child)) {
-            $name = $child;
-        } else {
-            $name = $child->name();
-        }
-        return isset($this->children[$name])
-            || $this->childNameToClass($name) !== false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEmpty(): bool {
-        return $this->count() == 0;
-    }
-
-    public function child(string $name): Node {
-        if (!isset($this->children[$name])) {
-            $node = $this->loadChild($name);
-            return $this->addChild($node);
-        }
-        return $this->children[$name];
-    }
-
-    public function leaf(string $name): Node {
-        foreach (new RecursiveIteratorIterator($this, RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
-            if ($node->name() == $name) {
-                return $node;
-            }
-        }
-        throw new ObjectNotFoundException("Unable to find a node with the name '$name' in leaf nodes.");
-    }
-
-    public function childNodes(): array {
-        return $this->children;
+        return parent::offsetGet($key);
     }
 
     public function setParent(Node $parent): void {
@@ -115,6 +68,7 @@ class Node extends Object implements Countable, RecursiveIterator {
         return $parent;
     }
 
+    // @TODO: Merge with parent()
     public function parentByType(string $type): ?Node {
         $parent = $this->parent;
         while ($parent && $parent->type() !== $type) {
@@ -125,49 +79,21 @@ class Node extends Object implements Countable, RecursiveIterator {
 
     /**
      * @return RecursiveIterator|null
-     */
     public function getChildren() {
         if (!$this->hasChildren()) {
             throw new LogicException("Node doesn't have children.");
         }
         return $this->current();
     }
+ */
 
     /**
      * @return bool Returns true if the current entry can be iterated over, otherwise returns false.
-     */
     public function hasChildren() {
         $current = $this->current();
         return null !== $current && count($current) > 0;
     }
-
-    /**
-     * @return Node|null
      */
-    public function current() {
-        $current = current($this->children);
-        return $current ? $current : null;
-    }
-
-    public function key() {
-        return key($this->children);
-    }
-
-    public function next(): void {
-        next($this->children);
-    }
-
-    public function rewind(): void {
-        reset($this->children);
-    }
-
-    public function valid(): bool {
-        return false !== current($this->children);
-    }
-
-    public function count(): int {
-        return count($this->children);
-    }
 
     /**
      * @throws ObjectNotFoundException If unable to load the child.

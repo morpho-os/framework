@@ -9,7 +9,7 @@ use Morpho\Web\Application;
 class InstallerTest extends BrowserTest {
     private const DB_NAME = 'test';
 
-    public function testInstallation() {
+    public function testInstallationAndClientTest() {
         $application = new Application();
         $site = $application->site();
 
@@ -41,6 +41,9 @@ class InstallerTest extends BrowserTest {
 
         $this->assertNotEmpty((require $site->configFilePath())['db']);
 
+        // @TODO: Extract to different file
+        $this->runClientTests();
+
         /* @TODO
         browser.executeScript("window.confirm = function (){return true;}");
         browser.findElement({xpath: "//div[@id='page-messages']//*[contains(@class, 'alert-body')]"})
@@ -50,5 +53,9 @@ class InstallerTest extends BrowserTest {
                 done();
             });
         */
+    }
+
+    private function runClientTests(): void {
+
     }
 }

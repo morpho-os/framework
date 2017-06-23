@@ -16,7 +16,7 @@ class TestController extends Controller {
         $controllerViewDirPath = $this->parentByType('Module')->viewDirPath() . '/' . dasherize($this->name());
         $found = false;
         foreach ($moduleManager->enabledModuleNames() as $moduleName) {
-            $module = $moduleManager->child($moduleName);
+            $module = $moduleManager->offsetGet($moduleName);
             if ($module instanceof Theme) {
                 $module->addBaseDirPath($controllerViewDirPath);
                 $found = true;

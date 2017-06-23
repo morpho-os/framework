@@ -57,8 +57,8 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
 
     public function controller(): Controller {
         [$moduleName, $controllerName, ] = $this->request()->handler();
-        $module = $this->serviceManager->get('ModuleManager')->child($moduleName);
-        return $module->child($controllerName);
+        $module = $this->serviceManager->get('ModuleManager')->offsetGet($moduleName);
+        return $module->offsetGet($controllerName);
     }
 
     public function moduleName(): string {
@@ -190,7 +190,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     protected function newPlugin(string $name) {
         $serviceManager = $this->serviceManager;
         $class = $serviceManager->get('moduleManager')
-            ->child(self::moduleName())
+            ->offsetGet(self::moduleName())
             ->namespace()
             . '\\' . classify(self::controllerName())
             . '\\View'

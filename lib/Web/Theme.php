@@ -65,7 +65,7 @@ class Theme extends Module {
 
         $this->addBaseDirPath(
             $this->parent('ModuleManager')
-                ->child($request->moduleName())
+                ->offsetGet($request->moduleName())
                 ->viewDirPath()
         );
 

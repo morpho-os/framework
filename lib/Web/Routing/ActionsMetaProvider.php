@@ -56,7 +56,10 @@ class ActionsMetaProvider implements \IteratorAggregate {
     protected function collectActionsMeta(string $controllerClass, string $moduleName, string $controllerName) {
         $actionsMeta = [];
         if (!class_exists($controllerClass)) {
-            throw new ClassNotFoundException("Unable to load the class '$controllerClass' for the module '$moduleName', ensure that the class is defined");
+            $this->moduleManager->moduleFs()->registerModuleAutoloader($moduleName);
+            if (!class_exists($controllerClass)) {
+                throw new ClassNotFoundException("Unable to load the class '$controllerClass' for the module '$moduleName', ensure that the class is defined");
+            }
         }
         $rClass = new \ReflectionClass($controllerClass);
         $ignoredMethods = $this->ignoredMethods();

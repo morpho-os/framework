@@ -24,7 +24,7 @@ class ModuleManagerTest extends DbTestCase {
         $schemaManager->createTables(\Morpho\System\Module::tableDefinitions());
     }
 
-    public function testChild_ModuleWithoutModuleClass() {
+    public function testOffsetGet_ModuleWithoutModuleClass() {
         $moduleName = $this->vendor . '/saturn';
         $moduleFs = $this->newModuleFs([$moduleName]);
 
@@ -32,41 +32,40 @@ class ModuleManagerTest extends DbTestCase {
             ->method('moduleClass')
             ->with($this->equalTo($moduleName))
             ->will($this->returnValue(Module::class));
-        $moduleManager = $this->createModuleManager(null, $moduleFs);
+        $moduleManager = $this->newModuleManager(null, $moduleFs);
 
-        $module = $moduleManager->child($moduleName);
+        $module = $moduleManager->offsetGet($moduleName);
 
         $this->assertEquals(Module::class, get_class($module));
         $this->assertEquals($moduleName, $module->name());
     }
 
-    public function testChild_ThrowsExceptionForNonExistingModule() {
+    public function testOffsetGet_ThrowsExceptionForNonExistingModule() {
         $moduleName = 'some/non-existing';
-        $moduleManager = $this->createModuleManager();
+        $moduleManager = $this->newModuleManager();
         $this->expectException(ClassNotFoundException::class, "Unable to load the module '$moduleName'");
-        $moduleManager->child($moduleName);
+        $moduleManager->offsetGet($moduleName);
     }
 
     public function testUninstalledModuleNames_CanUseComposerNamingStyle() {
         $modules = ['galaxy/earth', 'galaxy/saturn'];
-        $moduleManager = $this->createModuleManager(null, $this->newModuleFs($modules));
+        $moduleManager = $this->newModuleManager(null, $this->newModuleFs($modules));
         $this->assertEquals($modules, $moduleManager->uninstalledModuleNames());
     }
 
     public function testFallbackMode() {
         $this->checkBoolAccessor(
-            [$this->createModuleManager(), 'isFallbackMode'],
+            [$this->newModuleManager(), 'isFallbackMode'],
             false
         );
     }
 
     public function testExceptionHandling() {
-        $moduleManager = $this->createModuleManager();
+        $moduleManager = $this->newModuleManager();
 
         $moduleName = 'error-handling-test-module';
-        $module = $moduleManager->addChild(
-            new ErrorHandlingTestModule($moduleName, $this->getTestDirPath())
-        );
+        $module = new ErrorHandlingTestModule($moduleName, $this->getTestDirPath());
+        $moduleManager->append($module);
 
         $request = new class() extends Request {
             protected function newResponse() {
@@ -87,7 +86,7 @@ class ModuleManagerTest extends DbTestCase {
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ]);
-        $moduleManager = $this->createModuleManager(null, $moduleFs);
+        $moduleManager = $this->newModuleManager(null, $moduleFs);
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -112,7 +111,7 @@ class ModuleManagerTest extends DbTestCase {
         $moduleClass = $moduleName . '\\Module';
         $module = new $moduleClass($moduleName, $this->getTestDirPath());
 
-        $moduleManager->addChild($module);
+        $moduleManager->append($module);
 
         $this->assertFalse($module->isInstallCalled());
 
@@ -198,15 +197,15 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testInterface() {
-        $moduleManager = $this->createModuleManager();
+        $moduleManager = $this->newModuleManager();
         $this->assertInstanceOf('\Morpho\Base\Node', $moduleManager);
     }
 
     public function testDispatch_CallsDispatchMethodOfController() {
-        $moduleManager = $this->createModuleManager();
+        $moduleManager = $this->newModuleManager();
         $moduleName = 'my-module';
         $module = new ModuleManagerTest\My\Module($moduleName, $this->getTestDirPath());
-        $moduleManager->addChild($module);
+        $moduleManager->append($module);
         $controllerName = 'my-controller';
         $request = new class($moduleName, $controllerName) extends Request {
             public function newResponse() {
@@ -214,14 +213,14 @@ class ModuleManagerTest extends DbTestCase {
         };
         $request->setHandler([$moduleName, $controllerName, 'some']);
 
-        $this->assertFalse($module->child($controllerName)->isDispatchCalled());
+        $this->assertFalse($module[$controllerName]->isDispatchCalled());
 
         $moduleManager->dispatch($request);
 
-        $this->assertTrue($module->child($controllerName)->isDispatchCalled());
+        $this->assertTrue($module[$controllerName]->isDispatchCalled());
     }
 
-    private function createModuleManager(Db $db = null, $moduleFs = null) {
+    private function newModuleManager(Db $db = null, $moduleFs = null) {
         $moduleManager = new MyModuleManager(
             $db ?: $this->db(),
             $moduleFs ?: $this->newModuleFs([])
@@ -250,8 +249,8 @@ class ErrorHandlingTestModule extends Module {
         return $this->errorListenerCalled;
     }
 
-    public function child(string $name): Node {
-        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController($name) : parent::child($name);
+    public function offsetGet($name): Node {
+        return $name === 'error-handling-test-controller' ? new ErrorHandlingTestController($name) : parent::offsetGet($name);
     }
 }
 

@@ -43,7 +43,7 @@ class Module extends Node {
     }
 
     public function repo($name) {
-        return $this->child(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
+        return $this->offsetGet(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
     }
 
     public static function tableDefinitions(): array {

@@ -8,6 +8,7 @@ use Morpho\Fs\Path;
 abstract class ModuleFs {
     protected $baseModuleDirPath;
 
+    // @TODO
     //protected $useCache;
 
     private $registeredModules = [];
@@ -41,7 +42,6 @@ abstract class ModuleFs {
      * @return string|false
      */
     public function moduleClass(string $moduleName) {
-        $this->registerModuleAutoloader($moduleName);
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['class'];
     }
@@ -50,7 +50,6 @@ abstract class ModuleFs {
      * @return string|false
      */
     public function moduleNamespace(string $moduleName) {
-        $this->registerModuleAutoloader($moduleName);
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['namespace'];
     }
@@ -65,7 +64,7 @@ abstract class ModuleFs {
         return $this->baseModuleDirPath . '/' . $this->moduleCache[$moduleName]['relDirPath'];
     }
 
-    private function registerModuleAutoloader(string $moduleName): void {
+    public function registerModuleAutoloader(string $moduleName): void {
         if (!isset($this->registeredModules[$moduleName])) {
             // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then
             // call Composer's autoloader in case of fail.

@@ -12,11 +12,11 @@ abstract class Node extends BaseNode implements IServiceManagerAware {
         $this->serviceManager = $serviceManager;
     }
 
-    public function addChild(BaseNode $node): BaseNode {
-        $node = parent::addChild($node);
+    public function append($node): BaseNode {
+        parent::append($node);
         if ($node instanceof IServiceManagerAware) {
             $node->setServiceManager($this->serviceManager);
         }
-        return $node;
+        return $this;
     }
 }

@@ -120,7 +120,7 @@ class ThemeTest extends TestCase {
                 $this->module = $module;
             }
 
-            public function child(string $name): BaseNode {
+            public function offsetGet($name): BaseNode {
                 if ($name === $this->module->name()) {
                     return $this->module;
                 }

@@ -2,7 +2,6 @@
 namespace MorphoTest\Unit\DataProcessing\Pagination;
 
 use Countable;
-use Iterator;
 use Morpho\DataProcessing\Pagination\Page;
 use Morpho\DataProcessing\Pagination\Pager;
 use Morpho\Test\TestCase;
@@ -15,7 +14,7 @@ class PagerTest extends TestCase {
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(Iterator::class, $this->pager);
+        $this->assertInstanceOf(\Traversable::class, $this->pager);
         $this->assertInstanceOf(Countable::class, $this->pager);
     }
 

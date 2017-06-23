@@ -1,11 +1,10 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Base;
 
 use ReflectionObject;
 
-abstract class Object {
+abstract class Object extends \ArrayObject {
     private $reflected;
 
     private $classDirPath;

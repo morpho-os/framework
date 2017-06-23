@@ -199,7 +199,7 @@ class PhpTemplateEngineTest extends TestCase {
                 $this->ns = $ns;
             }
 
-            public function child(string $name) {
+            public function offsetGet($name) {
                 return new class ($this->ns) {
                     private $ns;
 

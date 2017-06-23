@@ -73,8 +73,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
             $this->actionNotFound($moduleName, $controllerName, $actionName);
         }
-        $module = $this->child($moduleName);
-        return $module->child($controllerName);
+        $module = $this->offsetGet($moduleName);
+        return $module->offsetGet($controllerName);
     }
 
     public function on(string $eventName, callable $handler): void {
@@ -92,7 +92,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             foreach ($this->eventHandlers[$eventName] as $handler) {
                 if (false === is_callable($handler)) {
                     $handler = [
-                        $this->child($handler['moduleName']),
+                        $this->offsetGet($handler['moduleName']),
                         $handler['method'],
                     ];
                 }
@@ -111,7 +111,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->child($moduleName);
+                $module = $this->offsetGet($moduleName);
 
                 $db->schemaManager()->createTables($module->tableDefinitions());
 
@@ -132,7 +132,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName, $moduleId) {
-                $module = $this->child($moduleName);
+                $module = $this->offsetGet($moduleName);
                 $module->uninstall($db);
                 $db->deleteRows('event', ['moduleId' => $moduleId]);
                 $db->deleteRows($this->tableName, ['id' => $moduleId]);
@@ -149,7 +149,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->child($moduleName);
+                $module = $this->offsetGet($moduleName);
                 $module->enable($db);
                 $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
             }
@@ -167,7 +167,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         */
         $this->db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->child($moduleName);
+                $module = $this->offsetGet($moduleName);
                 $module->disable($db);
                 $db->updateRows($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
             }
@@ -179,7 +179,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->child($moduleName);
+                $module = $this->offsetGet($moduleName);
 
                 $db->schemaManager()->createTables($module->tableDefinitions());
 
@@ -202,7 +202,7 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $moduleRow = $this->db->select('id, status FROM module WHERE name = ?', [$moduleName])->row();
                 if ($moduleRow) {
                     $this->db->eval("DELETE FROM event WHERE moduleId = ?", [$moduleRow['id']]);
-                    $module = $this->child($moduleName);
+                    $module = $this->offsetGet($moduleName);
                     foreach ($this->eventsMeta($module) as $eventMeta) {
                         $this->db->insertRow('event', array_merge($eventMeta, ['moduleId' => $moduleRow['id']]));
                     }
@@ -297,6 +297,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         if (false === $class) {
             throw new ClassNotFoundException("Unable to load the module '$moduleName'");
         }
+        $moduleFs->registerModuleAutoloader($moduleName);
         return new $class($moduleName, $moduleFs->moduleDirPath($moduleName));
     }
 
