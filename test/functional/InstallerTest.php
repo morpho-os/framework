@@ -56,6 +56,10 @@ class InstallerTest extends BrowserTest {
     }
 
     private function runClientTests(): void {
-
+        $this->browser->get($this->baseUri . '/system/test?selenium');
+        $by = By::id('testing-results');
+        $this->waitUntilElementIsVisible($by);
+        $numberOfFailedTests = $this->browser->findElement($by)->getText();
+        $this->assertEquals(0, $numberOfFailedTests);
     }
 }

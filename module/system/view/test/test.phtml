@@ -23,5 +23,15 @@
 <script type="text/javascript" src="/node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
 <script type="text/javascript" src="/node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
 <script type="text/javascript" src="/node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+<script>
+jasmine.getEnv().addReporter({
+    jasmineDone: function (runDetails) {
+        if (window.location.search.indexOf('selenium') >= 0) {
+            document.getElementById('page-body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
+            //alert($('.jasmine_html-reporter .jasmine-alert .jasmine-passed').text())
+        }
+    }
+});
+</script>
 </body>
 </html>
