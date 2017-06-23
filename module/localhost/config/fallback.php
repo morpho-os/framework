@@ -13,7 +13,6 @@ return [
     'modules' => [
         \Morpho\Core\VENDOR . '/system',
         \Morpho\Core\VENDOR . '/user',
-        \Morpho\Core\VENDOR . '/bootstrap',
     ],
     'moduleAutoloader' => [
         'useCache' => false,

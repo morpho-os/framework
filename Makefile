@@ -8,7 +8,7 @@ js:
 
 css:
 	# To compress add the `-c` option
-	cd $(publicModuleDirPath)/system/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < main.styl > main.css
+	cd $(publicModuleDirPath)/system/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < index.styl > index.css
 
 test:
 	bin/test
@@ -20,7 +20,7 @@ utest:
 	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/unit/TestSuite.php
 
 clean:
-	sudo rm -rf module/localhost/log/* module/localhost/cache/*
+	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/functional/*.log
 
 update:
 	composer update

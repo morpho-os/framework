@@ -1210,7 +1210,7 @@ body {
   font-family: "Fira Sans", "Open Sans", "Lucida Sans", "Lucida Sans Unicode", "Trebuchet MS", "Liberation Sans", "Nimbus Sans L", sans-serif;
   font-size: 14px;
   line-height: 1.428571429;
-  color: #333;
+  color: #fff;
   background-color: #202020;
 }
 input,
@@ -3841,7 +3841,7 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
   display: block;
   margin-top: 5px;
   margin-bottom: 10px;
-  color: #737373;
+  color: #fff;
 }
 @media (min-width: 768px) {
   .form-inline .form-group,
@@ -5882,7 +5882,7 @@ a.thumbnail.active {
 }
 .thumbnail .caption {
   padding: 9px;
-  color: #333;
+  color: #fff;
 }
 .alert {
   padding: 15px;
@@ -8059,28 +8059,9 @@ svg {
   width: 100%;
   height: 100%;
 }
-/*
-.nav, .navbar-default
-    border-radius: $navbar-border-radius !important
-
-*/
-/*
-.grid
-    th.expand,
-    td.expand
-        width: 1%
-        cursor: pointer
-
-*/
-/******************************************************************************
- * Pages
- *****************************************************************************/
 #page-title {
   border-bottom: none;
 }
-/******************************************************************************
- * Utilities
- *****************************************************************************/
 span.required {
   color: $required-color;
 }
@@ -8106,9 +8087,6 @@ span.required {
 .no-content:after {
   content: normal !important;
 }
-/******************************************************************************
- * Messages
- *****************************************************************************/
 #page-messages {
   position: fixed;
   top: 70px;
@@ -8145,14 +8123,6 @@ span.required {
   color: #a94442 !important;
   text-decoration: underline;
 }
-/******************************************************************************
- * Forms
- *****************************************************************************/
-/*
-.form-group label:after
-    content: ':'
-
-*/
 fieldset legend {
   color: #ccc;
 }
@@ -8168,7 +8138,7 @@ form .help-block {
   color: #ccc;
 }
 form .has-error .help-block {
-  color: #666;
+  color: #fff;
 }
 form .has-error label {
   color: #333;
@@ -8176,9 +8146,6 @@ form .has-error label {
 form .btns {
   margin-top: 2em;
 }
-/******************************************************************************
- * Widgets
- *****************************************************************************/
 .table-striped a {
   color: #5cb85c;
   background: #202020;

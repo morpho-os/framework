@@ -2,7 +2,6 @@
 namespace Morpho\System;
 
 use Morpho\Base\Must;
-use Morpho\Web\Module as BaseModule;
 use const Morpho\Core\VENDOR;
 use Morpho\Db\Sql\Db;
 use Morpho\Error\ErrorHandler;
@@ -10,8 +9,9 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Response;
+use Morpho\Web\Theme;
 
-class Module extends BaseModule {
+class Module extends Theme {
     const NAME = VENDOR . '/system';
 
     const BAD_REQUEST_ERROR    = 'badRequest';
@@ -28,20 +28,6 @@ class Module extends BaseModule {
 
     public function install(Db $db) {
 
-    }
-
-    /**
-     * @Listen afterDispatch 100
-     */
-    public function afterDispatch(array $event) {
-        /*
-        $headers = $event[1]['request']->getResponse()->getHeaders();
-        $headers->addHeaderLine('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT')
-            ->addHeaderLine('Last-Modified', gmdate('D, d M Y H:i:s') . ' GMT')
-            ->addHeaderLine('Cache-Control', 'no-store, no-cache, must-revalidate')
-            ->addHeaderLine('Cache-Control', 'post-check=0, pre-check=0')
-            ->addHeaderLine('Pragma', 'no-cache');
-        */
     }
 
     public static function defaultErrorHandler(string $errorType): array {

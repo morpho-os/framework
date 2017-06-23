@@ -7,31 +7,29 @@ use const Morpho\Core\VENDOR;
 class ModuleManager extends BaseModuleManager {
     const SYSTEM_MODULE    = VENDOR . '/system';
     const USER_MODULE      = VENDOR . '/user';
-    const BOOTSTRAP_MODULE = VENDOR . '/bootstrap';
 
     protected $fallbackModules = [
         self::SYSTEM_MODULE,
         self::USER_MODULE,
-        self::BOOTSTRAP_MODULE,
     ];
 
     protected function fallbackModeEventHandlers(): array {
         return [
             'render'         => [
                 [
-                    'moduleName' => self::BOOTSTRAP_MODULE,
+                    'moduleName' => self::SYSTEM_MODULE,
                     'method'     => 'render',
                 ],
             ],
             'afterDispatch'  => [
                 [
-                    'moduleName' => self::BOOTSTRAP_MODULE,
+                    'moduleName' => self::SYSTEM_MODULE,
                     'method'     => 'afterDispatch',
                 ],
             ],
             'beforeDispatch' => [
                 [
-                    'moduleName' => self::BOOTSTRAP_MODULE,
+                    'moduleName' => self::SYSTEM_MODULE,
                     'method'     => 'beforeDispatch',
                 ],
             ],
