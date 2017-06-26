@@ -4,16 +4,49 @@ namespace Morpho\Identity;
 use Zend\Math\Rand;
 
 class PasswordManager {
-    const PASSWORD_LENGTH = 24;
-    const MAX_PASSWORD_LENGTH = 72;
+    public const PASSWORD_LENGTH = 24;
+    public const MAX_PASSWORD_LENGTH = 72;
 
-    // Removed characters which can confuse: 0, 'O', 'I', 1, 'l'.
-    const ALLOWED_CHARS = '\\/~;:<>?!@#$%^&*(){}[].,-_=+abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    // Mnemonic: names of the following constants matching names of character classes in perl regular expressions like [:punct:], [:lower:] etc, see http://php.net/manual/en/regexp.reference.character-classes.php
+    public const PUNCT_CHARS = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'; // [:punct:]
+    public const LOWER_CHARS = 'abcdefghijklmnopqrstuvwxyz';         // [:lower:]
+    public const UPPER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';         // [:upper:]
+    public const DIGIT_CHARS = '0123456789';                         // [:digit:]
+
+    // Characters which are hard to read or which can cause problems in some programs, e.g. shell.
+    public const CONFUSED_CHARS = '"\'`|loIO01';
+
+    public const USE_LOWER_CHARS    = 0b00001;
+    public const USE_UPPER_CHARS    = 0b00010;
+    public const USE_DIGIT_CHARS    = 0b00100;
+    public const USE_PUNCT_CHARS    = 0b11000;
+    public const USE_CONFUSED_CHARS = 0b01000; // subset of PUNCT_CHARS
+    public const USE_ALL_CHARS = self::USE_LOWER_CHARS | self::USE_UPPER_CHARS | self::USE_DIGIT_CHARS | self::USE_PUNCT_CHARS;
 
     const COST = 12;
 
-    public static function generatePassword(int $length = self::PASSWORD_LENGTH): string {
-        return Rand::getString($length, self::ALLOWED_CHARS, true);
+    public static function generatePassword(int $length = self::PASSWORD_LENGTH, int $flags = self::USE_ALL_CHARS ^ self::USE_CONFUSED_CHARS): string {
+        $chars = '';
+        if ($flags & self::USE_PUNCT_CHARS) {
+            $chars .= self::PUNCT_CHARS;
+        }
+        if ($flags & self::USE_LOWER_CHARS) {
+            $chars .= self::USE_LOWER_CHARS;
+        }
+        if ($flags & self::USE_UPPER_CHARS) {
+            $chars .= self::UPPER_CHARS;
+        }
+        if ($flags & self::USE_DIGIT_CHARS) {
+            $chars .= self::DIGIT_CHARS;
+        }
+        if (!($flags & self::USE_CONFUSED_CHARS)) {
+            $chars = str_replace(
+                str_split(self::CONFUSED_CHARS),
+                '',
+                $chars
+            );
+        }
+        return Rand::getString($length, $chars);
     }
 
     public static function isOutdatedHash(string $passwordHash): bool {
