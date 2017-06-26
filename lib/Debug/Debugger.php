@@ -162,7 +162,7 @@ class Debugger {
             }
         }));
         if ($fixOutput) {
-            $output = preg_replace('~\s*=>\s*~si', ' => ', $output);
+            $output = preg_replace('~]=>\\n\s*~si', '] => ', $output);
         }
         return $this->formatLine($output);
     }

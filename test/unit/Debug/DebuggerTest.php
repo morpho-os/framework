@@ -6,14 +6,20 @@ use Morpho\Debug\Debugger;
 use Morpho\Base\Environment;
 
 class DebuggerTest extends TestCase {
+    private $debugger;
+
     public function setUp() {
         $this->debugger = Debugger::instance();
     }
 
+    public function testVarToString_FixOutput() {
+        $this->checkXdebug();
+        $this->assertEquals("\nstring(3) \"<=>\"\n", $this->debugger->varToString('<=>'));
+    }
+
     public function testVarToString() {
-        if (Environment::isXdebugEnabled() && Environment::boolIniVal('xdebug.overload_var_dump')) {
-            $this->markTestIncomplete();
-        }
+        $this->checkXdebug();
+
         ob_start();
 ?>
 
@@ -41,5 +47,11 @@ Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
 
     public function tearDown() {
         Debugger::resetState();
+    }
+
+    private function checkXdebug(): void {
+        if (Environment::isXdebugEnabled() && Environment::boolIniVal('xdebug.overload_var_dump')) {
+            $this->markTestIncomplete();
+        }
     }
 }
