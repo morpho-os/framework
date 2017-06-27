@@ -511,6 +511,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo_bar', underscore('-Foo_Bar-'));
         $this->assertEquals('foo_bar_baz', underscore('FooBar-Baz'));
         $this->assertEquals('foo_bar', underscore("  foo  bar  "));
+        $this->assertEquals('foo__bar', underscore('foo__bar'));
     }
 
     public function testDasherize() {
@@ -525,6 +526,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo-bar-baz', dasherize('FooBar_Baz'));
         $this->assertEquals('foo-bar', dasherize("  foo  bar  "));
         $this->assertEquals('foo-bar', dasherize('fooBar'));
+        $this->assertEquals('foo--bar', dasherize('foo--bar'));
     }
 
     public function testCamelize() {

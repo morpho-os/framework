@@ -144,7 +144,8 @@ function uniqueName(): string {
  * @return string
  */
 function dasherize($string, bool $trim = true) {
-    $string = sanitize($string, '-_ ');
+    $string = sanitize($string, '-_ ', false);
+    $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
     $result = strtolower(
@@ -175,7 +176,8 @@ function dasherize($string, bool $trim = true) {
  * @return string
  */
 function underscore($string, bool $trim = true) {
-    $string = sanitize($string, '-_ ');
+    $string = sanitize($string, '-_ ', false);
+    $string = deleteDups($string, '- ');
     $result = strtolower(
         preg_replace(
             '~([a-z])([A-Z])~s',
