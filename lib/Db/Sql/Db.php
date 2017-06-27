@@ -2,6 +2,9 @@
 namespace Morpho\Db\Sql;
 
 abstract class Db {
+    /**
+     * @var \PDO
+     */
     protected $db;
 
     public const MYSQL_DRIVER  = 'mysql';
@@ -32,6 +35,15 @@ abstract class Db {
                 throw new \UnexpectedValueException();
         }
         return $db;
+    }
+
+    public function pdo(): \PDO {
+        return $this->db;
+    }
+
+    // For SELECT use prepare feature.
+    public function quote($val, int $type = \PDO::PARAM_STR): string {
+        return $this->db->quote($val, $type);
     }
 
     abstract public function query(): Query;

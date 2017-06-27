@@ -429,10 +429,14 @@ ORDER BY TABLE_SCHEMA,
         throw new NotImplementedException();
     }
     
-    public function createDbUser() {
+    public function createUser($name, $password, $host) {
         throw new NotImplementedException();
  //       GRANT CREATE, DROP, LOCK TABLES, REFERENCES, ALTER, DELETE, INDEX, INSERT, SELECT, UPDATE, CREATE TEMPORARY TABLES, TRIGGER, CREATE VIEW, SHOW VIEW, ALTER ROUTINE, CREATE ROUTINE, EXECUTE ON $dbName.* to $userName@$hostName IDENTIFIED BY '$password';
 //FLUSH PRIVILEGES;
+    }
+
+    public function deleteUser() {
+        throw new NotImplementedException();
     }
 
     protected function columnsDefinitionToSqlArray(array $columnsDefinition) {
