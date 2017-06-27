@@ -35,6 +35,14 @@ class HttpClient extends Client {
         return $this->send($request);
     }
 
+    public function setMaxNumberOfRedirects(int $n): self {
+        if ($n < 0) {
+            throw new \InvalidArgumentException("The value must be >= 0");
+        }
+        $this->config['maxredirects'] = $n;
+        return $this;
+    }
+
     public function maxNumberOfRedirects(): int {
         return $this->config['maxredirects'];
     }
@@ -46,13 +54,5 @@ class HttpClient extends Client {
         // @TODO: Implement without call of the external tool.
         cmd('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
         return $destFilePath;
-    }
-
-    public function setMaxNumberOfRedirects(int $n): self {
-        if ($n < 0) {
-            throw new \InvalidArgumentException("The value must be >= 0");
-        }
-        $this->config['maxredirects'] = $n;
-        return $this;
     }
 }

@@ -14,8 +14,8 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 class BrowserTest extends TestCase {
     private const WAIT_TIMEOUT       = 10;    // sec
     private const WAIT_INTERVAL      = 1000;  // ms
-    private const CONNECTION_TIMEOUT = 10000; // ms
-    private const REQUEST_TIMEOUT    = 10000; // ms
+    private const CONNECTION_TIMEOUT = 30000; // ms, corresponds to CURLOPT_CONNECTTIMEOUT_MS
+    private const REQUEST_TIMEOUT    = 30000; // ms, corresponds to CURLOPT_TIMEOUT_MS
 
     /**
      * @var \Facebook\WebDriver\Remote\RemoteWebDriver
