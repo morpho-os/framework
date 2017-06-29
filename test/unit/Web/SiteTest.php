@@ -5,6 +5,7 @@ use const Morpho\Core\CACHE_DIR_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\LOG_DIR_NAME;
 use const Morpho\Core\VENDOR;
+use Morpho\Web\ISite;
 use const Morpho\Web\PUBLIC_DIR_PATH;
 use Morpho\Core\Module;
 use Morpho\Fs\File;
@@ -30,8 +31,8 @@ class SiteTest extends TestCase {
         $this->assertEquals($this->hostName, $this->site->hostName());
     }
 
-    public function testSubtyping() {
-        $this->assertInstanceOf(Module::class, $this->site);
+    public function testInterfaces() {
+        $this->assertInstanceOf(ISite::class, $this->site);
     }
 
     public function dataForDirPathAccessors() {
@@ -114,7 +115,7 @@ class SiteTest extends TestCase {
         $this->assertNotEmpty($oldConfig);
         $this->assertSame($oldConfig, $this->site->config());
         $newConfig = ['foo' => 'bar'];
-        $this->assertInstanceOf(Site::class, $this->site->setConfig($newConfig));
+        $this->assertNull($this->site->setConfig($newConfig));
         $this->assertSame($newConfig, $this->site->config());
     }
 

@@ -10,33 +10,10 @@ use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
-    /**
-     * @var ?array
-     */
-    protected $config;
+    private $serviceManager;
 
-    /**
-     * @var ?Site
-     */
-    private $site;
-
-    public function config(): ?array {
-        if (null === $this->config) {
-            $this->config = require MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME;
-        }
-        return $this->config;
-    }
-
-    public function setSite(Site $site): self {
-        $this->site = $site;
-        return $this;
-    }
-
-    public function site(): Site {
-        if (null === $this->site) {
-            $this->site = $this->newSite();
-        }
-        return $this->site;
+    public static function configFilePath(): string {
+        return MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME;
     }
 
     protected function init(IServiceManager $serviceManager): void {
@@ -59,37 +36,24 @@ class Application extends BaseApplication {
         }
     }
 
-    protected function newServiceManager(): IServiceManager {
-        $site = $this->site();
-        $siteConfig = $site->config();
-        $services = [
-            'app'  => $this,
-            'site' => $site,
-        ];
-        if (isset($siteConfig['serviceManager'])) {
-            $serviceManager = new $siteConfig['serviceManager']($siteConfig, $services);
-        } else {
-            $serviceManager = new ServiceManager($siteConfig, $services);
+    protected function serviceManager(): IServiceManager {
+        if (null === $this->serviceManager) {
+            $this->serviceManager = $this->newServiceManager();
         }
-        return $serviceManager;
+        return $this->serviceManager;
     }
 
-    protected function logFailure(\Throwable $e, IServiceManager $serviceManager = null): void {
-        // @TODO: begin: check how error logging works on PHP core level, remove unnecessary calls and checks.
-        if (null !== $serviceManager) {
-            try {
-                // Last chance handler.
-                $serviceManager->get('errorHandler')
-                    ->handleException($e);
-            } catch (\Throwable $e) {
-                if (ErrorHandler::isErrorLogEnabled()) {
-                    error_log(addslashes((string)$e));
-                }
+    protected function logFailure(\Throwable $e): void {
+        try {
+            $serviceManager = $this->serviceManager();
+            $serviceManager->get('errorHandler')
+                ->handleException($e);
+        } catch (\Throwable $e) {
+            if (ErrorHandler::isErrorLogEnabled()) {
+                // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
+                error_log(addslashes((string)$e));
             }
-        } else {
-            error_log(addslashes((string)$e));
         }
-        // @TODO: end
 
         $header = null;
         if ($e instanceof NotFoundException) {
@@ -113,59 +77,18 @@ class Application extends BaseApplication {
         die(escapeHtml($message) . '.');
     }
 
-    protected function newSite(): Site {
-        $config = $this->config();
-
-        $sites = $config['sites'];
-        $hostName = $siteName = null;
-        if (!$config['useMultiSiting']) {
-            // No multi-siting -> use first found site.
-            $siteName = array_shift($sites);
+    private function newServiceManager() {
+        $site = (new SiteFactory())(require self::configFilePath());
+        $siteConfig = $site->config();
+        $services = [
+            //'app'  => $this,
+            'site' => $site,
+        ];
+        if (isset($siteConfig['serviceManager'])) {
+            $serviceManager = new $siteConfig['serviceManager']($siteConfig, $services);
         } else {
-            $hostName = $this->detectHostName();
-            foreach ($sites as $hostName1 => $moduleName) {
-                if ($hostName === $hostName1) {
-                    $siteName = $moduleName;
-                    break;
-                }
-            }
+            $serviceManager = new ServiceManager($siteConfig, $services);
         }
-        if (null === $siteName) {
-            throw new BadRequestException("Unable to detect the current site");
-        }
-
-        $siteDirPath = MODULE_DIR_PATH . '/' . explode('/', $siteName)[1];
-
-        $site = new Site($siteName, $siteDirPath, $hostName);
-        return $site;
-    }
-
-    protected function detectHostName(): string {
-        // Use the `Host` header field-value, see https://tools.ietf.org/html/rfc3986#section-3.2.2
-        $host = $_SERVER['HTTP_HOST'] ?? null;
-
-        if (empty($host)) {
-            throw new BadRequestException("Empty value of the 'Host' field");
-        }
-
-        // @TODO: Unicode and internationalized domains, see https://tools.ietf.org/html/rfc5892
-        if (false !== ($startOff = strpos($host, '['))) {
-            // IPv6 or later.
-            if ($startOff !== 0) {
-                throw new BadRequestException("Invalid value of the 'Host' field");
-            }
-            $endOff = strrpos($host, ']', 2);
-            if (false === $endOff) {
-                throw new BadRequestException("Invalid value of the 'Host' field");
-            }
-            $hostWithoutPort = strtolower(substr($host, 0, $endOff + 1));
-        } else {
-            // IPv4 or domain name
-            $hostWithoutPort = explode(':', strtolower((string)$host), 2)[0];
-            if (substr($hostWithoutPort, 0, 4) === 'www.' && strlen($hostWithoutPort) > 4) {
-                $hostWithoutPort = substr($hostWithoutPort, 4);
-            }
-        }
-        return $hostWithoutPort;
+        return $serviceManager;
     }
 }

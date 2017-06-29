@@ -11,10 +11,6 @@ use Morpho\Web\Request;
 use Morpho\Web\Theme;
 
 class ThemeTest extends TestCase {
-    public function testIsLayoutRendered() {
-        $this->checkBoolAccessor([$this->newTheme(), 'isLayoutRendered'], false);
-    }
-
     public function testAfterDispatch_Redirect_NonAjax_DoesNotChangeResponseContent() {
         $request = new Request();
         $request->isDispatched(true);
@@ -29,11 +25,8 @@ class ThemeTest extends TestCase {
         $event = ['afterDispatch', ['request' => $request]];
         $theme = $this->newTheme();
 
-        $this->assertFalse($theme->isLayoutRendered());
-
         $theme->afterDispatch($event);
 
-        $this->assertTrue($theme->isLayoutRendered());
         $this->assertEquals($content, $response->content());
     }
 
@@ -50,11 +43,8 @@ class ThemeTest extends TestCase {
         $event = ['afterDispatch', ['request' => $request]];
         $theme = $this->newTheme();
 
-        $this->assertFalse($theme->isLayoutRendered());
-
         $theme->afterDispatch($event);
 
-        $this->assertTrue($theme->isLayoutRendered());
         $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->content()));
         $this->assertEquals('application/json', $response->headers()->get('Content-Type')->getFieldValue());
     }

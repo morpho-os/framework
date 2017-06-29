@@ -32,13 +32,6 @@ class Theme extends Module {
         return $this->templateEngine;
     }
 
-    public function isLayoutRendered(bool $flag = null): bool {
-        if ($flag !== null) {
-            $this->isLayoutRendered = $flag;
-        }
-        return $this->isLayoutRendered;
-    }
-
     public function canRender(string $viewPath): bool {
         return false !== $this->absoluteFilePath($viewPath, false);
     }

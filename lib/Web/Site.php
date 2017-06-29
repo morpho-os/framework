@@ -7,12 +7,11 @@ use const Morpho\Core\CACHE_DIR_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\LOG_DIR_NAME;
-use Morpho\Core\Module;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
-class Site extends Module {
+class Site implements ISite {
     /**
      * @var ?array
      */
@@ -65,12 +64,31 @@ class Site extends Module {
      */
     private $hostName;
 
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string
+     */
+    private $dirPath;
+
     public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
     public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
     public function __construct(string $name, string $dirPath, ?string $hostName) {
-        parent::__construct($name, $dirPath);
+        $this->name = $name;
+        $this->dirPath = $dirPath;
         $this->hostName = $hostName;
+    }
+
+    public function name(): string {
+        return $this->name;
+    }
+
+    public function dirPath(): string {
+        return $this->dirPath;
     }
 
     public function hostName(): ?string {
@@ -83,7 +101,7 @@ class Site extends Module {
 
     public function cacheDirPath(): string {
         if (null === $this->cacheDirPath) {
-            $this->cacheDirPath = $this->dirPath() . '/' . CACHE_DIR_NAME;
+            $this->cacheDirPath = $this->dirPath . '/' . CACHE_DIR_NAME;
         }
         return $this->cacheDirPath;
     }
@@ -174,9 +192,8 @@ class Site extends Module {
         return $this->configFileName;
     }
 
-    public function setConfig(array $config): self {
+    public function setConfig(array $config): void {
         $this->config = $config;
-        return $this;
     }
 
     public function config(): array {

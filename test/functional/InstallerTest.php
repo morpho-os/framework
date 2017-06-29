@@ -5,13 +5,13 @@ namespace MorphoTest\Functional;
 use Facebook\WebDriver\WebDriverBy as By;
 use Morpho\Test\BrowserTest;
 use Morpho\Web\Application;
+use Morpho\Web\SiteFactory;
 
 class InstallerTest extends BrowserTest {
     private const DB_NAME = 'test';
 
     public function testInstallationAndClientTest() {
-        $application = new Application();
-        $site = $application->site();
+        $site = (new SiteFactory())->__invoke(require Application::configFilePath());
 
         $configFilePath = $site->configFilePath();
         if (is_file($configFilePath)) {

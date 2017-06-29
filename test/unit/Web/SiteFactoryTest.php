@@ -1,17 +1,19 @@
 <?php
 declare(strict_types=1);
-
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\Application;
+use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
 
-class ApplicationTest extends TestCase {
-    private $app;
+class SiteFactoryTest extends TestCase {
+    /**
+     * @var SiteFactory
+     */
+    private $factory;
 
     public function setUp() {
-        $this->app = new class () extends Application {
+        $this->factory = new class () extends SiteFactory {
             // Make the protected method public for testing.
             public function detectHostName(): string {
                 return parent::detectHostName();
@@ -71,7 +73,7 @@ class ApplicationTest extends TestCase {
      */
     public function testDetectHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
-        $this->assertEquals(strtolower($expected), $this->app->detectHostName());
+        $this->assertEquals(strtolower($expected), $this->factory->detectHostName());
     }
 
     public function dataForDetectHostName_InvalidIps() {
@@ -107,42 +109,33 @@ class ApplicationTest extends TestCase {
     public function testDetectHostName_InvalidIps(string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
         $this->expectException(BadRequestException::class);
-        $this->app->detectHostName();
+        $this->factory->detectHostName();
     }
 
-    public function testSite_MultiSitingEnabled() {
+    public function testInvoke_MultiSitingEnabled() {
         $siteModuleName = 'vendor/foo-bar';
         $hostName = 'choose-me';
-        $this->app->setConfig([
+        $config = [
             'useMultiSiting' => true,
             'sites' => [
                 'this' => 'test/failed',
                 $hostName => $siteModuleName,
             ],
-        ]);
+        ];
         $_SERVER['HTTP_HOST'] = $hostName;
-        $this->assertEquals($siteModuleName, $this->app->site()->name());
+        $this->assertEquals($siteModuleName, $this->factory->__invoke($config)->name());
     }
 
-    public function testSite_MultiSitingDisabled() {
+    public function testInvoke_MultiSitingDisabled() {
         $hostName = 'my-host';
-        $this->app->setConfig([
+        $config = [
             'useMultiSiting' => false,
             'sites' => [
                 'this' => 'test/success',
                 $hostName => 'vendor/foo-bar',
             ],
-        ]);
+        ];
         $_SERVER['HTTP_HOST'] = $hostName;
-        $this->assertEquals('test/success', $this->app->site()->name());
-    }
-
-    public function testConfigAccessors() {
-        $config = $this->app->config();
-        $this->assertFalse($config['useMultiSiting']);
-
-        $newConfig = ['foo' => 'bar'];
-        $this->assertSame($this->app, $this->app->setConfig($newConfig));
-        $this->assertSame($newConfig, $this->app->config());
+        $this->assertEquals('test/success', $this->factory->__invoke($config)->name());
     }
 }
