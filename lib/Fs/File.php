@@ -41,7 +41,7 @@ class File extends Entry {
             return $content;
         }
 
-        // Handle BOM.
+        // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
         if ($options['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
             return substr($content, 3);
         }
