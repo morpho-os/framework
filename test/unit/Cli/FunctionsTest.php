@@ -94,7 +94,7 @@ OUT
         cmd('php -r "exit(' . $exitCode . ');"');
     }
 
-    public function testCmdSu() {
+    public function testShellSu() {
         if ($this->windowsSys()) {
             $this->markTestSkipped();
         }

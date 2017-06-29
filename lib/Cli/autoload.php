@@ -15,7 +15,7 @@ const STD_PIPES = [
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\showLn;
 use Morpho\Base\NotImplementedException;
-use Symfony\Component\Process\Process;
+//use Symfony\Component\Process\Process;
 
 function showOk() {
     showLn("OK");
@@ -97,48 +97,64 @@ function argsString($args): string {
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
-function cmd($command, array $options = null): CommandResult {
+function shell(string $command, array $options = null): CommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
         'checkExitCode' => true,
-        'shell' => true,
         // @TODO: tee: buffer and display output
         'buffer' => false,
     ]);
-    if (PHP_SAPI !== 'cli') {
-        throw new NotImplementedException();
-    }
-
     $output = null;
     $exitCode = 1;
-    if ($options['shell']) {
-        if (!$options['buffer']) {
-            // @TODO: How to return $output?
-            passthru($command, $exitCode);
-        } else {
-            $output = \Morpho\Base\buffer(function () use ($command, &$exitCode) {
-                passthru($command, $exitCode);
-            });
-        }
+    if (!$options['buffer']) {
+        // @TODO: How to return $output?
+        passthru($command, $exitCode);
     } else {
-        $process = new Process($command);
-        $process->run();
-//        $process->setTimeout(null);
-        $exitCode = $process->getExitCode();
-
-        throw new NotImplementedException();
-
-        // @TODO: handle $options['buffer'] and handler $output.
-        $output = $process->getOutput();
+        $output = \Morpho\Base\buffer(function () use ($command, &$exitCode) {
+            passthru($command, $exitCode);
+        });
     }
-
     if ($options['checkExitCode']) {
         checkExitCode($exitCode);
     }
     return new CommandResult($command, $exitCode, $output);
 }
 
-function cmdSu(string $command, array $options = null): CommandResult {
-    return cmd('sudo bash -c "' . $command . '"', $options);
+function proc(string $command, array $options = null): CommandResult {
+    throw new NotImplementedException();
+/*
+    $process = new Process($command);
+    $process->run();
+//        $process->setTimeout(null);
+    $exitCode = $process->getExitCode();
+
+    throw new NotImplementedException();
+
+    // @TODO: handle $options['buffer'] and handler $output.
+    $output = $process->getOutput();
+*/
+}
+
+function cmd(string $command, array $options = null): CommandResult {
+    $options = ArrayTool::handleOptions((array) $options, [
+        'buffer' => false,
+        'shell' => true,
+        'checkExitCode' => true,
+    ]);
+    if (PHP_SAPI !== 'cli') {
+        // @TODO
+        throw new NotImplementedException();
+    }
+    // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
+    if ($options['shell']) {
+        unset($options['shell']);
+        return shell($command, $options);
+    } else {
+        return proc($command, $options);
+    }
+}
+
+function shellSu(string $command, array $options = null): CommandResult {
+    return shell('sudo bash -c "' . $command . '"', $options);
 }
 
 function checkExitCode(int $exitCode): int {
