@@ -5,7 +5,6 @@ namespace Morpho\Web;
 use function Morpho\Base\requireFile;
 use const Morpho\Core\CACHE_DIR_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\LOG_DIR_NAME;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Fs\File;
@@ -73,9 +72,6 @@ class Site implements ISite {
      * @var string
      */
     private $dirPath;
-
-    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
-    public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
 
     public function __construct(string $name, string $dirPath, ?string $hostName) {
         $this->name = $name;

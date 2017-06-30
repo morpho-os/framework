@@ -7,13 +7,16 @@ use const Morpho\Core\LOG_DIR_NAME;
 use const Morpho\Core\VENDOR;
 use Morpho\Web\ISite;
 use const Morpho\Web\PUBLIC_DIR_PATH;
-use Morpho\Core\Module;
+use Morpho\Web\Theme;
 use Morpho\Fs\File;
 use Morpho\Test\TestCase;
 use Morpho\Web\Site;
 use const Morpho\Web\UPLOAD_DIR_NAME;
 
 class SiteTest extends TestCase {
+    /**
+     * @var Site
+     */
     private $site;
 
     private $moduleName = VENDOR . '/localhost';
@@ -29,10 +32,6 @@ class SiteTest extends TestCase {
         $this->assertEquals($this->moduleName, $this->site->name());
         $this->assertEquals($this->getTestDirPath(), $this->site->dirPath());
         $this->assertEquals($this->hostName, $this->site->hostName());
-    }
-
-    public function testInterfaces() {
-        $this->assertInstanceOf(ISite::class, $this->site);
     }
 
     public function dataForDirPathAccessors() {
@@ -149,5 +148,90 @@ class SiteTest extends TestCase {
 
     public function testPublicDirAccessors() {
         $this->markTestIncomplete();
+    }
+    
+    public function testModuleCanBeSiteAndTheme() {
+        $module = new class ('foo', $this->getTestDirPath()) extends Theme implements ISite {
+
+            public function hostName(): ?string {
+            }
+
+            public function setCacheDirPath(string $dirPath): void {
+            }
+
+            public function cacheDirPath(): string {
+            }
+
+            public function setConfigDirPath(string $dirPath): void {
+            }
+
+            public function configDirPath(): string {
+            }
+
+            public function setLogDirPath(string $dirPath): void {
+            }
+
+            public function logDirPath(): string {
+            }
+
+            public function setUploadDirPath(string $dirPath): void {
+            }
+
+            public function uploadDirPath(): string {
+            }
+
+            public function setTmpDirPath(string $dirPath): void {
+            }
+
+            public function tmpDirPath(): string {
+            }
+
+            public function setPublicDirPath(string $dirPath): void {
+            }
+
+            public function publicDirPath(): string {
+            }
+
+            public function useOwnPublicDir(): void {
+            }
+
+            public function useCommonPublicDir(): void {
+            }
+
+            public function usesOwnPublicDir(): bool {
+            }
+
+            public function setConfigFilePath(string $filePath): void {
+            }
+
+            public function configFilePath(): string {
+            }
+
+            public function setConfigFileName(string $fileName): void {
+            }
+
+            public function configFileName(): string {
+            }
+
+            public function setConfig(array $config): void {
+            }
+
+            public function config(): array {
+            }
+
+            public function reloadConfig(): void {
+            }
+
+            public function writeConfig(array $config): void {
+            }
+
+            public function isFallbackMode(bool $flag = null): bool {
+            }
+
+            public function fallbackConfigFilePath(): string {
+            }
+        };
+        $this->assertInstanceOf(Theme::class, $module);
+        $this->assertInstanceOf(ISite::class, $module);
     }
 }

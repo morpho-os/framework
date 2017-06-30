@@ -2,7 +2,12 @@
 declare(strict_types=1);
 namespace Morpho\Web;
 
+use const Morpho\Core\CONFIG_FILE_NAME;
+
 interface ISite {
+    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+    public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
+
     public function name(): string;
 
     public function dirPath(): string;
