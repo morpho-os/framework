@@ -4,14 +4,16 @@ namespace Morpho\Core;
 use Morpho\Di\IServiceManager;
 
 abstract class Application {
-    public static function main() {
+    public static function main(IServiceManager $serviceManager = null) {
         return (new static())
-            ->run();
+            ->run($serviceManager);
     }
 
-    public function run() {
+    public function run(IServiceManager $serviceManager = null) {
         try {
-            $serviceManager = $this->serviceManager();
+            if (null === $serviceManager) {
+                $serviceManager = $this->serviceManager();
+            }
 
             $this->init($serviceManager);
 

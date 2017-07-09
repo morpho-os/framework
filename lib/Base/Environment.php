@@ -98,9 +98,5 @@ abstract class Environment extends Object {
         ini_set('display_errors', 0);
         ini_set('date.timezone', self::TIMEZONE);
         ini_set('default_charset', self::ENCODING);
-        // Set permissions:
-        //     rwxr-x--- (750) - directories
-        //     rw-r----- (640) - files
-        umask(027);
     }
 }

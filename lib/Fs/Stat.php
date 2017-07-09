@@ -16,7 +16,6 @@ class Stat {
     public const SOCKET    = 0140000;                  // Socket
     public const NOT_DIR   = self::ENTRY ^ self::DIR;  // Anything except directory.
 
-    // @TODO: sync with umask() calls
     public const DIR_MODE  = 0755;
     public const FILE_MODE = 0644;
 

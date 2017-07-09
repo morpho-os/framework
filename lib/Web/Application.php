@@ -18,8 +18,15 @@ class Application extends BaseApplication {
 
     protected function init(IServiceManager $serviceManager): void {
         parent::init($serviceManager);
-        $iniSettings = $serviceManager->get('site')->config()['iniSettings'];
-        $this->applyIniSettings($iniSettings);
+        $this->configure($serviceManager->get('site'));
+    }
+
+    protected function configure($site): void {
+        $config = $site->config();
+        $this->applyIniSettings($config['iniSettings']);
+        if (isset($config['umask'])) {
+            umask($config['umask']);
+        }
     }
 
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {
