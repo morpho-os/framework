@@ -9,7 +9,6 @@
   "private": true,
   "dependencies": {
     "bootstrap-styl": "^5.0.4",
-    "es5-shim": "^4.4.0",
     "imd": "github:morpho-os/imd",
     "jquery": "^2.1.4"
   },
