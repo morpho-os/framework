@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Base;
 
+use Morpho\Fs\Path;
 use RuntimeException;
 
 abstract class Environment extends Object {
@@ -68,6 +69,10 @@ abstract class Environment extends Object {
      */
     public static function isBoolLikeIniVal($value): bool {
         return in_array(strtolower($value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
+    }
+
+    public static function tmpDirPath(): string {
+        return Path::normalize(sys_get_temp_dir());
     }
 
     public function init(): void {

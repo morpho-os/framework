@@ -227,11 +227,6 @@ class DirectoryTest extends TestCase {
         $this->assertTrue(is_file($targetDirPath . '/bar/1.txt'));
     }
 
-    public function testTmpPath() {
-        $tmpDirPath = Directory::tmpPath();
-        $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
-    }
-
     public function testCreate_CantCreateEmptyDir() {
         $this->expectException(FsException::class, "The directory path is empty");
         Directory::create('');

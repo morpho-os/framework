@@ -4,6 +4,7 @@ namespace Morpho\Fs;
 
 use Morpho\Base\ArrayTool;
 use DirectoryIterator;
+use Morpho\Base\Environment;
 use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
 
@@ -230,16 +231,12 @@ class Directory extends Entry {
         return Directory::linkPaths($dirPath, [Symlink::class, 'isBroken']);
     }
 
-    public static function tmpPath(): string {
-        return Path::normalize(sys_get_temp_dir());
-    }
-
     /**
      * @return Path to the created directory.
      */
     public static function createTmp(string $relativeDirPath, int $mode = Stat::DIR_MODE): string {
         return self::create(
-            Path::combine(self::tmpPath(), $relativeDirPath),
+            Path::combine(Environment::tmpDirPath(), $relativeDirPath),
             $mode
         );
     }

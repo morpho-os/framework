@@ -90,10 +90,10 @@ class ServiceManager extends BaseServiceManager {
             $this->get('db'),
             $this->get('moduleFs')
         );
-        $moduleManager->setServiceManager($this);
         $moduleManager->isFallbackMode($this->isFallbackMode());
 
         // Replace the site, so that only one site would be available.
+        $moduleManager->setServiceManager($this);
         $site = $this->get('site');
         $site1 = $moduleManager->offsetGet($site->name());
         $site1->setSite($site);

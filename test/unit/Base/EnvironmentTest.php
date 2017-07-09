@@ -140,4 +140,9 @@ class EnvironmentTest extends TestCase {
             $this->assertTrue(Environment::isBoolLikeIniVal($v));
         }
     }
+
+    public function testTmpDirPath() {
+        $tmpDirPath = Environment::tmpDirPath();
+        $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
+    }
 }
