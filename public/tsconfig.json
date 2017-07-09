@@ -7,7 +7,7 @@
         "jsx": "preserve",
         "module": "amd",
         "moduleResolution": "node",
-        "newLine": "LF",
+        "newLine": "lf",
         "noEmitOnError": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,

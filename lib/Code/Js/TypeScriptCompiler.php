@@ -24,7 +24,7 @@ class TypeScriptCompiler {
         'jsx' => 'preserve',
         'module' => self::MODULE_KIND,
         'moduleResolution' => 'node',
-        'newLine' => 'LF',
+        'newLine' => 'lf',
         'noEmitOnError' => true,
         'noImplicitAny' => true,
         'noImplicitReturns' => true,
