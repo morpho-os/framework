@@ -291,7 +291,7 @@ function titleize($string, bool $ucwords = true, bool $escape = true): string {
     return ucfirst($result);
 }
 
-function sanitize($string, $allowedCharacters, bool $deleteDups = true) {
+function sanitize(string $string, string $allowedCharacters, bool $deleteDups = true) {
     $regexp = '/[^a-zA-Z0-9' . preg_quote($allowedCharacters, '/') . ']/s';
     $result = preg_replace($regexp, '', $string);
     if ($deleteDups) {
