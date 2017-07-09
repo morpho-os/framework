@@ -40,7 +40,7 @@ class TypeScriptCompilerTest extends TestCase {
     public function testOptionsAccessors() {
         $options = $this->compiler->options();
         $this->assertTrue(count($options) > 0);
-        $this->assertEquals('LF', $options['newLine']);
+        $this->assertEquals('lf', $options['newLine']);
         $this->assertEquals(TypeScriptCompiler::MODULE_KIND, $this->compiler->option('module'));
     }
 
