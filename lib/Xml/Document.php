@@ -13,10 +13,9 @@ class Document extends DOMDocument {
     const ENCODING = 'utf-8';
 
     /**
-     * @TODO: Make private with PHP 7.1
-     * Note: true values are not actual values of the options.
+     * NB: true values are not actual values of the options.
      */
-    const CREATE_VALID_OPTIONS = [
+    private const CREATE_VALID_OPTIONS = [
         'documentURI' => true,
         'encoding' => true,
         'formatOutput' => true,
@@ -69,7 +68,8 @@ class Document extends DOMDocument {
     }
 
     public static function new(array $options = null): Document {
-        $invalidOptions = array_diff_key((array) $options, self::CREATE_VALID_OPTIONS);
+        $options = (array) $options;
+        $invalidOptions = array_diff_key($options, self::CREATE_VALID_OPTIONS);
         if (count($invalidOptions)) {
             throw new InvalidOptionsException($invalidOptions);
         }

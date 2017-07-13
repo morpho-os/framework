@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Unit\Xml;
 
+use Countable;
+use Iterator;
+use Morpho\Base\InvalidOptionsException;
 use Morpho\Test\TestCase;
 use Morpho\Xml\Document;
 
@@ -17,35 +20,52 @@ class DocumentTest extends TestCase {
 OUT;
         $doc = Document::fromString($html);
         $nodes = $doc->select('//li');
-        $this->assertEquals(3, count($nodes));
-        $this->assertEquals('One', $nodes->item(0)->nodeValue);
-        $this->assertEquals('Two', $nodes->item(1)->nodeValue);
-        $this->assertEquals('Three', $nodes->item(2)->nodeValue);
+        $this->assertSame(3, count($nodes));
+        $this->assertSame('One', $nodes->item(0)->nodeValue);
+        $this->assertSame('Two', $nodes->item(1)->nodeValue);
+        $this->assertSame('Three', $nodes->item(2)->nodeValue);
         $i = 0;
         foreach ($nodes as $node) {
             switch ($i) {
                 case 0:
-                    $this->assertEquals('One', $node->nodeValue);
+                    $this->assertSame('One', $node->nodeValue);
                     break;
                 case 1:
-                    $this->assertEquals('Two', $node->nodeValue);
+                    $this->assertSame('Two', $node->nodeValue);
                     break;
                 case 2:
-                    $this->assertEquals('Three', $node->nodeValue);
+                    $this->assertSame('Three', $node->nodeValue);
                     break;
             }
             $i++;
         }
-        $this->assertEquals(3, $i);
+        $this->assertSame(3, $i);
+        $this->assertSame(3, $nodes->count());
+
+        $this->assertInstanceOf(Countable::class, $nodes);
+        $this->assertInstanceOf(Iterator::class, $nodes);
+        
+        $this->assertSame($nodes->item(0), $nodes->head());
+        $this->assertSame([$nodes->item(1), $nodes->item(2)], $nodes->tail());
+        $this->assertSame($nodes->item(2), $nodes->last());
+        $this->assertSame([$nodes->item(0), $nodes->item(1)], $nodes->init());
     }
 
     public function testNew_ThrowsExceptionOnInvalidOptions() {
-        $this->expectException(\Morpho\Base\InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
+        $this->expectException(InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
         Document::new(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
+    public function testNew_DefaultOptions() {
+        $doc = Document::new();
+        $this->assertInstanceOf(Document::class, $doc);
+        $doc1 = Document::new();
+        $this->assertInstanceOf(Document::class, $doc1);
+        $this->assertNotSame($doc, $doc1);
+    }
+
     public function testFromString_ThrowsExceptionOnInvalidOptions() {
-        $this->expectException(\Morpho\Base\InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
+        $this->expectException(InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
         Document::fromString("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
