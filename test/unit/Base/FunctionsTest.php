@@ -3,7 +3,7 @@ namespace MorphoTest\Unit\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, filter, hasPrefixFn, hasSuffixFn, notFn, suffixFn, fromJson, partialFn, composeFn, prefixFn, toJson, uniqueName, deleteDups, head, tail, init, last, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes, map
+    endsWith, filter, hasPrefix, hasSuffix, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, head, tail, init, last, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes, map
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -80,16 +80,16 @@ class FunctionsTest extends TestCase {
     /**
      * @dataProvider dataForStartsWith
      */
-    public function testHasPrefixFn($expected, $s, $prefix) {
-        $fn = hasPrefixFn($prefix);
+    public function testHasPrefix($expected, $s, $prefix) {
+        $fn = hasPrefix($prefix);
         $this->assertSame($expected, $fn($s));
     }
 
     /**
      * @dataProvider dataForEndsWith
      */
-    public function testHasSuffixFn($expected, $s, $suffix) {
-        $fn = hasSuffixFn($suffix);
+    public function testHasSuffix($expected, $s, $suffix) {
+        $fn = hasSuffix($suffix);
         $this->assertSame($expected, $fn($s));
     }
 
@@ -101,8 +101,8 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testNotFn() {
-        $fn = notFn(function (...$args) use (&$calledWithArgs) {
+    public function testNot() {
+        $fn = not(function (...$args) use (&$calledWithArgs) {
             $calledWithArgs = $args;
             return true;
         });
@@ -562,36 +562,41 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo-bar-1', htmlId('FooBar'));
     }
 
-    public function testPrefixFn() {
-        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prefixFn('prefix'), ['foo', 'bar', 'baz']));
+    public function testPrefix() {
+        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prefix('prefix'), ['foo', 'bar', 'baz']));
     }
 
-    public function testSuffixFn() {
-        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(suffixFn('suffix'), ['foo', 'bar', 'baz']));
+    public function testSuffix() {
+        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(suffix('suffix'), ['foo', 'bar', 'baz']));
     }
 
-    public function testPartialFn() {
+    public function testPartial() {
         $add = function ($a, $b) {
             return $a + $b;
         };
-        $add2 = partialFn($add, '2');
+        $add2 = partial($add, '2');
         $this->assertEquals(5, $add2(3));
 
         $concatenate = function ($a, $b, $c, $d, $e, $f) {
             return $a . $b . $c . $d . $e . $f;
         };
-        $appendPrefix = partialFn($concatenate, 'foo', 'bar', 'baz');
+        $appendPrefix = partial($concatenate, 'foo', 'bar', 'baz');
         $this->assertEquals('foobarbazHelloWorld!', $appendPrefix('Hello', 'World', '!'));
     }
 
-    public function testComposeFn() {
+    public function testCompose() {
         $g = function ($a) {
             return 'g' . $a;
         };
         $f = function ($b) {
             return 'f' . $b;
         };
-        $this->assertEquals('fghello', composeFn($f, $g)('hello'));
+        $this->assertEquals('fghello', compose($f, $g)('hello'));
+    }
+
+    public function testComposeIFnAndFn() {
+        // @TODO: test combinations, (IFn, fn), (fn, fn), (fn, IFn), (IFn, IFn)
+        $this->markTestIncomplete();
     }
 
     public function testRequireFile() {

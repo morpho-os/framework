@@ -331,6 +331,9 @@ function trimMore($string, $charlist = null) {
     return trim((string)$string, $charlist . TRIM_CHARS);
 }
 
+/**
+ * For abcd returns a
+ */
 function head($list, string $separator = null) {
     if (is_array($list)) {
         if (!count($list)) {
@@ -364,6 +367,9 @@ function head($list, string $separator = null) {
     }
 }
 
+/**
+ * For abcd returns d
+ */
 function last($list, string $separator = null) {
     if (is_array($list)) {
         if (!count($list)) {
@@ -396,6 +402,9 @@ function last($list, string $separator = null) {
     }
 }
 
+/**
+ * For abcd returns abc
+ */
 function init($list, string $separator = null) {
     if (is_array($list)) {
         if (!count($list)) {
@@ -428,6 +437,9 @@ function init($list, string $separator = null) {
     }
 }
 
+/**
+ * For abcd returns bcd
+ */
 function tail($list, string $separator = null) {
     if (is_array($list)) {
         if (!count($list)) {
@@ -591,51 +603,51 @@ function buffer(callable $fn): string {
 
 function prepend(array $it, string $prefix) {
     // @TODO: iterable
-    return array_map(prefixFn($prefix), $it);
+    return array_map(prefix($prefix), $it);
 }
 
 function append(array $it, string $suffix) {
     // @TODO: iterable
-    return array_map(suffixFn($suffix), $it);
+    return array_map(suffix($suffix), $it);
 }
 
-function prefixFn(string $prefix): Closure {
+function prefix(string $prefix): Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;
     };
 }
 
-function suffixFn(string $suffix): Closure {
+function suffix(string $suffix): Closure {
     return function (string $s) use ($suffix) {
         return $s . $suffix;
     };
 }
 
-function notFn(callable $predicateFn): Closure {
+function not(callable $predicateFn): Closure {
     return function (...$args) use ($predicateFn) {
         return !$predicateFn(...$args);
     };
 }
 
-function hasPrefixFn(string $prefix): Closure {
+function hasPrefix(string $prefix): Closure {
     return function ($s) use ($prefix) {
         return startsWith($s, $prefix);
     };
 }
 
-function hasSuffixFn(string $suffix): Closure {
+function hasSuffix(string $suffix): Closure {
     return function ($s) use ($suffix) {
         return endsWith($s, $suffix);
     };
 }
 
-function partialFn(callable $fn, ...$args1): Closure {
+function partial(callable $fn, ...$args1): Closure {
     return function (...$args2) use ($fn, $args1) {
         return $fn(...array_merge($args1, $args2));
     };
 }
 
-function composeFn(callable $f, callable $g): Closure {
+function compose(callable $f, callable $g): Closure {
     return function ($v) use ($f, $g) {
         return $f($g($v));
     };
