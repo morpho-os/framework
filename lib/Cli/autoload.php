@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Morpho\Cli;
 
 const STDIN_FD  = 0;
@@ -15,7 +14,14 @@ const STD_PIPES = [
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\showLn;
 use Morpho\Base\NotImplementedException;
+use Morpho\Error\ErrorHandler;
+
 //use Symfony\Component\Process\Process;
+
+function bootstrap() {
+    (new Environment())->init();
+    (new ErrorHandler())->register();
+}
 
 function showOk() {
     showLn("OK");
