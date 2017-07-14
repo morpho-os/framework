@@ -84,7 +84,7 @@ class Application extends BaseApplication {
         die(escapeHtml($message) . '.');
     }
 
-    private function newServiceManager() {
+    protected function newServiceManager() {
         $site = (new SiteFactory())(require self::configFilePath());
         $siteConfig = $site->config();
         $services = [
