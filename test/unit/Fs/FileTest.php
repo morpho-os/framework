@@ -137,6 +137,10 @@ class FileTest extends TestCase {
         $this->assertEquals('test', file_get_contents($filePath));
     }
 
+    public function testWrite_IntFlags() {
+        $this->markTestIncomplete();
+    }
+
     public function testWrite_CantWriteToEmptyFile() {
         $this->expectException(FsException::class, "The file path is empty.");
         File::write('', 'Test');

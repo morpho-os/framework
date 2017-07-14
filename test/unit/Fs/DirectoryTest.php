@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-
 namespace MorphoTest\Unit\Fs;
 
 use LogicException;
@@ -607,6 +606,31 @@ class DirectoryTest extends TestCase {
         );
 
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath);
+    }
+
+    public function testCopyContents() {
+        $sourceDirPath = $this->createTmpDir();
+        touch($sourceDirPath . '/file1.txt');
+        mkdir($sourceDirPath . '/dir1');
+        touch($sourceDirPath . '/dir1/file2.txt');
+        mkdir($sourceDirPath . '/.git');
+        touch($sourceDirPath . '/.git/config');
+
+        $targetDirPath = $this->createTmpDir() . '/target';
+
+        $this->assertSame($targetDirPath, Directory::copyContents($sourceDirPath, $targetDirPath));
+        $this->assertTrue(is_file($targetDirPath . '/file1.txt'));
+        $this->assertTrue(is_file($targetDirPath . '/dir1/file2.txt'));
+        $this->assertTrue(is_file($targetDirPath . '/.git/config'));
+
+        $count = 0;
+        foreach (new \DirectoryIterator($targetDirPath) as $item) {
+            if ($item->isDot()) {
+                continue;
+            }
+            $count++;
+        }
+        $this->assertSame(3, $count);
     }
 
     public function testDirPaths_WithoutProcessor_Recursive() {

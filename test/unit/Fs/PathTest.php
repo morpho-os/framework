@@ -262,7 +262,7 @@ class PathTest extends TestCase {
         $this->assertSame('index.php', Path::toRelative($baseDirPath, $baseDirPath . '/index.php'));
     }
 
-    public function testToRelativeThrowsExceptionWhenBasePathNotContainedWithinPath() {
+    public function testToRelative_ThrowsExceptionWhenBasePathNotContainedWithinPath() {
         $baseDirPath = '/foo/bar/baz/';
         $path = __DIR__;
         $this->expectException(

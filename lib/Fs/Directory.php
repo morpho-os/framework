@@ -69,6 +69,18 @@ class Directory extends Entry {
         return $targetDirPath;
     }
 
+    public static function copyContents($sourceDirPath, $targetDirPath): string {
+        foreach (new \DirectoryIterator($sourceDirPath) as $item) {
+            if ($item->isDot()) {
+                continue;
+            }
+            $entryPath = $item->getPathname();
+            $relPath = Path::toRelative($sourceDirPath, $entryPath);
+            Entry::copy($entryPath, $targetDirPath . '/' . $relPath);
+        }
+        return $targetDirPath;
+    }
+
     /**
      * @param array|string $dirPaths
      * @param string|\Closure $processor
@@ -100,7 +112,7 @@ class Directory extends Entry {
                     continue;
                 }
 
-                $path = str_replace('\\', '/', $item->getPathname());
+                $path = Path::normalize($item->getPathname());
                 $isDir = $item->isDir();
 
                 if ($isDir) {
