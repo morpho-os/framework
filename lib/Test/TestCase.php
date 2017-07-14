@@ -94,7 +94,7 @@ abstract class TestCase extends BaseTestCase {
     protected function assertHtmlEquals($expected, $actual, $message = ''): void {
         $expected = $this->normalizeHtml($expected);
         $actual = $this->normalizeHtml($actual);
-        self::assertEquals($expected, $actual, $message);
+        self::assertSame($expected, $actual, $message);
     }
 
     protected function normalizeHtml(string $html) {
