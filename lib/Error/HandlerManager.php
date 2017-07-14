@@ -5,8 +5,8 @@ namespace Morpho\Error;
  * Utility class to manage error and exception handlers.
  */
 class HandlerManager {
-    const ERROR = 'error';
-    const EXCEPTION = 'exception';
+    public const ERROR = 'error';
+    public const EXCEPTION = 'exception';
 
     public static function isHandlerRegistered(string $handlerType, callable $callback): bool {
         return in_array($callback, self::handlersOfType($handlerType));
