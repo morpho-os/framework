@@ -39,16 +39,19 @@ class TypeScriptCompiler extends Compiler {
 
     private $pathEnvVar;
 
-    public function compile(Program $program): CompilationResult {
+    public function compile($input): CompilationResult {
         $result = new CompilationResult();
-        foreach ($program->input() as $input) {
-            $optionsStr = $this->optionsString($input->options());
-            $cmdOptions = $input->cmdOptions();
-            $result->append(
-                $this->tsc($optionsStr, $cmdOptions)
-            );
-        }
+        /** @var TscCompileOptions $input */
+        $optionsStr = $this->optionsString($input->options());
+        $cmdOptions = $input->cmdOptions();
+        $result->append(
+            $this->tsc($optionsStr, $cmdOptions)
+        );
         return $result;
+    }
+
+    public function __invoke($input): CompilationResult {
+        return $this->compile($input);
     }
 
     /**

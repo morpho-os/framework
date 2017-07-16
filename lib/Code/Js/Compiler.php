@@ -2,10 +2,8 @@
 //declare(strict_types=1);
 namespace Morpho\Code\Js;
 
-abstract class Compiler {
-    public function newCompilation(): Program {
-        return new Program($this);
-    }
+use Morpho\Base\IFn;
 
-    abstract public function compile(Program $program): CompilationResult;
+abstract class Compiler implements IFn {
+    abstract public function __invoke($input): CompilationResult;
 }

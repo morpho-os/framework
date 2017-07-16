@@ -125,9 +125,7 @@ OUT;
 
     private function checkOutput(string $expected, string $pjs): void {
         $compiler = new PJsCompiler();
-        $res = $compiler->newCompilation()
-            ->append($pjs)
-            ->run();
+        $res = $compiler->__invoke($pjs);
         $this->assertEquals($expected, $res[0]->output);
     }
 }

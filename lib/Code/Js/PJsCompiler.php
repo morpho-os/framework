@@ -6,11 +6,9 @@ use function Morpho\Code\parse;
 use PhpParser\NodeTraverser;
 
 class PJsCompiler extends Compiler {
-    public function compile(Program $program): CompilationResult {
+    public function __invoke($input): CompilationResult {
         $result = new CompilationResult();
-        foreach ($program->input() as $file) {
-            $result->append($this->compile_($file));
-        }
+        $result->append($this->compile_($input));
         return $result;
     }
 

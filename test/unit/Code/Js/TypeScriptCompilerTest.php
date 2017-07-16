@@ -3,6 +3,7 @@ namespace MorphoTest\Unit\Code\Js;
 
 use Morpho\Code\Js\Program;
 use Morpho\Code\Js\Compiler;
+use Morpho\Code\Js\TscCompileOptions;
 use Morpho\Test\TestCase;
 use Morpho\Code\Js\TypeScriptCompiler;
 
@@ -14,12 +15,19 @@ class TypeScriptCompilerTest extends TestCase {
         $this->compiler = new TypeScriptCompiler();
     }
 
-    public function testNewCompilation() {
-        $this->assertInstanceOf(Program::class, $this->compiler->newCompilation());
-    }
-
     public function testInheritance() {
         $this->assertInstanceOf(Compiler::class, $this->compiler);
+    }
+
+    public function testCompile_SingleInFileToSingleOutFile() {
+        $inFilePath = $this->createTmpFile('ts');
+        file_put_contents($inFilePath, 'export function main() {}');
+        $outFilePath = dirname($inFilePath) . '/' . basename($inFilePath) . '-tsc/bar/test.js';
+        $options = new TscCompileOptions(['module' => 'system', 'outFile' => $outFilePath, $inFilePath]);
+        $res = $this->compiler->__invoke($options);
+        $this->assertCount(1, $res);
+        $this->assertFalse($res[0]->isError());
+        $this->assertRegExp('~^System\.register\(.*\}\);$~si', trim(file_get_contents($outFilePath)));
     }
 
     public function testWriteTsconfig_Default() {
