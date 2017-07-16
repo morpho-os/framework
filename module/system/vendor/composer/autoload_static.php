@@ -9,16 +9,11 @@ class ComposerStaticInitb22262f2fe2d6dd95c55ffc5967bddcb
     public static $prefixLengthsPsr4 = array (
         'M' => 
         array (
-            'Morpho\\System\\Controller\\' => 25,
             'Morpho\\System\\' => 14,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Morpho\\System\\Controller\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/controller',
-        ),
         'Morpho\\System\\' => 
         array (
             0 => __DIR__ . '/../..' . '/lib',

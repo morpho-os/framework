@@ -5,8 +5,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Morpho\\System\\": "lib",
-            "Morpho\\System\\Controller\\": "controller"
+            "Morpho\\System\\": "lib"
         }
     }
 }
