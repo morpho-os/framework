@@ -121,7 +121,7 @@ class Theme extends Module {
         }
     }
 
-    public function addBaseDirPath(string $dirPath) {
+    public function addBaseDirPath(string $dirPath): void {
         if (false === array_search($dirPath, $this->baseDirPaths, true)) {
             array_unshift($this->baseDirPaths, $dirPath);
         }
@@ -152,7 +152,7 @@ class Theme extends Module {
         if ($throwExIfNotFound) {
             throw new \RuntimeException(
                 "Unable to detect an absolute file path for the path '$relOrAbsFilePath', searched in paths:\n'"
-                . implode(PATH_SEPARATOR, $this->baseDirPaths) . "'."
+                . implode(PATH_SEPARATOR, $this->baseDirPaths) . "'"
             );
         }
         return false;
