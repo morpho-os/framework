@@ -41,7 +41,7 @@ trait TWithModuleDirs {
     }
 
     public function controllerDirPath(): string {
-        return $this->dirPath() . '/' . CONTROLLER_DIR_NAME;
+        return $this->libDirPath() . '/' . CONTROLLER_DIR_NAME;
     }
 
     public function libDirPath(): string {
