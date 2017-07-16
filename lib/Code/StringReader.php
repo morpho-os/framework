@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 namespace Morpho\Code;
 
 use const Morpho\Base\EOL_FULL_RE;

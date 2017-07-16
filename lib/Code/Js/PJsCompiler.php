@@ -5,25 +5,22 @@ namespace Morpho\Code\Js;
 use function Morpho\Code\parse;
 use PhpParser\NodeTraverser;
 
-// @TODO: Unify with the TypeScriptCompiler.
-class PJsCompiler {
-    public function newCompilation(): CompilationUnit {
-        return new CompilationUnit($this);
-    }
-
-    public function compileFile($compUnit): void {
-        foreach ($compUnit->sourceFiles() as $sourceFile) {
-            $compUnit->appendResult($this->compileFile_($sourceFile));
+class PJsCompiler extends Compiler {
+    public function compile(Program $program): CompilationResult {
+        $result = new CompilationResult();
+        foreach ($program->input() as $file) {
+            $result->append($this->compile_($file));
         }
+        return $result;
     }
 
-    private function compileFile_($sourceFile): CompilationResult {
+    private function compile_($input): CompilationResult {
         $res = new CompilationResult();
         //$res->filePath = $filePath;
 
         //$ast = parseFile($filePath);
 
-        $ast = parse($sourceFile);
+        $ast = parse($input);
 
         $ast = $this->rewrite($ast);
 

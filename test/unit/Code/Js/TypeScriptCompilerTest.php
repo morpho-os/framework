@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Unit\Code\Js;
 
+use Morpho\Code\Js\Program;
+use Morpho\Code\Js\Compiler;
 use Morpho\Test\TestCase;
 use Morpho\Code\Js\TypeScriptCompiler;
 
@@ -10,6 +12,14 @@ class TypeScriptCompilerTest extends TestCase {
     public function setUp() {
         parent::setUp();
         $this->compiler = new TypeScriptCompiler();
+    }
+
+    public function testNewCompilation() {
+        $this->assertInstanceOf(Program::class, $this->compiler->newCompilation());
+    }
+
+    public function testInheritance() {
+        $this->assertInstanceOf(Compiler::class, $this->compiler);
     }
 
     public function testWriteTsconfig_Default() {

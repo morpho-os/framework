@@ -8,7 +8,7 @@ use Morpho\Cli\CommandResult;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
 
-class TypeScriptCompiler {
+class TypeScriptCompiler extends Compiler {
     // Possible values: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
     private const TSCONFIG_FILE = 'tsconfig.json';
 
@@ -38,6 +38,18 @@ class TypeScriptCompiler {
     ];
 
     private $pathEnvVar;
+
+    public function compile(Program $program): CompilationResult {
+        $result = new CompilationResult();
+        foreach ($program->input() as $input) {
+            $optionsStr = $this->optionsString($input->options());
+            $cmdOptions = $input->cmdOptions();
+            $result->append(
+                $this->tsc($optionsStr, $cmdOptions)
+            );
+        }
+        return $result;
+    }
 
     /**
      * @param string|iterable $inFilePath
