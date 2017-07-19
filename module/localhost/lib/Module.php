@@ -8,4 +8,6 @@ use Morpho\Web\Module as BaseModule;
 
 class Module extends BaseModule implements ISite {
     use TSiteWrapper;
+
+    //private const NAME = 'morpho-os/localhost';
 }

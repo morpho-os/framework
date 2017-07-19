@@ -2,10 +2,12 @@
 namespace Morpho\System\Controller;
 
 use Morpho\Di\IServiceManagerAware;
+use Morpho\System\Module as SystemModule;
 use Morpho\Web\Controller;
 use Morpho\Db\Sql\Db;
 use Morpho\Fs\File;
 use Morpho\Web\ModuleManager;
+use Morpho\Web\Request;
 
 class InstallController extends Controller {
     public function indexAction() {
@@ -112,7 +114,14 @@ class InstallController extends Controller {
         }
         $moduleManager->isFallbackMode(false);
         $this->serviceManager->get('settingsManager')
-            ->set('homeHandler', [ModuleManager::SYSTEM_MODULE, 'Module', 'index'], ModuleManager::SYSTEM_MODULE);
+            ->set(
+                Request::HOME_HANDLER,
+                [
+                    'handler' => [ModuleManager::SYSTEM_MODULE, 'Module', 'index'],
+                    'uri' => SystemModule::HOME_PAGE_URI
+                ],
+                ModuleManager::SYSTEM_MODULE
+            );
     }
 
     protected function initNewEnv(Db $db) {

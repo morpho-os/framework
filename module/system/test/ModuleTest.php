@@ -28,7 +28,7 @@ class ModuleTest extends DbTestCase {
 
         $this->assertRequestHasHandlerAndException(
             $request,
-            SystemModule::defaultErrorHandler(SystemModule::ACCESS_DENIED_ERROR),
+            SystemModule::errorHandler(Request::ACCESS_DENIED_ERROR_HANDLER),
             $exception
         );
     }
@@ -98,7 +98,7 @@ class ModuleTest extends DbTestCase {
             }
 
             public function get(string $name, $moduleName) {
-                if ($name === SystemModule::ACCESS_DENIED_ERROR_HANDLER && $moduleName === SystemModule::NAME) {
+                if ($name === Request::ACCESS_DENIED_ERROR_HANDLER && $moduleName === SystemModule::NAME) {
                     return $this->value;
                 }
                 throw new \UnexpectedValueException();

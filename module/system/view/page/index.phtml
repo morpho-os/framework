@@ -1,0 +1,25 @@
+<fieldset style="margin-top: 2em;">
+    <legend>Handlers</legend>
+    <form action="/system/page">
+        <div class="form-group">
+            <label for="homeHandler">Index page URI</label>
+            <input name="homeHandler" class="form-control" id="homeHandler" placeholder="E.g.: /my-module/my-main-page-controller/my-action" value="<?= $homeHandler ?>">
+            <span class="help-block">URI of the home (aka front, main, index) page of the site, it will be called for the &quot;/&quot; URI.</span>
+        </div>
+        <div class="form-group">
+            <label for="notFoundHandler">Not found URI (404 error)</label>
+            <input name="notFoundHandler" class="form-control" id="notFoundHandler" placeholder="E.g.: /my-module/my-error-controller/my-404" value="<?= $notFoundHandler ?>">
+        </div>
+        <div class="form-group">
+            <label for="accessDeniedHandler">Access denied URI (403 error)</label>
+            <input name="accessDeniedHandler" class="form-control" id="accessDeniedHandler" placeholder="E.g.: /my-module/my-error-controller/my-403" value="<?= $accessDeniedHandler ?>">
+        </div>
+        <div class="form-group">
+            <label for="uncaughtErrorHandler">Uncaught exception URI (500 error)</label>
+            <input name="uncaughtErrorHandler" class="form-control" id="uncaughtErrorHandler" placeholder="E.g.: /my-module/my-error-controller/my-500" value="<?= $uncaughtErrorHandler ?>">
+        </div>
+        <div class="form-group btns">
+            <button class="btn btn-default" name="Save">Save</button>
+        </div>
+    </form>
+</fieldset>

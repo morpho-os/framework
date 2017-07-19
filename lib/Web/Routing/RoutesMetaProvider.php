@@ -73,7 +73,8 @@ class RoutesMetaProvider implements \IteratorAggregate {
         $action = $actionMeta['action'];
         $title = null;
 
-        $uri = '/' . dasherize(last($actionMeta['module'], '/')) . '/' . dasherize($actionMeta['controller']);
+        $uri = '/' . dasherize(last($actionMeta['module'], '/'))
+            . '/' . dasherize($actionMeta['controller']);
         if (isset($this->restActions[$action])) {
             $uri .= rtrim('/' . $this->restActions[$action][1], '/');
             $httpMethod = $this->restActions[$action][0];

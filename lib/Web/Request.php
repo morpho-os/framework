@@ -13,14 +13,19 @@ use Zend\Http\Headers;
  * @TODO: Specify what chunks and mark of them specially.
  */
 class Request extends BaseRequest {
+    public const ACCESS_DENIED_ERROR_HANDLER = 'accessDeniedHandler';
+    public const BAD_REQUEST_ERROR_HANDLER   = 'badRequestHandler';
+    public const HOME_HANDLER                = 'homeHandler';
+    public const NOT_FOUND_ERROR_HANDLER     = 'notFoundHandler';
+    public const UNCAUGHT_ERROR_HANDLER      = 'uncaughtErrorHandler';
+
+    // See https://tools.ietf.org/html/rfc7231#section-4
     public const CONNECT_METHOD = 'CONNECT';
     public const DELETE_METHOD = 'DELETE';
     public const GET_METHOD = 'GET';
     public const HEAD_METHOD = 'HEAD';
     public const OPTIONS_METHOD = 'OPTIONS';
-    public const PATCH_METHOD = 'PATCH';
     public const POST_METHOD = 'POST';
-    public const PROPFIND_METHOD = 'PROPFIND';
     public const PUT_METHOD = 'PUT';
     public const TRACE_METHOD = 'TRACE';
 
@@ -35,16 +40,14 @@ class Request extends BaseRequest {
     private $mapPostTo;
 
     private static $methods = [
-//        self::OPTIONS_METHOD,
+        self::CONNECT_METHOD,
+        self::DELETE_METHOD,
         self::GET_METHOD,
-//        self::HEAD_METHOD,
+        self::HEAD_METHOD,
+        self::OPTIONS_METHOD,
         self::POST_METHOD,
         self::PUT_METHOD,
-        self::DELETE_METHOD,
-//        self::TRACE_METHOD,
-//        self::CONNECT_METHOD,
-        self::PATCH_METHOD,
-//        self::PROPFIND_METHOD,
+        self::TRACE_METHOD,
     ];
 
     public function content(): string {
@@ -60,13 +63,13 @@ class Request extends BaseRequest {
     /**
      * Calls one of:
      *     - get()
-     *     - patch()
      *     - post()
      *     - put()
      * @TODO:
      *     - options()
      *     - head()
      *     - delete(),
+     *     - patch()
      *     - trace()
      *     - connect()
      *     - propfind()
@@ -77,7 +80,7 @@ class Request extends BaseRequest {
             case self::GET_METHOD:
                 return $this->query($name, $trim);
             case self::POST_METHOD:
-            case self::PATCH_METHOD:
+            //case self::PATCH_METHOD:
             case self::PUT_METHOD:
                 return $this->$method($name, $trim);
             default:
@@ -105,13 +108,13 @@ class Request extends BaseRequest {
             : null;
     }
 
-    public function patch($name = null, bool $trim = true) {
+/*    public function patch($name = null, bool $trim = true) {
         return $this->data(
             $this->mapPostTo === self::PATCH_METHOD ? $_POST : $this->parsedContent(),
             $name,
             $trim
         );
-    }
+    }*/
 
     public function put($name = null, bool $trim = true) {
         return $this->data(
@@ -162,8 +165,9 @@ class Request extends BaseRequest {
         return $this->uri;
     }
 
-    public function setUri(Uri $uri) {
+    public function setUri(Uri $uri): self {
         $this->uri = $uri;
+        return $this;
     }
 
     public function uriPath(): string {
@@ -183,7 +187,7 @@ class Request extends BaseRequest {
             // Handle the '_method' like in 'Ruby on Rails'.
             if (isset($_POST['_method'])) {
                 $method = strtoupper($_POST['_method']);
-                if (in_array($method, [self::PATCH_METHOD, self::DELETE_METHOD, self::PUT_METHOD], true)) {
+                if (in_array($method, [/*self::PATCH_METHOD, */self::DELETE_METHOD, self::PUT_METHOD], true)) {
                     $this->method = $method;
                     $this->mapPostTo = $method;
                     return $method;
@@ -194,8 +198,12 @@ class Request extends BaseRequest {
         return $this->method;
     }
 
-    public function isOptionsMethod(): bool {
-        return $this->method() === self::OPTIONS_METHOD;
+    public function isConnectMethod(): bool {
+        return $this->method() === self::CONNECT_METHOD;
+    }
+
+    public function isDeleteMethod(): bool {
+        return $this->method() === self::DELETE_METHOD;
     }
 
     public function isGetMethod(): bool {
@@ -206,6 +214,10 @@ class Request extends BaseRequest {
         return $this->method() === self::HEAD_METHOD;
     }
 
+    public function isOptionsMethod(): bool {
+        return $this->method() === self::OPTIONS_METHOD;
+    }
+
     public function isPostMethod(): bool {
         return $this->method() === self::POST_METHOD;
     }
@@ -214,24 +226,8 @@ class Request extends BaseRequest {
         return $this->method() === self::PUT_METHOD;
     }
 
-    public function isDeleteMethod(): bool {
-        return $this->method() === self::DELETE_METHOD;
-    }
-
-    public function isPatchMethod(): bool {
-        return $this->method() === self::PATCH_METHOD;
-    }
-
     public function isTraceMethod(): bool {
         return $this->method() === self::TRACE_METHOD;
-    }
-
-    public function isConnectMethod(): bool {
-        return $this->method() === self::CONNECT_METHOD;
-    }
-
-    public function isPropfindMethod(): bool {
-        return $this->method() === self::PROPFIND_METHOD;
     }
 
     public static function isValidMethod(string $httpMethod): bool {

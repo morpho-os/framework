@@ -6,7 +6,7 @@ use Morpho\Core\Controller as BaseController;
 use Morpho\Web\Session\Session;
 
 class Controller extends BaseController {
-    protected function forwardToAction(string $action, string $controller = null, string $module = null, array $routingParams = null) {
+    protected function forwardToAction(string $action, string $controller = null, string $module = null, array $routingParams = null): void {
         $request = $this->request;
 
         if (null === $module) {
@@ -27,7 +27,7 @@ class Controller extends BaseController {
         $request->isDispatched(false);
     }
 
-    protected function redirectToAction(string $action, string $controller = null, string $module = null, string $httpMethod = null, array $routingParams = null) {
+    protected function redirectToAction(string $action, string $controller = null, string $module = null, string $httpMethod = null, array $routingParams = null): void {
         // @TODO
         throw new NotImplementedException(__METHOD__);
         /*
@@ -48,7 +48,7 @@ class Controller extends BaseController {
         */
     }
 
-    protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
+    protected function redirectToUri(string $uri = null, int $httpStatusCode = null): void {
         $request = $this->request;
         if ($request->hasQuery('redirect')) {
             $uri = (new Uri($request->query('redirect')))->unsetQueryArg('redirect')->__toString();
@@ -57,7 +57,7 @@ class Controller extends BaseController {
         $response->redirect($request->uri()->prependWithBasePath($uri), $httpStatusCode);
     }
 
-    protected function redirectToSelf(string $successMessage = null, $queryArgs = null, string $fragment = null) {
+    protected function redirectToSelf(string $successMessage = null, $queryArgs = null, string $fragment = null): void {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
@@ -68,17 +68,17 @@ class Controller extends BaseController {
         if ($fragment) {
             $uri->setFragment($fragment);
         }
-        return $this->redirectToUri($uri->__toString());
+        $this->redirectToUri($uri->__toString());
     }
 
-    protected function redirectToHome(string $successMessage = null) {
+    protected function redirectToHome(string $successMessage = null): void {
         if (null !== $successMessage) {
             $this->addSuccessMessage($successMessage);
         }
-        return $this->redirectToUri('/');
+        $this->redirectToUri('/');
     }
 
-    protected function success($data = null) {
+    protected function success($data = null): array {
         //if (!$this->request->isAjax()) {
         return ['success' => $data ?: true];
         /*}
@@ -87,7 +87,7 @@ class Controller extends BaseController {
         */
     }
 
-    protected function error($data = null) {
+    protected function error($data = null): array {
         return ['error' => $data ?: true];
         /*
         if (!$this->request->isAjax()) {
@@ -105,15 +105,15 @@ class Controller extends BaseController {
         return $messages;
     }
 
-    protected function addSuccessMessage(string $message, array $args = null) {
+    protected function addSuccessMessage(string $message, array $args = null): void {
         $this->serviceManager->get('messenger')->addSuccessMessage($message, $args);
     }
 
-    protected function addErrorMessage(string $message, array $args = null) {
+    protected function addErrorMessage(string $message, array $args = null): void {
         $this->serviceManager->get('messenger')->addErrorMessage($message, $args);
     }
 
-    protected function addWarningMessage(string $message, array $args = null) {
+    protected function addWarningMessage(string $message, array $args = null): void {
         $this->serviceManager->get('messenger')->addWarningMessage($message, $args);
     }
 

@@ -8,21 +8,13 @@ use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\NotFoundException;
+use Morpho\Web\Request;
 use Morpho\Web\Response;
 use Morpho\Web\Theme;
 
 class Module extends Theme {
-    const NAME = VENDOR . '/system';
-
-    const BAD_REQUEST_ERROR    = 'badRequest';
-    const ACCESS_DENIED_ERROR  = 'accessDenied';
-    const NOT_FOUND_ERROR      = 'notFound';
-    const UNCAUGHT_ERROR       = 'uncaughtError';
-
-    const BAD_REQUEST_ERROR_HANDLER    = 'badRequestHandler';
-    const ACCESS_DENIED_ERROR_HANDLER  = 'accessDeniedHandler';
-    const NOT_FOUND_ERROR_HANDLER      = 'notFoundHandler';
-    const UNCAUGHT_ERROR_HANDLER       = 'uncaughtErrorHandler';
+    public const NAME = VENDOR . '/system';
+    public const HOME_PAGE_URI = '/system/module/list';
 
     private $thrownExceptions = [];
 
@@ -30,9 +22,14 @@ class Module extends Theme {
 
     }
 
-    public static function defaultErrorHandler(string $errorType): array {
-        Must::contain([self::NOT_FOUND_ERROR, self::ACCESS_DENIED_ERROR, self::BAD_REQUEST_ERROR, self::UNCAUGHT_ERROR], $errorType);
-        return [self::NAME, 'Error', $errorType];
+    public static function errorHandler(string $handlerName): array {
+        Must::contain([
+            Request::NOT_FOUND_ERROR_HANDLER,
+            Request::ACCESS_DENIED_ERROR_HANDLER,
+            Request::BAD_REQUEST_ERROR_HANDLER,
+            Request::UNCAUGHT_ERROR_HANDLER
+        ], $handlerName);
+        return [self::NAME, 'Error', str_replace('Handler', '', $handlerName)];
     }
 
     /**
@@ -42,7 +39,7 @@ class Module extends Theme {
         $exception = $event[1]['exception'];
         $request = $event[1]['request'];
 
-        $handleError = function (string $errorType, int $statusCode, bool $logError) use ($request, $exception) {
+        $handleError = function (string $handlerName, int $statusCode, bool $logError) use ($request, $exception) {
             $serviceManager = $this->serviceManager;
 
             if ($logError) {
@@ -55,9 +52,9 @@ class Module extends Theme {
             }
 
             $handler = $serviceManager->get('settingsManager')
-                ->get($errorType . 'Handler', self::NAME);
+                ->get($handlerName, self::NAME);
             if (false === $handler) {
-                $handler = static::defaultErrorHandler($errorType);
+                $handler = static::errorHandler($handlerName);
             }
 
             foreach ($this->thrownExceptions as $prevException) {
@@ -74,13 +71,13 @@ class Module extends Theme {
         };
 
         if ($exception instanceof NotFoundException) {
-            $handleError(self::NOT_FOUND_ERROR, Response::STATUS_CODE_404, false);
+            $handleError(Request::NOT_FOUND_ERROR_HANDLER, Response::STATUS_CODE_404, false);
         } elseif ($exception instanceof AccessDeniedException) {
-            $handleError(self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403, false);
+            $handleError(Request::ACCESS_DENIED_ERROR_HANDLER, Response::STATUS_CODE_403, false);
         } elseif ($exception instanceof BadRequestException) {
-            $handleError(self::BAD_REQUEST_ERROR, Response::STATUS_CODE_400, false);
+            $handleError(REQUEST::BAD_REQUEST_ERROR_HANDLER, Response::STATUS_CODE_400, false);
         } else {
-            $handleError(self::UNCAUGHT_ERROR, Response::STATUS_CODE_500, true);
+            $handleError(REQUEST::UNCAUGHT_ERROR_HANDLER, Response::STATUS_CODE_500, true);
         }
     }
 

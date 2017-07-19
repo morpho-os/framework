@@ -334,6 +334,7 @@ abstract class ModuleManager extends Node implements IEventManager {
             $rClasses[] = $rClass;
         }
         $rClasses = array_reverse($rClasses);
+        // @TODO: Use integers for priority, accept sign: "+"|"-"
         $regexp = '~@Listen\s+(?<eventName>[a-zA-Z_][a-zA-Z_0-9]*)(\s+(?<priority>(?:\d*\.\d+)|(?:\d+\.\d*)|(\d+)))?~s';
         $foundEvents = [];
         foreach ($rClasses as $rClass) {

@@ -6,15 +6,15 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Web\Session\Session;
 
 class UserManager {
+    public const LOGIN_NOT_FOUND_ERROR      = 'loginNotFound';
+    public const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
+    public const EMPTY_LOGIN_OR_PASSWORD    = 'emptyPassword';
+
     protected $session;
 
     protected $user;
 
     protected $repo;
-
-    const LOGIN_NOT_FOUND_ERROR      = 'loginNotFound';
-    const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
-    const EMPTY_LOGIN_OR_PASSWORD    = 'emptyPassword';
 
     public function __construct(IUserRepo $repo, Session $session) {
         $this->repo = $repo;

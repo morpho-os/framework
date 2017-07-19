@@ -12,8 +12,6 @@ use Morpho\Di\{
  *     * Rails 4.x Routing, @see http://guides.rubyonrails.org/routing.html
  */
 abstract class Router implements IServiceManagerAware {
-    //const MAX_PARTS_COUNT = 9;
-
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager) {
@@ -24,11 +22,7 @@ abstract class Router implements IServiceManagerAware {
 
     abstract public function rebuildRoutes(): void;
 
-    /*
-    public function assemble(string $httpMethod, array $handler, array $params = null): string {
-        throw new NotImplementedException();
-    }
-    */
+/*    abstract function assemble(string $httpMethod, array $handler, array $params = null): string;*/
 
     public function dumpRoutes(): array {
         return iterator_to_array($this->routesMeta(), false);
@@ -38,15 +32,4 @@ abstract class Router implements IServiceManagerAware {
         return $this->serviceManager->get('routesMetaProvider')
             ->getIterator();
     }
-/**
-     * @param string $uri
-     * @return array
-
-    protected function splitUri($uri) {
-        $uriParts = array_slice(array_filter(explode('/', $uri), function ($value) {
-            return $value !== null && $value !== '';
-        }), 0, self::MAX_PARTS_COUNT);
-        return $uriParts;
-    }
- */
 }
