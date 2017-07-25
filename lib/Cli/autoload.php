@@ -18,34 +18,34 @@ use Morpho\Error\ErrorHandler;
 
 //use Symfony\Component\Process\Process;
 
-function bootstrap() {
+function bootstrap(): void {
     (new Environment())->init();
     (new ErrorHandler())->register();
 }
 
-function showOk() {
+function showOk(): void {
     showLn("OK");
 }
 
-function error(string $errMessage = null) {
+function error(string $errMessage = null, int $exitCode = null): void {
     if ($errMessage) {
         showError($errMessage);
     }
-    exit(Environment::FAILURE_CODE);
+    exit(null !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
 }
 
-function errorLn(string $errMessage = null) {
+function errorLn(string $errMessage = null, int $exitCode = null): void {
     if ($errMessage) {
         showErrorLn($errMessage);
     }
-    exit(Environment::FAILURE_CODE);
+    exit(null !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
 }
 
-function showError(string $errMessage) {
+function showError(string $errMessage): void {
     fwrite(STDERR, $errMessage);
 }
 
-function showErrorLn(string $errMessage = null) {
+function showErrorLn(string $errMessage = null): void {
     showError($errMessage . "\n");
 }
 
