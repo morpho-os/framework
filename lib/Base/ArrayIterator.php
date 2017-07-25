@@ -4,7 +4,7 @@ namespace Morpho\Base;
 use ArrayIterator as BaseArrayIterator;
 
 class ArrayIterator extends BaseArrayIterator {
-    public function toArray() {
+    public function toArray(): array {
         return $this->getArrayCopy();
     }
 
@@ -12,11 +12,11 @@ class ArrayIterator extends BaseArrayIterator {
         return $this->offsetGet($offset);
     }
 
-    public function clear() {
-        for ($this->rewind(); $this->valid(); $this->offsetUnset($this->key())) ;
+    public function clear(): void {
+        for ($this->rewind(); $this->valid(); $this->offsetUnset($this->key()));
     }
 
-    public function isEmpty() {
+    public function isEmpty(): bool {
         return $this->count() === 0;
     }
 }
