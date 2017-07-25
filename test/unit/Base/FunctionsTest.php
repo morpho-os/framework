@@ -694,11 +694,17 @@ class FunctionsTest extends TestCase {
     }
 
     public function testFilter_Array_StringKeys() {
-        $this->markTestIncomplete();
+        $res = filter(function ($v, $k) {
+            return $k !== 'apple' && $v !== 3;
+        }, ['orange' => 'fruit', 'three' => 3, 'apple' => 'fruit', 'earth' => 'planet']);
+        $this->assertSame(['orange' => 'fruit', 'earth' => 'planet'], $res);
     }
 
     public function testFilter_Array_NumericKeys() {
-        $this->markTestIncomplete();
+        $res = filter(function ($v, $k) {
+            return $v !== 'fruit';
+        }, ['fruit', 3, 'fruit', 'planet']);
+        $this->assertSame([3, 'planet'], $res);
     }
 
     // ------------------------------------------------------------------------

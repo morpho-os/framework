@@ -62,13 +62,32 @@ function map(callable $fn, $list): iterable {
 }
 
 /**
- * @return iterable Generator if $list argument is not an array
+ * @return iterable
+ *     array if $list is an array
+ *     Generator if $list argument is not an array
  */
 function filter(callable $predicate, iterable $list): iterable {
-    foreach ($list as $k => $v) {
-        if ($predicate($v, $k)) {
-            yield $k => $v;
+    if (is_array($list)) {
+        $res = [];
+        $numericKeys = true;
+        foreach ($list as $k => $v) {
+            if ($numericKeys && !is_numeric($k)) {
+                $numericKeys = false;
+            }
+            if ($predicate($v, $k)) {
+                $res[$k] = $v;
+            }
         }
+        return $numericKeys ? array_values($res) : $res;
+    } else {
+        $gen = function ($predicate, $list) {
+            foreach ($list as $k => $v) {
+                if ($predicate($v, $k)) {
+                    yield $k => $v;
+                }
+            }
+        };
+        return $gen($predicate, $list);
     }
 }
 
