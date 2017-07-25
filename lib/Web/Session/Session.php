@@ -20,7 +20,7 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         // return defined('SID') || isset($_SESSION);
     }
 
-    public static function start() {
+    public static function start(): void {
         if (self::started()) {
             return;
         }
@@ -38,21 +38,19 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         throw new ItemNotSetException($name);
     }
 
-    public function __set($name, $value) {
+    public function __set($name, $value): void {
         $_SESSION[self::KEY][$this->storageKey][$name] = $value;
-
-        return $this;
     }
 
-    public function __isset($name) {
+    public function __isset($name): bool {
         return isset($_SESSION[self::KEY][$this->storageKey][$name]);
     }
 
-    public function __unset($name) {
+    public function __unset($name): void {
         unset($_SESSION[self::KEY][$this->storageKey][$name]);
     }
 
-    public function count() {
+    public function count(): int {
         return count($_SESSION[self::KEY][$this->storageKey]);
     }
 
@@ -67,28 +65,19 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         return key($_SESSION[self::KEY][$this->storageKey]);
     }
 
-    /**
-     * @return void
-     */
-    public function next() {
+    public function next(): void {
         next($_SESSION[self::KEY][$this->storageKey]);
     }
 
-    /**
-     * @return void
-     */
-    public function rewind() {
+    public function rewind(): void {
         reset($_SESSION[self::KEY][$this->storageKey]);
     }
 
-    /**
-     * @return bool
-     */
-    public function valid() {
+    public function valid(): bool {
         return false !== current($_SESSION[self::KEY][$this->storageKey]);
     }
 
-    public function fromArray(array $data) {
+    public function fromArray(array $data): void {
         $_SESSION[self::KEY][$this->storageKey] = array_merge(
             $_SESSION[self::KEY][$this->storageKey],
             $data
@@ -99,11 +88,11 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         return $_SESSION[self::KEY][$this->storageKey];
     }
 
-    public function clear() {
+    public function clear(): void {
         $_SESSION[self::KEY][$this->storageKey] = [];
     }
 
-    public function offsetExists($key) {
+    public function offsetExists($key): bool {
         return $this->__isset($key);
     }
 
@@ -111,15 +100,15 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         return $this->__get($key);
     }
 
-    public function offsetSet($key, $value) {
+    public function offsetSet($key, $value): void {
         $this->__set($key, $value);
     }
 
-    public function offsetUnset($key) {
+    public function offsetUnset($key): void {
         $this->__unset($key);
     }
 
-    protected function init(bool $start) {
+    protected function init(bool $start): void {
         if ($start) {
             self::start();
         }
