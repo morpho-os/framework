@@ -29,7 +29,7 @@ class TypeScriptCompiler extends Compiler {
         'noImplicitAny' => true,
         'noImplicitReturns' => true,
         'noImplicitThis' => true,
-        'noUnusedLocals' => true,
+        'noUnusedLocals' => false,
         'preserveConstEnums' => true,
         'pretty' => true,
         'removeComments' => true,
