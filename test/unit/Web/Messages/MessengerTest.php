@@ -7,6 +7,11 @@ use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Messages\IMessageStorage;
 
 class MessengerTest extends TestCase {
+    /**
+     * @var Messenger
+     */
+    private $messenger;
+
     public function setUp() {
         $this->messenger = new Messenger();
         $this->messenger->setMessageStorage(new MessageStorage([]));
@@ -47,13 +52,13 @@ class MessengerTest extends TestCase {
             [
                 Messenger::SUCCESS => [
                     [
-                        'message' => 'Hello {0} and welcome',
+                        'text' => 'Hello {0} and welcome',
                         'args'    => ['<b>Name</b>'],
                     ],
                 ],
                 Messenger::WARNING => [
                     [
-                        'message' => 'Bar',
+                        'text' => 'Bar',
                         'args'    => [],
                     ],
                 ],

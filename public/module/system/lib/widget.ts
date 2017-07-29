@@ -1,4 +1,9 @@
 import {EventManager} from "./event-manager";
+/*import {IValidator} from "./validation";
+
+export interface IWidgetValidator extends IValidator {
+    validate(widget: Widget): boolean;
+}*/
 
 export abstract class Widget extends EventManager {
     protected el: JQuery;
@@ -14,26 +19,6 @@ export abstract class Widget extends EventManager {
     }
 
     protected init(): void {
-    }
-
-    protected showEl($el: JQuery): void {
-        $el.removeClass('hide').show();
-    }
-
-    protected hideEl($el: JQuery): void {
-        $el.hide();
-    }
-
-    protected forEach(items: any, fn: any): void {
-        $.each(items, (key: any, value: any) => {
-            fn.call(this, value);
-        });
-    }
-
-    protected forEachEl(items: any, fn: any): void {
-        $.each(items, (key: any, value: any) => {
-            fn.call(this, $(value));
-        });
     }
 }
 /*

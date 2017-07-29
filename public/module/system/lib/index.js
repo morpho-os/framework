@@ -9,6 +9,29 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+define("system/lib/base", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function id(value) {
+        return value;
+    }
+    exports.id = id;
+    function filterStringArgs(str, args, filter) {
+        args.forEach(function (arg, index) {
+            str = str.replace('{' + index + '}', arg);
+        });
+        return str;
+    }
+    exports.filterStringArgs = filterStringArgs;
+    function isPromise(value) {
+        return value && $.isFunction(value.promise);
+    }
+    exports.isPromise = isPromise;
+    function isDomNode(obj) {
+        return obj.nodeType > 0;
+    }
+    exports.isDomNode = isDomNode;
+});
 Math.EPS = 0.000001;
 Math.roundFloat = function (val, precision) {
     if (precision === void 0) { precision = 2; }
@@ -33,10 +56,9 @@ String.prototype.escapeHtml = function () {
         "<": "&lt;",
         ">": "&gt;",
         '"': '&quot;',
-        "'": '&#39;',
-        "/": '&#x2F;'
+        "'": '&#39;'
     };
-    return this.replace(/[&<>"'\/]/g, function (s) {
+    return this.replace(/[&<>"']/g, function (s) {
         return entityMap[s];
     });
 };
@@ -69,6 +91,14 @@ define("system/lib/error", ["require", "exports"], function (require, exports) {
         return NotImplementedException;
     }(Exception));
     exports.NotImplementedException = NotImplementedException;
+    var UnexpectedValueException = (function (_super) {
+        __extends(UnexpectedValueException, _super);
+        function UnexpectedValueException() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return UnexpectedValueException;
+    }(Exception));
+    exports.UnexpectedValueException = UnexpectedValueException;
 });
 define("system/lib/event-manager", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -91,7 +121,9 @@ define("system/lib/event-manager", ["require", "exports"], function (require, ex
                 return;
             }
             for (var i = 0; i < handlers.length; ++i) {
-                handlers[i].apply(handlers, args);
+                if (false === handlers[i].apply(handlers, args)) {
+                    break;
+                }
             }
         };
         return EventManager;
@@ -114,24 +146,6 @@ define("system/lib/widget", ["require", "exports", "system/lib/event-manager"], 
         };
         Widget.prototype.init = function () {
         };
-        Widget.prototype.showEl = function ($el) {
-            $el.removeClass('hide').show();
-        };
-        Widget.prototype.hideEl = function ($el) {
-            $el.hide();
-        };
-        Widget.prototype.forEach = function (items, fn) {
-            var _this = this;
-            $.each(items, function (key, value) {
-                fn.call(_this, value);
-            });
-        };
-        Widget.prototype.forEachEl = function (items, fn) {
-            var _this = this;
-            $.each(items, function (key, value) {
-                fn.call(_this, $(value));
-            });
-        };
         return Widget;
     }(event_manager_1.EventManager));
     exports.Widget = Widget;
@@ -144,7 +158,7 @@ define("system/lib/widget", ["require", "exports", "system/lib/event-manager"], 
     }(Widget));
     exports.Window = Window;
 });
-define("system/lib/message", ["require", "exports", "system/lib/widget"], function (require, exports, widget_1) {
+define("system/lib/message", ["require", "exports", "system/lib/widget", "system/lib/base"], function (require, exports, widget_1, base_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var MessageType;
@@ -160,6 +174,11 @@ define("system/lib/message", ["require", "exports", "system/lib/widget"], functi
         return window.pageMessenger;
     }
     exports.initPageMessenger = initPageMessenger;
+    function pageMessenger() {
+        var pageMessenger = window.pageMessenger;
+        return pageMessenger ? pageMessenger : initPageMessenger();
+    }
+    exports.pageMessenger = pageMessenger;
     var PageMessenger = (function (_super) {
         __extends(PageMessenger, _super);
         function PageMessenger() {
@@ -214,34 +233,68 @@ define("system/lib/message", ["require", "exports", "system/lib/widget"], functi
         return PageMessenger;
     }(widget_1.Widget));
     exports.PageMessenger = PageMessenger;
-    function messageTypeToString(messageType) {
-        switch (messageType) {
-            case 8:
-                return 'debug';
-            case 4:
-                return 'info';
-            case 2:
-                return 'warning';
-            case 1:
-                return 'error';
-            default:
-                throw new Error("Invalid message type");
-        }
+    function renderMessage(message) {
+        var text = message.text.escapeHtml();
+        text = base_1.filterStringArgs(text, message.args, base_1.id);
+        return wrapMessage(text, messageTypeToStr(message.type));
     }
+    exports.renderMessage = renderMessage;
+    function wrapMessage(text, type) {
+        return '<div class="' + type.toLowerCase().escapeHtml() + '">' + text + '</div>';
+    }
+    function messageTypeToStr(type) {
+        return MessageType[type];
+    }
+    exports.messageTypeToStr = messageTypeToStr;
     var Message = (function () {
-        function Message(type, text) {
+        function Message(type, text, args) {
+            if (args === void 0) { args = []; }
             this.type = type;
             this.text = text;
+            this.args = args;
         }
-        Message.prototype.typeToString = function () {
-            return messageTypeToString(this.type);
-        };
         Message.prototype.hasType = function (type) {
             return this.type === type;
         };
         return Message;
     }());
     exports.Message = Message;
+    var ErrorMessage = (function (_super) {
+        __extends(ErrorMessage, _super);
+        function ErrorMessage(text, args) {
+            if (args === void 0) { args = []; }
+            return _super.call(this, MessageType.Error, text, args) || this;
+        }
+        return ErrorMessage;
+    }(Message));
+    exports.ErrorMessage = ErrorMessage;
+    var WarningMessage = (function (_super) {
+        __extends(WarningMessage, _super);
+        function WarningMessage(text, args) {
+            if (args === void 0) { args = []; }
+            return _super.call(this, MessageType.Warning, text, args) || this;
+        }
+        return WarningMessage;
+    }(Message));
+    exports.WarningMessage = WarningMessage;
+    var InfoMessage = (function (_super) {
+        __extends(InfoMessage, _super);
+        function InfoMessage(text, args) {
+            if (args === void 0) { args = []; }
+            return _super.call(this, MessageType.Warning, text, args) || this;
+        }
+        return InfoMessage;
+    }(Message));
+    exports.InfoMessage = InfoMessage;
+    var DebugMessage = (function (_super) {
+        __extends(DebugMessage, _super);
+        function DebugMessage(text, args) {
+            if (args === void 0) { args = []; }
+            return _super.call(this, MessageType.Debug, text, args) || this;
+        }
+        return DebugMessage;
+    }(Message));
+    exports.DebugMessage = DebugMessage;
 });
 define("system/lib/system", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -249,9 +302,9 @@ define("system/lib/system", ["require", "exports"], function (require, exports) 
     var Re = (function () {
         function Re() {
         }
+        Re.EMAIL = /^[^@]+@[^@]+$/;
         return Re;
     }());
-    Re.EMAIL = /^[^@]+@[^@]+$/;
     exports.Re = Re;
     function tr(message) {
         return message;
@@ -288,31 +341,54 @@ define("system/lib/system", ["require", "exports"], function (require, exports) 
     }
     exports.isGenerator = isGenerator;
 });
-define("system/lib/form", ["require", "exports", "system/lib/message", "system/lib/error", "system/lib/system", "system/lib/widget"], function (require, exports, message_1, error_1, system_1, widget_2) {
+define("system/lib/form", ["require", "exports", "system/lib/message", "system/lib/widget"], function (require, exports, message_1, widget_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var RequiredElValidator = (function () {
+        function RequiredElValidator() {
+        }
+        RequiredElValidator.prototype.validate = function ($el) {
+            if (Form.isRequiredEl($el)) {
+                if (Form.elValue($el).trim().length < 1) {
+                    return [RequiredElValidator.EmptyValueMessage];
+                }
+            }
+            return [];
+        };
+        RequiredElValidator.EmptyValueMessage = 'This field is required';
+        return RequiredElValidator;
+    }());
+    exports.RequiredElValidator = RequiredElValidator;
+    function defaultValidators() {
+        return [
+            new RequiredElValidator()
+        ];
+    }
+    exports.defaultValidators = defaultValidators;
+    function validateEl($el, validators) {
+        if (!validators) {
+            validators = defaultValidators();
+        }
+        var errors = [];
+        validators.forEach(function (validator) {
+            errors = errors.concat(validator.validate($el));
+        });
+        return errors;
+    }
+    exports.validateEl = validateEl;
     var Form = (function (_super) {
         __extends(Form, _super);
         function Form() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this._wasValidated = false;
-            _this._isValid = null;
-            _this.messages = {};
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        Form.prototype.wasValidated = function () {
-            return this._wasValidated;
-        };
-        Form.prototype.validate = function () {
-            this._isValid = this._validate();
-            this._wasValidated = true;
-            return this._isValid;
-        };
-        Form.prototype.isValid = function () {
-            if (!this.wasValidated()) {
-                throw new Error("Unable to check state, the form should be validated first");
+        Form.elValue = function ($el) {
+            if ($el.get(0)['type'] === 'checkbox') {
+                return $el.is(':checked') ? 1 : 0;
             }
-            return this._isValid;
+            return $el.val();
+        };
+        Form.isRequiredEl = function ($el) {
+            return $el.is('[required]');
         };
         Form.prototype.els = function () {
             return $(this.el[0].elements);
@@ -320,224 +396,102 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         Form.prototype.elsToValidate = function () {
             return this.els().filter(function () {
                 var $el = $(this);
-                return $el.is(':not(input[type=submit])') && $el.is(':not(button)');
+                return $el.is(':not(:submit)');
             });
         };
-        Form.prototype.submitButtonEls = function () {
-            return this.els().filter(function () {
-                return $(this).is(':submit');
-            });
-        };
-        ;
-        Form.prototype.invalidEls = function () {
-            if (!this.wasValidated()) {
-                return $();
-            }
-            return this.els().filter(function () {
-                return $(this).hasClass('invalid');
-            });
-        };
-        Form.prototype.addFormMessage = function (message) {
-            var type = message.type;
-            if (typeof this.messages[type] === 'undefined') {
-                this.messages[type] = [];
-            }
-            this.messages[type].push(message);
-        };
-        Form.prototype.formMessages = function (type) {
-            var _this = this;
-            if (type === void 0) { type = null; }
-            var messages = [], concatMessages = function (type) {
-                if (typeof _this.messages[type] !== 'undefined') {
-                    messages = messages.concat(_this.messages[type]);
+        Form.prototype.validate = function () {
+            this.clearValidationErrors();
+            var errors = [];
+            this.elsToValidate().each(function () {
+                var $el = $(this);
+                var elErrors = validateEl($el);
+                if (elErrors.length) {
+                    errors.push([$el, elErrors.map(function (error) { return new message_1.ErrorMessage(error); })]);
                 }
-            };
-            if (null === type) {
-                type = 15;
+            });
+            if (errors.length) {
+                this.showErrors(errors);
+                return false;
             }
-            if (type & 8) {
-                concatMessages(8);
+            return true;
+        };
+        Form.prototype.invalidEls = function () {
+            return this.els().filter(function () {
+                return $(this).hasClass(Form.invalidCssClass);
+            });
+        };
+        Form.prototype.hasValidationErrors = function () {
+            return this.el.hasClass(Form.invalidCssClass);
+        };
+        Form.prototype.clearValidationErrors = function () {
+            this.invalidEls().each(function (index, el) {
+                var $el = $(el);
+                var $container = $el.removeClass(Form.invalidCssClass).closest('.form-group');
+                if (!$container.find('.' + Form.invalidCssClass).length) {
+                    $container.removeClass(Form.invalidCssClass);
+                }
+                $el.next('.error').remove();
+            });
+            this.el.removeClass(Form.invalidCssClass);
+        };
+        Form.prototype.submit = function () {
+            this.clearValidationErrors();
+            if (this.validate()) {
+                return this.send();
             }
-            if (type & 4) {
-                concatMessages(4);
-            }
-            if (type & 2) {
-                concatMessages(2);
-            }
-            if (type & 1) {
-                concatMessages(1);
-            }
-            return messages;
+            return $.rejectedPromise(false);
         };
-        Form.prototype.showFormMessage = function (message) {
-            this.addFormMessage(message);
-            this._showAddedFormMessage(message);
+        Form.prototype.send = function () {
+            this.disableSubmitButtonEls();
+            return this.sendFormData(this.uri(), this.formData());
         };
-        Form.prototype.showAddedFormMessages = function () {
-            this.forEach(this.formErrorMessages, this.showAddedFormMessage);
+        Form.prototype.showErrors = function (errors) {
+            var _this = this;
+            var formErrors = [];
+            errors.forEach(function (err) {
+                if (Array.isArray(err)) {
+                    var $el = err[0], elErrors = err[1];
+                    _this.showElErrors($el, elErrors);
+                }
+                else {
+                    formErrors.push(err);
+                }
+            });
+            this.showFormErrors(formErrors);
         };
-        Form.prototype.showAddedFormMessage = function (message) {
-            this.ensureIsAddedFormMessage(message);
-        };
-        Form.prototype.showFormMessages = function (messages) {
-            this.forEach(messages, this.showFormMessage);
-        };
-        Form.prototype.hasErrors = function () {
-            return !this.isValid();
-        };
-        Form.prototype.clearErrors = function () {
-            this.removeElsErrors();
-            this.removeFormErrors();
-            this.messages[1] = [];
-        };
-        Form.prototype.showFormErrorMessage = function (text) {
-            this.showFormMessage(new message_1.Message(1, text));
-        };
-        Form.prototype.formErrorMessages = function () {
-            return this.formMessages(1);
-        };
-        Form.prototype.addFormErrorMessage = function (text) {
-            this.addFormMessage(new message_1.Message(1, text));
-        };
-        Form.prototype.init = function () {
-            _super.prototype.init.call(this);
-            this.el.attr('novalidate', 'novalidate');
-        };
-        Form.prototype._showAddedFormMessage = function (message) {
-            this.showEl(this.messageContainerEl()
-                .append(this.formatFormMessage(message)));
-        };
-        Form.prototype.removeElsErrors = function () {
-            this.forEachEl(this.elsToValidate(), this.removeElErrors);
-        };
-        Form.prototype.removeElErrors = function ($el) {
-            $el.closest('.form-group')
-                .removeClass('has-error')
-                .find('.error').remove();
-            $el.removeClass('invalid');
-        };
-        Form.prototype.removeFormErrors = function () {
-            var $messageContainer = this.messageContainerEl();
-            $messageContainer.find('.alert-error').remove();
-            if ($messageContainer.is(':empty')) {
-                this.hideEl($messageContainer);
-            }
+        Form.prototype.showFormErrors = function (errors) {
+            var rendered = '<div class="alert alert-error">' + errors.map(message_1.renderMessage).join("\n") + '</div>';
+            this.messageContainerEl()
+                .prepend(rendered);
+            this.el.addClass(Form.invalidCssClass);
         };
         Form.prototype.messageContainerEl = function () {
-            var containerCssClass = 'messages', $containerEl = this.el.find('.' + containerCssClass);
+            var containerCssClass = 'messages';
+            var $containerEl = this.el.find('.' + containerCssClass);
             if (!$containerEl.length) {
                 $containerEl = $('<div class="' + containerCssClass + '"></div>').prependTo(this.el);
             }
             return $containerEl;
         };
-        Form.prototype.ensureIsAddedFormMessage = function (message) {
-            if (!this.isAddedFormMessage(message)) {
-                throw new Error("Message must be added first");
-            }
+        Form.prototype.showElErrors = function ($el, errors) {
+            var invalidCssClass = Form.invalidCssClass;
+            $el.addClass(invalidCssClass).closest('.form-group').addClass(invalidCssClass);
+            $el.after(errors.map(message_1.renderMessage).join("\n"));
         };
-        Form.prototype.isAddedFormMessage = function (message) {
-            return $.inArray(message, this.messages[message.type]) >= 0;
-        };
-        Form.prototype.formatFormMessage = function (message) {
-            if (!message.hasType(1)) {
-                throw new error_1.NotImplementedException("formatMessage");
-            }
-            return '<div class="alert alert-error">' + message.text + '</div>';
-        };
-        Form.prototype._validate = function () {
-            this.clearErrors();
-            return this.validateEls();
-        };
-        Form.prototype.validateEls = function () {
-            var _this = this;
-            var isValid = true;
-            this.forEachEl(this.elsToValidate(), function ($el) {
-                if (!_this.validateEl($el)) {
-                    isValid = false;
-                }
-            });
-            return isValid;
-        };
-        Form.prototype.validateEl = function ($el) {
-            this.removeElErrors($el);
-            if (this.isRequiredEl($el)) {
-                return this.validateRequiredEl($el);
-            }
-            return true;
-        };
-        Form.prototype.validateRequiredEl = function ($el) {
-            var val = $el.val().trim();
-            if (!val.length) {
-                $el.addClass('invalid');
-                this.showValueRequiredElError($el);
-                return false;
-            }
-            return true;
-        };
-        Form.prototype.showValueRequiredElError = function ($el) {
-            this.showElMessage($el, new message_1.Message(1, system_1.tr('Это поле обязательно для заполнения.')));
-        };
-        Form.prototype.showElMessage = function ($el, message) {
-            $el.after(this.formatElMessage(message));
-            $el.closest('.form-group').addClass('has-error');
-        };
-        Form.prototype.showElError = function ($el, text) {
-            this.showElMessage($el, new message_1.Message(1, text));
-        };
-        Form.prototype.formatElMessage = function (message) {
-            return '<div class="' + message.typeToString() + '">' + message.text + '</div>';
-        };
-        Form.prototype.isRequiredEl = function ($el) {
-            return $el.is('[required]');
+        Form.prototype.init = function () {
+            _super.prototype.init.call(this);
+            this.el.attr('novalidate', 'novalidate');
         };
         Form.prototype.registerEventHandlers = function () {
-            this.registerSubmitEventHandler();
-        };
-        Form.prototype.registerSubmitEventHandler = function () {
-            this.el.on('submit', this.handleSubmit.bind(this));
-        };
-        Form.prototype.handleSubmit = function () {
-            this.clearErrors();
-            if (this.validate()) {
-                this.submit();
-            }
-            return false;
-        };
-        Form.prototype.submit = function () {
-            this.disableSubmitButtonEls();
-            this.sendFormData(this.uri(), this.formData());
-        };
-        Form.prototype.uri = function () {
-            return this.el.attr('action') || window.location.href;
-        };
-        Form.prototype.formData = function () {
             var _this = this;
-            var data = [];
-            this.els().each(function (index, node) {
-                var name = node.getAttribute('name');
-                if (!name) {
-                    return;
-                }
-                data.push({
-                    name: name,
-                    value: _this.elValue($(node))
-                });
+            this.el.on('submit', function () {
+                _this.submit();
             });
-            return data;
-        };
-        Form.prototype.elValue = function ($el) {
-            if ($el.get(0)['type'] == 'checkbox') {
-                return $el.is(':checked') ? 1 : 0;
-            }
-            return $el.val();
         };
         Form.prototype.sendFormData = function (uri, requestData) {
             var ajaxSettings = this.ajaxSettings();
             ajaxSettings.url = uri;
             ajaxSettings.data = requestData;
-            return this.sendAjaxRequest(ajaxSettings);
-        };
-        Form.prototype.sendAjaxRequest = function (ajaxSettings) {
             return $.ajax(ajaxSettings);
         };
         Form.prototype.ajaxSettings = function () {
@@ -568,11 +522,33 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             this.enableSubmitButtonEls();
             alert("AJAX error");
         };
+        Form.prototype.formData = function () {
+            var data = [];
+            this.els().each(function (index, node) {
+                var name = node.getAttribute('name');
+                if (!name) {
+                    return;
+                }
+                data.push({
+                    name: name,
+                    value: Form.elValue($(node))
+                });
+            });
+            return data;
+        };
+        Form.prototype.uri = function () {
+            return this.el.attr('action') || window.location.href;
+        };
         Form.prototype.enableSubmitButtonEls = function () {
             this.submitButtonEls().prop('disabled', false);
         };
         Form.prototype.disableSubmitButtonEls = function () {
             this.submitButtonEls().prop('disabled', true);
+        };
+        Form.prototype.submitButtonEls = function () {
+            return this.els().filter(function () {
+                return $(this).is(':submit');
+            });
         };
         Form.prototype.handleResponse = function (responseData) {
             if (responseData.error) {
@@ -582,35 +558,39 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
                 this.handleResponseSuccess(responseData.success);
             }
             else {
-                this.showUnknownError();
+                this.invalidResponseError();
             }
         };
         Form.prototype.handleResponseSuccess = function (responseData) {
-            if (responseData.redirect) {
-                system_1.redirectTo(responseData.redirect);
-                return true;
-            }
         };
         Form.prototype.handleResponseError = function (responseData) {
-            this.showFormErrorMessage(responseData);
+            if (Array.isArray(responseData)) {
+                var errors = responseData.map(function (message) {
+                    return new message_1.ErrorMessage(message.text, message.args);
+                });
+                this.showErrors(errors);
+            }
+            else {
+                this.invalidResponseError();
+            }
         };
-        Form.prototype.changeEventNames = function () {
-            return 'keyup blur change paste';
+        Form.prototype.invalidResponseError = function () {
+            alert('Invalid response');
         };
-        Form.prototype.showUnknownError = function () {
-            system_1.showUnknownError(null);
-        };
+        Form.invalidCssClass = 'invalid';
         return Form;
     }(widget_2.Widget));
     exports.Form = Form;
 });
-var uniqId = 0;
-$.fn.once = function (fn) {
-    var cssClass = String(uniqId++) + '-processed';
-    return this.not('.' + cssClass)
-        .addClass(cssClass)
-        .each(fn);
-};
+(function () {
+    var uniqId = 0;
+    $.fn.once = function (fn) {
+        var cssClass = String(uniqId++) + '-processed';
+        return this.not('.' + cssClass)
+            .addClass(cssClass)
+            .each(fn);
+    };
+})();
 $.resolvedPromise = function (value) {
     var args = [];
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -619,9 +599,11 @@ $.resolvedPromise = function (value) {
     return (_a = $.Deferred()).resolve.apply(_a, [value].concat(args)).promise();
     var _a;
 };
-$.isPromise = function (value) {
-    return value && $.isFunction(value.promise);
-};
-$.isDomNode = function (obj) {
-    return obj.nodeType > 0;
+$.rejectedPromise = function (value) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    return (_a = $.Deferred()).reject.apply(_a, [value].concat(args)).promise();
+    var _a;
 };

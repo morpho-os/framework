@@ -1,6 +1,9 @@
-import {Widget} from "./widget";
+/// <reference path="bom.d.ts"/>
 
-export const enum MessageType {
+import {Widget} from "./widget";
+import {filterStringArgs, id} from "./base";
+
+export enum MessageType {
     Error = 1,
     Warning = 2,
     Info = 4,
@@ -8,14 +11,23 @@ export const enum MessageType {
     All = Error | Warning | Info | Debug
 }
 
-interface MyWindow extends Window {
+interface ExtendedWindow extends Window {
     pageMessenger: PageMessenger;
 }
-declare const window: MyWindow;
+declare const window: ExtendedWindow;
+
+interface MessageRenderer {
+    (message: Message): string;
+}
 
 export function initPageMessenger(): PageMessenger {
     window.pageMessenger = new PageMessenger('#page-messages');
     return window.pageMessenger;
+}
+
+export function pageMessenger(): PageMessenger {
+    const pageMessenger = window.pageMessenger;
+    return pageMessenger ? pageMessenger : initPageMessenger();
 }
 
 export class PageMessenger extends Widget {
@@ -72,7 +84,18 @@ export class PageMessenger extends Widget {
     }
 }
 
-function messageTypeToString(messageType: MessageType): string {
+export function renderMessage(message: Message): string {
+    let text = message.text.escapeHtml();
+    text = filterStringArgs(text, message.args, id);
+    return wrapMessage(text, messageTypeToStr(message.type));
+}
+
+function wrapMessage(text: string, type: string): string {
+    return '<div class="' + type.toLowerCase().escapeHtml() + '">' + text + '</div>';
+}
+
+export function messageTypeToStr(type: MessageType): string {
+/*
     switch (messageType) {
         case MessageType.Debug:
             return 'debug';
@@ -85,17 +108,39 @@ function messageTypeToString(messageType: MessageType): string {
         default:
             throw new Error("Invalid message type");
     }
+*/
+    return MessageType[type];
 }
 
 export class Message {
-    constructor(public type: MessageType, public text: string) {
-    }
-
-    public typeToString(): string {
-        return messageTypeToString(this.type);
+    constructor(public type: MessageType, public text: string, public args: string[] = []) {
     }
 
     public hasType(type: MessageType): boolean {
         return this.type === type;
+    }
+}
+
+export class ErrorMessage extends Message {
+    constructor(text: string, args: string[] = []) {
+        super(MessageType.Error, text, args);
+    }
+}
+
+export class WarningMessage extends Message {
+    constructor(text: string, args: string[] = []) {
+        super(MessageType.Warning, text, args);
+    }
+}
+
+export class InfoMessage extends Message {
+    constructor(text: string, args: string[] = []) {
+        super(MessageType.Warning, text, args);
+    }
+}
+
+export class DebugMessage extends Message {
+    constructor(text: string, args: string[] = []) {
+        super(MessageType.Debug, text, args);
     }
 }

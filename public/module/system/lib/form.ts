@@ -1,126 +1,163 @@
-import {Message, MessageType} from "./message";
+///<reference path="message.ts"/>
+import {ErrorMessage, Message, renderMessage} from "./message";
 import {NotImplementedException} from "./error";
-import {tr, redirectTo, showUnknownError} from "./system";
+import {redirectTo, tr} from "./system";
 import {Widget} from "./widget";
 
-export class Form extends Widget {
-    private _wasValidated = false;
-    private _isValid: boolean = null;
-    protected messages: { [type: number]: Message[] } = {};
+interface JsonResponse {
+    error: any;
+    success: any;
+}
 
-    public wasValidated(): boolean {
-        return this._wasValidated;
-    }
+export interface ElValidator {
+    validate($el: JQuery): string[];
+}
 
-    public validate(): boolean {
-        this._isValid = this._validate();
-        this._wasValidated = true;
-        return this._isValid;
-    }
+type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
+type ResponseError = ResponseErrorMessage[] | {[elName: string]: ResponseErrorMessage[]};
 
-    public isValid(): boolean {
-        if (!this.wasValidated()) {
-            throw new Error("Unable to check state, the form should be validated first");
+export class RequiredElValidator implements ElValidator {
+    public static readonly EmptyValueMessage = 'This field is required';
+
+    public validate($el: JQuery): string[] {
+        if (Form.isRequiredEl($el)) {
+            if (Form.elValue($el).trim().length < 1) {
+                return [RequiredElValidator.EmptyValueMessage];
+            }
         }
-        return this._isValid;
+        return [];
+    }
+}
+
+export function defaultValidators(): ElValidator[] {
+    return [
+        new RequiredElValidator()
+    ];
+}
+
+export function validateEl($el: JQuery, validators?: ElValidator[]): string[] {
+    if (!validators) {
+        validators = defaultValidators();
+    }
+    let errors: string[] = [];
+    validators.forEach(function (validator: ElValidator) {
+        errors = errors.concat(validator.validate($el));
+    });
+    return errors;
+}
+
+export class Form extends Widget {
+    public static readonly invalidCssClass = 'invalid';
+
+    public static elValue($el: JQuery): any {
+        if ((<any>$el.get(0))['type'] === 'checkbox') {
+            return $el.is(':checked') ? 1 : 0;
+        }
+        return $el.val();
+    }
+
+    public static isRequiredEl($el: JQuery): boolean {
+        return $el.is('[required]');
     }
 
     public els(): JQuery {
-        return $((<any>this.el[0]).elements);
+        return $((<any> this.el[0]).elements);
     }
 
     public elsToValidate(): JQuery {
         return this.els().filter(function (this: JQuery) {
             const $el = $(this);
-            return $el.is(':not(input[type=submit])') && $el.is(':not(button)');
+            return $el.is(':not(:submit)');//input[type=submit])') && $el.is(':not(button)');
         });
     }
 
-    public submitButtonEls(): JQuery {
-        return this.els().filter(function (this: JQuery) {
-            return $(this).is(':submit');
+    public validate(): boolean {
+        this.clearValidationErrors();
+        let errors: Array<[JQuery, ErrorMessage[]]> = [];
+        this.elsToValidate().each(function (this: Element) {
+            const $el = $(this);
+            const elErrors = validateEl($el);
+            if (elErrors.length) {
+                errors.push([$el, elErrors.map((error: string) => { return new ErrorMessage(error); })]);
+            }
         });
-    };
+        if (errors.length) {
+            this.showErrors(errors);
+            return false;
+        }
+        return true;
+    }
 
     public invalidEls(): JQuery {
-        if (!this.wasValidated()) {
-            return $();
-        }
         return this.els().filter(function (this: JQuery) {
-            return $(this).hasClass('invalid');
+            return $(this).hasClass(Form.invalidCssClass);
         });
     }
 
-    public addFormMessage(message: Message): void {
-        const type = message.type;
-        if (typeof this.messages[type] === 'undefined') {
-            this.messages[type] = [];
+    public hasValidationErrors(): boolean {
+        return this.el.hasClass(Form.invalidCssClass);
+    }
+
+    public clearValidationErrors(): void {
+        this.invalidEls().each((index: number, el: Element) => {
+            const $el = $(el);
+            const $container = $el.removeClass(Form.invalidCssClass).closest('.form-group');
+            if (!$container.find('.' + Form.invalidCssClass).length) {
+                $container.removeClass(Form.invalidCssClass);
+            }
+            $el.next('.error').remove();
+        });
+        this.el.removeClass(Form.invalidCssClass);
+    }
+
+    public submit(): JQueryPromise<false|void> {
+        this.clearValidationErrors();
+        if (this.validate()) {
+            return this.send();
         }
-        this.messages[type].push(message);
+        return $.rejectedPromise(false);
     }
 
-    public formMessages(type: MessageType = null): Message[] {
-        let messages: Message[] = [],
-            concatMessages = (type: MessageType) => {
-                if (typeof this.messages[type] !== 'undefined') {
-                    messages = messages.concat(this.messages[type]);
-                }
-            };
-        if (null === type) {
-            type = MessageType.All;
+    public send(): JQueryXHR {
+        this.disableSubmitButtonEls();
+        return this.sendFormData(this.uri(), this.formData());
+    }
+
+    protected showErrors(errors: Array<ErrorMessage | [JQuery, ErrorMessage[]]>): void {
+        let formErrors: ErrorMessage[] = [];
+        errors.forEach((err: ErrorMessage | [JQuery, ErrorMessage[]]) => {
+            if (Array.isArray(err)) {
+                const [$el, elErrors] = err;
+                this.showElErrors($el, elErrors);
+            } else {
+                formErrors.push(err);
+            }
+        });
+        this.showFormErrors(formErrors);
+    }
+
+    protected showFormErrors(errors: ErrorMessage[]): void {
+        const rendered: string = '<div class="alert alert-error">' + errors.map(renderMessage).join("\n") + '</div>';
+        this.messageContainerEl()
+            .prepend(rendered);
+        this.el.addClass(Form.invalidCssClass);
+    }
+
+    protected messageContainerEl(): JQuery {
+        const containerCssClass = 'messages';
+        let $containerEl = this.el.find('.' + containerCssClass);
+        if (!$containerEl.length) {
+            $containerEl = $('<div class="' + containerCssClass + '"></div>').prependTo(this.el);
         }
-        if (type & MessageType.Debug) {
-            concatMessages(MessageType.Debug);
-        }
-        if (type & MessageType.Info) {
-            concatMessages(MessageType.Info);
-        }
-        if (type & MessageType.Warning) {
-            concatMessages(MessageType.Warning);
-        }
-        if (type & MessageType.Error) {
-            concatMessages(MessageType.Error);
-        }
-        return messages;
+        return $containerEl;
     }
 
-    public showFormMessage(message: Message): void {
-        this.addFormMessage(message);
-        this._showAddedFormMessage(message);
-    }
+    protected showElErrors($el: JQuery, errors: ErrorMessage[]): void {
+        const invalidCssClass = Form.invalidCssClass;
 
-    public showAddedFormMessages(): void {
-        this.forEach(this.formErrorMessages, this.showAddedFormMessage);
-    }
+        $el.addClass(invalidCssClass).closest('.form-group').addClass(invalidCssClass);
 
-    public showAddedFormMessage(message: Message): void {
-        this.ensureIsAddedFormMessage(message);
-    }
-
-    public showFormMessages(messages: Message[]): void {
-        this.forEach(messages, this.showFormMessage);
-    }
-
-    public hasErrors(): boolean {
-        return !this.isValid();
-    }
-
-    public clearErrors(): void {
-        this.removeElsErrors();
-        this.removeFormErrors();
-        this.messages[MessageType.Error] = [];
-    }
-
-    public showFormErrorMessage(text: string): void {
-        this.showFormMessage(new Message(MessageType.Error, text));
-    }
-
-    public formErrorMessages(): Message[] {
-        return this.formMessages(MessageType.Error);
-    }
-
-    public addFormErrorMessage(text: string): void {
-        this.addFormMessage(new Message(MessageType.Error, text));
+        $el.after(errors.map(renderMessage).join("\n"));
     }
 
     protected init(): void {
@@ -128,193 +165,29 @@ export class Form extends Widget {
         this.el.attr('novalidate', 'novalidate');
     }
 
-    protected _showAddedFormMessage(message: Message): void {
-        this.showEl(
-            this.messageContainerEl()
-                .append(this.formatFormMessage(message))
-        );
-    }
-
-    protected removeElsErrors(): void {
-        this.forEachEl(this.elsToValidate(), this.removeElErrors);
-    }
-
-    protected removeElErrors($el: JQuery): void {
-        $el.closest('.form-group')
-            .removeClass('has-error')
-            .find('.error').remove();
-        $el.removeClass('invalid');
-    }
-
-    protected removeFormErrors(): void {
-        const $messageContainer = this.messageContainerEl();
-        $messageContainer.find('.alert-error').remove();
-        if ($messageContainer.is(':empty')) {
-            this.hideEl($messageContainer);
-        }
-    }
-
-    protected messageContainerEl(): JQuery {
-        let containerCssClass = 'messages',
-            $containerEl = this.el.find('.' + containerCssClass);
-        if (!$containerEl.length) {
-            $containerEl = $('<div class="' + containerCssClass + '"></div>').prependTo(this.el);
-        }
-        return $containerEl;
-    }
-
-    protected ensureIsAddedFormMessage(message: Message) {
-        if (!this.isAddedFormMessage(message)) {
-            throw new Error("Message must be added first");
-        }
-    }
-
-    protected isAddedFormMessage(message: Message): boolean {
-        return $.inArray(message, this.messages[message.type]) >= 0;
-    }
-
-    protected formatFormMessage(message: Message): string {
-        if (!message.hasType(MessageType.Error)) {
-            throw new NotImplementedException("formatMessage");
-        }
-        // @TODO: Decide where to escape message.text
-        return '<div class="alert alert-error">' + message.text + '</div>';
-    }
-
-    /*
-     protected showUnknownError(message: string = null, context: any = null): void {
-     this.showErrorMessage(message ? message : tr("Unknown error, please contact support"));
-     this.notifyAboutError(message, context);
-     }
-
-     protected notifyAboutError(message: string = null, context: any = null): void {
-     // @TODO: Send notification to server.
-     }
-     */
-    protected _validate(): boolean {
-        this.clearErrors();
-        return this.validateEls();
-    }
-
-    protected validateEls(): boolean {
-        let isValid = true;
-        this.forEachEl(this.elsToValidate(), ($el: JQuery) => {
-            if (!this.validateEl($el)) {
-                isValid = false;
-            }
-        });
-        return isValid;
-    }
-
-    protected validateEl($el: JQuery): boolean {
-        this.removeElErrors($el);
-        if (this.isRequiredEl($el)) {
-            return this.validateRequiredEl($el);
-        }
-        return true;
-    }
-
-    protected validateRequiredEl($el: JQuery): boolean {
-        const val = $el.val().trim();
-        if (!val.length) {
-            $el.addClass('invalid');
-            this.showValueRequiredElError($el);
-            return false;
-        }
-        return true;
-    }
-
-    protected showValueRequiredElError($el: JQuery): void {
-        this.showElMessage($el, new Message(MessageType.Error, tr('Это поле обязательно для заполнения.')));
-    }
-
-    protected showElMessage($el: JQuery, message: Message): void {
-        $el.after(this.formatElMessage(message));
-        $el.closest('.form-group').addClass('has-error');
-    }
-
-    protected showElError($el: JQuery, text: string): void {
-        this.showElMessage($el, new Message(MessageType.Error, text));
-    }
-
-    protected formatElMessage(message: Message): string {
-        // @TODO: Decide where to escape message.text
-        return '<div class="' + message.typeToString() + '">' + message.text + '</div>';
-    }
-
-    protected isRequiredEl($el: JQuery): boolean {
-        return $el.is('[required]');
-    }
-
     protected registerEventHandlers(): void {
-        this.registerSubmitEventHandler();
-    }
-
-    protected registerSubmitEventHandler(): void {
-        this.el.on('submit', this.handleSubmit.bind(this));
-    }
-
-    protected handleSubmit(): boolean {
-        this.clearErrors();
-        if (this.validate()) {
+        this.el.on('submit', () => {
             this.submit();
-        }
-        return false;
-    }
-
-    protected submit(): void {
-        this.disableSubmitButtonEls();
-        this.sendFormData(this.uri(), this.formData());
-    }
-
-    protected uri(): string {
-        return this.el.attr('action') || (<any>window).location.href;
-    }
-
-    protected formData(): Array<JQuerySerializeArrayElement> {
-        // @TODO: see the serializeArray() method: $('form').serializeArray()?
-        const data: Array<JQuerySerializeArrayElement> = [];
-        this.els().each((index, node) => {
-            const name = node.getAttribute('name');
-            if (!name) {
-                return;
-            }
-            data.push({
-                name: name,
-                value: this.elValue($(node))
-            });
         });
-        return data;
-    }
-
-    protected elValue($el: JQuery): any {
-        if ((<any>$el.get(0))['type'] == 'checkbox') {
-            return $el.is(':checked') ? 1 : 0;
-        }
-        return $el.val();
     }
 
     protected sendFormData(uri: string, requestData: Object): JQueryXHR {
         const ajaxSettings = this.ajaxSettings();
         ajaxSettings.url = uri;
         ajaxSettings.data = requestData;
-        return this.sendAjaxRequest(ajaxSettings);
-    }
-
-    protected sendAjaxRequest(ajaxSettings: JQueryAjaxSettings): JQueryXHR {
         return $.ajax(ajaxSettings);
     }
 
     protected ajaxSettings(): JQueryAjaxSettings {
         const self = this;
         return {
-            beforeSend: function (jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any {
+            beforeSend(jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any {
                 return self.beforeSend(jqXHR, settings);
             },
-            success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any {
+            success(data: any, textStatus: string, jqXHR: JQueryXHR): any {
                 return self.ajaxSuccess(data, textStatus, jqXHR);
             },
-            error: function (jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
+            error(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
                 return self.ajaxError(jqXHR, textStatus, errorThrown);
             },
             method: this.submitMethod()
@@ -339,12 +212,38 @@ export class Form extends Widget {
         alert("AJAX error");
     }
 
-    protected enableSubmitButtonEls() {
+    protected formData(): JQuerySerializeArrayElement[] {
+        // @TODO: see the serializeArray() method: $('form').serializeArray()?
+        const data: JQuerySerializeArrayElement[] = [];
+        this.els().each((index, node) => {
+            const name = node.getAttribute('name');
+            if (!name) {
+                return;
+            }
+            data.push({
+                name,
+                value: Form.elValue($(node))
+            });
+        });
+        return data;
+    }
+
+    protected uri(): string {
+        return this.el.attr('action') || (<any>window).location.href;
+    }
+
+    protected enableSubmitButtonEls(): void {
         this.submitButtonEls().prop('disabled', false);
     }
 
-    protected disableSubmitButtonEls() {
+    protected disableSubmitButtonEls(): void {
         this.submitButtonEls().prop('disabled', true);
+    }
+
+    protected submitButtonEls(): JQuery {
+        return this.els().filter(function (this: JQuery) {
+            return $(this).is(':submit');
+        });
     }
 
     protected handleResponse(responseData: JsonResponse): void {
@@ -353,36 +252,27 @@ export class Form extends Widget {
         } else if (responseData.success) {
             this.handleResponseSuccess(responseData.success);
         } else {
-            this.showUnknownError();
+            this.invalidResponseError();
         }
     }
 
-    protected handleResponseSuccess(responseData: any): any {
-        if (responseData.redirect) {
-            redirectTo(responseData.redirect);
-            return true;
+    protected handleResponseSuccess(responseData: any): void {
+/*        if (responseData.redirect) { @TODO
+        }*/
+    }
+
+    protected handleResponseError(responseData: ResponseError): void {
+        if (Array.isArray(responseData)) {
+            const errors = responseData.map((message: ResponseErrorMessage) => {
+                return new ErrorMessage(message.text, message.args);
+            });
+            this.showErrors(errors);
+        } else {
+            this.invalidResponseError();
         }
     }
 
-    protected handleResponseError(responseData: any): any {
-        this.showFormErrorMessage(responseData);
-    }
-
-    protected changeEventNames(): string {
-        return 'keyup blur change paste';
-    }
-
-    protected showUnknownError(): void {
-        showUnknownError(null);
+    protected invalidResponseError(): void {
+        alert('Invalid response'); // @TODO
     }
 }
-
-export interface ResponseMessage {
-    message: string;
-    args?: Array<string>;
-}
-export interface JsonResponse {
-    error: any;
-    success: any;
-}
-

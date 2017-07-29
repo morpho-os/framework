@@ -1,7 +1,14 @@
-<form>
+<h2>Form test</h2>
+
+<h3>empty-form</h3>
+
+<form id="empty-form">
 </form>
 
-<form>
+
+<h3>non-empty-form</h3>
+
+<form id="non-empty-form">
     <textarea></textarea>
     <button>OK</button>
     <input type="button">
@@ -45,10 +52,30 @@
     </select>
 </form>
 
-<form>
+
+<h3>with-required-el-form</h3>
+
+<form id="with-required-el-form">
     <input type="button">
-    <input type="text" required>
-    <textarea required></textarea>
+    <div class="form-group">
+        <input type="text" required>
+        <textarea required></textarea>
+    </div>
+</form>
+
+
+<h3>server-error</h3>
+
+<form action="/module/system/test/error.json" id="server-error-form">
+    <button>Send</button>
+</form>
+
+
+<h3>with-values-form</h3>
+
+<form id="with-values-form">
+    <input name="textBox" value="bar">
+    <input type="checkbox" name="checkBox">
 </form>
 
 <script src="/module/system/test/form-test.js"></script>

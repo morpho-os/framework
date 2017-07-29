@@ -9,6 +9,15 @@ use Morpho\Web\View\MessengerPlugin;
 use Morpho\Base\ArrayIterator;
 
 class MessengerPluginTest extends TestCase {
+    /**
+     * @var Messenger
+     */
+    private $messenger;
+    /**
+     * @var MessengerPlugin
+     */
+    private $messengerPlugin;
+
     public function setUp() {
         $this->messenger = new Messenger();
         $this->messenger->setMessageStorage(new MessageStorage());
@@ -19,7 +28,7 @@ class MessengerPluginTest extends TestCase {
         $this->messengerPlugin->setServiceManager($serviceManager);
     }
 
-    public function testRenderPageMessagesWithoutEscaping() {
+    public function testRenderPageMessages_EscapesTextWithoutArgs() {
         $this->messenger->addWarningMessage("<strong>Important</strong> warning.");
 
         $expected = <<<OUT
@@ -28,7 +37,7 @@ class MessengerPluginTest extends TestCase {
         <div class="alert alert-warning">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <div class="alert-body">
-                <strong>Important</strong> warning.
+                &lt;strong&gt;Important&lt;/strong&gt; warning.
             </div>
         </div>
     </div>
@@ -37,15 +46,15 @@ OUT;
         $this->assertHtmlEquals($expected, $this->messengerPlugin->renderPageMessages());
     }
 
-    public function testRenderPageMessagesWithEscaping() {
-        $this->messenger->addWarningMessage("<div>Random {0} warning {1} has been occurred.</div>", ['<b>system</b>', '<div>for <b>unknown</b> reason</div>']);
+    public function testRenderPageMessages_EscapesTextButDoesNotEscapeArgs() {
+        $this->messenger->addWarningMessage('<div>Random {0} warning "!" {1} has been occurred.</div>', ['<b>system</b>', '<div>for <b>unknown</b> reason</div>']);
         $expected = <<<OUT
 <div id="page-messages">
     <div class="messages warning">
         <div class="alert alert-warning">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <div class="alert-body">
-                <div>Random &lt;b&gt;system&lt;/b&gt; warning &lt;div&gt;for &lt;b&gt;unknown&lt;/b&gt; reason&lt;/div&gt; has been occurred.</div>
+                &lt;div&gt;Random <b>system</b> warning &quot;!&quot; <div>for <b>unknown</b> reason</div> has been occurred.&lt;/div&gt;
             </div>
         </div>
     </div>

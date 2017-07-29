@@ -2,11 +2,14 @@
 namespace Morpho\Web\Messages;
 
 class Messenger implements \Countable {
-    const SUCCESS = 'success';
-    const INFO = 'info';
-    const WARNING = 'warning';
-    const ERROR = 'error';
+    public const ERROR   = 'error';
+    public const INFO    = 'info';
+    public const SUCCESS = 'success';
+    public const WARNING = 'warning';
 
+    /**
+     * @var IMessageStorage
+     */
     protected $messages;
 
     protected $allowedTypes = [
@@ -16,37 +19,36 @@ class Messenger implements \Countable {
         self::ERROR,
     ];
 
-    public function clearMessages() {
+    public function clearMessages(): void {
         $this->initMessageStorage();
         $this->messages->clear();
     }
 
-    public function addSuccessMessage($message, array $args = null) {
-        $this->addMessage($message, $args, self::SUCCESS);
+    public function addSuccessMessage(string $text, array $args = null): void {
+        $this->addMessage($text, $args, self::SUCCESS);
     }
 
-    public function addInfoMessage($message, array $args = null) {
-        $this->addMessage($message, $args, self::INFO);
+    public function addInfoMessage(string $text, array $args = null): void {
+        $this->addMessage($text, $args, self::INFO);
     }
 
-    public function addWarningMessage($message, array $args = null) {
-        $this->addMessage($message, $args, self::WARNING);
+    public function addWarningMessage(string $text, array $args = null): void {
+        $this->addMessage($text, $args, self::WARNING);
     }
 
-    public function addErrorMessage($message, array $args = null) {
-        $this->addMessage($message, $args, self::ERROR);
+    public function addErrorMessage(string $text, array $args = null): void {
+        $this->addMessage($text, $args, self::ERROR);
     }
 
-    public function hasWarningMessages() {
-        return isset($this->messages[self::WARNING])
-        && count($this->messages[self::WARNING]) > 0;
+    public function hasWarningMessages(): bool {
+        return isset($this->messages[self::WARNING]) && count($this->messages[self::WARNING]) > 0;
     }
 
-    public function hasErrorMessages() {
+    public function hasErrorMessages(): bool {
         return isset($this->messages[self::ERROR]) && count($this->messages[self::ERROR]) > 0;
     }
 
-    public function addMessage($message, array $args = null, $type = null) {
+    public function addMessage(string $text, array $args = null, $type = null): void {
         if (null === $type) {
             $type = self::SUCCESS;
         }
@@ -56,36 +58,36 @@ class Messenger implements \Countable {
             $this->messages[$type] = [];
         }
         $this->messages[$type][] = [
-            'message' => $message,
-            'args'    => (array)$args,
+            'text' => $text,
+            'args' => (array)$args,
         ];
     }
 
-    public function toArray() {
+    public function toArray(): array {
         $this->initMessageStorage();
         return $this->messages->toArray();
     }
 
-    public function count() {
+    public function count(): int {
         $this->initMessageStorage();
         return count($this->messages);
     }
 
-    public function setMessageStorage(IMessageStorage $storage) {
+    public function setMessageStorage(IMessageStorage $storage): void {
         $this->messages = $storage;
     }
 
-    protected function initMessageStorage() {
+    protected function initMessageStorage(): void {
         if (null === $this->messages) {
             $this->messages = $this->createMessageStorage();
         }
     }
 
-    protected function createMessageStorage() {
+    protected function createMessageStorage(): IMessageStorage {
         return new SessionMessageStorage(__CLASS__);
     }
 
-    protected function checkMessageType($type) {
+    protected function checkMessageType($type): void {
         if (!in_array($type, $this->allowedTypes)) {
             throw new \UnexpectedValueException();
         }

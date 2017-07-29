@@ -32,7 +32,7 @@ class PageController extends Controller {
                         }
                     }
                     if (!$valid) {
-                        $this->addErrorMessage("The handler for the URI '{0}' was not found", [$uri]);
+                        $this->addErrorMessage("The handler for the URI '$uri' was not found");
                     } else {
                         $settingsManager->set($handlerName, ['handler' => $request->handler(), 'uri' => $request->uriPath()], $this->parentByType('Module')->name());
                     }

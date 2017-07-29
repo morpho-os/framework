@@ -101,7 +101,7 @@ class MyOtherController extends Controller {
         parent::redirectToAction(...$args);
     }
 
-    protected function redirectToUri(string $uri = null, int $httpStatusCode = null) {
+    protected function redirectToUri(string $uri = null, int $httpStatusCode = null): void {
         $this->redirectArgs = func_get_args();
     }
 }

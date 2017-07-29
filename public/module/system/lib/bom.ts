@@ -28,16 +28,16 @@ String.prototype.escapeHtml = function (this: String): string {
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
+        // tslint:disable-next-line:object-literal-sort-keys
         '"': '&quot;',
-        "'": '&#39;',
-        "/": '&#x2F;'
+        "'": '&#39;'
     };
-    return this.replace(/[&<>"'\/]/g, function (s: string): string {
+    return this.replace(/[&<>"']/g, function (s: string): string {
         return (<any>entityMap)[s];
     });
 };
 
 String.prototype.titleize = function (this: String): string {
     // @TODO:
-    return this.charAt(0).toUpperCase() + this.slice(1)
+    return this.charAt(0).toUpperCase() + this.slice(1);
 };

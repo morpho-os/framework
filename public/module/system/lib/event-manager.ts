@@ -12,7 +12,9 @@ export class EventManager {
             return;
         }
         for (let i = 0; i < handlers.length; ++i) {
-            handlers[i](...args);
+            if (false === handlers[i](...args)) {
+                break;
+            }
         }
     }
 }

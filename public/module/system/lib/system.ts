@@ -35,3 +35,4 @@ export const uri = new Uri();
 export function isGenerator(fn: Function) {
     return (<any>fn.constructor).name === 'GeneratorFunction';
 }
+

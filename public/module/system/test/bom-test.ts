@@ -1,6 +1,6 @@
 /// <reference path="../lib/bom.d.ts" />
 
-describe("Extension of the BOM/Browser Object Model", function() {
+describe('Extension of the "BOM/Browser Object Model"', function() {
     describe('Math float', function () {
         it("Math.roundFloat", () => expect(Math.floatsEqual(Math.roundFloat(Math.PI, 2), 3.14)).toBeTruthy());
 

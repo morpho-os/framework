@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace MorphoTest\Unit\Code\Js;
 
-use Morpho\Code\Js\Program;
 use Morpho\Code\Js\Compiler;
 use Morpho\Code\Js\TscCompileOptions;
 use Morpho\Test\TestCase;

@@ -15,3 +15,6 @@ export class Exception extends Error {
 
 export class NotImplementedException extends Exception {
 }
+
+export class UnexpectedValueException extends Exception {
+}

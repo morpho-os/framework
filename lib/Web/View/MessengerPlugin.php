@@ -52,16 +52,12 @@ class MessengerPlugin extends Plugin implements \Countable, IServiceManagerAware
     }
 
     protected function renderMessage(array $message, $type) {
-        return $this->wrapMessage(
-            filterStringArgs(
-                $message['message'],
-                $message['args'],
-                function ($value) {
-                    return nl2br(escapeHtml($value));
-                }
-            ),
-            $type
+        $text = filterStringArgs(
+            nl2br(escapeHtml($message['text'])),
+            $message['args'],
+            function ($arg) { return $arg; }
         );
+        return $this->wrapMessage($text, $type);
     }
 
     protected function wrapMessage($message, $type) {
