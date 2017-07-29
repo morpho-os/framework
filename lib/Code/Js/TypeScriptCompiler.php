@@ -35,6 +35,7 @@ class TypeScriptCompiler extends Compiler {
         'removeComments' => true,
         'strictNullChecks' => false,
         'target' => 'es5',
+        "lib" => ["dom", "es2015.promise", "es5"],
     ];
 
     private $pathEnvVar;

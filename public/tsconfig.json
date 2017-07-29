@@ -12,13 +12,17 @@
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "preserveConstEnums": true,
         "pretty": true,
         "removeComments": true,
         "strictNullChecks": false,
         "target": "es5",
-        "listFiles": true,
+        "lib": [
+            "dom",
+            "es2015.promise",
+            "es5"
+        ],
         "baseUrl": "./module",
         "typeRoots": [
             "node_modules/@types",

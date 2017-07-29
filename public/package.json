@@ -9,13 +9,14 @@
   "private": true,
   "dependencies": {
     "bootstrap-styl": "^5.0.4",
+    "es6-promise": "^4.1.1",
     "imd": "github:morpho-os/imd",
     "jquery": "^3.2.1"
   },
   "devDependencies": {
-    "@types/jasmine": "^2.5.53",
-    "@types/jquery": "^2.0.48",
-    "jasmine-core": "^2.7.0",
+    "@types/jasmine": "^2.5.52",
+    "@types/jquery": "^2.0.41",
+    "jasmine-core": "^2.6.4",
     "tslib": "^1.7.1"
   }
 }
