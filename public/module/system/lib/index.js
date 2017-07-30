@@ -341,7 +341,7 @@ define("system/lib/system", ["require", "exports"], function (require, exports) 
     }
     exports.isGenerator = isGenerator;
 });
-define("system/lib/form", ["require", "exports", "system/lib/message", "system/lib/widget"], function (require, exports, message_1, widget_2) {
+define("system/lib/form", ["require", "exports", "system/lib/message", "system/lib/system", "system/lib/widget"], function (require, exports, message_1, system_1, widget_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var RequiredElValidator = (function () {
@@ -379,7 +379,9 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
     var Form = (function (_super) {
         __extends(Form, _super);
         function Form() {
-            return _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.skipValidation = false;
+            return _this;
         }
         Form.elValue = function ($el) {
             if ($el.get(0)['type'] === 'checkbox') {
@@ -436,10 +438,12 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         };
         Form.prototype.submit = function () {
             this.clearValidationErrors();
-            if (this.validate()) {
-                return this.send();
+            if (this.skipValidation) {
+                this.send();
             }
-            return $.rejectedPromise(false);
+            else if (this.validate()) {
+                this.send();
+            }
         };
         Form.prototype.send = function () {
             this.disableSubmitButtonEls();
@@ -486,6 +490,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             var _this = this;
             this.el.on('submit', function () {
                 _this.submit();
+                return false;
             });
         };
         Form.prototype.sendFormData = function (uri, requestData) {
@@ -562,6 +567,10 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             }
         };
         Form.prototype.handleResponseSuccess = function (responseData) {
+            if (responseData.redirect) {
+                system_1.redirectTo(responseData.redirect);
+                return true;
+            }
         };
         Form.prototype.handleResponseError = function (responseData) {
             if (Array.isArray(responseData)) {

@@ -1,4 +1,4 @@
-import {Form} from "../../lib/form"
+import {Form, ResponseError} from "../../lib/form";
 import {redirectToHome} from "../../lib/system";
 
 class InstallForm extends Form {
@@ -8,17 +8,9 @@ class InstallForm extends Form {
 
     protected registerEventHandlers(): void {
         super.registerEventHandlers();
-        this.dbNameEl().on('keyup change blur', () => {
+        this.dbNameEl().on('keyup blur change paste', () => {
             this.targetDbEl().text(this.dbNameEl().val());
         });
-    }
-
-    private dbNameEl(): JQuery {
-        return this.el.find('#db');
-    }
-
-    private targetDbEl(): JQuery {
-        return this.el.find('#target-db');
     }
 
     protected handleResponseSuccess(responseData: any): void {
@@ -29,8 +21,16 @@ class InstallForm extends Form {
         }
     }
 
-    protected handleResponseError(responseData: any): void {
+    protected handleResponseError(responseData: ResponseError): void {
         alert('Error');
+    }
+
+    private dbNameEl(): JQuery {
+        return this.el.find('#db');
+    }
+
+    private targetDbEl(): JQuery {
+        return this.el.find('#target-db');
     }
 }
 
@@ -38,7 +38,8 @@ class InstallForm extends Form {
 function newInstallForm() {
     installForm = new InstallForm($('#install-form'));
 }*/
-export function main () {
-    new InstallForm($('#install-form'));
+let form: Form;
+export function main() {
+    form = new InstallForm($('#install-form'));
     //newInstallForm();
 }

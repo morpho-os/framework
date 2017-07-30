@@ -24,9 +24,14 @@
             "es5"
         ],
         "baseUrl": "./module",
+        "types": [
+            "jasmine",
+            "jquery",
+            "lib"
+        ],
         "typeRoots": [
             "node_modules/@types",
-            "module/*/lib/**/*.ts"
+            "module/system"
         ]
     },
     "include": [

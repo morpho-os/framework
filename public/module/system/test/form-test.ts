@@ -1,3 +1,5 @@
+/// <reference path="../lib/index.d.ts"/>
+
 import {Form, RequiredElValidator, validateEl} from "../lib/form";
 // import {Message, MessageType} from "../lib/message";
 import {Widget} from "../lib/widget";
@@ -170,7 +172,7 @@ describe("Form", function () {
         expect(Form.elValue($checkbox)).toEqual(1);
     });
 
-    it('send() - handling of response errors', function (done) {
+    it('send() - response errors', function (done) {
         const form = new Form($('#server-error-form'));
         expect(form.hasValidationErrors()).toBeFalsy();
         form.send()
@@ -180,6 +182,44 @@ describe("Form", function () {
             });
     });
 
+    it('send() - success response', function (done) {
+        class RedirectForm extends Form {
+            public successHandlerArgs: any;
+
+            protected handleResponseSuccess(responseData: any): any {
+                this.successHandlerArgs = Array.prototype.slice.call(arguments);
+            }
+        }
+        const form = new RedirectForm($('#redirect-form'));
+        form.send()
+            .then(() => {
+                expect(form.successHandlerArgs).toEqual([{redirect: "/go/to/linux"}]);
+                done();
+            });
+    });
+
+    it('Default submit handler is not called', function (done: DoneFn) {
+        class TestForm extends Form {
+            public handleResponseCalled: boolean;
+
+            protected handleResponse(responseData: JsonResponse): void {
+                this.handleResponseCalled = true;
+            }
+        }
+
+        const $form = Page.withRequiredElsFormEl();
+        const form = new TestForm($form);
+        form.skipValidation = true;
+        $form.trigger('submit');
+
+        const intervalId = setInterval(function () {
+            if (form.handleResponseCalled) {
+                clearInterval(intervalId);
+                expect(true).toBeTruthy(true);
+                done();
+            }
+        }, 200);
+    });
 /*
 
             it('formMessages()', function () {

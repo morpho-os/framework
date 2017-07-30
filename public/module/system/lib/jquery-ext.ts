@@ -1,11 +1,3 @@
-interface JQueryStatic {
-    resolvedPromise(value?: any, ...args: any[]): JQueryPromise<any>;
-    rejectedPromise(value?: any, ...args: any[]): JQueryPromise<any>;
-}
-interface JQuery {
-    once(this: JQuery, fn: (key: any, value: any) => any): JQuery;
-}
-
 (() => {
     let uniqId: number = 0;
     $.fn.once = function (this: JQuery, fn: (key: any, value: any) => any): JQuery {

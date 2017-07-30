@@ -1,5 +1,3 @@
-/// <reference path="bom.d.ts"/>
-
 import {Widget} from "./widget";
 import {filterStringArgs, id} from "./base";
 

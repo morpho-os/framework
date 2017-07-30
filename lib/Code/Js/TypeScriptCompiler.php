@@ -3,16 +3,16 @@ namespace Morpho\Code\Js;
 
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
-use function Morpho\Cli\cmd;
+use function Morpho\Cli\shell;
 use Morpho\Cli\CommandResult;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
 
 class TypeScriptCompiler extends Compiler {
     // Possible values: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
-    private const TSCONFIG_FILE = 'tsconfig.json';
-
     public const MODULE_KIND = 'amd';
+
+    private const TSCONFIG_FILE = 'tsconfig.json';
 
     // See https://www.typescriptlang.org/docs/handbook/compiler-options.html
     protected $options = [
@@ -111,7 +111,7 @@ class TypeScriptCompiler extends Compiler {
     }
 
     public function possibleValuesOfOption(string $optionName): array {
-        // @TODO: Use JSON schema file.
+        // @TODO: Use JSON schema file, http://json.schemastore.org/tsconfig
         switch ($optionName) {
             case 'module':
                 if (!preg_match('~^.*--module\s+KIND\s+(.*)$~m', $this->help(), $match) || !preg_match_all("~('[^']+')~s", $match[1], $match)) {
@@ -175,7 +175,7 @@ class TypeScriptCompiler extends Compiler {
     }
 
     protected function tsc(string $argsString, array $cmdOptions = null): CommandResult {
-        return cmd(
+        return shell(
             ($this->pathEnvVar ? 'PATH=' . escapeshellarg($this->pathEnvVar) . ' ' : '')
             . 'tsc '
             . $argsString,

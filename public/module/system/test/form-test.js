@@ -1,3 +1,13 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/widget"], function (require, exports, form_1, widget_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -131,15 +141,55 @@ define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/wi
             $checkbox.prop('checked', true);
             expect(form_1.Form.elValue($checkbox)).toEqual(1);
         });
-        it('submit() handler', function (done) {
-            var $form = $('#server-error-form');
-            var form = new form_1.Form($form);
+        it('send() - response errors', function (done) {
+            var form = new form_1.Form($('#server-error-form'));
             expect(form.hasValidationErrors()).toBeFalsy();
-            form.submit()
+            form.send()
                 .then(function () {
                 expect(form.hasValidationErrors()).toBeTruthy();
                 done();
             });
+        });
+        it('send() - success response', function (done) {
+            var RedirectForm = (function (_super) {
+                __extends(RedirectForm, _super);
+                function RedirectForm() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                RedirectForm.prototype.handleResponseSuccess = function (responseData) {
+                    this.successHandlerArgs = Array.prototype.slice.call(arguments);
+                };
+                return RedirectForm;
+            }(form_1.Form));
+            var form = new RedirectForm($('#redirect-form'));
+            form.send()
+                .then(function () {
+                expect(form.successHandlerArgs).toEqual([{ redirect: "/go/to/linux" }]);
+                done();
+            });
+        });
+        it('Default submit handler is not called', function (done) {
+            var TestForm = (function (_super) {
+                __extends(TestForm, _super);
+                function TestForm() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                TestForm.prototype.handleResponse = function (responseData) {
+                    this.handleResponseCalled = true;
+                };
+                return TestForm;
+            }(form_1.Form));
+            var $form = Page.withRequiredElsFormEl();
+            var form = new TestForm($form);
+            form.skipValidation = true;
+            $form.trigger('submit');
+            var intervalId = setInterval(function () {
+                if (form.handleResponseCalled) {
+                    clearInterval(intervalId);
+                    expect(true).toBeTruthy(true);
+                    done();
+                }
+            }, 200);
         });
     });
 });

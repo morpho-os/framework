@@ -22,15 +22,9 @@ define("system/app/install/index", ["require", "exports", "../../lib/form", "../
         InstallForm.prototype.registerEventHandlers = function () {
             var _this = this;
             _super.prototype.registerEventHandlers.call(this);
-            this.dbNameEl().on('keyup change blur', function () {
+            this.dbNameEl().on('keyup blur change paste', function () {
                 _this.targetDbEl().text(_this.dbNameEl().val());
             });
-        };
-        InstallForm.prototype.dbNameEl = function () {
-            return this.el.find('#db');
-        };
-        InstallForm.prototype.targetDbEl = function () {
-            return this.el.find('#target-db');
         };
         InstallForm.prototype.handleResponseSuccess = function (responseData) {
             if (!responseData.redirect) {
@@ -43,10 +37,17 @@ define("system/app/install/index", ["require", "exports", "../../lib/form", "../
         InstallForm.prototype.handleResponseError = function (responseData) {
             alert('Error');
         };
+        InstallForm.prototype.dbNameEl = function () {
+            return this.el.find('#db');
+        };
+        InstallForm.prototype.targetDbEl = function () {
+            return this.el.find('#target-db');
+        };
         return InstallForm;
     }(form_1.Form));
+    var form;
     function main() {
-        new InstallForm($('#install-form'));
+        form = new InstallForm($('#install-form'));
     }
     exports.main = main;
 });

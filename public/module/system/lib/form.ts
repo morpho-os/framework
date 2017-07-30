@@ -1,20 +1,9 @@
-///<reference path="message.ts"/>
-import {ErrorMessage, Message, renderMessage} from "./message";
-import {NotImplementedException} from "./error";
-import {redirectTo, tr} from "./system";
+import {ErrorMessage, renderMessage} from "./message";
+import {redirectTo/*, tr*/} from "./system";
 import {Widget} from "./widget";
 
-interface JsonResponse {
-    error: any;
-    success: any;
-}
-
-export interface ElValidator {
-    validate($el: JQuery): string[];
-}
-
 type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
-type ResponseError = ResponseErrorMessage[] | {[elName: string]: ResponseErrorMessage[]};
+export type ResponseError = ResponseErrorMessage[] | {[elName: string]: ResponseErrorMessage[]};
 
 export class RequiredElValidator implements ElValidator {
     public static readonly EmptyValueMessage = 'This field is required';
@@ -27,6 +16,10 @@ export class RequiredElValidator implements ElValidator {
         }
         return [];
     }
+}
+
+interface ElValidator {
+    validate($el: JQuery): string[];
 }
 
 export function defaultValidators(): ElValidator[] {
@@ -48,6 +41,8 @@ export function validateEl($el: JQuery, validators?: ElValidator[]): string[] {
 
 export class Form extends Widget {
     public static readonly invalidCssClass = 'invalid';
+
+    public skipValidation = false;
 
     public static elValue($el: JQuery): any {
         if ((<any>$el.get(0))['type'] === 'checkbox') {
@@ -74,7 +69,7 @@ export class Form extends Widget {
     public validate(): boolean {
         this.clearValidationErrors();
         let errors: Array<[JQuery, ErrorMessage[]]> = [];
-        this.elsToValidate().each(function (this: Element) {
+        this.elsToValidate().each(function (this: HTMLFormElement) {
             const $el = $(this);
             const elErrors = validateEl($el);
             if (elErrors.length) {
@@ -99,7 +94,7 @@ export class Form extends Widget {
     }
 
     public clearValidationErrors(): void {
-        this.invalidEls().each((index: number, el: Element) => {
+        this.invalidEls().each((index: number, el: HTMLFormElement) => {
             const $el = $(el);
             const $container = $el.removeClass(Form.invalidCssClass).closest('.form-group');
             if (!$container.find('.' + Form.invalidCssClass).length) {
@@ -110,12 +105,13 @@ export class Form extends Widget {
         this.el.removeClass(Form.invalidCssClass);
     }
 
-    public submit(): JQueryPromise<false|void> {
+    public submit(): void {
         this.clearValidationErrors();
-        if (this.validate()) {
-            return this.send();
+        if (this.skipValidation) {
+            this.send();
+        } else if (this.validate()) {
+            this.send();
         }
-        return $.rejectedPromise(false);
     }
 
     public send(): JQueryXHR {
@@ -168,6 +164,7 @@ export class Form extends Widget {
     protected registerEventHandlers(): void {
         this.el.on('submit', () => {
             this.submit();
+            return false;
         });
     }
 
@@ -256,9 +253,11 @@ export class Form extends Widget {
         }
     }
 
-    protected handleResponseSuccess(responseData: any): void {
-/*        if (responseData.redirect) { @TODO
-        }*/
+    protected handleResponseSuccess(responseData: any): any {
+        if (responseData.redirect) {
+            redirectTo(responseData.redirect);
+            return true;
+        }
     }
 
     protected handleResponseError(responseData: ResponseError): void {
