@@ -3,6 +3,8 @@
 import {Form, RequiredElValidator, validateEl} from "../lib/form";
 // import {Message, MessageType} from "../lib/message";
 import {Widget} from "../lib/widget";
+import {ErrorMessage} from "../lib/message";
+import {checkEmpty, checkEqual, checkFalse, checkLength, checkTrue, checkNoEl} from "../lib/check";
 
 class Page {
     public static requireEl(): JQuery {
@@ -21,6 +23,10 @@ class Page {
         return $el;
     }
 
+    public static emptyFormEl(): JQuery {
+        return Page.el('#empty-form');
+    }
+
     public static emptyForm(): Form {
         return new Form(Page.emptyFormEl());
     }
@@ -29,8 +35,8 @@ class Page {
         return Page.el('#with-required-el-form');
     }
 
-    public static emptyFormEl(): JQuery {
-        return Page.el('#empty-form');
+    public static withRequiredElsForm(): any {
+        return new Form(Page.withRequiredElsFormEl());
     }
 }
 
@@ -42,28 +48,28 @@ describe("Form", function () {
         $form.each(function (this: HTMLFormElement) {
             $(this).removeAttr('novalidate');
             $(this.elements).each(function (this: Element) {
-                $(this).removeClass(Form.invalidCssClass);
-                $(this).closest('.form-group').removeClass(Form.invalidCssClass);
+                $(this).removeClass(Form.defaultInvalidCssClass);
+                $(this).closest('.form-group').removeClass(Form.defaultInvalidCssClass);
             });
         });
         $form.find('.error').remove();
         $form.find('.alert').remove();
         $form.find('input[type=checkbox]').prop('checked', false);
-        $form.find('.' + Form.invalidCssClass).addBack().removeClass(Form.invalidCssClass);
+        $form.find('.' + Form.defaultInvalidCssClass).addBack().removeClass(Form.defaultInvalidCssClass);
     });
 
     describe('Validation', function () {
         it('validateEl() required element', function () {
             const $el = Page.requireEl();
             const errors = validateEl($el);
-            expect(errors.length).toEqual(1);
-            expect(errors[0]).toEqual(RequiredElValidator.EmptyValueMessage);
+            checkLength(1, errors);
+            checkEqual(errors[0], RequiredElValidator.EmptyValueMessage);
         });
 
         it('validateEl() non-required element', function () {
             const $el = Page.nonRequiredEl();
             const errors = validateEl($el);
-            expect(errors.length).toEqual(0);
+            checkEmpty(errors);
         });
 
         it('elsToValidate() excludes submit buttons', function () {
@@ -73,59 +79,57 @@ describe("Form", function () {
             let i = 0;
             $elsToValidate.each(function (this: Element) {
                 const $el = $(this);
-                expect($el.is(':submit')).toBeFalsy();
+                checkFalse($el.is(':submit'));
                 i++;
             });
-            expect(i).toEqual(numberOfPossibleFormEls - 2);
+            checkEqual(numberOfPossibleFormEls - 2, i);
         });
 
         it("validate() of the empty form", function () {
-            const form = Page.emptyForm();
-            expect(form.validate()).toBeTruthy();
+            checkTrue(Page.emptyForm().validate());
         });
 
         it('validate() with required elements', function () {
             const $form = Page.withRequiredElsFormEl();
             const form = new Form($form);
 
-            expect(form.hasValidationErrors()).toBeFalsy();
+            checkFalse(form.hasErrors());
 
-            expect(form.validate()).toBeFalsy();
+            checkFalse(form.validate());
 
             const $invalidEls = form.invalidEls();
 
-            expect($invalidEls.get(0).tagName.toLowerCase()).toEqual('input');
-            expect($invalidEls.eq(0).attr('type')).toEqual('text');
+            checkEqual('input', $invalidEls.get(0).tagName.toLowerCase());
+            checkEqual('text', $invalidEls.eq(0).attr('type'));
 
-            expect($invalidEls.get(1).tagName.toLowerCase()).toEqual('textarea');
+            checkEqual('textarea', $invalidEls.get(1).tagName.toLowerCase());
 
-            const invalidCssClass = Form.invalidCssClass;
+            const invalidCssClass = form.invalidCssClass;
 
             let i = 0;
             $invalidEls.each(function (this: Element) {
                 const $el = $(this);
-                expect($el.next().text()).toEqual(RequiredElValidator.EmptyValueMessage);
-                expect($el.hasClass(invalidCssClass)).toBeTruthy();
-                // console.log($el.closest('.form-group'));
-                expect($el.closest('.form-group').hasClass(invalidCssClass)).toBeTruthy();
+                checkEqual(RequiredElValidator.EmptyValueMessage, $el.next().text());
+                checkTrue($el.hasClass(invalidCssClass));
+                checkTrue($el.closest('.form-group').hasClass(invalidCssClass));
                 i++;
             });
-            expect(i).toEqual(2);
+            checkEqual(2, i);
 
-            expect(form.hasValidationErrors()).toBeTruthy();
-            expect($form.hasClass(invalidCssClass)).toBeTruthy();
+            checkTrue(form.hasErrors());
+            checkTrue($form.hasClass(invalidCssClass));
 
-            form.clearValidationErrors();
+            form.clearErrors();
 
-            expect($form.hasClass(invalidCssClass)).toBeFalsy();
-            expect(form.hasValidationErrors()).toBeFalsy();
+            checkFalse($form.hasClass(invalidCssClass));
+            checkFalse(form.hasErrors());
 
-            expect($form.find('.error').length).toEqual(0);
+            checkNoEl($form.find('.error'));
         });
 
         it('invalidEls() before validation', function () {
             const form = new Form(Page.withRequiredElsFormEl());
-            expect(form.invalidEls().length).toEqual(0);
+            checkEqual(0, form.invalidEls().length);
         });
 
         it('Has "novalidate" attribute', function () {
@@ -133,51 +137,47 @@ describe("Form", function () {
             expect($el.attr('novalidate')).toBeUndefined();
             // tslint:disable-next-line:no-unused-new
             new Form($el);
-            expect($el.attr('novalidate')).toEqual('novalidate');
+            checkEqual('novalidate', $el.attr('novalidate'));
         });
     });
 
     it('Is Widget', function () {
-        expect(new Form($()) instanceof Widget).toBeTruthy();
+        checkTrue(new Form($()) instanceof Widget);
     });
 
     it('isRequiredEl()', function () {
-        expect(
-            Form.isRequiredEl(Page.requireEl())
-        ).toBeTruthy();
-
-        expect(
-            Form.isRequiredEl(Page.nonRequiredEl())
-        ).toBeFalsy();
+        checkTrue(Form.isRequiredEl(Page.requireEl()));
+        checkFalse(Form.isRequiredEl(Page.nonRequiredEl()));
     });
 
     it('els() non-empty form', function () {
         const form = new Form($('#non-empty-form'));
         // all elements except type="image"
-        expect(form.els().length).toEqual(numberOfPossibleFormEls);
+        checkLength(numberOfPossibleFormEls, form.els());
     });
 
     it('els() empty form', function () {
-        expect(Page.emptyForm().els().length).toEqual(0);
+        checkEqual(0, Page.emptyForm().els().length);
     });
 
     it('elValue()', function () {
         const $form = $('#with-values-form');
 
-        expect(Form.elValue($form.find("[name='textBox']"))).toEqual('bar');
+        checkEqual('bar', Form.elValue($form.find("[name='textBox']")));
 
         const $checkbox = $form.find("[name='checkBox']");
-        expect(Form.elValue($checkbox)).toEqual(0);
+
+        checkEqual(0, Form.elValue($checkbox));
+
         $checkbox.prop('checked', true);
-        expect(Form.elValue($checkbox)).toEqual(1);
+        checkEqual(1, Form.elValue($checkbox));
     });
 
     it('send() - response errors', function (done) {
         const form = new Form($('#server-error-form'));
-        expect(form.hasValidationErrors()).toBeFalsy();
         form.send()
             .then(() => {
-                expect(form.hasValidationErrors()).toBeTruthy();
+                checkTrue(form.hasErrors());
                 done();
             });
     });
@@ -193,7 +193,7 @@ describe("Form", function () {
         const form = new RedirectForm($('#redirect-form'));
         form.send()
             .then(() => {
-                expect(form.successHandlerArgs).toEqual([{redirect: "/go/to/linux"}]);
+                checkEqual([{redirect: "/go/to/linux"}], form.successHandlerArgs);
                 done();
             });
     });
@@ -215,38 +215,33 @@ describe("Form", function () {
         const intervalId = setInterval(function () {
             if (form.handleResponseCalled) {
                 clearInterval(intervalId);
-                expect(true).toBeTruthy(true);
+                checkTrue(true);
                 done();
             }
         }, 200);
     });
-/*
 
-            it('formMessages()', function () {
-                const form = new Form($('form:eq(2)'));
-                expect(form.formMessages(MessageType.Error).length).toEqual(0);
+    it('hasErrors() initial state', function () {
+        checkFalse(Page.withRequiredElsForm().hasErrors());
+    });
 
-                const message = new Message(MessageType.Error, 'test');
-                form.addFormMessage(<Message>message);
+    it('hasErrors() after showErrors()', function () {
+        const $form = Page.emptyFormEl();
+        const form = new Form($form);
 
-                expect(form.formMessages(MessageType.Error)).toEqual([message]);
-                expect(form.formMessages(MessageType.Info)).toEqual([]);
-            });
+        const messageText = "This is a test";
+        form.showErrors([new ErrorMessage(messageText)]);
 
-            it('formErrorMessages', function () {
-                const form = new Form($('form:eq(2)'));
-                expect(form.formErrorMessages()).toEqual([]);
+        function messageContainerEl() {
+            return $form.find('.' + form.formMessageContainerCssClass);
+        }
 
-                form.addFormErrorMessage('Something wrong');
+        checkTrue(form.hasErrors());
+        checkEqual(messageText, messageContainerEl().text());
 
-                expect(form.formErrorMessages().length).toEqual(1);
-            });
+        form.clearErrors();
 
-            it('Handling of submit errors', function () {
-                const $form = $('form:eq(3)');
-                const form = new Form($form);
-                $form.trigger('submit');
-                form.
-            });
-        */
+        checkNoEl(messageContainerEl());
+        checkFalse(form.hasErrors());
+    });
 });

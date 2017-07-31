@@ -1,5 +1,5 @@
 import {ErrorMessage, renderMessage} from "./message";
-import {redirectTo/*, tr*/} from "./system";
+import {redirectTo/*, tr*/} from "./bom";
 import {Widget} from "./widget";
 
 type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
@@ -40,9 +40,13 @@ export function validateEl($el: JQuery, validators?: ElValidator[]): string[] {
 }
 
 export class Form extends Widget {
-    public static readonly invalidCssClass = 'invalid';
+    public static readonly defaultInvalidCssClass = 'invalid';
 
     public skipValidation = false;
+
+    public elContainerCssClass = 'form-group';
+    public formMessageContainerCssClass = 'messages';
+    public invalidCssClass = Form.defaultInvalidCssClass;
 
     public static elValue($el: JQuery): any {
         if ((<any>$el.get(0))['type'] === 'checkbox') {
@@ -67,7 +71,7 @@ export class Form extends Widget {
     }
 
     public validate(): boolean {
-        this.clearValidationErrors();
+        this.clearErrors();
         let errors: Array<[JQuery, ErrorMessage[]]> = [];
         this.elsToValidate().each(function (this: HTMLFormElement) {
             const $el = $(this);
@@ -84,29 +88,31 @@ export class Form extends Widget {
     }
 
     public invalidEls(): JQuery {
+        const self = this;
         return this.els().filter(function (this: JQuery) {
-            return $(this).hasClass(Form.invalidCssClass);
+            return $(this).hasClass(self.invalidCssClass);
         });
     }
 
-    public hasValidationErrors(): boolean {
-        return this.el.hasClass(Form.invalidCssClass);
+    public hasErrors(): boolean {
+        return this.el.hasClass(this.invalidCssClass);
     }
 
-    public clearValidationErrors(): void {
+    public clearErrors(): void {
         this.invalidEls().each((index: number, el: HTMLFormElement) => {
             const $el = $(el);
-            const $container = $el.removeClass(Form.invalidCssClass).closest('.form-group');
-            if (!$container.find('.' + Form.invalidCssClass).length) {
-                $container.removeClass(Form.invalidCssClass);
+            const $container = $el.removeClass(this.invalidCssClass).closest('.' + this.elContainerCssClass);
+            if (!$container.find('.' + this.invalidCssClass).length) {
+                $container.removeClass(this.invalidCssClass);
             }
             $el.next('.error').remove();
         });
-        this.el.removeClass(Form.invalidCssClass);
+        this.formMessageContainerEl().remove();
+        this.el.removeClass(this.invalidCssClass);
     }
 
     public submit(): void {
-        this.clearValidationErrors();
+        this.clearErrors();
         if (this.skipValidation) {
             this.send();
         } else if (this.validate()) {
@@ -119,7 +125,10 @@ export class Form extends Widget {
         return this.sendFormData(this.uri(), this.formData());
     }
 
-    protected showErrors(errors: Array<ErrorMessage | [JQuery, ErrorMessage[]]>): void {
+    /**
+     * Displays either form errors or element errors or both.
+     */
+    public showErrors(errors: Array<ErrorMessage | [JQuery, ErrorMessage[]]>): void {
         let formErrors: ErrorMessage[] = [];
         errors.forEach((err: ErrorMessage | [JQuery, ErrorMessage[]]) => {
             if (Array.isArray(err)) {
@@ -130,30 +139,29 @@ export class Form extends Widget {
             }
         });
         this.showFormErrors(formErrors);
+        this.scrollToFirstError();
     }
 
     protected showFormErrors(errors: ErrorMessage[]): void {
         const rendered: string = '<div class="alert alert-error">' + errors.map(renderMessage).join("\n") + '</div>';
-        this.messageContainerEl()
+        this.formMessageContainerEl()
             .prepend(rendered);
-        this.el.addClass(Form.invalidCssClass);
+        this.el.addClass(this.invalidCssClass);
     }
 
-    protected messageContainerEl(): JQuery {
-        const containerCssClass = 'messages';
+    protected showElErrors($el: JQuery, errors: ErrorMessage[]): void {
+        const invalidCssClass = this.invalidCssClass;
+        $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass);
+        $el.after(errors.map(renderMessage).join("\n"));
+    }
+
+    protected formMessageContainerEl(): JQuery {
+        const containerCssClass = this.formMessageContainerCssClass;
         let $containerEl = this.el.find('.' + containerCssClass);
         if (!$containerEl.length) {
             $containerEl = $('<div class="' + containerCssClass + '"></div>').prependTo(this.el);
         }
         return $containerEl;
-    }
-
-    protected showElErrors($el: JQuery, errors: ErrorMessage[]): void {
-        const invalidCssClass = Form.invalidCssClass;
-
-        $el.addClass(invalidCssClass).closest('.form-group').addClass(invalidCssClass);
-
-        $el.after(errors.map(renderMessage).join("\n"));
     }
 
     protected init(): void {
@@ -273,5 +281,22 @@ export class Form extends Widget {
 
     protected invalidResponseError(): void {
         alert('Invalid response'); // @TODO
+    }
+
+    protected scrollToFirstError(): void {
+        let $first = this.el.find('.error:first');
+        let $container = $first.closest('.' + this.elContainerCssClass);
+        if ($container.length) {
+            $first = $container;
+        } else {
+            $container = $first.closest('.' + this.formMessageContainerCssClass);
+            if ($container.length) {
+                $first = $container;
+            }
+        }
+        if (!$first.length) {
+            return;
+        }
+        // @TODO: scroll to $first
     }
 }

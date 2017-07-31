@@ -31,40 +31,71 @@ define("system/lib/base", ["require", "exports"], function (require, exports) {
         return obj.nodeType > 0;
     }
     exports.isDomNode = isDomNode;
+    function isGenerator(fn) {
+        return fn.constructor.name === 'GeneratorFunction';
+    }
+    exports.isGenerator = isGenerator;
+    var Re = (function () {
+        function Re() {
+        }
+        Re.email = /^[^@]+@[^@]+$/;
+        return Re;
+    }());
+    exports.Re = Re;
 });
-Math.EPS = 0.000001;
-Math.roundFloat = function (val, precision) {
-    if (precision === void 0) { precision = 2; }
-    var dd = Math.pow(10, precision);
-    return Math.round(val * dd) / dd;
-};
-Math.floatLessThanZero = function (val) {
-    return val < -Math.EPS;
-};
-Math.floatGreaterThanZero = function (val) {
-    return val > Math.EPS;
-};
-Math.floatEqualZero = function (val) {
-    return Math.abs(val) <= Math.EPS;
-};
-Math.floatsEqual = function (a, b) {
-    return Math.floatEqualZero(a - b);
-};
-String.prototype.escapeHtml = function () {
-    var entityMap = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': '&quot;',
-        "'": '&#39;'
+define("system/lib/bom", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    Math.EPS = 0.000001;
+    Math.roundFloat = function (val, precision) {
+        if (precision === void 0) { precision = 2; }
+        var dd = Math.pow(10, precision);
+        return Math.round(val * dd) / dd;
     };
-    return this.replace(/[&<>"']/g, function (s) {
-        return entityMap[s];
-    });
-};
-String.prototype.titleize = function () {
-    return this.charAt(0).toUpperCase() + this.slice(1);
-};
+    Math.floatLessThanZero = function (val) {
+        return val < -Math.EPS;
+    };
+    Math.floatGreaterThanZero = function (val) {
+        return val > Math.EPS;
+    };
+    Math.floatEqualZero = function (val) {
+        return Math.abs(val) <= Math.EPS;
+    };
+    Math.floatsEqual = function (a, b) {
+        return Math.floatEqualZero(a - b);
+    };
+    String.prototype.escapeHtml = function () {
+        var entityMap = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return this.replace(/[&<>"']/g, function (s) {
+            return entityMap[s];
+        });
+    };
+    String.prototype.titleize = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    };
+    function showUnknownError(message) {
+        alert("Unknown error, please contact support");
+    }
+    exports.showUnknownError = showUnknownError;
+    function redirectToSelf() {
+        redirectTo(window.location.href);
+    }
+    exports.redirectToSelf = redirectToSelf;
+    function redirectToHome() {
+        redirectTo('/');
+    }
+    exports.redirectToHome = redirectToHome;
+    function redirectTo(uri) {
+        window.location.href = uri;
+    }
+    exports.redirectTo = redirectTo;
+});
 define("system/lib/error", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -296,52 +327,7 @@ define("system/lib/message", ["require", "exports", "system/lib/widget", "system
     }(Message));
     exports.DebugMessage = DebugMessage;
 });
-define("system/lib/system", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var Re = (function () {
-        function Re() {
-        }
-        Re.EMAIL = /^[^@]+@[^@]+$/;
-        return Re;
-    }());
-    exports.Re = Re;
-    function tr(message) {
-        return message;
-    }
-    exports.tr = tr;
-    function showUnknownError(message) {
-        alert("Unknown error, please contact support");
-    }
-    exports.showUnknownError = showUnknownError;
-    function redirectToSelf() {
-        redirectTo(window.location.href);
-    }
-    exports.redirectToSelf = redirectToSelf;
-    function redirectToHome() {
-        redirectTo(exports.uri.prependWithBasePath('/'));
-    }
-    exports.redirectToHome = redirectToHome;
-    function redirectTo(uri) {
-        window.location.href = uri;
-    }
-    exports.redirectTo = redirectTo;
-    var Uri = (function () {
-        function Uri() {
-        }
-        Uri.prototype.prependWithBasePath = function (uri) {
-            return uri;
-        };
-        return Uri;
-    }());
-    exports.Uri = Uri;
-    exports.uri = new Uri();
-    function isGenerator(fn) {
-        return fn.constructor.name === 'GeneratorFunction';
-    }
-    exports.isGenerator = isGenerator;
-});
-define("system/lib/form", ["require", "exports", "system/lib/message", "system/lib/system", "system/lib/widget"], function (require, exports, message_1, system_1, widget_2) {
+define("system/lib/form", ["require", "exports", "system/lib/message", "system/lib/bom", "system/lib/widget"], function (require, exports, message_1, bom_1, widget_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var RequiredElValidator = (function () {
@@ -381,6 +367,9 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         function Form() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.skipValidation = false;
+            _this.elContainerCssClass = 'form-group';
+            _this.formMessageContainerCssClass = 'messages';
+            _this.invalidCssClass = Form.defaultInvalidCssClass;
             return _this;
         }
         Form.elValue = function ($el) {
@@ -402,7 +391,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             });
         };
         Form.prototype.validate = function () {
-            this.clearValidationErrors();
+            this.clearErrors();
             var errors = [];
             this.elsToValidate().each(function () {
                 var $el = $(this);
@@ -418,26 +407,29 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             return true;
         };
         Form.prototype.invalidEls = function () {
+            var self = this;
             return this.els().filter(function () {
-                return $(this).hasClass(Form.invalidCssClass);
+                return $(this).hasClass(self.invalidCssClass);
             });
         };
-        Form.prototype.hasValidationErrors = function () {
-            return this.el.hasClass(Form.invalidCssClass);
+        Form.prototype.hasErrors = function () {
+            return this.el.hasClass(this.invalidCssClass);
         };
-        Form.prototype.clearValidationErrors = function () {
+        Form.prototype.clearErrors = function () {
+            var _this = this;
             this.invalidEls().each(function (index, el) {
                 var $el = $(el);
-                var $container = $el.removeClass(Form.invalidCssClass).closest('.form-group');
-                if (!$container.find('.' + Form.invalidCssClass).length) {
-                    $container.removeClass(Form.invalidCssClass);
+                var $container = $el.removeClass(_this.invalidCssClass).closest('.' + _this.elContainerCssClass);
+                if (!$container.find('.' + _this.invalidCssClass).length) {
+                    $container.removeClass(_this.invalidCssClass);
                 }
                 $el.next('.error').remove();
             });
-            this.el.removeClass(Form.invalidCssClass);
+            this.formMessageContainerEl().remove();
+            this.el.removeClass(this.invalidCssClass);
         };
         Form.prototype.submit = function () {
-            this.clearValidationErrors();
+            this.clearErrors();
             if (this.skipValidation) {
                 this.send();
             }
@@ -462,25 +454,26 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
                 }
             });
             this.showFormErrors(formErrors);
+            this.scrollToFirstError();
         };
         Form.prototype.showFormErrors = function (errors) {
             var rendered = '<div class="alert alert-error">' + errors.map(message_1.renderMessage).join("\n") + '</div>';
-            this.messageContainerEl()
+            this.formMessageContainerEl()
                 .prepend(rendered);
-            this.el.addClass(Form.invalidCssClass);
+            this.el.addClass(this.invalidCssClass);
         };
-        Form.prototype.messageContainerEl = function () {
-            var containerCssClass = 'messages';
+        Form.prototype.showElErrors = function ($el, errors) {
+            var invalidCssClass = this.invalidCssClass;
+            $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass);
+            $el.after(errors.map(message_1.renderMessage).join("\n"));
+        };
+        Form.prototype.formMessageContainerEl = function () {
+            var containerCssClass = this.formMessageContainerCssClass;
             var $containerEl = this.el.find('.' + containerCssClass);
             if (!$containerEl.length) {
                 $containerEl = $('<div class="' + containerCssClass + '"></div>').prependTo(this.el);
             }
             return $containerEl;
-        };
-        Form.prototype.showElErrors = function ($el, errors) {
-            var invalidCssClass = Form.invalidCssClass;
-            $el.addClass(invalidCssClass).closest('.form-group').addClass(invalidCssClass);
-            $el.after(errors.map(message_1.renderMessage).join("\n"));
         };
         Form.prototype.init = function () {
             _super.prototype.init.call(this);
@@ -568,7 +561,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         };
         Form.prototype.handleResponseSuccess = function (responseData) {
             if (responseData.redirect) {
-                system_1.redirectTo(responseData.redirect);
+                bom_1.redirectTo(responseData.redirect);
                 return true;
             }
         };
@@ -586,10 +579,34 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         Form.prototype.invalidResponseError = function () {
             alert('Invalid response');
         };
-        Form.invalidCssClass = 'invalid';
+        Form.prototype.scrollToFirstError = function () {
+            var $first = this.el.find('.error:first');
+            var $container = $first.closest('.' + this.elContainerCssClass);
+            if ($container.length) {
+                $first = $container;
+            }
+            else {
+                $container = $first.closest('.' + this.formMessageContainerCssClass);
+                if ($container.length) {
+                    $first = $container;
+                }
+            }
+            if (!$first.length) {
+                return;
+            }
+        };
+        Form.defaultInvalidCssClass = 'invalid';
         return Form;
     }(widget_2.Widget));
     exports.Form = Form;
+});
+define("system/lib/i18n", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function tr(message) {
+        return message;
+    }
+    exports.tr = tr;
 });
 (function () {
     var uniqId = 0;

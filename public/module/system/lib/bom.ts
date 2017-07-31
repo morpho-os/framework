@@ -17,7 +17,7 @@ Math.floatsEqual = function (a: number, b: number): boolean {
     return Math.floatEqualZero(a - b);
 };
 
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 String.prototype.escapeHtml = function (this: String): string {
     const entityMap = {
@@ -37,3 +37,24 @@ String.prototype.titleize = function (this: String): string {
     // @TODO:
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
+
+// ----------------------------------------------------------------------------
+
+export function showUnknownError(message?: string): void {
+    // @TODO
+    alert("Unknown error, please contact support");
+}
+
+export function redirectToSelf(): void {
+    redirectTo(window.location.href);
+}
+
+export function redirectToHome(): void {
+    // @TODO:
+    // redirectTo(uri.prependWithBasePath('/'));
+    redirectTo('/');
+}
+
+export function redirectTo(uri: string): void {
+    window.location.href = uri;
+}

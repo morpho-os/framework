@@ -17,3 +17,20 @@ export function isPromise(value: any): boolean {
 export function isDomNode(obj: any): boolean {
     return obj.nodeType > 0;
 }
+
+export function isGenerator(fn: Function) {
+    return (<any>fn.constructor).name === 'GeneratorFunction';
+}
+
+export class Re {
+    public static readonly email = /^[^@]+@[^@]+$/;
+}
+/*
+export class Uri {
+    public prependWithBasePath(uri: string): string {
+        // @TODO
+        return uri;
+    }
+}
+// @TODO: Use global Application
+export const uri = new Uri();*/
