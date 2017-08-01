@@ -169,14 +169,17 @@ define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/wi
                 done();
             });
         });
-        it('Default submit handler is not called', function (done) {
+        it("Default browser's submit handler is not called", function (done) {
             var TestForm = (function (_super) {
                 __extends(TestForm, _super);
                 function TestForm() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
-                TestForm.prototype.handleResponse = function (responseData) {
-                    this.handleResponseCalled = true;
+                TestForm.prototype.ajaxSuccess = function (responseData, textStatus, jqXHR) {
+                    this.ajaxHandlerCalled = true;
+                };
+                TestForm.prototype.ajaxError = function (jqXHR, textStatus, errorThrown) {
+                    this.ajaxHandlerCalled = true;
                 };
                 return TestForm;
             }(form_1.Form));
@@ -185,7 +188,7 @@ define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/wi
             form.skipValidation = true;
             $form.trigger('submit');
             var intervalId = setInterval(function () {
-                if (form.handleResponseCalled) {
+                if (form.ajaxHandlerCalled) {
                     clearInterval(intervalId);
                     check_1.checkTrue(true);
                     done();

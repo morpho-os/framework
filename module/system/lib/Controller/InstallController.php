@@ -94,7 +94,7 @@ class InstallController extends Controller {
         return true;
     }
 
-    protected function initRoutes() {
+    protected function initRoutes(): void {
         $serviceManager = $this->serviceManager;
         $router = $serviceManager->newRouterService();
         if ($router instanceof IServiceManagerAware) {
@@ -103,7 +103,7 @@ class InstallController extends Controller {
         $router->rebuildRoutes();
     }
 
-    protected function installModules(Db $db) {
+    protected function installModules(Db $db): void {
         $moduleManager = $this->serviceManager->get('moduleManager');
         $modules = $this->serviceManager->get('site')->config()['modules']
             ?? $moduleManager->uninstalledModuleNames();
@@ -113,6 +113,25 @@ class InstallController extends Controller {
             $moduleManager->enableModule($moduleName);
         }
         $moduleManager->isFallbackMode(false);
+        $this->setPageHandlers();
+    }
+
+    protected function initNewEnv(Db $db): void {
+        $serviceManager = $this->serviceManager;
+        $serviceManager->set('db', $db);
+        $serviceManager->get('site')->isFallbackMode(false);
+    }
+
+    protected function saveSiteConfig(array $dbConfig): void {
+        $site = $this->serviceManager->get('site');
+        $config = $site->config();
+        $config['db'] = $dbConfig;
+        $configFilePath = $site->configFilePath();
+        File::writePhpVar($configFilePath, $config);
+        #chmod($configFilePath, 0440);
+    }
+
+    protected function setPageHandlers(): void {
         $this->serviceManager->get('settingsManager')
             ->set(
                 Request::HOME_HANDLER,
@@ -123,20 +142,4 @@ class InstallController extends Controller {
                 ModuleManager::SYSTEM_MODULE
             );
     }
-
-    protected function initNewEnv(Db $db) {
-        $serviceManager = $this->serviceManager;
-        $serviceManager->set('db', $db);
-        $serviceManager->get('site')->isFallbackMode(false);
-    }
-
-    protected function saveSiteConfig(array $dbConfig) {
-        $site = $this->serviceManager->get('site');
-        $config = $site->config();
-        $config['db'] = $dbConfig;
-        $configFilePath = $site->configFilePath();
-        File::writePhpVar($configFilePath, $config);
-        #chmod($configFilePath, 0440);
-    }
 }
-

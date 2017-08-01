@@ -7,13 +7,21 @@ use Morpho\Web\Controller;
 use Morpho\Web\Request;
 use Morpho\Web\Uri;
 
-class PageController extends Controller {
+class SettingController extends Controller {
+    private $handlers = [
+        Request::HOME_HANDLER,
+        Request::BAD_REQUEST_ERROR_HANDLER,
+        Request::NOT_FOUND_ERROR_HANDLER,
+        Request::ACCESS_DENIED_ERROR_HANDLER,
+        Request::UNCAUGHT_ERROR_HANDLER,
+    ];
+
     /**
      * @POST|GET
      */
     public function indexAction() {
         if ($this->isPostMethod()) {
-            $uris = $this->post([Request::HOME_HANDLER, Request::NOT_FOUND_ERROR_HANDLER, Request::ACCESS_DENIED_ERROR_HANDLER, Request::UNCAUGHT_ERROR_HANDLER]);
+            $uris = $this->post($this->handlers);
             $router = $this->serviceManager->get('router');
             $settingsManager = $this->serviceManager->get('settingsManager');
             $redirect = true;
@@ -51,12 +59,7 @@ class PageController extends Controller {
                 INNER JOIN module AS m 
             ON s.moduleId = m.id
             WHERE s.name LIKE '%Handler' AND m.name = ?", [Module::NAME])->map();
-            $handlersToUri = [
-                Request::HOME_HANDLER => null,
-                Request::NOT_FOUND_ERROR_HANDLER => null,
-                Request::ACCESS_DENIED_ERROR_HANDLER => null,
-                Request::UNCAUGHT_ERROR_HANDLER => null,
-            ];
+            $handlersToUri = array_combine($this->handlers, array_fill(0, count($this->handlers), null));
             foreach ($map as $handlerName => $value) {
                 ['uri' => $uri] = unserialize($value);
                 $handlersToUri[$handlerName] = $uri;

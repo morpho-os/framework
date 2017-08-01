@@ -198,12 +198,16 @@ describe("Form", function () {
             });
     });
 
-    it('Default submit handler is not called', function (done: DoneFn) {
+    it("Default browser's submit handler is not called", function (done: DoneFn) {
         class TestForm extends Form {
-            public handleResponseCalled: boolean;
+            public ajaxHandlerCalled: boolean;
 
-            protected handleResponse(responseData: JsonResponse): void {
-                this.handleResponseCalled = true;
+            protected ajaxSuccess(responseData: any, textStatus: string, jqXHR: JQueryXHR): any {
+                this.ajaxHandlerCalled = true;
+            }
+
+            protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
+                this.ajaxHandlerCalled = true;
             }
         }
 
@@ -213,7 +217,7 @@ describe("Form", function () {
         $form.trigger('submit');
 
         const intervalId = setInterval(function () {
-            if (form.handleResponseCalled) {
+            if (form.ajaxHandlerCalled) {
                 clearInterval(intervalId);
                 checkTrue(true);
                 done();
