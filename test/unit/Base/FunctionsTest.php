@@ -797,7 +797,7 @@ class FunctionsTest extends TestCase {
         $this->assertSame(2, $res);
     }
 
-    function testMemoize_FunctionReturningNull() {
+    public function testMemoize_FunctionReturningNull() {
         $null = function () use (&$called) {
             $called++;
             return null;
