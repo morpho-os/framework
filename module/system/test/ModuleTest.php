@@ -28,7 +28,7 @@ class ModuleTest extends DbTestCase {
 
         $this->assertRequestHasHandlerAndException(
             $request,
-            SystemModule::errorHandler(Request::ACCESS_DENIED_ERROR_HANDLER),
+            SystemModule::defaultErrorHandler(Request::ACCESS_DENIED_ERROR_HANDLER),
             $exception
         );
     }

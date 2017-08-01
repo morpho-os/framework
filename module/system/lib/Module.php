@@ -22,7 +22,7 @@ class Module extends Theme {
 
     }
 
-    public static function errorHandler(string $handlerName): array {
+    public static function defaultErrorHandler(string $handlerName): array {
         Must::contain([
             Request::NOT_FOUND_ERROR_HANDLER,
             Request::ACCESS_DENIED_ERROR_HANDLER,
@@ -54,7 +54,7 @@ class Module extends Theme {
             $handler = $serviceManager->get('settingsManager')
                 ->get($handlerName, self::NAME);
             if (false === $handler) {
-                $handler = static::errorHandler($handlerName);
+                $handler = static::defaultErrorHandler($handlerName);
             }
 
             foreach ($this->thrownExceptions as $prevException) {
