@@ -3,7 +3,7 @@ namespace MorphoTest\Unit\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, filter, hasPrefix, hasSuffix, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, head, tail, init, last, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes, map
+    endsWith, filter, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, head, tail, init, last, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes, map
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -762,6 +762,54 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 */
+
+    // ------------------------------------------------------------------------
+
+    public function testMemoize() {
+        $sum = function ($a, $b) use (&$sumCalled) {
+            $sumCalled++;
+            return $a + $b;
+        };
+
+        $memoizedSum = memoize($sum);
+
+        $res = $memoizedSum(2, 3);
+        $this->assertSame(1, $sumCalled);
+        $this->assertSame(5, $res);
+
+        $res = $memoizedSum(2, 3);
+        $this->assertSame(1, $sumCalled);
+        $this->assertSame(5, $res);
+
+        $sub = function ($a, $b) use (&$subCalled) {
+            $subCalled++;
+            return $a - $b;
+        };
+
+        $memoizedSub = memoize($sub);
+
+        $res = $memoizedSub(5, 3);
+        $this->assertSame(1, $subCalled);
+        $this->assertSame(2, $res);
+
+        $res = $memoizedSub(2, 3);
+        $this->assertSame(1, $subCalled);
+        $this->assertSame(2, $res);
+    }
+
+    function testMemoize_FunctionReturningNull() {
+        $null = function () use (&$called) {
+            $called++;
+            return null;
+        };
+        $memoized = memoize($null);
+        $this->assertNull($memoized());
+        $this->assertSame(1, $called);
+
+        $this->assertNull($memoized());
+        $this->assertSame(1, $called);
+    }
+
     private function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));

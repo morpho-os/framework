@@ -696,3 +696,13 @@ function formatBytes(string $bytes, string $format = null): string {
     }
     return $s;
 }
+
+// Rewritten from https://github.com/webpack-contrib/style-loader/blob/master/lib/addStyles.js
+function memoize(callable $fn): \Closure {
+    $memo = "583e43cf872bde78470526b9aed30\x00ee7"; // some random number, which can't be return by the memoized function, probability of returning the same value is > 16^32
+    return function (...$args) use ($fn, &$memo) {
+        return $memo === "583e43cf872bde78470526b9aed30\x00ee7"
+            ? $memo = $fn(...$args)
+            : $memo;
+    };
+}
