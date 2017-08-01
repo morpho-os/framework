@@ -147,9 +147,6 @@ class Module extends Theme {
             ],
             'setting' => [
                 'columns' => [
-                    'id' => [
-                        'type' => 'primaryKey',
-                    ],
                     'name' => [
                         'type' => 'varchar',
                     ],
@@ -159,6 +156,12 @@ class Module extends Theme {
                     'moduleId' => [
                         'type' => 'int',
                         'unsigned' => 'true',
+                    ],
+                ],
+                'primaryKey' => [
+                    'columns' => [
+                        'name',
+                        'moduleId',
                     ],
                 ],
                 'foreignKeys' => [
