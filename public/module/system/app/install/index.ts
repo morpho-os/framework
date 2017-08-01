@@ -1,5 +1,5 @@
 import {Form, ResponseError} from "../../lib/form";
-import {redirectToHome} from "../../lib/system";
+import {redirectToHome} from "../../lib/bom";
 
 class InstallForm extends Form {
     protected init(): void {

@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define("system/app/install/index", ["require", "exports", "../../lib/form", "../../lib/system"], function (require, exports, form_1, system_1) {
+define("system/app/install/index", ["require", "exports", "../../lib/form", "../../lib/bom"], function (require, exports, form_1, bom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var InstallForm = (function (_super) {
@@ -31,7 +31,7 @@ define("system/app/install/index", ["require", "exports", "../../lib/form", "../
                 alert('Invalid response was received');
             }
             else {
-                system_1.redirectToHome();
+                bom_1.redirectToHome();
             }
         };
         InstallForm.prototype.handleResponseError = function (responseData) {
