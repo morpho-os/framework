@@ -3,10 +3,10 @@ namespace MorphoTest\Functional;
 
 use function Morpho\Base\fromJson;
 use function Morpho\Cli\cmd;
-use Morpho\Inet\Http\SeleniumServerDownloader;
 use const Morpho\Web\PUBLIC_DIR_PATH;
-use Morpho\Inet\Http\HttpClient;
-use Morpho\Inet\Http\SeleniumServer;
+use Morpho\Network\Http\HttpClient;
+use Morpho\Network\Http\SeleniumServerDownloader;
+use Morpho\Network\Http\SeleniumServer;
 use Morpho\Test\BrowserTestSuite;
 use Morpho\Test\TestSettings;
 

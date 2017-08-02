@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 namespace Morpho\Test;
-use Morpho\Inet\Http\SeleniumServer;
+use Morpho\Network\Http\SeleniumServer;
 
 abstract class BrowserTestSuite extends TestSuite {
     private $server;

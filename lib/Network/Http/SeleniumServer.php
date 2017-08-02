@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Inet\Http;
+namespace Morpho\Network\Http;
 use function Morpho\Cli\cmd;
 use Morpho\Fs\FileNotFoundException;
 

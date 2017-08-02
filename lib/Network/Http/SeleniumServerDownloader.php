@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Morpho\Inet\Http;
+namespace Morpho\Network\Http;
 
 use function Morpho\Base\filter;
 use function Morpho\Cli\cmd;

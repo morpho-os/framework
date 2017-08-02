@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Unit\Inet\Http;
+namespace MorphoTest\Unit\Network\Http;
 
 use InvalidArgumentException;
 use Morpho\Test\TestCase;
-use Morpho\Inet\Http\HttpClient;
+use Morpho\Network\Http\HttpClient;
 
 class HttpClientTest extends TestCase {
     public function testMaxNumberOfRedirects_Accessors() {

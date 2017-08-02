@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace MorphoTest\Unit\Inet\Http;
+namespace MorphoTest\Unit\Network\Http;
 
-use Morpho\Inet\Http\SeleniumServer;
+use Morpho\Network\Http\SeleniumServer;
 use Morpho\Test\TestCase;
 
 class SeleniumServerTest extends TestCase {
