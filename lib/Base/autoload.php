@@ -697,12 +697,34 @@ function formatBytes(string $bytes, string $format = null): string {
     return $s;
 }
 
-// Rewritten from https://github.com/webpack-contrib/style-loader/blob/master/lib/addStyles.js
+function hash($var): string {
+    // @TODO: Use it in memoize, check all available types.
+    throw new NotImplementedException();
+}
+
+function equals($a, $b) {
+    throw new NotImplementedException();
+}
+
+/**
+ * @TODO: This method can't reliable say when a function is called with different arguments.
+ */
 function memoize(callable $fn): \Closure {
-    $memo = "583e43cf872bde78470526b9aed30\x00ee7"; // some random number, which can't be return by the memoized function, probability of returning the same value is < 1/16^32
-    return function (...$args) use ($fn, &$memo) {
-        return $memo === "583e43cf872bde78470526b9aed30\x00ee7"
-            ? $memo = $fn(...$args)
-            : $memo;
+    return function (...$args) use ($fn) {
+        static $memo = [];
+/*
+        $hash = array_reduce($args, function ($acc, $var) {
+            $hash = '';
+            if (is_object($var)) {
+                $hash .= spl_object_hash($var);
+            } elseif (is_scalar($var)) { //  int, float, string and bool
+            return $hash;
+        });
+*/
+        $hash = md5(json_encode($args));
+        if (array_key_exists($hash, $memo)) {
+            return $memo[$hash];
+        }
+        return $memo[$hash] = $fn(...$args);
     };
 }

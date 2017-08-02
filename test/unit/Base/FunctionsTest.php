@@ -792,7 +792,7 @@ class FunctionsTest extends TestCase {
         $this->assertSame(1, $subCalled);
         $this->assertSame(2, $res);
 
-        $res = $memoizedSub(2, 3);
+        $res = $memoizedSub(5, 3);
         $this->assertSame(1, $subCalled);
         $this->assertSame(2, $res);
     }
@@ -808,6 +808,25 @@ class FunctionsTest extends TestCase {
 
         $this->assertNull($memoized());
         $this->assertSame(1, $called);
+    }
+
+    public function testMemoize_DifferentArgsAfterFirstCall() {
+        $sum = function ($a, $b) use (&$sumCalled) {
+            $sumCalled++;
+            return $a + $b;
+        };
+
+        $memoizedSum = memoize($sum);
+
+        $res = $memoizedSum(2, 3);
+        $this->assertSame(1, $sumCalled);
+        $this->assertSame(5, $res);
+
+        $this->assertSame(20, $memoizedSum(7, 13));
+        $this->assertSame(2, $sumCalled);
+
+        $this->assertSame(20, $memoizedSum(7, 13));
+        $this->assertSame(2, $sumCalled);
     }
 
     private function assertCommon($fn) {
