@@ -2,6 +2,7 @@
 namespace Morpho\System\Controller;
 
 use Morpho\Di\IServiceManagerAware;
+use Morpho\Web\ServiceManager;
 use Morpho\System\Module as SystemModule;
 use Morpho\Web\Controller;
 use Morpho\Db\Sql\Db;
@@ -31,14 +32,11 @@ class InstallController extends Controller {
 
         $res = null;
         try {
-            $success = $this->install($dbConfig, $dropTables);
-            if ($success) {
-                return $this->success(['redirect' => true]);
-            }
+            $this->install($dbConfig, $dropTables);
+            return $this->success(['redirect' => true]);
         } catch (\Exception $e) {
             return $this->error((string) $e);
         }
-        return $this->error();
     }
 
     protected function beforeEach(): void {
@@ -53,49 +51,36 @@ class InstallController extends Controller {
         return $this->serviceManager->get('site')->isFallbackMode() === false;
     }
 
-    protected function install(array $dbConfig, bool $dropTables): bool {
-        $schemaManager = null;
-        try {
-            $db = Db::connect($dbConfig);
-        } catch (\PDOException $e) {
-            if (false !== stripos($e->getMessage(), 'SQLSTATE[HY000] [1049] Unknown database')) {
-                $dbName = $dbConfig['db'];
-                $dbConfig['db'] = '';
-                $db = Db::connect($dbConfig);
-                $schemaManager = $db->schemaManager();
-                $schemaManager->createDatabase($dbName);
-                $db->eval($db->query()->useDb($dbName));
-                $dbConfig['db'] = $dbName;
-            } else {
-                throw $e;
-            }
-        }
+    protected function install(array $dbConfig, bool $dropTables) {
+        $db = $this->newDbConnection($dbConfig);
 
-        if (null === $schemaManager) {
-            $schemaManager = $db->schemaManager();
-        }
-
-        // Check that we can connect and make queries.
-        $schemaManager->tableNames();
+        $schemaManager = $db->schemaManager();
 
         if ($dropTables) {
             $schemaManager->deleteAllTables();
+        } else {
+            // Check that we can connect and make queries.
+            $schemaManager->tableNames();
         }
 
-        // Set the new DB instance for all services.
-        $this->serviceManager->get('settingsManager')
-            ->setDb($db);
+        $serviceManager = $this->serviceManager;
+        $serviceManager->get('settingsManager')->setDb($db);
+        $serviceManager->set('db', $db);
+        $site = $serviceManager->get('site');
+        $site->isFallbackMode(false);
+        $newSiteConfig = $site->config();
+        $newSiteConfig['db'] = $dbConfig;
+        $site->setConfig($newSiteConfig);
 
-        $this->initNewEnv($db);
-        $this->installModules($db);
-        $this->initRoutes();
-        $this->saveSiteConfig($dbConfig);
-
-        return true;
+        $this->installModules($db, $this->serviceManager->get('moduleManager'), $newSiteConfig);
+        $newServiceManager = $serviceManager->get('app')->newServiceManager($site);
+        $this->setPageHandlers($newServiceManager);
+        $this->initRoutes($newServiceManager);
+        File::writePhpVar($site->configFilePath(), $newSiteConfig);
+        #chmod($configFilePath, 0440);
     }
 
-    protected function initRoutes(): void {
-        $serviceManager = $this->serviceManager;
+    protected function initRoutes(ServiceManager $serviceManager): void {
         $router = $serviceManager->newRouterService();
         if ($router instanceof IServiceManagerAware) {
             $router->setServiceManager($serviceManager);
@@ -103,36 +88,20 @@ class InstallController extends Controller {
         $router->rebuildRoutes();
     }
 
-    protected function installModules(Db $db): void {
-        $moduleManager = $this->serviceManager->get('moduleManager');
-        $modules = $this->serviceManager->get('site')->config()['modules']
-            ?? $moduleManager->uninstalledModuleNames();
+    protected function installModules(Db $db, $moduleManager, array $siteConfig): void {
+        $modules = $siteConfig['modules'] ?? [];
+        if (empty($modules)) {
+            $modules = $moduleManager->uninstalledModuleNames();
+        }
         $moduleManager->setDb($db);
         foreach ($modules as $moduleName) {
             $moduleManager->installModule($moduleName);
             $moduleManager->enableModule($moduleName);
         }
-        $moduleManager->isFallbackMode(false);
-        $this->setPageHandlers();
     }
 
-    protected function initNewEnv(Db $db): void {
-        $serviceManager = $this->serviceManager;
-        $serviceManager->set('db', $db);
-        $serviceManager->get('site')->isFallbackMode(false);
-    }
-
-    protected function saveSiteConfig(array $dbConfig): void {
-        $site = $this->serviceManager->get('site');
-        $config = $site->config();
-        $config['db'] = $dbConfig;
-        $configFilePath = $site->configFilePath();
-        File::writePhpVar($configFilePath, $config);
-        #chmod($configFilePath, 0440);
-    }
-
-    protected function setPageHandlers(): void {
-        $this->serviceManager->get('settingsManager')
+    protected function setPageHandlers(ServiceManager $serviceManager): void {
+        $serviceManager->get('settingsManager')
             ->set(
                 Request::HOME_HANDLER,
                 [
@@ -141,5 +110,23 @@ class InstallController extends Controller {
                 ],
                 ModuleManager::SYSTEM_MODULE
             );
+    }
+
+    protected function newDbConnection(array $dbConfig): Db {
+        try {
+            return Db::connect($dbConfig);
+        } catch (\PDOException $e) {
+            if (false !== stripos($e->getMessage(), 'SQLSTATE[HY000] [1049] Unknown database')) {
+                $dbName = $dbConfig['db'];
+                $dbConfig['db'] = '';
+                $db = Db::connect($dbConfig);
+                $schemaManager = $db->schemaManager();
+                $schemaManager->createDatabase($dbName);
+                $db->eval($db->query()->useDb($dbName));
+                return $db;
+            } else {
+                throw $e;
+            }
+        }
     }
 }

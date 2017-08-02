@@ -8,15 +8,14 @@ use Morpho\Db\Sql\Db;
 use Morpho\Base\Node as BaseNode;
 
 abstract class ModuleManager extends Node implements IEventManager {
-    const ENABLED     = 0b001;  // (installed enabled)
-    const DISABLED    = 0b010;  // (installed disabled)
-    const INSTALLED   = 0b011;  // (installed enabled | installed disabled)
-    const UNINSTALLED = 0b100;  // (uninstalled (not installed))
-    const ALL         = 0b111;  // (all above (installed | uninstalled))
+    public const ENABLED     = 0b001;  // (installed enabled)
+    public const DISABLED    = 0b010;  // (installed disabled)
+    public const INSTALLED   = 0b011;  // (installed enabled | installed disabled)
+    public const UNINSTALLED = 0b100;  // (uninstalled (not installed))
+    public const ALL         = 0b111;  // (all above (installed | uninstalled))
 
-    protected $fallbackMode = false;
-
-    protected $fallbackModules = [];
+    public const SYSTEM_MODULE = VENDOR . '/system';
+//    public const USER_MODULE   = VENDOR . '/user';
 
     protected $eventHandlers;
 
@@ -36,13 +35,6 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     public function moduleFs(): ModuleFs {
         return $this->moduleFs;
-    }
-
-    public function isFallbackMode(bool $flag = null): bool {
-        if (null !== $flag) {
-            $this->fallbackMode = $flag;
-        }
-        return $this->fallbackMode;
     }
 
     public function dispatch($request): void {
@@ -245,36 +237,24 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function allModuleNames(): array {
-        if ($this->fallbackMode) {
-            return [];
-        }
         $moduleNames = $this->moduleFs->moduleNames();
         return is_array($moduleNames) ? $moduleNames : iterator_to_array($moduleNames, false);
     }
 
     public function installedModuleNames(): array {
-        return $this->fallbackMode
-            ? []
-            : $this->db->select("name FROM $this->tableName ORDER BY name, weight")->column();
+        return $this->db->select("name FROM $this->tableName ORDER BY name, weight")->column();
     }
 
     public function uninstalledModuleNames(): array {
-        if ($this->fallbackMode) {
-            return $this->fallbackModules;
-        }
         return array_diff($this->allModuleNames(), $this->installedModuleNames());
     }
 
     public function enabledModuleNames(): array {
-        return $this->fallbackMode
-            ? []
-            : $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::ENABLED])->map();
+        return $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::ENABLED])->map();
     }
 
     public function disabledModuleNames(): array {
-        return $this->fallbackMode
-            ? []
-            : $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED])->map();
+        return $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED])->map();
     }
 
     public function setDb(Db $db) {
@@ -305,79 +285,28 @@ abstract class ModuleManager extends Node implements IEventManager {
         if (null !== $this->eventHandlers) {
             return;
         }
-        if ($this->fallbackMode) {
+        $sql = "e.name as eventName, e.method, m.name AS moduleName
+        FROM event e
+        INNER JOIN $this->tableName m
+            ON e.moduleId = m.id
+        WHERE m.status = ?
+        ORDER BY e.priority DESC, m.weight ASC, m.name ASC";
+        $lines = $this->db->select($sql, [self::ENABLED])->rows();
+        /*if (!count($lines)) {
+            @TODO
+            // For some reason the events can be lost in the database, so we need fallback.
             $this->eventHandlers = $this->fallbackModeEventHandlers();
-        } else {
-            $sql = "e.name as eventName, e.method, m.name AS moduleName
-            FROM event e
-            INNER JOIN $this->tableName m
-                ON e.moduleId = m.id
-            WHERE m.status = ?
-            ORDER BY e.priority DESC, m.weight ASC, m.name ASC";
-            $lines = $this->db->select($sql, [self::ENABLED])->rows();
-            if (!count($lines)) {
-                // For some reason the events can be lost in the database, so we need fallback.
-                $this->eventHandlers = $this->fallbackModeEventHandlers();
-                return;
-            }
-            $this->eventHandlers = [];
-            foreach ((array)$lines as $line) {
-                $this->eventHandlers[$line['eventName']][] = $line;
-            }
+            return;
+        }*/
+        $this->eventHandlers = [];
+        foreach ((array)$lines as $line) {
+            $this->eventHandlers[$line['eventName']][] = $line;
         }
-    }
-
-    protected function eventsMeta($module): array {
-        $rClass = new \ReflectionClass($module);
-        $rClasses = [$rClass];
-        while ($rClass = $rClass->getParentClass()) {
-            $rClasses[] = $rClass;
-        }
-        $rClasses = array_reverse($rClasses);
-        // @TODO: Use integers for priority, accept sign: "+"|"-"
-        $regexp = '~@Listen\s+(?<eventName>[a-zA-Z_][a-zA-Z_0-9]*)(\s+(?<priority>(?:\d*\.\d+)|(?:\d+\.\d*)|(\d+)))?~s';
-        $foundEvents = [];
-        foreach ($rClasses as $rClass) {
-            $filter = \ReflectionMethod::IS_PUBLIC ^ (\ReflectionMethod::IS_ABSTRACT | \ReflectionMethod::IS_STATIC);
-            foreach ($rClass->getMethods($filter) as $rMethod) {
-                $methodName = $rMethod->getName();
-                if ($methodName === '__construct') {
-                    continue;
-                }
-                $docComment = $rMethod->getDocComment();
-                if (false !== $docComment) {
-                    if (preg_match_all($regexp, $docComment, $matches, PREG_SET_ORDER)) {
-                        foreach ($matches as $match) {
-                            $eventName = $match['eventName'];
-                            $priority = isset($match['priority']) ? $match['priority'] : 0;
-                            $foundEvents[$methodName][$eventName] = $priority;
-                        }
-                        continue;
-                    }
-                }
-                if ($rMethod->class === $rClass->name) {
-                    // If the child class defines a method with the same name, don't inherit
-                    // doc-comments.
-                    unset($foundEvents[$methodName]);
-                }
-            }
-        }
-        $events = [];
-        foreach ($foundEvents as $methodName => $events1) {
-            foreach ($events1 as $eventName => $priority) {
-                $events[] = [
-                    'name'     => $eventName,
-                    'priority' => $priority,
-                    'method'   => $methodName,
-                ];
-            }
-        }
-        return $events;
-    }
-
-    protected function fallbackModeEventHandlers(): array {
-        return [];
     }
 
     abstract protected function actionNotFound($moduleName, $controllerName, $actionName): void;
+
+    protected function eventsMeta($module): iterable {
+        return (new EventsMetaProvider())($module);
+    }
 }

@@ -5,6 +5,9 @@ use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
 
 abstract class Controller extends Node implements IServiceManagerAware {
+    /**
+     * @var \Morpho\Di\IServiceManager
+     */
     protected $serviceManager;
 
     protected $request;

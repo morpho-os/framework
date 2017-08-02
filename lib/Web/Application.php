@@ -10,10 +10,29 @@ use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
-    private $serviceManager;
-
     public static function configFilePath(): string {
         return MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME;
+    }
+
+    public function newServiceManager(ISite $site = null): IServiceManager {
+        if (null === $site) {
+            $site = (new SiteFactory())(require self::configFilePath());
+        }
+        $siteConfig = $site->config();
+        $services = [
+            'app'  => $this,
+            'site' => $site,
+        ];
+        if ($site->isFallbackMode()) {
+            $serviceManager = new FallbackServiceManager($services);
+        } else {
+            if (isset($siteConfig['serviceManager'])) {
+                $serviceManager = new $siteConfig['serviceManager']($services);
+            } else {
+                $serviceManager = new ServiceManager($services);
+            }
+        }
+        return $serviceManager;
     }
 
     protected function init(IServiceManager $serviceManager): void {
@@ -43,16 +62,8 @@ class Application extends BaseApplication {
         }
     }
 
-    protected function serviceManager(): IServiceManager {
-        if (null === $this->serviceManager) {
-            $this->serviceManager = $this->newServiceManager();
-        }
-        return $this->serviceManager;
-    }
-
-    protected function logFailure(\Throwable $e): void {
+    protected function logFailure(\Throwable $e, IServiceManager $serviceManager): void {
         try {
-            $serviceManager = $this->serviceManager();
             $serviceManager->get('errorHandler')
                 ->handleException($e);
         } catch (\Throwable $e) {
@@ -80,22 +91,9 @@ class Application extends BaseApplication {
             // @TODO: Use http_response_code()?
             header($header);
         }
-        while (@ob_end_clean());
-        die(escapeHtml($message) . '.');
-    }
-
-    protected function newServiceManager(): IServiceManager {
-        $site = (new SiteFactory())(require self::configFilePath());
-        $siteConfig = $site->config();
-        $services = [
-            //'app'  => $this,
-            'site' => $site,
-        ];
-        if (isset($siteConfig['serviceManager'])) {
-            $serviceManager = new $siteConfig['serviceManager']($siteConfig, $services);
-        } else {
-            $serviceManager = new ServiceManager($siteConfig, $services);
+        while (\ob_get_level() > 0) {
+            \ob_end_clean();
         }
-        return $serviceManager;
+        die(escapeHtml($message) . '.');
     }
 }

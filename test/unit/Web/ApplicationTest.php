@@ -74,15 +74,15 @@ class ApplicationTest extends TestCase {
      * @dataProvider dataForTimezoneCanBeSetThroughSiteConfig
      */
     public function testTimezoneCanBeSetThroughSiteConfig(string $timeZone) {
-        $config = ['iniSettings' => [
+        $siteConfig = ['iniSettings' => [
             'date.timezone' => $timeZone
         ]];
-        $this->application->init($this->newServiceManager($config));
+        $this->application->init($this->newServiceManager($siteConfig));
 
         $this->assertSame($timeZone, ini_get('date.timezone'));
     }
 
-    private function newServiceManager(array $config): ServiceManager {
+    private function newServiceManager(array $siteConfig): ServiceManager {
         $serviceManager = new ServiceManager();
         $serviceManager->set('environment', new class {
             public function init() {
@@ -92,7 +92,7 @@ class ApplicationTest extends TestCase {
             public function register() {
             }
         });
-        $serviceManager->set('site', new class ($config) {
+        $serviceManager->set('site', new class ($siteConfig) {
             private $config;
             public function __construct(array $config) {
                 $this->config = $config;

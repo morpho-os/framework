@@ -1,6 +1,7 @@
 <?php
 namespace Morpho\Web;
 
+use const Morpho\Core\MODULE_DIR_PATH;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\NativeMailerHandler;
@@ -9,12 +10,10 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\ActionsMetaProvider;
-use Morpho\Web\Routing\FallbackRouter;
 use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\Routing\RoutesMetaProvider;
 use Morpho\Web\Session\Session;
@@ -30,21 +29,18 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Db\Sql\Db;
 
 class ServiceManager extends BaseServiceManager {
+    public function __construct(array $services = null) {
+        parent::__construct($services);
+        $this->config = $services['site']->config();
+    }
+
     public function newRouterService() {
-        if ($this->isFallbackMode()) {
-            return new FallbackRouter();
-        }
         //return new Router($this->get('db'));
         return new FastRouter();
     }
 
     protected function newDbService() {
-        $dbConfig = $this->config['db'];
-        if ($this->isFallbackMode()) {
-            // Don't connect for the fallback mode.
-            $dbConfig['db'] = '';
-        }
-        return Db::connect($dbConfig);
+        return Db::connect($this->config['db']);
     }
 
     protected function newSessionService() {
@@ -86,19 +82,15 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newModuleManagerService() {
-        $moduleManager = new ModuleManager(
-            $this->get('db'),
-            $this->get('moduleFs')
-        );
-        $moduleManager->isFallbackMode($this->isFallbackMode());
-
+        $db = $this->get('db');
+        $moduleFs = $this->get('moduleFs');
+        $moduleManager = new ModuleManager($db, $moduleFs);
         // Replace the site, so that only one site would be available.
         $moduleManager->setServiceManager($this);
         $site = $this->get('site');
         $site1 = $moduleManager->offsetGet($site->name());
         $site1->setSite($site);
         $this->set('site', $site1);
-
         return $moduleManager;
     }
 
@@ -141,10 +133,6 @@ class ServiceManager extends BaseServiceManager {
         $actionsMetaProvider = new ActionsMetaProvider($this->get('moduleManager'));
         $routesMetaProvider->setActionsMetaProvider($actionsMetaProvider);
         return $routesMetaProvider;
-    }
-
-    protected function isFallbackMode(): bool {
-        return $this->get('site')->isFallbackMode();
     }
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {

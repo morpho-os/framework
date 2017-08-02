@@ -5,27 +5,19 @@ use Morpho\Di\IServiceManager;
 
 abstract class Application {
     public static function main(IServiceManager $serviceManager = null) {
-        return (new static())
-            ->run($serviceManager);
+        $app = new static();
+        return $app->run(null !== $serviceManager ? $serviceManager : $app->newServiceManager());
     }
 
-    public function run(IServiceManager $serviceManager = null) {
+    public function run(IServiceManager $serviceManager) {
         try {
-            if (null === $serviceManager) {
-                $serviceManager = $this->serviceManager();
-            }
-
             $this->init($serviceManager);
-
             $request = $serviceManager->get('request');
-
             $serviceManager->get('router')->route($request);
-
             $serviceManager->get('dispatcher')->dispatch($request);
-
             $request->response()->send();
         } catch (\Throwable $e) {
-            $this->logFailure($e);
+            $this->logFailure($e, $serviceManager);
         }
     }
 
@@ -34,7 +26,5 @@ abstract class Application {
         $serviceManager->get('errorHandler')->register();
     }
 
-    abstract protected function serviceManager(): IServiceManager;
-
-    abstract protected function logFailure(\Throwable $e): void;
+    abstract protected function logFailure(\Throwable $e, IServiceManager $serviceManager): void;
 }

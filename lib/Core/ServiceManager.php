@@ -8,9 +8,8 @@ use function Morpho\Code\composerAutoloader;
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;
 
-    public function __construct(array $config = null, array $services = null) {
+    public function __construct(array $services = null) {
         parent::__construct($services);
-        $this->config = $config;
         $this->setAliases(['dispatcher' => 'modulemanager']);
     }
 

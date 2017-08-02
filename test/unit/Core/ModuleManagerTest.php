@@ -53,13 +53,6 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertEquals($modules, $moduleManager->uninstalledModuleNames());
     }
 
-    public function testFallbackMode() {
-        $this->checkBoolAccessor(
-            [$this->newModuleManager(), 'isFallbackMode'],
-            false
-        );
-    }
-
     public function testExceptionHandling() {
         $moduleManager = $this->newModuleManager();
 
