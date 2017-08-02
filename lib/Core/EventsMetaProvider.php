@@ -4,6 +4,8 @@ namespace Morpho\Core;
 use Morpho\Base\IFn;
 
 class EventsMetaProvider implements IFn {
+    public const DEFAULT_PRIORITY = 0;
+
     public function __invoke($module): iterable {
         $rClass = new \ReflectionClass($module);
         $rClasses = [$rClass];
@@ -11,14 +13,14 @@ class EventsMetaProvider implements IFn {
             $rClasses[] = $rClass;
         }
         $rClasses = array_reverse($rClasses);
-        // @TODO: Use integers for priority, accept sign: "+"|"-"
-        $regexp = '~@Listen\s+(?<eventName>[a-zA-Z_][a-zA-Z_0-9]*)(\s+(?<priority>(?:\d*\.\d+)|(?:\d+\.\d*)|(\d+)))?~s';
+        $regexp = '~@Listen\s+(?<eventName>[a-zA-Z_][a-zA-Z_0-9]*)(\s+(?<priority>-?\d+))?~s';
         $foundEvents = [];
+        $magicMethods = ['__call', '__callStatic', '__clone', '__construct,', '__debugInfo ', '__get', '__invoke', '__isset', '__set', '__set_state', '__sleep', '__toString', '__unset', '__wakeup', '_destruct'];
         foreach ($rClasses as $rClass) {
             $filter = \ReflectionMethod::IS_PUBLIC ^ (\ReflectionMethod::IS_ABSTRACT | \ReflectionMethod::IS_STATIC);
             foreach ($rClass->getMethods($filter) as $rMethod) {
                 $methodName = $rMethod->getName();
-                if ($methodName === '__construct') {
+                if (in_array($methodName, $magicMethods)) {
                     continue;
                 }
                 $docComment = $rMethod->getDocComment();
@@ -44,7 +46,7 @@ class EventsMetaProvider implements IFn {
             foreach ($events1 as $eventName => $priority) {
                 $events[] = [
                     'name'     => $eventName,
-                    'priority' => $priority,
+                    'priority' => (int)$priority,
                     'method'   => $methodName,
                 ];
             }

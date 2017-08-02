@@ -8,7 +8,7 @@ class Module extends BaseModule {
     private $initialized = false;
 
     /**
-     * @Listen beforeDispatch 100
+     * @Listen beforeDispatch -9999
      */
     public function beforeDispatch(array $event) {
         if (!$this->initialized) {

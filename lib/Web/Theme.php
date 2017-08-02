@@ -37,7 +37,7 @@ class Theme extends Module {
     }
 
     /**
-     * @Listen render 100
+     * @Listen render -9999
      */
     public function render(array $event): string {
         $args = $event[1];
@@ -75,7 +75,7 @@ class Theme extends Module {
     }
 
     /**
-     * @Listen beforeDispatch 100
+     * @Listen beforeDispatch -9999
      * @param $event
      * /
     public function beforeDispatch(array $event) {
@@ -91,7 +91,7 @@ class Theme extends Module {
     */
 
     /**
-     * @Listen afterDispatch 100
+     * @Listen afterDispatch -9999
      * @param array $event
      */
     public function afterDispatch(array $event) {
