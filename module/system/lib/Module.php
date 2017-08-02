@@ -137,6 +137,12 @@ class Module extends Theme {
                         'unsigned' => true,
                     ],
                 ],
+                'primaryKey' => [
+                    'columns' => [
+                        'name',
+                        'moduleId',
+                    ],
+                ],
                 'foreignKeys' => [
                     [
                         'childColumn' => 'moduleId',
