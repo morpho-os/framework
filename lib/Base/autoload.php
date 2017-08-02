@@ -721,7 +721,7 @@ function memoize(callable $fn): \Closure {
             return $hash;
         });
 */
-        $hash = md5(json_encode($args));
+        $hash = md5(json_encode($args)); // NB: md5() can cause collisions
         if (array_key_exists($hash, $memo)) {
             return $memo[$hash];
         }
