@@ -19,8 +19,8 @@ use Morpho\Web\Routing\RoutesMetaProvider;
 use Morpho\Web\Session\Session;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
-use Morpho\Web\View\HtmlParserPost;
-use Morpho\Web\View\HtmlParserPre;
+use Morpho\Web\View\PostHtmlParser;
+use Morpho\Web\View\PreHtmlParser;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
@@ -29,6 +29,8 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Db\Sql\Db;
 
 class ServiceManager extends BaseServiceManager {
+    protected $config;
+
     public function __construct(array $services = null) {
         parent::__construct($services);
         $this->config = $services['site']->config();
@@ -66,10 +68,10 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine = new PhpTemplateEngine();
         $templateEngine->setCacheDirPath($this->get('site')->cacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
-        $templateEngine->append(new HtmlParserPre($this))
+        $templateEngine->append(new PreHtmlParser($this))
             ->append(new FormPersister($this))
             ->append(new Compiler())
-            ->append(new HtmlParserPost($this, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']));
+            ->append(new PostHtmlParser($this/*, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']*/));
         return $templateEngine;
     }
 

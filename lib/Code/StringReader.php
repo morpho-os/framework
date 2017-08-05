@@ -138,6 +138,16 @@ class StringReader {
         return $str;
     }
 
+    public function readSingleQuotedString(): string {
+        // The regular expression taken from nikic/php-parser package, grammar/rebuildParsers.php file.
+        if (!preg_match('~(?<singleQuotedString>\'[^\\\\\']*+(?:\\\\.[^\\\\\']*+)*+\')~si', $this->input, $match, 0, $this->offset)) {
+            throw new SyntaxError();
+        }
+        $str = $match['singleQuotedString'];
+        $this->offset += strlen($str);
+        return $str;
+    }
+
     public function readUntil(callable $predicate): string {
         throw new NotImplementedException();
     }

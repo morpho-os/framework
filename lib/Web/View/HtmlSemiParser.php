@@ -229,13 +229,13 @@ class HtmlSemiParser implements IFn {
                     unset($tag['_suffix']);
                     if (!isset($tag['_orig']) || $tag !== $origTags[$i]) {
                         // Build the tag back if it is changed.
-                        $text = $this->makeTag($tag);
+                        $text = $this->renderTag($tag);
                     } else {
                         // Else - use original tag string.
                         // We use this algorithm because of non-unicode tag parsing mode:
                         // e.g. entity &nbsp; in tag attributes is replaced by &amp;nbsp;
-                        // in makeTag(), but if the tag is not modified at all, we do
-                        // not care and do not call makeTag() at all saving original &nbsp;.
+                        // in renderTag(), but if the tag is not modified at all, we do
+                        // not care and do not call renderTag() at all saving original &nbsp;.
                         $text = $tag['_orig'];
                     }
                     $html .= $prefix . $text . $suffix;
@@ -265,7 +265,7 @@ class HtmlSemiParser implements IFn {
      *
      * @return  HTML-strict representation of tag or container.
      */
-    protected function makeTag(array $attr): string {
+    protected function renderTag(array $attr): string {
         // Join & return tag.
         $s = "";
         foreach ($attr as $k => $v) {

@@ -4,8 +4,8 @@ namespace MorphoTest\Unit\Web\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
-use Morpho\Web\View\HtmlParserPost;
-use Morpho\Web\View\HtmlParserPre;
+use Morpho\Web\View\PostHtmlParser;
+use Morpho\Web\View\PreHtmlParser;
 use Morpho\Web\View\MessengerPlugin;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\Compiler;
@@ -21,9 +21,9 @@ class PhpTemplateEngineTest extends TestCase {
 
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
-        $this->templateEngine->append(new HtmlParserPre($serviceManager))
+        $this->templateEngine->append(new PreHtmlParser($serviceManager))
             ->append($compiler)
-            ->append(new HtmlParserPost($serviceManager, true, '', []));
+            ->append(new PostHtmlParser($serviceManager, true, '', []));
 
         $this->templateEngine->setServiceManager($serviceManager);
 
