@@ -314,7 +314,7 @@ class Directory extends Entry {
     }
 
     public static function isEmpty($dirPath): bool {
-        foreach (self::paths($dirPath, null, ['recursive' => false]) as $path) {
+        foreach (self::paths($dirPath, null, ['recursive' => false]) as $_) {
             return false;
         }
         return true;
