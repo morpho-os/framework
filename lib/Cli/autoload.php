@@ -76,9 +76,10 @@ function stylize(string $text, $codes): string {
     // \033 is ASCII-code of the ESC.
     static $colorOn = "\033[";
     static $colorOff = "\033[0m";
-    return $colorOn . implode(';', (array) $codes) . 'm'   // prefix
-        . $text                                            // text
-        . $colorOff;                                       // suffix
+    return $colorOn
+        . implode(';', (array) $codes) . 'm'
+        . $text
+        . $colorOff;
 }
 
 function escapeArgs(iterable $args): array {
@@ -122,7 +123,8 @@ function shell(string $command, array $options = null): CommandResult {
     if ($options['checkExitCode']) {
         checkExitCode($exitCode);
     }
-    return new CommandResult($command, $exitCode, $output);
+    // @TODO: How to get stdErr?
+    return new CommandResult($command, $exitCode, $output, $output);
 }
 
 function proc(string $command, array $options = null): CommandResult {
