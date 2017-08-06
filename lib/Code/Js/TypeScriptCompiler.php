@@ -33,6 +33,7 @@ class TypeScriptCompiler extends Compiler {
         'preserveConstEnums' => true,
         'pretty' => true,
         'removeComments' => true,
+        'sourceMap' => true,
         'strictNullChecks' => false,
         'target' => 'es5',
         "lib" => ["dom", "es2015.promise", "es5"],
