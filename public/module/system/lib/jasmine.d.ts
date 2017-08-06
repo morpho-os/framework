@@ -12,7 +12,16 @@ interface JasmineInterface {
     jsApiReporter: JsApiReporter;
 }
 
+interface ExceptionFormatter {
+    message(error: any): string;
+    stack(error: Error | null): string | null;
+}
+interface ExceptionFormatterConstructor {
+    new (): ExceptionFormatter;
+}
 interface JasmineRequire {
+    ExceptionFormatter: () => ExceptionFormatterConstructor;
+    buildExpectationResult: () => any;// @TODO
     core(jasmineRequire: JasmineRequire): Jasmine;
     html(jasmine: Jasmine): void;
     interface(jasmine: Jasmine, env: jasmine.Env): JasmineInterface;
