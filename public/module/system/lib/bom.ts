@@ -34,7 +34,7 @@ String.prototype.escapeHtml = function (this: String): string {
 };
 
 String.prototype.titleize = function (this: String): string {
-    // @TODO:
+    // @TODO
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 

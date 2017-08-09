@@ -40,13 +40,12 @@ export function validateEl($el: JQuery, validators?: ElValidator[]): string[] {
 }
 
 export class Form extends Widget {
-    public static readonly defaultInvalidCssClass = 'invalid';
-
-    public skipValidation = false;
-
-    public elContainerCssClass = 'form-group';
-    public formMessageContainerCssClass = 'messages';
-    public invalidCssClass = Form.defaultInvalidCssClass;
+    public static readonly defaultInvalidCssClass: string = 'invalid';
+    public skipValidation: boolean;
+    public elContainerCssClass: string;
+    public formMessageContainerCssClass: string;
+    public invalidCssClass: string;
+    protected elChangeEvents: string;
 
     public static elValue($el: JQuery): any {
         if ((<any>$el.get(0))['type'] === 'checkbox') {
@@ -71,7 +70,7 @@ export class Form extends Widget {
     }
 
     public validate(): boolean {
-        this.clearErrors();
+        this.removeErrors();
         let errors: Array<[JQuery, ErrorMessage[]]> = [];
         this.elsToValidate().each(function (this: HTMLFormElement) {
             const $el = $(this);
@@ -98,21 +97,20 @@ export class Form extends Widget {
         return this.el.hasClass(this.invalidCssClass);
     }
 
-    public clearErrors(): void {
+/*    public elHasErrors($el: JQuery): boolean {
+        return $el.hasClass(this.invalidCssClass);
+    }*/
+
+    public removeErrors(): void {
         this.invalidEls().each((index: number, el: HTMLFormElement) => {
-            const $el = $(el);
-            const $container = $el.removeClass(this.invalidCssClass).closest('.' + this.elContainerCssClass);
-            if (!$container.find('.' + this.invalidCssClass).length) {
-                $container.removeClass(this.invalidCssClass);
-            }
-            $el.next('.error').remove();
+            this.removeElErrors($(el));
         });
         this.formMessageContainerEl().remove();
         this.el.removeClass(this.invalidCssClass);
     }
 
     public submit(): void {
-        this.clearErrors();
+        this.removeErrors();
         if (this.skipValidation) {
             this.send();
         } else if (this.validate()) {
@@ -151,8 +149,16 @@ export class Form extends Widget {
 
     protected showElErrors($el: JQuery, errors: ErrorMessage[]): void {
         const invalidCssClass = this.invalidCssClass;
-        $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass);
+        $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass).addClass('has-error');
         $el.after(errors.map(renderMessage).join("\n"));
+    }
+
+    protected removeElErrors($el: JQuery): void {
+        const $container = $el.removeClass(this.invalidCssClass).closest('.' + this.elContainerCssClass);
+        if (!$container.find('.' + this.invalidCssClass).length) {
+            $container.removeClass(this.invalidCssClass).removeClass('has-error');
+        }
+        $el.next('.error').remove();
     }
 
     protected formMessageContainerEl(): JQuery {
@@ -166,6 +172,11 @@ export class Form extends Widget {
 
     protected init(): void {
         super.init();
+        this.skipValidation = false;
+        this.elContainerCssClass = 'form-group';
+        this.formMessageContainerCssClass = 'messages';
+        this.invalidCssClass = Form.defaultInvalidCssClass;
+        this.elChangeEvents = 'keyup blur change paste cut';
         this.el.attr('novalidate', 'novalidate');
     }
 
@@ -173,6 +184,13 @@ export class Form extends Widget {
         this.el.on('submit', () => {
             this.submit();
             return false;
+        });
+        const self = this;
+        this.elsToValidate().on(this.elChangeEvents, function (this: HTMLFormElement) {
+            const $el = $(this);
+            if ($el.hasClass(self.invalidCssClass)) {
+                self.removeElErrors($el);
+            }
         });
     }
 

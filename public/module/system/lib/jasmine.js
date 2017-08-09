@@ -1,54 +1,11 @@
 define("system/lib/jasmine", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function buildExpectationResult() {
-        return function (options) {
-            var messageFormatter = options.messageFormatter, stackFormatter = options.stackFormatter;
-            var result = {
-                matcherName: options.matcherName,
-                message: message(),
-                stack: stack(),
-                passed: options.passed
-            };
-            if (!result.passed) {
-                result.expected = options.expected;
-                result.actual = options.actual;
-            }
-            return result;
-            function message() {
-                if (options.passed) {
-                    return 'Passed.';
-                }
-                else if (options.message) {
-                    return options.message;
-                }
-                else if (options.error) {
-                    return messageFormatter(options.error);
-                }
-                return '';
-            }
-            function stack() {
-                if (options.passed) {
-                    return '';
-                }
-                var error = options.error;
-                if (!error) {
-                    try {
-                        throw new Error(message());
-                    }
-                    catch (e) {
-                        error = e;
-                    }
-                }
-                return stackFormatter(error);
-            }
-        };
-    }
     var ExceptionFormatter = (function () {
         function ExceptionFormatter() {
         }
         ExceptionFormatter.prototype.message = function (error) {
-            var message = 'Hello, World!';
+            var message = '';
             if (error.name && error.message) {
                 message += error.name + ': ' + error.message;
             }
@@ -73,46 +30,10 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
     }());
     function bootJasmine() {
         jasmineRequire.ExceptionFormatter = function () { return ExceptionFormatter; };
-        jasmineRequire.buildExpectationResult = buildExpectationResult;
         window.jasmine = jasmineRequire.core(jasmineRequire);
-        jasmineRequire.html(jasmine);
         var env = jasmine.getEnv();
         var jasmineInterface = jasmineRequire.interface(jasmine, env);
         extend(window, jasmineInterface);
-        var queryString = new jasmine.QueryString({
-            getWindowLocation: function () { return window.location; }
-        });
-        var filterSpecs = !!queryString.getParam("spec");
-        var catchingExceptions = queryString.getParam("catch");
-        env.catchExceptions(typeof catchingExceptions === "undefined" ? true : catchingExceptions);
-        var throwingExpectationFailures = queryString.getParam("throwFailures");
-        env.throwOnExpectationFailure(throwingExpectationFailures);
-        var random = queryString.getParam("random");
-        env.randomizeTests(random);
-        var seed = queryString.getParam("seed");
-        if (seed) {
-            env.seed(seed);
-        }
-        var htmlReporter = new jasmine.HtmlReporter({
-            env: env,
-            onRaiseExceptionsClick: function () { queryString.navigateWithNewParam("catch", !env.catchingExceptions()); },
-            onThrowExpectationsClick: function () { queryString.navigateWithNewParam("throwFailures", !env.throwingExpectationFailures()); },
-            onRandomClick: function () { queryString.navigateWithNewParam("random", !env.randomTests()); },
-            addToExistingQueryString: function (key, value) { return queryString.fullStringWithNewParam(key, value); },
-            getContainer: function () { return document.body; },
-            createElement: function () { return document.createElement.apply(document, arguments); },
-            createTextNode: function () { return document.createTextNode.apply(document, arguments); },
-            timer: new jasmine.Timer(),
-            filterSpecs: filterSpecs
-        });
-        env.addReporter(jasmineInterface.jsApiReporter);
-        env.addReporter(htmlReporter);
-        var specFilter = new jasmine.HtmlSpecFilter({
-            filterString: function () { return queryString.getParam("spec"); }
-        });
-        env.specFilter = function (spec) {
-            return specFilter.matches(spec.getFullName());
-        };
         window.setTimeout = window.setTimeout;
         window.setInterval = window.setInterval;
         window.clearTimeout = window.clearTimeout;
@@ -123,11 +44,142 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
             }
             return destination;
         }
-        return {
-            htmlReporter: htmlReporter,
-            env: env
-        };
+        return env;
     }
     exports.bootJasmine = bootJasmine;
+    var TestResultsReporter = (function () {
+        function TestResultsReporter($container, stackTraceFormatter) {
+            this.suites = [];
+            this.firstTest = false;
+            this.el = $('<div class="panel panel-default test-results"></div>').prependTo($container);
+            this.stackTraceFormatter = stackTraceFormatter;
+        }
+        TestResultsReporter.prototype.jasmineStarted = function (suiteInfo) {
+            this.el.prepend('<div class="panel-heading">Testing results</div>');
+            this.el.append('<div class="panel-body"></div>');
+            this.append('<div class="test-results__intro">Total tests: ' + this.escape((suiteInfo.totalSpecsDefined || 0) + '') + '</div>');
+        };
+        TestResultsReporter.prototype.jasmineDone = function (runDetails) {
+            this.append('All tests completed.<br>Passed: @TODO/@TODO');
+        };
+        TestResultsReporter.prototype.suiteStarted = function (result) {
+            var suiteTitle = result.description;
+            this.append('<h5 class="test-results__suite test-results__suite_started">'
+                + this.indent(this.suites.length) + (this.suites.length ? '-&gt; ' : '')
+                + 'Suite \'' + this.escape(suiteTitle) + '\' started...'
+                + '</h5>');
+            this.suites.push({
+                title: suiteTitle,
+                noOfTests: 0,
+                noOfFailed: 0
+            });
+            this.firstTest = true;
+        };
+        TestResultsReporter.prototype.suiteDone = function (result) {
+            var suite = this.suites.pop();
+            this.append('<h5 class="test-results__suite test-results__suite_finished">'
+                + this.indent(this.suites.length) + (this.suites.length ? '-&gt; ' : '')
+                + 'Suite \'' + this.escape(suite.title) + '\' finished'
+                + '<br>'
+                + this.indent(this.suites.length) + (this.suites.length ? '-&gt; ' : '')
+                + 'Passed : ' + (suite.noOfTests - suite.noOfFailed) + '/' + suite.noOfTests
+                + '</h5>');
+            if (this.suites.length === 0) {
+                this.append('<hr>');
+            }
+            this.firstTest = true;
+        };
+        TestResultsReporter.prototype.specDone = function (result) {
+            var success = result.failedExpectations.length === 0;
+            var doneHtml = '';
+            if (success) {
+                doneHtml += this.formatSuccessfulTest(result);
+                this.append(doneHtml);
+            }
+            else {
+                doneHtml += this.formatFailedTest(result);
+                this.append(doneHtml);
+                this.applySourceMaps();
+            }
+            var suite = this.suites[this.suites.length - 1];
+            suite.noOfTests++;
+            if (!success) {
+                suite.noOfFailed++;
+            }
+        };
+        TestResultsReporter.prototype.applySourceMaps = function () {
+            var self = this;
+            self.el.find('.test-results__stack-trace:not(.processed)').each(function () {
+                var $el = $(this);
+                $el.addClass('processed');
+                var $stackTrace = $el.find('.test-results__stack');
+                self.stackTraceFormatter($stackTrace.text())
+                    .then(function (stack) {
+                    stack = self.highlightStackTraceLines(stack);
+                    $stackTrace.html(stack);
+                    $el.find('.test-results__stack-loading-indicator').remove();
+                    $stackTrace.show();
+                });
+            });
+        };
+        TestResultsReporter.prototype.formatSuccessfulTest = function (result) {
+            var indent = '';
+            if (this.firstTest) {
+                indent = this.indent(this.suites.length);
+                this.firstTest = false;
+            }
+            var testTitle = result.description;
+            var doneHtml = indent + '<span title="' + this.escape(testTitle) + '" class="test-results__test';
+            doneHtml += ' test-results__successful-test">✓</span>';
+            return doneHtml;
+        };
+        TestResultsReporter.prototype.formatFailedTest = function (result) {
+            var indent = '';
+            if (this.firstTest) {
+                indent = this.indent(this.suites.length);
+                this.firstTest = false;
+            }
+            var testTitle = result.description;
+            var doneHtml = indent + '<span title="' + this.escape(testTitle) + '" class="test-results__test';
+            doneHtml += ' test-results__failed-test">✕</span> ' + this.escape(testTitle);
+            for (var i = 0; i < result.failedExpectations.length; i++) {
+                var expectation = result.failedExpectations[i];
+                doneHtml += '<div class="test-results__failed-test-message">' + this.escape(expectation.message) + '</div>';
+                doneHtml += '<pre class="test-results__stack-trace"><div class="test-results__stack-loading-indicator">Loading stack trace, please wait...</div><div class="test-results__stack" style="display: none;">' + this.escape(expectation.stack) + '</div></pre>';
+            }
+            return doneHtml;
+        };
+        TestResultsReporter.prototype.highlightStackTraceLines = function (stack) {
+            var _this = this;
+            var lines = stack.split("\n");
+            var isTsLine = function (line) { return /\s*at.*?\s+\([^)]+\.ts:\d+:\d+\)$/.test(line); };
+            return lines.map(function (line, index) {
+                line = line.trim();
+                if (isTsLine(line)) {
+                    var lastTsLine = lines[index + 1] === undefined || !isTsLine(lines[index + 1]);
+                    return '<div class="test-results__stack-line test-results__stack-line_ts' + (lastTsLine ? ' test-results__stack-line_ts-last' : '') + '">' + _this.escape(line) + '</div>';
+                }
+                return "<div class=\"test-results__stack-line\">" + _this.escape(line) + "</div>";
+            }).join("");
+        };
+        TestResultsReporter.prototype.escape = function (str) {
+            return jasmineRequire.util().htmlEscape(str);
+        };
+        TestResultsReporter.prototype.append = function (html) {
+            this.el.find('.panel-body').append(html);
+        };
+        TestResultsReporter.prototype.dump = function (obj) {
+            return '<pre>' + this.escape(JSON.stringify(obj)) + '</pre>';
+        };
+        TestResultsReporter.prototype.indent = function (length) {
+            var s = '';
+            for (var i = 0; i < length; i++) {
+                s += '&nbsp;&nbsp;&nbsp;&nbsp;';
+            }
+            return s;
+        };
+        return TestResultsReporter;
+    }());
+    exports.TestResultsReporter = TestResultsReporter;
 });
 //# sourceMappingURL=jasmine.js.map

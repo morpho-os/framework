@@ -1,32 +1,19 @@
-<?php require __DIR__ . '/../_page-top.phtml' ?>
-<link rel="stylesheet" type="text/css" href="/node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+<?php require __DIR__ . '/../_top.phtml' ?>
 <?php require __DIR__ . '/../_main-menu.phtml' ?>
-<div id="main-container" class="container">
-    <?php /*
-    <div id="taskbar">
-        <a class="btn"><i class="fa fa-edit"></i></a>
-    </div>
-    */ ?>
-    <div id="main-window">
-        <div class="container" id="main-window-inner">
-            <?php if (isset($this->pageTitle)): ?>
-                <h1 id="page-header"><?= $this->pageTitle ?></h1>
-            <?php endif ?>
-            <?php print $this->messenger()->renderPageMessages() ?>
-            <div id="page-body">
-                <?php print $body ?>
-            </div>
-        </div>
-    </div>
-</div>
+<?php require __DIR__ . '/../_main.phtml' ?>
 <?php require __DIR__ . '/../_script.phtml' ?>
+<link rel="stylesheet" href="/module/system/rc/css/test.css">
 <script src="/node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
-<script src="/node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="/node_modules/sourcemapped-stacktrace/dist/sourcemapped-stacktrace.js"></script>
 <script src="/module/system/lib/jasmine.js"></script>
 <script src="/module/system/lib/check.js"></script>
+<style>
+/* @TODO: move to separate file */
+
+</style>
 <script>
-define(["require", "exports", "system/lib/check"], function (require, exports, module) {
-    module.main();
+define(["require", "exports", "system/lib/check", "/node_modules/sourcemapped-stacktrace/dist/sourcemapped-stacktrace.js"], function (require, exports, module, sourceMappedStackTrace) {
+    module.main($('#main__body'), sourceMappedStackTrace);
 });
 </script>
 </body>

@@ -25,16 +25,24 @@ define("system/lib/check", ["require", "exports", "./jasmine"], function (requir
         expect(actual).toBeTruthy();
     }
     exports.checkTrue = checkTrue;
-    var _a = jasmine_1.bootJasmine(), htmlReporter = _a.htmlReporter, env = _a.env;
-    function main() {
-        jasmine.getEnv().addReporter({
+    var env = jasmine_1.bootJasmine();
+    function main($container, sourceMappedStackTrace) {
+        var stackTraceFormatter = function (stack) {
+            return new Promise(function (resolve) {
+                sourceMappedStackTrace.mapStackTrace(stack, function (mappedStack) {
+                    resolve(mappedStack.join("\n"));
+                });
+            });
+        };
+        env.addReporter(new jasmine_1.TestResultsReporter($container, stackTraceFormatter));
+        var seleniumReporter = {
             jasmineDone: function (runDetails) {
                 if (window.location.search.indexOf('selenium') >= 0) {
                     document.getElementById('page-body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
                 }
             }
-        });
-        htmlReporter.initialize();
+        };
+        env.addReporter(seleniumReporter);
         env.execute();
     }
     exports.main = main;

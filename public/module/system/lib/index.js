@@ -365,12 +365,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
     var Form = (function (_super) {
         __extends(Form, _super);
         function Form() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.skipValidation = false;
-            _this.elContainerCssClass = 'form-group';
-            _this.formMessageContainerCssClass = 'messages';
-            _this.invalidCssClass = Form.defaultInvalidCssClass;
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Form.elValue = function ($el) {
             if ($el.get(0)['type'] === 'checkbox') {
@@ -391,7 +386,7 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             });
         };
         Form.prototype.validate = function () {
-            this.clearErrors();
+            this.removeErrors();
             var errors = [];
             this.elsToValidate().each(function () {
                 var $el = $(this);
@@ -415,21 +410,16 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         Form.prototype.hasErrors = function () {
             return this.el.hasClass(this.invalidCssClass);
         };
-        Form.prototype.clearErrors = function () {
+        Form.prototype.removeErrors = function () {
             var _this = this;
             this.invalidEls().each(function (index, el) {
-                var $el = $(el);
-                var $container = $el.removeClass(_this.invalidCssClass).closest('.' + _this.elContainerCssClass);
-                if (!$container.find('.' + _this.invalidCssClass).length) {
-                    $container.removeClass(_this.invalidCssClass);
-                }
-                $el.next('.error').remove();
+                _this.removeElErrors($(el));
             });
             this.formMessageContainerEl().remove();
             this.el.removeClass(this.invalidCssClass);
         };
         Form.prototype.submit = function () {
-            this.clearErrors();
+            this.removeErrors();
             if (this.skipValidation) {
                 this.send();
             }
@@ -464,8 +454,15 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         };
         Form.prototype.showElErrors = function ($el, errors) {
             var invalidCssClass = this.invalidCssClass;
-            $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass);
+            $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass).addClass('has-error');
             $el.after(errors.map(message_1.renderMessage).join("\n"));
+        };
+        Form.prototype.removeElErrors = function ($el) {
+            var $container = $el.removeClass(this.invalidCssClass).closest('.' + this.elContainerCssClass);
+            if (!$container.find('.' + this.invalidCssClass).length) {
+                $container.removeClass(this.invalidCssClass).removeClass('has-error');
+            }
+            $el.next('.error').remove();
         };
         Form.prototype.formMessageContainerEl = function () {
             var containerCssClass = this.formMessageContainerCssClass;
@@ -477,6 +474,11 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
         };
         Form.prototype.init = function () {
             _super.prototype.init.call(this);
+            this.skipValidation = false;
+            this.elContainerCssClass = 'form-group';
+            this.formMessageContainerCssClass = 'messages';
+            this.invalidCssClass = Form.defaultInvalidCssClass;
+            this.elChangeEvents = 'keyup blur change paste cut';
             this.el.attr('novalidate', 'novalidate');
         };
         Form.prototype.registerEventHandlers = function () {
@@ -484,6 +486,13 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             this.el.on('submit', function () {
                 _this.submit();
                 return false;
+            });
+            var self = this;
+            this.elsToValidate().on(this.elChangeEvents, function () {
+                var $el = $(this);
+                if ($el.hasClass(self.invalidCssClass)) {
+                    self.removeElErrors($el);
+                }
             });
         };
         Form.prototype.sendFormData = function (uri, requestData) {
@@ -633,3 +642,4 @@ $.rejectedPromise = function (value) {
     return (_a = $.Deferred()).reject.apply(_a, [value].concat(args)).promise();
     var _a;
 };
+//# sourceMappingURL=index.js.map

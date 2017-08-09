@@ -12,6 +12,8 @@ interface JasmineInterface {
     jsApiReporter: JsApiReporter;
 }
 
+type StackTraceFormatter = (stack: string) => Promise<string>;
+
 interface ExceptionFormatter {
     message(error: any): string;
     stack(error: Error | null): string | null;
@@ -25,6 +27,7 @@ interface JasmineRequire {
     core(jasmineRequire: JasmineRequire): Jasmine;
     html(jasmine: Jasmine): void;
     interface(jasmine: Jasmine, env: jasmine.Env): JasmineInterface;
+    util(): jasmine.Util;
 }
 
 declare const jasmineRequire: JasmineRequire;

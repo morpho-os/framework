@@ -1,9 +1,4 @@
 import {EventManager} from "./event-manager";
-/*import {IValidator} from "./validation";
-
-export interface IWidgetValidator extends IValidator {
-    validate(widget: Widget): boolean;
-}*/
 
 export abstract class Widget extends EventManager {
     protected el: JQuery;

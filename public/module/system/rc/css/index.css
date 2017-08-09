@@ -8059,11 +8059,11 @@ svg {
   width: 100%;
   height: 100%;
 }
-#page-title {
+.main__title {
   border-bottom: none;
 }
 span.required {
-  color: $required-color;
+  color: #d00;
 }
 .no-top-gaps {
   margin-top: 0;
@@ -8127,7 +8127,7 @@ fieldset legend {
   color: #ccc;
 }
 form .form-group.required label:after {
-  color: $required-color;
+  color: #d00;
   content: "*";
   margin-left: 5px;
 }
@@ -8137,10 +8137,10 @@ form .help-block {
   padding-bottom: 0;
   color: #ccc;
 }
-form .has-error .help-block {
+form .invalid .help-block {
   color: #fff;
 }
-form .has-error label {
+form .invalid label {
   color: #333;
 }
 form .btns {

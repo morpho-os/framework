@@ -1,21 +1,4 @@
-<?php require __DIR__ . '/_page-top.phtml' ?>
+<?php require __DIR__ . '/_top.phtml' ?>
 <?php require __DIR__ . '/_main-menu.phtml' ?>
-<div id="main-container" class="container">
-    <?php /*
-    <div id="taskbar">
-        <a class="btn"><i class="fa fa-edit"></i></a>
-    </div>
-    */ ?>
-    <div id="main-window">
-        <div class="container" id="main-window-inner">
-            <?php if (isset($this->pageTitle)): ?>
-            <h1 id="page-header"><?= $this->pageTitle ?></h1>
-            <?php endif ?>
-            <?php print $this->messenger()->renderPageMessages() ?>
-            <div id="page-body">
-                <?php print $body ?>
-            </div>
-        </div>
-    </div>
-</div>
-<?php require __DIR__ . '/_page-bottom.phtml' ?>
+<?php require __DIR__ . '/_main.phtml' ?>
+<?php require __DIR__ . '/_bottom.phtml' ?>

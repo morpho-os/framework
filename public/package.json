@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/jquery": "^2.0.41",
     "jasmine-core": "^2.6.4",
+    "sourcemapped-stacktrace": "^1.1.7",
     "tslib": "^1.7.1"
   }
 }
