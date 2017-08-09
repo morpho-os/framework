@@ -50,6 +50,10 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
     var TestResultsReporter = (function () {
         function TestResultsReporter($container, stackTraceFormatter) {
             this.suites = [];
+            this.summary = {
+                noOfTests: 0,
+                noOfFailedTests: 0
+            };
             this.firstTest = false;
             this.el = $('<div class="panel panel-default test-results"></div>').prependTo($container);
             this.stackTraceFormatter = stackTraceFormatter;
@@ -58,9 +62,12 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
             this.el.prepend('<div class="panel-heading">Testing results</div>');
             this.el.append('<div class="panel-body"></div>');
             this.append('<div class="test-results__intro">Total tests: ' + this.escape((suiteInfo.totalSpecsDefined || 0) + '') + '</div>');
+            this.summary.noOfFailedTests = this.summary.noOfTests = 0;
+            this.suites = [];
         };
         TestResultsReporter.prototype.jasmineDone = function (runDetails) {
-            this.append('All tests completed.<br>Passed: @TODO/@TODO');
+            var summary = this.summary;
+            this.append('All tests completed.<br>Passed: ' + this.escape((summary.noOfTests - summary.noOfFailedTests) + '') + '/' + this.escape(summary.noOfTests + ''));
         };
         TestResultsReporter.prototype.suiteStarted = function (result) {
             var suiteTitle = result.description;
@@ -71,7 +78,7 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
             this.suites.push({
                 title: suiteTitle,
                 noOfTests: 0,
-                noOfFailed: 0
+                noOfFailedTests: 0
             });
             this.firstTest = true;
         };
@@ -82,7 +89,7 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
                 + 'Suite \'' + this.escape(suite.title) + '\' finished'
                 + '<br>'
                 + this.indent(this.suites.length) + (this.suites.length ? '-&gt; ' : '')
-                + 'Passed : ' + (suite.noOfTests - suite.noOfFailed) + '/' + suite.noOfTests
+                + 'Passed : ' + (suite.noOfTests - suite.noOfFailedTests) + '/' + suite.noOfTests
                 + '</h5>');
             if (this.suites.length === 0) {
                 this.append('<hr>');
@@ -100,11 +107,13 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
                 doneHtml += this.formatFailedTest(result);
                 this.append(doneHtml);
                 this.applySourceMaps();
+                this.summary.noOfFailedTests++;
             }
             var suite = this.suites[this.suites.length - 1];
             suite.noOfTests++;
+            this.summary.noOfTests++;
             if (!success) {
-                suite.noOfFailed++;
+                suite.noOfFailedTests++;
             }
         };
         TestResultsReporter.prototype.applySourceMaps = function () {

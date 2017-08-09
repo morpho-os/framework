@@ -1,7 +1,6 @@
 /// <reference path="../lib/index.d.ts"/>
 
 import {Form, RequiredElValidator, validateEl} from "../lib/form";
-// import {Message, MessageType} from "../lib/message";
 import {Widget} from "../lib/widget";
 import {ErrorMessage} from "../lib/message";
 import {checkEmpty, checkEqual, checkFalse, checkLength, checkTrue, checkNoEl} from "../lib/check";
@@ -43,7 +42,7 @@ class Page {
 }
 
 describe("Form", function () {
-/*    afterEach(function () {
+    afterEach(function () {
         const $form = $('form');
         $form.removeAttr('novalidate');
         $form.find('.' + Form.defaultInvalidCssClass).addBack().removeClass(Form.defaultInvalidCssClass);
@@ -53,7 +52,7 @@ describe("Form", function () {
             .add($form.find('.messages'))
             .remove();
         $form.find('input[type=checkbox]').prop('checked', false);
-    });*/
+    });
 
     describe('Validation', function () {
         function checkNoFormErrors($form: JQuery): void {
@@ -63,7 +62,7 @@ describe("Form", function () {
             checkNoEl($form.find('.alert-error'));
         }
 
-/*        it('validateEl() required element', function () {
+        it('validateEl() required element', function () {
             const $el = Page.requireEl();
             const errors = validateEl($el);
             checkLength(1, errors);
@@ -88,13 +87,12 @@ describe("Form", function () {
             });
             checkEqual(Page.numberOfElsOfNonEmptyForm - 2, i);
         });
-*/
-/*        it("validate() of the empty form", function () {
+        it("validate() of the empty form", function () {
             const $form = Page.emptyFormEl();
             const form = new Form($form);
             checkTrue(form.validate());
             checkNoFormErrors($form);
-        });*/
+        });
 
         it('validate() with required elements', function () {
             const $form = Page.withRequiredElsFormEl();
@@ -148,7 +146,7 @@ describe("Form", function () {
             checkNoFormErrors($form);
         });
 
-/*        it('Hides errors after node change', function () {
+        it('Hides errors after node change', function () {
             const $form = Page.withRequiredElsFormEl();
             const form = new Form($form);
 
@@ -163,9 +161,9 @@ describe("Form", function () {
             $textarea.trigger('change');
 
             checkLength(0, errorEl());
-        });*/
+        });
 
-/*        it('invalidEls() before validation', function () {
+        it('invalidEls() before validation', function () {
             const form = new Form(Page.withRequiredElsFormEl());
             checkLength(0, form.invalidEls());
         });
@@ -176,10 +174,10 @@ describe("Form", function () {
             // tslint:disable-next-line:no-unused-new
             new Form($el);
             checkEqual('novalidate', $el.attr('novalidate'));
-        });*/
+        });
     });
 
-/*    it('Is Widget', function () {
+    it('Is Widget', function () {
         checkTrue(Page.emptyForm() instanceof Widget);
     });
 
@@ -210,16 +208,16 @@ describe("Form", function () {
         $checkbox.prop('checked', true);
         checkEqual(1, Form.elValue($checkbox));
     });
-*/
-/*    it('send() - response errors', function (done) {
+
+    it('send() - response errors', function (done) {
         const form = new Form($('#server-error-form'));
         form.send()
             .then(() => {
                 checkTrue(form.hasErrors());
                 done();
             });
-    });*/
-/*
+    });
+
     it('send() - success response', function (done) {
         class RedirectForm extends Form {
             public successHandlerArgs: any;
@@ -266,7 +264,7 @@ describe("Form", function () {
     it('hasErrors() initial state', function () {
         checkFalse(Page.withRequiredElsForm().hasErrors());
     });
-*/
+
     it('hasErrors() after showErrors()', function () {
         const $form = Page.emptyFormEl();
         const form = new Form($form);

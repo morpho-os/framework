@@ -103,7 +103,6 @@ function buildExpectationResult() {
 }
 */
 
-
 class ExceptionFormatter {
     public message(error: any): string {
         let message = '';
@@ -236,17 +235,24 @@ export function bootJasmine(): jasmine.Env {
     return env;
 }
 
-interface SuiteMeta {
-    title: string;
+interface TestStats {
     noOfTests: number;
-    noOfFailed: number;
+    noOfFailedTests: number;
+}
+
+interface SuiteMeta extends TestStats {
+    title: string;
 }
 
 export class TestResultsReporter implements jasmine.CustomReporter {
     protected el: JQuery;
     protected results: JQuery;
     protected stackTraceFormatter: StackTraceFormatter;
-    private suites: SuiteMeta[] = [];
+    protected suites: SuiteMeta[] = [];
+    protected summary: TestStats = {
+        noOfTests: 0,
+        noOfFailedTests: 0
+    };
     private firstTest = false;
 
     public constructor($container: JQuery, stackTraceFormatter: StackTraceFormatter) {
@@ -258,10 +264,13 @@ export class TestResultsReporter implements jasmine.CustomReporter {
         this.el.prepend('<div class="panel-heading">Testing results</div>');
         this.el.append('<div class="panel-body"></div>');
         this.append('<div class="test-results__intro">Total tests: ' + this.escape((suiteInfo.totalSpecsDefined || 0) + '') + '</div>');
+        this.summary.noOfFailedTests = this.summary.noOfTests = 0;
+        this.suites = [];
     }
 
     public jasmineDone(runDetails: jasmine.RunDetails): void {
-        this.append('All tests completed.<br>Passed: @TODO/@TODO');
+        const summary = this.summary;
+        this.append('All tests completed.<br>Passed: ' + this.escape((summary.noOfTests - summary.noOfFailedTests) + '') + '/' + this.escape(summary.noOfTests + ''));
     }
 
     public suiteStarted(result: jasmine.CustomReporterResult): void {
@@ -274,7 +283,7 @@ export class TestResultsReporter implements jasmine.CustomReporter {
         this.suites.push({
             title: suiteTitle,
             noOfTests: 0,
-            noOfFailed: 0
+            noOfFailedTests: 0
         });
         this.firstTest = true;
     }
@@ -286,7 +295,7 @@ export class TestResultsReporter implements jasmine.CustomReporter {
             + 'Suite \'' + this.escape(suite.title) + '\' finished'
             + '<br>'
             + this.indent(this.suites.length) + (this.suites.length ? '-&gt; ' : '')
-            + 'Passed : ' + (suite.noOfTests - suite.noOfFailed) + '/' + suite.noOfTests
+            + 'Passed : ' + (suite.noOfTests - suite.noOfFailedTests) + '/' + suite.noOfTests
             + '</h5>'
         );
         if (this.suites.length === 0) {
@@ -311,12 +320,14 @@ export class TestResultsReporter implements jasmine.CustomReporter {
             doneHtml += this.formatFailedTest(result);
             this.append(doneHtml);
             this.applySourceMaps();
+            this.summary.noOfFailedTests++;
         }
 
         const suite = this.suites[this.suites.length - 1];
         suite.noOfTests++;
+        this.summary.noOfTests++;
         if (!success) {
-            suite.noOfFailed++;
+            suite.noOfFailedTests++;
         }
     }
 

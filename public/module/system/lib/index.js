@@ -447,9 +447,11 @@ define("system/lib/form", ["require", "exports", "system/lib/message", "system/l
             this.scrollToFirstError();
         };
         Form.prototype.showFormErrors = function (errors) {
-            var rendered = '<div class="alert alert-error">' + errors.map(message_1.renderMessage).join("\n") + '</div>';
-            this.formMessageContainerEl()
-                .prepend(rendered);
+            if (errors.length) {
+                var rendered = '<div class="alert alert-error">' + errors.map(message_1.renderMessage).join("\n") + '</div>';
+                this.formMessageContainerEl()
+                    .prepend(rendered);
+            }
             this.el.addClass(this.invalidCssClass);
         };
         Form.prototype.showElErrors = function ($el, errors) {

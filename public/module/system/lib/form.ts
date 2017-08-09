@@ -125,6 +125,7 @@ export class Form extends Widget {
 
     /**
      * Displays either form errors or element errors or both.
+     * @TODO: return promise
      */
     public showErrors(errors: Array<ErrorMessage | [JQuery, ErrorMessage[]]>): void {
         let formErrors: ErrorMessage[] = [];
@@ -140,13 +141,17 @@ export class Form extends Widget {
         this.scrollToFirstError();
     }
 
+    // @TODO: return promise
     protected showFormErrors(errors: ErrorMessage[]): void {
-        const rendered: string = '<div class="alert alert-error">' + errors.map(renderMessage).join("\n") + '</div>';
-        this.formMessageContainerEl()
-            .prepend(rendered);
+        if (errors.length) {
+            const rendered: string = '<div class="alert alert-error">' + errors.map(renderMessage).join("\n") + '</div>';
+            this.formMessageContainerEl()
+                .prepend(rendered);
+        }
         this.el.addClass(this.invalidCssClass);
     }
 
+    // @TODO: return promise
     protected showElErrors($el: JQuery, errors: ErrorMessage[]): void {
         const invalidCssClass = this.invalidCssClass;
         $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass).addClass('has-error');
