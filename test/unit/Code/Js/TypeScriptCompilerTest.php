@@ -18,20 +18,24 @@ class TypeScriptCompilerTest extends TestCase {
         $this->assertInstanceOf(Compiler::class, $this->compiler);
     }
 
-    public function testCompile_SingleInFileToSingleOutFile() {
+    public function testInvoke_SingleInFileToSingleOutFile() {
         $inFilePath = $this->createTmpFile('ts');
         file_put_contents($inFilePath, 'export function main() {}');
         $outFilePath = dirname($inFilePath) . '/' . basename($inFilePath) . '-tsc/bar/test.js';
         $options = new TscCompileOptions(['module' => 'system', 'outFile' => $outFilePath, $inFilePath]);
+
         $res = $this->compiler->__invoke($options);
+
         $this->assertCount(1, $res);
         $this->assertFalse($res[0]->isError());
-        $this->assertRegExp('~^System\.register\(.*\}\);$~si', trim(file_get_contents($outFilePath)));
+        $this->assertRegExp('~^System\.register\(.*\}\);\n//# sourceMappingURL=test.js.map$~si', trim(file_get_contents($outFilePath)));
     }
 
     public function testWriteTsconfig_Default() {
         $dirPath = $this->tmpDirPath();
+
         $filePath = $this->compiler->writeTsconfig($dirPath);
+
         $this->assertEquals($dirPath . "/tsconfig.json", $filePath);
         $config = json_decode(file_get_contents($filePath), true);
         $this->assertTrue($config['compilerOptions']['removeComments']);
@@ -39,7 +43,9 @@ class TypeScriptCompilerTest extends TestCase {
 
     public function testWriteTsConfig_OverwriteCompilerOption() {
         $tmpDirPath = $this->createTmpDir();
+
         $tsConfigFilePath = $this->compiler->writeTsconfig($tmpDirPath, ['compilerOptions' => ['removeComments' => true]]);
+
         $json = json_decode(file_get_contents($tsConfigFilePath), true);
         $this->assertTrue($json['compilerOptions']['removeComments']);
     }
@@ -66,9 +72,11 @@ class TypeScriptCompilerTest extends TestCase {
         file_put_contents($inFilePath, 'export function main() {}');
         $outFilePath = dirname($inFilePath) . '/' . basename($inFilePath) . '-tsc/bar/test.js';
         $this->compiler->setOption('module', 'system');
+
         $res = $this->compiler->compileToFile($inFilePath, $outFilePath);
+
         $this->assertFalse($res->isError());
-        $this->assertRegExp('~^System\.register\(.*\}\);$~si', trim(file_get_contents($outFilePath)));
+        $this->assertRegExp('~^System\.register\(.*\}\);\n//# sourceMappingURL=test.js.map$~si', trim(file_get_contents($outFilePath)));
     }
 
     public function testCompileToFile_MultipleInFilesToSingleOutFile() {
@@ -84,7 +92,9 @@ export function bar() {}
 OUT
         );
         $outFilePath = $tmpDirPath . '/combined.js';
+
         $this->compiler->compileToFile([$inFilePath1, $inFilePath2], $outFilePath);
+
         $ts = file_get_contents($outFilePath);
         $this->assertContains('function foo()', $ts);
         $this->assertContains('function bar()', $ts);
@@ -102,7 +112,9 @@ OUT
 export function bar() {}
 OUT
         );
+
         $this->compiler->compileToFile([$inFilePath1, $inFilePath2]);
+
         $this->assertContains('function foo()', file_get_contents($tmpDirPath . '/foo.js'));
         $this->assertContains('function bar()', file_get_contents($tmpDirPath . '/bar.js'));
     }
@@ -112,10 +124,12 @@ OUT
         file_put_contents($inFilePath, 'export function main() {}');
         $outDirPath = $this->createTmpDir();
         $this->compiler->setOption('module', 'umd');
+
         $res = $this->compiler->compileToDir($inFilePath, $outDirPath);
+
         $this->assertFalse($res->isError());
         $outFilePath = $outDirPath . '/' . basename($inFilePath, '.ts') . '.js';
-        $this->assertRegExp('~\(function \((dependencies, )?factory\) \{.*\}\);$~si', trim(file_get_contents($outFilePath)));
+        $this->assertRegExp('~^\(function \((dependencies, )?factory\) \{.*\}\);\n//# sourceMappingURL=.*?\.js\.map$~si', trim(file_get_contents($outFilePath)));
     }
 
     public function testHandlesArrayOptionsProperly() {

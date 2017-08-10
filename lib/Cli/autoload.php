@@ -185,9 +185,3 @@ function askYesNo(string $question): bool {
         }
     } while (true);
 }
-
-function download(string $uri, string $outFilePath = null): string {
-    // @TODO: use curl, wget or fetch, see the `man parallel`
-    throw new NotImplementedException();
-    return $outFilePath;
-}

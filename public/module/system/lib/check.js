@@ -38,7 +38,7 @@ define("system/lib/check", ["require", "exports", "./jasmine"], function (requir
         var seleniumReporter = {
             jasmineDone: function (runDetails) {
                 if (window.location.search.indexOf('selenium') >= 0) {
-                    document.getElementById('page-body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
+                    document.getElementById('main__body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
                 }
             }
         };

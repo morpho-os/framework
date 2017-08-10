@@ -52,6 +52,7 @@ class HttpClient extends Client {
             $destFilePath = getcwd() . '/' . basename($uri);
         }
         // @TODO: Implement without call of the external tool.
+        // @TODO: use curl, wget or fetch, see the `man parallel`
         cmd('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
         return $destFilePath;
     }

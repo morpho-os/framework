@@ -36,8 +36,6 @@ export function main($container: JQuery, sourceMappedStackTrace: SourceMappedSta
         return new Promise(function (resolve) {
             sourceMappedStackTrace.mapStackTrace(stack, (mappedStack: string[]) => {
                 resolve(mappedStack.join("\n"));
-                /*            const chunk = line.split('@').pop();
-            return chunk.substring(0, chunk.indexOf(':', 5)); */
             });
         });
     };
@@ -45,13 +43,14 @@ export function main($container: JQuery, sourceMappedStackTrace: SourceMappedSta
     env.addReporter(new TestResultsReporter($container, stackTraceFormatter));
 
     const seleniumReporter = {
-        jasmineDone(runDetails: jasmine.RunDetails) { // @TODO: Specify more concrete type
+        jasmineDone(runDetails: jasmine.RunDetails) {
             if (window.location.search.indexOf('selenium') >= 0) {
-                document.getElementById('page-body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
+                document.getElementById('main__body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
             }
         }
     };
     env.addReporter(seleniumReporter);
+
     //jasmine.getEnv().throwOnExpectationFailure(true);
 
     env.execute();

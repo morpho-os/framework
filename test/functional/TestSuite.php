@@ -18,14 +18,7 @@ class TestSuite extends BrowserTestSuite {
     public function setUp() {
         parent::setUp();
         if (getenv('TRAVIS')) {
-            //showLn("Starting PHP server...");
-            $address = 'localhost:7654';
-            $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
-            //cmd($cmd);
-            proc_close(proc_open($cmd, [], $pipes));
-            sleep(3); // @TODO: better way to check that the server is started
-            TestSettings::set('siteUri', 'http://' . $address);
-            //showLn("PHP server started");
+            $this->startPhpServer();
         } else {
             TestSettings::set('siteUri', 'http://framework');
         }
@@ -64,5 +57,16 @@ class TestSuite extends BrowserTestSuite {
             chdir($curDirPath);
         }
         return $destFilePath;
+    }
+
+    private function startPhpServer(): void {
+        //showLn("Starting PHP server...");
+        $address = 'localhost:7654';
+        $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
+        //cmd($cmd);
+        proc_close(proc_open($cmd, [], $pipes));
+        sleep(3); // @TODO: better way to check that the server is started
+        TestSettings::set('siteUri', 'http://' . $address);
+        //showLn("PHP server started");
     }
 }

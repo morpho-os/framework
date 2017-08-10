@@ -91,6 +91,7 @@ class SeleniumServer {
     }
 
     public function listening(): bool {
+        // @TODO: Use php sockets.
         $res = cmd('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkExitCode' => false, 'buffer' => true]);
         return !$res->isError();
     }
