@@ -2,7 +2,7 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\{
-    classify, htmlId, dasherize
+    classify, htmlId, dasherize, last
 };
 use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
@@ -52,7 +52,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
     }
 
     public function pageCssId(): string {
-        return dasherize(self::moduleName()) . '-' . dasherize(self::controllerName()) . '-' . dasherize(self::actionName());
+        return dasherize(last(self::moduleName(), '/')) . '-' . dasherize(self::controllerName()) . '-' . dasherize(self::actionName());
     }
 
     public function controller(): Controller {
