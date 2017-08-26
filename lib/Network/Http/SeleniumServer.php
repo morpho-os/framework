@@ -12,8 +12,11 @@ class SeleniumServer {
     private $port;
     private $geckoBinFilePath;
 
-    public function __construct() {
-        $this->serverJarFilePath = __DIR__ . '/selenium-server-standalone.jar';
+    /**
+     * @param string $serverJarFilePath File path like __DIR__ . '/selenium-server-standalone.jar'
+     */
+    public function __construct(string $serverJarFilePath) {
+        $this->serverJarFilePath = $serverJarFilePath;
     }
 
     public function setServerJarFilePath(string $filePath): self {

@@ -18,9 +18,7 @@ abstract class BrowserTestSuite extends TestSuite {
         }
     }
 
-    protected function startSeleniumServer(): SeleniumServer {
-        return (new SeleniumServer())->start();
-    }
+    abstract protected function startSeleniumServer(): SeleniumServer;
 
     protected function stopSeleniumServer(SeleniumServer $server) {
         $server->stop();

@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Morpho\Test;
 
+use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Morpho\Network\Http\Browser;
@@ -20,14 +21,16 @@ class BrowserTest extends TestCase {
      */
     protected $browser;
 
+    /**
+     * @var string
+     */
     protected $baseUri;
 
     public function setUp() {
         parent::setUp();
         $this->baseUri = TestSettings::get('siteUri');
-        $capabilities = DesiredCapabilities::firefox();
         //$capabilities->setCapability('firefox_binary', '/usr/lib/firefox/firefox');
-        $this->browser = Browser::new($capabilities);
+        $this->browser = $this->newBrowser();
     }
 
     public function tearDown() {
@@ -39,5 +42,13 @@ class BrowserTest extends TestCase {
     protected function checkLink(string $expectedUri, string $expectedText, WebDriverElement $el): void {
         $this->assertEquals($expectedUri, $el->getAttribute('href'));
         $this->assertEquals($expectedText, $el->getText());
+    }
+
+    protected function checkElValue(string $expectedText, By $elSelector): void {
+        $this->assertEquals($expectedText, $this->browser->findElement($elSelector)->getAttribute('value'));
+    }
+
+    protected function newBrowser() {
+        return Browser::new(DesiredCapabilities::firefox());
     }
 }

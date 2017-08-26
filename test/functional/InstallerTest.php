@@ -22,15 +22,12 @@ class InstallerTest extends BrowserTest {
 
         $this->assertEquals('Installation', $this->browser->getTitle());
 
-        $assertElValue = function ($expectedText, $elSelector) {
-            $this->assertEquals($expectedText, $this->browser->findElement($elSelector)->getAttribute('value'));
-        };
         $fallbackDbConfig = (require $site->fallbackConfigFilePath())['db'];
-        $assertElValue($fallbackDbConfig['db'], By::id('db'));
-        $assertElValue($fallbackDbConfig['user'], By::id('user'));
-        $assertElValue($fallbackDbConfig['password'], By::id('password'));
-        $assertElValue($fallbackDbConfig['host'], By::cssSelector('input[name=host]'));
-        $assertElValue($fallbackDbConfig['port'], By::cssSelector('input[name=port]'));
+        $this->checkElValue($fallbackDbConfig['db'], By::id('db'));
+        $this->checkElValue($fallbackDbConfig['user'], By::id('user'));
+        $this->checkElValue($fallbackDbConfig['password'], By::id('password'));
+        $this->checkElValue($fallbackDbConfig['host'], By::cssSelector('input[name=host]'));
+        $this->checkElValue($fallbackDbConfig['port'], By::cssSelector('input[name=port]'));
 
         $this->browser->fillForm(['db' => self::DB_NAME]);
 
