@@ -42,7 +42,7 @@ class PostHtmlParser extends HtmlParser {
         //     2. child-page-script included
         //     3. action-script included
         //     4. main-page-script inline
-        //     5. child-page-script inline | action-script
+        //     5. child-page-script inline | action-script inline
         $scripts = array_merge(
             $mainPageScripts[1],
             $childPageScripts[1],
@@ -73,6 +73,9 @@ class PostHtmlParser extends HtmlParser {
         usort($scripts, function ($prev, $next) use (&$index) {
             $a = isset($prev[self::INDEX_ATTR]) ? $prev[self::INDEX_ATTR] : $index++;
             $b = isset($next[self::INDEX_ATTR]) ? $next[self::INDEX_ATTR] : $index++;
+            if ($a === $b && isset($prev['src']) && isset($next['src'])) {
+                return $prev['src'] <=> $next['src'];
+            }
             return $a <=> $b;
         });
         //ksort($scripts, SORT_NUMERIC);

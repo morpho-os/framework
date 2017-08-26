@@ -620,7 +620,7 @@ function buffer(callable $fn): string {
     return ob_get_clean();
 }
 
-function prepend(array $it, string $prefix) {
+function prepend(array $it, string $prefix): array {
     // @TODO: iterable
     return array_map(prefix($prefix), $it);
 }
