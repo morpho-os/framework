@@ -66,6 +66,13 @@ class TypeScriptCompilerTest extends TestCase {
         $this->assertEquals('lf', $options['newLine']);
         $this->assertEquals(TypeScriptCompiler::MODULE_KIND, $this->compiler->option('module'));
     }
+    
+    public function testHasOption() {
+        $this->assertTrue($this->compiler->hasOption('newLine'));
+        $this->assertFalse($this->compiler->hasOption('foo'));
+        $this->compiler->setOption('foo', null);
+        $this->assertTrue($this->compiler->hasOption('foo'));
+    }
 
     public function testCompileToFile_SingleInFileToSingleOutFile() {
         $inFilePath = $this->createTmpFile('ts');

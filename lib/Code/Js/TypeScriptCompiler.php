@@ -9,7 +9,14 @@ use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
 
 class TypeScriptCompiler extends Compiler {
-    // Possible values: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
+    public const NONE_MODULE_KIND = 'none';
+    public const COMMONJS_MODULE_KIND = 'commonjs';
+    public const AMD_MODULE_KIND = 'amd';
+    public const SYSTEM_MODULE_KIND = 'system';
+    public const UMD_MODULE_KIND = 'umd';
+    public const ES2015_MODULE_KIND = 'es2015';
+    public const ESNEXT_MODULE_KIND = 'ESNext';
+    // Default module kind
     public const MODULE_KIND = 'amd';
 
     private const TSCONFIG_FILE = 'tsconfig.json';
@@ -145,6 +152,10 @@ class TypeScriptCompiler extends Compiler {
 
     public function options(): array {
         return $this->options;
+    }
+
+    public function hasOption(string $name): bool {
+        return array_key_exists($name, $this->options);
     }
 
     public function optionsString(array $options = null): string {
