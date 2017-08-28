@@ -3,6 +3,7 @@
 namespace Morpho\Code\Peg;
 
 use Morpho\Base\NotImplementedException;
+use Morpho\Code\SyntaxError;
 
 class Peg /*implements \IteratorAggregate */{
     private $rules;
@@ -31,16 +32,16 @@ class Peg /*implements \IteratorAggregate */{
 
     public function parse(string $input): Ast {
         $ast = new Ast();
-        $offset = 0;
-        foreach ($this->rules as $nonterminal => $expressions) {
-            foreach ($expressions as $expression) {
-                $match = $expression->parse($input);
-                if (false !== $match) {
-                    $ast[] = $match;
-                    $n = strlen($match);
-                    $input = substr($input, $offset, $n);
-                    $offset += $n;
-                }
+        //$offset = 0;
+        foreach ($this->rules as $nonterminal => $expression) {
+            $match = $expression->parse($input);
+            if (false !== $match) {
+                $ast[] = $match;
+                $n = strlen($match);
+                $input = substr($input, $n);
+                //$offset += $n;
+            } else {
+                throw new SyntaxError();
             }
         }
         return $ast;
