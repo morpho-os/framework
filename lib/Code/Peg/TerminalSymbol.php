@@ -9,7 +9,7 @@ class TerminalSymbol extends ParsingExpression {
         $this->value = $value;
     }
 
-    public function parse($input) {
+    public function parse($input, Peg $peg) {
         if (0 === strpos($input, $this->value)) {
             return substr($input, 0, strlen($this->value));
         }

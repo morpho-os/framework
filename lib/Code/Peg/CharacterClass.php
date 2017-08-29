@@ -2,8 +2,8 @@
 //declare(strict_types=1);
 namespace Morpho\Code\Peg;
 
-class EmptyString extends ParsingExpression {
+class CharacterClass extends ParsingExpression {
     public function parse($input, Peg $peg) {
-        return '';
+        // @TODO
     }
 }

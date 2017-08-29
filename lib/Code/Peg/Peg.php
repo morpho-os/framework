@@ -30,21 +30,24 @@ class Peg /*implements \IteratorAggregate */{
         ]);*/
     }
 
-    public function parse(string $input): Ast {
-        $ast = new Ast();
+    public function parse(string $input): string {
         //$offset = 0;
-        foreach ($this->rules as $nonterminal => $expression) {
-            $match = $expression->parse($input);
+        $expression = reset($this->rules);
+        $match = $expression->parse($input, $this);
+        //foreach ($this->rules as $nonterminal => $expression) {
+//            $match = $expression->parse($input, $this);
             if (false !== $match) {
-                $ast[] = $match;
-                $n = strlen($match);
-                $input = substr($input, $n);
+                return $match;
+/*                $n = strlen($match);
+                $input = substr($input, $n);*/
                 //$offset += $n;
             } else {
                 throw new SyntaxError();
             }
-        }
-        return $ast;
+    }
+
+    public function rule(string $nonterminal): array {
+        return [$nonterminal, $this->rules[$nonterminal]];
     }
 }
 /*

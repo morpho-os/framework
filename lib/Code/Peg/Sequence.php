@@ -9,10 +9,10 @@ class Sequence extends ParsingExpression {
         $this->expressions = $expressions;
     }
 
-    public function parse($input) {
+    public function parse($input, Peg $peg) {
         $res = '';
         foreach ($this->expressions as $expression) {
-            $match = $expression->parse($input);
+            $match = $expression->parse($input, $peg);
             if (false === $match) {
                 return false;
             }

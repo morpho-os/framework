@@ -2,7 +2,7 @@
 //declare(strict_types=1);
 namespace Morpho\Code\Peg;
 
-class NotPredicate extends ParsingExpression {
+class OneOrMoreRepetition extends ParsingExpression {
     private $expression;
 
     public function __construct($expression) {
@@ -10,7 +10,6 @@ class NotPredicate extends ParsingExpression {
     }
 
     public function parse($input, Peg $peg) {
-        $res = $this->expression->parse($input, $peg);
-        return false === $res ? '' : false;
+        // TODO
     }
 }

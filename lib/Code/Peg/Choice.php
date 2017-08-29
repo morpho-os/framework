@@ -2,16 +2,16 @@
 //declare(strict_types=1);
 namespace Morpho\Code\Peg;
 
-class Alternation extends ParsingExpression {
+class Choice extends ParsingExpression {
     private $expressions;
 
-    public function __construct(...$expressions) {
-        $this->expressions = $expressions;
+    public function __construct(...$variants) {
+        $this->expressions = $variants;
     }
 
-    public function parse($input) {
+    public function parse($input, Peg $peg) {
         foreach ($this->expressions as $expression) {
-            $match = $expression->parse($input);
+            $match = $expression->parse($input, $peg);
             if (false !== $match) {
                 return $match;
             }

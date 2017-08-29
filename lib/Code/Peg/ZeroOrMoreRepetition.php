@@ -9,10 +9,10 @@ class ZeroOrMoreRepetition extends ParsingExpression {
         $this->expression = $expression;
     }
 
-    public function parse($input) {
+    public function parse($input, Peg $peg) {
         $res = '';
         while (true) {
-            $match = $this->expression->parse($input);
+            $match = $this->expression->parse($input, $peg);
             if (false === $match) {
                 return $res;
             }

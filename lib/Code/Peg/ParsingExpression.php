@@ -3,5 +3,5 @@
 namespace Morpho\Code\Peg;
 
 abstract class ParsingExpression {
-    abstract public function parse($input);
+    abstract public function parse($input, Peg $peg);
 }
