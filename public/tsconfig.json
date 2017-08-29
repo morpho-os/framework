@@ -21,6 +21,7 @@
         "lib": [
             "dom",
             "es2015.promise",
+            "es2015.iterable",
             "es5"
         ],
         "baseUrl": "./module",

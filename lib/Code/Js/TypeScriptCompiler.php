@@ -43,7 +43,7 @@ class TypeScriptCompiler extends Compiler {
         'sourceMap' => true,
         'strictNullChecks' => false,
         'target' => 'es5',
-        "lib" => ["dom", "es2015.promise", "es5"],
+        "lib" => ["dom", "es2015.promise", "es2015.iterable", "es5"],
     ];
 
     private $pathEnvVar;
