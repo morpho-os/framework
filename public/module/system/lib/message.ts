@@ -45,8 +45,8 @@ export class PageMessenger extends Widget {
     protected registerCloseMessageHandler(): void {
         const self = this;
 
-        function hideElWithAnim($el: JQuery, fn: () => void) {
-            $el.fadeOut(fn);
+        function hideElWithAnim($el: JQuery, complete: (this: HTMLElement) => void) {
+            $el.fadeOut(complete);
         }
 
         function hideMainContainerWithAnim() {

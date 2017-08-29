@@ -201,9 +201,6 @@ define("system/test/form-test", ["require", "exports", "../lib/form", "../lib/wi
                 TestForm.prototype.ajaxSuccess = function (responseData, textStatus, jqXHR) {
                     this.ajaxHandlerCalled = true;
                 };
-                TestForm.prototype.ajaxError = function (jqXHR, textStatus, errorThrown) {
-                    this.ajaxHandlerCalled = true;
-                };
                 return TestForm;
             }(form_1.Form));
             var $form = Page.withRequiredElsFormEl();

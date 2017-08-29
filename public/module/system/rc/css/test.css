@@ -17,4 +17,10 @@
 .test-results__stack-line_ts-last {
   color: #8b0000;
 }
+.test-results__successful .panel-body {
+  background: #affeb2;
+}
+.test-results__failed .panel-body {
+  background: #ffb6c1;
+}
 

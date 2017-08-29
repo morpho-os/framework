@@ -271,6 +271,7 @@ export class TestResultsReporter implements jasmine.CustomReporter {
     public jasmineDone(runDetails: jasmine.RunDetails): void {
         const summary = this.summary;
         this.append('All tests completed.<br>Passed: ' + this.escape((summary.noOfTests - summary.noOfFailedTests) + '') + '/' + this.escape(summary.noOfTests + ''));
+        this.el.addClass(summary.noOfFailedTests > 0 ? 'test-results__failed' : 'test-results__successful');
     }
 
     public suiteStarted(result: jasmine.CustomReporterResult): void {
@@ -333,7 +334,7 @@ export class TestResultsReporter implements jasmine.CustomReporter {
 
     protected applySourceMaps(): void {
         const self = this;
-        self.el.find('.test-results__stack-trace:not(.processed)').each(function (this: JQuery) {
+        self.el.find('.test-results__stack-trace:not(.processed)').each(function (this: HTMLElement) {
             const $el = $(this);
             $el.addClass('processed');
             const $stackTrace = $el.find('.test-results__stack');

@@ -68,6 +68,7 @@ define("system/lib/jasmine", ["require", "exports"], function (require, exports)
         TestResultsReporter.prototype.jasmineDone = function (runDetails) {
             var summary = this.summary;
             this.append('All tests completed.<br>Passed: ' + this.escape((summary.noOfTests - summary.noOfFailedTests) + '') + '/' + this.escape(summary.noOfTests + ''));
+            this.el.addClass(summary.noOfFailedTests > 0 ? 'test-results__failed' : 'test-results__successful');
         };
         TestResultsReporter.prototype.suiteStarted = function (result) {
             var suiteTitle = result.description;

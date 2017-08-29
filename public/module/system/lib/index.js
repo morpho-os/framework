@@ -227,8 +227,8 @@ define("system/lib/message", ["require", "exports", "system/lib/widget", "system
         };
         PageMessenger.prototype.registerCloseMessageHandler = function () {
             var self = this;
-            function hideElWithAnim($el, fn) {
-                $el.fadeOut(fn);
+            function hideElWithAnim($el, complete) {
+                $el.fadeOut(complete);
             }
             function hideMainContainerWithAnim() {
                 hideElWithAnim(self.el, function () {

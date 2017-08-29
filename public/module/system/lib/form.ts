@@ -63,7 +63,7 @@ export class Form extends Widget {
     }
 
     public elsToValidate(): JQuery {
-        return this.els().filter(function (this: JQuery) {
+        return this.els().filter(function (this: HTMLElement) {
             const $el = $(this);
             return $el.is(':not(:submit)');//input[type=submit])') && $el.is(':not(button)');
         });
@@ -88,7 +88,7 @@ export class Form extends Widget {
 
     public invalidEls(): JQuery {
         const self = this;
-        return this.els().filter(function (this: JQuery) {
+        return this.els().filter(function (this: HTMLElement) {
             return $(this).hasClass(self.invalidCssClass);
         });
     }
@@ -125,7 +125,6 @@ export class Form extends Widget {
 
     /**
      * Displays either form errors or element errors or both.
-     * @TODO: return promise
      */
     public showErrors(errors: Array<ErrorMessage | [JQuery, ErrorMessage[]]>): void {
         let formErrors: ErrorMessage[] = [];
@@ -141,7 +140,6 @@ export class Form extends Widget {
         this.scrollToFirstError();
     }
 
-    // @TODO: return promise
     protected showFormErrors(errors: ErrorMessage[]): void {
         if (errors.length) {
             const rendered: string = '<div class="alert alert-error">' + errors.map(renderMessage).join("\n") + '</div>';
@@ -151,7 +149,6 @@ export class Form extends Widget {
         this.el.addClass(this.invalidCssClass);
     }
 
-    // @TODO: return promise
     protected showElErrors($el: JQuery, errors: ErrorMessage[]): void {
         const invalidCssClass = this.invalidCssClass;
         $el.addClass(invalidCssClass).closest('.' + this.elContainerCssClass).addClass(invalidCssClass).addClass('has-error');
@@ -269,7 +266,7 @@ export class Form extends Widget {
     }
 
     protected submitButtonEls(): JQuery {
-        return this.els().filter(function (this: JQuery) {
+        return this.els().filter(function (this: HTMLElement) {
             return $(this).is(':submit');
         });
     }
