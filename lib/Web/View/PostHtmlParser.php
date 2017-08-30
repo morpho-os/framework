@@ -1,4 +1,9 @@
 <?php
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Web\View;
 
 use function Morpho\Base\dasherize;
@@ -74,6 +79,7 @@ class PostHtmlParser extends HtmlParser {
             $a = isset($prev[self::INDEX_ATTR]) ? $prev[self::INDEX_ATTR] : $index++;
             $b = isset($next[self::INDEX_ATTR]) ? $next[self::INDEX_ATTR] : $index++;
             if ($a === $b && isset($prev['src']) && isset($next['src'])) {
+                // Without this sort an exact order can be unknown when indexes are equal.
                 return $prev['src'] <=> $next['src'];
             }
             return $a <=> $b;
