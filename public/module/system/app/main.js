@@ -5,3 +5,4 @@ define("system/app/main", ["require", "exports", "../lib/message"], function (re
         message_1.initPageMessenger();
     });
 });
+//# sourceMappingURL=main.js.map

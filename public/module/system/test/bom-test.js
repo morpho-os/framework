@@ -20,3 +20,4 @@ describe('Extension of the "BOM/Browser Object Model"', function () {
         it("Math.isFloatsEqual", function () { return expect(Math.floatsEqual(0, 0.0001)).toBeFalsy(); });
     });
 });
+//# sourceMappingURL=bom-test.js.map

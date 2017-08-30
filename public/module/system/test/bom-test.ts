@@ -1,5 +1,8 @@
-/// <reference path="../lib/bom.d.ts" />
-
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 describe('Extension of the "BOM/Browser Object Model"', function() {
     describe('Math float', function () {
         it("Math.roundFloat", () => expect(Math.floatsEqual(Math.roundFloat(Math.PI, 2), 3.14)).toBeTruthy());

@@ -9,6 +9,7 @@ namespace Morpho\Infra;
 
 use function Morpho\Base\showLn;
 use const Morpho\Core\LIB_DIR_NAME;
+use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Core\TEST_DIR_NAME;
 use Morpho\Fs\Directory;
 use const Morpho\Web\PUBLIC_DIR_NAME;
@@ -32,10 +33,13 @@ OUT;
         };
 
         $i = 0;
-        $i += $addLicenseForFiles(
+        /*$i += $addLicenseForFiles(
             Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true])
         );
-        $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));
+        $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));*/
+        $i += $addLicenseForFiles(
+            Directory::filePaths($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true])
+        );
 
         showLn("Processed $i files");
     }
