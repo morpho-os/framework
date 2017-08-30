@@ -33,10 +33,10 @@ OUT;
         };
 
         $i = 0;
-        /*$i += $addLicenseForFiles(
+        $i += $addLicenseForFiles(
             Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true])
         );
-        $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));*/
+        $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));
         $i += $addLicenseForFiles(
             Directory::filePaths($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true])
         );
