@@ -15,7 +15,7 @@ class SettingsManagerTest extends DbTestCase {
     private $moduleName;
 
     public function setUp() {
-        $db = $this->db();
+        $db = $this->newDbConnection();
         $moduleNames = ['module', 'setting'];
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables();

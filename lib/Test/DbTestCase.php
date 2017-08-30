@@ -33,7 +33,7 @@ abstract class DbTestCase extends TestCase {
         ];
     }
 
-    protected function db($config = null): Db {
+    protected function newDbConnection($config = null): Db {
         if (!$config) {
             $config = $this->dbConfig();
         }

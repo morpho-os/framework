@@ -10,8 +10,11 @@ use Morpho\Db\Sql\Tree;
 use Morpho\Test\DbTestCase;
 
 class TreeTest extends DbTestCase {
+    private $db;
+    private $tree;
+
     public function setUp() {
-        $this->db = $this->db();
+        $this->db = $this->newDbConnection();
         $this->db->schemaManager()->deleteAllTables();
         $this->tree = new Tree($this->db);
         $dataTableName = 'tree_data_fs';

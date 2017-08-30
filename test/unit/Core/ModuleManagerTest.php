@@ -6,23 +6,23 @@
  */
 namespace MorphoTest\Unit\Core;
 
+use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Base\ClassNotFoundException;
 use Morpho\Base\Node;
-use const Morpho\Core\MODULE_DIR_PATH;
-use Morpho\Core\Request;
-use Morpho\Test\DbTestCase;
-use Morpho\Core\ModuleManager;
+use Morpho\Core\Controller;
 use Morpho\Core\Module;
+use Morpho\Core\ModuleManager;
+use Morpho\Core\Request;
 use Morpho\Db\Sql\Db;
 use Morpho\Di\ServiceManager;
-use Morpho\Web\Controller;
+use Morpho\Test\DbTestCase;
 
 class ModuleManagerTest extends DbTestCase {
     private $vendor = 'morpho-test';
 
     public function setUp() {
         parent::setUp();
-        $db = $this->db();
+        $db = $this->newDbConnection();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
         require MODULE_DIR_PATH . '/system/vendor/autoload.php';
@@ -218,9 +218,40 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertTrue($module[$controllerName]->isDispatchCalled());
     }
 
+    public function testDispatchLoopAccessors() {
+        $this->checkAccessors($this->newModuleManager(), 30, 25, 'dispatchLoopLimit');
+    }
+
+    public function testDispatch_ThrowsExceptionAfterExceedingLimit() {
+        $moduleManager = new class($this->createMock(Db::class), $this->createMock(\Morpho\Core\ModuleFs::class)) extends ModuleManager {
+            public function controller($moduleName, $controllerName, $actionName): Controller {
+                throw new \RuntimeException();
+            }
+
+            public function trigger(string $eventName, array $args = null) {
+            }
+
+            protected function actionNotFound($moduleName, $controllerName, $actionName): void {
+                throw new \RuntimeException();
+            }
+        };
+        $request = $this->createMock(Request::class);
+
+        $limit = 30;
+        $moduleManager->setDispatchLoopLimit($limit);
+        /*
+        $request->expects($this->any())
+            ->method('isDispatched')
+            ->will($this->returnValue(false));
+        */
+        $this->expectException(\RuntimeException::class, "Dispatch loop has occurred $limit times");
+
+        $moduleManager->dispatch($request);
+    }
+
     private function newModuleManager(Db $db = null, $moduleFs = null) {
         $moduleManager = new MyModuleManager(
-            $db ?: $this->db(),
+            $db ?: $this->newDbConnection(),
             $moduleFs ?: $this->newModuleFs([])
         );
         $moduleManager->setServiceManager(new ServiceManager());

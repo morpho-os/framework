@@ -33,6 +33,8 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected $moduleFs;
 
+    protected $dispatchLoopLimit = 30;
+
     public function __construct(Db $db = null, ModuleFs $moduleFs) {
         $this->db = $db;
         $this->moduleFs = $moduleFs;
@@ -43,7 +45,11 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function dispatch($request): void {
+        $i = 0;
         do {
+            if ($i >= $this->dispatchLoopLimit) {
+                throw new \RuntimeException("Dispatch loop has occurred {$this->dispatchLoopLimit} times");
+            }
             try {
                 $request->isDispatched(true);
 
@@ -63,7 +69,17 @@ abstract class ModuleManager extends Node implements IEventManager {
             } catch (\Throwable $e) {
                 $this->trigger('dispatchError', ['request' => $request, 'exception' => $e]);
             }
+            $i++;
         } while (false === $request->isDispatched());
+    }
+
+    public function setDispatchLoopLimit(int $n) {
+        $this->dispatchLoopLimit = $n;
+        return $this;
+    }
+
+    public function dispatchLoopLimit(): int {
+        return $this->dispatchLoopLimit;
     }
 
     public function controller($moduleName, $controllerName, $actionName): Controller {

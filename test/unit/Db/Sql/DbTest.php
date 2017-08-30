@@ -14,7 +14,7 @@ abstract class DbTest extends DbTestCase {
     protected $db, $schemaManager;
 
     public function setUp() {
-        $this->db = $this->db();
+        $this->db = $this->newDbConnection();
         $this->schemaManager = new SchemaManager($this->db);
         $this->schemaManager->deleteAllTables();
     }

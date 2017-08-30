@@ -9,16 +9,16 @@ namespace MorphoTest\Unit\Db\Sql\MySql;
 use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\MySql\SchemaManager;
 use Morpho\Test\DbTestCase;
-use Morpho\Db\Sql\Db;
 
 class SchemaManagerTest extends DbTestCase {
     protected $schemaManager;
 
     private $dbs = [];
+    private $db;
 
     public function setUp() {
         parent::setUp();
-        $db = $this->db();
+        $db = $this->newDbConnection();
         $this->schemaManager = new SchemaManager($db);
         $this->schemaManager->deleteAllTables();
         $this->db = $db;
