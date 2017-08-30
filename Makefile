@@ -14,10 +14,13 @@ test:
 	bin/test
 
 ftest:
-	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/functional/TestSuite.php
+	bin/test test/functional/TestSuite.php
 
 utest:
-	bin/test --bootstrap $(baseDirPath)/test/bootstrap.php test/unit/TestSuite.php
+	bin/test test/unit/TestSuite.php
+
+mtest:
+	bin/test module
 
 clean:
 	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/functional/*.log

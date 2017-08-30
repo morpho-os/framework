@@ -13,7 +13,7 @@ use Morpho\Web\Site;
 class ModuleTest extends DbTestCase {
     public function setUp() {
         parent::setUp();
-        $db = $this->db();
+        $db = $this->newDbConnection();
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables();
         $schemaManager->createTables(SystemModule::tableDefinitions());
