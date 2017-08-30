@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+namespace Morpho\Infra;
+
+use function Morpho\Cli\shell;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$add = true;
+if (posix_isatty(STDOUT)) {
+    $res = shell('dialog --stdout --yesno \'Add header?\' 0 0', ['checkExitCode' => false, 'buffer' => true]);
+    $add = !$res->isError();
+}
+if ($add) {
+    (new AddLicenseCommand())(__DIR__ . '/..');
+}
