@@ -2,12 +2,11 @@
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
- * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 declare(strict_types=1);
 namespace Morpho\Infra;
 
-use function Morpho\Base\endsWith;
 use function Morpho\Base\showLn;
 use const Morpho\Core\LIB_DIR_NAME;
 use const Morpho\Core\TEST_DIR_NAME;
@@ -16,23 +15,29 @@ use const Morpho\Web\PUBLIC_DIR_NAME;
 
 class AddLicenseCommand {
     public function __invoke(string $baseDirPath) {
+        $baseDirPath = realpath($baseDirPath);
         if (!is_dir($baseDirPath . '/' . LIB_DIR_NAME) || !is_dir($baseDirPath . '/' . PUBLIC_DIR_NAME)) {
             throw new \UnexpectedValueException("Invalid base directory path");
         }
         $licenseText = <<<OUT
 This file is part of morpho-os/framework
 It is distributed under the 'Apache License Version 2.0' license.
-See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text
+See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
 OUT;
 
         $licenseHeaderManager = new LicenseHeaderManager();
-        /*$this->addLicenseForPhpFiles(
-            Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true]),
-            $licenseHeaderManager,
-            $licenseText
-        );*/
-        d($this->filesInTestDir($baseDirPath));
 
+        $addLicenseForFiles = function (iterable $files) use ($licenseHeaderManager, $licenseText) {
+            return $this->updateLicenseForFiles($licenseHeaderManager, $files, $licenseText);
+        };
+
+        $i = 0;
+        $i += $addLicenseForFiles(
+            Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true])
+        );
+        $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));
+
+        showLn("Processed $i files");
     }
 
     private function filesInTestDir(string $baseDirPath): iterable {
@@ -42,18 +47,16 @@ OUT;
             }
             yield $filePath;
         }
+        yield from Directory::filePaths($baseDirPath . '/' . TEST_DIR_NAME . '/visual', Directory::PHP_FILES_RE);
+        yield $baseDirPath . '/' . TEST_DIR_NAME . '/bootstrap.php';
     }
 
-    private function addLicenseForPhpFiles(iterable $files, LicenseHeaderManager $licenseHeaderManager, string $licenseText): int {
+    private function updateLicenseForFiles(LicenseHeaderManager $licenseHeaderManager, iterable $files, string $licenseText): int {
         $i = 0;
         foreach ($files as $filePath) {
-            if (!endsWith($filePath, '.php')) {
-                throw new \UnexpectedValueException();
-            }
-            $licenseHeaderManager->addLicenseForFile($filePath, $licenseText);
+            $licenseHeaderManager->updateLicenseHeader($filePath, $licenseText);
             $i++;
         }
-        showLn("Processed $i files");
         return $i;
     }
 }
