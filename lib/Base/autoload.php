@@ -42,67 +42,6 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function all(callable $predicate, iterable $list): bool {
-    foreach ($list as $key => $value) {
-        if (!$predicate($value, $key)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function any(callable $predicate, iterable $list): bool {
-    foreach ($list as $key => $value) {
-        if ($predicate($value, $key)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function map(callable $fn, $list): iterable {
-    foreach ($list as $k => $v) {
-        yield $k => $fn($v, $k);
-    }
-}
-
-/**
- * @return iterable
- *     array if $list is an array
- *     Generator if $list argument is not an array
- */
-function filter(callable $predicate, iterable $list): iterable {
-    if (is_array($list)) {
-        $res = [];
-        $numericKeys = true;
-        foreach ($list as $k => $v) {
-            if ($numericKeys && !is_numeric($k)) {
-                $numericKeys = false;
-            }
-            if ($predicate($v, $k)) {
-                $res[$k] = $v;
-            }
-        }
-        return $numericKeys ? array_values($res) : $res;
-    } else {
-        $gen = function ($predicate, $list) {
-            foreach ($list as $k => $v) {
-                if ($predicate($v, $k)) {
-                    yield $k => $v;
-                }
-            }
-        };
-        return $gen($predicate, $list);
-    }
-}
-
-/**
- * $fn has type (mixed $prev, mixed $cur): mixed
- */
-function reduce(callable $fn, array $arr, $initial = null) {
-    return array_reduce($arr, $fn, $initial);
-}
-
 function wrap($string, string $wrapper) {
     if (is_array($string)) {
         $r = [];
@@ -356,6 +295,286 @@ function trimMore($string, $charlist = null) {
 }
 
 /**
+ * Removes duplicated characters from the string.
+ *
+ * @param string|int $string Source string with duplicated characters.
+ * @param string|int $chars Either a set of characters to use in character class or a reg-exp pattern that must match
+ *                               all duplicated characters that must be removed.
+ * @return string                String with removed duplicates.
+ */
+function deleteDups($string, $chars, bool $isCharClass = true) {
+    $regExp = $isCharClass
+        ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
+        : "/($chars)+/si";
+
+    return preg_replace($regExp, '\1', (string)$string);
+}
+
+function filterStringArgs($string, array $args, callable $filterFn): string {
+    $fromToMap = [];
+    foreach ($args as $key => $value) {
+        $fromToMap['{' . $key . '}'] = $filterFn($value);
+    }
+    return strtr($string, $fromToMap);
+}
+
+function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): string {
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    if (null === $tail) {
+        $tail = SHORTEN_TAIL;
+    }
+    return substr($text, 0, $length - strlen($tail)) . $tail;
+}
+
+function normalizeEols(string $s): string {
+    $res = preg_replace(EOL_FULL_RE, "\n", $s);
+    if (null === $res) {
+        throw new RuntimeException("Unable to replace EOL");
+    }
+    return $res;
+}
+
+/**
+ * @param mixed $data
+ */
+function toJson($data, $options = null): string {
+    return json_encode($data, $options ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+}
+
+/**
+ * @return mixed
+ */
+function fromJson(string $json, bool $objectsToArrays = true) {
+    $res = json_decode($json, $objectsToArrays);
+    if (null === $res) {
+        throw new RuntimeException("Invalid JSON or too deep data");
+    }
+    return $res;
+}
+
+function endsWith($string, $suffix): bool {
+    return substr($string, -strlen($suffix)) === $suffix;
+}
+
+function startsWith($string, $prefix): bool {
+    if ($prefix === '') {
+        return true;
+    }
+    return 0 === strpos($string, $prefix);
+}
+
+function typeOf($val): string {
+    if (is_object($val)) {
+        return get_class($val);
+    }
+    $type = gettype($val);
+    // @TODO: add void, iterable, callable??
+    switch (strtolower($type)) {
+        case 'int':
+        case 'integer':
+            return INT_TYPE;
+        case 'float':
+        case 'double':
+        case 'real':
+            return FLOAT_TYPE;
+        case 'bool':
+        case 'boolean':
+            return BOOL_TYPE;
+        case 'string':
+            return STRING_TYPE;
+        case 'null':
+            return NULL_TYPE;
+        case 'array':
+            return ARRAY_TYPE;
+        case 'resource':
+            return RESOURCE_TYPE;
+        default:
+            throw new UnexpectedValueException("Unexpected value of type: '$type'");
+    }
+}
+
+function buffer(callable $fn): string {
+    ob_start();
+    try {
+        $fn();
+    } catch (Throwable $e) {
+        // Don't output any result in case of Error
+        ob_end_clean();
+        throw $e;
+    }
+    return ob_get_clean();
+}
+
+function prefix(string $prefix): Closure {
+    return function (string $s) use ($prefix) {
+        return $prefix . $s;
+    };
+}
+
+function suffix(string $suffix): Closure {
+    return function (string $s) use ($suffix) {
+        return $s . $suffix;
+    };
+}
+
+function not(callable $predicateFn): Closure {
+    return function (...$args) use ($predicateFn) {
+        return !$predicateFn(...$args);
+    };
+}
+
+function hasPrefix(string $prefix): Closure {
+    return function ($s) use ($prefix) {
+        return startsWith($s, $prefix);
+    };
+}
+
+function hasSuffix(string $suffix): Closure {
+    return function ($s) use ($suffix) {
+        return endsWith($s, $suffix);
+    };
+}
+
+function partial(callable $fn, ...$args1): Closure {
+    return function (...$args2) use ($fn, $args1) {
+        return $fn(...array_merge($args1, $args2));
+    };
+}
+
+function compose(callable $f, callable $g): Closure {
+    return function ($v) use ($f, $g) {
+        return $f($g($v));
+    };
+}
+
+/**
+ * @return mixed
+ */
+function requireFile(string $__filePath) {
+    return require $__filePath;
+}
+
+// @TODO: Move to Byte??, merge with Converter
+
+function formatBytes(string $bytes, string $format = null): string {
+    $n = strlen($bytes);
+    $s = '';
+    $format = $format ?: '\x%02x';
+    for ($i = 0; $i < $n; $i++) {
+        $s .= sprintf($format, ord($bytes[$i]));
+    }
+    return $s;
+}
+
+function hash($var): string {
+    // @TODO: Use it in memoize, check all available types.
+    throw new NotImplementedException();
+}
+
+function equals($a, $b) {
+    throw new NotImplementedException();
+}
+
+/**
+ * @TODO: This method can't reliable say when a function is called with different arguments.
+ */
+function memoize(callable $fn): \Closure {
+    return function (...$args) use ($fn) {
+        static $memo = [];
+/*
+        $hash = array_reduce($args, function ($acc, $var) {
+            $hash = '';
+            if (is_object($var)) {
+                $hash .= spl_object_hash($var);
+            } elseif (is_scalar($var)) { //  int, float, string and bool
+            return $hash;
+        });
+*/
+        $hash = md5(json_encode($args)); // NB: md5() can cause collisions
+        if (array_key_exists($hash, $memo)) {
+            return $memo[$hash];
+        }
+        return $memo[$hash] = $fn(...$args);
+    };
+}
+
+// ----------------------------------------------------------------------------
+// Iterable
+
+function all(callable $predicate, iterable $list): bool {
+    foreach ($list as $key => $value) {
+        if (!$predicate($value, $key)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function any(callable $predicate, iterable $list): bool {
+    foreach ($list as $key => $value) {
+        if ($predicate($value, $key)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function map(callable $fn, $list): iterable {
+    foreach ($list as $k => $v) {
+        yield $k => $fn($v, $k);
+    }
+}
+
+/**
+ * @return iterable
+ *     array if $list is an array
+ *     Generator if $list argument is not an array
+ */
+function filter(callable $predicate, iterable $list): iterable {
+    if (is_array($list)) {
+        $res = [];
+        $numericKeys = true;
+        foreach ($list as $k => $v) {
+            if ($numericKeys && !is_numeric($k)) {
+                $numericKeys = false;
+            }
+            if ($predicate($v, $k)) {
+                $res[$k] = $v;
+            }
+        }
+        return $numericKeys ? array_values($res) : $res;
+    } else {
+        $gen = function ($predicate, $list) {
+            foreach ($list as $k => $v) {
+                if ($predicate($v, $k)) {
+                    yield $k => $v;
+                }
+            }
+        };
+        return $gen($predicate, $list);
+    }
+}
+
+/**
+ * $fn has type (mixed $prev, mixed $cur): mixed
+ */
+function reduce(callable $fn, array $arr, $initial = null) {
+    return array_reduce($arr, $fn, $initial);
+}
+
+function prepend(array $it, string $prefix): array {
+    // @TODO: iterable
+    return array_map(prefix($prefix), $it);
+}
+
+function append(array $it, string $suffix) {
+    // @TODO: iterable
+    return array_map(suffix($suffix), $it);
+}
+
+/**
  * For abcd returns a
  */
 function head($list, string $separator = null) {
@@ -434,7 +653,7 @@ function init($list, string $separator = null) {
         if (!count($list)) {
             throw new \RuntimeException('Empty list');
         }
-        throw new NotImplementedException();
+        return array_slice($list, 0, -1, true);
     } elseif (is_string($list)) {
         if ($list === '') {
             throw new \RuntimeException('Empty list');
@@ -469,7 +688,8 @@ function tail($list, string $separator = null) {
         if (!count($list)) {
             throw new \RuntimeException('Empty list');
         }
-        throw new NotImplementedException();
+        array_shift($list);
+        return $list;
     } elseif (is_string($list)) {
         if ($list === '') {
             throw new \RuntimeException('Empty list');
@@ -497,75 +717,10 @@ function tail($list, string $separator = null) {
     }
 }
 
-/**
- * Removes duplicated characters from the string.
- *
- * @param string|int $string Source string with duplicated characters.
- * @param string|int $chars Either a set of characters to use in character class or a reg-exp pattern that must match
- *                               all duplicated characters that must be removed.
- * @return string                String with removed duplicates.
- */
-function deleteDups($string, $chars, bool $isCharClass = true) {
-    $regExp = $isCharClass
-        ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
-        : "/($chars)+/si";
-
-    return preg_replace($regExp, '\1', (string)$string);
-}
-
-function filterStringArgs($string, array $args, callable $filterFn): string {
-    $fromToMap = [];
-    foreach ($args as $key => $value) {
-        $fromToMap['{' . $key . '}'] = $filterFn($value);
-    }
-    return strtr($string, $fromToMap);
-}
-
-function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): string {
-    if (strlen($text) <= $length) {
-        return $text;
-    }
-    if (null === $tail) {
-        $tail = SHORTEN_TAIL;
-    }
-    return substr($text, 0, $length - strlen($tail)) . $tail;
-}
-
-function normalizeEols(string $s): string {
-    $res = preg_replace(EOL_FULL_RE, "\n", $s);
-    if (null === $res) {
-        throw new RuntimeException("Unable to replace EOL");
-    }
-    return $res;
-}
-
-/**
- * @param mixed $data
- */
-function toJson($data, $options = null): string {
-    return json_encode($data, $options ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-}
-
-/**
- * @return mixed
- */
-function fromJson(string $json, bool $objectsToArrays = true) {
-    $res = json_decode($json, $objectsToArrays);
-    if (null === $res) {
-        throw new RuntimeException("Invalid JSON or too deep data");
-    }
-    return $res;
-}
-
-function endsWith($string, $suffix): bool {
-    return substr($string, -strlen($suffix)) === $suffix;
-}
-
-function startsWith($string, $prefix): bool {
-    if ($prefix === '') {
-        return true;
-    }
-    return 0 === strpos($string, $prefix);
+function toArray($arrOrTraversable, bool $useKeys = false): array {
+    return is_array($arrOrTraversable)
+        ? $arrOrTraversable
+        : iterator_to_array($arrOrTraversable, $useKeys);
 }
 
 function contains($haystack, $needle): bool {
@@ -581,155 +736,4 @@ function contains($haystack, $needle): bool {
         // @TODO: iterable
         throw new NotImplementedException();
     }
-}
-
-function typeOf($val): string {
-    if (is_object($val)) {
-        return get_class($val);
-    }
-    $type = gettype($val);
-    // @TODO: add void, iterable, callable??
-    switch (strtolower($type)) {
-        case 'int':
-        case 'integer':
-            return INT_TYPE;
-        case 'float':
-        case 'double':
-        case 'real':
-            return FLOAT_TYPE;
-        case 'bool':
-        case 'boolean':
-            return BOOL_TYPE;
-        case 'string':
-            return STRING_TYPE;
-        case 'null':
-            return NULL_TYPE;
-        case 'array':
-            return ARRAY_TYPE;
-        case 'resource':
-            return RESOURCE_TYPE;
-        default:
-            throw new UnexpectedValueException("Unexpected value of type: '$type'");
-    }
-}
-
-function buffer(callable $fn): string {
-    ob_start();
-    try {
-        $fn();
-    } catch (Throwable $e) {
-        // Don't output any result in case of Error
-        ob_end_clean();
-        throw $e;
-    }
-    return ob_get_clean();
-}
-
-function prepend(array $it, string $prefix): array {
-    // @TODO: iterable
-    return array_map(prefix($prefix), $it);
-}
-
-function append(array $it, string $suffix) {
-    // @TODO: iterable
-    return array_map(suffix($suffix), $it);
-}
-
-function prefix(string $prefix): Closure {
-    return function (string $s) use ($prefix) {
-        return $prefix . $s;
-    };
-}
-
-function suffix(string $suffix): Closure {
-    return function (string $s) use ($suffix) {
-        return $s . $suffix;
-    };
-}
-
-function not(callable $predicateFn): Closure {
-    return function (...$args) use ($predicateFn) {
-        return !$predicateFn(...$args);
-    };
-}
-
-function hasPrefix(string $prefix): Closure {
-    return function ($s) use ($prefix) {
-        return startsWith($s, $prefix);
-    };
-}
-
-function hasSuffix(string $suffix): Closure {
-    return function ($s) use ($suffix) {
-        return endsWith($s, $suffix);
-    };
-}
-
-function partial(callable $fn, ...$args1): Closure {
-    return function (...$args2) use ($fn, $args1) {
-        return $fn(...array_merge($args1, $args2));
-    };
-}
-
-function compose(callable $f, callable $g): Closure {
-    return function ($v) use ($f, $g) {
-        return $f($g($v));
-    };
-}
-
-/**
- * @return mixed
- */
-function requireFile(string $__filePath) {
-    return require $__filePath;
-}
-
-function toArray($arrOrTraversable, bool $useKeys = false): array {
-    return is_array($arrOrTraversable)
-        ? $arrOrTraversable
-        : iterator_to_array($arrOrTraversable, $useKeys);
-}
-
-// @TODO: Move to Byte??, merge with Converter
-
-function formatBytes(string $bytes, string $format = null): string {
-    $n = strlen($bytes);
-    $s = '';
-    $format = $format ?: '\x%02x';
-    for ($i = 0; $i < $n; $i++) {
-        $s .= sprintf($format, ord($bytes[$i]));
-    }
-    return $s;
-}
-
-function hash($var): string {
-    // @TODO: Use it in memoize, check all available types.
-    throw new NotImplementedException();
-}
-
-function equals($a, $b) {
-    throw new NotImplementedException();
-}
-
-/**
- * @TODO: This method can't reliable say when a function is called with different arguments.
- */
-function memoize(callable $fn): \Closure {
-    return function (...$args) use ($fn) {
-        static $memo = [];
-/*
-        $hash = array_reduce($args, function ($acc, $var) {
-            $hash = '';
-            if (is_object($var)) {
-                $hash .= spl_object_hash($var);
-            } elseif (is_scalar($var)) { //  int, float, string and bool
-            return $hash;
-        });
-*/
-        $hash = md5(json_encode($args)); // NB: md5() can cause collisions
-        if (array_key_exists($hash, $memo)) {
-            return $memo[$hash];
-        }
-        return $memo[$hash] = $fn(...$args);
-    };
 }

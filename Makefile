@@ -16,11 +16,11 @@ test:
 ftest:
 	bin/test test/functional/TestSuite.php
 
-utest:
-	bin/test test/unit/TestSuite.php
-
 mtest:
 	bin/test module
+
+utest:
+	bin/test test/unit/TestSuite.php
 
 clean:
 	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/functional/*.log
@@ -34,4 +34,4 @@ reset: clean
 	sudo rm -f module/localhost/config/config.php
 
 .SILENT:
-.PHONY: js css test ftest utest clean update reset
+.PHONY: js css test ftest mtest utest clean update reset

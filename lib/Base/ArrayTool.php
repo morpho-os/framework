@@ -33,9 +33,15 @@ class ArrayTool {
         return self::union($diffA, $diffB);
     }
 
-    public static function cartesianProduct(...$arrs) {
-        // @TODO
-        throw new NotImplementedException();
+    public static function cartesianProduct(array $a, array $b) {
+        // @TODO: work for iterable
+        $res = [];
+        foreach ($a as $v1) {
+            foreach ($b as $v2) {
+                $res[] = [$v1, $v2];
+            }
+        }
+        return $res;
     }
 
     public static function permutations(array $arr, int $n, bool $allowDups = false): array {
@@ -101,39 +107,6 @@ class ArrayTool {
             }
         }
         return $result;
-    }
-
-    public static function head(array $list) {
-        // @TODO: Move to the \Base
-        if (!count($list)) {
-            throw new UnexpectedValueException("Empty list");
-        }
-        return array_shift($list);
-    }
-
-    public static function tail(array $list) {
-        // @TODO: Move to the \Base
-        if (!count($list)) {
-            throw new UnexpectedValueException("Empty list");
-        }
-        array_shift($list);
-        return $list;
-    }
-
-    public static function last(array $list) {
-        // @TODO: Move to the \Base
-        if (!count($list)) {
-            throw new UnexpectedValueException("Empty list");
-        }
-        return array_pop($list);
-    }
-
-    public static function init(array $list) {
-        // @TODO: Move to the \Base
-        if (!count($list)) {
-            throw new UnexpectedValueException("Empty list");
-        }
-        return array_slice($list, 0, -1, true);
     }
 
     public static function toKeyed(array $matrix, $keyForIndex, bool $drop = false): array {

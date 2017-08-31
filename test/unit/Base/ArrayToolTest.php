@@ -140,130 +140,6 @@ class ArrayToolTest extends TestCase {
         $this->assertEquals(['one'], array_values(ArrayTool::unset(['one', 'two'], 'two')));
     }
 
-    public function dataForInit() {
-        return [
-            [
-                ['a', 'b', 'c', 'd'],
-                ['a', 'b', 'c'],
-            ],
-            [
-                ['foo'],
-                [],
-            ],
-            [
-                ['foo' => 5, 'bar' => 6, 'baz' => 7],
-                ['foo' => 5, 'bar' => 6],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForInit
-     */
-    public function testInit($val, $expected) {
-        $valOriginal = $val;
-        $this->assertSame($expected, ArrayTool::init($val));
-        $this->assertSame($valOriginal, $val);
-    }
-
-    public function testInitThrowsExceptionForEmptyArray() {
-        $this->expectException(\UnexpectedValueException::class, "Empty list");
-        ArrayTool::init([]);
-    }
-
-    public function dataForLast() {
-        return [
-            [
-                ['a', 'b', 'c', 'd'],
-                'd',
-            ],
-            [
-                ['foo'],
-                'foo',
-            ],
-            [
-                ['foo' => 5, 'bar' => 6, 'baz' => 7],
-                7,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForLast
-     */
-    public function testLast($val, $expected) {
-        $valOriginal = $val;
-        $this->assertSame($expected, ArrayTool::last($val));
-        $this->assertSame($valOriginal, $val);
-    }
-
-    public function testLastThrowsExceptionForEmptyArray() {
-        $this->expectException(\UnexpectedValueException::class, "Empty list");
-        ArrayTool::last([]);
-    }
-
-    public function dataForTail() {
-        return [
-            [
-                ['a', 'b', 'c', 'd'],
-                ['b', 'c', 'd'],
-            ],
-            [
-                ['foo'],
-                [],
-            ],
-            [
-                ['foo' => 5, 'bar' => 6, 'baz' => 7],
-                ['bar' => 6, 'baz' => 7],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForTail
-     */
-    public function testTail($val, $expected) {
-        $valOriginal = $val;
-        $this->assertSame($expected, ArrayTool::tail($val));
-        $this->assertSame($valOriginal, $val);
-    }
-
-    public function testTailThrowsExceptionForEmptyArray() {
-        $this->expectException(\UnexpectedValueException::class, "Empty list");
-        ArrayTool::tail([]);
-    }
-
-    public function dataForHead() {
-        return [
-            [
-                ['a', 'b', 'c', 'd'],
-                'a',
-            ],
-            [
-                ['foo'],
-                'foo',
-            ],
-            [
-                ['foo' => 5, 'bar' => 6, 'baz' => 7],
-                5,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForHead
-     */
-    public function testHead($val, $expected) {
-        $valOriginal = $val;
-        $this->assertSame($expected, ArrayTool::head($val));
-        $this->assertSame($valOriginal, $val);
-    }
-
-    public function testHeadThrowsExceptionForEmptyArray() {
-        $this->expectException(\UnexpectedValueException::class, "Empty list");
-        ArrayTool::head([]);
-    }
-
     public function testToKeyed() {
         $this->assertEquals(
             [
@@ -509,7 +385,23 @@ class ArrayToolTest extends TestCase {
         $this->assertSame($expected, ArrayTool::symmetricDiff($a, $b));
     }
 
-    protected function _testArray() {
+    public function testCartesianProduct() {
+        $a = ['foo', 'bar', 'baz'];
+        $b = ['blue', 'red'];
+        $this->assertSame(
+            [
+                ['foo', 'blue'],
+                ['foo', 'red'],
+                ['bar', 'blue'],
+                ['bar', 'red'],
+                ['baz', 'blue'],
+                ['baz', 'red'],
+            ],
+            ArrayTool::cartesianProduct($a, $b)
+        );
+    }
+
+    private function _testArray() {
         return [
             'foo'     => 'test',
             'bar'     => [
