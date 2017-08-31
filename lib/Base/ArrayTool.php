@@ -8,7 +8,6 @@ namespace Morpho\Base;
 
 use OutOfBoundsException;
 use RuntimeException;
-use UnexpectedValueException;
 
 class ArrayTool {
     /**

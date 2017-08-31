@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, filter, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, head, tail, init, last, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, contains, formatBytes, map
+    endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -17,6 +17,7 @@ class FunctionsTest extends TestCase {
     private $tmpHandle;
 
     public function tearDown() {
+        parent::tearDown();
         if (isset($this->tmpHandle)) {
             fclose($this->tmpHandle);
         }
@@ -96,14 +97,6 @@ class FunctionsTest extends TestCase {
     public function testHasSuffix($expected, $s, $suffix) {
         $fn = hasSuffix($suffix);
         $this->assertSame($expected, $fn($s));
-    }
-
-    public function testPrepend_ArrayArg() {
-        $this->markTestIncomplete();
-    }
-
-    public function testAppend_ArrayArg() {
-        $this->markTestIncomplete();
     }
 
     public function testNot() {
@@ -281,206 +274,6 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('ff', trimMore('__ ff  ', '_'));
     }
 
-    public function dataForEmptyList() {
-        return [
-            [
-                [],
-                null,
-            ],
-            [
-                '',
-                null,
-            ],
-            [
-                '',
-                '\\'
-            ],
-            [
-                new \ArrayIterator([]),
-                null,
-            ],
-        ];
-    }
-
-    // ------------------------------------------------------------------------
-    // last()
-
-    public function testLast_String_WithSeparator() {
-        $this->assertEquals('StringTest', last('MorphoTest\Unit\\Base\\StringTest', '\\'));
-        $this->assertEquals('', last('MorphoTest\Unit\\Base\\StringTest\\', '\\'));
-        $this->assertEquals('Foo', last('Foo', '\\'));
-    }
-
-    public function testLast_String_WithoutSeparator() {
-        $this->assertEquals(' ', last('   '));
-        $this->assertEquals('4', last('01234'));
-        $this->assertEquals('c', last('abc'));
-    }
-
-    public function testLast_Iterator_StringKeys() {
-        $it = new \ArrayIterator(['foo' => 'a', 'bar' => 'b', 'baz' => 'c']);
-        $this->assertEquals('c', last($it));
-    }
-
-    /**
-     * @dataProvider dataForEmptyList
-     */
-    public function testLast_EmptyList($v, $sep) {
-        $this->expectEmptyListException();
-        last($v, $sep);
-    }
-
-    // ------------------------------------------------------------------------
-    // head()
-
-    /**
-     * @dataProvider dataForEmptyList
-     */
-    public function testHead_EmptyList($v, $sep) {
-        $this->expectEmptyListException();
-        head($v, $sep);
-    }
-
-    public function testHead_String_WithSeparator() {
-        $this->assertEquals('MorphoTest', head('MorphoTest\Unit\\Base\\StringTest', '\\'));
-        $this->assertEquals('', head('\\MorphoTest\Unit\\Base\\StringTest', '\\'));
-        $this->assertEquals('Foo', head('Foo', '\\'));
-    }
-
-    public function testHead_String_WithoutSeparator() {
-        $this->assertEquals(' ', head('   '));
-        $this->assertEquals('0', head('01234'));
-        $this->assertEquals('a', head('abc'));
-    }
-
-    public function testHead_Iterator_StringKeys() {
-        $it = new \ArrayIterator(['foo' => 'a', 'bar' => 'b', 'baz' => 'c']);
-        $this->assertEquals('a', head($it));
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function dataForHeadAndLast_Array() {
-        $lastFn = 'Morpho\\Base\\last';
-        $headFn = 'Morpho\\Base\\head';
-        $numericKeysScalarEls = ['a', 'b', 'c'];
-        $nonNumericKeysScalarEls = ['foo' => 'a', 'bar' => 'b', 'baz' => 'c'];
-        $numericKeysArrayEls = [['foo' => 'a'], ['bar' => 'b'], ['baz' => 'c']];
-        $nonNumericKeysArrayEls = ['Jupiter' => ['foo' => 'a'], 'Saturn' => ['bar' => 'b'], 'Uranus' => ['baz' => 'c']];
-        return [
-            // Numeric keys scalars
-            [
-                'c',
-                $numericKeysScalarEls,
-                $lastFn,
-            ],
-            [
-                'a',
-                $numericKeysScalarEls,
-                $headFn,
-            ],
-
-            // Non-numeric keys scalars
-            [
-                'c',
-                $nonNumericKeysScalarEls,
-                $lastFn,
-            ],
-            [
-                'a',
-                $nonNumericKeysScalarEls,
-                $headFn,
-            ],
-
-            // Numeric keys arrays
-            [
-                ['baz' => 'c'],
-                $numericKeysArrayEls,
-                $lastFn,
-            ],
-            [
-                ['foo' => 'a'],
-                $numericKeysArrayEls,
-                $headFn,
-            ],
-
-            // Non-numeric keys arrays
-            [
-                ['baz' => 'c'],
-                $nonNumericKeysArrayEls,
-                $lastFn,
-            ],
-            [
-                ['foo' => 'a'],
-                $nonNumericKeysArrayEls,
-                $headFn,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForHeadAndLast_Array
-     */
-    public function testHeadAndLast_Array($expected, array $arr, callable $fn) {
-        $copy = $arr;
-        $this->assertEquals($expected, $fn($arr));
-        $this->assertEquals($copy, $arr);
-    }
-
-    // ------------------------------------------------------------------------
-    // init()
-
-    public function testInit_String_WithSeparator() {
-        $this->assertEquals('Foo\\Bar', init('Foo\\Bar\\Baz', '\\'));
-        $this->assertEquals('\\Foo\\Bar', init('\\Foo\\Bar\\Baz', '\\'));
-        $this->assertEquals('', init('Foo', '\\'));
-    }
-
-    public function testInit_String_WithoutSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /**
-     * @dataProvider dataForEmptyList
-     */
-    public function testInit_EmptyList($v, $sep) {
-        $this->expectEmptyListException();
-        init($v, $sep);
-    }
-
-    // ------------------------------------------------------------------------
-    // tail()
-
-    public function testTail_String_WithSeparator() {
-        $this->assertEquals('Bar\\Baz', tail('Foo\\Bar\\Baz', '\\'));
-        $this->assertEquals('Bar\\Baz\\', tail('Foo\\Bar\\Baz\\', '\\'));
-        $this->assertEquals('', tail('Foo', '\\'));
-    }
-
-    public function testTail_String_WithoutSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /**
-     * @dataProvider dataForEmptyList
-     */
-    public function testTail_EmptyList($v, $sep) {
-        $this->expectEmptyListException();
-        iterator_to_array(tail($v, $sep));
-    }
-
-    public function testTail_Iterator() {
-        $it = new \ArrayIterator([
-            'a',
-            'b',
-            'c',
-            'd'
-        ]);
-        $res = tail($it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['b', 'c', 'd'], iterator_to_array($res, false));
-    }
-
     // ------------------------------------------------------------------------
 
     public function testSanitize() {
@@ -641,134 +434,11 @@ class FunctionsTest extends TestCase {
         $this->assertSame($expected, wrapQ($actual));
     }
 
-    public function testContains_Unicode() {
-        $haystack = 'ℚ ⊂ ℝ ⊂ ℂ';
-        $this->assertTrue(contains($haystack, ''));
-        $this->assertTrue(contains($haystack, $haystack));
-        $this->assertTrue(contains($haystack, 'ℚ ⊂'));
-        $this->assertTrue(contains($haystack, '⊂ ℂ'));
-        $this->assertTrue(contains($haystack, '⊂ ℝ ⊂'));
-        $this->assertFalse(contains($haystack, 'abc'));
-    }
-
     public function testFormatBytes() {
         $bytes = "\x2f\xe0\xab\x00\x01\xe0";
         $this->assertEquals('\x2f\xe0\xab\x00\x01\xe0', formatBytes($bytes));
         $this->assertEquals('\x2F\xE0\xAB\x00\x01\xE0', formatBytes($bytes, '\x%02X'));
     }
-
-    // ------------------------------------------------------------------------
-    // filter()
-
-    public function testFilter_Iterator_NumericKeys() {
-        $it = new \ArrayIterator([
-            'a',
-            'b',
-            'c',
-            'd'
-        ]);
-        $res = filter(function ($v, $k) {
-            $this->assertTrue(is_numeric($k));
-            return $v !== 'c';
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['a', 'b', 'd'], iterator_to_array($res, false));
-    }
-
-    public function testFilter_Iterator_StringKeys() {
-        $it = new \ArrayIterator([
-            'a' => 'Mercury',
-            'b'  => 'Jupiter',
-            'c' => 'Uranus',
-            'd' => 'Neptune',
-        ]);
-        $res = filter(function ($v, $k) {
-            $this->assertTrue(is_string($k));
-            return $v !== 'Uranus';
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals([
-            'a' => 'Mercury',
-            'b'  => 'Jupiter',
-            'd' => 'Neptune',
-        ], iterator_to_array($res));
-    }
-
-    public function testFilter_String() {
-        $this->markTestIncomplete();
-    }
-
-    public function testFilter_Array_StringKeys() {
-        $res = filter(function ($v, $k) {
-            return $k !== 'apple' && $v !== 3;
-        }, ['orange' => 'fruit', 'three' => 3, 'apple' => 'fruit', 'earth' => 'planet']);
-        $this->assertSame(['orange' => 'fruit', 'earth' => 'planet'], $res);
-    }
-
-    public function testFilter_Array_NumericKeys() {
-        $res = filter(function ($v, $k) {
-            return $v !== 'fruit';
-        }, ['fruit', 3, 'fruit', 'planet']);
-        $this->assertSame([3, 'planet'], $res);
-    }
-
-    // ------------------------------------------------------------------------
-    // map
-
-    public function testMap_Iterator_NumericKeys() {
-        $it = new \ArrayIterator([
-            'a',
-            'b',
-            'c',
-            'd'
-        ]);
-        $res = map(function ($v, $k) {
-            $this->assertTrue(is_numeric($k));
-            $map = [
-                'a' => 'foo',
-                'b' => 'bar',
-                'c' => 'baz',
-                'd' => 'pizza'
-            ];
-            return $map[$v];
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['foo', 'bar', 'baz', 'pizza'], iterator_to_array($res, false));
-    }
-/*
-    public function testMap_Iterator_StringKeys() {
-        $it = new \ArrayIterator([
-            'a' => 'Mercury',
-            'b'  => 'Jupiter',
-            'c' => 'Uranus',
-            'd' => 'Neptune',
-        ]);
-        $res = filter(function ($v, $k) {
-            $this->assertTrue(is_string($k));
-            return $v !== 'Uranus';
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals([
-            'a' => 'Mercury',
-            'b'  => 'Jupiter',
-            'd' => 'Neptune',
-        ], iterator_to_array($res));
-    }
-
-    public function testMap_String() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Array_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Array_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-*/
-
-    // ------------------------------------------------------------------------
 
     public function testMemoize() {
         $sum = function ($a, $b) use (&$sumCalled) {
@@ -838,9 +508,5 @@ class FunctionsTest extends TestCase {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
         $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
-    }
-
-    private function expectEmptyListException() {
-        $this->expectException(RuntimeException::class, 'Empty list');
     }
 }
