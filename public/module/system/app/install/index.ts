@@ -14,7 +14,7 @@ class InstallForm extends Form {
     protected registerEventHandlers(): void {
         super.registerEventHandlers();
         this.dbNameEl().on('keyup blur change paste', () => {
-            this.targetDbEl().text(this.dbNameEl().val());
+            this.targetDbEl().text(this.dbNameEl().val() + '');
         });
     }
 

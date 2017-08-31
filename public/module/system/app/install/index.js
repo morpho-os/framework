@@ -23,7 +23,7 @@ define("system/app/install/index", ["require", "exports", "../../lib/form", "../
             var _this = this;
             _super.prototype.registerEventHandlers.call(this);
             this.dbNameEl().on('keyup blur change paste', function () {
-                _this.targetDbEl().text(_this.dbNameEl().val());
+                _this.targetDbEl().text(_this.dbNameEl().val() + '');
             });
         };
         InstallForm.prototype.handleResponseSuccess = function (responseData) {
@@ -51,3 +51,4 @@ define("system/app/install/index", ["require", "exports", "../../lib/form", "../
     }
     exports.main = main;
 });
+//# sourceMappingURL=index.js.map
