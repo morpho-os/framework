@@ -14,7 +14,7 @@ use function Morpho\Base\startsWith;
 class LicenseHeaderManager {
     public function updateLicenseHeader(string $filePath, string $licenseText): void {
         if (!$this->isValidLicenseText($licenseText)) {
-            throw new \InvalidArgumentException("The license text must contain the 'license' word");
+            throw new \InvalidArgumentException("The license text must contain the both words: 'license' and 'morpho'");
         }
         if (!contains($licenseText, '/*')) {
             $licenseText = $this->commentOutLicenseText($licenseText);
@@ -85,6 +85,6 @@ class LicenseHeaderManager {
     }
 
     protected function isValidLicenseText(string $licenseText): bool {
-        return (bool) preg_match('~\blicense\b~si', $licenseText);
+        return preg_match('~\blicense\b~si', $licenseText) && preg_match('~\morpho\b~si', $licenseText);
     }
 }

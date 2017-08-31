@@ -6,7 +6,7 @@ use Morpho\Test\TestCase;
 class LicenseHeaderManagerTest extends TestCase {
     public function testUpdateLicenseHeader_ThrowsExceptionForInvalidLicenseText() {
         $filePath = $this->createTmpFile();
-        $this->expectException(\InvalidArgumentException::class, "The license text must contain the 'license' word");
+        $this->expectException(\InvalidArgumentException::class, "The license text must contain the both words: 'license' and 'morpho'");
         (new LicenseHeaderManager())->updateLicenseHeader($filePath, 'foo, bar');
     }
 
@@ -133,10 +133,10 @@ OUT;
     public function dataForUpdateLicenseHeader_DifferentLicenseHeader() {
         return [
             [
-                "/**\n This is a new license\n */",
+                "/**\n * This is a new morpho license\n */",
             ],
             [
-                'This is a new license',
+                'This is a new morpho license',
             ],
         ];
     }
@@ -157,18 +157,13 @@ echo "Hello World";
 OUT
         );
 
-        $newLicenseText = <<<OUT
-/**
- * This is a new license
- */
-OUT;
-
         (new LicenseHeaderManager())->updateLicenseHeader($filePath, $newLicenseText);
+
         $newFileText = file_get_contents($filePath);
         $this->assertSame(<<<OUT
 <?php
 /**
- * This is a new license
+ * This is a new morpho license
  */
 echo "Hello World";
 OUT
