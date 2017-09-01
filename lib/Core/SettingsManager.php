@@ -44,7 +44,7 @@ class SettingsManager {
              WHERE s.name = ? AND m.name = ?',
             [$name, $moduleName]
         )->cell();
-        return unserialize($value);
+        return false !== $value ? unserialize($value) : $value;
     }
 
     public function set(string $name, $value, $moduleName) {

@@ -22,16 +22,6 @@ class Module extends Theme {
 
     }
 
-    public static function defaultErrorHandler(string $handlerName): array {
-        Must::contain([
-            Request::NOT_FOUND_ERROR_HANDLER,
-            Request::ACCESS_DENIED_ERROR_HANDLER,
-            Request::BAD_REQUEST_ERROR_HANDLER,
-            Request::UNCAUGHT_ERROR_HANDLER
-        ], $handlerName);
-        return [self::NAME, 'Error', str_replace('Handler', '', $handlerName)];
-    }
-
     /**
      * @Listen dispatchError -9999
      */
@@ -53,7 +43,9 @@ class Module extends Theme {
 
             $handler = $serviceManager->get('settingsManager')
                 ->get($handlerName, self::NAME);
-            if (false === $handler) {
+            if (false !== $handler) {
+                $handler = $handler['handler'];
+            } else {
                 $handler = static::defaultErrorHandler($handlerName);
             }
 
@@ -179,5 +171,15 @@ class Module extends Theme {
                 ],
             ],
         ];
+    }
+
+    private static function defaultErrorHandler(string $handlerName): array {
+        Must::contain([
+            Request::NOT_FOUND_ERROR_HANDLER,
+            Request::ACCESS_DENIED_ERROR_HANDLER,
+            Request::BAD_REQUEST_ERROR_HANDLER,
+            Request::UNCAUGHT_ERROR_HANDLER
+        ], $handlerName);
+        return [self::NAME, 'Error', str_replace('Handler', '', $handlerName)];
     }
 }

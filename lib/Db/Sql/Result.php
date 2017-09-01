@@ -26,6 +26,9 @@ class Result extends \PDOStatement {
         return $this->fetchAll(\PDO::FETCH_COLUMN);
     }
 
+    /**
+     * @return mixed|false Returns false if the value is not found, and other non-false value otherwise.
+     */
     public function cell() {
         return $this->fetchColumn(0);
     }
