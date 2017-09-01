@@ -6,6 +6,7 @@
  */
 declare(strict_types = 1);
 namespace Morpho\Test;
+
 use Morpho\Network\Http\SeleniumServer;
 
 abstract class BrowserTestSuite extends TestSuite {
@@ -13,19 +14,20 @@ abstract class BrowserTestSuite extends TestSuite {
 
     public function setUp() {
         parent::setUp();
-        $this->server = $this->startSeleniumServer();
+        $server = new SeleniumServer();
+        $this->configureSeleniumServer($server);
+        $server->start();
+        $this->server = $server;
     }
 
     public function tearDown() {
         parent::tearDown();
         if ($this->server) {
-            $this->stopSeleniumServer($this->server);
+            $this->server->stop();
         }
     }
 
-    abstract protected function startSeleniumServer(): SeleniumServer;
-
-    protected function stopSeleniumServer(SeleniumServer $server) {
-        $server->stop();
+    protected function configureSeleniumServer(SeleniumServer $seleniumServer): void {
+        // Do nothing here, should be overridden in child classes.
     }
 }

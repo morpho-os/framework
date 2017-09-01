@@ -20,7 +20,7 @@ class SeleniumServer {
     /**
      * @param string $serverJarFilePath File path like __DIR__ . '/selenium-server-standalone.jar'
      */
-    public function __construct(string $serverJarFilePath) {
+    public function __construct(string $serverJarFilePath = null) {
         $this->serverJarFilePath = $serverJarFilePath;
     }
 
@@ -29,7 +29,7 @@ class SeleniumServer {
         return $this;
     }
 
-    public function serverJarFilePath(): string {
+    public function serverJarFilePath(): ?string {
         return $this->serverJarFilePath;
     }
 
