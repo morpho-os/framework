@@ -247,9 +247,9 @@ describe("Form", function () {
                 this.ajaxHandlerCalled = true;
             }
 
-/*            protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
+            protected ajaxError(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any {
                 this.ajaxHandlerCalled = true;
-            }*/
+            }
         }
 
         const $form = Page.withRequiredElsFormEl();

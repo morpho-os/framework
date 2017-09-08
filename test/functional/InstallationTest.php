@@ -8,26 +8,22 @@ declare(strict_types=1);
 namespace MorphoTest\Functional;
 
 use Facebook\WebDriver\WebDriverBy as By;
-use Morpho\Test\BrowserTest;
-use Morpho\Web\Application;
-use Morpho\Web\SiteFactory;
+use Morpho\Test\SiteTestCase;
+use Morpho\Web\Site;
+use Morpho\Web\SiteInstaller;
 
-class InstallerTest extends BrowserTest {
-    private const DB_NAME = 'test';
+class InstallationTest extends SiteTestCase {
+    protected function installSite(Site $site): void {
+        // Don't install the site, but reset it to the initial state
+        (new SiteInstaller($site))->resetToInitialState();
+    }
 
     public function testInstallationAndClientTest() {
-        $site = (new SiteFactory())->__invoke(require Application::configFilePath());
-
-        $configFilePath = $site->configFilePath();
-        if (is_file($configFilePath)) {
-            unlink($configFilePath);
-        }
-
         $this->browser->get($this->baseUri);
 
         $this->assertEquals('Installation', $this->browser->getTitle());
 
-        $fallbackDbConfig = (require $site->fallbackConfigFilePath())['db'];
+        $fallbackDbConfig = (require $this->site->fallbackConfigFilePath())['db'];
         $this->checkElValue($fallbackDbConfig['db'], By::id('db'));
         $this->checkElValue($fallbackDbConfig['user'], By::id('user'));
         $this->checkElValue($fallbackDbConfig['password'], By::id('password'));
@@ -38,13 +34,12 @@ class InstallerTest extends BrowserTest {
 
         $this->browser->findElement(By::id('drop-tables'))->click();
         $this->browser->findElement(By::id('install'))->click();
+
+        $this->browser->wait(30);
         $this->browser->waitUntilTitleIs('Modules');
 
-        $this->assertNotEmpty((require $site->configFilePath())['db']);
 
-        // @TODO: Extract to different file
-        $this->runClientTests();
-
+        $this->assertNotEmpty((require $this->site->configFilePath())['db']);
         /* @TODO
         browser.executeScript("window.confirm = function (){return true;}");
         browser.findElement({xpath: "//div[@id='page-messages']//*[contains(@class, 'alert-body')]"})
@@ -54,13 +49,5 @@ class InstallerTest extends BrowserTest {
                 done();
             });
         */
-    }
-
-    private function runClientTests(): void {
-        $this->browser->get($this->baseUri . '/system/test?selenium');
-        $by = By::id('testing-results');
-        $this->browser->waitUntilElementIsVisible($by);
-        $numberOfFailedTests = $this->browser->findElement($by)->getText();
-        $this->assertEquals(0, $numberOfFailedTests);
     }
 }

@@ -1,0 +1,103 @@
+<?php
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+declare(strict_types=1);
+namespace Morpho\Test;
+
+use const Morpho\Core\CONFIG_FILE_NAME;
+use const Morpho\Core\MODULE_DIR_PATH;
+use Morpho\Fs\File;
+use Morpho\Web\Application;
+use Morpho\Web\Site;
+use Morpho\Web\SiteFactory;
+use Morpho\Web\SiteInstaller;
+
+class SiteTestCase extends BrowserTestCase {
+    use TDbTestCase;
+
+    protected const DB_NAME = 'test';
+
+    protected $site;
+
+    private const UMASK = 0007;
+
+    public function setUp() {
+        parent::setUp();
+        $site = $this->newSite();
+        $this->configureSite($site);
+        $this->installSite($site);
+        $this->site = $site;
+    }
+
+    protected function installSite(Site $site): void {
+        $siteInstaller = (new SiteInstaller($site))
+            ->setServiceManager((new Application())->newServiceManager($site));
+
+        umask(self::UMASK);
+
+        if (!$siteInstaller->isInstalled()) {
+            $siteInstaller->install($site->config()['db'], true);
+        } else {
+            // Update site config
+            File::writePhpVar($site->configFilePath(), $site->config());
+        }
+    }
+
+    protected function configureSite(Site $site): void {
+        $site->setConfig([
+            'cacheDirPath'        => $site->cacheDirPath(),
+            'serviceManager'      => 'Morpho\Web\ServiceManager',
+            'db'                  => $this->dbConfig(),
+            'modules'             => [
+                \Morpho\Core\VENDOR . '/system',
+                \Morpho\Core\VENDOR . '/user',
+            ],
+            'moduleAutoloader'    => [
+                'useCache' => false,
+            ],
+            'templateEngine'      => [
+                'useCache'       => false,
+                'forceCompileTs' => false,
+                'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
+                'tsOptions'      => [
+                    '--forceConsistentCasingInFileNames',
+                    '--removeComments',
+                    '--noImplicitAny',
+                    '--suppressImplicitAnyIndexErrors',
+                    '--noEmitOnError',
+                    '--newLine LF',
+                    '--allowJs',
+                ],
+            ],
+            'errorHandler'        => [
+                'addDumpListener' => true,
+            ],
+            'errorLogger'         => [
+                'mailOnError' => false,
+                'mailFrom'    => 'admin@localhost',
+                'mailTo'      => 'admin@localhost',
+                'logToFile'   => true,
+            ],
+            'throwDispatchErrors' => false,
+            'iniSettings'         => [
+                'session' => [
+                    // Type: bool
+                    'use_strict_mode'   => true,
+                    // Type: string
+                    'name'              => 's',
+                    'serialize_handler' => 'php_serialize',
+                ],
+            ],
+            'umask'               => self::UMASK,
+        ]);
+        $site->isFallbackMode(true);
+    }
+
+    protected function newSite(): Site {
+        return (new SiteFactory())(require MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME);
+        //return new Site('foo/bar', $dirPath, 'localhost');
+    }
+}

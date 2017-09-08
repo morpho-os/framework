@@ -21,16 +21,18 @@ class TestSuite extends BrowserTestSuite {
     public function setUp() {
         parent::setUp();
         if (getenv('TRAVIS')) {
-            $this->startPhpServer();
+            $address = 'localhost:7654';
+            $this->startPhpServer('http://' . $address);
         } else {
-            TestSettings::set('siteUri', 'http://framework');
+            $address = 'framework';
         }
+        TestSettings::set('siteUri', 'http://' . $address);
     }
 
     protected function configureSeleniumServer(SeleniumServer $seleniumServer): void {
         $toolsDirPath = __DIR__;
 
-        $geckoBinFilePath = (new GeckoDriverDownloader)($toolsDirPath);
+        $geckoBinFilePath = (new GeckoDriverDownloader)($toolsDirPath . '/' . GeckoDriverDownloader::FILE_NAME);
 
         //$seleniumStandaloneFilePath = $toolsDirPath . '/selenium-server-standalone-3.4.0.jar';
         $seleniumStandaloneFilePath = (new SeleniumServerDownloader())($toolsDirPath);
@@ -41,14 +43,12 @@ class TestSuite extends BrowserTestSuite {
             ->setPort(SeleniumServer::PORT);
     }
 
-    private function startPhpServer(): void {
+    private function startPhpServer(string $address): void {
         //showLn("Starting PHP server...");
-        $address = 'localhost:7654';
         $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
         //cmd($cmd);
         proc_close(proc_open($cmd, [], $pipes));
         sleep(3); // @TODO: better way to check that the server is started
-        TestSettings::set('siteUri', 'http://' . $address);
         //showLn("PHP server started");
     }
 }

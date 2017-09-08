@@ -1,9 +1,12 @@
 <?php
 namespace MorphoTest\SystemTest;
 
+use Monolog\Logger;
 use Morpho\Core\SettingsManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Web\AccessDeniedException;
+use Morpho\Web\BadRequestException;
+use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
 use Morpho\System\Module as SystemModule;
@@ -22,7 +25,16 @@ class ModuleTest extends DbTestCase {
     public function dataForDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         return [
             [
-
+                new AccessDeniedException(), Response::STATUS_CODE_403,
+            ],
+            [
+                new NotFoundException(), Response::STATUS_CODE_404,
+            ],
+            [
+                new BadRequestException(), Response::STATUS_CODE_400,
+            ],
+            [
+                new \RuntimeException(), Response::STATUS_CODE_500,
             ],
         ];
     }
@@ -30,14 +42,14 @@ class ModuleTest extends DbTestCase {
     /**
      * @dataProvider dataForDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice
      */
-    public function testDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice($exception) {
+    public function testDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice($exception, $expectedCode) {
         $handler = [
             "handler" => [
                 "morpho-os/system",
-                "Error",
-                "badRequest",
+                "SomeCtrl",
+                "fooAction",
             ],
-            'uri' => "/system/error/bad-request",
+            'uri' => "/my/handler",
         ];
         $settingsManager = $this->newSettingsManager($handler);
 
@@ -55,7 +67,7 @@ class ModuleTest extends DbTestCase {
         $this->assertFalse($request->isDispatched());
         $this->assertEquals($handler['handler'], $request->handler());
         $this->assertEquals($exception, $request->internalParam('error'));
-        $this->assertEquals(Response::STATUS_CODE_403, $request->response()->getStatusCode());
+        $this->assertEquals($expectedCode, $request->response()->getStatusCode());
 
         try {
             $module->dispatchError($event);
@@ -100,6 +112,7 @@ class ModuleTest extends DbTestCase {
             ]);
         $serviceManager->set('site', $site);
         $serviceManager->set('settingsManager', $settingsManager);
+        $serviceManager->set('errorLogger', $this->createMock(Logger::class));
         $module->setServiceManager($serviceManager);
         return $module;
     }

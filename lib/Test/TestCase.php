@@ -31,17 +31,30 @@ abstract class TestCase extends BaseTestCase {
         $this->deleteTmpDirs();
     }
 
-    protected function createTmpFile(string $ext = null, string $prefix = null): string {
-        $fileName = uniqid($prefix) . strtolower(__FUNCTION__);
-        if (null !== $ext) {
-            $fileName .= '.' . ltrim($ext, '.');
+    protected function createTmpFile(string $ext = null, string $prefix = null, bool $deleteOnTearDown = true): string {
+        if (null === $ext) {
+            $tmpFilePath = tempnam($this->tmpDirPath(), uniqid((string)$prefix));
+        } else {
+            $fileName = uniqid((string)$prefix) . strtolower(__FUNCTION__);
+            if (null !== $ext) {
+                $fileName .= '.' . ltrim($ext, '.');
+            }
+            $tmpFilePath = $this->tmpDirPath() . '/' . $fileName;
+            touch($tmpFilePath);
+            if (!is_file($tmpFilePath)) {
+                throw new \RuntimeException();
+            }
         }
-        $filePath = $this->tmpDirPath() . '/' . $fileName;
-        touch($filePath);
-        if (!is_file($filePath)) {
-            throw new \RuntimeException();
+        if ($deleteOnTearDown) {
+            $this->tmpFilePaths[] = $tmpFilePath;
         }
-        return $this->tmpFilePaths[] = $filePath;
+        return $tmpFilePath;
+    }
+
+    protected function tmpFilePath(): string {
+        $tmpFilePath = $this->createTmpFile(null, false);
+        unlink($tmpFilePath);
+        return $tmpFilePath;
     }
 
     protected function assertSetsEqual(array $expected, array $actual): void {

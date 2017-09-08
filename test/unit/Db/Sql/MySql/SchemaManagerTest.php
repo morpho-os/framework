@@ -16,6 +16,8 @@ class SchemaManagerTest extends DbTestCase {
     private $dbs = [];
     private $db;
 
+    private const DB = 'test';
+
     public function setUp() {
         parent::setUp();
         $db = $this->newDbConnection();

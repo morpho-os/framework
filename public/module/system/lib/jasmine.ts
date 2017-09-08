@@ -302,7 +302,7 @@ export class TestResultsReporter implements jasmine.CustomReporter {
             + '<br>'
             + this.indent(this.suites.length) + (this.suites.length ? '-&gt; ' : '')
             + 'Passed : ' + (suite.noOfTests - suite.noOfFailedTests) + '/' + suite.noOfTests
-            + '</h5>'
+            + ' (not aggregating results of descendant suites)</h5>'
         );
         if (this.suites.length === 0) {
             this.append('<hr>');

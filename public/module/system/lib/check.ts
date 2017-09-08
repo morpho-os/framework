@@ -49,7 +49,7 @@ export function main($container: JQuery, sourceMappedStackTrace: SourceMappedSta
 
     const seleniumReporter = {
         jasmineDone(runDetails: jasmine.RunDetails) {
-            if (window.location.search.indexOf('selenium') >= 0) {
+            if (window.location.search.indexOf('bot') >= 0) {
                 document.getElementById('main__body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
             }
         }

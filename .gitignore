@@ -11,7 +11,8 @@ bower_components/
 # npm
 node_modules/
 
-/module/**/config.php
+/module/*/config/*
+!/module/*/config/fallback.php
 /module/*/cache/*
 
 *.log

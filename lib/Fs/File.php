@@ -40,7 +40,7 @@ class File extends Entry {
         $content = @file_get_contents($filePath, $options['useIncludePath']);
 
         if (false === $content) {
-            throw new Exception("Unable to read the '$filePath' file.");
+            throw new Exception("Unable to read the '$filePath' file");
         }
 
         if ($options['binary']) {
@@ -160,12 +160,12 @@ class File extends Entry {
      */
     public static function write(string $filePath, string $content, array $options = null): string {
         if (empty($filePath)) {
-            throw new Exception("The file path is empty.");
+            throw new Exception("The file path is empty");
         }
         Directory::create(dirname($filePath));
         $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array)$options), $options['context']);
         if (false === $result) {
-            throw new Exception("Unable to write to the file '$filePath'.");
+            throw new Exception("Unable to write to the file '$filePath'");
         }
 
         return $filePath;
@@ -192,7 +192,7 @@ class File extends Entry {
     public static function truncate(string $filePath): void {
         $handle = @fopen($filePath, 'w');
         if (false === $handle) {
-            throw new Exception("Unable to open the file '$filePath' for writing.");
+            throw new Exception("Unable to open the file '$filePath' for writing");
         }
         fclose($handle);
     }
@@ -240,11 +240,11 @@ class File extends Entry {
             if ($skipIfExists) {
                 return $targetFilePath;
             } else {
-                throw new Exception("The target file '$targetFilePath' already exists.");
+                throw new Exception("The target file '$targetFilePath' already exists");
             }
         }
         if (!@copy($sourceFilePath, $targetFilePath)) {
-            throw new Exception("Unable to copy the file '$sourceFilePath' to the '$targetFilePath'.");
+            throw new Exception("Unable to copy the file '$sourceFilePath' to the '$targetFilePath'");
         }
 
         return $targetFilePath;
@@ -257,7 +257,7 @@ class File extends Entry {
     public static function move(string $sourceFilePath, string $targetFilePath): string {
         Directory::create(dirname($targetFilePath));
         if (!@rename($sourceFilePath, $targetFilePath)) {
-            throw new Exception("Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
+            throw new Exception("Unable to move the '$sourceFilePath' to the '$targetFilePath'");
         }
         clearstatcache();
 

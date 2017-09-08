@@ -37,7 +37,7 @@ define("system/lib/check", ["require", "exports", "./jasmine"], function (requir
         env.addReporter(new jasmine_1.TestResultsReporter($container, stackTraceFormatter));
         var seleniumReporter = {
             jasmineDone: function (runDetails) {
-                if (window.location.search.indexOf('selenium') >= 0) {
+                if (window.location.search.indexOf('bot') >= 0) {
                     document.getElementById('main__body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
                 }
             }

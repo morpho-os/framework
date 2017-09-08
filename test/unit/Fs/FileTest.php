@@ -87,7 +87,7 @@ class FileTest extends TestCase {
         $this->assertEquals(0, filesize($filePath));
     }
 
-    public function testMove_ToNotExistentDirAndFile() {
+    public function testMove_ToNonExistentDirAndFile() {
         $sourceFilePath = $this->createTmpDir() . '/' . basename(md5(__METHOD__));
         $this->assertFileNotExists($sourceFilePath);
         copy(__FILE__, $sourceFilePath);
@@ -101,10 +101,10 @@ class FileTest extends TestCase {
         $this->assertEquals(filesize(__FILE__), filesize($targetFilePath));
     }
 
-    public function testMove_NotExistentSourceFileThrowsException() {
+    public function testMove_NonExistentSourceFileThrowsException() {
         $sourceFilePath = __FILE__ . 'some';
         $targetFilePath = $this->tmpDirPath() . '/some';
-        $this->expectException(FsException::class, "Unable to move the '$sourceFilePath' to the '$targetFilePath'.");
+        $this->expectException(FsException::class, "Unable to move the '$sourceFilePath' to the '$targetFilePath'");
         File::move($sourceFilePath, $targetFilePath);
     }
 
@@ -147,7 +147,7 @@ class FileTest extends TestCase {
     }
 
     public function testWrite_CantWriteToEmptyFile() {
-        $this->expectException(FsException::class, "The file path is empty.");
+        $this->expectException(FsException::class, "The file path is empty");
         File::write('', 'Test');
     }
 

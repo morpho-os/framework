@@ -14,7 +14,6 @@ use Morpho\Web\Theme;
 
 class Module extends Theme {
     public const NAME = VENDOR . '/system';
-    public const HOME_PAGE_URI = '/system/module/list';
 
     private $thrownExceptions = [];
 
