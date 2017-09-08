@@ -104,5 +104,5 @@ return [
 */
         ],
     ],
-    'umask' => 0007, // This valid is for `development` environment, change it for other environments.
+    'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
 ];
