@@ -21,7 +21,7 @@ class Db extends BaseDb {
 
     private $schemaManager;
 
-    public function query(): BaseQuery {
+    public function newQuery(): BaseQuery {
         return new Query();
     }
 
@@ -42,7 +42,7 @@ class Db extends BaseDb {
             }
             $args = array_merge($args, array_values($row));
         }
-        $query = $this->query();
+        $query = $this->newQuery();
         $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
         $this->eval($sql, $args);

@@ -21,9 +21,9 @@ class DbTest extends BaseDbTest {
         $this->assertEquals($rows, $this->db->select('* FROM cars')->rows());
     }
 
-    public function testQuery_ReturnsTheSameObject() {
-        $query = $this->db->query();
-        $this->assertNotSame($query, $this->db->query());
+    public function testNewQuery_ReturnsTheSameObject() {
+        $query = $this->db->newQuery();
+        $this->assertNotSame($query, $this->db->newQuery());
         $this->assertInstanceOf(Query::class, $query);
     }
 

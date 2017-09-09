@@ -10,18 +10,18 @@ abstract class Db {
     /**
      * @var \PDO
      */
-    protected $db;
+    protected $connection;
 
     public const MYSQL_DRIVER  = 'mysql';
     public const SQLITE_DRIVER = 'sqlite';
 
     public function __construct($optionsOrConnection) {
-        $this->db = $db = $optionsOrConnection instanceof \PDO
+        $this->connection = $connection = $optionsOrConnection instanceof \PDO
             ? $optionsOrConnection
             : $this->newPdoConnection($optionsOrConnection);
-        $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-        $db->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
+        $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $connection->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
         // @TODO
         //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
@@ -42,16 +42,16 @@ abstract class Db {
         return $db;
     }
 
-    public function pdo(): \PDO {
-        return $this->db;
+    public function connection(): \PDO {
+        return $this->connection;
     }
 
     // For SELECT use prepare feature.
     public function quote($val, int $type = \PDO::PARAM_STR): string {
-        return $this->db->quote($val, $type);
+        return $this->connection->quote($val, $type);
     }
 
-    abstract public function query(): Query;
+    abstract public function newQuery(): Query;
 
     abstract public function schemaManager(): SchemaManager;
 
@@ -60,11 +60,11 @@ abstract class Db {
     }
 
     public function lastInsertId(string $seqName = null): string {
-        return $this->db->lastInsertId($seqName);
+        return $this->connection->lastInsertId($seqName);
     }
 
     public function insertRow(string $tableName, array $row): void {
-        $query = $this->query();
+        $query = $this->newQuery();
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . '(';
         $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->eval($sql, array_values($row));
@@ -73,7 +73,7 @@ abstract class Db {
     abstract public function insertRows(string $tableName, array $rows): void;
 
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
-        $query = $this->query();
+        $query = $this->newQuery();
         if (is_array($whereCondition) && count($whereCondition)) {
             $whereConditionArgs = array_values($whereCondition);
             $whereCondition = $query->logicalAnd($query->namedPlaceholders($whereCondition));
@@ -89,7 +89,7 @@ abstract class Db {
      * @param array|null $whereConditionArgs
      */
     public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null): void {
-        $query = $this->query();
+        $query = $this->newQuery();
         $sql = 'UPDATE ' . $query->identifier($tableName)
             . ' SET ' . implode(', ', $query->namedPlaceholders($row));
         $args = array_values($row);
@@ -116,31 +116,31 @@ abstract class Db {
 
     public function eval(string $sql, array $args = null): \PDOStatement {
         if ($args) {
-            $stmt = $this->db->prepare($sql);
+            $stmt = $this->connection->prepare($sql);
             $stmt->execute($args);
             return $stmt;
         }
-        return $this->db->query($sql);
+        return $this->connection->query($sql);
     }
 
     public function transaction(callable $transaction) {
-        $this->db->beginTransaction();
+        $this->connection->beginTransaction();
         try {
             $result = $transaction($this);
-            $this->db->commit();
+            $this->connection->commit();
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->connection->rollBack();
             throw $e;
         }
         return $result;
     }
 
     public function inTransaction(): bool {
-        return $this->db->inTransaction();
+        return $this->connection->inTransaction();
     }
 
     public function driverName(): string {
-        return $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        return $this->connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
     }
 
     public static function availableDrivers(): array {

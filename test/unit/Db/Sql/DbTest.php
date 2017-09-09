@@ -18,6 +18,12 @@ abstract class DbTest extends DbTestCase {
         $this->schemaManager = new SchemaManager($this->db);
         $this->schemaManager->deleteAllTables();
     }
+
+    public function testConnection() {
+        $connection = $this->db->connection();
+        $this->assertInstanceOf(\PDO::class, $connection);
+        $this->assertSame($connection, $this->db->connection());
+    }
     
     abstract public function testInsertRows();
 
@@ -47,7 +53,7 @@ abstract class DbTest extends DbTestCase {
         $this->assertEquals('1', $this->db->lastInsertId('some'));
     }
 
-    abstract public function testQuery_ReturnsTheSameObject();
+    abstract public function testNewQuery_ReturnsTheSameObject();
 
     abstract public function testSchemaManager_ReturnsNotUniqueInstance();
 

@@ -19,7 +19,7 @@ class TestSettings {
     }
 
     public static function get(string $name) {
-        if (!array_key_exists($name, self::$values[$name])) {
+        if (!array_key_exists($name, self::$values)) {
             return self::$default[$name];
         }
         return self::$values[$name];

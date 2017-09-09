@@ -24,7 +24,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createDatabase(string $dbName, string $charset = null, string $collation = null): void {
-        $this->db->eval("CREATE DATABASE " . $this->db->query()->identifier($dbName)
+        $this->db->eval("CREATE DATABASE " . $this->db->newQuery()->identifier($dbName)
             . " CHARACTER SET " . ($charset ?: self::DEFAULT_CHARSET)
             . " COLLATE " . ($collation ?: self::DEFAULT_COLLATION)
         );
@@ -43,7 +43,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteDatabase(string $dbName): void {
-        $this->db->eval("DROP DATABASE " . $this->db->query()->identifier($dbName));
+        $this->db->eval("DROP DATABASE " . $this->db->newQuery()->identifier($dbName));
     }
 
     public function sizeOfDatabases() {
@@ -85,7 +85,7 @@ class SchemaManager extends BaseSchemaManager {
             if ($isMySql) {
             */
             $db->eval('SET FOREIGN_KEY_CHECKS=0;');
-            $db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
+            $db->eval('DROP TABLE IF EXISTS ' . $this->db->newQuery()->identifier($tableName));
             /*
             if ($isMySql) {
             }
@@ -103,7 +103,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteTableIfExists(string $tableName): void {
-        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
+        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->newQuery()->identifier($tableName));
     }
 
     /**
@@ -137,7 +137,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createTableSql(string $tableName): string {
-        return $this->db->eval("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))
+        return $this->db->eval("SHOW CREATE TABLE " . $this->db->newQuery()->identifier($tableName))
             ->row()['Create Table'];
     }
 
@@ -150,7 +150,7 @@ class SchemaManager extends BaseSchemaManager {
 
         list($pkColumns, $columns) = $this->columnsDefinitionToSqlArray($tableDefinition['columns']);
         
-        $query = $this->db->query();
+        $query = $this->db->newQuery();
 
         if (isset($tableDefinition['foreignKeys'])) {
             foreach ($tableDefinition['foreignKeys'] as $fkDefinition) {
@@ -311,7 +311,7 @@ class SchemaManager extends BaseSchemaManager {
             }
         }
 
-        return $this->db->query()->identifier($columnName) . ' ' . $columnDefinitionSql;
+        return $this->db->newQuery()->identifier($columnName) . ' ' . $columnDefinitionSql;
     }
 
     /**
@@ -464,7 +464,7 @@ ORDER BY TABLE_SCHEMA,
         if (isset($indexDefinition['type'])) {
             $sql[] = $indexDefinition['type'];
         }
-        $query = $this->db->query();
+        $query = $this->db->newQuery();
         $sql[] = '('
             . (is_array($indexDefinition['columns'])
                 ? implode(', ', array_map([$query, 'identifier'], $indexDefinition['columns']))

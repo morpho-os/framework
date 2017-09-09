@@ -113,7 +113,7 @@ class SiteInstaller implements IServiceManagerAware {
                 $db = Db::connect($dbConfig);
                 $schemaManager = $db->schemaManager();
                 $schemaManager->createDatabase($dbName);
-                $db->eval($db->query()->useDb($dbName));
+                $db->eval($db->newQuery()->useDb($dbName));
                 return $db;
             } else {
                 throw $e;
