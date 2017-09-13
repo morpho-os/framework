@@ -19,9 +19,11 @@ class InstallationTest extends SiteTestCase {
     }
 
     public function testInstallationAndClientTest() {
-        $this->browser->get($this->baseUri);
+        $browser = $this->browser();
+        
+        $browser->get($this->uri());
 
-        $this->assertEquals('Installation', $this->browser->getTitle());
+        $this->assertEquals('Installation', $browser->getTitle());
 
         $fallbackDbConfig = (require $this->site->fallbackConfigFilePath())['db'];
         $this->checkElValue($fallbackDbConfig['db'], By::id('db'));
@@ -30,14 +32,13 @@ class InstallationTest extends SiteTestCase {
         $this->checkElValue($fallbackDbConfig['host'], By::cssSelector('input[name=host]'));
         $this->checkElValue($fallbackDbConfig['port'], By::cssSelector('input[name=port]'));
 
-        $this->browser->fillForm(['db' => self::DB_NAME]);
+        $browser->fillForm(['db' => self::DB_NAME]);
 
-        $this->browser->findElement(By::id('drop-tables'))->click();
-        $this->browser->findElement(By::id('install'))->click();
+        $browser->findElement(By::id('drop-tables'))->click();
+        $browser->findElement(By::id('install'))->click();
 
-        $this->browser->wait(30);
-        $this->browser->waitUntilTitleIs('Modules');
-
+        $browser->wait(30);
+        $browser->waitUntilTitleIs('Modules');
 
         $this->assertNotEmpty((require $this->site->configFilePath())['db']);
         /* @TODO

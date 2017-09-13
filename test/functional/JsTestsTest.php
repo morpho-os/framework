@@ -12,10 +12,10 @@ use Morpho\Test\SiteTestCase;
 
 class JsTestsTest extends SiteTestCase {
     public function testJs() {
-        $this->browser->get($this->baseUri . '/system/test?bot');
+        $this->browser()->get($this->uri('system/test?bot'));
         $by = By::id('testing-results');
-        $this->browser->waitUntilElementIsVisible($by);
-        $numberOfFailedTests = $this->browser->findElement($by)->getText();
+        $this->browser()->waitUntilElementIsVisible($by);
+        $numberOfFailedTests = $this->browser()->findElement($by)->getText();
         $this->assertEquals(0, $numberOfFailedTests);
     }
 }

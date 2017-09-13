@@ -9,7 +9,6 @@ namespace MorphoTest\Functional;
 
 use Morpho\Network\Http\HttpClient;
 use Morpho\Test\SiteTestCase;
-use Morpho\Test\TestSettings;
 
 class StatusCodeTest extends SiteTestCase {
     public function dataForResponseCodes() {
@@ -36,10 +35,9 @@ class StatusCodeTest extends SiteTestCase {
      * @dataProvider dataForResponseCodes
      */
     public function testResponseCodes($relUri, $expectedCode, ?string $expectedTitle, ?string $expectedText) {
-        $baseUri = TestSettings::get('siteUri');
         $response = (new HttpClient())
             ->setMaxNumberOfRedirects(0)
-            ->sendGet($baseUri . $relUri, null);
+            ->sendGet($this->uri($relUri), null);
         $this->assertEquals($expectedCode, $response->getStatusCode(), 'Response: ' . substr($response->getBody(), 0, 1000));
 
         if (null !== $expectedTitle || null !== $expectedText) {

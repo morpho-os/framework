@@ -98,6 +98,5 @@ class SiteTestCase extends BrowserTestCase {
 
     protected function newSite(): Site {
         return (new SiteFactory())(require MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME);
-        //return new Site('foo/bar', $dirPath, 'localhost');
     }
 }

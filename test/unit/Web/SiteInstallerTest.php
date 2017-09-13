@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 declare(strict_types=1);
-namespace MorphoTest\Web;
+namespace MorphoTest\Unit\Web;
 
 use Morpho\Core\ModuleManager;
 use Morpho\Core\SettingsManager;

@@ -6,6 +6,8 @@
  */
 namespace MorphoTest\Functional;
 
+use Morpho\Infra\PhpServer;
+use Morpho\Network\Address;
 use Morpho\Network\Http\GeckoDriverDownloader;
 use const Morpho\Web\PUBLIC_DIR_PATH;
 use Morpho\Network\Http\SeleniumServerDownloader;
@@ -14,19 +16,30 @@ use Morpho\Test\BrowserTestSuite;
 use Morpho\Test\TestSettings;
 
 class TestSuite extends BrowserTestSuite {
+    private $phpServer;
+
     public function testFilePaths(): iterable {
         return $this->testFilesInDir(__DIR__);
     }
 
     public function setUp() {
         parent::setUp();
-        if (getenv('TRAVIS')) {
-            $address = 'localhost:7654';
-            $this->startPhpServer('http://' . $address);
+        //if (getenv('TRAVIS')) {
+            $this->phpServer = $phpServer = new PhpServer(new Address('127.0.0.1', 7654), PUBLIC_DIR_PATH);
+            $address = $phpServer->start();
+            /*
         } else {
             $address = 'framework';
         }
+            */
         TestSettings::set('siteUri', 'http://' . $address);
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        if ($this->phpServer) {
+            $this->phpServer->stop();
+        }
     }
 
     protected function configureSeleniumServer(SeleniumServer $seleniumServer): void {
@@ -41,14 +54,5 @@ class TestSuite extends BrowserTestSuite {
             ->setGeckoBinFilePath($geckoBinFilePath)
             ->setLogFilePath($toolsDirPath . '/selenium.log')
             ->setPort(SeleniumServer::PORT);
-    }
-
-    private function startPhpServer(string $address): void {
-        //showLn("Starting PHP server...");
-        $cmd = 'php -S ' . escapeshellarg($address) . ' -t ' . escapeshellarg(PUBLIC_DIR_PATH) . ' &>/dev/null &';
-        //cmd($cmd);
-        proc_close(proc_open($cmd, [], $pipes));
-        sleep(3); // @TODO: better way to check that the server is started
-        //showLn("PHP server started");
     }
 }

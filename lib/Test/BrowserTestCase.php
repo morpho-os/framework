@@ -24,24 +24,14 @@ class BrowserTestCase extends TestCase {
     /**
      * @var \Facebook\WebDriver\Remote\RemoteWebDriver
      */
-    protected $browser;
-
-    /**
-     * @var string
-     */
-    protected $baseUri;
-
-    public function setUp() {
-        parent::setUp();
-        $this->baseUri = TestSettings::get('siteUri');
-        //$capabilities->setCapability('firefox_binary', '/usr/lib/firefox/firefox');
-        $this->browser = $this->newBrowser();
-    }
+    private $browser;
 
     public function tearDown() {
         parent::tearDown();
-        $this->browser->quit();
-        $this->browser = null;
+        if ($this->browser) {
+            $this->browser->quit();
+            $this->browser = null;
+        }
     }
 
     protected function checkLink(string $expectedUri, string $expectedText, WebDriverElement $el): void {
@@ -50,10 +40,22 @@ class BrowserTestCase extends TestCase {
     }
 
     protected function checkElValue(string $expectedText, By $elSelector): void {
-        $this->assertEquals($expectedText, $this->browser->findElement($elSelector)->getAttribute('value'));
+        $this->assertEquals($expectedText, $this->browser()->findElement($elSelector)->getAttribute('value'));
+    }
+
+    protected function browser() {
+        if (null === $this->browser) {
+            $this->browser = $this->newBrowser();
+        }
+        return $this->browser;
     }
 
     protected function newBrowser() {
         return Browser::new(DesiredCapabilities::firefox());
+    }
+
+    protected function uri(string $relUri = null): string {
+        return TestSettings::get('siteUri')
+            . (null !== $relUri ? '/' . ltrim($relUri, '/') : '');
     }
 }
