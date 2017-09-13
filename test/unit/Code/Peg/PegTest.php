@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 declare(strict_types=1);
-namespace MorphoTest\Code\Peg;
+namespace MorphoTest\Unit\Code\Peg;
 
 use Morpho\Code\Peg\Choice;
 use Morpho\Code\Peg\EmptyString;
