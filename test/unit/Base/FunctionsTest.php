@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Base;
 
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, wrapQ, startsWith, formatBytes
+    endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -21,6 +21,34 @@ class FunctionsTest extends TestCase {
         if (isset($this->tmpHandle)) {
             fclose($this->tmpHandle);
         }
+    }
+
+    public function testWaitUntilNoOfAttempts_PredicateReturnsTrueOnSomeIteration() {
+        $called = 0;
+        $predicate = function () use (&$called) {
+            if ($called === 4) {
+                return true;
+            }
+            $called++;
+            return false;
+        };
+
+        waitUntilNoOfAttempts($predicate, 0);
+        $this->assertEquals(4, $called);
+    }
+
+    public function testWaitUntilNoOfAttempts_PredicateReturnsFalseAlways() {
+        $called = 0;
+        $predicate = function () use (&$called) {
+            $called++;
+            return false;
+        };
+        $this->expectException(RuntimeException::class, 'The condition is not satisfied');
+        waitUntilNoOfAttempts($predicate, 0);
+    }
+
+    public function testWaitUntilTimeout() {
+        $this->markTestIncomplete();
     }
 
     public function dataForStartsWith() {

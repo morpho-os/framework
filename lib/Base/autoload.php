@@ -4,10 +4,6 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/**
- * This file use some ideas (or fragments) found at https://github.com/nikic/iter.
- */
-
 declare(strict_types = 1);
 namespace Morpho\Base;
 
@@ -35,6 +31,8 @@ const SHORTEN_LENGTH = 30;
 // @TODO: Detect precise value.
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
+
+const WAIT_INTERVAL_MICRO_SEC = 200000;
 
 function unpackArgs(array $args): array {
     return count($args) === 1 && is_array($args[0])
@@ -500,8 +498,26 @@ function memoize(callable $fn): \Closure {
     };
 }
 
+function waitUntilNoOfAttempts(callable $predicate, int $waitIntervalMicroSec = null, int $noOfAttempts = 30): void {
+    if (null === $waitIntervalMicroSec) {
+        $waitIntervalMicroSec = WAIT_INTERVAL_MICRO_SEC;
+    }
+    for ($i = 0; $i < $noOfAttempts; $i++) {
+        if ($predicate()) {
+            return;
+        }
+        usleep($waitIntervalMicroSec);
+    }
+    throw new \RuntimeException('The condition is not satisfied');
+}
+
+function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
+    // @TODO: use waitUntilNoOfAttempts
+    throw new NotImplementedException();
+}
+
 // ----------------------------------------------------------------------------
-// Iterable
+// Iterable. Some iterable ideas or code inspired by the https://github.com/nikic/iter.
 
 function all(callable $predicate, iterable $list): bool {
     foreach ($list as $key => $value) {
