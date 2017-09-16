@@ -13,6 +13,7 @@ class ReflectionNamespace {
     private $classTypes;
     private $functions;
     private $isGlobal;
+    private $filePath;
 
     public function __construct(string $filePath, ?string $name, iterable $classTypes, iterable $functions, bool $isGlobal) {
         $this->filePath = $filePath;

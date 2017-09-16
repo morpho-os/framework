@@ -17,6 +17,8 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 
 class ReflectionFile {
+    private $filePath;
+
     public function __construct(string $filePath) {
         $this->filePath = $filePath;
     }

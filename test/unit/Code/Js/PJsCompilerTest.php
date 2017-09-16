@@ -11,6 +11,11 @@ use Morpho\Code\Js\PJsCompiler;
 use Morpho\Test\TestCase;
 
 class PJsCompilerTest extends TestCase {
+    public function setUp() {
+        parent::setUp();
+        $this->markTestIncomplete();
+    }
+
     public function testCompileFile() {
         $this->markTestIncomplete();
         // @TODO
