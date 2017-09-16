@@ -8,6 +8,7 @@ namespace Morpho\Infra;
 
 use function Morpho\Base\waitUntilNoOfAttempts;
 use Morpho\Network\Address;
+use Morpho\Network\TcpServer;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -89,12 +90,7 @@ class PhpServer {
     }
 
     protected function isListening(): bool {
-        $handle = @fsockopen('tcp://' . $this->actualAddress->host, $this->actualAddress->port, $errNo, $errStr, 1);
-        if ($handle) {
-            fclose($handle);
-            return true;
-        }
-        return false;
+        return TcpServer::isListening($this->actualAddress);
     }
 
     /**
