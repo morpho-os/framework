@@ -16,11 +16,6 @@ use Morpho\Network\Http\Browser;
  * @TODO: Check the https://github.com/lmc-eu/steward/blob/master/src/Test/SyntaxSugarTrait.php
  */
 class BrowserTestCase extends TestCase {
-    protected const WAIT_TIMEOUT       = 10;    // sec, how long to wait() for condition
-    protected const WAIT_INTERVAL      = 1000;  // ms, how often check for condition in wait()
-    protected const CONNECTION_TIMEOUT = 30000; // ms, corresponds to CURLOPT_CONNECTTIMEOUT_MS
-    protected const REQUEST_TIMEOUT    = 30000; // ms, corresponds to CURLOPT_TIMEOUT_MS
-
     /**
      * @var \Facebook\WebDriver\Remote\RemoteWebDriver
      */
@@ -45,13 +40,19 @@ class BrowserTestCase extends TestCase {
 
     protected function browser() {
         if (null === $this->browser) {
-            $this->browser = $this->newBrowser();
+            $browser = $this->newBrowser();
+            $this->configureBrowser($browser);
+            $this->browser = $browser;
         }
         return $this->browser;
     }
 
     protected function newBrowser() {
         return Browser::new(DesiredCapabilities::firefox());
+    }
+
+    protected function configureBrowser($browser): void {
+        // Can be overloaded in child classes.
     }
 
     protected function uri(string $relUri = null): string {

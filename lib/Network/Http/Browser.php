@@ -21,7 +21,7 @@ class Browser extends RemoteWebDriver {
      * Timeout in sec, how long to wait() for condition
      * @var int
      */
-    private $waitTimeout = self::WAIT_INTERVAL;
+    private $waitTimeout = self::WAIT_TIMEOUT;
 
     /**
      * Interval in ms, how often check for condition in wait()
