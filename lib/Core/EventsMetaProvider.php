@@ -39,11 +39,6 @@ class EventsMetaProvider implements IFn {
                         continue;
                     }
                 }
-                if ($rMethod->class === $rClass->name) {
-                    // If the child class defines a method with the same name, don't inherit
-                    // doc-comments.
-                    unset($foundEvents[$methodName]);
-                }
             }
         }
         $events = [];

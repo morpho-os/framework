@@ -53,6 +53,56 @@ class EventsMetaProviderTest extends TestCase {
                 'method' =>  'zero2',
             ],
         ], $meta);
+    }
+
+    public function dataForInvoke_InheritsCommentsIfTheSameMethodDoesNotHaveComments() {
+        return [
+            [
+                new ChildWithTheSameMethodModule(),
+            ],
+            [
+                new ChildWithoutMethodsModule()
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForInvoke_InheritsCommentsIfTheSameMethodDoesNotHaveComments
+     */
+    public function testInvoke_InheritsCommentsIfTheSameMethodDoesNotHaveComments($child) {
+        $eventsMetaProvider = new EventsMetaProvider();
+        $meta = $eventsMetaProvider->__invoke($child);
+        $this->assertSame(
+            [
+                [
+                    'name' => 'afterDispatch',
+                    'priority' => -9999,
+                    'method' => 'afterDispatch',
+                ],
+            ],
+            $meta
+        );
+    }
+}
+
+class ParentModule {
+    /**
+     * @Listen afterDispatch -9999
+     * @param array $event
+     */
+    public function afterDispatch(array $event) {
+
+    }
+}
+
+class ChildWithTheSameMethodModule extends ParentModule {
+    public function afterDispatch(array $event) {
+
+    }
+}
+
+class ChildWithoutMethodsModule extends ParentModule {
+    public function afterDispatch(array $event) {
 
     }
 }
