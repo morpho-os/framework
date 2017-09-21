@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Morpho\Fs;
 
+use Morpho\Base\NotImplementedException;
+
 class Stat {
     // Changed file types from /usr/include/bits/stat.h
     // ENTRY = DIR | CHAR_DEV | BLOCK_DEV | REG_FILE | FIFO | SYMLINK | SOCKET
@@ -66,5 +68,14 @@ class Stat {
 
     public static function isSocket(string $path): bool {
         return filetype($path) === 'socket';
+    }
+
+    public static function isBrokenSymlink(string $path): bool {
+        throw new NotImplementedException(__METHOD__);
+/*
+if (is_link($destFilePath) && !file_exists($destFilePath)) {
+    unlink($destFilePath);
+}
+n*/
     }
 }
