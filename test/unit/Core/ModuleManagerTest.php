@@ -218,8 +218,8 @@ class ModuleManagerTest extends DbTestCase {
         $this->assertTrue($module[$controllerName]->isDispatchCalled());
     }
 
-    public function testDispatchLoopAccessors() {
-        $this->checkAccessors($this->newModuleManager(), 30, 25, 'dispatchLoopLimit');
+    public function testMaxNoOfDispatchIterationsAccessors() {
+        $this->checkAccessors($this->newModuleManager(), 30, 25, 'maxNoOfDispatchIterations');
     }
 
     public function testDispatch_ThrowsExceptionAfterExceedingLimit() {
@@ -238,7 +238,7 @@ class ModuleManagerTest extends DbTestCase {
         $request = $this->createMock(Request::class);
 
         $limit = 30;
-        $moduleManager->setDispatchLoopLimit($limit);
+        $moduleManager->setMaxNoOfDispatchIterations($limit);
         /*
         $request->expects($this->any())
             ->method('isDispatched')

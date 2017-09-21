@@ -33,7 +33,7 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected $moduleFs;
 
-    protected $dispatchLoopLimit = 30;
+    protected $maxNoOfDispatchIterations = 30;
 
     public function __construct(Db $db = null, ModuleFs $moduleFs) {
         $this->db = $db;
@@ -47,18 +47,11 @@ abstract class ModuleManager extends Node implements IEventManager {
     public function dispatch($request): void {
         $i = 0;
         do {
-            if ($i >= $this->dispatchLoopLimit) {
-                throw new \RuntimeException("Dispatch loop has occurred {$this->dispatchLoopLimit} times");
+            if ($i >= $this->maxNoOfDispatchIterations) {
+                throw new \RuntimeException("Dispatch loop has occurred {$this->maxNoOfDispatchIterations} times");
             }
             try {
                 $request->isDispatched(true);
-
-                /*
-                if ($i > 50) {
-                    goto error;
-                }
-                $i++;
-                */
 
                 $this->trigger('beforeDispatch', ['request' => $request]);
 
@@ -73,13 +66,13 @@ abstract class ModuleManager extends Node implements IEventManager {
         } while (false === $request->isDispatched());
     }
 
-    public function setDispatchLoopLimit(int $n) {
-        $this->dispatchLoopLimit = $n;
+    public function setMaxNoOfDispatchIterations(int $n) {
+        $this->maxNoOfDispatchIterations = $n;
         return $this;
     }
 
-    public function dispatchLoopLimit(): int {
-        return $this->dispatchLoopLimit;
+    public function maxNoOfDispatchIterations(): int {
+        return $this->maxNoOfDispatchIterations;
     }
 
     public function controller($moduleName, $controllerName, $actionName): Controller {
