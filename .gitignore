@@ -16,6 +16,6 @@ node_modules/
 /module/*/cache/*
 
 *.log
-
+selenium.log.lck
 /test/functional/geckodriver
 /test/functional/selenium-server-standalone-*.jar  
