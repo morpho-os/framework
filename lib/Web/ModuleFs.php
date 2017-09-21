@@ -6,12 +6,9 @@
  */
 namespace Morpho\Web;
 
-use function Morpho\Base\requireFile;
-use Morpho\Code\ClassTypeDiscoverer;
 use Morpho\Core\ModuleFs as BaseModuleFs;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IServiceManagerAware;
-use Morpho\Fs\File;
 
 class ModuleFs extends BaseModuleFs implements IServiceManagerAware {
     protected $serviceManager;
