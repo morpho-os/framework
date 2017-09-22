@@ -24,7 +24,7 @@ class Module extends Theme {
     /**
      * @Listen dispatchError -9999
      */
-    public function dispatchError(array $event) {
+    public function dispatchError($event) {
         $exception = $event[1]['exception'];
         $request = $event[1]['request'];
 

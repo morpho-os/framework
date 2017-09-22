@@ -9,6 +9,7 @@ namespace MorphoTest\Unit\Core;
 use function Morpho\Base\fromJson;
 use Morpho\Base\Node as BaseNode;
 use Morpho\Core\Node;
+use Morpho\Core\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Module;
@@ -54,11 +55,46 @@ class ThemeTest extends TestCase {
         $this->assertEquals('application/json', $response->headers()->get('Content-Type')->getFieldValue());
     }
 
+    public function testAfterDispatch_LayoutRenderedOnce() {
+        $request = new Request();
+        $layoutName = 'index';
+        $request->setInternalParam('layout', new View($layoutName));
+        $request->isDispatched(true);
+
+        $event = ['afterDispatch', ['request' => $request]];
+
+        $newTheme = function () {
+            return new class ('foo/bar', $this->getTestDirPath()) extends Theme {
+                public $renderFileArgs;
+
+                protected function renderFile(string $relFilePath, array $vars, array $instanceVars = null): string {
+                    $this->renderFileArgs = func_get_args();
+                    return 'ok';
+                }
+            };
+        };
+
+        $theme1 = $newTheme();
+
+        $theme1->afterDispatch($event);
+
+        $this->assertSame([$layoutName, ['body' => '']], $theme1->renderFileArgs);
+        $this->assertTrue($request->internalParam('layout')->isRendered());
+
+        $theme2 = $newTheme();
+
+        $theme2->afterDispatch($event);
+
+        $this->assertNull($theme2->renderFileArgs);
+        $this->assertTrue($request->internalParam('layout')->isRendered());
+    }
+
+
+
     public function testRender_Ajax() {
         $theme = $this->newTheme();
         $viewVars = ['foo' => 'bar'];
-        $event = ['render', ['vars' => $viewVars]];
-
+        $event = ['render', ['view' => new View('some', $viewVars)]];
         $request = new Request();
         $request->isAjax(true);
         $serviceManager = new ServiceManager(['request' => $request]);
@@ -124,14 +160,7 @@ class ThemeTest extends TestCase {
         };
         $theme->setParent($moduleManager);
 
-        $event = [
-            'render',
-            [
-                'vars' => $viewVars,
-                'view' => $viewName,
-            ]
-        ];
-
+        $event = ['render', ['view' => new View($viewName, $viewVars)]];
         $actualRendered = $theme->render($event);
 
         $this->assertEquals($expectedRendered, $actualRendered);

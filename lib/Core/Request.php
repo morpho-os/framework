@@ -94,16 +94,24 @@ abstract class Request {
         return isset($this->routingParams[$name]) ? $this->routingParams[$name] : $default;
     }
 
+    public function hasInternalParam(string $name): bool {
+        return array_key_exists($name, $this->internalParams);
+    }
+
     public function setInternalParam(string $name, $value): void {
         $this->internalParams[$name] = $value;
     }
 
-    public function internalParam(string $name, $default = null) {
-        return isset($this->internalParams[$name]) ? $this->internalParams[$name] : $default;
-    }
-
     public function unsetInternalParam(string $name): void {
         unset($this->internalParams[$name]);
+    }
+
+    public function internalParam(string $name) {
+        return $this->internalParams[$name];
+    }
+
+    public function internalParams(): array {
+        return $this->internalParams;
     }
 
     public function setResponse($response): void {

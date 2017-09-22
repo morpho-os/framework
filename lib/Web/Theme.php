@@ -10,18 +10,16 @@ namespace Morpho\Web;
 use function Morpho\Base\{
     dasherize, toJson
 };
+use Morpho\Core\View;
 use Morpho\Fs\Path;
 
 class Theme extends Module {
     public const VIEW_FILE_EXT = '.phtml';
-
-    protected $layout = 'index';
+    public const DEFAULT_LAYOUT = 'index';
 
     protected $baseDirPaths = [];
 
     protected $templateEngine;
-
-    private $isLayoutRendered = false;
 
     private $isThemeDirAdded = false;
 
@@ -44,14 +42,14 @@ class Theme extends Module {
     /**
      * @Listen render -9999
      */
-    public function render(array $event): string {
-        $args = $event[1];
-        $vars = $args['vars'];
+    public function render($event): string {
+        /** @var \Morpho\Core\View $view */
+        $view = $event[1]['view'];
 
         $request = $this->serviceManager->get('request');
 
         if ($request->isAjax()) {
-            return toJson($vars);
+            return toJson($view->vars());
         }
 
         if (!$this->isThemeDirAdded) {
@@ -67,23 +65,18 @@ class Theme extends Module {
                 ->viewDirPath()
         );
 
-        if (isset($args['layout'])) {
-            $this->layout = dasherize($args['layout']);
-        }
-
-        $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($args['view']);
+        $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($view->name());
         return $this->renderFile(
             $relFilePath,
-            $vars,
-            isset($args['instanceVars']) ? $args['instanceVars'] : null
+            $view->vars(),
+            $view->properties()
         );
     }
 
     /**
      * @Listen beforeDispatch -9999
-     * @param $event
      * /
-    public function beforeDispatch(array $event) {
+    public function beforeDispatch($event) {
         //$this->autoDecodeRequestJson();
         /*
         $request = $this->request;
@@ -97,11 +90,16 @@ class Theme extends Module {
 
     /**
      * @Listen afterDispatch -9999
-     * @param array $event
      */
-    public function afterDispatch(array $event) {
+    public function afterDispatch($event) {
         $request = $event[1]['request'];
-        if ($request->isDispatched() && false === $this->isLayoutRendered) {
+        if ($request->hasInternalParam('layout')) {
+            $layout = $request->internalParam('layout');
+        } else {
+            $layout = $this->newDefaultLayout();
+            $request->setInternalParam('layout', $layout);
+        }
+        if ($request->isDispatched() && !$layout->isRendered()) {
             $response = $request->response();
             if ($request->isAjax()) {
                 $response->headers()
@@ -118,11 +116,11 @@ class Theme extends Module {
             } else {
                 if (!$response->isRedirect()) {
                     $response->setContent(
-                        $this->renderFile($this->layout, ['body' => $response->content()])
+                        $this->renderFile($layout->name(), ['body' => $response->content()])
                     );
                 }
             }
-            $this->isLayoutRendered = true;
+            $layout->isRendered(true);
         }
     }
 
@@ -175,5 +173,9 @@ class Theme extends Module {
             $templateEngine->mergeVars($instanceVars);
         }
         return $templateEngine->renderFile($this->absoluteFilePath($relFilePath), $vars);
+    }
+
+    protected function newDefaultLayout(): View {
+        return new View(self::DEFAULT_LAYOUT);
     }
 }

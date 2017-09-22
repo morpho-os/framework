@@ -10,7 +10,7 @@ class Module extends BaseModule {
     /**
      * @Listen beforeDispatch -9999
      */
-    public function beforeDispatch(array $event) {
+    public function beforeDispatch($event) {
         if (!$this->initialized) {
             $userRepo = $this->repo('User');
             $session = $this->serviceManager->get('session');

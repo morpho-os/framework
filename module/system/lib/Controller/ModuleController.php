@@ -54,7 +54,7 @@ class ModuleController extends Controller {
             $moduleManager->installAndEnableModule($moduleName);
         }
 
-        return $this->redirectToUri('/system/module/list');
+        $this->redirectToUri('/system/module/list');
     }
 
     /**
@@ -107,17 +107,20 @@ class ModuleController extends Controller {
         $moduleName = key(array_values($_POST)[0]);
         if (!$this->serviceManager->get('moduleManager')->isUninstalledModule($moduleName)) {
             $this->addErrorMessage("To delete the module '{moduleName}' from the disk it must be uninstalled first.", ['moduleName' => classify($moduleName)]);
-            return $this->redirectToUri('/system/module/list');
+            $this->redirectToUri('/system/module/list');
+            return;
         }
         $moduleDirPath = $this->moduleDirPath($moduleName);
         if (!is_dir($moduleDirPath)) {
             $this->addErrorMessage("The module directory for the module '{moduleName}' does not exist.", ['moduleName' => classify($moduleName)]);
-            return $this->redirectToUri('/system/module/list');
+            $this->redirectToUri('/system/module/list');
+            return;
         } else {
             Directory::delete($moduleDirPath);
         }
         $this->addSuccessMessage("The module '{moduleName}' was successfully deleted from the disk.", ['moduleName' => classify($moduleName)]);
-        return $this->redirectToUri('/system/module/list');
+        $this->redirectToUri('/system/module/list');
+        return;
     }
 
     // --------------------------------------------------------------------------------
@@ -211,6 +214,6 @@ class ModuleController extends Controller {
         $moduleName = key(array_values($_POST)[0]);
         $process($this->serviceManager->get('moduleManager'), $moduleName);
         $this->serviceManager->get('router')->rebuildRoutes();
-        return $this->redirectToUri('/system/module/list');
+        $this->redirectToUri('/system/module/list');
     }
 }

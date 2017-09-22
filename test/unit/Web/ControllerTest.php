@@ -6,6 +6,7 @@
  */
 namespace MorphoTest\Unit\Web;
 
+use Morpho\Core\View;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
@@ -13,10 +14,46 @@ use Morpho\Di\ServiceManager;
 use Morpho\Web\Uri;
 
 class ControllerTest extends TestCase {
+    public function dataForDispatch_SetDifferentViewFromAction() {
+        return [
+            [
+                'list', 'list',
+            ],
+            [
+                'create', new View('create'),
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForDispatch_SetDifferentViewFromAction
+     */
+    public function testDispatch_SetDifferentViewFromAction($viewName, $view) {
+        $controller = new class('foo') extends Controller {
+            public $triggerArgs;
+
+            protected function firstAction() {
+                $this->setView($this->anotherView);
+            }
+
+            protected function trigger(string $event, array $args = null) {
+                $this->triggerArgs = func_get_args();
+                return '';
+            }
+        };
+        $request = $this->newRequest();
+        $request->setActionName('first');
+        $controller->anotherView = $view;
+
+        $controller->dispatch($request);
+
+        $this->assertEquals(['render', ['view' => new View($viewName)]], $controller->triggerArgs);
+    }
+
     public function testDispatch_Redirect() {
         $controller = new MyController('foo');
         $basePath = '/some/base/path';
-        $request = $this->newRequest($basePath);
+        $request = $this->newRequest();
         $uri = new Uri();
         $uri->setBasePath($basePath);
         $request->setUri($uri);
@@ -95,7 +132,7 @@ class MyController extends Controller {
     }
 
     public function redirectToSomePageAction() {
-        return $this->redirectToUri('/some/page');
+        $this->redirectToUri('/some/page');
     }
 }
 

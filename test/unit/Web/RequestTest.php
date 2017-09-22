@@ -32,14 +32,35 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->request->isAjax());
     }
 
-    public function testInternalParamAccessors() {
-        $this->assertNull($this->request->internalParam('foo'));
-        $this->assertEquals('default', $this->request->internalParam('foo', 'default'));
-        $this->assertNull($this->request->setInternalParam('foo', 'bar'));
-        $this->assertEquals('bar', $this->request->internalParam('foo'));
-        $this->assertEquals('bar', $this->request->internalParam('foo', 'default'));
-        $this->assertNull($this->request->unsetInternalParam('foo'));
-        $this->assertNull($this->request->internalParam('foo'));
+    public function dataForInternalParamAccessors() {
+        return [
+            [
+                'foo', 'bar'
+            ],
+            [
+                'foo', null
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForInternalParamAccessors
+     */
+    public function testInternalParamAccessors($name, $value) {
+        $this->assertSame([], $this->request->internalParams());
+
+        $this->assertFalse($this->request->hasInternalParam($name));
+
+        $this->assertNull($this->request->setInternalParam($name, $value));
+        
+        $this->assertTrue($this->request->hasInternalParam($name));
+        $this->assertEquals($value, $this->request->internalParam($name));
+        $this->assertSame([$name => $value], $this->request->internalParams());
+
+        $this->assertNull($this->request->unsetInternalParam($name));
+        
+        $this->assertFalse($this->request->hasInternalParam($name));
+        $this->assertSame([], $this->request->internalParams());
     }
 
     public function testHandlerAccessors() {

@@ -6,10 +6,7 @@
  */
 namespace Morpho\Core;
 
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
-
-abstract class Controller extends Node implements IServiceManagerAware {
+abstract class Controller extends Node {
     /**
      * @var \Morpho\Di\IServiceManager
      */
@@ -17,14 +14,11 @@ abstract class Controller extends Node implements IServiceManagerAware {
 
     protected $request;
 
-    private $viewVars = [];
-
-    private $specialViewVars = [];
+    private $view;
 
     public function dispatch($request): void {
-        $this->viewVars = $this->specialViewVars = [];
-
         $this->request = $request;
+        $this->view = null;
 
         $action = $request->actionName();
 
@@ -34,30 +28,31 @@ abstract class Controller extends Node implements IServiceManagerAware {
 
         $this->beforeEach();
 
-        $actionResult = null;
+        /** @var null|string|array|View $view */
+        $view = null;
         $method = $action . 'Action';
         if (method_exists($this, $method)) {
-            $actionResult = $this->$method();
+            $view = $this->$method();
         }
 
         $this->afterEach();
 
-        if (is_string($actionResult)) {
+        if (is_string($view)) {
             // Already rendered View.
             $this->request->response()
-                ->setContent($actionResult);
-        } elseif ($this->shouldRenderView($actionResult)) {
-            $renderedView = $this->renderView(
-                isset($this->specialViewVars['name']) ? $this->specialViewVars['name'] : $action,
-                $actionResult
-            );
-            $this->request->response()
-                ->setContent($renderedView);
+                ->setContent($view);
+        } else {
+            // $view: null|array|View
+            if (!$view instanceof View) {
+                // $view: null|array
+                $view = $this->view ?: new View($action, $view);
+            }
+            if ($this->shouldRenderView($view)) {
+                $renderedView = $this->renderView($view);
+                $this->request->response()
+                    ->setContent($renderedView);
+            }
         }
-    }
-
-    public function setServiceManager(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
     }
 
     public function setRequest($request): void {
@@ -89,6 +84,9 @@ abstract class Controller extends Node implements IServiceManagerAware {
             ->set($name, $value, $moduleName ?: $this->moduleName());
     }
 
+    /**
+     * @return mixed
+     */
     protected function setting(string $name, string $moduleName = null) {
         return $this->serviceManager->get('settingsManager')
             ->get($name, $moduleName ?: $this->moduleName());
@@ -106,38 +104,21 @@ abstract class Controller extends Node implements IServiceManagerAware {
         return $this->parent->repo($name);
     }
 
-    protected function setView(string $viewName): void {
-        $this->specialViewVars['name'] = $viewName;
+    protected function shouldRenderView(View $view): bool {
+        $request = $this->request;
+        return $request->isDispatched()
+            && !$request->response()->isRedirect()
+            && !$view->isRendered();
     }
 
-    protected function setSpecialViewVar(string $name, $value): void {
-        $this->specialViewVars[$name] = $value;
+    /**
+     * @param string|View $name
+     */
+    protected function setView($nameOrView): void {
+        $this->view = is_string($nameOrView) ? new View($nameOrView) : $nameOrView;
     }
 
-    protected function setViewInstanceVars(array $vars): void {
-        $this->specialViewVars['instanceVars'] = array_merge(
-            isset($this->specialViewVars['instanceVars'])
-                ? $this->specialViewVars['instanceVars']
-                : [],
-            $vars
-        );
-    }
-
-    protected function shouldRenderView($actionResult): bool {
-        return (is_array($actionResult) || !$this->request->response()->isRedirect())
-            && $this->request->isDispatched();
-    }
-
-    protected function renderView(string $viewName, array $viewVars = null): string {
-        return $this->trigger(
-            'render',
-            array_merge(
-                $this->specialViewVars,
-                [
-                    'view' => $viewName,
-                    'vars' => (array) $viewVars,
-                ]
-            )
-        );
+    protected function renderView(View $view): string {
+        return $this->trigger('render', ['view' => $view]);
     }
 }

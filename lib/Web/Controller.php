@@ -8,6 +8,7 @@ namespace Morpho\Web;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Core\Controller as BaseController;
+use Morpho\Core\View;
 use Morpho\Web\Session\Session;
 
 class Controller extends BaseController {
@@ -158,8 +159,11 @@ class Controller extends BaseController {
         return $this->request->query($name, $trim);
     }
 
-    protected function setLayout(string $name): void {
-        $this->setSpecialViewVar('layout', $name);
+    /**
+     * @param string|View $name
+     */
+    protected function setLayout($nameOrLayout): void {
+        $this->request->setInternalParam('layout', is_string($nameOrLayout) ? new View($nameOrLayout) : $nameOrLayout);
     }
 
     protected function userManager() {
