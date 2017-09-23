@@ -132,6 +132,7 @@ function shell(string $command, array $options = null): CommandResult {
     return new CommandResult($command, $exitCode, $output, $output);
 }
 
+// @TODO: See \Composer\Util\ProcessExecutor
 function proc(string $command, array $options = null): CommandResult {
     throw new NotImplementedException();
 /*
