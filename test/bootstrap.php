@@ -6,7 +6,8 @@
  */
 namespace MorphoTest;
 
-use Morpho\Core\Fs;
+use const Morpho\Core\AUTOLOAD_FILE_NAME;
+use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Test\Sut;
 
 date_default_timezone_set('UTC');
@@ -20,7 +21,7 @@ date_default_timezone_set('UTC');
         if (!is_dir($path)) {
             continue;
         }
-        $autoloadFilePath = $path . '/' . Fs::VENDOR_DIR_NAME . '/' . Fs::AUTOLOAD_FILE_NAME;
+        $autoloadFilePath = $path . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
         if (is_file($autoloadFilePath)) {
             require $autoloadFilePath;
         }

@@ -6,6 +6,7 @@
  */
 namespace MorphoTest;
 
+use const Morpho\Core\TEST_DIR_NAME;
 use Morpho\Test\Sut;
 
 class TestSuite extends \Morpho\Test\TestSuite {
@@ -18,7 +19,7 @@ class TestSuite extends \Morpho\Test\TestSuite {
             if ($path->isDot()) {
                 continue;
             }
-            $testDirPath = $path->getPathname() . '/' . Sut::TEST_DIR_NAME;
+            $testDirPath = $path->getPathname() . '/' . TEST_DIR_NAME;
             if (is_dir($testDirPath)) {
                 foreach ($this->testFilesInDir($testDirPath) as $file) {
                     yield $file->getPathname();

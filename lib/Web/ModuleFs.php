@@ -8,20 +8,15 @@
 namespace Morpho\Web;
 
 use Morpho\Base\NotImplementedException;
+use const Morpho\Core\CONTROLLER_DIR_NAME;
 use const Morpho\Core\LIB_DIR_NAME;
+use const Morpho\Core\META_FILE_NAME;
 use const Morpho\Core\RC_DIR_NAME;
+use const Morpho\Core\TEST_DIR_NAME;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Fs\Path;
 
 class ModuleFs {
-    public const CONTROLLER_DIR_NAME = 'Controller';
-    public const LIB_DIR_NAME = LIB_DIR_NAME;
-    public const META_FILE_NAME = 'composer.json';
-    public const RC_DIR_NAME = RC_DIR_NAME;
-    public const TEST_DIR_NAME = Fs::TEST_DIR_NAME;
-    public const TMP_DIR_NAME = TMP_DIR_NAME;
-    public const VIEW_DIR_NAME = 'view';
-
     /**
      * @var string
      */
@@ -75,7 +70,7 @@ class ModuleFs {
 
     public function testDirPath(): string {
         if (null === $this->testDirPath) {
-            $this->testDirPath = $this->dirPath() . '/' . self::TEST_DIR_NAME;
+            $this->testDirPath = $this->dirPath() . '/' . TEST_DIR_NAME;
         }
         return $this->testDirPath;
     }
@@ -86,7 +81,7 @@ class ModuleFs {
 
     public function viewDirPath(): string {
         if (null === $this->viewDirPath) {
-            $this->viewDirPath = $this->dirPath() . '/' . self::VIEW_DIR_NAME;
+            $this->viewDirPath = $this->dirPath() . '/' . VIEW_DIR_NAME;
         }
         return $this->viewDirPath;
     }
@@ -97,7 +92,7 @@ class ModuleFs {
 
     public function controllerDirPath(): string {
         if (null === $this->controllerDirPath) {
-            $this->controllerDirPath = $this->libDirPath() . '/' . self::CONTROLLER_DIR_NAME;
+            $this->controllerDirPath = $this->libDirPath() . '/' . CONTROLLER_DIR_NAME;
         }
         return $this->controllerDirPath;
     }
@@ -108,7 +103,7 @@ class ModuleFs {
 
     public function libDirPath(): string {
         if (null === $this->libDirPath) {
-            $this->libDirPath = $this->dirPath() . '/' . self::LIB_DIR_NAME;
+            $this->libDirPath = $this->dirPath() . '/' . LIB_DIR_NAME;
         }
         return $this->libDirPath;
     }
@@ -119,7 +114,7 @@ class ModuleFs {
 
     public function rcDirPath(): string {
         if (null === $this->rcDirPath) {
-            $this->rcDirPath = $this->dirPath() . '/' . self::RC_DIR_NAME;
+            $this->rcDirPath = $this->dirPath() . '/' . RC_DIR_NAME;
         }
         return $this->rcDirPath;
     }
@@ -130,7 +125,7 @@ class ModuleFs {
 
     public function tmpDirPath(): string {
         if (null === $this->tmpDirPath) {
-            $this->tmpDirPath = $this->dirPath() . '/' . self::TMP_DIR_NAME;
+            $this->tmpDirPath = $this->dirPath() . '/' . TMP_DIR_NAME;
         }
         return $this->tmpDirPath;
     }
@@ -141,6 +136,6 @@ class ModuleFs {
     }
 
     public function metaFilePath(): string {
-        return $this->dirPath() . '/' . self::META_FILE_NAME;
+        return $this->dirPath() . '/' . META_FILE_NAME;
     }
 }

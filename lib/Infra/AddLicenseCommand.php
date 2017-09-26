@@ -8,14 +8,16 @@ declare(strict_types=1);
 namespace Morpho\Infra;
 
 use function Morpho\Base\showLn;
-use Morpho\Core\Fs;
 use const Morpho\Core\LIB_DIR_NAME;
+use const Morpho\Core\MODULE_DIR_NAME;
+use const Morpho\Core\TEST_DIR_NAME;
 use Morpho\Fs\Directory;
+use const Morpho\Web\PUBLIC_DIR_NAME;
 
 class AddLicenseCommand {
     public function __invoke(string $baseDirPath) {
         $baseDirPath = realpath($baseDirPath);
-        if (!is_dir($baseDirPath . '/' . LIB_DIR_NAME) || !is_dir($baseDirPath . '/' . Fs::PUBLIC_DIR_NAME)) {
+        if (!is_dir($baseDirPath . '/' . LIB_DIR_NAME) || !is_dir($baseDirPath . '/' . PUBLIC_DIR_NAME)) {
             throw new \UnexpectedValueException("Invalid base directory path");
         }
         $licenseText = <<<OUT
@@ -36,21 +38,21 @@ OUT;
         );
         $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));
         $i += $addLicenseForFiles(
-            Directory::filePaths($baseDirPath . '/' . Fs::PUBLIC_DIR_NAME . '/' . Fs::MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true])
+            Directory::filePaths($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true])
         );
 
         showLn("Processed $i files");
     }
 
     private function filesInTestDir(string $baseDirPath): iterable {
-        foreach (Directory::filePaths($baseDirPath . '/' . Fs::TEST_DIR_NAME, '~[^/](Test|Suite)\.php$~s', ['recursive' => true]) as $filePath) {
-            if (preg_match('~/' . preg_quote(Fs::TEST_DIR_NAME, '~') . '/.*?/_files/~s', $filePath)) {
+        foreach (Directory::filePaths($baseDirPath . '/' . TEST_DIR_NAME, '~[^/](Test|Suite)\.php$~s', ['recursive' => true]) as $filePath) {
+            if (preg_match('~/' . preg_quote(TEST_DIR_NAME, '~') . '/.*?/_files/~s', $filePath)) {
                 continue;
             }
             yield $filePath;
         }
-        yield from Directory::filePaths($baseDirPath . '/' . Fs::TEST_DIR_NAME . '/visual', Directory::PHP_FILES_RE);
-        yield $baseDirPath . '/' . Fs::TEST_DIR_NAME . '/bootstrap.php';
+        yield from Directory::filePaths($baseDirPath . '/' . TEST_DIR_NAME . '/visual', Directory::PHP_FILES_RE);
+        yield $baseDirPath . '/' . TEST_DIR_NAME . '/bootstrap.php';
     }
 
     private function updateLicenseForFiles(LicenseHeaderManager $licenseHeaderManager, iterable $files, string $licenseText): int {

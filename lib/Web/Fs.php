@@ -11,8 +11,6 @@ use Morpho\Di\IServiceManager;
 use Morpho\Di\IWithServiceManager;
 
 class Fs extends BaseFs implements IWithServiceManager {
-    public const PUBLIC_DIR_NAME = 'public';
-
     protected $serviceManager;
 
     /**
@@ -26,7 +24,7 @@ class Fs extends BaseFs implements IWithServiceManager {
 
     public function publicDirPath(): string {
         if (null === $this->publicDirPath) {
-            $this->publicDirPath = $this->baseDirPath . '/' . self::PUBLIC_DIR_NAME;
+            $this->publicDirPath = $this->baseDirPath . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
     }

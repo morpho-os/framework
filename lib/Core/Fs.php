@@ -12,16 +12,6 @@ use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
 class Fs {
-    public const AUTOLOAD_FILE_NAME = 'autoload.php';
-    public const CONFIG_DIR_NAME = 'config';
-    public const CONFIG_FILE_NAME = 'config.php';
-    public const MODULE_DIR_NAME = 'module';
-    public const TEST_DIR_NAME = 'test';
-    public const VENDOR_DIR_NAME = 'vendor';
-    protected const CACHE_FILE_NAME = 'module-fs.php';
-    protected const MODULE_CLASS_FILE_NAME = 'Module.php';
-    protected const MODULE_META_FILE_NAME = 'composer.json';
-
     protected $baseDirPath;
     protected $baseModuleDirPath;
     /**
@@ -34,6 +24,8 @@ class Fs {
 
     private $moduleCache;
     private $registeredModules = [];
+
+    private const CACHE_FILE_NAME = 'module-fs.php';
 
     public function __construct(string $baseDirPath) {
         $this->baseDirPath = $baseDirPath;
@@ -81,7 +73,7 @@ class Fs {
 
     public function baseModuleDirPath(): string {
         if (null === $this->baseModuleDirPath) {
-            $this->baseModuleDirPath = $this->baseDirPath() . '/' . self::MODULE_DIR_NAME;
+            $this->baseModuleDirPath = $this->baseDirPath() . '/' . MODULE_DIR_NAME;
         }
         return $this->baseModuleDirPath;
     }
@@ -96,7 +88,7 @@ class Fs {
 
     public function configFilePath(): string {
         if (null === $this->configFilePath) {
-            $this->configFilePath = $this->baseModuleDirPath() . '/' . self::CONFIG_FILE_NAME;
+            $this->configFilePath = $this->baseModuleDirPath() . '/' . CONFIG_FILE_NAME;
         }
         return $this->configFilePath;
     }
@@ -145,7 +137,7 @@ class Fs {
         if (!isset($this->registeredModules[$moduleName])) {
             // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then
             // call Composer's autoloader in case of fail.
-            require $this->moduleDirPath($moduleName) . '/' . self::VENDOR_DIR_NAME . '/' . self::AUTOLOAD_FILE_NAME;
+            require $this->moduleDirPath($moduleName) . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
             $this->registeredModules[$moduleName] = true;
         }
     }
@@ -158,12 +150,12 @@ class Fs {
             } else {
                 $moduleCache = [];
                 $filter = function ($path, $isDir) {
-                    return $isDir && basename($path) !== self::VENDOR_DIR_NAME;
+                    return $isDir && basename($path) !== VENDOR_DIR_NAME;
                 };
                 foreach (Directory::dirPaths($this->baseModuleDirPath(), $filter, ['recursive' => false]) as $moduleDirPath) {
-                    $moduleMetaFilePath = $moduleDirPath . '/' . self::MODULE_META_FILE_NAME;
+                    $moduleMetaFilePath = $moduleDirPath . '/' . META_FILE_NAME;
                     if (is_file($moduleMetaFilePath)) {
-                        $autoloadFilePath = $moduleDirPath . '/' . self::VENDOR_DIR_NAME . '/' . self::AUTOLOAD_FILE_NAME;
+                        $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
                         $meta = File::readJson($moduleMetaFilePath);
                         $moduleName = $meta['name'] ?? false;
                         if ($moduleName) {
@@ -171,7 +163,7 @@ class Fs {
                             $class = false;
                             if ($namespace) {
                                 require $autoloadFilePath;
-                                $class1 = $namespace . '\\' . basename(self::MODULE_CLASS_FILE_NAME, '.php');
+                                $class1 = $namespace . '\\' . basename(MODULE_CLASS_FILE_NAME, '.php');
                                 if (class_exists($class1)) {
                                     $class = $class1;
                                 } else {

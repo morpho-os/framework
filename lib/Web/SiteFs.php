@@ -7,19 +7,14 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
+use const Morpho\Core\CACHE_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_FILE_NAME;
+use const Morpho\Core\LOG_DIR_NAME;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
 class SiteFs extends ModuleFs {
-    public const CACHE_DIR_NAME = 'cache';
-    public const CONFIG_DIR_NAME = Fs::CONFIG_DIR_NAME;
-    public const LOG_DIR_NAME = 'log';
-    public const PUBLIC_DIR_NAME = Fs::PUBLIC_DIR_NAME;
-    public const UPLOAD_DIR_NAME = 'upload';
-
-    public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
-    public const CONFIG_FILE_NAME = Fs::CONFIG_FILE_NAME;
-
     /**
      * @var ?string
      */
@@ -45,6 +40,9 @@ class SiteFs extends ModuleFs {
      */
     private $publicDirPath;
 
+    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+    public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
+
     public function writeConfig(array $newConfig): void {
         File::writePhpVar($this->configFilePath(), $newConfig);
     }
@@ -66,7 +64,7 @@ class SiteFs extends ModuleFs {
 
     public function configDirPath(): string {
         if (null === $this->configDirPath) {
-            $this->configDirPath = $this->dirPath() . '/' . self::CONFIG_DIR_NAME;
+            $this->configDirPath = $this->dirPath() . '/' . CONFIG_DIR_NAME;
         }
         return $this->configDirPath;
     }
@@ -85,7 +83,7 @@ class SiteFs extends ModuleFs {
 
     public function cacheDirPath(): string {
         if (null === $this->cacheDirPath) {
-            $this->cacheDirPath = $this->dirPath . '/' . self::CACHE_DIR_NAME;
+            $this->cacheDirPath = $this->dirPath . '/' . CACHE_DIR_NAME;
         }
         return $this->cacheDirPath;
     }
@@ -96,7 +94,7 @@ class SiteFs extends ModuleFs {
 
     public function logDirPath(): string {
         if (null === $this->logDirPath) {
-            $this->logDirPath = $this->dirPath() . '/' . self::LOG_DIR_NAME;
+            $this->logDirPath = $this->dirPath() . '/' . LOG_DIR_NAME;
         }
         return $this->logDirPath;
     }
@@ -107,7 +105,7 @@ class SiteFs extends ModuleFs {
 
     public function uploadDirPath(): string {
         if (null === $this->uploadDirPath) {
-            $this->uploadDirPath = $this->dirPath() . '/' . self::UPLOAD_DIR_NAME;
+            $this->uploadDirPath = $this->dirPath() . '/' . UPLOAD_DIR_NAME;
         }
         return $this->uploadDirPath;
     }
@@ -118,7 +116,7 @@ class SiteFs extends ModuleFs {
 
     public function publicDirPath(): string {
         if (null === $this->publicDirPath) {
-            $this->publicDirPath = $this->dirPath() . '/' . self::PUBLIC_DIR_NAME;
+            $this->publicDirPath = $this->dirPath() . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
     }

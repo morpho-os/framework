@@ -6,15 +6,13 @@
  */
 namespace Morpho\Test;
 
+use const Morpho\Core\CONFIG_FILE_NAME;
+use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Web\Fs;
+use const Morpho\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
 class Sut {
-    const TEST_DIR_NAME = Fs::TEST_DIR_NAME;
-    const MODULE_DIR_NAME = Fs::MODULE_DIR_NAME;
-    const CONFIG_FILE_NAME = Fs::CONFIG_FILE_NAME;
-    const PUBLIC_DIR_NAME = Fs::PUBLIC_DIR_NAME;
-
     private static $instance;
 
     /**
@@ -47,18 +45,18 @@ class Sut {
 
     public function baseModuleDirPath(): string {
         if (null === $this->baseModuleDirPath) {
-            $this->baseModuleDirPath = $this->baseDirPath() . '/' . self::MODULE_DIR_NAME;
+            $this->baseModuleDirPath = $this->baseDirPath() . '/' . MODULE_DIR_NAME;
         }
         return $this->baseModuleDirPath;
     }
 
     public function configFilePath(): string {
-        return $this->baseModuleDirPath() . '/' . self::CONFIG_FILE_NAME;
+        return $this->baseModuleDirPath() . '/' . CONFIG_FILE_NAME;
     }
 
     public function publicDirPath(): string {
         if (null === $this->publicDirPath) {
-            $this->publicDirPath = $this->baseDirPath() . '/' . self::PUBLIC_DIR_NAME;
+            $this->publicDirPath = $this->baseDirPath() . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
     }

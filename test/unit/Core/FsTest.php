@@ -6,8 +6,9 @@
  */
 namespace MorphoTest\Unit\Core;
 
+use const Morpho\Core\CONFIG_FILE_NAME;
 use Morpho\Core\Fs;
-use const Morpho\Core\VENDOR;
+use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Test\TestCase;
 
 class FsTest extends TestCase {
@@ -19,7 +20,7 @@ class FsTest extends TestCase {
     }
 
     public function testBaseModuleDirPathAccessors() {
-        $this->assertSame($this->getTestDirPath() . '/' . Fs::MODULE_DIR_NAME, $this->fs->baseModuleDirPath());
+        $this->assertSame($this->getTestDirPath() . '/' . MODULE_DIR_NAME, $this->fs->baseModuleDirPath());
         $newBaseModuleDirPath = $this->tmpDirPath();
         $this->assertNull($this->fs->setBaseModuleDirPath($newBaseModuleDirPath));
         $this->assertSame($newBaseModuleDirPath, $this->fs->baseModuleDirPath());
@@ -38,7 +39,7 @@ class FsTest extends TestCase {
     }
 
     public function testConfigFileAccessors() {
-        $this->assertSame($this->getTestDirPath() . '/' . Fs::MODULE_DIR_NAME . '/' . Fs::CONFIG_FILE_NAME, $this->fs->configFilePath());
+        $this->assertSame($this->getTestDirPath() . '/' . MODULE_DIR_NAME . '/' . CONFIG_FILE_NAME, $this->fs->configFilePath());
         $newConfigFilePath = $this->getTestDirPath() . '/foo.php';
         $this->assertNull($this->fs->setConfigFilePath($newConfigFilePath));
         $this->assertSame($newConfigFilePath, $this->fs->configFilePath());
