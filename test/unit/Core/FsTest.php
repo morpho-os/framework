@@ -6,6 +6,7 @@
  */
 namespace MorphoTest\Unit\Core;
 
+use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\CONFIG_FILE_NAME;
 use Morpho\Core\Fs;
 use const Morpho\Core\MODULE_DIR_NAME;
@@ -20,10 +21,10 @@ class FsTest extends TestCase {
     }
 
     public function testBaseModuleDirPathAccessors() {
-        $this->assertSame($this->getTestDirPath() . '/' . MODULE_DIR_NAME, $this->fs->baseModuleDirPath());
-        $newBaseModuleDirPath = $this->tmpDirPath();
-        $this->assertNull($this->fs->setBaseModuleDirPath($newBaseModuleDirPath));
-        $this->assertSame($newBaseModuleDirPath, $this->fs->baseModuleDirPath());
+        $this->checkDirAccessors(
+            $this->getTestDirPath() . '/' . MODULE_DIR_NAME,
+            'baseModuleDirPath'
+        );
     }
 
     public function testDetectBaseDirPath() {
@@ -31,15 +32,15 @@ class FsTest extends TestCase {
     }
 
     public function testBaseDirPathAccessors() {
-        $this->assertSame($this->getTestDirPath(), $this->fs->baseDirPath());
+        $this->checkDirAccessors($this->getTestDirPath(), 'baseDirPath');
+    }
 
-        $newBaseDirPath = $this->tmpDirPath();
-        $this->assertNull($this->fs->setBaseDirPath($newBaseDirPath));
-        $this->assertSame($newBaseDirPath, $this->fs->baseDirPath());
+    public function testConfigDirAccessors() {
+        $this->checkDirAccessors($this->getTestDirPath() . '/' . CONFIG_DIR_NAME, 'configDirPath');
     }
 
     public function testConfigFileAccessors() {
-        $this->assertSame($this->getTestDirPath() . '/' . MODULE_DIR_NAME . '/' . CONFIG_FILE_NAME, $this->fs->configFilePath());
+        $this->assertSame($this->getTestDirPath() . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME, $this->fs->configFilePath());
         $newConfigFilePath = $this->getTestDirPath() . '/foo.php';
         $this->assertNull($this->fs->setConfigFilePath($newConfigFilePath));
         $this->assertSame($newConfigFilePath, $this->fs->configFilePath());
@@ -92,5 +93,13 @@ class FsTest extends TestCase {
                 return $this->cacheDirPath;
             }
         };
+    }
+
+    private function checkDirAccessors($initialValue, string $getter) {
+        $this->assertSame($initialValue, $this->fs->$getter());
+        $setter = 'set' . $getter;
+        $newDirPath = $this->tmpDirPath();
+        $this->assertNull($this->fs->$setter($newDirPath));
+        $this->assertSame($newDirPath, $this->fs->$getter());
     }
 }

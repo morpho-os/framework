@@ -4,4 +4,5 @@ return [
         \Morpho\Core\VENDOR . '/localhost',
     ],
     'useMultiSiting' => false,
+    'baseDirPath' => dirname(__DIR__),
 ];

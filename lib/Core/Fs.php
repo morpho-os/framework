@@ -12,8 +12,21 @@ use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
 class Fs {
+    /**
+     * @var string
+     */
     protected $baseDirPath;
+
+    /**
+     * @var ?string
+     */
     protected $baseModuleDirPath;
+
+    /**
+     * @var ?string
+     */
+    private $configDirPath;
+
     /**
      * @var ?string
      */
@@ -22,7 +35,14 @@ class Fs {
     // @TODO
     //protected $useCache;
 
+    /**
+     * @var ?array
+     */
     private $moduleCache;
+
+    /**
+     * @var array
+     */
     private $registeredModules = [];
 
     private const CACHE_FILE_NAME = 'module-fs.php';
@@ -78,6 +98,17 @@ class Fs {
         return $this->baseModuleDirPath;
     }
 
+    public function setConfigDirPath(string $configDirPath): void {
+        $this->configDirPath = $configDirPath;
+    }
+
+    public function configDirPath(): string {
+        if (null === $this->configDirPath) {
+            $this->configDirPath = $this->baseDirPath() . '/' . CONFIG_DIR_NAME;
+        }
+        return $this->configDirPath;
+    }
+
     public function loadConfigFile(): array {
         return require $this->configFilePath();
     }
@@ -88,7 +119,7 @@ class Fs {
 
     public function configFilePath(): string {
         if (null === $this->configFilePath) {
-            $this->configFilePath = $this->baseModuleDirPath() . '/' . CONFIG_FILE_NAME;
+            $this->configFilePath = $this->configDirPath() . '/' . CONFIG_FILE_NAME;
         }
         return $this->configFilePath;
     }
