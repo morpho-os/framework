@@ -13,6 +13,8 @@ abstract class SchemaManager {
         $this->db = $db;
     }
 
+    abstract public function createDatabase(string $dbName): void;
+
     public function createTables(iterable $tableDefinitions): void {
         foreach ($tableDefinitions as $tableName => $tableDefinition) {
             $this->createTable($tableName, $tableDefinition);

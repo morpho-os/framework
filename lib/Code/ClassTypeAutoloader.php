@@ -12,7 +12,7 @@
  * Copyright (c) 2015 Nils Adermann, Jordi Boggiano
  */
 
-declare(strict_types = 1);
+//declare(strict_types = 1);
 
 namespace Morpho\Code;
 

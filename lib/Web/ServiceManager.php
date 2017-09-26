@@ -6,7 +6,6 @@
  */
 namespace Morpho\Web;
 
-use const Morpho\Core\MODULE_DIR_PATH;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\NativeMailerHandler;
@@ -71,7 +70,7 @@ class ServiceManager extends BaseServiceManager {
     protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
-        $templateEngine->setCacheDirPath($this->get('site')->cacheDirPath());
+        $templateEngine->setCacheDirPath($this->get('site')->fs()->cacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->append(new PreHtmlParser($this))
             ->append(new FormPersister($this))
@@ -83,21 +82,11 @@ class ServiceManager extends BaseServiceManager {
     protected function newMessengerService() {
         return new Messenger();
     }
-    
-    protected function newModuleFsService() {
-        return new ModuleFs(MODULE_DIR_PATH);//, $this->get('autoloader'));
-    }
 
     protected function newModuleManagerService() {
         $db = $this->get('db');
-        $moduleFs = $this->get('moduleFs');
-        $moduleManager = new ModuleManager($db, $moduleFs);
-        // Replace the site, so that only one site would be available.
-        $moduleManager->setServiceManager($this);
-        $site = $this->get('site');
-        $site1 = $moduleManager->offsetGet($site->name());
-        $site1->setSite($site);
-        $this->set('site', $site1);
+        $fs = $this->get('fs');
+        $moduleManager = new ModuleManager($db, $fs);
         return $moduleManager;
     }
 
@@ -144,7 +133,7 @@ class ServiceManager extends BaseServiceManager {
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {
         $site = $this->get('site');
-        $filePath = $site->logDirPath() . '/' . $logger->getName() . '.log';
+        $filePath = $site->fs()->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)

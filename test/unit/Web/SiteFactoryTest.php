@@ -7,6 +7,7 @@
 declare(strict_types=1);
 namespace MorphoTest\Unit\Web;
 
+use Morpho\Web\Fs;
 use Morpho\Test\TestCase;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
@@ -128,7 +129,12 @@ class SiteFactoryTest extends TestCase {
             ],
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
-        $this->assertEquals($siteModuleName, $this->factory->__invoke($config)->name());
+        $fs = $this->createConfiguredMock(Fs::class, [
+            'loadConfigFile' => $config,
+            'baseModuleDirPath' => $this->getTestDirPath(),
+        ]);
+        $site = $this->factory->__invoke($fs);
+        $this->assertEquals($siteModuleName, $site->name());
     }
 
     public function testInvoke_MultiSitingDisabled() {
@@ -141,6 +147,10 @@ class SiteFactoryTest extends TestCase {
             ],
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
-        $this->assertEquals('test/success', $this->factory->__invoke($config)->name());
+        $fs = $this->createConfiguredMock(Fs::class, [
+            'loadConfigFile' => $config,
+            'baseModuleDirPath' => $this->getTestDirPath(),
+        ]);
+        $this->assertEquals('test/success', $this->factory->__invoke($fs)->name());
     }
 }

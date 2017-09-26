@@ -178,7 +178,7 @@ class ModuleController extends Controller {
     }
 
     protected function moduleDirPath(string $moduleName): string {
-        return $this->serviceManager->get('moduleManager')->moduleFs()->moduleDirPath($moduleName);
+        return $this->serviceManager->get('moduleManager')->fs()->moduleDirPath($moduleName);
     }
 
     protected function writeModuleClass(string $moduleName, bool $isTheme) {

@@ -8,39 +8,35 @@ declare(strict_types=1);
 namespace Morpho\Web;
 
 use Morpho\Db\Sql\Db;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Di\IWithServiceManager;
 use Morpho\Di\TWithServiceManager;
-use Morpho\Fs\File;
 use Morpho\Di\ServiceManager;
 
-class SiteInstaller implements IServiceManagerAware {
+class SiteInstaller implements IWithServiceManager {
     use TWithServiceManager;
 
     private const HOME_PAGE_URI = '/system/module/list';
 
     protected $site;
 
-    public function __construct(ISite $site) {
+    public function __construct(Site $site) {
         $this->site = $site;
     }
 
     public function reinstall(array $newDbConfig, bool $dropTables): void {
         if ($this->isInstalled()) {
-            $this->resetToStartState();
+            $this->resetToInitialState();
         }
         $this->install($newDbConfig, $dropTables);
     }
 
     public function resetToInitialState(): void {
-        $configFilePath = $this->site->configFilePath();
-        if (is_file($configFilePath)) {
-            unlink($configFilePath);
-        }
+        $this->site->fs()->deleteConfigFile();
     }
 
     public function isInstalled(): bool {
         return $this->site->isFallbackMode() === false
-            && is_file($this->site->configFilePath());
+            && $this->site->fs()->canLoadConfigFile();
     }
 
     public function install(array $newDbConfig, bool $dropTables): void {
@@ -68,18 +64,18 @@ class SiteInstaller implements IServiceManagerAware {
         $newServiceManager = $serviceManager->get('app')->newServiceManager($site);
         $this->setPageHandlers($newServiceManager);
         $this->initRoutes($newServiceManager);
-        File::writePhpVar($this->site->configFilePath(), $newSiteConfig);
+        $site->fs()->writeConfig($newSiteConfig);
     }
 
     protected static function initRoutes(ServiceManager $serviceManager): void {
         $router = $serviceManager->newRouterService();
-        if ($router instanceof IServiceManagerAware) {
+        if ($router instanceof IWithServiceManager) {
             $router->setServiceManager($serviceManager);
         }
         $router->rebuildRoutes();
     }
 
-    protected static function installModules(Db $db, $moduleManager, array $siteConfig): void {
+    protected static function installModules(Db $db, ModuleManager $moduleManager, array $siteConfig): void {
         $modules = $siteConfig['modules'] ?? [];
         if (empty($modules)) {
             $modules = $moduleManager->uninstalledModuleNames();

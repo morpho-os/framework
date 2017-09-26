@@ -7,24 +7,52 @@
 declare(strict_types=1);
 namespace MorphoTest\Unit\Web;
 
-use Morpho\Core\ModuleManager;
+use Morpho\Web\ModuleManager;
 use Morpho\Core\SettingsManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\DbTestCase;
 use Morpho\Web\Application;
 use Morpho\Web\Site;
+use Morpho\Web\SiteFs;
 use Morpho\Web\SiteInstaller;
 
 class SiteInstallerTest extends DbTestCase {
     public function testApi() {
-        $siteDirPath = $this->createTmpDir();
+        $fs = new class(require $this->getTestDirPath() . '/' . SiteFs::FALLBACK_CONFIG_FILE_NAME) extends SiteFs {
+            private $state;
+            private $config;
 
-        $configDirPath = $siteDirPath . '/config';
-        mkdir($configDirPath, 0777, true);
+            private const CONFIG_DELETED = 1;
+            private const INSTALLED = 2;
 
-        copy($this->getTestDirPath() . '/fallback.php', $configDirPath . '/fallback.php');
+            public function __construct(array $fallbackConfig) {
+                $this->config = $fallbackConfig;
+            }
 
-        $site = new Site('foo/bar', $siteDirPath, 'localhost');
+            public function deleteConfigFile(): void {
+                $this->state = self::CONFIG_DELETED;
+                $this->config = null;
+            }
+
+            public function canLoadConfigFile(): bool {
+                return $this->state === self::INSTALLED;
+            }
+
+            public function writeConfig(array $config): void {
+                $this->state = self::INSTALLED;
+                $this->config = $config;
+            }
+
+            public function loadConfigFile(): array {
+                return $this->config;
+            }
+
+            public function loadFallbackConfigFile(): array {
+                return $this->config;
+            }
+        };
+
+        $site = new Site('foo/bar', $fs, 'localhost');
 
         $oldServiceManager = new ServiceManager();
         $oldServiceManager->set('settingsManager', $this->createMock(SettingsManager::class));
@@ -51,19 +79,15 @@ class SiteInstallerTest extends DbTestCase {
             ->setServiceManager($oldServiceManager);
 
         $newDbConfig = $this->dbConfig();
-        $configFilePath = $configDirPath . '/config.php';
 
         $this->assertFalse($siteInstaller->isInstalled());
-        $this->assertFalse(is_file($configFilePath));
 
         $this->assertNull($siteInstaller->install($newDbConfig, true));
 
         $this->assertTrue($siteInstaller->isInstalled());
-        $this->assertTrue(is_file($configFilePath));
 
         $this->assertNull($siteInstaller->resetToInitialState());
 
         $this->assertFalse($siteInstaller->isInstalled());
-        $this->assertFalse(is_file($configFilePath));
     }
 }

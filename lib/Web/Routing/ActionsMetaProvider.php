@@ -15,6 +15,7 @@ use const Morpho\Core\ACTION_SUFFIX;
 use const Morpho\Core\CONTROLLER_SUFFIX;
 use Morpho\Fs\Directory;
 use Morpho\Web\Module;
+use Morpho\Web\ModuleFs;
 use Morpho\Web\ModuleManager;
 
 class ActionsMetaProvider implements \IteratorAggregate {
@@ -61,7 +62,7 @@ class ActionsMetaProvider implements \IteratorAggregate {
     protected function collectActionsMeta(string $controllerClass, string $moduleName, string $controllerName) {
         $actionsMeta = [];
         if (!class_exists($controllerClass)) {
-            $this->moduleManager->moduleFs()->registerModuleAutoloader($moduleName);
+            $this->moduleManager->fs()->registerModuleAutoloader($moduleName);
             if (!class_exists($controllerClass)) {
                 throw new ClassNotFoundException("Unable to load the class '$controllerClass' for the module '$moduleName', ensure that the class is defined");
             }
@@ -117,9 +118,8 @@ class ControllerFilePathsProvider {
     }
 
     public function __invoke(string $moduleName): iterable {
-        $moduleDirPath = $this->moduleManager->moduleFs()->moduleDirPath($moduleName);
-        $module = new Module($moduleName, $moduleDirPath);
-        $controllerDirPath = $module->controllerDirPath();
+        $moduleDirPath = $this->moduleManager->fs()->moduleDirPath($moduleName);
+        $controllerDirPath = (new ModuleFs($moduleDirPath))->controllerDirPath();
         if (!is_dir($controllerDirPath)) {
             return [];
         }

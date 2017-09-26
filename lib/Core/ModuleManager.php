@@ -11,6 +11,7 @@ use Morpho\Base\ClassNotFoundException;
 use Morpho\Base\IEventManager;
 use Morpho\Db\Sql\Db;
 use Morpho\Base\Node as BaseNode;
+use Morpho\Web\ModuleFs;
 
 abstract class ModuleManager extends Node implements IEventManager {
     public const ENABLED     = 0b001;  // (installed enabled)
@@ -31,17 +32,17 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected $db;
 
-    protected $moduleFs;
+    protected $fs;
 
     protected $maxNoOfDispatchIterations = 30;
 
-    public function __construct(Db $db = null, ModuleFs $moduleFs) {
+    public function __construct(Db $db = null, Fs $fs) {
         $this->db = $db;
-        $this->moduleFs = $moduleFs;
+        $this->fs = $fs;
     }
 
-    public function moduleFs(): ModuleFs {
-        return $this->moduleFs;
+    public function fs(): Fs {
+        return $this->fs;
     }
 
     public function dispatch($request): void {
@@ -251,7 +252,7 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function allModuleNames(): array {
-        $moduleNames = $this->moduleFs->moduleNames();
+        $moduleNames = $this->fs->moduleNames();
         return is_array($moduleNames) ? $moduleNames : iterator_to_array($moduleNames, false);
     }
 
@@ -276,23 +277,22 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     protected function clearCache(): void {
-        $this->moduleFs->clearCache();
+        $this->fs->clearCache();
     }
 
     protected function childNameToClass(string $moduleName) {
-        $moduleFs = $this->moduleFs;
-        $class = $moduleFs->moduleClass($moduleName);
+        $class = $this->fs->moduleClass($moduleName);
         return $class ?: false;
     }
 
     protected function loadChild(string $moduleName): BaseNode {
-        $moduleFs = $this->moduleFs;
+        $fs = $this->fs;
         $class = $this->childNameToClass($moduleName);
         if (false === $class) {
             throw new ClassNotFoundException("Unable to load the module '$moduleName'");
         }
-        $moduleFs->registerModuleAutoloader($moduleName);
-        return new $class($moduleName, $moduleFs->moduleDirPath($moduleName));
+        $fs->registerModuleAutoloader($moduleName);
+        return new $class($moduleName, new ModuleFs($fs->moduleDirPath($moduleName)));
     }
 
     protected function initEventHandlers(): void {

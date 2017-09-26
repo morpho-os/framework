@@ -16,7 +16,7 @@ abstract class Application {
 
     public function run(IServiceManager $serviceManager) {
         try {
-            $this->init($serviceManager);
+            $this->configure($serviceManager);
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
             $serviceManager->get('dispatcher')->dispatch($request);
@@ -26,7 +26,7 @@ abstract class Application {
         }
     }
 
-    protected function init(IServiceManager $serviceManager): void {
+    protected function configure(IServiceManager $serviceManager): void {
         $serviceManager->get('environment')->init();
         $serviceManager->get('errorHandler')->register();
     }

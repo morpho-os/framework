@@ -24,14 +24,8 @@ class FallbackServiceManager extends ServiceManager {
 
     protected function newModuleManagerService() {
         $db = $this->get('db');
-        $moduleFs = $this->get('moduleFs');
-        $moduleManager = new FallbackModuleManager($db, $moduleFs);
-        // Replace the site, so that only one site would be available.
-        $moduleManager->setServiceManager($this);
-        $site = $this->get('site');
-        $site1 = $moduleManager->offsetGet($site->name());
-        $site1->setSite($site);
-        $this->set('site', $site1);
+        $fs = $this->get('fs');
+        $moduleManager = new FallbackModuleManager($db, $fs);
         return $moduleManager;
     }
 }

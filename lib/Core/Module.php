@@ -15,25 +15,8 @@ class Module extends Node {
     protected $name;
 
     protected $type = 'Module';
-    
-    /**
-     * @var string
-     */
-    private $dirPath;
 
-    public function __construct(string $name, string $dirPath) {
-        parent::__construct($name);
-        $this->dirPath = $dirPath;
-    }
-
-    public function setDirPath(string $dirPath): self {
-        $this->dirPath = $dirPath;
-        return $this;
-    }
-
-    public function dirPath(): string {
-        return $this->dirPath;
-    }
+    // @TODO: move to installer (begin)
 
     public function install(Db $db) {
     }
@@ -47,12 +30,14 @@ class Module extends Node {
     public function disable(Db $db) {
     }
 
-    public function repo($name) {
-        return $this->offsetGet(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
-    }
-
     public static function tableDefinitions(): array {
         return [];
+    }
+
+    // @TODO: move to Installer (end)
+
+    public function repo($name) {
+        return $this->offsetGet(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);
     }
 
     protected function trigger(string $event, array $args = null) {
@@ -75,7 +60,7 @@ class Module extends Node {
             // By default any child is Controller.
             $name = CONTROLLER_NS . '\\' . $name . CONTROLLER_SUFFIX;
         }
-        $moduleNs = $this->serviceManager->get('moduleFs')->moduleNamespace($this->name());
+        $moduleNs = $this->serviceManager->get('fs')->moduleNamespace($this->name());
         $class = $moduleNs . '\\' . $name;
         return class_exists($class) ? $class : false;
     }

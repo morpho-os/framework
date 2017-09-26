@@ -1,0 +1,8 @@
+{
+    "name": "morpho-test/mars",
+    "autoload": {
+        "psr-4": {
+            "MorphoTest\\Unit\\Core\\FsTest\\Mars\\": "foo/bar/baz"
+        }
+    }
+}

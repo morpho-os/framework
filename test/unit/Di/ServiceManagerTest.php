@@ -7,7 +7,8 @@
 namespace MorphoTest\Unit\Di;
 
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Di\IWithServiceManager;
+use Morpho\Di\ServiceNotFoundException;
 use Morpho\Test\TestCase;
 use Morpho\Di\ServiceManager;
 
@@ -19,7 +20,7 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testConstructor_SetsServiceManagerIfServiceImplementsServiceManagerInterface() {
-        $service = new class implements IServiceManagerAware {
+        $service = new class implements IWithServiceManager {
             private $serviceManager;
 
             public function setServiceManager(IServiceManager $serviceManager) {
@@ -36,7 +37,7 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testCanDetectCircularReference() {
-        $this->expectException('\RuntimeException', "Circular reference detected for the service 'foo', path: 'foo -> bar'.");
+        $this->expectException('\RuntimeException', "Circular reference detected for the service 'foo', path: 'foo -> bar'");
         $this->serviceManager->get('foo');
     }
 
@@ -61,7 +62,7 @@ class ServiceManagerTest extends TestCase {
     */
 
     public function testThrowsExceptionWhenServiceNotFound() {
-        $this->expectException('\Morpho\Di\ServiceNotFoundException');
+        $this->expectException(ServiceNotFoundException::class);
         $this->serviceManager->get('nonexistent');
     }
 

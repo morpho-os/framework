@@ -2,7 +2,6 @@
 namespace Morpho\System\Controller;
 
 use Morpho\Web\Controller;
-use Morpho\Web\ISite;
 use Morpho\Web\SiteInstaller;
 
 class InstallController extends Controller {
@@ -50,7 +49,7 @@ class InstallController extends Controller {
         $this->setLayout('install');
     }
 
-    protected function newSiteInstaller(ISite $site): SiteInstaller {
+    protected function newSiteInstaller($site): SiteInstaller {
         return (new SiteInstaller($site))
             ->setServiceManager($this->serviceManager);
     }

@@ -7,9 +7,9 @@
 namespace Morpho\DataProcessing\Pagination;
 
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Di\IWithServiceManager;
 
-abstract class DbPager extends Pager implements IServiceManagerAware {
+abstract class DbPager extends Pager implements IWithServiceManager {
     protected $serviceManager;
 
     protected $db;

@@ -11,6 +11,8 @@ use Morpho\Di\IServiceManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Application;
+use Morpho\Web\ModuleManager;
+use Morpho\Web\Site;
 
 class ApplicationTest extends TestCase {
     private $umask;
@@ -20,8 +22,8 @@ class ApplicationTest extends TestCase {
     public function setUp() {
         parent::setUp();
         $this->application = new class extends Application {
-            public function init(IServiceManager $serviceManager): void {
-                parent::init($serviceManager);
+            public function configure(IServiceManager $serviceManager): void {
+                parent::configure($serviceManager);
             }
         };
         $this->umask = umask();
@@ -52,14 +54,14 @@ class ApplicationTest extends TestCase {
      * @dataProvider dataForUmaskCanBeSetThroughSiteConfig
      */
     public function testUmaskCanBeSetThroughSiteConfig(int $newUmask) {
-        $application = new class extends Application {
-            public function init(IServiceManager $serviceManager): void {
-                parent::init($serviceManager);
-            }
-        };
-
-        $config = ['iniSettings' => [], 'umask' => $newUmask];
-        $application->init($this->newServiceManager($config));
+        $config = array_merge(
+            $this->defaultSiteConfig(),
+            [
+                'iniSettings' => [],
+                'umask' => $newUmask
+            ]
+        );
+        $this->application->configure($this->newServiceManager($config));
 
         $this->assertSame($newUmask, umask());
     }
@@ -79,10 +81,12 @@ class ApplicationTest extends TestCase {
      * @dataProvider dataForTimezoneCanBeSetThroughSiteConfig
      */
     public function testTimezoneCanBeSetThroughSiteConfig(string $timeZone) {
-        $siteConfig = ['iniSettings' => [
-            'date.timezone' => $timeZone
-        ]];
-        $this->application->init($this->newServiceManager($siteConfig));
+        $siteConfig = array_merge($this->defaultSiteConfig(), [
+            'iniSettings' => [
+                'date.timezone' => $timeZone
+            ],
+        ]);
+        $this->application->configure($this->newServiceManager($siteConfig));
 
         $this->assertSame($timeZone, ini_get('date.timezone'));
     }
@@ -97,15 +101,12 @@ class ApplicationTest extends TestCase {
             public function register() {
             }
         });
-        $serviceManager->set('site', new class ($siteConfig) {
-            private $config;
-            public function __construct(array $config) {
-                $this->config = $config;
-            }
-            public function config() {
-                return $this->config;
-            }
-        });
+        $serviceManager->set('moduleManager', $this->createMock(ModuleManager::class));
+        $serviceManager->set('site', $this->createConfiguredMock(Site::class, ['config' => $siteConfig]));
         return $serviceManager;
+    }
+
+    private function defaultSiteConfig() {
+        return ['useOwnPublicDir' => true];
     }
 }

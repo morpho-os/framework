@@ -9,28 +9,24 @@ namespace Morpho\Web;
 
 use function Morpho\Base\escapeHtml;
 use Morpho\Core\Application as BaseApplication;
-use const Morpho\Core\CONFIG_FILE_NAME;
-use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
-    public static function configFilePath(): string {
-        return MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME;
-    }
-
-    public function newServiceManager(ISite $site = null): IServiceManager {
+    public function newServiceManager($site = null): IServiceManager {
+        $fs = new Fs(Fs::detectBaseDirPath(__DIR__));
         if (null === $site) {
-            $site = (new SiteFactory())(require self::configFilePath());
+            $site = (new SiteFactory())($fs);
         }
-        $siteConfig = $site->config();
         $services = [
             'app'  => $this,
             'site' => $site,
+            'fs' => $fs,
         ];
         if ($site->isFallbackMode()) {
             $serviceManager = new FallbackServiceManager($services);
         } else {
+            $siteConfig = $site->config();
             if (isset($siteConfig['serviceManager'])) {
                 $serviceManager = new $siteConfig['serviceManager']($services);
             } else {
@@ -40,17 +36,22 @@ class Application extends BaseApplication {
         return $serviceManager;
     }
 
-    protected function init(IServiceManager $serviceManager): void {
-        parent::init($serviceManager);
-        $this->configure($serviceManager->get('site'));
-    }
+    protected function configure(IServiceManager $serviceManager): void {
+        parent::configure($serviceManager);
 
-    protected function configure($site): void {
+        $site = $serviceManager->get('site');
+
         $config = $site->config();
         $this->applyIniSettings($config['iniSettings']);
         if (isset($config['umask'])) {
             umask($config['umask']);
         }
+        if (!$config['useOwnPublicDir']) {
+            $site->fs()->setPublicDirPath($serviceManager->get('fs')->publicDirPath());
+        }
+
+        $moduleManager = $serviceManager->get('moduleManager');
+        $moduleManager->append($site);
     }
 
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {

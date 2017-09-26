@@ -64,7 +64,7 @@ class FastRouter extends Router {
     }
 
     protected function cacheFilePath(): string {
-        return $this->serviceManager->get('site')->cacheDirPath() . '/route.php';
+        return $this->serviceManager->get('site')->fs()->cacheDirPath() . '/route.php';
     }
 
     protected function normalizedUri($request): string {

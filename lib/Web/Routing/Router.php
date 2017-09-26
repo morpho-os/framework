@@ -7,7 +7,7 @@
 namespace Morpho\Web\Routing;
 
 use Morpho\Di\{
-    IServiceManager, IServiceManagerAware
+    IServiceManager, IWithServiceManager
 };
 
 /**
@@ -16,7 +16,7 @@ use Morpho\Di\{
  *     * the Drupal-8 routing system (http://drupal.org) (@TODO: Not actual anymore?)
  *     * Rails 4.x Routing, @see http://guides.rubyonrails.org/routing.html
  */
-abstract class Router implements IServiceManagerAware {
+abstract class Router implements IWithServiceManager {
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager) {

@@ -6,6 +6,7 @@ use Morpho\Core\SettingsManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
+use Morpho\Web\ModuleFs;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
 use Morpho\Test\DbTestCase;
@@ -103,7 +104,7 @@ class ModuleTest extends DbTestCase {
     }
 
     private function newModule($settingsManager) {
-        $module = new SystemModule('foo/bar', $this->getTestDirPath());
+        $module = new SystemModule('foo/bar', new ModuleFs($this->getTestDirPath()));
         $serviceManager = new ServiceManager();
         $site = $this->createMock(Site::class);
         $site->method('config')

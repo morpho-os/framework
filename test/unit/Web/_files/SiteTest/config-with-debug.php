@@ -1,4 +1,0 @@
-<?php
-return [
-    'isDebug' => true,
-];

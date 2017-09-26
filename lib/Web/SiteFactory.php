@@ -4,17 +4,16 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-declare(strict_types=1);
+//declare(strict_types=1);
 namespace Morpho\Web;
 
-use Morpho\Base\IFn;
-use const Morpho\Core\MODULE_DIR_PATH;
-
-class SiteFactory implements IFn {
-    public function __invoke($config): Site {
-        list($siteName, $hostName) = $this->detectSite($config);
-        $siteDirPath = MODULE_DIR_PATH . '/' . explode('/', $siteName)[1];
-        return new Site($siteName, $siteDirPath, $hostName);
+class SiteFactory {
+    public function __invoke(Fs $fs): Site {
+        list($moduleName, $hostName) = $this->detectSite($fs->loadConfigFile());
+        $dirName = explode('/', $moduleName)[1];
+        $siteDirPath = $fs->baseModuleDirPath() . '/' . $dirName;
+        $fs = new SiteFs($siteDirPath);
+        return new Site($moduleName, $fs, $hostName);
     }
 
     protected function detectHostName(): string {

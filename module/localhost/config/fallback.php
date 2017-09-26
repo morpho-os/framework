@@ -1,6 +1,5 @@
 <?php
 return [
-    'cacheDirPath' => __DIR__ . '/../cache',
     'serviceManager' => 'Morpho\Web\ServiceManager',
     'db' => [
         'driver' => 'mysql',
@@ -105,4 +104,5 @@ return [
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
+    'useOwnPublicDir' => false,
 ];

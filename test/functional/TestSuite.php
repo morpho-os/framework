@@ -9,10 +9,10 @@ namespace MorphoTest\Functional;
 use Morpho\Infra\PhpServer;
 use Morpho\Network\Address;
 use Morpho\Network\Http\GeckoDriverDownloader;
-use const Morpho\Web\PUBLIC_DIR_PATH;
 use Morpho\Network\Http\SeleniumServerDownloader;
 use Morpho\Network\Http\SeleniumServer;
 use Morpho\Test\BrowserTestSuite;
+use Morpho\Test\Sut;
 use Morpho\Test\TestSettings;
 
 class TestSuite extends BrowserTestSuite {
@@ -25,7 +25,10 @@ class TestSuite extends BrowserTestSuite {
     public function setUp() {
         parent::setUp();
         //if (getenv('TRAVIS')) {
-            $this->phpServer = $phpServer = new PhpServer(new Address('127.0.0.1', 7654), PUBLIC_DIR_PATH);
+            $this->phpServer = $phpServer = new PhpServer(
+                new Address('127.0.0.1', 7654),
+                Sut::instance()->publicDirPath()
+            );
             $address = $phpServer->start();
             /*
         } else {

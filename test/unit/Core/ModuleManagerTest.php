@@ -6,16 +6,16 @@
  */
 namespace MorphoTest\Unit\Core;
 
-use const Morpho\Core\MODULE_DIR_PATH;
 use Morpho\Base\ClassNotFoundException;
 use Morpho\Base\Node;
 use Morpho\Core\Controller;
-use Morpho\Core\Module;
 use Morpho\Core\ModuleManager;
 use Morpho\Core\Request;
 use Morpho\Db\Sql\Db;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\DbTestCase;
+use Morpho\Test\Sut;
+use Morpho\Core\Module;
 
 class ModuleManagerTest extends DbTestCase {
     private $vendor = 'morpho-test';
@@ -25,19 +25,19 @@ class ModuleManagerTest extends DbTestCase {
         $db = $this->newDbConnection();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
-        require MODULE_DIR_PATH . '/system/vendor/autoload.php';
+        require Sut::instance()->baseModuleDirPath() . '/system/vendor/autoload.php';
         $schemaManager->createTables(\Morpho\System\Module::tableDefinitions());
     }
 
     public function testOffsetGet_ModuleWithoutModuleClass() {
         $moduleName = $this->vendor . '/saturn';
-        $moduleFs = $this->newModuleFs([$moduleName]);
+        $fs = $this->newFs([$moduleName]);
 
-        $moduleFs->expects($this->once())
+        $fs->expects($this->once())
             ->method('moduleClass')
             ->with($this->equalTo($moduleName))
             ->will($this->returnValue(Module::class));
-        $moduleManager = $this->newModuleManager(null, $moduleFs);
+        $moduleManager = $this->newModuleManager(null, $fs);
 
         $module = $moduleManager->offsetGet($moduleName);
 
@@ -54,7 +54,7 @@ class ModuleManagerTest extends DbTestCase {
 
     public function testUninstalledModuleNames_CanUseComposerNamingStyle() {
         $modules = ['galaxy/earth', 'galaxy/saturn'];
-        $moduleManager = $this->newModuleManager(null, $this->newModuleFs($modules));
+        $moduleManager = $this->newModuleManager(null, $this->newFs($modules));
         $this->assertEquals($modules, $moduleManager->uninstalledModuleNames());
     }
 
@@ -80,11 +80,11 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testModuleOperations() {
-        $moduleFs = $this->newModuleFs([
+        $fs = $this->newFs([
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ]);
-        $moduleManager = $this->newModuleManager(null, $moduleFs);
+        $moduleManager = $this->newModuleManager(null, $fs);
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -223,7 +223,7 @@ class ModuleManagerTest extends DbTestCase {
     }
 
     public function testDispatch_ThrowsExceptionAfterExceedingLimit() {
-        $moduleManager = new class($this->createMock(Db::class), $this->createMock(\Morpho\Core\ModuleFs::class)) extends ModuleManager {
+        $moduleManager = new class($this->createMock(Db::class), $this->createMock(\Morpho\Core\Fs::class)) extends ModuleManager {
             public function controller($moduleName, $controllerName, $actionName): Controller {
                 throw new \RuntimeException();
             }
@@ -249,17 +249,17 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager->dispatch($request);
     }
 
-    private function newModuleManager(Db $db = null, $moduleFs = null) {
+    private function newModuleManager(Db $db = null, $fs = null) {
         $moduleManager = new MyModuleManager(
             $db ?: $this->newDbConnection(),
-            $moduleFs ?: $this->newModuleFs([])
+            $fs ?: $this->newFs([])
         );
         $moduleManager->setServiceManager(new ServiceManager());
         return $moduleManager;
     }
 
-    private function newModuleFs(array $modules) {
-        $mock = $this->createMock(\Morpho\Core\ModuleFs::class);
+    private function newFs(array $modules) {
+        $mock = $this->createMock(\Morpho\Core\Fs::class);
         $mock->expects($this->any())
             ->method('moduleNames')
             ->will($this->returnValue(new \ArrayIterator($modules)));

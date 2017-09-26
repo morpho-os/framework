@@ -6,9 +6,8 @@
  */
 namespace MorphoTest;
 
-use const Morpho\Core\AUTOLOAD_FILE_NAME;
-use const Morpho\Core\MODULE_DIR_PATH;
-use const Morpho\Core\VENDOR_DIR_NAME;
+use Morpho\Core\Fs;
+use Morpho\Test\Sut;
 
 date_default_timezone_set('UTC');
 
@@ -17,8 +16,11 @@ date_default_timezone_set('UTC');
     $classLoader->addPsr4('MorphoTest\\Unit\\', __DIR__ . '/unit');
     $classLoader->addPsr4('MorphoTest\\Functional\\', __DIR__ . '/functional');
 
-    foreach (glob(MODULE_DIR_PATH . '/*') as $moduleDirPath) {
-        $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+    foreach (glob(Sut::instance()->baseModuleDirPath() . '/*') as $path) {
+        if (!is_dir($path)) {
+            continue;
+        }
+        $autoloadFilePath = $path . '/' . Fs::VENDOR_DIR_NAME . '/' . Fs::AUTOLOAD_FILE_NAME;
         if (is_file($autoloadFilePath)) {
             require $autoloadFilePath;
         }

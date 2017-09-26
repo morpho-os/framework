@@ -7,18 +7,17 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\Controller;
 use Morpho\Web\NotFoundException;
-use Morpho\Web\Theme;
+use Morpho\Web\View\IWithThemeModule;
 
 class TestController extends Controller {
     public function indexAction() {
         $moduleManager = $this->parent('ModuleManager');
-
-        $controllerViewDirPath = $this->parentByType('Module')->viewDirPath() . '/' . dasherize($this->name());
+        $controllerViewDirPath = $this->parentByType('Module')->fs()->viewDirPath() . '/' . dasherize($this->name());
         $found = false;
         foreach ($moduleManager->enabledModuleNames() as $moduleName) {
             $module = $moduleManager->offsetGet($moduleName);
-            if ($module instanceof Theme) {
-                $module->addBaseDirPath($controllerViewDirPath);
+            if ($module instanceof IWithThemeModule) {
+                $module->theme()->addBaseDirPath($controllerViewDirPath);
                 $found = true;
             }
         }

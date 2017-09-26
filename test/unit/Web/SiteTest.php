@@ -6,237 +6,141 @@
  */
 namespace MorphoTest\Unit\Web;
 
-use const Morpho\Core\CACHE_DIR_NAME;
-use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Core\LOG_DIR_NAME;
 use const Morpho\Core\VENDOR;
-use Morpho\Web\ISite;
-use const Morpho\Web\PUBLIC_DIR_PATH;
-use Morpho\Web\Theme;
-use Morpho\Fs\File;
 use Morpho\Test\TestCase;
+use Morpho\Web\Module;
 use Morpho\Web\Site;
-use const Morpho\Web\UPLOAD_DIR_NAME;
+use Morpho\Web\SiteFs;
+use Morpho\Web\View\IWithThemeModule;
+use Morpho\Web\View\TWithThemeModule;
 
 class SiteTest extends TestCase {
-    /**
-     * @var Site
-     */
-    private $site;
-
-    private $moduleName = VENDOR . '/localhost';
-
-    private $hostName = 'example.com';
-
-    public function setUp() {
-        parent::setUp();
-        $this->site = new Site($this->moduleName, $this->getTestDirPath(), $this->hostName);
-    }
-
     public function testGettersOfConstructorParams() {
-        $this->assertEquals($this->moduleName, $this->site->name());
-        $this->assertEquals($this->getTestDirPath(), $this->site->dirPath());
-        $this->assertEquals($this->hostName, $this->site->hostName());
+        $fs = $this->createMock(SiteFs::class);
+        $moduleName = VENDOR . '/localhost';
+        $hostName = 'example.com';
+        $site = new Site($moduleName, $fs, $hostName);
+        $this->assertSame($moduleName, $site->name());
+        $this->assertSame($hostName, $site->hostName());
+        $this->assertSame($fs, $site->fs());
     }
 
-    public function dataForDirPathAccessors() {
-        $testDirPath = $this->getTestDirPath();
-        return [
-            [
-                $testDirPath . '/' . LOG_DIR_NAME,
-                LOG_DIR_NAME,
-            ],
-            [
-                $testDirPath . '/' . CACHE_DIR_NAME,
-                CACHE_DIR_NAME,
-            ],
-            [
-                $testDirPath . '/' . UPLOAD_DIR_NAME,
-                UPLOAD_DIR_NAME,
-            ],
-            [
-                $testDirPath . '/' . CONFIG_DIR_NAME,
-                CONFIG_DIR_NAME,
-            ],
+    public function dataForConfig_FallbackAndNotFallbackMode() {
+        $config = [
+            'some-key' => 'some-value',
+            'instance' => new \ArrayIterator([]),
         ];
-    }
-
-    /**
-     * @dataProvider dataForDirPathAccessors
-     * Tests methods: set(log|cache|upload|config)DirPath() and respective reader.
-     */
-    public function testDirPathAccessors($expectedDirPath, $dirName) {
-        $setter = 'set' . $dirName . 'DirPath';
-        $getter = $dirName . 'DirPath';
-        $this->assertEquals(
-            $expectedDirPath,
-            $this->site->$getter()
-        );
-        $newDirPath = '/some/random/dir';
-        $this->assertNull($this->site->$setter($newDirPath));
-        $this->assertEquals($newDirPath, $this->site->$getter());
-    }
-
-    public function testPublicDirPathAccessors() {
-        $this->assertEquals(PUBLIC_DIR_PATH, $this->site->publicDirPath());
-        $newPublicDirPath = '/new/public/dir';
-        $this->assertNull($this->site->setPublicDirPath($newPublicDirPath));
-        $this->assertEquals($newPublicDirPath, $this->site->publicDirPath());
-    }
-
-    public function dataForIsFallbackMode() {
         return [
             [
+                $this->createConfiguredMock(SiteFs::class, [
+                    'canLoadConfigFile' => false,
+                    'loadFallbackConfigFile' => $config
+                ]),
+                $config,
                 true,
             ],
             [
+                $this->createConfiguredMock(SiteFs::class, [
+                    'canLoadConfigFile' => true,
+                    'loadConfigFile' => $config,
+                ]),
+                $config,
                 false,
             ],
         ];
     }
 
     /**
-     * @dataProvider dataForIsFallbackMode
+     * @dataProvider dataForConfig_FallbackAndNotFallbackMode
      */
-    public function testIsFallbackMode($shouldBeUsed) {
-        $this->site->setConfigDirPath($this->getTestDirPath() . '/' . ($shouldBeUsed ? 'fallback' : ''));
-        $config = $this->site->config();
-        $this->assertInternalType('array', $config);
-        $this->assertCount(2, $config);
-        $this->assertEquals('some-value', $config['some-key']);
-        $this->assertInstanceOf('ArrayIterator', $config['instance']);
+    public function testConfig_FallbackAndNotFallbackMode($fs, array $config, bool $isFallbackMode) {
+        $site = $this->newSite($fs);
 
-        $this->checkBoolAccessor([$this->site, 'isFallbackMode'], $shouldBeUsed);
+        $actual = $site->config();
+
+        $this->assertSame($config, $actual);
+        $this->checkBoolAccessor([$site, 'isFallbackMode'], $isFallbackMode);
     }
 
-    public function testConfigFilePath() {
-        $this->assertEquals($this->getTestDirPath() . '/' . CONFIG_DIR_NAME . '/' . Site::CONFIG_FILE_NAME, $this->site->configFilePath());
-    }
-
-    public function testConfigAccessors() {
-        $this->site->setConfigDirPath($this->getTestDirPath());
-        $oldConfig = $this->site->config();
-        $this->assertNotEmpty($oldConfig);
-        $this->assertSame($oldConfig, $this->site->config());
+    public function testConfig_Accessors() {
+        $site = $this->newSite($this->createMock(SiteFs::class));
         $newConfig = ['foo' => 'bar'];
-        $this->assertNull($this->site->setConfig($newConfig));
-        $this->assertSame($newConfig, $this->site->config());
+        $this->assertNull($site->setConfig($newConfig));
+        $this->assertSame($newConfig, $site->config());
+    }
+
+    public function testConfig_AfterSettingNewFs() {
+        $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
+        $fs = $this->createConfiguredMock(SiteFs::class, [
+            'canLoadConfigFile' => true,
+            'loadConfigFile' => $prevConfig,
+        ]);
+        $site = $this->newSite($fs);
+        
+        $this->assertSame($prevConfig, $site->config());
+        
+        $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
+        $fs = $this->createConfiguredMock(SiteFs::class, [
+            'canLoadConfigFile' => true,
+            'loadConfigFile' => $newConfig,
+        ]);
+        $site->setFs($fs);
+        
+        $this->assertSame($newConfig, $site->config());
     }
 
     public function testReadingConfigAfterWriting() {
-        $configFilePath = $this->createTmpFile();
         $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
-        $this->site->setConfigFilePath($configFilePath);
-        $this->site->writeConfig($prevConfig);
-        $this->assertEquals($prevConfig, $this->site->config());
-
         $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $this->site->writeConfig($newConfig);
-        $this->assertEquals($newConfig, $this->site->config());
+        $fs = $this->createConfiguredMock(SiteFs::class, [
+            'canLoadConfigFile' => true,
+        ]);
+        $fs->expects($this->exactly(2))
+            ->method('loadConfigFile')
+            ->willReturnOnConsecutiveCalls($prevConfig, $newConfig);
+        $fs->expects($this->exactly(2))
+            ->method('writeConfig');
+
+        $site = $this->newSite($fs);
+
+        $site->writeConfig($prevConfig);
+
+        $this->assertSame($prevConfig, $site->config());
+
+        $site->writeConfig($newConfig);
+
+        $this->assertSame($newConfig, $site->config());
     }
 
     public function testReloadConfig() {
-        $configFilePath = $this->createTmpFile();
         $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
-        $this->site->setConfigFilePath($configFilePath);
-        File::writePhpVar($configFilePath, $prevConfig);
-        $this->assertEquals($prevConfig, $this->site->config());
-
         $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        File::writePhpVar($configFilePath, $newConfig);
-        $this->assertEquals($prevConfig, $this->site->config());
+        $fs = $this->createConfiguredMock(SiteFs::class, [
+            'canLoadConfigFile' => true,
+        ]);
+        $fs->expects($this->exactly(2))
+            ->method('loadConfigFile')
+            ->willReturnOnConsecutiveCalls($prevConfig, $newConfig);
+        $site = $this->newSite($fs);
 
-        $this->site->reloadConfig();
+        $this->assertSame($prevConfig, $site->config());
 
-        $this->assertEquals($newConfig, $this->site->config());
+        $this->assertSame($prevConfig, $site->config());
+
+        $this->assertSame($newConfig, $site->reloadConfig());
+
+        $this->assertSame($newConfig, $site->config());
     }
 
-    public function testPublicDirAccessors() {
-        $this->markTestIncomplete();
-    }
-    
-    public function testModuleCanBeSiteAndTheme() {
-        $module = new class ('foo', $this->getTestDirPath()) extends Theme implements ISite {
-
-            public function hostName(): ?string {
-            }
-
-            public function setCacheDirPath(string $dirPath): void {
-            }
-
-            public function cacheDirPath(): string {
-            }
-
-            public function setConfigDirPath(string $dirPath): void {
-            }
-
-            public function configDirPath(): string {
-            }
-
-            public function setLogDirPath(string $dirPath): void {
-            }
-
-            public function logDirPath(): string {
-            }
-
-            public function setUploadDirPath(string $dirPath): void {
-            }
-
-            public function uploadDirPath(): string {
-            }
-
-            public function setTmpDirPath(string $dirPath): void {
-            }
-
-            public function tmpDirPath(): string {
-            }
-
-            public function setPublicDirPath(string $dirPath): void {
-            }
-
-            public function publicDirPath(): string {
-            }
-
-            public function useOwnPublicDir(): void {
-            }
-
-            public function useCommonPublicDir(): void {
-            }
-
-            public function usesOwnPublicDir(): bool {
-            }
-
-            public function setConfigFilePath(string $filePath): void {
-            }
-
-            public function configFilePath(): string {
-            }
-
-            public function setConfigFileName(string $fileName): void {
-            }
-
-            public function configFileName(): string {
-            }
-
-            public function setConfig(array $config): void {
-            }
-
-            public function config(): array {
-            }
-
-            public function reloadConfig(): void {
-            }
-
-            public function writeConfig(array $config): void {
-            }
-
-            public function isFallbackMode(bool $flag = null): bool {
-            }
-
-            public function fallbackConfigFilePath(): string {
-            }
+    public function testSiteIsAModuleAndWithTheme() {
+        $fs = $this->createConfiguredMock(SiteFs::class, []);
+        $site = new class(VENDOR . '/foo', $fs, 'localhost') extends Site implements IWithThemeModule {
+            use TWithThemeModule;
         };
-        $this->assertInstanceOf(Theme::class, $module);
-        $this->assertInstanceOf(ISite::class, $module);
+        $this->assertInstanceOf(Module::class, $site);
+    }
+
+    private function newSite($fs) {
+        return new Site(VENDOR . '/foo', $fs, 'localhost');
     }
 }

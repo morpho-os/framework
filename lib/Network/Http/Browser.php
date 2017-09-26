@@ -12,7 +12,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverBy as By;
 
 class Browser extends RemoteWebDriver {
-    protected const WAIT_TIMEOUT  = 10;    // sec
+    protected const WAIT_TIMEOUT  = 20;    // sec
     protected const WAIT_INTERVAL = 1000;  // ms
     protected const CONNECTION_TIMEOUT = 30000; // ms, corresponds to CURLOPT_CONNECTTIMEOUT_MS
     protected const REQUEST_TIMEOUT    = 30000; // ms, corresponds to CURLOPT_TIMEOUT_MS

@@ -21,6 +21,7 @@ abstract class TestCase extends BaseTestCase {
     private $prevTimezone;
 
     protected $backupGlobals = true;
+    private $sut;
 
     protected function tearDown() {
         if (null !== $this->prevTimezone) {

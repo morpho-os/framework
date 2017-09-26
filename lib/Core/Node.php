@@ -8,9 +8,9 @@ declare(strict_types = 1);
 namespace Morpho\Core;
 
 use Morpho\Base\Node as BaseNode;
-use Morpho\Di\{IServiceManagerAware, IServiceManager};
+use Morpho\Di\{IWithServiceManager, IServiceManager};
 
-abstract class Node extends BaseNode implements IServiceManagerAware {
+abstract class Node extends BaseNode implements IWithServiceManager {
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager) {
@@ -19,7 +19,7 @@ abstract class Node extends BaseNode implements IServiceManagerAware {
 
     public function append($node): BaseNode {
         parent::append($node);
-        if ($node instanceof IServiceManagerAware) {
+        if ($node instanceof IWithServiceManager) {
             $node->setServiceManager($this->serviceManager);
         }
         return $this;

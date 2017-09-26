@@ -12,11 +12,11 @@ use function Morpho\Base\{
 use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IServiceManagerAware;
+use Morpho\Di\IWithServiceManager;
 use Morpho\Web\Controller;
 use Morpho\Web\Uri;
 
-class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
+class PhpTemplateEngine extends TemplateEngine implements IWithServiceManager {
     protected $serviceManager;
     
     protected $tagRenderer;
@@ -209,7 +209,7 @@ class PhpTemplateEngine extends TemplateEngine implements IServiceManagerAware {
         } else {
             $plugin = new $class();
         }
-        if ($plugin instanceof IServiceManagerAware) {
+        if ($plugin instanceof IWithServiceManager) {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;

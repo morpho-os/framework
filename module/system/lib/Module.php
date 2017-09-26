@@ -10,9 +10,13 @@ use Morpho\Web\BadRequestException;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
-use Morpho\Web\Theme;
+use Morpho\Web\Module as BaseModule;
+use Morpho\Web\View\IWithThemeModule;
+use Morpho\Web\View\TWithThemeModule;
 
-class Module extends Theme {
+class Module extends BaseModule implements IWithThemeModule {
+    use TWithThemeModule;
+
     public const NAME = VENDOR . '/system';
 
     private $thrownExceptions = [];

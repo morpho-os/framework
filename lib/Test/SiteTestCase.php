@@ -7,13 +7,11 @@
 declare(strict_types=1);
 namespace Morpho\Test;
 
-use const Morpho\Core\CONFIG_FILE_NAME;
-use const Morpho\Core\MODULE_DIR_PATH;
-use Morpho\Fs\File;
 use Morpho\Web\Application;
 use Morpho\Web\Site;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\SiteInstaller;
+use Morpho\Web\Fs;
 
 class SiteTestCase extends BrowserTestCase {
     use TDbTestCase;
@@ -42,13 +40,12 @@ class SiteTestCase extends BrowserTestCase {
             $siteInstaller->install($site->config()['db'], true);
         } else {
             // Update site config
-            File::writePhpVar($site->configFilePath(), $site->config());
+            $site->writeConfig($site->config());
         }
     }
 
     protected function configureSite(Site $site): void {
         $site->setConfig([
-            'cacheDirPath'        => $site->cacheDirPath(),
             'serviceManager'      => 'Morpho\Web\ServiceManager',
             'db'                  => $this->dbConfig(),
             'modules'             => [
@@ -92,11 +89,12 @@ class SiteTestCase extends BrowserTestCase {
                 ],
             ],
             'umask'               => self::UMASK,
+            'useOwnPublicDir' => false,
         ]);
         $site->isFallbackMode(true);
     }
 
     protected function newSite(): Site {
-        return (new SiteFactory())(require MODULE_DIR_PATH . '/' . CONFIG_FILE_NAME);
+        return (new SiteFactory())(new Fs(Sut::instance()->baseDirPath()));
     }
 }
