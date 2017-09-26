@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Morpho\Test;
 
 use Morpho\Web\Application;
+use Morpho\Web\ServiceManager;
 use Morpho\Web\Site;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\SiteInstaller;
@@ -31,8 +32,13 @@ class SiteTestCase extends BrowserTestCase {
     }
 
     protected function installSite(Site $site): void {
+        $serviceManager = (new Application())
+            ->newServiceManager([
+                'site' => $site,
+                'baseDirPath' => Sut::instance()->baseDirPath()
+            ]);
         $siteInstaller = (new SiteInstaller($site))
-            ->setServiceManager((new Application())->newServiceManager($site));
+            ->setServiceManager($serviceManager);
 
         umask(self::UMASK);
 
@@ -46,7 +52,7 @@ class SiteTestCase extends BrowserTestCase {
 
     protected function configureSite(Site $site): void {
         $site->setConfig([
-            'serviceManager'      => 'Morpho\Web\ServiceManager',
+            'serviceManager'      => ServiceManager::class,
             'db'                  => $this->dbConfig(),
             'modules'             => [
                 \Morpho\Core\VENDOR . '/system',

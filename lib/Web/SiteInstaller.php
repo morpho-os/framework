@@ -61,7 +61,7 @@ class SiteInstaller implements IWithServiceManager {
         $site->setConfig($newSiteConfig);
 
         $this->installModules($db, $this->serviceManager->get('moduleManager'), $newSiteConfig);
-        $newServiceManager = $serviceManager->get('app')->newServiceManager($site);
+        $newServiceManager = $serviceManager->get('app')->newServiceManager(['site' => $site]);
         $this->setPageHandlers($newServiceManager);
         $this->initRoutes($newServiceManager);
         $site->fs()->writeConfig($newSiteConfig);

@@ -9,13 +9,14 @@ namespace Morpho\Core;
 use Morpho\Di\IServiceManager;
 
 abstract class Application {
-    public static function main(IServiceManager $serviceManager = null) {
+    public static function main(array $config = null) {
         $app = new static();
-        return $app->run(null !== $serviceManager ? $serviceManager : $app->newServiceManager());
+        return $app->run((array)$config);
     }
 
-    public function run(IServiceManager $serviceManager) {
+    public function run(array $config) {
         try {
+            $serviceManager = isset($config['serviceManager']) ? $config['serviceManager'] : $this->newServiceManager($config);
             $this->configure($serviceManager);
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
@@ -25,6 +26,8 @@ abstract class Application {
             $this->logFailure($e, $serviceManager);
         }
     }
+
+    abstract public function newServiceManager(array $config): IServiceManager;
 
     protected function configure(IServiceManager $serviceManager): void {
         $serviceManager->get('environment')->init();

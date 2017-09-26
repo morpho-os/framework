@@ -13,11 +13,12 @@ use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
-    public function newServiceManager($site = null): IServiceManager {
-        $fs = new Fs(Fs::detectBaseDirPath(__DIR__));
-        if (null === $site) {
-            $site = (new SiteFactory())($fs);
-        }
+    public function newServiceManager(array $config): IServiceManager {
+        $baseDirPath = isset($config['baseDirPath'])
+            ? realpath(str_replace('\\', '/', $config['baseDirPath']))
+            : Fs::detectBaseDirPath(__DIR__);
+        $fs = new Fs($baseDirPath);
+        $site = $config['site'] ?? (new SiteFactory())($fs);
         $services = [
             'app'  => $this,
             'site' => $site,
@@ -27,11 +28,9 @@ class Application extends BaseApplication {
             $serviceManager = new FallbackServiceManager($services);
         } else {
             $siteConfig = $site->config();
-            if (isset($siteConfig['serviceManager'])) {
-                $serviceManager = new $siteConfig['serviceManager']($services);
-            } else {
-                $serviceManager = new ServiceManager($services);
-            }
+            $serviceManager = $siteConfig['serviceManager']
+                ? new $siteConfig['serviceManager']($services)
+                : new ServiceManager($services);
         }
         return $serviceManager;
     }
@@ -39,6 +38,7 @@ class Application extends BaseApplication {
     protected function configure(IServiceManager $serviceManager): void {
         parent::configure($serviceManager);
 
+        /** @var Site $site */
         $site = $serviceManager->get('site');
 
         $config = $site->config();

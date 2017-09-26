@@ -6,16 +6,6 @@
  */
 namespace Morpho\Core;
 
-use Morpho\Fs\Path;
-
-define(
-    __NAMESPACE__ . '\\BASE_DIR_PATH',
-    defined('BASE_DIR_PATH') ? BASE_DIR_PATH : Fs::detectBaseDirPath(__DIR__)
-);
-if (!Path::isNormalized(BASE_DIR_PATH)) {
-    throw new \RuntimeException("The 'BASE_DIR_PATH' must be normalized: replace backslashes with forward slashes and remove the last right slash");
-}
-
 const APP_DIR_NAME = 'app';
 const BIN_DIR_NAME = 'bin';
 const CACHE_DIR_NAME = 'cache';
