@@ -10,6 +10,7 @@ use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\CONFIG_FILE_NAME;
 use Morpho\Core\Fs;
 use const Morpho\Core\MODULE_DIR_NAME;
+use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Test\TestCase;
 
 class FsTest extends TestCase {
@@ -35,8 +36,12 @@ class FsTest extends TestCase {
         $this->checkDirAccessors($this->getTestDirPath(), 'baseDirPath');
     }
 
-    public function testConfigDirAccessors() {
+    public function testConfigDirPathAccessors() {
         $this->checkDirAccessors($this->getTestDirPath() . '/' . CONFIG_DIR_NAME, 'configDirPath');
+    }
+
+    public function testVendorDirPathAccessors() {
+        $this->checkDirAccessors($this->getTestDirPath() . '/' . VENDOR_DIR_NAME, 'vendorDirPath');
     }
 
     public function testConfigFileAccessors() {

@@ -30,6 +30,11 @@ class Fs {
     /**
      * @var ?string
      */
+    private $vendorDirPath;
+
+    /**
+     * @var ?string
+     */
     protected $configFilePath;
 
     // @TODO
@@ -96,6 +101,17 @@ class Fs {
             $this->baseModuleDirPath = $this->baseDirPath() . '/' . MODULE_DIR_NAME;
         }
         return $this->baseModuleDirPath;
+    }
+
+    public function setVendorDirPath(string $vendorDirPath): void {
+        $this->vendorDirPath = $vendorDirPath;
+    }
+
+    public function vendorDirPath(): string {
+        if (null === $this->vendorDirPath) {
+            $this->vendorDirPath = $this->baseDirPath() . '/' . VENDOR_DIR_NAME;
+        }
+        return $this->vendorDirPath;
     }
 
     public function setConfigDirPath(string $configDirPath): void {
