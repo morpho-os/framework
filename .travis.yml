@@ -48,14 +48,14 @@ install:
   - export DISPLAY=':99.0'
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
 
-    # `node` means `latest stable Node.js release`
+  # `node` means `latest stable Node.js release`
   - nvm install node
   - "node --version && npm install -g typescript@next && tsc --version"
   - "cd public && npm install && cd .."
 
-    # Composer
   - "travis_retry composer selfupdate && composer --version"
-  - travis_retry composer install
+  # Use `--prefer-dist` to download an archive instead of downloading sources.
+  - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
   - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
