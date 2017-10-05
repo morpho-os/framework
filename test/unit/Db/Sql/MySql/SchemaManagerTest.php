@@ -390,6 +390,10 @@ OUT
         $this->markTestIncomplete();
     }
 
+    public function testDefaultCreateTableOptions() {
+        $this->assertSame('ENGINE=InnoDB DEFAULT CHARSET=utf8', $this->schemaManager->defaultCreateTableOptions());
+    }
+
     private function assertArrayHasOnlyItemsWithKeys(array $expectedKeys, array $arr) {
         $this->assertTrue(
             ArrayTool::setsEqual($expectedKeys, array_keys($arr)),

@@ -226,7 +226,7 @@ class SchemaManager extends BaseSchemaManager {
         $sql = "CREATE TABLE " . $query->identifier($tableName)
             . " (\n"
             . implode(",\n", $columns)
-            . "\n) ENGINE=" . self::DEFAULT_ENGINE . " DEFAULT CHARSET=" . self::DEFAULT_CHARSET;
+            . "\n) " . $this->defaultCreateTableOptions();
 
         $args = [];
         if (isset($tableDefinition['description'])) {
@@ -235,6 +235,11 @@ class SchemaManager extends BaseSchemaManager {
         }
 
         return [$sql, $args];
+    }
+
+    public function defaultCreateTableOptions(): string {
+        //CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB
+        return "ENGINE=" . self::DEFAULT_ENGINE . " DEFAULT CHARSET=" . self::DEFAULT_CHARSET;
     }
 
     public function viewNames(): array {
@@ -352,9 +357,17 @@ class SchemaManager extends BaseSchemaManager {
      */
     public function charsetAndCollationVars(): array {
         return array_merge(
-            $this->db->eval('SHOW VARIABLES LIKE "character_set%"')->map(),
-            $this->db->eval('SHOW VARIABLES LIKE "collation%"')->map()
+            $this->charsetVars(),
+            $this->collationVars()
         );
+    }
+
+    public function collationVars(): array {
+        return $this->db->eval('SHOW VARIABLES LIKE "collation%"')->map();
+    }
+
+    public function charsetVars(): array {
+        return $this->db->eval('SHOW VARIABLES LIKE "character_set%"')->map();
     }
 
     /**
