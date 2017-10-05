@@ -33,4 +33,30 @@ class PipeTest extends TestCase {
             ->append('bar');
         $this->assertEquals(['foo', 'bar'], iterator_to_array($pipe));
     }
+
+    public function testPipeClosureWithIFn() {
+        $val = null;
+        $closure = function ($v) use (&$val)  {
+            $val = $v;
+            return $v;
+        };
+        $ifnImpl = new class implements IFn {
+            public $val;
+            public function __invoke($value) {
+                $this->val = $value;
+                return $value;
+            }
+        };
+        $pipe = new Pipe([
+            $ifnImpl,
+            $closure,
+        ]);
+
+        $testVal = '123';
+
+        $this->assertSame($testVal, $pipe->__invoke($testVal));
+
+        $this->assertSame($testVal, $ifnImpl->val);
+        $this->assertSame($testVal, $val);
+    }
 }
