@@ -46,12 +46,12 @@ abstract class Db {
         return $this->connection;
     }
 
+    abstract public function query(): Query;
+
     // For SELECT use prepare feature.
     public function quote($val, int $type = \PDO::PARAM_STR): string {
         return $this->connection->quote($val, $type);
     }
-
-    abstract public function newQuery(): Query;
 
     abstract public function schemaManager(): SchemaManager;
 
@@ -64,7 +64,8 @@ abstract class Db {
     }
 
     public function insertRow(string $tableName, array $row): void {
-        $query = $this->newQuery();
+        // @TODO: Use InsertQuery
+        $query = $this->query();
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . '(';
         $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->eval($sql, array_values($row));
@@ -72,16 +73,18 @@ abstract class Db {
 
     abstract public function insertRows(string $tableName, array $rows): void;
 
-    public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): int {
-        $query = $this->newQuery();
-        if (is_array($whereCondition) && count($whereCondition)) {
-            $whereConditionArgs = array_values($whereCondition);
-            $whereCondition = $query->logicalAnd($query->namedPlaceholders($whereCondition));
-        }
+    /**
+     * @param array|string $whereCondition
+     * @param array|null $whereConditionArgs
+     */
+    public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): void {
+        // @TODO: use DeleteQuery
+        $query = $this->query();
+        [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
         $sql = 'DELETE FROM ' . $query->identifier($tableName)
-            . (!empty($whereCondition) ? ' WHERE ' . $whereCondition : '');
-        $stmt = $this->eval($sql, $whereConditionArgs);
-        return $stmt->rowCount();
+            . $whereSql;
+        /*$stmt = */$this->eval($sql, $whereArgs);
+        //return $stmt->rowCount();
     }
 
     /**
@@ -89,26 +92,16 @@ abstract class Db {
      * @param array|null $whereConditionArgs
      */
     public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null): void {
-        $query = $this->newQuery();
+        // @TODO: Use UpdateQuery
+        $query = $this->query();
         $sql = 'UPDATE ' . $query->identifier($tableName)
             . ' SET ' . implode(', ', $query->namedPlaceholders($row));
         $args = array_values($row);
         if (null !== $whereCondition) {
-            if (!is_array($whereCondition)) {
-                $sql .= ' ' . $query->whereClause($whereCondition);
-                if (null !== $whereConditionArgs) {
-                    $args = array_merge($args, $whereConditionArgs);
-                }
-            } else {
-                if (null !== $whereConditionArgs) {
-                    throw new \LogicException('The $whereConditionArgs argument must be empty when the $whereCondition is array');
-                }
-                $sql .= ' ' . $query->whereClause(
-                    $query->logicalAnd(
-                        $query->namedPlaceholders($whereCondition)
-                    )
-                );
-                $args = array_merge($args, array_values($whereCondition));
+            [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
+            if ($whereSql !== '') {
+                $sql .= $whereSql;
+                $args = array_merge($args, $whereArgs);
             }
         }
         $this->eval($sql, $args);

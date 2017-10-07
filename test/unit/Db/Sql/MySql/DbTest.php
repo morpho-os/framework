@@ -94,10 +94,38 @@ class DbTest extends DbTestCase {
         $this->assertEquals($rows, $this->db->select('* FROM cars')->rows());
     }
 
-    public function testNewQuery_ReturnsTheSameObject() {
-        $query = $this->db->newQuery();
-        $this->assertNotSame($query, $this->db->newQuery());
+    public function dataForNewQueryOperations() {
+        return [
+            [
+                'select'
+            ],
+            [
+                'insert'
+            ],
+            [
+                'update'
+            ],
+            [
+                'delete'
+            ],
+            [
+                'replace'
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForNewQueryOperations
+     */
+    public function testNewQueryOperations($op) {
+        $method = 'new' . $op . 'Query';
+        $query = $this->db->$method();
+        $this->assertNotSame($query, $this->db->$method());
         $this->assertInstanceOf(Query::class, $query);
+    }
+
+    public function testQuery_ReturnsTheSameInstance() {
+        $this->assertSame($this->db->query(), $this->db->query());
     }
 
     public function testSchemaManager_ReturnsNotUniqueInstance() {

@@ -38,7 +38,7 @@ class SchemaManagerTest extends DbTestCase {
         $dbSuffix = md5(__FUNCTION__);
         $dbName = 't' . $dbSuffix;
         $this->assertFalse($this->schemaManager->databaseExists($dbName));
-        $this->callCreateDatabase($dbName, SchemaManager::DEFAULT_CHARSET, SchemaManager::DEFAULT_COLLATION);
+        $this->callCreateDatabase($dbName, SchemaManager::CHARSET, SchemaManager::COLLATION);
         $this->assertTrue($this->schemaManager->databaseExists($dbName));
     }
 
@@ -390,8 +390,8 @@ OUT
         $this->markTestIncomplete();
     }
 
-    public function testDefaultCreateTableOptions() {
-        $this->assertSame('ENGINE=InnoDB DEFAULT CHARSET=utf8', $this->schemaManager->defaultCreateTableOptions());
+    public function testCreateTableOptions() {
+        $this->assertSame('ENGINE=InnoDB DEFAULT CHARSET=utf8', $this->schemaManager->createTableOptions());
     }
 
     private function assertArrayHasOnlyItemsWithKeys(array $expectedKeys, array $arr) {

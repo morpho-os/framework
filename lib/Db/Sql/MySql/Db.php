@@ -21,8 +21,33 @@ class Db extends BaseDb {
 
     private $schemaManager;
 
-    public function newQuery(): BaseQuery {
-        return new Query();
+    private $query;
+
+    public function query(): BaseQuery {
+        if (null === $this->query) {
+            $this->query = new Query();
+        }
+        return $this->query;
+    }
+
+    public function newSelectQuery(): SelectQuery {
+        return new SelectQuery();
+    }
+
+    public function newInsertQuery(): InsertQuery {
+        return new InsertQuery();
+    }
+
+    public function newUpdateQuery(): UpdateQuery {
+        return new UpdateQuery();
+    }
+
+    public function newDeleteQuery(): DeleteQuery {
+        return new DeleteQuery();
+    }
+
+    public function newReplaceQuery(): ReplaceQuery {
+        return new ReplaceQuery();
     }
 
     public function schemaManager(): BaseSchemaManager {
@@ -42,7 +67,7 @@ class Db extends BaseDb {
             }
             $args = array_merge($args, array_values($row));
         }
-        $query = $this->newQuery();
+        $query = $this->query();
         $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
         $this->eval($sql, $args);

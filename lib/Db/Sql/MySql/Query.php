@@ -9,6 +9,12 @@ namespace Morpho\Db\Sql\MySql;
 use Morpho\Db\Sql\Query as BaseQuery;
 
 class Query extends BaseQuery {
+ /*   private $connection;
+
+    public function __construct(\PDO $connection) {
+        $this->connection = $connection;
+    }*/
+
     public static function useDb(string $dbName): string {
         return "USE $dbName";
     }

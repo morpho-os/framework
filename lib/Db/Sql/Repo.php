@@ -15,10 +15,17 @@ class Repo extends BaseRepo {
 
     protected $tableName;
 
+    private $db;
+
     protected static $allowedDbMethods = [
         'select',
         'transaction',
     ];
+
+    public function __construct(string $name, Db $db = null) {
+        parent::__construct($name);
+        $this->db = $db;
+    }
 
     public function __call(string $method, array $args = []) {
         if (in_array($method, static::$allowedDbMethods, true)) {
@@ -64,7 +71,10 @@ class Repo extends BaseRepo {
     }
 
     protected function db(): Db {
-        return $this->serviceManager->get('db');
+        if (null === $this->db) {
+            $this->db = $this->serviceManager->get('db');
+        }
+        return $this->db;
     }
 
     protected function dateTime(): DateTime {

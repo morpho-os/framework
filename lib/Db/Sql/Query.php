@@ -7,18 +7,37 @@
 namespace Morpho\Db\Sql;
 
 abstract class Query {
-    public static function logicalAnd(array $expr): string {
+/*    public static function logicalAnd(array $expr, bool $wrapWithBraces = false): string {
         return implode(' AND ', $expr);
     }
 
     public static function logicalOr(array $expr): string {
         return implode(' OR ', $expr);
+    }*/
+
+    /**
+     * @param array|string $whereCondition
+     * @param array|null $whereConditionArgs
+     */
+    public function whereClause($whereCondition, array $whereConditionArgs = null): array {
+        $whereSql = '';
+        $whereArgs = [];
+        if (is_array($whereCondition) && count($whereCondition)) {
+            if (null !== $whereConditionArgs) {
+                throw new \LogicException('The $whereConditionArgs argument must be empty when the $whereCondition is an array');
+            }
+            $whereSql .= ' WHERE ' . implode(' AND ', $this->namedPlaceholders($whereCondition));
+            $whereArgs = array_values($whereCondition);
+        } elseif ($whereCondition !== '') {
+            // string
+            $whereSql .= ' WHERE ' . $whereCondition;
+            if (null !== $whereConditionArgs) {
+                $whereArgs = $whereConditionArgs;
+            }
+        }
+        return [$whereSql, $whereArgs];
     }
 
-    public static function whereClause(string $sql): string {
-        return 'WHERE ' . $sql;
-    }
-    
     public function identifiers(array $identifiers): array {
         $ids = [];
         foreach ($identifiers as $identifier) {

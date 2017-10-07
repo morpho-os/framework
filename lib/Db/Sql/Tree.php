@@ -35,15 +35,15 @@ class Tree {
     public function childNodes($parentNodeId = null): array {
         $args = [];
         if ($parentNodeId === null) {
-            $whereClause = $this->db->newQuery()->whereClause('parentId IS NULL');
+            $whereClause = 'WHERE parentId IS NULL';
         } else {
-            $whereClause = $this->db->newQuery()->whereClause('parentId = ?');
+            $whereClause = 'WHERE parentId = ?';
             $args[] = $parentNodeId;
         }
         $columnPrefix = 'data';
         $rows = $this->db->select(
             't.childId, t.parentId, t.depth, ' . $this->addTableAliasAndColumnPrefix('d', $columnPrefix, $this->dataColumns['columns'])
-            . ' FROM ' . $this->db->newQuery()->identifier($this->tableName) . " AS t
+            . ' FROM ' . $this->db->query()->identifier($this->tableName) . " AS t
             INNER JOIN {$this->dataColumns['table']} as d
                 ON t.childId = d.{$this->dataColumns['columns'][0]}"
             . "\n$whereClause",

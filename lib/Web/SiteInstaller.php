@@ -109,7 +109,7 @@ class SiteInstaller implements IWithServiceManager {
                 $db = Db::connect($dbConfig);
                 $schemaManager = $db->schemaManager();
                 $schemaManager->createDatabase($dbName);
-                $db->eval($db->newQuery()->useDb($dbName));
+                $db->eval($db->query()->useDb($dbName));
                 return $db;
             } else {
                 throw $e;

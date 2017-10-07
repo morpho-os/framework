@@ -11,9 +11,9 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 
 class SchemaManager extends BaseSchemaManager {
-    const DEFAULT_ENGINE    = 'InnoDB';
-    const DEFAULT_CHARSET   = 'utf8';
-    const DEFAULT_COLLATION = 'utf8_general_ci';
+    const ENGINE    = 'InnoDB';
+    const CHARSET   = 'utf8';
+    const COLLATION = 'utf8_general_ci';
     
     public function databaseNames(): array {
         return $this->db->eval("SHOW DATABASES")->column();
@@ -24,9 +24,9 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createDatabase(string $dbName, string $charset = null, string $collation = null): void {
-        $this->db->eval("CREATE DATABASE " . $this->db->newQuery()->identifier($dbName)
-            . " CHARACTER SET " . ($charset ?: self::DEFAULT_CHARSET)
-            . " COLLATE " . ($collation ?: self::DEFAULT_COLLATION)
+        $this->db->eval("CREATE DATABASE " . $this->db->query()->identifier($dbName)
+            . " CHARACTER SET " . ($charset ?: self::CHARSET)
+            . " COLLATE " . ($collation ?: self::COLLATION)
         );
     }
     
@@ -43,7 +43,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteDatabase(string $dbName): void {
-        $this->db->eval("DROP DATABASE " . $this->db->newQuery()->identifier($dbName));
+        $this->db->eval("DROP DATABASE " . $this->db->query()->identifier($dbName));
     }
 
     public function sizeOfDatabases() {
@@ -85,7 +85,7 @@ class SchemaManager extends BaseSchemaManager {
             if ($isMySql) {
             */
             $db->eval('SET FOREIGN_KEY_CHECKS=0;');
-            $db->eval('DROP TABLE IF EXISTS ' . $this->db->newQuery()->identifier($tableName));
+            $db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
             /*
             if ($isMySql) {
             }
@@ -103,7 +103,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteTableIfExists(string $tableName): void {
-        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->newQuery()->identifier($tableName));
+        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
     }
 
     /**
@@ -137,7 +137,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createTableSql(string $tableName): string {
-        return $this->db->eval("SHOW CREATE TABLE " . $this->db->newQuery()->identifier($tableName))
+        return $this->db->eval("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))
             ->row()['Create Table'];
     }
 
@@ -150,7 +150,7 @@ class SchemaManager extends BaseSchemaManager {
 
         list($pkColumns, $columns) = $this->columnsDefinitionToSqlArray($tableDefinition['columns']);
         
-        $query = $this->db->newQuery();
+        $query = $this->db->query();
 
         if (isset($tableDefinition['foreignKeys'])) {
             foreach ($tableDefinition['foreignKeys'] as $fkDefinition) {
@@ -226,7 +226,7 @@ class SchemaManager extends BaseSchemaManager {
         $sql = "CREATE TABLE " . $query->identifier($tableName)
             . " (\n"
             . implode(",\n", $columns)
-            . "\n) " . $this->defaultCreateTableOptions();
+            . "\n) " . $this->createTableOptions();
 
         $args = [];
         if (isset($tableDefinition['description'])) {
@@ -237,9 +237,9 @@ class SchemaManager extends BaseSchemaManager {
         return [$sql, $args];
     }
 
-    public function defaultCreateTableOptions(): string {
+    public function createTableOptions(): string {
         //CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB
-        return "ENGINE=" . self::DEFAULT_ENGINE . " DEFAULT CHARSET=" . self::DEFAULT_CHARSET;
+        return "ENGINE=" . self::ENGINE . " DEFAULT CHARSET=" . self::CHARSET;
     }
 
     public function viewNames(): array {
@@ -316,7 +316,7 @@ class SchemaManager extends BaseSchemaManager {
             }
         }
 
-        return $this->db->newQuery()->identifier($columnName) . ' ' . $columnDefinitionSql;
+        return $this->db->query()->identifier($columnName) . ' ' . $columnDefinitionSql;
     }
 
     /**
@@ -477,7 +477,7 @@ ORDER BY TABLE_SCHEMA,
         if (isset($indexDefinition['type'])) {
             $sql[] = $indexDefinition['type'];
         }
-        $query = $this->db->newQuery();
+        $query = $this->db->query();
         $sql[] = '('
             . (is_array($indexDefinition['columns'])
                 ? implode(', ', array_map([$query, 'identifier'], $indexDefinition['columns']))
