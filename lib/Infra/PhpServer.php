@@ -56,9 +56,8 @@ class PhpServer {
      * Some code based \Symfony\Component\Process\Process::stop() ((c) Fabien Potencier <fabien@symfony.com>, Symfony project))
      */
     public function stop(): void {
-        if (!$this->process->isRunning()) {
-            return;
-        }
+        $this->process->stop();
+        /*
         $this->process->signal(2); // Try send the SIGINT first
         try {
             waitUntilNoOfAttempts(function () {
@@ -68,6 +67,7 @@ class PhpServer {
             // then try to send other signals.
             $this->process->stop();
         }
+        */
     }
 
     public function isStarted(): bool {
