@@ -26,15 +26,15 @@ abstract class Db {
         //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
-    public static function connect(array $options): self {
-        $driver = $options['driver'];
-        unset($options['driver']);
+    public static function connect(array $config): self {
+        $driver = $config['driver'];
+        unset($config['driver']);
         switch ($driver) {
             case self::MYSQL_DRIVER:
-                $db = new MySql\Db($options);
+                $db = new MySql\Db($config);
                 break;
             case self::SQLITE_DRIVER:
-                $db = new Sqlite\Db($options);
+                $db = new Sqlite\Db($config);
                 break;
             default:
                 throw new \UnexpectedValueException();
