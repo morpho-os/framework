@@ -753,3 +753,28 @@ function contains($haystack, $needle): bool {
         throw new NotImplementedException();
     }
 }
+
+/**
+ * Modified version from the https://github.com/nikic/iter/blob/master/test/iterTest.php
+ * @Copyright (c) 2013 by Nikita Popov.
+ *
+ * Chains the iterables that were passed as arguments.
+ *
+ * The resulting iterator will contain the values of the first iterable, then the second, and so on.
+ *
+ * Examples:
+ *
+ *     iter\chain(iter\range(0, 5), iter\range(6, 10), iter\range(11, 15))
+ *     => iter(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+ *
+ * @param array|\Traversable ...$iterables Iterables to chain
+ *
+ */
+function chain(...$iterables): iterable {
+    //_assertAllIterable($iterables);
+    foreach ($iterables as $iterable) {
+        foreach ($iterable as $key => $value) {
+            yield $key => $value;
+        }
+    }
+}

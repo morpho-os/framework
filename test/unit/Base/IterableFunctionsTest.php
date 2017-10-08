@@ -6,7 +6,9 @@
  */
 namespace MorphoTest\Unit\Base;
 
-use function Morpho\Base\{all, any, append, contains, filter, head, init, last, map, prepend, reduce, tail};
+use function Morpho\Base\{
+    all, any, append, chain, contains, filter, head, init, last, map, prepend, reduce, tail, toArray
+};
 use Morpho\Test\TestCase;
 
 class IterableFunctionsTest extends TestCase {
@@ -646,6 +648,16 @@ class IterableFunctionsTest extends TestCase {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Modified version from https://github.com/nikic/iter/blob/master/test/iterTest.php
+     * @Copyright (c) 2013 by Nikita Popov.
+     */
+    public function testChain() {
+        $chained = chain(range(1, 3), range(4, 6), range(7, 9));
+        $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8, 9], toArray($chained));
+        $this->assertSame([], toArray(chain()));
+    }
 
     public function dataForHeadAndLast_Array() {
         $lastFn = 'Morpho\\Base\\last';
