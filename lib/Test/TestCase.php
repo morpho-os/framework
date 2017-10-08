@@ -21,7 +21,6 @@ abstract class TestCase extends BaseTestCase {
     private $prevTimezone;
 
     protected $backupGlobals = true;
-    private $sut;
 
     protected function tearDown() {
         if (null !== $this->prevTimezone) {
@@ -64,6 +63,10 @@ abstract class TestCase extends BaseTestCase {
             // @TODO: Better implementation, not O(n^2)?
             $this->assertContains($expect, $actual);
         }
+    }
+
+    protected function sut(): Sut {
+        return Sut::instance();
     }
 
     /*

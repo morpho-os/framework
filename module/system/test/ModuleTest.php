@@ -2,6 +2,8 @@
 namespace MorphoTest\SystemTest;
 
 use Monolog\Logger;
+use const Morpho\Core\RC_DIR_NAME;
+use const Morpho\Core\SCHEMA_FILE_NAME;
 use Morpho\Core\SettingsManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Web\AccessDeniedException;
@@ -20,7 +22,7 @@ class ModuleTest extends DbTestCase {
         $db = $this->newDbConnection();
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables();
-        $schemaManager->createTables(SystemModule::tableDefinitions());
+        $schemaManager->createTables(require $this->sut()->baseModuleDirPath() . '/system/' . RC_DIR_NAME . '/' . SCHEMA_FILE_NAME);
     }
 
     public function dataForDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice() {

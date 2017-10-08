@@ -24,8 +24,9 @@ const VENDOR_DIR_NAME = 'vendor';
 
 const AUTOLOAD_FILE_NAME = 'autoload.php';
 const CONFIG_FILE_NAME = 'config.php';
-const MODULE_CLASS_FILE_NAME = 'Module.php';
 const META_FILE_NAME = 'composer.json';
+const MODULE_CLASS_FILE_NAME = 'Module.php';
+const SCHEMA_FILE_NAME = 'schema.php';
 
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';

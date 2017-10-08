@@ -7,6 +7,9 @@
 //declare(strict_types = 1);
 namespace Morpho\Web;
 
+use Morpho\Core\Module;
+use Morpho\Core\ModuleFs;
+
 class Site extends Module {
     /**
      * @var ?array

@@ -9,12 +9,15 @@ namespace MorphoTest\Unit\Core;
 use Morpho\Base\ClassNotFoundException;
 use Morpho\Base\Node;
 use Morpho\Core\Controller;
+use Morpho\Core\ModuleFs;
+use Morpho\Core\ModuleInstaller;
 use Morpho\Core\ModuleManager;
+use const Morpho\Core\RC_DIR_NAME;
 use Morpho\Core\Request;
+use const Morpho\Core\SCHEMA_FILE_NAME;
 use Morpho\Db\Sql\Db;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\DbTestCase;
-use Morpho\Test\Sut;
 use Morpho\Core\Module;
 
 class ModuleManagerTest extends DbTestCase {
@@ -25,8 +28,7 @@ class ModuleManagerTest extends DbTestCase {
         $db = $this->newDbConnection();
         $schemaManager = $db->schemaManager($db);
         $schemaManager->deleteAllTables(['module', 'module_event']);
-        require Sut::instance()->baseModuleDirPath() . '/system/vendor/autoload.php';
-        $schemaManager->createTables(\Morpho\System\Module::tableDefinitions());
+        $schemaManager->createTables(require $this->sut()->baseModuleDirPath() . '/system/' . RC_DIR_NAME . '/' . SCHEMA_FILE_NAME);
     }
 
     public function testOffsetGet_ModuleWithoutModuleClass() {
@@ -62,7 +64,8 @@ class ModuleManagerTest extends DbTestCase {
         $moduleManager = $this->newModuleManager();
 
         $moduleName = 'error-handling-test-module';
-        $module = new ErrorHandlingTestModule($moduleName, $this->getTestDirPath());
+        $fs = $this->createMock(ModuleFs::class);
+        $module = new ErrorHandlingTestModule($moduleName, $fs);
         $moduleManager->append($module);
 
         $request = new class() extends Request {
@@ -84,7 +87,11 @@ class ModuleManagerTest extends DbTestCase {
             __CLASS__ . '\\My',
             __CLASS__ . '\\NotInstalled',
         ]);
-        $moduleManager = $this->newModuleManager(null, $fs);
+        $moduleInstaller = $this->createMock(ModuleInstaller::class);
+        $moduleManager = new MyModuleManager($this->newDbConnection($this->dbConfig()), $fs);
+        $this->configureModuleInstallerMockForModuleOperations($moduleInstaller, $moduleManager);
+        $services = ['moduleInstaller' => $moduleInstaller];
+        $moduleManager->setServiceManager(new ServiceManager($services));
 
         // 1. Check initial state of all available modules.
         $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -107,15 +114,12 @@ class ModuleManagerTest extends DbTestCase {
         $moduleName = __CLASS__ . '\\My';
 
         $moduleClass = $moduleName . '\\Module';
-        $module = new $moduleClass($moduleName, $this->getTestDirPath());
+        $fs = $this->createMock(ModuleFs::class);
+        $module = new $moduleClass($moduleName, $fs);
 
         $moduleManager->append($module);
 
-        $this->assertFalse($module->isInstallCalled());
-
         $moduleManager->installModule($moduleName);
-
-        $this->assertTrue($module->isInstallCalled());
 
         $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
         $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -133,11 +137,7 @@ class ModuleManagerTest extends DbTestCase {
         );
 
         // 3. Enable the module and check for changes.
-        $this->assertFalse($module->isEnableCalled());
-
         $moduleManager->enableModule($moduleName);
-
-        $this->assertTrue($module->isEnableCalled());
 
         $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
         $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -154,11 +154,7 @@ class ModuleManagerTest extends DbTestCase {
         );
 
         // 4. Disable the module and check for changes.
-        $this->assertFalse($module->isDisableCalled());
-
         $moduleManager->disableModule($moduleName);
-
-        $this->assertTrue($module->isDisableCalled());
 
         $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
         $this->assertEquals([$moduleName], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -175,11 +171,7 @@ class ModuleManagerTest extends DbTestCase {
         );
 
         // 5. Uninstall the module and check for changes.
-        $this->assertFalse($module->isUninstallCalled());
-
         $moduleManager->uninstallModule($moduleName);
-
-        $this->assertTrue($module->isUninstallCalled());
 
         $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::ENABLED | ModuleManager::DISABLED));
         $this->assertEquals([], $moduleManager->moduleNames(ModuleManager::DISABLED));
@@ -202,7 +194,8 @@ class ModuleManagerTest extends DbTestCase {
     public function testDispatch_CallsDispatchMethodOfController() {
         $moduleManager = $this->newModuleManager();
         $moduleName = 'my-module';
-        $module = new ModuleManagerTest\My\Module($moduleName, $this->getTestDirPath());
+        $fs = $this->createMock(ModuleFs::class);
+        $module = new ModuleManagerTest\My\Module($moduleName, $fs);
         $moduleManager->append($module);
         $controllerName = 'my-controller';
         $request = new class($moduleName, $controllerName) extends Request {
@@ -239,22 +232,17 @@ class ModuleManagerTest extends DbTestCase {
 
         $limit = 30;
         $moduleManager->setMaxNoOfDispatchIterations($limit);
-        /*
-        $request->expects($this->any())
-            ->method('isDispatched')
-            ->will($this->returnValue(false));
-        */
         $this->expectException(\RuntimeException::class, "Dispatch loop has occurred $limit times");
 
         $moduleManager->dispatch($request);
     }
 
-    private function newModuleManager(Db $db = null, $fs = null) {
+    private function newModuleManager(Db $db = null, $fs = null, array $services = null) {
         $moduleManager = new MyModuleManager(
             $db ?: $this->newDbConnection(),
             $fs ?: $this->newFs([])
         );
-        $moduleManager->setServiceManager(new ServiceManager());
+        $moduleManager->setServiceManager(new ServiceManager($services));
         return $moduleManager;
     }
 
@@ -264,6 +252,19 @@ class ModuleManagerTest extends DbTestCase {
             ->method('moduleNames')
             ->will($this->returnValue(new \ArrayIterator($modules)));
         return $mock;
+    }
+
+    private function configureModuleInstallerMockForModuleOperations($moduleInstaller, $moduleManager) {
+        $appendExpectation = function (string $method) use ($moduleInstaller, $moduleManager) {
+            $moduleInstaller->expects($this->once())
+                ->method($method)
+                ->with($this->isType('string'), $this->isInstanceOf($moduleManager))
+                ->willReturn(null);
+        };
+        $appendExpectation('installModule');
+        $appendExpectation('enableModule');
+        $appendExpectation('disableModule');
+        $appendExpectation('uninstallModule');
     }
 }
 

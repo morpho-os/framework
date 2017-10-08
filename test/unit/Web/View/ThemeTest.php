@@ -12,7 +12,7 @@ use Morpho\Core\Node;
 use Morpho\Core\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Module;
+use Morpho\Core\Module;
 use Morpho\Web\ModuleFs;
 use Morpho\Web\Request;
 use Morpho\Web\View\TemplateEngine;

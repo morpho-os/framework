@@ -7,6 +7,8 @@
 namespace MorphoTest\Unit\Core;
 
 use Morpho\Base\ArrayTool;
+use const Morpho\Core\RC_DIR_NAME;
+use const Morpho\Core\SCHEMA_FILE_NAME;
 use Morpho\Test\DbTestCase;
 use Morpho\Core\SettingsManager;
 
@@ -19,7 +21,11 @@ class SettingsManagerTest extends DbTestCase {
         $moduleNames = ['module', 'setting'];
         $schemaManager = $db->schemaManager();
         $schemaManager->deleteAllTables();
-        $schemaManager->createTables(ArrayTool::itemsWithKeys(\Morpho\System\Module::tableDefinitions(), $moduleNames));
+        $schema = ArrayTool::itemsWithKeys(
+            require $this->sut()->baseModuleDirPath() . '/system/' . RC_DIR_NAME . '/' . SCHEMA_FILE_NAME,
+            $moduleNames
+        );
+        $schemaManager->createTables($schema);
         $this->settingsManager = new SettingsManager($db);
         $moduleName = 'foo';
         $db->insertRow('module', ['name' => $moduleName, 'status' => 1, 'weight' => 0]);

@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Web;
 
 use const Morpho\Core\VENDOR;
 use Morpho\Test\TestCase;
-use Morpho\Web\Module;
+use Morpho\Core\Module;
 use Morpho\Web\Site;
 use Morpho\Web\SiteFs;
 use Morpho\Web\View\IWithThemeModule;

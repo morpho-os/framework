@@ -25,20 +25,35 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected $eventHandlers;
 
-    protected $name = 'ModuleManager';
     protected $type = 'ModuleManager';
 
     protected $tableName = 'module';
 
+    /**
+     * @var Db|null
+     */
     protected $db;
 
+    /**
+     * @var Fs
+     */
     protected $fs;
 
     protected $maxNoOfDispatchIterations = 30;
 
-    public function __construct(Db $db = null, Fs $fs) {
+    /**
+     * @var IModuleInstaller
+     */
+    private $moduleInstaller;
+
+    public function __construct(?Db $db, Fs $fs) {
+        parent::__construct('ModuleManager');
         $this->db = $db;
         $this->fs = $fs;
+    }
+
+    public function setDb(Db $db) {
+        $this->db = $db;
     }
 
     public function fs(): Fs {
@@ -118,12 +133,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         $db = $this->db;
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->offsetGet($moduleName);
-
-                $db->schemaManager()->createTables($module->tableDefinitions());
-
-                $module->install($db);
-
+                $this->moduleInstaller($moduleName)->installModule($moduleName, $this);
                 $db->insertRow($this->tableName, ['name' => $moduleName, 'status' => self::DISABLED]);
             }
         );
@@ -139,8 +149,8 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName, $moduleId) {
-                $module = $this->offsetGet($moduleName);
-                $module->uninstall($db);
+                $this->moduleInstaller($moduleName)->uninstallModule($moduleName, $this);
+
                 $db->deleteRows('event', ['moduleId' => $moduleId]);
                 $db->deleteRows($this->tableName, ['id' => $moduleId]);
             }
@@ -156,8 +166,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
         $db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->offsetGet($moduleName);
-                $module->enable($db);
+                $this->moduleInstaller($moduleName)->enableModule($moduleName, $this);
                 $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
             }
         );
@@ -165,17 +174,9 @@ abstract class ModuleManager extends Node implements IEventManager {
     }
 
     public function disableModule(string $moduleName): void {
-        /*
-        $db = $this->db;
-        $exists = (bool)$db->select("id FROM $this->tableName WHERE name = ? AND status = ?", [$moduleName, self::ENABLED])->cell();
-        if (!$exists) {
-            throw new \LogicException("Can't disable the module '$moduleName', only enabled modules can be disabled");
-        }
-        */
         $this->db->transaction(
             function (Db $db) use ($moduleName) {
-                $module = $this->offsetGet($moduleName);
-                $module->disable($db);
+                $this->moduleInstaller($moduleName)->disableModule($moduleName, $this);
                 $db->updateRows($this->tableName, ['status' => self::DISABLED], ['name' => $moduleName]);
             }
         );
@@ -190,10 +191,12 @@ abstract class ModuleManager extends Node implements IEventManager {
 
                 $db->schemaManager()->createTables($module->tableDefinitions());
 
-                $module->install($db);
+                $moduleInstaller = $this->moduleInstaller($moduleName);
+
+                $moduleInstaller->installModule($moduleName, $this);
                 $db->insertRow($this->tableName, ['name' => $moduleName, 'status' => self::DISABLED]);
 
-                $module->enable($db);
+                $moduleInstaller->enableModule($moduleName, $this);
                 $db->updateRows($this->tableName, ['status' => self::ENABLED], ['name' => $moduleName]);
             }
         );
@@ -272,10 +275,6 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $this->db->select("id, name FROM $this->tableName WHERE status = ? ORDER BY name, weight", [self::DISABLED])->map();
     }
 
-    public function setDb(Db $db) {
-        $this->db = $db;
-    }
-
     protected function clearCache(): void {
         $this->fs->clearCache();
     }
@@ -322,5 +321,21 @@ abstract class ModuleManager extends Node implements IEventManager {
 
     protected function eventsMeta($module): iterable {
         return (new EventsMetaProvider())($module);
+    }
+
+    private function moduleInstaller(string $moduleName): IModuleInstaller {
+        $installerClass = $this->fs->moduleNamespace($moduleName) . '\\Installer';
+        /** @var $installer IModuleInstaller */
+        if (class_exists($installerClass)) {
+            $installer = new $installerClass();
+            $installer->setDb($this->db);
+        } else {
+            if (null === $this->moduleInstaller) {
+                $installer = $this->moduleInstaller = $this->serviceManager->get('moduleInstaller');
+            } else {
+                $installer = $this->moduleInstaller;
+            }
+        }
+        return $installer;
     }
 }

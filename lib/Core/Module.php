@@ -6,8 +6,6 @@
  */
 namespace Morpho\Core;
 
-use Morpho\Db\Sql\Db;
-
 class Module extends Node {
     /**
      * @var ?string
@@ -16,25 +14,23 @@ class Module extends Node {
 
     protected $type = 'Module';
 
-    // @TODO: move to installer (begin)
+    /**
+     * @var ModuleFs
+     */
+    protected $fs;
 
-    public function install(Db $db) {
+    public function __construct(string $name, ModuleFs $fs) {
+        parent::__construct($name);
+        $this->fs = $fs;
     }
 
-    public function uninstall(Db $db) {
+    public function setFs(ModuleFs $fs): void {
+        $this->fs = $fs;
     }
 
-    public function enable(Db $db) {
+    public function fs(): ModuleFs {
+        return $this->fs;
     }
-
-    public function disable(Db $db) {
-    }
-
-    public static function tableDefinitions(): array {
-        return [];
-    }
-
-    // @TODO: move to Installer (end)
 
     public function repo($name) {
         return $this->offsetGet(DOMAIN_NS . '\\' . $name . REPO_SUFFIX);

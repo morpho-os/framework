@@ -34,6 +34,12 @@ abstract class ServiceManager extends BaseServiceManager {
 
     abstract protected function newModuleManagerService();
 
+    protected function newModuleInstallerService() {
+        $moduleInstaller = new ModuleInstaller();
+        $moduleInstaller->setDb($this->get('db'));
+        return $moduleInstaller;
+    }
+
     protected function newSettingsManagerService() {
         return new SettingsManager($this->get('db'));
     }
