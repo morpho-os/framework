@@ -762,10 +762,9 @@ function contains($haystack, $needle): bool {
  *
  * The resulting iterator will contain the values of the first iterable, then the second, and so on.
  *
- * Examples:
- *
- *     iter\chain(iter\range(0, 5), iter\range(6, 10), iter\range(11, 15))
- *     => iter(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+ * Example:
+ *     chain(range(0, 5), range(6, 10), range(11, 15))
+ *     => iterable(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
  *
  * @param array|\Traversable ...$iterables Iterables to chain
  *
