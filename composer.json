@@ -45,7 +45,7 @@
         "zendframework/zend-validator": "dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": "6.3.*",
+        "phpunit/phpunit": "^6.4",
         "facebook/webdriver": "dev-community"
     },
     "repositories": [
