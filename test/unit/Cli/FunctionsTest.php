@@ -11,7 +11,6 @@ use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
     argsString, cmd, escapeArgs, showOk, stylize
 };
-use Morpho\Test\Sut;
 use Morpho\Test\TestCase;
 
 class FunctionsTest extends TestCase {
@@ -37,7 +36,7 @@ class FunctionsTest extends TestCase {
         }
 
         $tmpFilePath = $this->createTmpFile();
-        $autoloadFilePath = Sut::instance()->baseDirPath() . '/vendor/autoload.php';
+        $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         file_put_contents($tmpFilePath, <<<OUT
 <?php
 require "$autoloadFilePath";
@@ -116,7 +115,7 @@ OUT
         }
 
         $tmpFilePath = $this->createTmpFile();
-        $autoloadFilePath = Sut::instance()->baseDirPath() . '/vendor/autoload.php';
+        $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         $question = "Do you want to play";
         file_put_contents($tmpFilePath, <<<OUT
 <?php
