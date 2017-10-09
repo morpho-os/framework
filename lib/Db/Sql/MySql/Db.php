@@ -25,29 +25,29 @@ class Db extends BaseDb {
 
     public function query(): BaseQuery {
         if (null === $this->query) {
-            $this->query = new Query();
+            $this->query = new Query($this);
         }
         return $this->query;
     }
 
     public function newSelectQuery(): SelectQuery {
-        return new SelectQuery();
+        return new SelectQuery($this);
     }
 
     public function newInsertQuery(): InsertQuery {
-        return new InsertQuery();
+        return new InsertQuery($this);
     }
 
     public function newUpdateQuery(): UpdateQuery {
-        return new UpdateQuery();
+        return new UpdateQuery($this);
     }
 
     public function newDeleteQuery(): DeleteQuery {
-        return new DeleteQuery();
+        return new DeleteQuery($this);
     }
 
     public function newReplaceQuery(): ReplaceQuery {
-        return new ReplaceQuery();
+        return new ReplaceQuery($this);
     }
 
     public function schemaManager(): BaseSchemaManager {
@@ -73,7 +73,7 @@ class Db extends BaseDb {
         $this->eval($sql, $args);
     }
 
-    protected function newPdoConnection(array $options): \PDO {
+    protected function newPdo(array $options): \PDO {
         $options = ArrayTool::handleOptions($options, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,

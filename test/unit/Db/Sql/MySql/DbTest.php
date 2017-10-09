@@ -26,9 +26,9 @@ class DbTest extends DbTestCase {
     }
 
     public function testConnection() {
-        $connection = $this->db->connection();
+        $connection = $this->db->pdo();
         $this->assertInstanceOf(\PDO::class, $connection);
-        $this->assertSame($connection, $this->db->connection());
+        $this->assertSame($connection, $this->db->pdo());
     }
 
     public function testLastInsertId_ForNonAutoincrementCol() {

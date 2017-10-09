@@ -6,15 +6,10 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
+use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\Query as BaseQuery;
 
 class Query extends BaseQuery {
- /*   private $connection;
-
-    public function __construct(\PDO $connection) {
-        $this->connection = $connection;
-    }*/
-
     public static function useDb(string $dbName): string {
         return "USE $dbName";
     }
@@ -26,5 +21,19 @@ class Query extends BaseQuery {
     public function identifier(string $identifier): string {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
         return '`' . $identifier . '`';
+    }
+
+    public function eval(): \PDOStatement {
+        [$sql, $args] = $this->sqlQueryArgs();
+        if ($args) {
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute($args);
+            return $stmt;
+        }
+        return $this->connection->pdo()->query($sql);
+    }
+
+    protected function sqlQueryArgs(): array {
+        throw new NotImplementedException();
     }
 }

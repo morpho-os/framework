@@ -14,6 +14,11 @@ abstract class Query {
     public static function logicalOr(array $expr): string {
         return implode(' OR ', $expr);
     }*/
+    protected $connection;
+
+    public function __construct(Db $connection) {
+        $this->connection = $connection;
+    }
 
     /**
      * @param array|string $whereCondition
@@ -63,4 +68,6 @@ abstract class Query {
     public static function positionalPlaceholdersString(array $row): string {
         return implode(', ', self::positionalPlaceholders($row));
     }
+
+    abstract public function eval(): \PDOStatement;
 }

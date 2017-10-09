@@ -32,10 +32,18 @@ trait TDbTestCase {
         ];
     }
 
-    protected function newDbConnection($config = null): Db {
+    protected function newDbConnection(array $config = null): Db {
         if (!$config) {
             $config = $this->dbConfig();
         }
         return Db::connect($config);
+    }
+
+    protected function newPdo(array $config = null): \PDO {
+        if (!$config) {
+            $config = $this->dbConfig();
+        }
+        $dsn = $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';' . ($config['charset'] ?? 'utf8');
+        return new \PDO($dsn, $config['user'], $config['password'], $config['pdoOptions'] ?? []);
     }
 }

@@ -18,12 +18,8 @@ abstract class Db {
     public function __construct($optionsOrConnection) {
         $this->connection = $connection = $optionsOrConnection instanceof \PDO
             ? $optionsOrConnection
-            : $this->newPdoConnection($optionsOrConnection);
-        $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-        $connection->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
-        // @TODO
-        //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+            : $this->newPdo($optionsOrConnection);
+        self::configurePdo($connection);
     }
 
     public static function connect(array $config): self {
@@ -42,8 +38,16 @@ abstract class Db {
         return $db;
     }
 
-    public function connection(): \PDO {
+    public function pdo(): \PDO {
         return $this->connection;
+    }
+
+    public static function configurePdo(\PDO $connection): void {
+        $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $connection->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
+        // @TODO
+        //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
     abstract public function query(): Query;
@@ -140,5 +144,5 @@ abstract class Db {
         return \PDO::getAvailableDrivers();
     }
 
-    abstract protected function newPdoConnection(array $options): \PDO;
+    abstract protected function newPdo(array $options): \PDO;
 }

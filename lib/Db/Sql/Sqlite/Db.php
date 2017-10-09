@@ -14,7 +14,7 @@ use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
 
 class Db extends BaseDb {
     public function query(): BaseQuery {
-        return new Query();
+        throw new NotImplementedException();
     }
 
     public function schemaManager(): BaseSchemaManager {
@@ -25,7 +25,7 @@ class Db extends BaseDb {
         throw new NotImplementedException();
     }
 
-    protected function newPdoConnection(array $options): \PDO {
+    protected function newPdo(array $options): \PDO {
         // @TODO: Support of the :memory:
         if (empty($options['filePath'])) {
             throw new OptionRequiredException('filePath');
