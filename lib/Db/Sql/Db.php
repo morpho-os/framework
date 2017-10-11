@@ -50,7 +50,25 @@ abstract class Db {
         //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
-    abstract public function query(): Query;
+    abstract public function query(): GeneralQuery;
+
+    public function newSelectQuery(): SelectQuery {
+        return new SelectQuery($this);
+    }
+
+    public function newInsertQuery(): InsertQuery {
+        return new InsertQuery($this);
+    }
+
+    public function newUpdateQuery(): UpdateQuery {
+        return new UpdateQuery($this);
+    }
+
+    public function newDeleteQuery(): DeleteQuery {
+        return new DeleteQuery($this);
+    }
+
+    abstract public function newReplaceQuery(): ReplaceQuery;
 
     // For SELECT use prepare feature.
     public function quote($val, int $type = \PDO::PARAM_STR): string {
@@ -59,7 +77,7 @@ abstract class Db {
 
     abstract public function schemaManager(): SchemaManager;
 
-    public function select(string $sql, array $args = null): \PDOStatement {
+    public function select(string $sql, array $args = null): Result {
         return $this->eval('SELECT ' . $sql, $args);
     }
 
@@ -111,13 +129,15 @@ abstract class Db {
         $this->eval($sql, $args);
     }
 
-    public function eval(string $sql, array $args = null): \PDOStatement {
+    public function eval(string $sql, array $args = null): Result {
+        /** @var $stmt Result */
         if ($args) {
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($args);
-            return $stmt;
+        } else {
+            $stmt = $this->connection->query($sql);
         }
-        return $this->connection->query($sql);
+        return $stmt;
     }
 
     public function transaction(callable $transaction) {

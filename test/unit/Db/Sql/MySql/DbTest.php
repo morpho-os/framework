@@ -6,9 +6,10 @@
  */
 namespace MorphoTest\Unit\Db\Sql\MySql;
 
+use Morpho\Db\Sql\IQuery;
 use Morpho\Db\Sql\MySql\Db;
-use Morpho\Db\Sql\MySql\Query;
 use Morpho\Db\Sql\MySql\SchemaManager;
+use Morpho\Db\Sql\Query;
 use Morpho\Test\DbTestCase;
 
 class DbTest extends DbTestCase {
@@ -122,6 +123,7 @@ class DbTest extends DbTestCase {
         $query = $this->db->$method();
         $this->assertNotSame($query, $this->db->$method());
         $this->assertInstanceOf(Query::class, $query);
+        $this->assertInstanceOf(IQuery::class, $query);
     }
 
     public function testQuery_ReturnsTheSameInstance() {

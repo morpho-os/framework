@@ -4,70 +4,40 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+//declare(strict_types=1);
 namespace Morpho\Db\Sql;
 
-abstract class Query {
-/*    public static function logicalAnd(array $expr, bool $wrapWithBraces = false): string {
-        return implode(' AND ', $expr);
-    }
+abstract class Query implements IQuery {
+    /**
+     * @var Db
+     */
+    protected $db;
 
-    public static function logicalOr(array $expr): string {
-        return implode(' OR ', $expr);
-    }*/
-    protected $connection;
-
-    public function __construct(Db $connection) {
-        $this->connection = $connection;
+    public function __construct(Db $db) {
+        $this->db = $db;
     }
 
     /**
-     * @param array|string $whereCondition
-     * @param array|null $whereConditionArgs
+     * Result of this method should not be used for querying database due not proper escaping of values (SQL-injection attack is possible) and may be useful only for debugging.
      */
-    public function whereClause($whereCondition, array $whereConditionArgs = null): array {
-        $whereSql = '';
-        $whereArgs = [];
-        if (is_array($whereCondition) && count($whereCondition)) {
-            if (null !== $whereConditionArgs) {
-                throw new \LogicException('The $whereConditionArgs argument must be empty when the $whereCondition is an array');
+    public function dump(): string {
+        [$sql, $args] = $this->build();
+        $notSafeQuote = function ($value) { // @TODO: Move to Query::notSafeQuote()
+            if (preg_match('~^-?\d+$~s', $value)) {
+                return intval($value);
             }
-            $whereSql .= ' WHERE ' . implode(' AND ', $this->namedPlaceholders($whereCondition));
-            $whereArgs = array_values($whereCondition);
-        } elseif ($whereCondition !== '') {
-            // string
-            $whereSql .= ' WHERE ' . $whereCondition;
-            if (null !== $whereConditionArgs) {
-                $whereArgs = $whereConditionArgs;
-            }
+            // @TODO: Handle floats
+            // Expression taken from the quoteValue() method, https://github.com/zendframework/zend-db/blob/master/src/Adapter/Platform/AbstractPlatform.php file.
+            return '\'' . addcslashes((string)$value, "\x00\n\r\\'\"\x1a") . '\'';
+        };
+        foreach ($args as $arg) {
+            $sql = preg_replace('~\?~', $notSafeQuote($arg), $sql, 1);
         }
-        return [$whereSql, $whereArgs];
+        return $sql;
     }
 
-    public function identifiers(array $identifiers): array {
-        $ids = [];
-        foreach ($identifiers as $identifier) {
-            $ids[] = $this->identifier($identifier);
-        }
-        return $ids;
+    public function eval(): Result {
+        [$sql, $args] = $this->build();
+        return $this->db->eval($sql, $args);
     }
-
-    abstract public function identifier(string $identifier): string;
-
-    public function namedPlaceholders(array $row): array {
-        $placeholders = [];
-        foreach ($row as $key => $value) {
-            $placeholders[] = $this->identifier($key) . ' = ?';
-        }
-        return $placeholders;
-    }
-
-    public static function positionalPlaceholders(array $row): array {
-        return array_fill(0, count($row), '?');
-    }
-    
-    public static function positionalPlaceholdersString(array $row): string {
-        return implode(', ', self::positionalPlaceholders($row));
-    }
-
-    abstract public function eval(): \PDOStatement;
 }

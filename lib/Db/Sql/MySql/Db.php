@@ -8,8 +8,9 @@ namespace Morpho\Db\Sql\MySql;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\Db as BaseDb;
-use Morpho\Db\Sql\Query as BaseQuery;
+use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
+use Morpho\Db\Sql\GeneralQuery as BaseGeneralQuery;
 
 class Db extends BaseDb {
     const DEFAULT_HOST = '127.0.0.1';
@@ -23,31 +24,11 @@ class Db extends BaseDb {
 
     private $query;
 
-    public function query(): BaseQuery {
+    public function query(): BaseGeneralQuery {
         if (null === $this->query) {
-            $this->query = new Query($this);
+            $this->query = new GeneralQuery();
         }
         return $this->query;
-    }
-
-    public function newSelectQuery(): SelectQuery {
-        return new SelectQuery($this);
-    }
-
-    public function newInsertQuery(): InsertQuery {
-        return new InsertQuery($this);
-    }
-
-    public function newUpdateQuery(): UpdateQuery {
-        return new UpdateQuery($this);
-    }
-
-    public function newDeleteQuery(): DeleteQuery {
-        return new DeleteQuery($this);
-    }
-
-    public function newReplaceQuery(): ReplaceQuery {
-        return new ReplaceQuery($this);
     }
 
     public function schemaManager(): BaseSchemaManager {
@@ -71,6 +52,10 @@ class Db extends BaseDb {
         $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
         $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
         $this->eval($sql, $args);
+    }
+
+    public function newReplaceQuery(): ReplaceQuery {
+        return new ReplaceQuery($this);
     }
 
     protected function newPdo(array $options): \PDO {

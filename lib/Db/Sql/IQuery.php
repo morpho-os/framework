@@ -4,8 +4,13 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Db\Sql\MySql;
+//declare(strict_types=1);
+namespace Morpho\Db\Sql;
 
-class Parser {
+use Morpho\Base\IDumpable;
 
+interface IQuery extends IDumpable {
+    public function build(): array;
+
+    public function eval();
 }

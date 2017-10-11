@@ -6,8 +6,8 @@
  */
 namespace MorphoTest\Unit\Db\Sql\MySql;
 
-use Morpho\Db\Sql\MySql\Query;
-use Morpho\Db\Sql\MySql\SelectQuery;
+use Morpho\Db\Sql\MySql\GeneralQuery;
+use Morpho\Db\Sql\SelectQuery;
 use Morpho\Db\Sql\Result;
 use Morpho\Test\DbTestCase;
 
@@ -31,7 +31,7 @@ class QueryTest extends DbTestCase {
      * @dataProvider dataForWhereClause
      */
     public function testWhereClause($expectedSql, $expectedArgs, $whereCondition, ?array $whereConditionArgs) {
-        $query = new Query($this->newDbConnection());
+        $query = new GeneralQuery();
         [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
         $this->assertSame($expectedSql, $whereSql);
         $this->assertSame($expectedArgs, $whereArgs);

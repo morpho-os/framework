@@ -4,9 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Db\Sql;
+namespace MorphoTest\Unit\Db\Sql\MySql;
 
-use Morpho\Db\Sql\Tree;
+use Morpho\Db\Sql\MySql\Tree;
 use Morpho\Test\DbTestCase;
 
 class TreeTest extends DbTestCase {

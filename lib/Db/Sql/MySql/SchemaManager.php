@@ -326,7 +326,7 @@ class SchemaManager extends BaseSchemaManager {
         $sql = 'SHOW CHARACTER SET';
         $where = '';
         if ($charsets) {
-            $where .= ' WHERE CHARSET IN (' . Query::positionalPlaceholdersString($charsets) . ')';
+            $where .= ' WHERE CHARSET IN (' . GeneralQuery::positionalPlaceholdersString($charsets) . ')';
         }
         return $this->db->eval($sql . $where, $charsets)->rows();
     }

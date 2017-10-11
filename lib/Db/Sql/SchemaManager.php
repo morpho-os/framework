@@ -45,6 +45,8 @@ abstract class SchemaManager {
 
     abstract public function deleteTable(string $tableName): void;
 
+    abstract public function createTableSql(string $tableName): string;
+
     abstract public function tableDefinitionToSql(string $tableName, array $tableDefinition): array;
 
     abstract public function deleteTableIfExists(string $tableName): void;
