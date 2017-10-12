@@ -65,7 +65,7 @@ abstract class TestCase extends BaseTestCase {
         }
     }
 
-    protected function sut(): Sut {
+    protected function sut() {
         return Sut::instance();
     }
 

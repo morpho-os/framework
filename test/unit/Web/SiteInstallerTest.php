@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Web;
 
 use Morpho\Web\ModuleManager;
 use Morpho\Core\SettingsManager;
-use Morpho\Di\ServiceManager;
+use Morpho\Web\ServiceManager;
 use Morpho\Test\DbTestCase;
 use Morpho\Web\Application;
 use Morpho\Web\Site;
@@ -18,15 +18,15 @@ use Morpho\Web\SiteInstaller;
 
 class SiteInstallerTest extends DbTestCase {
     public function testApi() {
-        $fs = new class(require $this->getTestDirPath() . '/' . SiteFs::FALLBACK_CONFIG_FILE_NAME) extends SiteFs {
+        $fs = new class($this->sut()->siteConfig($this->dbConfig())) extends SiteFs {
             private $state;
             private $config;
 
             private const CONFIG_DELETED = 1;
             private const INSTALLED = 2;
 
-            public function __construct(array $fallbackConfig) {
-                $this->config = $fallbackConfig;
+            public function __construct(array $config) {
+                $this->config = $config;
             }
 
             public function deleteConfigFile(): void {

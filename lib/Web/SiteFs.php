@@ -40,8 +40,8 @@ class SiteFs extends ModuleFs {
      */
     private $publicDirPath;
 
-    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
-    public const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';
+    protected const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+    protected const FALLBACK_CONFIG_FILE_NAME = FALLBACK_CONFIG_FILE_NAME;
 
     public function writeConfig(array $newConfig): void {
         File::writePhpVar($this->configFilePath(), $newConfig);

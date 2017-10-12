@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace Morpho\Test;
 
 use Morpho\Web\Application;
-use Morpho\Web\ServiceManager;
 use Morpho\Web\Site;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\SiteInstaller;
@@ -35,7 +34,7 @@ class SiteTestCase extends BrowserTestCase {
         $serviceManager = (new Application())
             ->newServiceManager([
                 'site' => $site,
-                'baseDirPath' => Sut::instance()->baseDirPath()
+                'baseDirPath' => $this->sut()->baseDirPath()
             ]);
         $siteInstaller = (new SiteInstaller($site))
             ->setServiceManager($serviceManager);
@@ -51,56 +50,12 @@ class SiteTestCase extends BrowserTestCase {
     }
 
     protected function configureSite(Site $site): void {
-        $site->setConfig([
-            'serviceManager'      => ServiceManager::class,
-            'db'                  => $this->dbConfig(),
-            'modules'             => [
-                \Morpho\Core\VENDOR . '/system',
-                \Morpho\Core\VENDOR . '/user',
-            ],
-            'moduleAutoloader'    => [
-                'useCache' => false,
-            ],
-            'templateEngine'      => [
-                'useCache'       => false,
-                'forceCompileTs' => false,
-                'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
-                'tsOptions'      => [
-                    '--forceConsistentCasingInFileNames',
-                    '--removeComments',
-                    '--noImplicitAny',
-                    '--suppressImplicitAnyIndexErrors',
-                    '--noEmitOnError',
-                    '--newLine LF',
-                    '--allowJs',
-                ],
-            ],
-            'errorHandler'        => [
-                'addDumpListener' => true,
-            ],
-            'errorLogger'         => [
-                'mailOnError' => false,
-                'mailFrom'    => 'admin@localhost',
-                'mailTo'      => 'admin@localhost',
-                'logToFile'   => true,
-            ],
-            'throwDispatchErrors' => false,
-            'iniSettings'         => [
-                'session' => [
-                    // Type: bool
-                    'use_strict_mode'   => true,
-                    // Type: string
-                    'name'              => 's',
-                    'serialize_handler' => 'php_serialize',
-                ],
-            ],
-            'umask'               => self::UMASK,
-            'useOwnPublicDir' => false,
-        ]);
+        $config = $this->sut()->siteConfig($this->dbConfig());
+        $site->setConfig($config);
         $site->isFallbackMode(true);
     }
 
     protected function newSite(): Site {
-        return (new SiteFactory())(new Fs(Sut::instance()->baseDirPath()));
+        return (new SiteFactory())(new Fs($this->sut()->baseDirPath()));
     }
 }

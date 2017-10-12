@@ -10,7 +10,6 @@ namespace Morpho\Web;
 use function Morpho\Base\escapeHtml;
 use Morpho\Core\Application as BaseApplication;
 use Morpho\Di\IServiceManager;
-use Morpho\Error\ErrorHandler;
 
 class Application extends BaseApplication {
     public function newServiceManager(array $config): IServiceManager {
@@ -26,11 +25,13 @@ class Application extends BaseApplication {
         ];
         if ($site->isFallbackMode()) {
             $serviceManager = new FallbackServiceManager($services);
+            $serviceManager->setConfig($site->config());
         } else {
             $siteConfig = $site->config();
             $serviceManager = $siteConfig['serviceManager']
                 ? new $siteConfig['serviceManager']($services)
                 : new ServiceManager($services);
+            $serviceManager->setConfig($siteConfig);
         }
         return $serviceManager;
     }
@@ -68,17 +69,7 @@ class Application extends BaseApplication {
         }
     }
 
-    protected function logFailure(\Throwable $e, IServiceManager $serviceManager): void {
-        try {
-            $serviceManager->get('errorHandler')
-                ->handleException($e);
-        } catch (\Throwable $e) {
-            if (ErrorHandler::isErrorLogEnabled()) {
-                // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
-                error_log(addslashes((string)$e));
-            }
-        }
-
+    protected function showError(\Throwable $e): void {
         $header = null;
         if ($e instanceof NotFoundException) {
             $header = Environment::httpProtocolVersion() . ' 404 Not Found';

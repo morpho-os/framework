@@ -13,6 +13,7 @@ use Morpho\Db\Sql\Db;
 use Morpho\Base\Node as BaseNode;
 use Morpho\Web\ModuleFs;
 
+// @TODO: Extract Dispatcher, EventManager, ModuleProvider
 abstract class ModuleManager extends Node implements IEventManager {
     public const ENABLED     = 0b001;  // (installed enabled)
     public const DISABLED    = 0b010;  // (installed disabled)
@@ -91,7 +92,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         return $this->maxNoOfDispatchIterations;
     }
 
-    public function controller($moduleName, $controllerName, $actionName): Controller {
+    public function controller(?string $moduleName, ?string $controllerName, ?string $actionName): Controller {
         if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
             $this->actionNotFound($moduleName, $controllerName, $actionName);
         }
@@ -317,7 +318,7 @@ abstract class ModuleManager extends Node implements IEventManager {
         }
     }
 
-    abstract protected function actionNotFound($moduleName, $controllerName, $actionName): void;
+    abstract protected function actionNotFound(?string $moduleName, ?string $controllerName, ?string $actionName): void;
 
     protected function eventsMeta($module): iterable {
         return (new EventsMetaProvider())($module);

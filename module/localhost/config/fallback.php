@@ -31,7 +31,8 @@ return [
         ],
     ],
     'errorHandler' => [
-        'addDumpListener' => true,
+        'dumpListener' => true,
+        'noDupsListener' => false,
     ],
     'errorLogger' => [
         'mailOnError' => false,

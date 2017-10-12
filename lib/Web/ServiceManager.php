@@ -14,7 +14,10 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
+use function Morpho\Code\composerAutoloader;
+use Morpho\Core\ModuleInstaller;
 use Morpho\Core\ServiceManager as BaseServiceManager;
+use Morpho\Core\SettingsManager;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\ActionsMetaProvider;
@@ -26,18 +29,13 @@ use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\PostHtmlParser;
 use Morpho\Web\View\PreHtmlParser;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
-use Morpho\Error\LogListener;
-use Morpho\Error\NoDupsListener;
 use Morpho\Db\Sql\Db;
 
 class ServiceManager extends BaseServiceManager {
-    protected $config;
-
     public function __construct(array $services = null) {
         parent::__construct($services);
-        $this->config = $services['site']->config();
+        $this->setAliases(['dispatcher' => 'modulemanager']);
     }
 
     public function newRouterService() {
@@ -79,8 +77,22 @@ class ServiceManager extends BaseServiceManager {
         return $templateEngine;
     }
 
+    protected function newAutoloaderService() {
+        return composerAutoloader();
+    }
+
+    protected function newSettingsManagerService() {
+        return new SettingsManager($this->get('db'));
+    }
+
     protected function newMessengerService() {
         return new Messenger();
+    }
+
+    protected function newModuleInstallerService() {
+        $moduleInstaller = new ModuleInstaller();
+        $moduleInstaller->setDb($this->get('db'));
+        return $moduleInstaller;
     }
 
     protected function newModuleManagerService() {
@@ -88,15 +100,6 @@ class ServiceManager extends BaseServiceManager {
         $fs = $this->get('fs');
         $moduleManager = new ModuleManager($db, $fs);
         return $moduleManager;
-    }
-
-    protected function newErrorHandlerService() {
-        $listeners = [];
-        $listeners[] = new NoDupsListener(new LogListener($this->get('errorLogger')));
-        if ($this->config['errorHandler']['addDumpListener']) {
-            $listeners[] = new DumpListener();
-        }
-        return new ErrorHandler($listeners);
     }
 
     protected function newErrorLoggerService() {

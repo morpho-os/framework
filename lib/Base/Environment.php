@@ -7,11 +7,13 @@
 namespace Morpho\Base;
 
 use Morpho\Fs\Path;
-use RuntimeException;
 
 abstract class Environment extends Object {
-    const ENCODING = 'UTF-8';
-    const TIMEZONE = 'UTC';
+    public const ENCODING = 'UTF-8';
+    public const TIMEZONE = 'UTC';
+
+    public const SUCCESS_CODE = 0;
+    public const FAILURE_CODE = 1;
 
     protected static $initialized = false;
 
@@ -82,7 +84,7 @@ abstract class Environment extends Object {
 
     public function init(): void {
         if (static::$initialized) {
-            throw new RuntimeException("The environment was already initialized.");
+            return;
         }
 
         //if (PHP_VERSION_ID < 70000) {

@@ -10,7 +10,6 @@ namespace Morpho\Web;
 use Morpho\Db\Sql\Db;
 use Morpho\Di\IWithServiceManager;
 use Morpho\Di\TWithServiceManager;
-use Morpho\Di\ServiceManager;
 
 class SiteInstaller implements IWithServiceManager {
     use TWithServiceManager;
@@ -52,22 +51,27 @@ class SiteInstaller implements IWithServiceManager {
         }
 
         $serviceManager = $this->serviceManager;
+
+        $site = $this->site;
+        $newSiteConfig = $site->config();
+        $site->isFallbackMode(false);
+        $newSiteConfig['db'] = $newDbConfig;
+        $serviceManager->setConfig($newSiteConfig);
+
         $serviceManager->get('settingsManager')->setDb($db);
         $serviceManager->set('db', $db);
-        $site = $this->site;
-        $site->isFallbackMode(false);
-        $newSiteConfig = $site->config();
-        $newSiteConfig['db'] = $newDbConfig;
         $site->setConfig($newSiteConfig);
 
-        $this->installModules($db, $this->serviceManager->get('moduleManager'), $newSiteConfig);
+        $this->installModules($db, $this->serviceManager->get('moduleManager'), $newSiteConfig['modules'] ?? []);
         $newServiceManager = $serviceManager->get('app')->newServiceManager(['site' => $site]);
+        $newServiceManager->setConfig($newSiteConfig);
         $this->setPageHandlers($newServiceManager);
         $this->initRoutes($newServiceManager);
+
         $site->fs()->writeConfig($newSiteConfig);
     }
 
-    protected static function initRoutes(ServiceManager $serviceManager): void {
+    protected static function initRoutes($serviceManager): void {
         $router = $serviceManager->newRouterService();
         if ($router instanceof IWithServiceManager) {
             $router->setServiceManager($serviceManager);
@@ -75,8 +79,7 @@ class SiteInstaller implements IWithServiceManager {
         $router->rebuildRoutes();
     }
 
-    protected static function installModules(Db $db, ModuleManager $moduleManager, array $siteConfig): void {
-        $modules = $siteConfig['modules'] ?? [];
+    protected static function installModules(Db $db, ModuleManager $moduleManager, $modules): void {
         if (empty($modules)) {
             $modules = $moduleManager->uninstalledModuleNames();
         }

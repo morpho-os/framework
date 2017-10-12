@@ -64,7 +64,7 @@ class XPathResult implements \Iterator, Countable {
         return $res;
     }
 
-    public function item($offset) {
+    public function item(int $offset) {
         return $this->nodeList->item($offset);
     }
     

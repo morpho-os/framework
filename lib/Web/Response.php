@@ -32,9 +32,8 @@ class Response extends BaseResponse {
         return $this->content == '';
     }
 
-    public function isSuccessful(): bool {
-        $code = $this->getStatusCode();
+    public function isSuccess(): bool {
         // Use condition from jQuery: 304 == Not Modified.
-        return $code >= self::STATUS_CODE_200 && $code < self::STATUS_CODE_300 || $code === self::STATUS_CODE_304;
+        return parent::isSuccess() || $this->getStatusCode() === self::STATUS_CODE_304;
     }
 }

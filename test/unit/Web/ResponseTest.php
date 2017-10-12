@@ -10,6 +10,11 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Response;
 
 class ResponseTest extends TestCase {
+    /**
+     * @var Response
+     */
+    private $response;
+
     public function setUp() {
         $this->response = new Response();
     }
@@ -27,9 +32,9 @@ class ResponseTest extends TestCase {
         $this->assertEquals(Response::STATUS_CODE_302, $this->response->getStatusCode());
     }
 
-    public function testIsSuccessful() {
-        $this->assertTrue($this->response->isSuccessful());
+    public function testIsSuccess() {
+        $this->assertTrue($this->response->isSuccess());
         $this->response->setStatusCode(Response::STATUS_CODE_500);
-        $this->assertFalse($this->response->isSuccessful());
+        $this->assertFalse($this->response->isSuccess());
     }
 }

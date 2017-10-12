@@ -6,8 +6,10 @@
  */
 namespace Morpho\Test;
 
+use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
+use const Morpho\Web\FALLBACK_CONFIG_FILE_NAME;
 use Morpho\Web\Fs;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 
@@ -59,5 +61,16 @@ class Sut {
             $this->publicDirPath = $this->baseDirPath() . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
+    }
+
+    public function siteConfig(array $dbConfig): array {
+        $config = require $this->baseModuleDirPath() . '/localhost/' . CONFIG_DIR_NAME . '/' . FALLBACK_CONFIG_FILE_NAME;
+        $config['db'] = $dbConfig;
+        $config['errorHandler'] = [
+            'dumpListener' => false,
+            'noDupsListener' => false,
+        ];
+        $config['throwDispatchErrors'] = false;
+        return $config;
     }
 }

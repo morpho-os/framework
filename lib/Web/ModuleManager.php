@@ -9,7 +9,7 @@ namespace Morpho\Web;
 use Morpho\Core\ModuleManager as BaseModuleManager;
 
 class ModuleManager extends BaseModuleManager {
-    protected function actionNotFound($moduleName, $controllerName, $actionName): void {
+    protected function actionNotFound(?string $moduleName, ?string $controllerName, ?string $actionName): void {
         $message = [];
         if (empty($moduleName)) {
             $message[] = 'module name is empty';

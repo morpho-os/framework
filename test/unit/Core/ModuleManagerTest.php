@@ -217,14 +217,14 @@ class ModuleManagerTest extends DbTestCase {
 
     public function testDispatch_ThrowsExceptionAfterExceedingLimit() {
         $moduleManager = new class($this->createMock(Db::class), $this->createMock(\Morpho\Core\Fs::class)) extends ModuleManager {
-            public function controller($moduleName, $controllerName, $actionName): Controller {
+            public function controller(?string $moduleName, ?string $controllerName, ?string $actionName): Controller {
                 throw new \RuntimeException();
             }
 
             public function trigger(string $eventName, array $args = null) {
             }
 
-            protected function actionNotFound($moduleName, $controllerName, $actionName): void {
+            protected function actionNotFound(?string $moduleName, ?string $controllerName, ?string $actionName): void {
                 throw new \RuntimeException();
             }
         };
@@ -294,7 +294,7 @@ class ErrorHandlingTestModuleException extends \RuntimeException {
 }
 
 class MyModuleManager extends ModuleManager {
-    protected function actionNotFound($moduleName, $controllerName, $actionName): void {
+    protected function actionNotFound(?string $moduleName, ?string $controllerName, ?string $actionName): void {
         throw new \RuntimeException();
     }
 }

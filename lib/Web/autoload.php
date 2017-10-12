@@ -17,3 +17,5 @@ const PUBLIC_DIR_NAME = 'public';
 const SCRIPT_DIR_NAME = 'script';
 const UPLOAD_DIR_NAME = 'upload';
 const VIEW_DIR_NAME = 'view';
+
+const FALLBACK_CONFIG_FILE_NAME = 'fallback.php';

@@ -50,7 +50,7 @@ class Repo extends BaseRepo {
         }
     }
 
-    public function saveRow(array $row)/*: void*/ {
+    public function saveRow(array $row): void {
         if (empty($row[$this->pkName])) {
             $this->insertRow($row);
         } else {
@@ -62,12 +62,12 @@ class Repo extends BaseRepo {
      * @param array|string $whereCondition
      * @param array|null $whereConditionArgs
      */
-    public function updateRows(array $row, $whereCondition, $whereConditionArgs = null)/*: void*/ {
+    public function updateRows(array $row, $whereCondition, $whereConditionArgs = null): void {
         $this->db()->updateRows($this->tableName, $row, $whereCondition, $whereConditionArgs);
     }
 
-    public function deleteRows($whereCondition, array $whereConditionArgs = null): int {
-        return $this->db()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
+    public function deleteRows($whereCondition, array $whereConditionArgs = null): void {
+        $this->db()->deleteRows($this->tableName, $whereCondition, $whereConditionArgs);
     }
 
     protected function db(): Db {
@@ -85,7 +85,7 @@ class Repo extends BaseRepo {
         return $this->dateTime()->formatDateTime();
     }
 
-    protected function entityNotFoundError(string $message = null)/*: void */ {
+    protected function entityNotFoundError(string $message = null): void {
         throw new EntityNotFoundException($message);
     }
 }

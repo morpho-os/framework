@@ -7,6 +7,7 @@
 declare(strict_types=1);
 namespace Morpho\Infra;
 
+use function Morpho\Base\chain;
 use function Morpho\Base\showLn;
 use const Morpho\Core\LIB_DIR_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
@@ -28,17 +29,14 @@ OUT;
 
         $licenseHeaderManager = new LicenseHeaderManager();
 
-        $addLicenseForFiles = function (iterable $files) use ($licenseHeaderManager, $licenseText) {
-            return $this->updateLicenseForFiles($licenseHeaderManager, $files, $licenseText);
-        };
-
-        $i = 0;
-        $i += $addLicenseForFiles(
-            Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true])
-        );
-        $i += $addLicenseForFiles($this->filesInTestDir($baseDirPath));
-        $i += $addLicenseForFiles(
-            Directory::filePaths($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true])
+        $i = $this->updateLicenseForFiles(
+            $licenseHeaderManager,
+            chain(
+                Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true]),
+                $this->filesInTestDir($baseDirPath),
+                Directory::filePaths($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true])
+            ),
+            $licenseText
         );
 
         showLn("Processed $i files");
@@ -55,9 +53,9 @@ OUT;
         yield $baseDirPath . '/' . TEST_DIR_NAME . '/bootstrap.php';
     }
 
-    private function updateLicenseForFiles(LicenseHeaderManager $licenseHeaderManager, iterable $files, string $licenseText): int {
+    private function updateLicenseForFiles(LicenseHeaderManager $licenseHeaderManager, iterable $filePaths, string $licenseText): int {
         $i = 0;
-        foreach ($files as $filePath) {
+        foreach ($filePaths as $filePath) {
             $licenseHeaderManager->updateLicenseHeader($filePath, $licenseText);
             $i++;
         }

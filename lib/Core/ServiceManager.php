@@ -8,14 +8,25 @@ namespace Morpho\Core;
 
 use Morpho\Base\MethodNotFoundException;
 use Morpho\Di\ServiceManager as BaseServiceManager;
-use function Morpho\Code\composerAutoloader;
+use Morpho\Error\DumpListener;
+use Morpho\Error\ErrorHandler;
+use Morpho\Error\LogListener;
+use Morpho\Error\NoDupsListener;
 
 abstract class ServiceManager extends BaseServiceManager {
-    protected $config;
+    protected $config = [];
 
-    public function __construct(array $services = null) {
+    public function __construct(array $services = null, array $config = null) {
         parent::__construct($services);
-        $this->setAliases(['dispatcher' => 'modulemanager']);
+        $this->config = (array) $config;
+    }
+
+    public function setConfig(array $config): void {
+        $this->config = $config;
+    }
+
+    public function config(): array {
+        return $this->config;
     }
 
     /**
@@ -28,19 +39,15 @@ abstract class ServiceManager extends BaseServiceManager {
         throw new MethodNotFoundException($this, $method);
     }
 
-    protected function newAutoloaderService() {
-        return composerAutoloader();
-    }
-
-    abstract protected function newModuleManagerService();
-
-    protected function newModuleInstallerService() {
-        $moduleInstaller = new ModuleInstaller();
-        $moduleInstaller->setDb($this->get('db'));
-        return $moduleInstaller;
-    }
-
-    protected function newSettingsManagerService() {
-        return new SettingsManager($this->get('db'));
+    protected function newErrorHandlerService() {
+        $listeners = [];
+        $logListener = new LogListener($this->get('errorLogger'));
+        $listeners[] = $this->config['errorHandler']['noDupsListener']
+            ? new NoDupsListener($logListener)
+            : $logListener;
+        if ($this->config['errorHandler']['dumpListener']) {
+            $listeners[] = new DumpListener();
+        }
+        return new ErrorHandler($listeners);
     }
 }
