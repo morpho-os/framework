@@ -8,8 +8,12 @@ namespace Morpho\Db\Sql\MySql;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\Db as BaseDb;
+use Morpho\Db\Sql\DeleteQuery;
+use Morpho\Db\Sql\InsertQuery;
 use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
+use Morpho\Db\Sql\SelectQuery;
+use Morpho\Db\Sql\UpdateQuery;
 use Morpho\Db\Sql\GeneralQuery as BaseGeneralQuery;
 
 class Db extends BaseDb {

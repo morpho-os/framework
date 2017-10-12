@@ -11,11 +11,11 @@ namespace Morpho\Db\Sql;
  * This class uses some ideas from https://github.com/doctrine/dbal/blob/master/lib/Doctrine/DBAL/Query/QueryBuilder.php
  */
 class SelectQuery extends Query {
-    protected $parts = [];
-
     protected const COLUMNS = 'columns';
     protected const FROM = 'from';
     protected const WHERE = 'where';
+
+    protected $parts = [];
 
     public function from(string $tableName): self {
         $this->parts[self::FROM] = $tableName;

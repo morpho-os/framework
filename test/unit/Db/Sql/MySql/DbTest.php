@@ -10,6 +10,7 @@ use Morpho\Db\Sql\IQuery;
 use Morpho\Db\Sql\MySql\Db;
 use Morpho\Db\Sql\MySql\SchemaManager;
 use Morpho\Db\Sql\Query;
+use Morpho\Db\Sql\Result;
 use Morpho\Test\DbTestCase;
 
 class DbTest extends DbTestCase {
@@ -134,6 +135,11 @@ class DbTest extends DbTestCase {
         $schemaManager = $this->db->schemaManager();
         $this->assertSame($schemaManager, $this->db->schemaManager());
         $this->assertInstanceOf(SchemaManager::class, $schemaManager);
+    }
+
+    public function testEval_ReturnsResult() {
+        $res = $this->db->eval('SELECT 1');
+        $this->assertInstanceOf(Result::class, $res);
     }
 
     private function setTestDataForUpdateRows() {

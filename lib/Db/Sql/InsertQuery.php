@@ -7,10 +7,28 @@
 //declare(strict_types=1);
 namespace Morpho\Db\Sql;
 
-use Morpho\Base\NotImplementedException;
-
 class InsertQuery extends Query {
+    protected const TABLE = 'table';
+    protected const ROW = 'row';
+
+    protected $parts = [];
+
+    public function table(string $tableName): self {
+        $this->parts[self::TABLE] = $tableName;
+        return $this;
+    }
+
+    public function row(array $row): self {
+        $this->parts[self::ROW] = $row;
+        return $this;
+    }
+
     public function build(): array {
-        throw new NotImplementedException();
+        $query = $this->db->query();
+        $row = $this->parts[self::ROW];
+        $sql = 'INSERT INTO ' . $query->identifier($this->parts[self::TABLE])
+            . ' (' . implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
+        $args = array_values($row);
+        return [$sql, $args];
     }
 }
