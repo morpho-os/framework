@@ -6,6 +6,8 @@
  */
 namespace Morpho\Core;
 
+use Morpho\Base\IFn;
+
 abstract class Dispatcher {
     /**
      * @var int
@@ -39,7 +41,7 @@ abstract class Dispatcher {
 
                 /** @var Controller $controller */
                 $controller = $this->controller(...$request->handler());
-                $controller->dispatch($request);
+                $controller->__invoke($request);
 
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
             } catch (\Throwable $e) {
@@ -51,7 +53,7 @@ abstract class Dispatcher {
 
     abstract protected function trigger(string $eventName, array $args = null);
 
-    protected function controller(?string $moduleName, ?string $controllerName, ?string $actionName): Controller {
+    protected function controller(?string $moduleName, ?string $controllerName, ?string $actionName): IFn {
         if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
             $this->actionNotFound($moduleName, $controllerName, $actionName);
         }

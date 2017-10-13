@@ -25,7 +25,7 @@ class InstallationTest extends SiteTestCase {
 
         $this->assertEquals('Installation', $browser->getTitle());
 
-        $fallbackDbConfig = $this->site->fs()->loadFallbackConfigFile()['db'];
+        $fallbackDbConfig = $this->site->fs()->loadFallbackConfigFile()['services']['db'];
         $this->checkElValue($fallbackDbConfig['db'], By::id('db'));
         $this->checkElValue($fallbackDbConfig['user'], By::id('user'));
         $this->checkElValue($fallbackDbConfig['password'], By::id('password'));
@@ -40,7 +40,7 @@ class InstallationTest extends SiteTestCase {
         $browser->wait(30);
         $browser->waitUntilTitleIs('Modules');
 
-        $this->assertNotEmpty($this->site->reloadConfig()['db']);
+        $this->assertNotEmpty($this->site->reloadConfig()['services']['db']);
         /* @TODO
         browser.executeScript("window.confirm = function (){return true;}");
         browser.findElement({xpath: "//div[@id='page-messages']//*[contains(@class, 'alert-body')]"})

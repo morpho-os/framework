@@ -88,7 +88,7 @@ class Node extends Object {
         if (!$class) {
             throw new ObjectNotFoundException("Unable to load a child node with the name '$name'");
         }
-        return (new $class($name));
+        return new $class($name);
     }
 
     /**

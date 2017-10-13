@@ -6,7 +6,9 @@
  */
 namespace Morpho\Core;
 
-abstract class Controller extends Node {
+use Morpho\Base\IFn;
+
+abstract class Controller extends Node implements IFn {
     /**
      * @var \Morpho\Di\IServiceManager
      */
@@ -16,7 +18,7 @@ abstract class Controller extends Node {
 
     private $view;
 
-    public function dispatch($request): void {
+    public function __invoke($request): void {
         $this->request = $request;
         $this->view = null;
 

@@ -73,7 +73,7 @@ abstract class ModuleManager extends Node implements IEventManager {
                 $this->trigger('beforeDispatch', ['request' => $request]);
 
                 $controller = $this->controller(...$request->handler());
-                $controller->dispatch($request);
+                $controller->__invoke($request);
 
                 $this->trigger('afterDispatch', ['request' => $request]);
             } catch (\Throwable $e) {

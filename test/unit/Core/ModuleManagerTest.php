@@ -204,11 +204,11 @@ class ModuleManagerTest extends DbTestCase {
         };
         $request->setHandler([$moduleName, $controllerName, 'some']);
 
-        $this->assertFalse($module[$controllerName]->isDispatchCalled());
+        $this->assertFalse($module[$controllerName]->invoked);
 
         $moduleManager->dispatch($request);
 
-        $this->assertTrue($module[$controllerName]->isDispatchCalled());
+        $this->assertTrue($module[$controllerName]->invoked);
     }
 
     public function testMaxNoOfDispatchIterationsAccessors() {
@@ -351,13 +351,9 @@ class Module extends \Morpho\Core\Module {
 }
 
 class MyController extends \Morpho\Core\Controller {
-    public $dispatchCalled = false;
+    public $invoked = false;
 
-    public function dispatch($request): void {
-        $this->dispatchCalled = true;
-    }
-
-    public function isDispatchCalled() {
-        return $this->dispatchCalled;
+    public function __invoke($request): void {
+        $this->invoked = true;
     }
 }
