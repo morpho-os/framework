@@ -57,7 +57,9 @@ class PhpTemplateEngine extends TemplateEngine implements IWithServiceManager {
     }
 
     public function pageCssId(): string {
-        return dasherize(last(self::moduleName(), '/')) . '-' . dasherize(self::controllerName()) . '-' . dasherize(self::actionName());
+        return dasherize(last(self::moduleName(), '/'))
+            . '-' . dasherize(self::controllerName())
+            . '-' . dasherize(self::actionName());
     }
 
     public function controller(): Controller {

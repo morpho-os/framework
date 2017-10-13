@@ -23,15 +23,16 @@ class Application extends BaseApplication {
             'site' => $site,
             'fs' => $fs,
         ];
+        $siteConfig = $site->config();
+        $servicesConfig = $siteConfig['services'];
         if ($site->isFallbackMode()) {
             $serviceManager = new FallbackServiceManager($services);
-            $serviceManager->setConfig($site->config());
+            $serviceManager->setConfig($servicesConfig);
         } else {
-            $siteConfig = $site->config();
             $serviceManager = $siteConfig['serviceManager']
                 ? new $siteConfig['serviceManager']($services)
                 : new ServiceManager($services);
-            $serviceManager->setConfig($siteConfig);
+            $serviceManager->setConfig($servicesConfig);
         }
         return $serviceManager;
     }

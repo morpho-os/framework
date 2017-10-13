@@ -616,7 +616,10 @@ class IterableFunctionsTest extends TestCase {
     }
 
     public function testTail_Array_NumericKeys() {
-        $this->markTestIncomplete();
+        $arr = ['foo', 'bar', 'baz'];
+        $tail = tail($arr);
+        $this->assertSame(['foo', 'bar', 'baz'], $arr);
+        $this->assertSame(['bar', 'baz'], $tail);
     }
 
     public function testTail_Array_StringKeys() {

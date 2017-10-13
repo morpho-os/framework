@@ -31,6 +31,7 @@ class SiteTestCase extends BrowserTestCase {
     }
 
     protected function installSite(Site $site): void {
+        $serviceSettings = $site->config()['services'];
         $serviceManager = (new Application())
             ->newServiceManager([
                 'site' => $site,
@@ -42,7 +43,7 @@ class SiteTestCase extends BrowserTestCase {
         umask(self::UMASK);
 
         if (!$siteInstaller->isInstalled()) {
-            $siteInstaller->install($site->config()['db'], true);
+            $siteInstaller->install($serviceSettings['db'], true);
         } else {
             // Update site config
             $site->writeConfig($site->config());

@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\System\Controller;
+namespace Morpho\System\Web;
 
 use Morpho\Web\Controller;
 use Morpho\Web\SiteInstaller;
@@ -7,7 +7,7 @@ use Morpho\Web\SiteInstaller;
 class InstallController extends Controller {
     public function indexAction() {
         return [
-            'dbConfig' => $this->serviceManager->get('site')->config()['db'],
+            'dbConfig' => $this->serviceManager->get('site')->config()['services']['db'],
         ];
     }
 
@@ -28,10 +28,7 @@ class InstallController extends Controller {
         try {
             $site = $this->serviceManager->get('site');
             $siteInstaller = $this->newSiteInstaller($site);
-            $siteInstaller->install(
-                $dbConfig,
-                $dropTables
-            );
+            $siteInstaller->install(['services' => ['db' => $dbConfig]], $dropTables);
             if ($siteInstaller->isInstalled()) {
                 return $this->success(['redirect' => true]);
             }

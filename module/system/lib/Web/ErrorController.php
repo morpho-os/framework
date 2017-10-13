@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\System\Controller;
+namespace Morpho\System\Web;
 
 use Morpho\Web\Controller;
 

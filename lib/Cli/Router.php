@@ -6,8 +6,13 @@
  */
 namespace Morpho\Cli;
 
-class Router {
-    public function route($request): void {
-
+abstract class Router {
+    public function route(Request $request): void {
+        [$moduleName, $controllerName, $actionName] = $this->parseArgs($request->args());
+        $request->setModuleName($moduleName)
+            ->setControllerName($controllerName)
+            ->setActionName($actionName);
     }
+
+    abstract protected function parseArgs(array $args): array;
 }

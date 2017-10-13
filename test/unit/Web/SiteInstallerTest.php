@@ -82,7 +82,7 @@ class SiteInstallerTest extends DbTestCase {
 
         $this->assertFalse($siteInstaller->isInstalled());
 
-        $this->assertNull($siteInstaller->install($newDbConfig, true));
+        $this->assertNull($siteInstaller->install(['services' => ['db' => $newDbConfig]], true));
 
         $this->assertTrue($siteInstaller->isInstalled());
 

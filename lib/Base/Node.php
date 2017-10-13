@@ -1,13 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-declare(strict_types = 1);
 namespace Morpho\Base;
 
-use RecursiveIterator;
 use RuntimeException;
 
 class Node extends Object {
@@ -81,24 +79,6 @@ class Node extends Object {
         }
         return $parent;
     }
-
-    /**
-     * @return RecursiveIterator|null
-    public function getChildren() {
-        if (!$this->hasChildren()) {
-            throw new LogicException("Node doesn't have children.");
-        }
-        return $this->current();
-    }
- */
-
-    /**
-     * @return bool Returns true if the current entry can be iterated over, otherwise returns false.
-    public function hasChildren() {
-        $current = $this->current();
-        return null !== $current && count($current) > 0;
-    }
-     */
 
     /**
      * @throws ObjectNotFoundException If unable to load the child.

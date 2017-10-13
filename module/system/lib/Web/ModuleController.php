@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\System\Controller;
+namespace Morpho\System\Web;
 
 use function Morpho\Base\{classify};
 use Morpho\Fs\{File, Directory, Path};

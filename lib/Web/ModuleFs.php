@@ -7,7 +7,6 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use const Morpho\Core\CONTROLLER_DIR_NAME;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Fs\Path;
 use Morpho\Core\ModuleFs as BaseModuleFs;
@@ -28,13 +27,15 @@ class ModuleFs extends BaseModuleFs {
      */
     private $controllerDirPath;
 
+    public const VIEW_DIR_NAME = 'view';
+
     public function setViewDirPath(string $dirPath): void {
         $this->viewDirPath = $dirPath;
     }
 
     public function viewDirPath(): string {
         if (null === $this->viewDirPath) {
-            $this->viewDirPath = $this->dirPath() . '/' . VIEW_DIR_NAME;
+            $this->viewDirPath = $this->dirPath() . '/' . self::VIEW_DIR_NAME;
         }
         return $this->viewDirPath;
     }
@@ -45,7 +46,7 @@ class ModuleFs extends BaseModuleFs {
 
     public function controllerDirPath(): string {
         if (null === $this->controllerDirPath) {
-            $this->controllerDirPath = $this->libDirPath() . '/' . CONTROLLER_DIR_NAME;
+            $this->controllerDirPath = $this->libDirPath() . '/Web';
         }
         return $this->controllerDirPath;
     }

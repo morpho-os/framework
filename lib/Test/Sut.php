@@ -12,6 +12,7 @@ use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Web\FALLBACK_CONFIG_FILE_NAME;
 use Morpho\Web\Fs;
 use const Morpho\Web\PUBLIC_DIR_NAME;
+use Morpho\System\Module as SystemModule;
 
 // SUT/System Under Test
 class Sut {
@@ -65,12 +66,12 @@ class Sut {
 
     public function siteConfig(array $dbConfig): array {
         $config = require $this->baseModuleDirPath() . '/localhost/' . CONFIG_DIR_NAME . '/' . FALLBACK_CONFIG_FILE_NAME;
-        $config['db'] = $dbConfig;
+        $config['services']['db'] = $dbConfig;
         $config['errorHandler'] = [
             'dumpListener' => false,
             'noDupsListener' => false,
         ];
-        $config['throwDispatchErrors'] = false;
+        $config['modules'][SystemModule::NAME]['throwDispatchErrors'] = false;
         return $config;
     }
 }

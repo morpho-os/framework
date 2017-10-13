@@ -61,9 +61,6 @@ class Fs {
      * @return false|string
      */
     public static function detectBaseDirPath(string $dirPath, bool $throwEx = true) {
-        if (null === $dirPath) {
-            $dirPath = __DIR__;
-        }
         $baseDirPath = null;
         do {
             $path = $dirPath . '/vendor/composer/ClassLoader.php';

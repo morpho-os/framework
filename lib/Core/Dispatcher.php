@@ -7,9 +7,26 @@
 namespace Morpho\Core;
 
 abstract class Dispatcher {
+    /**
+     * @var int
+     */
     protected $maxNoOfDispatchIterations = 30;
 
-    public function dispatch($request): void {
+    /**
+     * @var ModuleProvider
+     */
+    protected $moduleProvider;
+    /**
+     * @var EventManager
+     */
+    private $eventManager;
+
+    public function __construct(\ArrayObject $moduleProvider, EventManager $eventManager) {
+        $this->moduleProvider = $moduleProvider;
+        $this->eventManager = $eventManager;
+    }
+
+    public function dispatch(Request $request): void {
         $i = 0;
         do {
             if ($i >= $this->maxNoOfDispatchIterations) {
@@ -18,15 +35,15 @@ abstract class Dispatcher {
             try {
                 $request->isDispatched(true);
 
-                $this->trigger('beforeDispatch', ['request' => $request]);
+                $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));
 
                 /** @var Controller $controller */
                 $controller = $this->controller(...$request->handler());
                 $controller->dispatch($request);
 
-                $this->trigger('afterDispatch', ['request' => $request]);
+                $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
             } catch (\Throwable $e) {
-                $this->trigger('dispatchError', ['request' => $request, 'exception' => $e]);
+                $this->eventManager->trigger(new Event('dispatchError', ['request' => $request, 'exception' => $e]));
             }
             $i++;
         } while (false === $request->isDispatched());
@@ -34,5 +51,13 @@ abstract class Dispatcher {
 
     abstract protected function trigger(string $eventName, array $args = null);
 
-    abstract protected function controller(?string $moduleName, ?string $controllerName, ?string $actionName);
+    protected function controller(?string $moduleName, ?string $controllerName, ?string $actionName): Controller {
+        if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
+            $this->actionNotFound($moduleName, $controllerName, $actionName);
+        }
+        $module = $this->moduleProvider->offsetGet($moduleName);
+        return $module->offsetGet($controllerName);
+    }
+
+    abstract protected function actionNotFound(?string $moduleName, ?string $controllerName, ?string $actionName);
 }

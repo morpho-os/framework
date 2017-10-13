@@ -10,6 +10,7 @@ namespace Morpho\Web;
 use Morpho\Db\Sql\Db;
 use Morpho\Di\IWithServiceManager;
 use Morpho\Di\TWithServiceManager;
+use Zend\Stdlib\ArrayUtils;
 
 class SiteInstaller implements IWithServiceManager {
     use TWithServiceManager;
@@ -22,11 +23,11 @@ class SiteInstaller implements IWithServiceManager {
         $this->site = $site;
     }
 
-    public function reinstall(array $newDbConfig, bool $dropTables): void {
+    public function reinstall(array $newSiteConfig, bool $dropTables): void {
         if ($this->isInstalled()) {
             $this->resetToInitialState();
         }
-        $this->install($newDbConfig, $dropTables);
+        $this->install($newSiteConfig, $dropTables);
     }
 
     public function resetToInitialState(): void {
@@ -38,8 +39,24 @@ class SiteInstaller implements IWithServiceManager {
             && $this->site->fs()->canLoadConfigFile();
     }
 
-    public function install(array $newDbConfig, bool $dropTables): void {
-        $db = self::newDbConnection($newDbConfig);
+    public function install(array $newSiteConfig, bool $dropTables): void {
+        $newSiteConfig = ArrayUtils::merge($this->site->config(), $newSiteConfig);
+
+        $servicesConfig = $newSiteConfig['services'];
+        $moduleNames = function () use ($newSiteConfig): array {
+            $modules = $newSiteConfig['modules'] ?? [];
+            $moduleNames = [];
+            foreach ($modules as $name => $config) {
+                if (is_numeric($name)) {
+                    $moduleNames[] = $config;
+                } else {
+                    $moduleNames[] = $name;
+                }
+            }
+            return $moduleNames;
+        };
+
+        $db = self::newDbConnection($servicesConfig['db']);
 
         $schemaManager = $db->schemaManager();
 
@@ -53,18 +70,24 @@ class SiteInstaller implements IWithServiceManager {
         $serviceManager = $this->serviceManager;
 
         $site = $this->site;
-        $newSiteConfig = $site->config();
         $site->isFallbackMode(false);
-        $newSiteConfig['db'] = $newDbConfig;
-        $serviceManager->setConfig($newSiteConfig);
+        $site->setConfig($newSiteConfig);
+
+        $serviceManager->setConfig($servicesConfig);
 
         $serviceManager->get('settingsManager')->setDb($db);
         $serviceManager->set('db', $db);
-        $site->setConfig($newSiteConfig);
 
-        $this->installModules($db, $this->serviceManager->get('moduleManager'), $newSiteConfig['modules'] ?? []);
-        $newServiceManager = $serviceManager->get('app')->newServiceManager(['site' => $site]);
-        $newServiceManager->setConfig($newSiteConfig);
+        $this->installModules(
+            $db,
+            $this->serviceManager->get('moduleManager'),
+            $moduleNames()
+        );
+
+        $services = ['site' => $site];
+        $newServiceManager = $serviceManager->get('app')->newServiceManager($services);
+        $newServiceManager->setConfig($servicesConfig);
+
         $this->setPageHandlers($newServiceManager);
         $this->initRoutes($newServiceManager);
 
@@ -79,7 +102,7 @@ class SiteInstaller implements IWithServiceManager {
         $router->rebuildRoutes();
     }
 
-    protected static function installModules(Db $db, ModuleManager $moduleManager, $modules): void {
+    protected static function installModules(Db $db, ModuleManager $moduleManager, iterable $modules): void {
         if (empty($modules)) {
             $modules = $moduleManager->uninstalledModuleNames();
         }

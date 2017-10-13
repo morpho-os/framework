@@ -53,8 +53,7 @@ class Module extends Node {
 
     protected function childNameToClass(string $name) {
         if (false === strpos($name, '\\')) {
-            // By default any child is Controller.
-            $name = CONTROLLER_NS . '\\' . $name . CONTROLLER_SUFFIX;
+            $name = (PHP_SAPI === 'cli' ? 'Cli' : 'Web') . '\\' . $name . CONTROLLER_SUFFIX;
         }
         $moduleNs = $this->serviceManager->get('fs')->moduleNamespace($this->name());
         $class = $moduleNs . '\\' . $name;

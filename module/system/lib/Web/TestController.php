@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Morpho\System\Controller;
+namespace Morpho\System\Web;
 
 use function Morpho\Base\dasherize;
 use Morpho\Web\AccessDeniedException;

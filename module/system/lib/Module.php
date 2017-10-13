@@ -35,7 +35,8 @@ class Module extends BaseModule implements IWithThemeModule {
                     ->emergency($exception, ['exception' => $exception]);
             }
 
-            if ($serviceManager->get('site')->config()['throwDispatchErrors']) {
+            $siteConfig = $serviceManager->get('site')->config();
+            if ($siteConfig['modules'][self::NAME]['throwDispatchErrors'] ?? false) {
                 throw $exception;
             }
 

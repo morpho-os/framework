@@ -10,7 +10,6 @@ const APP_DIR_NAME = 'app';
 const BIN_DIR_NAME = 'bin';
 const CACHE_DIR_NAME = 'cache';
 const CONFIG_DIR_NAME = 'config';
-const CONTROLLER_DIR_NAME = 'Controller';
 const DEST_DIR_NAME = 'dest';
 const LIB_DIR_NAME = 'lib';
 const LOG_DIR_NAME = 'log';
@@ -30,7 +29,6 @@ const SCHEMA_FILE_NAME = 'schema.php';
 
 const ACTION_SUFFIX = 'Action';
 const APP_NS = 'App';
-const CONTROLLER_NS = 'Controller';
 const CONTROLLER_SUFFIX = 'Controller';
 const DOMAIN_NS = 'Domain';
 const MODULE_SUFFIX = 'Module';

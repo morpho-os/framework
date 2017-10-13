@@ -27,9 +27,7 @@ abstract class ServiceManager extends BaseServiceManager {
         return new Response();
     }
     
-    protected function newRouterService() {
-        return new Router();
-    }
+    abstract protected function newRouterService();
 
     abstract protected function newDispatcherService();
 }

@@ -111,7 +111,11 @@ class ModuleTest extends DbTestCase {
         $site = $this->createMock(Site::class);
         $site->method('config')
             ->willReturn([
-                'throwDispatchErrors' => false,
+                'modules' => [
+                    SystemModule::NAME => [
+                        'throwDispatchErrors' => false,
+                    ],
+                ],
             ]);
         $serviceManager->set('site', $site);
         $serviceManager->set('settingsManager', $settingsManager);

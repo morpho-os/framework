@@ -8,13 +8,8 @@
 namespace Morpho\Cli;
 
 use Morpho\Core\Application as BaseApplication;
-use Morpho\Di\IServiceManager;
 
-class Application extends BaseApplication {
-    public function newServiceManager(array $services): IServiceManager {
-        return new ServiceManager($services);
-    }
-
+abstract class Application extends BaseApplication {
     protected function showError(\Throwable $e): void {
         errorLn((string) $e);
     }

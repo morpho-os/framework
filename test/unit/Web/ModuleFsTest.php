@@ -7,14 +7,12 @@
 
 namespace MorphoTest\Unit\Web;
 
-use const Morpho\Core\CONTROLLER_DIR_NAME;
 use const Morpho\Core\LIB_DIR_NAME;
 use const Morpho\Core\RC_DIR_NAME;
 use const Morpho\Core\TEST_DIR_NAME;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Test\TestCase;
 use Morpho\Web\ModuleFs;
-use const Morpho\Web\VIEW_DIR_NAME;
 
 class ModuleFsTest extends TestCase {
     public function dataForOtherDirPathAccessors() {
@@ -29,12 +27,8 @@ class ModuleFsTest extends TestCase {
                 TEST_DIR_NAME,
             ],
             [
-                $testDirPath . '/' . VIEW_DIR_NAME,
-                VIEW_DIR_NAME,
-            ],
-            [
-                $testDirPath . '/' . LIB_DIR_NAME . '/' . CONTROLLER_DIR_NAME,
-                CONTROLLER_DIR_NAME,
+                $testDirPath . '/' . ModuleFs::VIEW_DIR_NAME,
+                ModuleFs::VIEW_DIR_NAME,
             ],
             [
                 $testDirPath . '/' . LIB_DIR_NAME,
