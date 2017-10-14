@@ -441,6 +441,9 @@ function partial(callable $fn, ...$args1): Closure {
     };
 }
 
+/**
+ * Returns a new function which will call $f after $g (f . g). Input of a $g, will be input argument of the function and return value of the $f will be output of the function: function (InputTypeOfG $inputOfG): OutputTypeOfF {...}
+ */
 function compose(callable $f, callable $g): Closure {
     return function ($v) use ($f, $g) {
         return $f($g($v));

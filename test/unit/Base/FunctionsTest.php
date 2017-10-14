@@ -6,6 +6,7 @@
  */
 namespace MorphoTest\Unit\Base;
 
+use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
     endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
@@ -410,7 +411,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foobarbazHelloWorld!', $appendPrefix('Hello', 'World', '!'));
     }
 
-    public function testCompose() {
+    public function testCompose_Closure() {
         $g = function ($a) {
             return 'g' . $a;
         };
@@ -420,9 +421,39 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('fghello', compose($f, $g)('hello'));
     }
 
-    public function testComposeIFnAndFn() {
-        // @TODO: test combinations, (IFn, fn), (fn, fn), (fn, IFn), (IFn, IFn)
-        $this->markTestIncomplete();
+    public function dataForCompose_IFnWithClosure() {
+        $ifn = new class implements IFn {
+            public function __invoke($value) {
+                return 'IFn called ' . $value;
+            }
+        };
+        $closure = function ($value) {
+            return 'Closure called ' . $value;
+        };
+        return [
+            [
+                'IFn called Closure called test',
+                $ifn,
+                $closure,
+            ],
+            [
+                'Closure called IFn called test',
+                $closure,
+                $ifn,
+            ],
+            [
+                'IFn called IFn called test',
+                $ifn,
+                $ifn,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForCompose_IFnWithClosure
+     */
+    public function testCompose_IFnWithClosure($expected, $f, $g) {
+        $this->assertSame($expected, compose($f, $g)('test'));
     }
 
     public function testRequireFile() {
