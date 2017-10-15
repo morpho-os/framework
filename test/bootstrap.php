@@ -6,8 +6,8 @@
  */
 namespace MorphoTest;
 
-use const Morpho\Core\AUTOLOAD_FILE_NAME;
-use const Morpho\Core\VENDOR_DIR_NAME;
+use const Morpho\Web\AUTOLOAD_FILE_NAME;
+use const Morpho\Web\VENDOR_DIR_NAME;
 use Morpho\Test\Sut;
 
 date_default_timezone_set('UTC');

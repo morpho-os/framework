@@ -2,7 +2,7 @@
 namespace Morpho\System;
 
 use Morpho\Base\Must;
-use const Morpho\Core\VENDOR;
+use const Morpho\Web\VENDOR;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;

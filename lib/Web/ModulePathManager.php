@@ -8,11 +8,11 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use const Morpho\Core\LIB_DIR_NAME;
-use const Morpho\Core\META_FILE_NAME;
-use const Morpho\Core\RC_DIR_NAME;
-use const Morpho\Core\TEST_DIR_NAME;
-use const Morpho\Core\TMP_DIR_NAME;
+use const Morpho\Web\LIB_DIR_NAME;
+use const Morpho\Web\META_FILE_NAME;
+use const Morpho\Web\RC_DIR_NAME;
+use const Morpho\Web\TEST_DIR_NAME;
+use const Morpho\Web\TMP_DIR_NAME;
 use Morpho\Fs\Path;
 
 class ModulePathManager {

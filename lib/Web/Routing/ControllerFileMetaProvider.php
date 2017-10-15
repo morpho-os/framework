@@ -8,7 +8,7 @@
 namespace Morpho\Web\Routing;
 
 use Morpho\Base\IFn;
-use const Morpho\Core\CONTROLLER_SUFFIX;
+use const Morpho\Web\CONTROLLER_SUFFIX;
 use Morpho\Fs\Directory;
 
 class ControllerFileMetaProvider implements IFn {

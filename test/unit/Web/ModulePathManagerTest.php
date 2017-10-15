@@ -7,10 +7,10 @@
 
 namespace MorphoTest\Unit\Web;
 
-use const Morpho\Core\LIB_DIR_NAME;
-use const Morpho\Core\RC_DIR_NAME;
-use const Morpho\Core\TEST_DIR_NAME;
-use const Morpho\Core\TMP_DIR_NAME;
+use const Morpho\Web\LIB_DIR_NAME;
+use const Morpho\Web\RC_DIR_NAME;
+use const Morpho\Web\TEST_DIR_NAME;
+use const Morpho\Web\TMP_DIR_NAME;
 use Morpho\Test\TestCase;
 use Morpho\Web\ModulePathManager;
 

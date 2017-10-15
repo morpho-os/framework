@@ -7,7 +7,7 @@
 namespace Morpho\Cli;
 
 use function Morpho\Base\tail;
-use Morpho\Core\Request as BaseRequest;
+use Morpho\Web\Request as BaseRequest;
 
 class Request extends BaseRequest {
     public function args(): array {

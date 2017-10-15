@@ -9,9 +9,9 @@ namespace Morpho\Infra;
 
 use function Morpho\Base\chain;
 use function Morpho\Base\showLn;
-use const Morpho\Core\LIB_DIR_NAME;
-use const Morpho\Core\MODULE_DIR_NAME;
-use const Morpho\Core\TEST_DIR_NAME;
+use const Morpho\Web\LIB_DIR_NAME;
+use const Morpho\Web\MODULE_DIR_NAME;
+use const Morpho\Web\TEST_DIR_NAME;
 use Morpho\Fs\Directory;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 

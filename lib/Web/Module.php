@@ -1,9 +1,9 @@
 <?php //declare(strict_types=1);
 namespace Morpho\Web;
 
-use const Morpho\Core\CONTROLLER_SUFFIX;
-/*use const Morpho\Core\DOMAIN_NS;
-use const Morpho\Core\REPO_SUFFIX;*/
+use const Morpho\Web\CONTROLLER_SUFFIX;
+/*use const Morpho\Web\DOMAIN_NS;
+use const Morpho\Web\REPO_SUFFIX;*/
 
 class Module extends Node {
     /**

@@ -6,7 +6,7 @@
  */
 namespace MorphoTest\Unit\Web;
 
-use const Morpho\Core\VENDOR;
+use const Morpho\Web\VENDOR;
 use Morpho\Test\TestCase;
 use Morpho\Web\Module;
 use Morpho\Web\Site;

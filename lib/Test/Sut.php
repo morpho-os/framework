@@ -7,8 +7,8 @@
 namespace Morpho\Test;
 
 use Morpho\Base\NotImplementedException;
-use const Morpho\Core\CONFIG_FILE_NAME;
-use const Morpho\Core\MODULE_DIR_NAME;
+use const Morpho\Web\CONFIG_FILE_NAME;
+use const Morpho\Web\MODULE_DIR_NAME;
 use Morpho\Web\PathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 

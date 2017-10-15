@@ -8,7 +8,7 @@ namespace Morpho\Db\Sql;
 
 use Morpho\Base\DateTime;
 use Morpho\Base\EntityNotFoundException;
-use Morpho\Core\Repo as BaseRepo;
+use Morpho\Web\Repo as BaseRepo;
 
 class Repo extends BaseRepo {
     protected $pkName = 'id';
