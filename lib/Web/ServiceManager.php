@@ -109,12 +109,6 @@ class ServiceManager extends BaseServiceManager {
         return new Messenger();
     }
 
-/*    protected function newModuleInstallerService() {
-        $moduleInstaller = new ModuleInstaller();
-        $moduleInstaller->setDb($this->get('db'));
-        return $moduleInstaller;
-    }*/
-
     protected function newModuleProviderService() {
         return new ModuleProvider($this->get('pathManager'));
     }

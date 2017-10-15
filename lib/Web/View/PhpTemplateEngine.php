@@ -64,7 +64,7 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
 
     public function controller(): Controller {
         [$moduleName, $controllerName, ] = $this->request()->handler();
-        $module = $this->serviceManager->get('ModuleManager')->offsetGet($moduleName);
+        $module = $this->serviceManager->get('moduleProvider')->offsetGet($moduleName);
         return $module->offsetGet($controllerName);
     }
 
