@@ -8,139 +8,107 @@ namespace MorphoTest\Unit\Web;
 
 use const Morpho\Core\VENDOR;
 use Morpho\Test\TestCase;
-use Morpho\Core\Module;
+use Morpho\Web\Module;
 use Morpho\Web\Site;
-use Morpho\Web\SiteFs;
+use Morpho\Web\SitePathManager;
 use Morpho\Web\View\IHasTheme;
 use Morpho\Web\View\THasTheme;
 
 class SiteTest extends TestCase {
     public function testGettersOfConstructorParams() {
-        $fs = $this->createMock(SiteFs::class);
+        $pathManager = $this->createMock(SitePathManager::class);
         $moduleName = VENDOR . '/localhost';
         $hostName = 'example.com';
-        $site = new Site($moduleName, $fs, $hostName);
+        $site = new Site($moduleName, $pathManager, $hostName);
         $this->assertSame($moduleName, $site->name());
         $this->assertSame($hostName, $site->hostName());
-        $this->assertSame($fs, $site->fs());
-    }
-
-    public function dataForConfig_FallbackAndNotFallbackMode() {
-        $config = [
-            'some-key' => 'some-value',
-            'instance' => new \ArrayIterator([]),
-        ];
-        return [
-            [
-                $this->createConfiguredMock(SiteFs::class, [
-                    'canLoadConfigFile' => false,
-                    'loadFallbackConfigFile' => $config
-                ]),
-                $config,
-                true,
-            ],
-            [
-                $this->createConfiguredMock(SiteFs::class, [
-                    'canLoadConfigFile' => true,
-                    'loadConfigFile' => $config,
-                ]),
-                $config,
-                false,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForConfig_FallbackAndNotFallbackMode
-     */
-    public function testConfig_FallbackAndNotFallbackMode($fs, array $config, bool $isFallbackMode) {
-        $site = $this->newSite($fs);
-
-        $actual = $site->config();
-
-        $this->assertSame($config, $actual);
-        $this->checkBoolAccessor([$site, 'isFallbackMode'], $isFallbackMode);
+        $this->assertSame($pathManager, $site->pathManager());
     }
 
     public function testConfig_Accessors() {
-        $site = $this->newSite($this->createMock(SiteFs::class));
+        $site = $this->newSite($this->createMock(SitePathManager::class));
         $newConfig = ['foo' => 'bar'];
         $this->assertNull($site->setConfig($newConfig));
-        $this->assertSame($newConfig, $site->config());
+        $this->assertSame($this->normalizedConfig($newConfig), $site->config());
     }
 
-    public function testConfig_AfterSettingNewFs() {
+    public function testConfig_AfterSettingNewPathManager() {
         $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
-        $fs = $this->createConfiguredMock(SiteFs::class, [
+        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
             'canLoadConfigFile' => true,
             'loadConfigFile' => $prevConfig,
         ]);
-        $site = $this->newSite($fs);
+        $site = $this->newSite($pathManager);
         
-        $this->assertSame($prevConfig, $site->config());
+        $this->assertSame($this->normalizedConfig($prevConfig), $site->config());
         
         $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $fs = $this->createConfiguredMock(SiteFs::class, [
+        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
             'canLoadConfigFile' => true,
             'loadConfigFile' => $newConfig,
         ]);
-        $site->setFs($fs);
+        $site->setPathManager($pathManager);
         
-        $this->assertSame($newConfig, $site->config());
+        $this->assertSame($this->normalizedConfig($newConfig), $site->config());
     }
 
     public function testReadingConfigAfterWriting() {
         $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
         $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $fs = $this->createConfiguredMock(SiteFs::class, [
+        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
             'canLoadConfigFile' => true,
         ]);
-        $fs->expects($this->exactly(2))
+        $pathManager->expects($this->exactly(2))
             ->method('loadConfigFile')
             ->willReturnOnConsecutiveCalls($prevConfig, $newConfig);
-        $fs->expects($this->exactly(2))
+        $pathManager->expects($this->exactly(2))
             ->method('writeConfig');
 
-        $site = $this->newSite($fs);
+        $site = $this->newSite($pathManager);
 
         $site->writeConfig($prevConfig);
 
-        $this->assertSame($prevConfig, $site->config());
+        $this->assertSame($this->normalizedConfig($prevConfig), $site->config());
 
         $site->writeConfig($newConfig);
 
-        $this->assertSame($newConfig, $site->config());
+        $this->assertSame($this->normalizedConfig($newConfig), $site->config());
     }
 
     public function testReloadConfig() {
         $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
         $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $fs = $this->createConfiguredMock(SiteFs::class, [
+        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
             'canLoadConfigFile' => true,
         ]);
-        $fs->expects($this->exactly(2))
+        $pathManager->expects($this->exactly(2))
             ->method('loadConfigFile')
             ->willReturnOnConsecutiveCalls($prevConfig, $newConfig);
-        $site = $this->newSite($fs);
+        $site = $this->newSite($pathManager);
 
-        $this->assertSame($prevConfig, $site->config());
+        $prevNormalizedConfig = $this->normalizedConfig($prevConfig);
+        $newNormalizedConfig = $this->normalizedConfig($newConfig);
 
-        $this->assertSame($prevConfig, $site->config());
+        $this->assertSame($prevNormalizedConfig, $site->config());
+        $this->assertSame($prevNormalizedConfig, $site->config()); // two calls consistently must return the same result
 
-        $this->assertSame($newConfig, $site->reloadConfig());
-
-        $this->assertSame($newConfig, $site->config());
+        $this->assertSame($newNormalizedConfig, $site->reloadConfig());
+        $this->assertSame($newNormalizedConfig, $site->config());
     }
 
     public function testSiteIsAModuleAndWithTheme() {
-        $fs = $this->createConfiguredMock(SiteFs::class, []);
-        $site = new class(VENDOR . '/foo', $fs, 'localhost') extends Site implements IHasTheme {
+        $pathManager = $this->createConfiguredMock(SitePathManager::class, []);
+        $site = new class(VENDOR . '/foo', $pathManager, 'localhost') extends Site implements IHasTheme {
             use THasTheme;
         };
         $this->assertInstanceOf(Module::class, $site);
     }
 
-    private function newSite($fs) {
-        return new Site(VENDOR . '/foo', $fs, 'localhost');
+    private function newSite($pathManager) {
+        return new Site(VENDOR . '/foo', $pathManager, 'localhost');
+    }
+
+    private function normalizedConfig(array $config): array {
+        return $config + ['modules' => []];
     }
 }

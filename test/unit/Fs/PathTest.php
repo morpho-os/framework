@@ -271,7 +271,7 @@ class PathTest extends TestCase {
         $baseDirPath = '/foo/bar/baz/';
         $path = __DIR__;
         $this->expectException(
-            '\Morpho\Fs\Exception',
+            FsException::class,
             "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'."
         );
         Path::toRelative($baseDirPath, $path);

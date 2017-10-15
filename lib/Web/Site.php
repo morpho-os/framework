@@ -28,7 +28,7 @@ class Site extends Module {
     }
 
     public function setConfig(array $config): void {
-        $this->config = $config;
+        $this->config = $this->normalizeConfig($config);
     }
 
     public function config(): array {
@@ -53,6 +53,9 @@ class Site extends Module {
     }
 
     private function initConfig(): void {
+        if (null !== $this->config) {
+            return;
+        }
         $this->config = $this->normalizeConfig($this->pathManager->loadConfigFile());
     }
 

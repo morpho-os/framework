@@ -27,4 +27,8 @@ abstract class TestSuite extends BaseTestSuite {
             $this->testFileRegexp
         );
     }
+
+    protected function sut() {
+        return Sut::instance();
+    }
 }

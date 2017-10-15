@@ -7,7 +7,7 @@
 declare(strict_types=1);
 namespace MorphoTest\Unit\Web;
 
-use Morpho\Web\Fs;
+use Morpho\Web\PathManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
@@ -129,11 +129,11 @@ class SiteFactoryTest extends TestCase {
             ],
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
-        $fs = $this->createConfiguredMock(Fs::class, [
+        $pathManager = $this->createConfiguredMock(PathManager::class, [
             'loadConfigFile' => $config,
             'baseModuleDirPath' => $this->getTestDirPath(),
         ]);
-        $site = $this->factory->__invoke($fs);
+        $site = $this->factory->__invoke($pathManager);
         $this->assertEquals($siteModuleName, $site->name());
     }
 
@@ -147,10 +147,10 @@ class SiteFactoryTest extends TestCase {
             ],
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
-        $fs = $this->createConfiguredMock(Fs::class, [
+        $pathManager = $this->createConfiguredMock(PathManager::class, [
             'loadConfigFile' => $config,
             'baseModuleDirPath' => $this->getTestDirPath(),
         ]);
-        $this->assertEquals('test/success', $this->factory->__invoke($fs)->name());
+        $this->assertEquals('test/success', $this->factory->__invoke($pathManager)->name());
     }
 }

@@ -7,15 +7,15 @@
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\Fs;
+use Morpho\Web\PathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 
-class FsTest extends TestCase {
+class PathManagerTest extends TestCase {
     public function testPublicDirPathAccessors() {
-        $fs = new Fs($this->getTestDirPath());
-        $this->assertSame($this->getTestDirPath() . '/' . PUBLIC_DIR_NAME, $fs->publicDirPath());
+        $pathManager = new PathManager($this->getTestDirPath());
+        $this->assertSame($this->getTestDirPath() . '/' . PUBLIC_DIR_NAME, $pathManager->publicDirPath());
         $newPublicDirPath = $this->tmpDirPath();
-        $this->assertNull($fs->setPublicDirPath($newPublicDirPath));
-        $this->assertSame($newPublicDirPath, $fs->publicDirPath());
+        $this->assertNull($pathManager->setPublicDirPath($newPublicDirPath));
+        $this->assertSame($newPublicDirPath, $pathManager->publicDirPath());
     }
 }

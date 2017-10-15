@@ -40,16 +40,6 @@ class Module extends Node {
             ->trigger($event, $args);
     }*/
 
-/*    protected function setSetting(string $name, $value, string $moduleName = null) {
-        $this->serviceManager->get('settingsManager')
-            ->set($name, $value, $moduleName ?: $this->name());
-    }
-
-    protected function setting(string $name, string $moduleName = null) {
-        return $this->serviceManager->get('settingsManager')
-            ->get($name, $moduleName ?: $this->name());
-    }*/
-
     protected function childNameToClass(string $name) {
         if (false === strpos($name, '\\')) {
             //$name = (PHP_SAPI === 'cli' ? 'Cli' : 'Web') . '\\' . $name . CONTROLLER_SUFFIX;

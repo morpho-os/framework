@@ -7,7 +7,7 @@
 namespace MorphoTest\Unit\Di;
 
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IWithServiceManager;
+use Morpho\Di\IHasServiceManager;
 use Morpho\Di\ServiceNotFoundException;
 use Morpho\Test\TestCase;
 use Morpho\Di\ServiceManager;
@@ -20,10 +20,10 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testConstructor_SetsServiceManagerIfServiceImplementsServiceManagerInterface() {
-        $service = new class implements IWithServiceManager {
+        $service = new class implements IHasServiceManager {
             private $serviceManager;
 
-            public function setServiceManager(IServiceManager $serviceManager) {
+            public function setServiceManager(IServiceManager $serviceManager): void {
                 $this->serviceManager = $serviceManager;
             }
 
@@ -47,19 +47,6 @@ class ServiceManagerTest extends TestCase {
         $this->assertSame($obj1, $obj2);
         $this->assertInstanceOf('\stdClass', $obj1);
     }
-
-    /*
-    public function testCanInstantiateFromFactory() {
-        $called = false;
-        $this->serviceManager->setFactory('router', function () use (&$called) {
-            $called = true;
-            return new \stdClass();
-        });
-        $this->assertFalse($called);
-        $this->assertInstanceOf('\stdClass', $this->serviceManager->get('router'));
-        $this->assertTrue($called);
-    }
-    */
 
     public function testThrowsExceptionWhenServiceNotFound() {
         $this->expectException(ServiceNotFoundException::class);

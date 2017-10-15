@@ -28,7 +28,7 @@ class PhpTemplateEngineTest extends TestCase {
         $compiler->appendSourceInfo(false);
         $this->templateEngine->append(new PreHtmlParser($serviceManager))
             ->append($compiler)
-            ->append(new PostHtmlParser($serviceManager, true, '', []));
+            ->append(new PostHtmlParser($serviceManager));
 
         $this->templateEngine->setServiceManager($serviceManager);
 
@@ -197,7 +197,7 @@ class PhpTemplateEngineTest extends TestCase {
     
     public function testPlugin_ReturnsTheSamePluginInstance() {
         $serviceManager = $this->newServiceManager();
-        $serviceManager->set('moduleManager', new class (__CLASS__ . '\\Foo') {
+        $serviceManager->set('moduleProvider', new class (__CLASS__ . '\\Foo') {
             private $ns;
 
             public function __construct($ns) {

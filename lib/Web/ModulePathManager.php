@@ -9,6 +9,8 @@
 namespace Morpho\Web;
 
 use const Morpho\Core\LIB_DIR_NAME;
+use const Morpho\Core\META_FILE_NAME;
+use const Morpho\Core\RC_DIR_NAME;
 use const Morpho\Core\TEST_DIR_NAME;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Fs\Path;
@@ -43,7 +45,12 @@ class ModulePathManager {
      */
     private $controllerDirPath;
 
-    private const VIEW_DIR_NAME = 'view';
+    /**
+     * @var ?string
+     */
+    private $rcDirPath;
+
+    public const VIEW_DIR_NAME = 'view';
 
     public function __construct(string $dirPath) {
         $this->dirPath = $dirPath;
@@ -106,5 +113,20 @@ class ModulePathManager {
             $this->testDirPath = $this->dirPath() . '/' . TEST_DIR_NAME;
         }
         return $this->testDirPath;
+    }
+
+    public function setRcDirPath(string $dirPath): void {
+        $this->rcDirPath = $dirPath;
+    }
+
+    public function rcDirPath(): string {
+        if (null === $this->rcDirPath) {
+            $this->rcDirPath = $this->dirPath() . '/' . RC_DIR_NAME;
+        }
+        return $this->rcDirPath;
+    }
+
+    public function metaFilePath(): string {
+        return $this->dirPath() . '/' . META_FILE_NAME;
     }
 }

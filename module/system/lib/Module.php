@@ -35,13 +35,13 @@ class Module extends BaseModule implements IHasTheme {
                     ->emergency($exception, ['exception' => $exception]);
             }
 
-            $settingsManager = $serviceManager->get('settingsManager');
+            $configManager = $serviceManager->get('configManager');
 
-            if ($settingsManager->get('throwDispatchErrors', self::NAME)) {
+            if ($configManager->getOrDefault('throwDispatchErrors', self::NAME)) {
                 throw $exception;
             }
 
-            $handler = $settingsManager->getOrDefault($handlerName, self::NAME);
+            $handler = $configManager->getOrDefault($handlerName, self::NAME);
             if ($handler) {
                 $errorHandler = $handler['handler'];
             } else {

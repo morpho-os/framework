@@ -78,19 +78,6 @@ class Controller extends Node implements IFn {
     protected function afterEach(): void {
     }
 
-/*    protected function setSetting(string $name, $value, string $moduleName = null): void {
-        $this->serviceManager->get('settingsManager')
-            ->set($name, $value, $moduleName ?: $this->moduleName());
-    }
-
-    /**
-     * @return mixed
-     * /
-    protected function setting(string $name, string $moduleName = null) {
-        return $this->serviceManager->get('settingsManager')
-            ->get($name, $moduleName ?: $this->moduleName());
-    }*/
-
     protected function moduleName(): string {
         return $this->parent->name();
     }

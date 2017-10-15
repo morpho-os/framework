@@ -10,7 +10,7 @@ namespace MorphoTest\Unit\Web\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Site;
-use Morpho\Web\SiteFs;
+use Morpho\Web\SitePathManager;
 use Morpho\Web\View\PostHtmlParser;
 
 class PostHtmlParserTest extends TestCase {
@@ -154,7 +154,7 @@ OUT;
 
     private function newSite() {
         return $this->createConfiguredMock(Site::class, [
-            'fs' => $this->createConfiguredMock(SiteFs::class, [
+            'pathManager' => $this->createConfiguredMock(SitePathManager::class, [
                 'publicDirPath' => $this->getTestDirPath(),
             ])
         ]);

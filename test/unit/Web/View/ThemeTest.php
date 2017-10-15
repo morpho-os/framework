@@ -8,12 +8,12 @@ namespace MorphoTest\Unit\Web\View;
 
 use function Morpho\Base\fromJson;
 use Morpho\Base\Node as BaseNode;
-use Morpho\Core\Node;
-use Morpho\Core\View;
+use Morpho\Web\Node;
+use Morpho\Web\View\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Core\Module;
-use Morpho\Web\ModuleFs;
+use Morpho\Web\Module;
+use Morpho\Web\ModulePathManager;
 use Morpho\Web\Request;
 use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\Theme;
@@ -126,18 +126,18 @@ class ThemeTest extends TestCase {
             ->will($this->returnValue($expected));
 
         $module = $this->createMock(Module::class);
-        $fs = $this->createMock(ModuleFs::class);
-        $fs->expects($this->any())
+        $pathManager = $this->createMock(ModulePathManager::class);
+        $pathManager->expects($this->any())
             ->method('viewDirPath')
             ->willReturn($moduleDirPath);
         $module->expects($this->any())
             ->method('name')
             ->willReturn($moduleName);
         $module->expects(($this->any()))
-            ->method('fs')
-            ->willReturn($fs);
-        $moduleManager = new class ($module) extends Node {
-            protected $name = 'ModuleManager';
+            ->method('pathManager')
+            ->willReturn($pathManager);
+        $moduleProvider = new class ($module) extends Node {
+            protected $name = 'moduleProider';
 
             private $module;
 
@@ -155,7 +155,7 @@ class ThemeTest extends TestCase {
         $serviceManager = new ServiceManager([
             'request' => $request,
             'templateEngine' => $templateEngine,
-            'moduleManager' => $moduleManager,
+            'moduleProvider' => $moduleProvider,
         ]);
         $theme->setServiceManager($serviceManager);
 

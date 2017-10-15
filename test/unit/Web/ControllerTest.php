@@ -6,8 +6,9 @@
  */
 namespace MorphoTest\Unit\Web;
 
+use Morpho\Base\Event;
 use Morpho\Base\IFn;
-use Morpho\Core\View;
+use Morpho\Web\View\View;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
@@ -41,7 +42,7 @@ class ControllerTest extends TestCase {
                 $this->setView($this->anotherView);
             }
 
-            protected function trigger(string $event, array $args = null) {
+            protected function trigger(Event $event) {
                 $this->triggerArgs = func_get_args();
                 return '';
             }
@@ -52,7 +53,7 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $this->assertEquals(['render', ['view' => new View($viewName)]], $controller->triggerArgs);
+        $this->assertEquals([new Event('render', ['view' => new View($viewName)])], $controller->triggerArgs);
     }
 
     public function testDispatch_Redirect() {
@@ -101,14 +102,6 @@ class ControllerTest extends TestCase {
         $controllerName = 'my-some';
         $moduleName = 'morpho-test';
         $httpMethod = Request::POST_METHOD;
-/*
-        $router = $this->mock('\Morpho\Web\Routing\Router');
-        $router->expects($this->once())
-            ->method('assemble')
-            ->with($this->equalTo($actionName), $this->equalTo($httpMethod), $this->equalTo($controllerName), $this->equalTo($moduleName), $this->equalTo(['foo' => 'bar']))
-            ->will($this->returnValue("/$moduleName/$controllerName/$actionName/foo/bar"));
-        $serviceManager->set('router', $router);
-*/
 
         $controller->setServiceManager($serviceManager);
 

@@ -2,29 +2,20 @@
 namespace MorphoTest\SystemTest;
 
 use Monolog\Logger;
-use const Morpho\Core\RC_DIR_NAME;
-use const Morpho\Core\SCHEMA_FILE_NAME;
-use Morpho\Core\SettingsManager;
+use Morpho\Base\Event;
 use Morpho\Di\ServiceManager;
+use Morpho\Test\TestCase;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
-use Morpho\Web\ModuleFs;
+use Morpho\Web\ConfigManager;
+use Morpho\Web\ModulePathManager;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
-use Morpho\Test\DbTestCase;
 use Morpho\System\Module as SystemModule;
 use Morpho\Web\Response;
 use Morpho\Web\Site;
 
-class ModuleTest extends DbTestCase {
-    public function setUp() {
-        parent::setUp();
-        $db = $this->newDbConnection();
-        $schemaManager = $db->schemaManager();
-        $schemaManager->deleteAllTables();
-        $schemaManager->createTables(require $this->sut()->baseModuleDirPath() . '/system/' . RC_DIR_NAME . '/' . SCHEMA_FILE_NAME);
-    }
-
+class ModuleTest extends TestCase {
     public function dataForDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         return [
             [
@@ -54,17 +45,14 @@ class ModuleTest extends DbTestCase {
             ],
             'uri' => "/my/handler",
         ];
-        $settingsManager = $this->newSettingsManager($handler);
+        $configManager = $this->newConfigManager($handler);
 
         $request = new Request();
         $request->isDispatched(true);
 
-        $module = $this->newModule($settingsManager);
+        $module = $this->newModule($configManager);
 
-        $event = [
-            null, // event name
-            ['exception' => $exception, 'request' => $request] // args
-        ];
+        $event = new Event('test', ['exception' => $exception, 'request' => $request]);
         $module->dispatchError($event);
 
         $this->assertFalse($request->isDispatched());
@@ -77,19 +65,19 @@ class ModuleTest extends DbTestCase {
             $this->fail('Exception was not thrown');
         } catch (\RuntimeException $e) {
             $this->assertEquals('Exception loop has been detected', $e->getMessage());
-            $this->assertEquals($e->getPrevious(), $event[1]['exception']);
+            $this->assertEquals($e->getPrevious(), $event->args['exception']);
         }
     }
 
-    private function newSettingsManager($valueToReturn): SettingsManager {
-        return new class($valueToReturn) extends SettingsManager {
+    private function newConfigManager($valueToReturn): ConfigManager {
+        return new class($valueToReturn) extends ConfigManager {
             private $value;
 
             public function __construct($value) {
                 $this->value = $value;
             }
 
-            public function get(string $name, $moduleName) {
+            public function getOrDefault(string $settingName, string $moduleName, $default = null) {
                 $knownSettings = [
                     Request::ACCESS_DENIED_ERROR_HANDLER,
                     Request::BAD_REQUEST_ERROR_HANDLER,
@@ -97,16 +85,19 @@ class ModuleTest extends DbTestCase {
                     Request::NOT_FOUND_ERROR_HANDLER,
                     Request::UNCAUGHT_ERROR_HANDLER,
                 ];
-                if (in_array($name, $knownSettings, true) && $moduleName === SystemModule::NAME) {
+                if (in_array($settingName, $knownSettings, true) && $moduleName === SystemModule::NAME) {
                     return $this->value;
+                }
+                if ($settingName === 'throwDispatchErrors') {
+                    return false;
                 }
                 throw new \UnexpectedValueException();
             }
         };
     }
 
-    private function newModule($settingsManager) {
-        $module = new SystemModule('foo/bar', new ModuleFs($this->getTestDirPath()));
+    private function newModule($configManager) {
+        $module = new SystemModule('foo/bar', new ModulePathManager($this->getTestDirPath()));
         $serviceManager = new ServiceManager();
         $site = $this->createMock(Site::class);
         $site->method('config')
@@ -118,7 +109,7 @@ class ModuleTest extends DbTestCase {
                 ],
             ]);
         $serviceManager->set('site', $site);
-        $serviceManager->set('settingsManager', $settingsManager);
+        $serviceManager->set('configManager', $configManager);
         $serviceManager->set('errorLogger', $this->createMock(Logger::class));
         $module->setServiceManager($serviceManager);
         return $module;

@@ -10,7 +10,7 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Di\IHasServiceManager;
 use Morpho\Di\IServiceManager;
 
-class SettingsManager implements IHasServiceManager {
+class ConfigManager implements IHasServiceManager {
     private const NON_EXISTING = "\x01\x07851yQS8vSzS8nbAYftc"; // random string
     private $cache = [];
     private $serviceManager;

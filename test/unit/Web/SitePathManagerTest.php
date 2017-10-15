@@ -11,12 +11,12 @@ namespace MorphoTest\Unit\Web;
 use const Morpho\Core\CACHE_DIR_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\LOG_DIR_NAME;
-use Morpho\Web\ModuleFs;
+use Morpho\Web\ModulePathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;
-use Morpho\Web\SiteFs;
+use Morpho\Web\SitePathManager;
 use const Morpho\Web\UPLOAD_DIR_NAME;
 
-class SiteFsTest extends ModuleFsTest {
+class SitePathManagerTest extends ModulePathManagerTest {
     public function dataForOtherDirPathAccessors() {
         $testDirPath = $this->getTestDirPath();
         return [
@@ -43,20 +43,11 @@ class SiteFsTest extends ModuleFsTest {
         ];
     }
 
-    protected function newFs(...$args) {
-        return new SiteFs(...$args);
+    protected function newPathManager(...$args) {
+        return new SitePathManager(...$args);
     }
 
-/*    public function testConfigFilePath() {
-        $dirPath = $this->getTestDirPath();
-        $fs = new SiteFs($dirPath);
-        $this->assertEquals(
-            $dirPath . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME,
-            $fs->configFilePath()
-        );
-    }*/
-
     public function testInheritance() {
-        $this->assertInstanceOf(ModuleFs::class, $this->newFs($this->getTestDirPath()));
+        $this->assertInstanceOf(ModulePathManager::class, $this->newPathManager($this->getTestDirPath()));
     }
 }

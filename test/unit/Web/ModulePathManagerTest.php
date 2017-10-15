@@ -12,23 +12,19 @@ use const Morpho\Core\RC_DIR_NAME;
 use const Morpho\Core\TEST_DIR_NAME;
 use const Morpho\Core\TMP_DIR_NAME;
 use Morpho\Test\TestCase;
-use Morpho\Web\ModuleFs;
+use Morpho\Web\ModulePathManager;
 
-class ModuleFsTest extends TestCase {
+class ModulePathManagerTest extends TestCase {
     public function dataForOtherDirPathAccessors() {
         $testDirPath = $this->getTestDirPath();
         return [
-            [
-                $testDirPath,
-                '',
-            ],
             [
                 $testDirPath . '/' . TEST_DIR_NAME,
                 TEST_DIR_NAME,
             ],
             [
-                $testDirPath . '/' . ModuleFs::VIEW_DIR_NAME,
-                ModuleFs::VIEW_DIR_NAME,
+                $testDirPath . '/' . ModulePathManager::VIEW_DIR_NAME,
+                ModulePathManager::VIEW_DIR_NAME,
             ],
             [
                 $testDirPath . '/' . LIB_DIR_NAME,
@@ -49,23 +45,29 @@ class ModuleFsTest extends TestCase {
      * @dataProvider dataForOtherDirPathAccessors
      */
     public function testOtherDirPathAccessors($expectedDirPath, $dirName) {
-        $fs = $this->newFs($this->getTestDirPath());
-        $this->checkDirPathAccessors($fs, $dirName, $expectedDirPath);
+        $pathManager = $this->newPathManager($this->getTestDirPath());
+        $this->checkDirPathAccessors($pathManager, $dirName, $expectedDirPath);
     }
 
-    protected function newFs(...$args) {
-        return new ModuleFs(...$args);
+    public function testDirPath() {
+        $testDirPath = $this->getTestDirPath() . '/123';
+        $modulePathManager = new ModulePathManager($testDirPath);
+        $this->assertSame($testDirPath, $modulePathManager->dirPath());
     }
 
-    private function checkDirPathAccessors($fs, $dirName, $expectedDirPath) {
+    protected function newPathManager(...$args) {
+        return new ModulePathManager(...$args);
+    }
+
+    private function checkDirPathAccessors($pathManager, $dirName, $expectedDirPath) {
         $setter = 'set' . $dirName . 'DirPath';
         $getter = $dirName . 'DirPath';
         $this->assertEquals(
             $expectedDirPath,
-            $fs->$getter()
+            $pathManager->$getter()
         );
         $newDirPath = '/some/random/dir';
-        $this->assertNull($fs->$setter($newDirPath));
-        $this->assertEquals($newDirPath, $fs->$getter());
+        $this->assertNull($pathManager->$setter($newDirPath));
+        $this->assertEquals($newDirPath, $pathManager->$getter());
     }
 }

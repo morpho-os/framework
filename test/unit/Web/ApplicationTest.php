@@ -11,7 +11,7 @@ use Morpho\Di\IServiceManager;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Application;
-use Morpho\Web\ModuleManager;
+use Morpho\Web\ModuleProvider;
 use Morpho\Web\Site;
 
 class ApplicationTest extends TestCase {
@@ -101,7 +101,7 @@ class ApplicationTest extends TestCase {
             public function register() {
             }
         });
-        $serviceManager->set('moduleManager', $this->createMock(ModuleManager::class));
+        $serviceManager->set('moduleProvider', $this->createMock(ModuleProvider::class));
         $serviceManager->set('site', $this->createConfiguredMock(Site::class, ['config' => $siteConfig]));
         return $serviceManager;
     }
