@@ -7,14 +7,14 @@
 namespace Morpho\DataProcessing\Pagination;
 
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IWithServiceManager;
+use Morpho\Di\IHasServiceManager;
 
-abstract class DbPager extends Pager implements IWithServiceManager {
+abstract class DbPager extends Pager implements IHasServiceManager {
     protected $serviceManager;
 
     protected $db;
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 

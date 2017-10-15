@@ -12,11 +12,11 @@ use function Morpho\Base\{
 use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IWithServiceManager;
+use Morpho\Di\IHasServiceManager;
 use Morpho\Web\Controller;
 use Morpho\Web\Uri;
 
-class PhpTemplateEngine extends TemplateEngine implements IWithServiceManager {
+class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     protected $serviceManager;
     
     protected $tagRenderer;
@@ -186,7 +186,7 @@ class PhpTemplateEngine extends TemplateEngine implements IWithServiceManager {
         return $plugin($args);
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 
@@ -196,9 +196,8 @@ class PhpTemplateEngine extends TemplateEngine implements IWithServiceManager {
 
     protected function newPlugin(string $name) {
         $serviceManager = $this->serviceManager;
-        $class = $serviceManager->get('moduleManager')
-            ->offsetGet(self::moduleName())
-            ->namespace()
+        $module = $serviceManager->get('moduleProvider')->offsetGet($this->moduleName());
+        $class = $module->namespace()
             . '\\' . classify(self::controllerName())
             . '\\View'
             . '\\' . $name . self::PLUGIN_SUFFIX;
@@ -211,7 +210,7 @@ class PhpTemplateEngine extends TemplateEngine implements IWithServiceManager {
         } else {
             $plugin = new $class();
         }
-        if ($plugin instanceof IWithServiceManager) {
+        if ($plugin instanceof IHasServiceManager) {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;

@@ -9,12 +9,12 @@ use Morpho\Web\BadRequestException;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
-use Morpho\Core\Module as BaseModule;
-use Morpho\Web\View\IWithThemeModule;
-use Morpho\Web\View\TWithThemeModule;
+use Morpho\Web\Module as BaseModule;
+use Morpho\Web\View\IHasTheme;
+use Morpho\Web\View\THasTheme;
 
-class Module extends BaseModule implements IWithThemeModule {
-    use TWithThemeModule;
+class Module extends BaseModule implements IHasTheme {
+    use THasTheme;
 
     public const NAME = VENDOR . '/system';
 
@@ -24,8 +24,8 @@ class Module extends BaseModule implements IWithThemeModule {
      * @Listen dispatchError -9999
      */
     public function dispatchError($event) {
-        $exception = $event[1]['exception'];
-        $request = $event[1]['request'];
+        $exception = $event->args['exception'];
+        $request = $event->args['request'];
 
         $handleError = function (string $handlerName, int $statusCode, bool $logError) use ($request, $exception) {
             $serviceManager = $this->serviceManager;
@@ -35,17 +35,17 @@ class Module extends BaseModule implements IWithThemeModule {
                     ->emergency($exception, ['exception' => $exception]);
             }
 
-            $siteConfig = $serviceManager->get('site')->config();
-            if ($siteConfig['modules'][self::NAME]['throwDispatchErrors'] ?? false) {
+            $settingsManager = $serviceManager->get('settingsManager');
+
+            if ($settingsManager->get('throwDispatchErrors', self::NAME)) {
                 throw $exception;
             }
 
-            $handler = $serviceManager->get('settingsManager')
-                ->get($handlerName, self::NAME);
-            if (false !== $handler) {
-                $handler = $handler['handler'];
+            $handler = $settingsManager->getOrDefault($handlerName, self::NAME);
+            if ($handler) {
+                $errorHandler = $handler['handler'];
             } else {
-                $handler = static::defaultErrorHandler($handlerName);
+                $errorHandler = static::defaultErrorHandler($handlerName);
             }
 
             foreach ($this->thrownExceptions as $prevException) {
@@ -55,7 +55,7 @@ class Module extends BaseModule implements IWithThemeModule {
             }
             $this->thrownExceptions[] = $exception;
 
-            $request->setHandler($handler)
+            $request->setHandler($errorHandler)
                 ->isDispatched(false);
             $request->setInternalParam('error', $exception);
             $request->response()->setStatusCode($statusCode);

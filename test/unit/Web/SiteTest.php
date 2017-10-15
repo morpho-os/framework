@@ -11,8 +11,8 @@ use Morpho\Test\TestCase;
 use Morpho\Core\Module;
 use Morpho\Web\Site;
 use Morpho\Web\SiteFs;
-use Morpho\Web\View\IWithThemeModule;
-use Morpho\Web\View\TWithThemeModule;
+use Morpho\Web\View\IHasTheme;
+use Morpho\Web\View\THasTheme;
 
 class SiteTest extends TestCase {
     public function testGettersOfConstructorParams() {
@@ -134,8 +134,8 @@ class SiteTest extends TestCase {
 
     public function testSiteIsAModuleAndWithTheme() {
         $fs = $this->createConfiguredMock(SiteFs::class, []);
-        $site = new class(VENDOR . '/foo', $fs, 'localhost') extends Site implements IWithThemeModule {
-            use TWithThemeModule;
+        $site = new class(VENDOR . '/foo', $fs, 'localhost') extends Site implements IHasTheme {
+            use THasTheme;
         };
         $this->assertInstanceOf(Module::class, $site);
     }

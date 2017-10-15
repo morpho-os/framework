@@ -9,8 +9,6 @@ namespace Morpho\Base;
 use RuntimeException;
 
 class Node extends Object {
-    protected $children = [];
-
     /**
      * Name must be unique among all child nodes.
      */
@@ -35,13 +33,12 @@ class Node extends Object {
         return $this->type;
     }
 
-    public function append($node): self {
+    public function append($node): void {
         if (empty($node->name())) {
             throw new RuntimeException("The node must have name");
         }
         $node->setParent($this);
         $this->offsetSet($node->name, $node);
-        return $this;
     }
 
     public function offsetExists($name): bool {

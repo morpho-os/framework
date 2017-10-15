@@ -8,12 +8,12 @@
 namespace Morpho\Web;
 
 class SiteFactory {
-    public function __invoke(Fs $fs): Site {
-        list($moduleName, $hostName) = $this->detectSite($fs->loadConfigFile());
+    public function __invoke(PathManager $pathManager): Site {
+        list($moduleName, $hostName) = $this->detectSite($pathManager->loadConfigFile());
         $dirName = explode('/', $moduleName)[1];
-        $siteDirPath = $fs->baseModuleDirPath() . '/' . $dirName;
-        $fs = new SiteFs($siteDirPath);
-        return new Site($moduleName, $fs, $hostName);
+        $siteDirPath = $pathManager->baseModuleDirPath() . '/' . $dirName;
+        $pathManager = new SitePathManager($siteDirPath);
+        return new Site($moduleName, $pathManager, $hostName);
     }
 
     protected function detectHostName(): string {

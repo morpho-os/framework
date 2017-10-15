@@ -7,7 +7,10 @@
 namespace Morpho\Base;
 
 interface IEventManager {
-    public function on(string $eventName, callable $handler);
+    public function on(string $eventName, callable $handler): void;
 
-    public function trigger(string $eventName, array $args = null);
+    /**
+     * @return mixed
+     */
+    public function trigger(Event $event);
 }

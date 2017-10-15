@@ -10,13 +10,12 @@ namespace Morpho\Web\View;
 use function Morpho\Base\{
     dasherize, toJson
 };
-use Morpho\Core\View;
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IWithServiceManager;
+use Morpho\Di\IHasServiceManager;
 use Morpho\Fs\Path;
 use Morpho\Web\Response;
 
-class Theme implements IWithServiceManager {
+class Theme implements IHasServiceManager {
     public const VIEW_FILE_EXT = '.phtml';
     public const DEFAULT_LAYOUT = 'index';
 
@@ -28,7 +27,7 @@ class Theme implements IWithServiceManager {
 
     protected $serviceManager;
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 
@@ -62,12 +61,9 @@ class Theme implements IWithServiceManager {
             $this->isThemeDirAdded = true;
         }
 
-        $this->addBaseDirPath(
-            $this->serviceManager->get('moduleManager')
-                ->offsetGet($request->moduleName())
-                ->fs()
-                ->viewDirPath()
-        );
+        $module = $this->serviceManager->get('moduleProvider')
+            ->offsetGet($request->moduleName());
+        $this->addBaseDirPath($module->pathManager()->viewDirPath());
 
         $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($view->name());
         return $this->renderFile(

@@ -19,6 +19,42 @@ class ReflectionFileTest extends TestCase {
         $this->assertEquals($filePath, $rFile->filePath());
     }
 
+    public function testClasses() {
+        $this->checkClasses('classes', 2, function ($i, $rClass) {
+            switch ($i) {
+                case 0:
+                    $this->assertSame(__CLASS__ . '\\ServiceManager', $rClass->getName());
+                    break;
+                case 1:
+                    $this->assertSame(__CLASS__ . '\\ServiceNotFoundException', $rClass->getName());
+                    break;
+            }
+        });
+    }
+
+    public function testTraits() {
+        $this->checkClasses('traits', 1, function ($i, $rClass) {
+            switch ($i) {
+                case 0:
+                    $this->assertSame(__CLASS__ . '\\THasServiceManager', $rClass->getName());
+                    break;
+            }
+        });
+    }
+
+    public function testInterfaces() {
+        $this->checkClasses('interfaces', 2, function ($i, $rClass) {
+            switch ($i) {
+                case 0:
+                    $this->assertSame(__CLASS__ . '\\IHasServiceManager', $rClass->getName());
+                    break;
+                case 1:
+                    $this->assertSame(__CLASS__ . '\\IServiceManager', $rClass->getName());
+                    break;
+            }
+        });
+    }
+
     public function testNamespaces_EmptyFile() {
         $filePath = $this->getTestDirPath() . '/empty-file.php';
         $rFile = new ReflectionFile($filePath);
@@ -124,5 +160,19 @@ class ReflectionFileTest extends TestCase {
     private function checkReflectionFunction(string $expectedFnName, string $expectedFilePath, ReflectionFunction $rFunction) {
         $this->assertEquals($expectedFnName, $rFunction->getName());
         $this->assertEquals($expectedFilePath, $rFunction->getFileName());
+    }
+
+    private function checkClasses(string $method, int $expectedCount, \Closure $check) {
+        $filePath = $this->getTestDirPath() . '/Classes.php';
+        $rFile = new ReflectionFile($filePath);
+        $i = 0;
+        foreach ($rFile->$method() as $rClass) {
+            /** @var $rClass ReflectionClass */
+            $this->assertInstanceOf(\ReflectionClass::class, $rClass);
+            $check($i, $rClass);
+            $this->assertSame(__CLASS__, $rClass->getNamespaceName());
+            $i++;
+        }
+        $this->assertSame($expectedCount, $i);
     }
 }

@@ -9,7 +9,6 @@ namespace Morpho\Web\View;
 use function Morpho\Base\dasherize;
 use function Morpho\Base\last;
 use const Morpho\Core\APP_DIR_NAME;
-use Morpho\Core\Fs;
 use const Morpho\Core\MODULE_DIR_NAME;
 
 class PostHtmlParser extends HtmlParser {
@@ -101,7 +100,7 @@ class PostHtmlParser extends HtmlParser {
      */
     private function actionScripts(): array {
         [$module, $controller, $action] = $this->request()->handler();
-        $publicDirPath = $this->serviceManager->get('site')->fs()->publicDirPath();
+        $publicDirPath = $this->serviceManager->get('site')->pathManager()->publicDirPath();
         // @TODO: Add automatic compilation of ts
         $jsModuleId = dasherize(last($module, '/')) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
         $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';

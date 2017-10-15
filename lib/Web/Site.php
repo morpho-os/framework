@@ -7,9 +7,6 @@
 //declare(strict_types = 1);
 namespace Morpho\Web;
 
-use Morpho\Core\Module;
-use Morpho\Core\ModuleFs;
-
 class Site extends Module {
     /**
      * @var ?array
@@ -17,17 +14,12 @@ class Site extends Module {
     private $config;
 
     /**
-     * @var ?bool
-     */
-    private $fallbackMode;
-
-    /**
      * @var ?string
      */
     private $hostName;
 
-    public function __construct(string $name, ModuleFs $fs, ?string $hostName) {
-        parent::__construct($name, $fs);
+    public function __construct(string $name, ModulePathManager $pathManager, ?string $hostName) {
+        parent::__construct($name, $pathManager);
         $this->hostName = $hostName;
     }
 
@@ -51,33 +43,29 @@ class Site extends Module {
     }
 
     public function writeConfig(array $config): void {
-        $this->fs()->writeConfig($config);
+        $this->pathManager()->writeConfig($config);
         $this->config = null; // init config on the next request.
     }
 
-    public function isFallbackMode(bool $flag = null): bool {
-        if (null !== $flag) {
-            $this->fallbackMode = $flag;
-        } else {
-            $this->initConfig();
-        }
-        return $this->fallbackMode;
-    }
-    
-    public function setFs(ModuleFs $fs): void {
-        parent::setFs($fs);
+    public function setPathManager(ModulePathManager $pathManager): void {
+        parent::setPathManager($pathManager);
         $this->config = null; // init config on the next request.
     }
 
     private function initConfig(): void {
-        if (null === $this->config) {
-            if ($this->fs->canLoadConfigFile()) {
-                $this->config = $this->fs->loadConfigFile();
-                $this->fallbackMode = false;
-            } else {
-                $this->config = $this->fs->loadFallbackConfigFile();
-                $this->fallbackMode = true;
+        $this->config = $this->normalizeConfig($this->pathManager->loadConfigFile());
+    }
+
+    protected function normalizeConfig(array $config): array {
+        if (!isset($config['modules'])) {
+            $config['modules'] = [];
+        }
+        foreach ($config['modules'] as $name => $conf) {
+            if (is_numeric($name)) {
+                $config['modules'][$conf] = [];
+                unset($config['modules'][$name]);
             }
         }
+        return $config;
     }
 }

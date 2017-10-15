@@ -8,9 +8,9 @@ namespace Morpho\Web\View;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Di\IServiceManager;
-use Morpho\Di\IWithServiceManager;
+use Morpho\Di\IHasServiceManager;
 
-class WidgetPlugin extends Plugin implements IWithServiceManager {
+class WidgetPlugin extends Plugin implements IHasServiceManager {
     private $serviceManager;
     public function __invoke($value) {
         throw new NotImplementedException();
@@ -27,7 +27,7 @@ class WidgetPlugin extends Plugin implements IWithServiceManager {
         */
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 }

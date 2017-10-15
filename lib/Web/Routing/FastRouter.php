@@ -6,33 +6,39 @@
  */
 namespace Morpho\Web\Routing;
 
-use FastRoute\Dispatcher;
+use FastRoute\Dispatcher as IDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
-use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std as StdRouteParser;
+use function Morpho\Base\compose;
 use function Morpho\Base\requireFile;
+use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
+use FastRoute\RouteParser\Std as StdRouteParser;
+use Morpho\Di\IHasServiceManager;
+use Morpho\Di\IServiceManager;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
-use Morpho\Web\ModuleManager;
 use Morpho\Web\Request;
 
-class FastRouter extends Router {
+class FastRouter implements IHasServiceManager {
+    protected $serviceManager;
+
+    public function setServiceManager(IServiceManager $serviceManager): void {
+        $this->serviceManager = $serviceManager;
+    }
+
     public function route($request): void {
-        $uri = $this->normalizedUri($request);
+        $uri = Path::normalize($request->uriPath());
+        if ($uri === '') {
+            $uri = '/';
+        }
+
         if ($this->handleHomeUri($request, $uri)) {
             return;
         }
 
-        $cacheFilePath = $this->cacheFilePath();
-        if (!file_exists($cacheFilePath)) {
-            $this->rebuildRoutes();
-        }
-        $dispatchData = requireFile($cacheFilePath);
-        $dispatcher = new GroupCountBasedDispatcher($dispatchData);
-
-        $routeInfo = $dispatcher->dispatch($request->method(), $uri);
-        if ($routeInfo[0] === Dispatcher::FOUND) {
+        $routeInfo = $this->dispatcher()
+            ->dispatch($request->method(), $uri);
+        if ($routeInfo[0] === IDispatcher::FOUND) {
             $handlerInfo = $routeInfo[1];
             $request->setModuleName($handlerInfo['module'])
                 ->setControllerName($handlerInfo['controller'])
@@ -63,25 +69,40 @@ class FastRouter extends Router {
         File::writePhpVar($cacheFilePath, $dispatchData, false);
     }
 
-    protected function cacheFilePath(): string {
-        return $this->serviceManager->get('site')->fs()->cacheDirPath() . '/route.php';
+    protected function dispatcher(): IDispatcher {
+        $cacheFilePath = $this->cacheFilePath();
+        if (!file_exists($cacheFilePath)) {
+            $this->rebuildRoutes($cacheFilePath);
+        }
+        $dispatchData = requireFile($cacheFilePath);
+        return new GroupCountBasedDispatcher($dispatchData);
     }
 
-    protected function normalizedUri($request): string {
-        $uri = Path::normalize($request->uriPath());
-        return $uri === '' ? '/' : $uri;
+    protected function cacheFilePath(): string {
+        return $this->serviceManager->get('site')->pathManager()->cacheDirPath() . '/route.php';
     }
 
     protected function handleHomeUri(Request $request, $uri): bool {
         if ($uri === '/') {
-            $settingsManager = $this->serviceManager->get('settingsManager');
-            $handler = $settingsManager->get(Request::HOME_HANDLER, ModuleManager::SYSTEM_MODULE);
-            if (false !== $handler) {
+            $routerConfig = $this->serviceManager->config()['router'];
+            if (isset($routerConfig['home'])) {
+                $handler = $routerConfig['home'];
                 $request->setHandler($handler['handler'])
-                    ->setMethod(Request::GET_METHOD);
+                    ->setMethod($handler['method']);
                 return true;
             }
         }
         return false;
+    }
+
+    protected function routesMeta(): iterable {
+        $modules = $this->serviceManager->get('site')->config()['modules'];
+        return compose(
+            new RouteMetaProvider(),
+            compose(
+                new ActionMetaProvider(),
+                new ControllerFileMetaProvider($this->serviceManager->get('moduleProvider'))
+            )
+        )($modules);
     }
 }

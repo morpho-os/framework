@@ -6,11 +6,11 @@
  */
 namespace Morpho\Test;
 
+use Morpho\Base\NotImplementedException;
 use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
-use const Morpho\Web\FALLBACK_CONFIG_FILE_NAME;
-use Morpho\Web\Fs;
+use Morpho\Web\PathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 use Morpho\System\Module as SystemModule;
 
@@ -41,7 +41,7 @@ class Sut {
 
     public function baseDirPath() {
         if (null === $this->baseDirPath) {
-            $this->baseDirPath = Fs::detectBaseDirPath(__DIR__);
+            $this->baseDirPath = PathManager::detectBaseDirPath(__DIR__);
         }
         return $this->baseDirPath;
     }
@@ -65,13 +65,14 @@ class Sut {
     }
 
     public function siteConfig(array $dbConfig): array {
-        $config = require $this->baseModuleDirPath() . '/localhost/' . CONFIG_DIR_NAME . '/' . FALLBACK_CONFIG_FILE_NAME;
+        throw new NotImplementedException();
+/*        $config = require $this->baseModuleDirPath() . '/localhost/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME;
         $config['services']['db'] = $dbConfig;
         $config['errorHandler'] = [
             'dumpListener' => false,
             'noDupsListener' => false,
         ];
         $config['modules'][SystemModule::NAME]['throwDispatchErrors'] = false;
-        return $config;
+        return $config;*/
     }
 }

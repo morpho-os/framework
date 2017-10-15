@@ -10,10 +10,10 @@ use function Morpho\Base\{
     dasherize, escapeHtml, filterStringArgs
 };
 use Morpho\Di\{
-    IServiceManager, IWithServiceManager
+    IServiceManager, IHasServiceManager
 };
 
-class MessengerPlugin extends Plugin implements \Countable, IWithServiceManager {
+class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     private $serviceManager;
 
     public function count() {
@@ -34,7 +34,7 @@ class MessengerPlugin extends Plugin implements \Countable, IWithServiceManager 
         return $html;
     }
 
-    public function setServiceManager(IServiceManager $serviceManager) {
+    public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 

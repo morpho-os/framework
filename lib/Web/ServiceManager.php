@@ -14,28 +14,48 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use function Morpho\Code\composerAutoloader;
-use Morpho\Core\ModuleInstaller;
-use Morpho\Core\ServiceManager as BaseServiceManager;
-use Morpho\Core\SettingsManager;
+use Morpho\Di\ServiceManager as BaseServiceManager;
+use Morpho\Error\DumpListener;
+use Morpho\Error\ErrorHandler;
+use Morpho\Error\LogListener;
+use Morpho\Error\NoDupsListener;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
-use Morpho\Web\Routing\ActionsMetaProvider;
 use Morpho\Web\Routing\FastRouter;
-use Morpho\Web\Routing\RoutesMetaProvider;
 use Morpho\Web\Session\Session;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
+use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\PostHtmlParser;
 use Morpho\Web\View\PreHtmlParser;
-use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Error\ErrorHandler;
-use Morpho\Db\Sql\Db;
+use function Morpho\Code\composerAutoloader;
 
 class ServiceManager extends BaseServiceManager {
-    public function __construct(array $services = null) {
+    protected $config = [];
+
+    public function __construct(array $services = null, array $config = null) {
         parent::__construct($services);
-        $this->setAliases(['dispatcher' => 'modulemanager']);
+        $this->config = (array) $config;
+    }
+
+    public function setConfig(array $config): void {
+        $this->config = $config;
+    }
+
+    public function config(): array {
+        return $this->config;
+    }
+
+    protected function newErrorHandlerService() {
+        $listeners = [];
+        $logListener = new LogListener($this->get('errorLogger'));
+        $listeners[] = $this->config['errorHandler']['noDupsListener']
+            ? new NoDupsListener($logListener)
+            : $logListener;
+        if ($this->config['errorHandler']['dumpListener']) {
+            $listeners[] = new DumpListener();
+        }
+        return new ErrorHandler($listeners);
     }
 
     public function newRouterService() {
@@ -43,9 +63,9 @@ class ServiceManager extends BaseServiceManager {
         return new FastRouter();
     }
 
-    protected function newDbService() {
+/*    protected function newDbService() {
         return Db::connect($this->config['db']);
-    }
+    }*/
 
     protected function newSessionService() {
         return new Session(__CLASS__);
@@ -68,7 +88,7 @@ class ServiceManager extends BaseServiceManager {
     protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
-        $templateEngine->setCacheDirPath($this->get('site')->fs()->cacheDirPath());
+        $templateEngine->setCacheDirPath($this->get('site')->pathManager()->cacheDirPath());
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->append(new PreHtmlParser($this))
             ->append(new FormPersister($this))
@@ -82,24 +102,32 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newSettingsManagerService() {
-        return new SettingsManager($this->get('db'));
+        return new SettingsManager();
     }
 
     protected function newMessengerService() {
         return new Messenger();
     }
 
-    protected function newModuleInstallerService() {
+/*    protected function newModuleInstallerService() {
         $moduleInstaller = new ModuleInstaller();
         $moduleInstaller->setDb($this->get('db'));
         return $moduleInstaller;
+    }*/
+
+    protected function newModuleProviderService() {
+        return new ModuleProvider($this->get('pathManager'));
     }
 
-    protected function newModuleManagerService() {
-        $db = $this->get('db');
-        $fs = $this->get('fs');
-        $moduleManager = new ModuleManager($db, $fs);
-        return $moduleManager;
+    protected function newDispatcherService() {
+        return new Dispatcher(
+            $this->get('moduleProvider'),
+            $this->get('eventManager')
+        );
+    }
+
+    protected function newEventManagerService() {
+        return new EventManager($this);
     }
 
     protected function newErrorLoggerService() {
@@ -127,16 +155,9 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
-    protected function newRoutesMetaProviderService() {
-        $routesMetaProvider = new RoutesMetaProvider();
-        $actionsMetaProvider = new ActionsMetaProvider($this->get('moduleManager'));
-        $routesMetaProvider->setActionsMetaProvider($actionsMetaProvider);
-        return $routesMetaProvider;
-    }
-
     private function appendSiteLogFileWriter($logger, int $logLevel) {
         $site = $this->get('site');
-        $filePath = $site->fs()->logDirPath() . '/' . $logger->getName() . '.log';
+        $filePath = $site->pathManager()->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)

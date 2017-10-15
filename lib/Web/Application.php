@@ -8,37 +8,76 @@
 namespace Morpho\Web;
 
 use function Morpho\Base\escapeHtml;
-use Morpho\Core\Application as BaseApplication;
 use Morpho\Di\IServiceManager;
+use Morpho\Error\ErrorHandler;
 
-class Application extends BaseApplication {
+class Application {
+    public static function main(array $config = null): int {
+        $app = new static();
+        $res = $app->run((array)$config);
+        return $res ? Environment::SUCCESS_CODE : Environment::FAILURE_CODE;
+    }
+
+    public function run(array $config): bool {
+        try {
+            $serviceManager = isset($config['serviceManager']) ? $config['serviceManager'] : $this->newServiceManager($config);
+            $this->configure($serviceManager);
+            $request = $serviceManager->get('request');
+            $serviceManager->get('router')->route($request);
+            $serviceManager->get('dispatcher')->dispatch($request);
+            $request->response()->send();
+            return true;
+        } catch (\Throwable $e) {
+            $this->handleError($e, $serviceManager ?? null);
+            return false;
+        }
+    }
+
     public function newServiceManager(array $config): IServiceManager {
         $baseDirPath = isset($config['baseDirPath'])
             ? realpath(str_replace('\\', '/', $config['baseDirPath']))
-            : Fs::detectBaseDirPath(__DIR__);
-        $fs = new Fs($baseDirPath);
-        $site = $config['site'] ?? (new SiteFactory())($fs);
+            : PathManager::detectBaseDirPath(__DIR__);
+        $pathManager = new PathManager($baseDirPath);
+        $site = $config['site'] ?? (new SiteFactory())($pathManager);
         $services = [
             'app'  => $this,
             'site' => $site,
-            'fs' => $fs,
+            'pathManager' => $pathManager,
         ];
         $siteConfig = $site->config();
-        $servicesConfig = $siteConfig['services'];
-        if ($site->isFallbackMode()) {
-            $serviceManager = new FallbackServiceManager($services);
-            $serviceManager->setConfig($servicesConfig);
-        } else {
-            $serviceManager = $siteConfig['serviceManager']
-                ? new $siteConfig['serviceManager']($services)
-                : new ServiceManager($services);
-            $serviceManager->setConfig($servicesConfig);
-        }
+        $serviceManager = $siteConfig['serviceManager']
+            ? new $siteConfig['serviceManager']($services)
+            : new ServiceManager($services);
+        $serviceManager->setConfig($siteConfig['services']);
         return $serviceManager;
     }
 
+    protected function handleError(\Throwable $e, ?IServiceManager $serviceManager): void {
+        if ($serviceManager) {
+            try {
+                $serviceManager->get('errorHandler')->handleException($e);
+            } catch (\Throwable $e) {
+                $this->logErrorFallback($e);
+            }
+        } else {
+            $this->logErrorFallback($e);
+        }
+        $this->showError($e);
+    }
+
+    protected function logErrorFallback(\Throwable $e): void {
+        if (ErrorHandler::isErrorLogEnabled()) {
+            // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
+            error_log(addslashes((string)$e));
+        }
+    }
+
+    /**
+     * Configures an application.
+     */
     protected function configure(IServiceManager $serviceManager): void {
-        parent::configure($serviceManager);
+        $serviceManager->get('environment')->init();
+        $serviceManager->get('errorHandler')->register();
 
         /** @var Site $site */
         $site = $serviceManager->get('site');
@@ -49,11 +88,11 @@ class Application extends BaseApplication {
             umask($config['umask']);
         }
         if (!$config['useOwnPublicDir']) {
-            $site->fs()->setPublicDirPath($serviceManager->get('fs')->publicDirPath());
+            $site->pathManager()->setPublicDirPath($serviceManager->get('pathManager')->publicDirPath());
         }
 
-        $moduleManager = $serviceManager->get('moduleManager');
-        $moduleManager->append($site);
+        $serviceManager->get('moduleProvider')
+            ->append($site);
     }
 
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {

@@ -21,9 +21,9 @@ class ServiceManager implements IServiceManager {
         }
     }
 
-    public function set(string $id, $service) {
+    public function set(string $id, $service): void {
         $this->services[strtolower($id)] = $service;
-        if ($service instanceof IWithServiceManager) {
+        if ($service instanceof IHasServiceManager) {
             $service->setServiceManager($this);
         }
     }
@@ -71,17 +71,20 @@ class ServiceManager implements IServiceManager {
         $this->aliases[$alias] = $name;
     }
 
-    protected function beforeCreate(string $id) {
+    protected function beforeCreate(string $id): void {
         // Do nothing by default.
     }
 
-    protected function afterCreate(string $id, $service) {
-        if ($service instanceof IWithServiceManager) {
+    protected function afterCreate(string $id, $service): void {
+        if ($service instanceof IHasServiceManager) {
             $service->setServiceManager($this);
         }
     }
 
-    protected function newService($id) {
+    /**
+     * @return mixed
+     */
+    protected function newService(string $id) {
         $method = 'new' . $id . 'Service';
         if (method_exists($this, $method)) {
             $this->beforeCreate($id);
