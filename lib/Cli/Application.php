@@ -7,7 +7,7 @@
 //declare(strict_types=1);
 namespace Morpho\Cli;
 
-use Morpho\Web\Application as BaseApplication;
+use Morpho\Core\Application as BaseApplication;
 
 abstract class Application extends BaseApplication {
     protected function showError(\Throwable $e): void {
