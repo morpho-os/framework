@@ -4,17 +4,8 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Cli;
-
-use function Morpho\Base\tail;
+namespace Morpho\Core;
 
 class Request {
-    public function args(): array {
-        $args = $_SERVER['argv'];
-        return count($args) ? tail($args) : $args;
-    }
 
-    protected function newResponse() {
-        return new Response();
-    }
 }
