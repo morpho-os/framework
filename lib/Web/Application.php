@@ -52,7 +52,7 @@ class Application {
             ? realpath(str_replace('\\', '/', $config['baseDirPath']))
             : PathManager::detectBaseDirPath(__DIR__);
         $pathManager = new PathManager($baseDirPath);
-        $site = $config['site'] ?? (new SiteFactory())($pathManager, $this->config());
+        $site = $config['site'] ?? (new SiteFactory())($pathManager, $config);
         $services = [
             'app'  => $this,
             'site' => $site,
@@ -124,7 +124,6 @@ class Application {
     }
 
     protected function showError(\Throwable $e): void {
-        d((string)$e);
         $header = null;
         if ($e instanceof NotFoundException) {
             $header = Environment::httpProtocolVersion() . ' 404 Not Found';
