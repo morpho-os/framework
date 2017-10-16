@@ -7,7 +7,7 @@
 namespace Morpho\Web;
 
 use Morpho\Base\ClassNotFoundException;
-use const Morpho\Web\VENDOR;
+use const Morpho\Core\VENDOR;
 use Morpho\Base\Node as BaseNode;
 
 class ModuleProvider extends Node {

@@ -7,28 +7,26 @@ use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
-use Morpho\Web\ConfigManager;
 use Morpho\Web\ModulePathManager;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
 use Morpho\System\Module as SystemModule;
 use Morpho\Web\Response;
-use Morpho\Web\Site;
 
 class ModuleTest extends TestCase {
     public function dataForDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         return [
             [
-                new AccessDeniedException(), Response::STATUS_CODE_403,
+                new AccessDeniedException(), Response::STATUS_CODE_403, false,
             ],
             [
-                new NotFoundException(), Response::STATUS_CODE_404,
+                new NotFoundException(), Response::STATUS_CODE_404, false,
             ],
             [
-                new BadRequestException(), Response::STATUS_CODE_400,
+                new BadRequestException(), Response::STATUS_CODE_400, false,
             ],
             [
-                new \RuntimeException(), Response::STATUS_CODE_500,
+                new \RuntimeException(), Response::STATUS_CODE_500, true,
             ],
         ];
     }
@@ -36,7 +34,7 @@ class ModuleTest extends TestCase {
     /**
      * @dataProvider dataForDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice
      */
-    public function testDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice($exception, $expectedCode) {
+    public function testDispatchError_ThrowsExceptionWhenTheSameErrorOccursTwice($exception, $expectedCode, $mustLogError) {
         $handler = [
             "handler" => [
                 "morpho-os/system",
@@ -45,12 +43,19 @@ class ModuleTest extends TestCase {
             ],
             'uri' => "/my/handler",
         ];
-        $configManager = $this->newConfigManager($handler);
+        $config = new \ArrayObject([
+            'throwDispatchErrors' => false,
+            Request::ACCESS_DENIED_ERROR_HANDLER => $handler,
+            Request::BAD_REQUEST_ERROR_HANDLER => $handler,
+            Request::HOME_HANDLER => $handler,
+            Request::NOT_FOUND_ERROR_HANDLER => $handler,
+            Request::UNCAUGHT_ERROR_HANDLER => $handler,
+        ]);
 
         $request = new Request();
         $request->isDispatched(true);
 
-        $module = $this->newModule($configManager);
+        $module = $this->newModule($config, $exception, $mustLogError);
 
         $event = new Event('test', ['exception' => $exception, 'request' => $request]);
         $module->dispatchError($event);
@@ -69,48 +74,23 @@ class ModuleTest extends TestCase {
         }
     }
 
-    private function newConfigManager($valueToReturn): ConfigManager {
-        return new class($valueToReturn) extends ConfigManager {
-            private $value;
-
-            public function __construct($value) {
-                $this->value = $value;
-            }
-
-            public function getOrDefault(string $settingName, string $moduleName, $default = null) {
-                $knownSettings = [
-                    Request::ACCESS_DENIED_ERROR_HANDLER,
-                    Request::BAD_REQUEST_ERROR_HANDLER,
-                    Request::HOME_HANDLER,
-                    Request::NOT_FOUND_ERROR_HANDLER,
-                    Request::UNCAUGHT_ERROR_HANDLER,
-                ];
-                if (in_array($settingName, $knownSettings, true) && $moduleName === SystemModule::NAME) {
-                    return $this->value;
-                }
-                if ($settingName === 'throwDispatchErrors') {
-                    return false;
-                }
-                throw new \UnexpectedValueException();
-            }
-        };
-    }
-
-    private function newModule($configManager) {
-        $module = new SystemModule('foo/bar', new ModulePathManager($this->getTestDirPath()));
-        $serviceManager = new ServiceManager();
-        $site = $this->createMock(Site::class);
-        $site->method('config')
-            ->willReturn([
-                'modules' => [
-                    SystemModule::NAME => [
-                        'throwDispatchErrors' => false,
-                    ],
-                ],
-            ]);
-        $serviceManager->set('site', $site);
-        $serviceManager->set('configManager', $configManager);
-        $serviceManager->set('errorLogger', $this->createMock(Logger::class));
+    private function newModule($config, $exception, $mustLogError) {
+        $module = new SystemModule('foo/bar', $this->createMock(ModulePathManager::class));
+        $module->setConfig($config);
+        $serviceManager = $this->createMock(ServiceManager::class);
+        $errorLogger = $this->createMock(Logger::class);
+        if ($mustLogError) {
+            $errorLogger->expects($this->exactly(2))
+                ->method('emergency')
+                ->with($this->equalTo($exception), $this->equalTo(['exception' => $exception]));
+        } else {
+            $errorLogger->expects($this->never())
+                ->method('emergency');
+        }
+        $serviceManager->expects($this->any())
+            ->method('get')
+            ->with('errorLogger')
+            ->willReturn($errorLogger);
         $module->setServiceManager($serviceManager);
         return $module;
     }

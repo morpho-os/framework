@@ -1,4 +1,9 @@
 <?php //declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Web;
 
 use const Morpho\Web\CONTROLLER_SUFFIX;
@@ -14,6 +19,11 @@ class Module extends Node {
     protected $type = 'Module';
 
     /**
+     * @var \ArrayAccess|array
+     */
+    protected $config;
+
+    /**
      * @var ModulePathManager
      */
     protected $pathManager;
@@ -24,6 +34,7 @@ class Module extends Node {
     }
 
     public function setPathManager(ModulePathManager $pathManager): void {
+        $this->config = null;
         $this->pathManager = $pathManager;
     }
 
@@ -48,5 +59,20 @@ class Module extends Node {
         $moduleNs = $this->serviceManager->get('pathManager')->moduleNamespace($this->name());
         $class = $moduleNs . '\\' . $name;
         return class_exists($class) ? $class : false;
+    }
+
+    public function setConfig($config): void {
+        $this->config = $config;
+    }
+
+    public function config() {
+        if (null === $this->config) {
+            $this->config = $this->newConfig();
+        }
+        return $this->config;
+    }
+
+    protected function newConfig() {
+        return new ModuleConfig($this->pathManager, $this->name(), $this->serviceManager->get('site')->config());
     }
 }

@@ -2,16 +2,16 @@
 return [
     'serviceManager' => 'Morpho\Web\ServiceManager',
     'modules' => [
-        \Morpho\Web\VENDOR . '/system' => [
+        \Morpho\Core\VENDOR . '/system' => [
             'throwDispatchErrors' => false,
         ],
-        \Morpho\Web\VENDOR . '/user',
-        \Morpho\Web\VENDOR . '/localhost',
+        \Morpho\Core\VENDOR . '/user',
+        \Morpho\Core\VENDOR . '/localhost',
     ],
     'services' => [
         'router' => [
             'home' => [
-                'handler' => [\Morpho\Web\VENDOR . '/system', 'Index', 'index'],
+                'handler' => [\Morpho\Core\VENDOR . '/system', 'Index', 'index'],
                 'method' => 'get',
             ],
         ],

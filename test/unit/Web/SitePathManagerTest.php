@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace MorphoTest\Unit\Web;
 
 use const Morpho\Web\CACHE_DIR_NAME;
-use const Morpho\Web\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Web\LOG_DIR_NAME;
 use Morpho\Web\ModulePathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;

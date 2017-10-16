@@ -9,7 +9,7 @@ namespace Morpho\Web\View;
 use function Morpho\Base\dasherize;
 use function Morpho\Base\last;
 use const Morpho\Web\APP_DIR_NAME;
-use const Morpho\Web\MODULE_DIR_NAME;
+use const Morpho\Core\MODULE_DIR_NAME;
 
 class PostHtmlParser extends HtmlParser {
     protected $scripts = [];

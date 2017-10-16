@@ -8,7 +8,7 @@
 namespace Morpho\Web;
 
 use const Morpho\Web\CACHE_DIR_NAME;
-use const Morpho\Web\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Web\CONFIG_FILE_NAME;
 use const Morpho\Web\LOG_DIR_NAME;
 use Morpho\Fs\File;
@@ -19,11 +19,6 @@ class SitePathManager extends ModulePathManager {
      * @var ?string
      */
     private $cacheDirPath;
-
-    /**
-     * @var ?string
-     */
-    private $configDirPath;
 
     /**
      * @var ?string
@@ -39,38 +34,6 @@ class SitePathManager extends ModulePathManager {
      * @var ?string
      */
     private $publicDirPath;
-
-    protected const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
-
-    public function writeConfig(array $newConfig): void {
-        File::writePhpVar($this->configFilePath(), $newConfig);
-    }
-
-    public function deleteConfigFile(): void {
-        $configFilePath = $this->configFilePath();
-        if (is_file($configFilePath)) {
-            unlink($configFilePath);
-        }
-    }
-
-    public function canLoadConfigFile(): bool {
-        return $this->configFileExists();// && $this->configFileReadable();
-    }
-
-    public function setConfigDirPath(string $dirPath): void {
-        $this->configDirPath = Path::normalize($dirPath);
-    }
-
-    public function configDirPath(): string {
-        if (null === $this->configDirPath) {
-            $this->configDirPath = $this->dirPath() . '/' . CONFIG_DIR_NAME;
-        }
-        return $this->configDirPath;
-    }
-
-    public function loadConfigFile(): array {
-        return require $this->configFilePath();
-    }
 
     public function setCacheDirPath(string $dirPath): void {
         $this->cacheDirPath = Path::normalize($dirPath);
@@ -114,17 +77,5 @@ class SitePathManager extends ModulePathManager {
             $this->publicDirPath = $this->dirPath() . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
-    }
-
-    protected function configFilePath(): string {
-        return $this->configDirPath() . '/' . self::CONFIG_FILE_NAME;
-    }
-
-/*    protected function configFileReadable(): bool {
-        return is_readable($this->configFilePath());
-    }*/
-
-    protected function configFileExists(): bool {
-        return is_file($this->configFilePath());
     }
 }

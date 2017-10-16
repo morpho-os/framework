@@ -2,7 +2,7 @@
 namespace Morpho\System;
 
 use Morpho\Base\Must;
-use const Morpho\Web\VENDOR;
+use const Morpho\Core\VENDOR;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
@@ -28,20 +28,18 @@ class Module extends BaseModule implements IHasTheme {
         $request = $event->args['request'];
 
         $handleError = function (string $handlerName, int $statusCode, bool $logError) use ($request, $exception) {
-            $serviceManager = $this->serviceManager;
 
             if ($logError) {
-                $serviceManager->get('errorLogger')
-                    ->emergency($exception, ['exception' => $exception]);
+                $this->logError($exception);
             }
 
-            $configManager = $serviceManager->get('configManager');
+            $config = $this->config();
 
-            if ($configManager->getOrDefault('throwDispatchErrors', self::NAME)) {
+            if (!empty($config['throwDispatchErrors'])) {
                 throw $exception;
             }
 
-            $handler = $configManager->getOrDefault($handlerName, self::NAME);
+            $handler = $config[$handlerName] ?? null;
             if ($handler) {
                 $errorHandler = $handler['handler'];
             } else {
@@ -80,5 +78,10 @@ class Module extends BaseModule implements IHasTheme {
             Request::UNCAUGHT_ERROR_HANDLER
         ], $handlerName);
         return [self::NAME, 'Error', str_replace('Handler', '', $handlerName)];
+    }
+
+    protected function logError($exception): void {
+        $errorLogger = $this->serviceManager->get('errorLogger');
+        $errorLogger->emergency($exception, ['exception' => $exception]);
     }
 }

@@ -8,12 +8,12 @@
 namespace Morpho\Web;
 
 use const Morpho\Web\AUTOLOAD_FILE_NAME;
-use const Morpho\Web\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
 use const Morpho\Web\CONFIG_FILE_NAME;
 use const Morpho\Web\META_FILE_NAME;
 use const Morpho\Web\MODULE_CLASS_FILE_NAME;
-use const Morpho\Web\MODULE_DIR_NAME;
-use const Morpho\Web\VENDOR_DIR_NAME;
+use const Morpho\Core\MODULE_DIR_NAME;
+use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Di\IHasServiceManager;
 use Morpho\Di\IServiceManager;
 use Morpho\Fs\Directory;
@@ -149,10 +149,6 @@ class PathManager implements IHasServiceManager {
             $this->configDirPath = $this->baseDirPath() . '/' . CONFIG_DIR_NAME;
         }
         return $this->configDirPath;
-    }
-
-    public function loadConfigFile(): array {
-        return require $this->configFilePath();
     }
 
     public function setConfigFilePath(string $configFilePath): void {

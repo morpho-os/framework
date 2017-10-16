@@ -101,10 +101,6 @@ class ServiceManager extends BaseServiceManager {
         return composerAutoloader();
     }
 
-    protected function newConfigManagerService() {
-        return new ConfigManager();
-    }
-
     protected function newMessengerService() {
         return new Messenger();
     }

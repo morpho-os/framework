@@ -7,12 +7,15 @@
 declare(strict_types = 1);
 namespace Morpho\Base;
 
+use Morpho\Fs\Path;
 use ReflectionObject;
 
 abstract class Object extends \ArrayObject {
     private $reflected;
 
     private $classDirPath;
+
+    private $classFilePath;
 
     public function namespace(): string {
         $class = get_class($this);
@@ -23,12 +26,14 @@ abstract class Object extends \ArrayObject {
         if (null === $this->classDirPath) {
             $this->classDirPath = dirname($this->classFilePath());
         }
-
         return $this->classDirPath;
     }
 
     public function classFilePath(): string {
-        return str_replace('\\', '/', $this->reflect()->getFileName());
+        if (null === $this->classFilePath) {
+            $this->classFilePath = Path::normalize($this->reflect()->getFileName());
+        }
+        return $this->classFilePath;
     }
 
     protected function reflect(): ReflectionObject {

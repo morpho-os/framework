@@ -130,10 +130,9 @@ class SiteFactoryTest extends TestCase {
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
         $pathManager = $this->createConfiguredMock(PathManager::class, [
-            'loadConfigFile' => $config,
             'baseModuleDirPath' => $this->getTestDirPath(),
         ]);
-        $site = $this->factory->__invoke($pathManager);
+        $site = $this->factory->__invoke($pathManager, $config);
         $this->assertEquals($siteModuleName, $site->name());
     }
 
@@ -148,9 +147,9 @@ class SiteFactoryTest extends TestCase {
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
         $pathManager = $this->createConfiguredMock(PathManager::class, [
-            'loadConfigFile' => $config,
+            //'loadConfigFile' => $config,
             'baseModuleDirPath' => $this->getTestDirPath(),
         ]);
-        $this->assertEquals('test/success', $this->factory->__invoke($pathManager)->name());
+        $this->assertEquals('test/success', $this->factory->__invoke($pathManager, $config)->name());
     }
 }

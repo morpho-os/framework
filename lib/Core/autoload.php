@@ -6,3 +6,8 @@
  */
 namespace Morpho\Core;
 
+const CONFIG_DIR_NAME = 'config';
+const LIB_DIR_NAME = 'lib';
+const MODULE_DIR_NAME = 'module';
+const VENDOR = 'morpho-os';
+const VENDOR_DIR_NAME = 'vendor';

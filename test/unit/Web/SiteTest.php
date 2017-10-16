@@ -6,7 +6,8 @@
  */
 namespace MorphoTest\Unit\Web;
 
-use const Morpho\Web\VENDOR;
+use Morpho\Web\SiteConfig;
+use const Morpho\Core\VENDOR;
 use Morpho\Test\TestCase;
 use Morpho\Web\Module;
 use Morpho\Web\Site;
@@ -25,75 +26,19 @@ class SiteTest extends TestCase {
         $this->assertSame($pathManager, $site->pathManager());
     }
 
-    public function testConfig_Accessors() {
+    public function testConfig() {
         $site = $this->newSite($this->createMock(SitePathManager::class));
-        $newConfig = ['foo' => 'bar'];
-        $this->assertNull($site->setConfig($newConfig));
-        $this->assertSame($this->normalizedConfig($newConfig), $site->config());
+        $this->assertInstanceOf(SiteConfig::class, $site->config());
     }
 
     public function testConfig_AfterSettingNewPathManager() {
-        $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
-        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
-            'canLoadConfigFile' => true,
-            'loadConfigFile' => $prevConfig,
-        ]);
-        $site = $this->newSite($pathManager);
-        
-        $this->assertSame($this->normalizedConfig($prevConfig), $site->config());
-        
-        $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
-            'canLoadConfigFile' => true,
-            'loadConfigFile' => $newConfig,
-        ]);
-        $site->setPathManager($pathManager);
-        
-        $this->assertSame($this->normalizedConfig($newConfig), $site->config());
-    }
+        $site = $this->newSite($this->createMock(SitePathManager::class));
+        $oldConfig = $site->config();
 
-    public function testReadingConfigAfterWriting() {
-        $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
-        $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
-            'canLoadConfigFile' => true,
-        ]);
-        $pathManager->expects($this->exactly(2))
-            ->method('loadConfigFile')
-            ->willReturnOnConsecutiveCalls($prevConfig, $newConfig);
-        $pathManager->expects($this->exactly(2))
-            ->method('writeConfig');
+        $site->setPathManager($this->createMock(SitePathManager::class));
+        $newConfig = $site->config();
 
-        $site = $this->newSite($pathManager);
-
-        $site->writeConfig($prevConfig);
-
-        $this->assertSame($this->normalizedConfig($prevConfig), $site->config());
-
-        $site->writeConfig($newConfig);
-
-        $this->assertSame($this->normalizedConfig($newConfig), $site->config());
-    }
-
-    public function testReloadConfig() {
-        $prevConfig = ['foo' => 'bar', 'ee4299e7aa2c0f9e6b924967fd142582'];
-        $newConfig = ['foo' => 'bar', '90fbc3240ee8d41e81cdb9ca38977116'];
-        $pathManager = $this->createConfiguredMock(SitePathManager::class, [
-            'canLoadConfigFile' => true,
-        ]);
-        $pathManager->expects($this->exactly(2))
-            ->method('loadConfigFile')
-            ->willReturnOnConsecutiveCalls($prevConfig, $newConfig);
-        $site = $this->newSite($pathManager);
-
-        $prevNormalizedConfig = $this->normalizedConfig($prevConfig);
-        $newNormalizedConfig = $this->normalizedConfig($newConfig);
-
-        $this->assertSame($prevNormalizedConfig, $site->config());
-        $this->assertSame($prevNormalizedConfig, $site->config()); // two calls consistently must return the same result
-
-        $this->assertSame($newNormalizedConfig, $site->reloadConfig());
-        $this->assertSame($newNormalizedConfig, $site->config());
+        $this->assertNotSame($oldConfig, $newConfig);
     }
 
     public function testSiteIsAModuleAndWithTheme() {
@@ -106,9 +51,5 @@ class SiteTest extends TestCase {
 
     private function newSite($pathManager) {
         return new Site(VENDOR . '/foo', $pathManager, 'localhost');
-    }
-
-    private function normalizedConfig(array $config): array {
-        return $config + ['modules' => []];
     }
 }

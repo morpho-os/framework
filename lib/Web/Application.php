@@ -12,15 +12,24 @@ use Morpho\Di\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class Application {
+    /**
+     * @var \ArrayAccess|array
+     */
+    protected $config;
+
+    public function __construct($config = null) {
+        $this->config = $config;
+    }
+
     public static function main(array $config = null): int {
-        $app = new static();
-        $res = $app->run((array)$config);
+        $app = new static($config);
+        $res = $app->run();
         return $res ? Environment::SUCCESS_CODE : Environment::FAILURE_CODE;
     }
 
-    public function run(array $config): bool {
+    public function run(): bool {
         try {
-            $serviceManager = isset($config['serviceManager']) ? $config['serviceManager'] : $this->newServiceManager($config);
+            $serviceManager = $this->newServiceManager();
             $this->configure($serviceManager);
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
@@ -33,12 +42,17 @@ class Application {
         }
     }
 
-    public function newServiceManager(array $config): IServiceManager {
+    public function config() {
+        return $this->config;
+    }
+
+    protected function newServiceManager(): IServiceManager {
+        $config = $this->config;
         $baseDirPath = isset($config['baseDirPath'])
             ? realpath(str_replace('\\', '/', $config['baseDirPath']))
             : PathManager::detectBaseDirPath(__DIR__);
         $pathManager = new PathManager($baseDirPath);
-        $site = $config['site'] ?? (new SiteFactory())($pathManager);
+        $site = $config['site'] ?? (new SiteFactory())($pathManager, $this->config());
         $services = [
             'app'  => $this,
             'site' => $site,
@@ -110,6 +124,7 @@ class Application {
     }
 
     protected function showError(\Throwable $e): void {
+        d((string)$e);
         $header = null;
         if ($e instanceof NotFoundException) {
             $header = Environment::httpProtocolVersion() . ' 404 Not Found';

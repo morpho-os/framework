@@ -8,7 +8,8 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use const Morpho\Web\LIB_DIR_NAME;
+use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\LIB_DIR_NAME;
 use const Morpho\Web\META_FILE_NAME;
 use const Morpho\Web\RC_DIR_NAME;
 use const Morpho\Web\TEST_DIR_NAME;
@@ -50,7 +51,13 @@ class ModulePathManager {
      */
     private $rcDirPath;
 
+    /**
+     * @var ?string
+     */
+    private $configDirPath;
+
     public const VIEW_DIR_NAME = 'view';
+    public const CONFIG_FILE_NAME = CONFIG_FILE_NAME;
 
     public function __construct(string $dirPath) {
         $this->dirPath = $dirPath;
@@ -69,6 +76,21 @@ class ModulePathManager {
             $this->libDirPath = $this->dirPath() . '/' . LIB_DIR_NAME;
         }
         return $this->libDirPath;
+    }
+
+    public function configFilePath(): string {
+        return $this->configDirPath() . '/' . self::CONFIG_FILE_NAME;
+    }
+
+    public function setConfigDirPath(string $dirPath): void {
+        $this->configDirPath = Path::normalize($dirPath);
+    }
+
+    public function configDirPath(): string {
+        if (null === $this->configDirPath) {
+            $this->configDirPath = $this->dirPath() . '/' . CONFIG_DIR_NAME;
+        }
+        return $this->configDirPath;
     }
 
     public function setControllerDirPath(string $dirPath): void {

@@ -8,14 +8,17 @@
 namespace Morpho\Web;
 
 class SiteFactory {
-    public function __invoke(PathManager $pathManager): Site {
-        list($moduleName, $hostName) = $this->detectSite($pathManager->loadConfigFile());
+    public function __invoke(PathManager $pathManager, $config): Site {
+        list($moduleName, $hostName) = $this->detectSite($config['sites'], $config['useMultiSiting']);
         $dirName = explode('/', $moduleName)[1];
         $siteDirPath = $pathManager->baseModuleDirPath() . '/' . $dirName;
         $pathManager = new SitePathManager($siteDirPath);
         return new Site($moduleName, $pathManager, $hostName);
     }
 
+    /**
+     * @throws BadRequestException
+     */
     protected function detectHostName(): string {
         // Use the `Host` header field-value, see https://tools.ietf.org/html/rfc3986#section-3.2.2
         $host = $_SERVER['HTTP_HOST'] ?? null;
@@ -45,10 +48,12 @@ class SiteFactory {
         return $hostWithoutPort;
     }
 
-    protected function detectSite(array $config): array {
-        $sites = $config['sites'];
+    /**
+     * @throws BadRequestException
+     */
+    protected function detectSite(array $sites, bool $useMultiSiting): array {
         $hostName = $siteName = null;
-        if (!$config['useMultiSiting']) {
+        if (!$useMultiSiting) {
             // No multi-siting -> use first found site.
             $siteName = array_shift($sites);
         } else {

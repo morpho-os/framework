@@ -1,7 +1,7 @@
 <?php
 return [
     'sites' => [
-        \Morpho\Web\VENDOR . '/localhost',
+        \Morpho\Core\VENDOR . '/localhost',
     ],
     'useMultiSiting' => false,
     'baseDirPath' => dirname(__DIR__),

@@ -8,10 +8,7 @@
 namespace Morpho\Web;
 
 class Site extends Module {
-    /**
-     * @var ?array
-     */
-    private $config;
+    protected $config;
 
     /**
      * @var ?string
@@ -27,48 +24,12 @@ class Site extends Module {
         return $this->hostName;
     }
 
-    public function setConfig(array $config): void {
-        $this->config = $this->normalizeConfig($config);
-    }
-
-    public function config(): array {
-        $this->initConfig();
-        return $this->config;
-    }
-
-    public function reloadConfig(): array {
-        $this->config = null;
-        $this->initConfig();
-        return $this->config;
-    }
-
-    public function writeConfig(array $config): void {
-        $this->pathManager()->writeConfig($config);
-        $this->config = null; // init config on the next request.
-    }
-
     public function setPathManager(ModulePathManager $pathManager): void {
         parent::setPathManager($pathManager);
         $this->config = null; // init config on the next request.
     }
 
-    private function initConfig(): void {
-        if (null !== $this->config) {
-            return;
-        }
-        $this->config = $this->normalizeConfig($this->pathManager->loadConfigFile());
-    }
-
-    protected function normalizeConfig(array $config): array {
-        if (!isset($config['modules'])) {
-            $config['modules'] = [];
-        }
-        foreach ($config['modules'] as $name => $conf) {
-            if (is_numeric($name)) {
-                $config['modules'][$conf] = [];
-                unset($config['modules'][$name]);
-            }
-        }
-        return $config;
+    protected function newConfig() {
+        return new SiteConfig($this->pathManager);
     }
 }
