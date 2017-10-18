@@ -7,7 +7,11 @@
 
 namespace Morpho\Web;
 
+use const Morpho\Core\AUTOLOAD_FILE_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_FILE_NAME;
+use const Morpho\Core\META_FILE_NAME;
+use const Morpho\Core\MODULE_CLASS_FILE_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Fs\Directory;

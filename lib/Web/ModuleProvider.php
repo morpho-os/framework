@@ -7,6 +7,7 @@
 namespace Morpho\Web;
 
 use Morpho\Base\ClassNotFoundException;
+use const Morpho\Core\AUTOLOAD_FILE_NAME;
 use Morpho\Core\Node;
 use Morpho\Base\Node as BaseNode;
 use const Morpho\Core\VENDOR_DIR_NAME;
