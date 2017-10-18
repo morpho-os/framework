@@ -6,9 +6,8 @@
  */
 namespace Morpho\Web;
 
-use const Morpho\Web\CONTROLLER_SUFFIX;
-/*use const Morpho\Web\DOMAIN_NS;
-use const Morpho\Web\REPO_SUFFIX;*/
+use const Morpho\Core\CONTROLLER_SUFFIX;
+use Morpho\Core\Node;
 
 class Module extends Node {
     /**
@@ -53,6 +52,7 @@ class Module extends Node {
 
     protected function childNameToClass(string $name) {
         if (false === strpos($name, '\\')) {
+            // By default assume that it is a controller.
             //$name = (PHP_SAPI === 'cli' ? 'Cli' : 'Web') . '\\' . $name . CONTROLLER_SUFFIX;
             $name = 'Web\\' . $name . CONTROLLER_SUFFIX;
         }

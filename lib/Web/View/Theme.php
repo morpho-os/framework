@@ -89,11 +89,12 @@ class Theme implements IHasServiceManager {
     */
 
     public function renderLayout($request): void {
-        if ($request->hasInternalParam('layout')) {
-            $layout = $request->internalParam('layout');
+        $params = $request->params();
+        if ($params->offsetExists('layout')) {
+            $layout = $params->offsetGet('layout');
         } else {
             $layout = $this->newDefaultLayout();
-            $request->setInternalParam('layout', $layout);
+            $params->offsetSet('layout', $layout);
         }
         if ($request->isDispatched() && !$layout->isRendered()) {
             $response = $request->response();

@@ -6,10 +6,11 @@
  */
 namespace Morpho\Web;
 
+use Morpho\Core\IResponse;
 use Zend\Http\Headers;
 use Zend\Http\PhpEnvironment\Response as BaseResponse;
 
-class Response extends BaseResponse {
+class Response extends BaseResponse implements IResponse {
     public function redirect($uri, $httpStatusCode = null): void {
         $this->headers()->addHeaderLine('Location', (string)$uri);
         $this->setStatusCode($httpStatusCode ?: self::STATUS_CODE_302);
@@ -35,5 +36,13 @@ class Response extends BaseResponse {
     public function isSuccess(): bool {
         // Use condition from jQuery: 304 == Not Modified.
         return parent::isSuccess() || $this->getStatusCode() === self::STATUS_CODE_304;
+    }
+
+    /**
+     * @TODO: Remove this method after switching to >= PHP 7.2
+     */
+    public function send(): IResponse {
+        parent::send();
+        return $this;
     }
 }

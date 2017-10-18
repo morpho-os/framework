@@ -7,11 +7,8 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use const Morpho\Web\CACHE_DIR_NAME;
-use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Web\CONFIG_FILE_NAME;
-use const Morpho\Web\LOG_DIR_NAME;
-use Morpho\Fs\File;
+use const Morpho\Core\CACHE_DIR_NAME;
+use const Morpho\Core\LOG_DIR_NAME;
 use Morpho\Fs\Path;
 
 class SitePathManager extends ModulePathManager {

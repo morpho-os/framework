@@ -6,7 +6,7 @@
  */
 namespace MorphoTest;
 
-use const Morpho\Web\TEST_DIR_NAME;
+use const Morpho\Core\TEST_DIR_NAME;
 use Morpho\Test\Sut;
 
 class TestSuite extends \Morpho\Test\TestSuite {

@@ -12,6 +12,7 @@ use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
 use Morpho\Web\Session\Session;
 use Morpho\Web\View\View;
+use Morpho\Core\Node;
 
 class Controller extends Node implements IFn {
     /**
@@ -82,13 +83,13 @@ class Controller extends Node implements IFn {
         return $this->parent->name();
     }
 
-    protected function db() {
+/*    protected function db() {
         return $this->serviceManager->get('db');
-    }
+    }*/
 
-    protected function repo(string $name) {
+/*    protected function repo(string $name) {
         return $this->parent->repo($name);
-    }
+    }*/
 
     protected function shouldRenderView(View $view): bool {
         $request = $this->request;
@@ -259,7 +260,9 @@ class Controller extends Node implements IFn {
      * @param string|View $name
      */
     protected function setLayout($nameOrLayout): void {
-        $this->request->setInternalParam('layout', is_string($nameOrLayout) ? new View($nameOrLayout) : $nameOrLayout);
+        $this->request->params()->offsetSet(
+            'layout', is_string($nameOrLayout) ? new View($nameOrLayout) : $nameOrLayout
+        );
     }
 
     protected function userManager() {

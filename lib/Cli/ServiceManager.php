@@ -7,7 +7,7 @@
 namespace Morpho\Cli;
 
 use Monolog\Logger;
-use Morpho\Web\ServiceManager as BaseServiceManager;
+use Morpho\Core\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected function newEnvironmentService() {
@@ -23,11 +23,10 @@ abstract class ServiceManager extends BaseServiceManager {
         return new Request();
     }
 
-    protected function newResponseService() {
+/*    protected function newResponseService() {
         return new Response();
     }
-    
-    abstract protected function newRouterService();
+*/
 
-    abstract protected function newDispatcherService();
+    /*abstract protected function newDispatcherService();*/
 }

@@ -7,8 +7,6 @@
 namespace MorphoTest\Unit\Web\View;
 
 use function Morpho\Base\fromJson;
-use Morpho\Base\Node as BaseNode;
-use Morpho\Web\Node;
 use Morpho\Web\View\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
@@ -58,7 +56,7 @@ class ThemeTest extends TestCase {
     public function testRenderLayout_RenderedOnce() {
         $request = new Request();
         $layoutName = 'index';
-        $request->setInternalParam('layout', new View($layoutName));
+        $request->params()['layout'] = new View($layoutName);
         $request->isDispatched(true);
 
         $newTheme = function () {
@@ -77,14 +75,14 @@ class ThemeTest extends TestCase {
         $theme1->renderLayout($request);
 
         $this->assertSame([$layoutName, ['body' => '']], $theme1->renderFileArgs);
-        $this->assertTrue($request->internalParam('layout')->isRendered());
+        $this->assertTrue($request->params()['layout']->isRendered());
 
         $theme2 = $newTheme();
 
         $theme2->renderLayout($request);
 
         $this->assertNull($theme2->renderFileArgs);
-        $this->assertTrue($request->internalParam('layout')->isRendered());
+        $this->assertTrue($request->params()['layout']->isRendered());
     }
 
     public function testRenderView_Ajax() {
@@ -136,8 +134,8 @@ class ThemeTest extends TestCase {
         $module->expects(($this->any()))
             ->method('pathManager')
             ->willReturn($pathManager);
-        $moduleProvider = new class ($module) extends Node {
-            protected $name = 'moduleProider';
+        $moduleProvider = new class ($module) extends \ArrayObject {
+            protected $name = 'moduleProvider';
 
             private $module;
 
@@ -145,7 +143,7 @@ class ThemeTest extends TestCase {
                 $this->module = $module;
             }
 
-            public function offsetGet($name): BaseNode {
+            public function offsetGet($name) {
                 if ($name === $this->module->name()) {
                     return $this->module;
                 }

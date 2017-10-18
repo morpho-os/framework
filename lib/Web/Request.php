@@ -8,15 +8,17 @@
 namespace Morpho\Web;
 
 use function Morpho\Base\trimMore;
+use Zend\Stdlib\Message;
 use Zend\Validator\Hostname as HostNameValidator;
 use Zend\Http\Headers;
+use Morpho\Core\Request as BaseRequest;
 
 /**
  * Some chunks of code for this class was taken from the Request class
  * from Zend Framework 2.x (http://framework.zend.com/),
  * @TODO: Specify what chunks and mark of them specially.
  */
-class Request {
+class Request extends BaseRequest {
     public const ACCESS_DENIED_ERROR_HANDLER = 'accessDeniedHandler';
     public const BAD_REQUEST_ERROR_HANDLER   = 'badRequestHandler';
     public const HOME_HANDLER                = 'homeHandler';
@@ -54,72 +56,7 @@ class Request {
         self::TRACE_METHOD,
     ];
 
-    protected $response;
-
-    protected $moduleName;
-
-    protected $controllerName;
-
-    protected $actionName;
-
     protected $routingParams = [];
-
-    protected $internalParams = [];
-
-    private $isDispatched = false;
-
-    public function isDispatched(bool $flag = null): bool {
-        if ($flag !== null) {
-            $this->isDispatched = $flag;
-        }
-        return $this->isDispatched;
-    }
-
-    public function setHandler(array $handler): self {
-        return $this->setModuleName($handler[0])
-            ->setControllerName($handler[1])
-            ->setActionName($handler[2]);
-    }
-
-    public function handler(): array {
-        return [$this->moduleName(), $this->controllerName(), $this->actionName()];
-    }
-
-    public function setModuleName(string $moduleName) {
-        $this->moduleName = $moduleName;
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function moduleName() {
-        return $this->moduleName;
-    }
-
-    public function setControllerName(string $controllerName) {
-        $this->controllerName = $controllerName;
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function controllerName() {
-        return $this->controllerName;
-    }
-
-    public function setActionName(string $actionName) {
-        $this->actionName = $actionName;
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function actionName() {
-        return $this->actionName;
-    }
 
     public function hasRoutingParams(): bool {
         return count($this->routingParams) > 0;
@@ -139,37 +76,6 @@ class Request {
 
     public function routingParam(string $name, $default = null) {
         return isset($this->routingParams[$name]) ? $this->routingParams[$name] : $default;
-    }
-
-    public function hasInternalParam(string $name): bool {
-        return array_key_exists($name, $this->internalParams);
-    }
-
-    public function setInternalParam(string $name, $value): void {
-        $this->internalParams[$name] = $value;
-    }
-
-    public function unsetInternalParam(string $name): void {
-        unset($this->internalParams[$name]);
-    }
-
-    public function internalParam(string $name) {
-        return $this->internalParams[$name];
-    }
-
-    public function internalParams(): array {
-        return $this->internalParams;
-    }
-
-    public function setResponse($response): void {
-        $this->response = $response;
-    }
-
-    public function response() {
-        if (null === $this->response) {
-            $this->response = $this->newResponse();
-        }
-        return $this->response;
     }
 
     public function content(): string {
@@ -384,7 +290,7 @@ class Request {
      * }
      */
 
-    protected function newResponse(): Response {
+    protected function newResponse(): Message {
         return new Response();
     }
 

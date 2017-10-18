@@ -6,15 +6,27 @@
  */
 namespace Morpho\Cli;
 
-use function Morpho\Base\tail;
+use Morpho\Core\Request as BaseRequest;
+use Zend\Stdlib\Message;
 
-class Request {
-    public function args(): array {
-        $args = $_SERVER['argv'];
-        return count($args) ? tail($args) : $args;
+class Request extends BaseRequest {
+    /**
+     * @var array
+     */
+    protected $args;
+
+    public function setArgs(array $args) {
+        $this->args = $args;
     }
 
-    protected function newResponse() {
+    public function args(): array {
+        if (null === $this->args) {
+            $this->args = $_SERVER['argv'];
+        }
+        return $this->args;
+    }
+
+    protected function newResponse(): Message {
         return new Response();
     }
 }

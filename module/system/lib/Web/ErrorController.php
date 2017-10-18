@@ -19,7 +19,7 @@ class ErrorController extends Controller {
 
     public function uncaughtErrorAction() {
         /*
-        $exception = $this->request->getInternalParam('error')
+        $exception = $this->request->param('error')
         d($exception->getMessage(), $exception->getFile(), $exception->getLine());
         */
     }

@@ -10,7 +10,7 @@ use function Morpho\Base\{
     classify, htmlId, dasherize, last
 };
 use Morpho\Base\EmptyValueException;
-use const Morpho\Web\PLUGIN_SUFFIX;
+use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IHasServiceManager;
 use Morpho\Web\Controller;

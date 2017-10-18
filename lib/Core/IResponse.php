@@ -4,14 +4,8 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Cli;
+namespace Morpho\Core;
 
-use Morpho\Core\IResponse;
-use Zend\Stdlib\Message;
-
-class Response extends Message implements IResponse {
-    public function send(): IResponse {
-        echo $this->getContent();
-        return $this;
-    }
+interface IResponse {
+    public function send(): self;
 }

@@ -62,7 +62,7 @@ class ModuleTest extends TestCase {
 
         $this->assertFalse($request->isDispatched());
         $this->assertEquals($handler['handler'], $request->handler());
-        $this->assertEquals($exception, $request->internalParam('error'));
+        $this->assertEquals($exception, $request->params()['error']);
         $this->assertEquals($expectedCode, $request->response()->getStatusCode());
 
         try {

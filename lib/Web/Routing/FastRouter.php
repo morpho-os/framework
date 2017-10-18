@@ -13,13 +13,14 @@ use function Morpho\Base\compose;
 use function Morpho\Base\requireFile;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteParser\Std as StdRouteParser;
+use Morpho\Core\IRouter;
 use Morpho\Di\IHasServiceManager;
 use Morpho\Di\IServiceManager;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 use Morpho\Web\Request;
 
-class FastRouter implements IHasServiceManager {
+class FastRouter implements IHasServiceManager, IRouter {
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager): void {

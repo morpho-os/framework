@@ -9,43 +9,9 @@ namespace Morpho\Web;
 
 use function Morpho\Base\escapeHtml;
 use Morpho\Di\IServiceManager;
-use Morpho\Error\ErrorHandler;
+use Morpho\Core\Application as BaseApplication;
 
-class Application {
-    /**
-     * @var \ArrayAccess|array
-     */
-    protected $config;
-
-    public function __construct($config = null) {
-        $this->config = $config;
-    }
-
-    public static function main(array $config = null): int {
-        $app = new static($config);
-        $res = $app->run();
-        return $res ? Environment::SUCCESS_CODE : Environment::FAILURE_CODE;
-    }
-
-    public function run(): bool {
-        try {
-            $serviceManager = $this->newServiceManager();
-            $this->configure($serviceManager);
-            $request = $serviceManager->get('request');
-            $serviceManager->get('router')->route($request);
-            $serviceManager->get('dispatcher')->dispatch($request);
-            $request->response()->send();
-            return true;
-        } catch (\Throwable $e) {
-            $this->handleError($e, $serviceManager ?? null);
-            return false;
-        }
-    }
-
-    public function config() {
-        return $this->config;
-    }
-
+class Application extends BaseApplication {
     protected function newServiceManager(): IServiceManager {
         $config = $this->config;
         $baseDirPath = isset($config['baseDirPath'])
@@ -66,32 +32,8 @@ class Application {
         return $serviceManager;
     }
 
-    protected function handleError(\Throwable $e, ?IServiceManager $serviceManager): void {
-        if ($serviceManager) {
-            try {
-                $serviceManager->get('errorHandler')->handleException($e);
-            } catch (\Throwable $e) {
-                $this->logErrorFallback($e);
-            }
-        } else {
-            $this->logErrorFallback($e);
-        }
-        $this->showError($e);
-    }
-
-    protected function logErrorFallback(\Throwable $e): void {
-        if (ErrorHandler::isErrorLogEnabled()) {
-            // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
-            error_log(addslashes((string)$e));
-        }
-    }
-
-    /**
-     * Configures an application.
-     */
     protected function configure(IServiceManager $serviceManager): void {
-        $serviceManager->get('environment')->init();
-        $serviceManager->get('errorHandler')->register();
+        parent::configure($serviceManager);
 
         /** @var Site $site */
         $site = $serviceManager->get('site');

@@ -55,7 +55,7 @@ class Module extends BaseModule implements IHasTheme {
 
             $request->setHandler($errorHandler)
                 ->isDispatched(false);
-            $request->setInternalParam('error', $exception);
+            $request->params()->offsetSet('error', $exception);
             $request->response()->setStatusCode($statusCode);
         };
 

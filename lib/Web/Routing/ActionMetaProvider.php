@@ -11,8 +11,8 @@ use function Morpho\Base\{
 };
 use Morpho\Base\IFn;
 use Morpho\Code\ReflectionFile;
-use const Morpho\Web\ACTION_SUFFIX;
-use const Morpho\Web\CONTROLLER_SUFFIX;
+use const Morpho\Core\CONTROLLER_SUFFIX;
+use const Morpho\Core\ACTION_SUFFIX;
 
 class ActionMetaProvider implements IFn {
     protected $baseControllerClasses = [

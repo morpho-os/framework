@@ -14,11 +14,9 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\Di\ServiceManager as BaseServiceManager;
-use Morpho\Error\DumpListener;
+use Morpho\Core\IRouter;
+use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
-use Morpho\Error\LogListener;
-use Morpho\Error\NoDupsListener;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\FastRouter;
@@ -31,34 +29,7 @@ use Morpho\Web\View\PreHtmlParser;
 use function Morpho\Code\composerAutoloader;
 
 class ServiceManager extends BaseServiceManager {
-    protected $config = [];
-
-    public function __construct(array $services = null, array $config = null) {
-        parent::__construct($services);
-        $this->config = (array) $config;
-    }
-
-    public function setConfig(array $config): void {
-        $this->config = $config;
-    }
-
-    public function config(): array {
-        return $this->config;
-    }
-
-    protected function newErrorHandlerService() {
-        $listeners = [];
-        $logListener = new LogListener($this->get('errorLogger'));
-        $listeners[] = $this->config['errorHandler']['noDupsListener']
-            ? new NoDupsListener($logListener)
-            : $logListener;
-        if ($this->config['errorHandler']['dumpListener']) {
-            $listeners[] = new DumpListener();
-        }
-        return new ErrorHandler($listeners);
-    }
-
-    public function newRouterService() {
+    public function newRouterService(): IRouter {
         //return new Router($this->get('db'));
         return new FastRouter();
     }

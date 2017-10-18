@@ -8,8 +8,10 @@ namespace Morpho\Web;
 
 use Morpho\Base\Event;
 use Morpho\Base\EventManager as BaseEventManager;
+use const Morpho\Core\VENDOR;
 
 class EventManager extends BaseEventManager {
+    private const SYSTEM_MODULE = VENDOR . '/system';
     protected $serviceManager;
 
     public function __construct($serviceManager) {
@@ -22,7 +24,7 @@ class EventManager extends BaseEventManager {
         /**
          * @var \Morpho\System\Module $module
          */
-        $module = $moduleProvider->offsetGet(ModuleProvider::SYSTEM_MODULE);
+        $module = $moduleProvider->offsetGet(self::SYSTEM_MODULE);
         $this->on('dispatchError', function (Event $event) use ($module) {
             return $module->dispatchError($event);
         });

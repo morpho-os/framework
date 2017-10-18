@@ -7,27 +7,18 @@
 
 namespace Morpho\Web;
 
-use const Morpho\Web\AUTOLOAD_FILE_NAME;
 use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Web\CONFIG_FILE_NAME;
-use const Morpho\Web\META_FILE_NAME;
-use const Morpho\Web\MODULE_CLASS_FILE_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Core\VENDOR_DIR_NAME;
-use Morpho\Di\IHasServiceManager;
-use Morpho\Di\IServiceManager;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
+use Morpho\Core\PathManager as BasePathManager;
 
 /**
  * Fs of whole project.
  */
-class PathManager implements IHasServiceManager {
-    /**
-     * @var string
-     */
-    protected $baseDirPath;
+class PathManager extends BasePathManager {
     /**
      * @var ?string
      */
@@ -44,36 +35,18 @@ class PathManager implements IHasServiceManager {
      * @var ?string
      */
     protected $configFilePath;
-    // @TODO
-    //protected $useCache;
+
     /**
      * @var ?array
      */
     private $moduleCache;
-    /**
-     * @var array
-     */
-    private $registeredModules = [];
+
     private const CACHE_FILE_NAME = 'module-fs.php';
 
-    protected $serviceManager;
     /**
      * @var ?string
      */
     private $publicDirPath;
-
-    public function __construct(string $baseDirPath) {
-        $this->baseDirPath = $baseDirPath;
-        // @TODO: $this->useCache = $useCache;
-    }
-
-    public function setBaseDirPath(string $baseDirPath): void {
-        $this->baseDirPath = $baseDirPath;
-    }
-
-    public function baseDirPath(): string {
-        return $this->baseDirPath;
-    }
 
     public function setBaseModuleDirPath(string $baseModuleDirPath): void {
         $this->baseModuleDirPath = $baseModuleDirPath;
@@ -101,10 +74,6 @@ class PathManager implements IHasServiceManager {
         return $this->serviceManager->get('site')->pathManager()->cacheDirPath();
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
-        $this->serviceManager = $serviceManager;
-    }
-
     /**
      * @return false|string
      */
@@ -124,7 +93,7 @@ class PathManager implements IHasServiceManager {
             if ($throwEx) {
                 throw new \RuntimeException("Unable to find a path of the root directory");
             }
-            return null;
+            return false;
         }
         return Path::normalize($baseDirPath);
     }
@@ -172,18 +141,12 @@ class PathManager implements IHasServiceManager {
         return array_keys($this->moduleCache);
     }
 
-    /**
-     * @return string|false
-     */
-    public function moduleClass(string $moduleName) {
+    public function moduleClass(string $moduleName): string {
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['class'];
     }
 
-    /**
-     * @return string|false
-     */
-    public function moduleNamespace(string $moduleName) {
+    public function moduleNamespace(string $moduleName): string {
         $this->initModuleCache();
         return $this->moduleCache[$moduleName]['namespace'];
     }
@@ -196,15 +159,6 @@ class PathManager implements IHasServiceManager {
     public function moduleDirPath(string $moduleName): string {
         $this->initModuleCache();
         return $this->baseModuleDirPath() . '/' . $this->moduleCache[$moduleName]['relDirPath'];
-    }
-
-    public function registerModuleAutoloader(string $moduleName): void {
-        if (!isset($this->registeredModules[$moduleName])) {
-            // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then
-            // call Composer's autoloader in case of fail.
-            require $this->moduleDirPath($moduleName) . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
-            $this->registeredModules[$moduleName] = true;
-        }
     }
 
     private function initModuleCache(): void {

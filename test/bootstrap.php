@@ -6,7 +6,7 @@
  */
 namespace MorphoTest;
 
-use const Morpho\Web\AUTOLOAD_FILE_NAME;
+use const Morpho\Core\AUTOLOAD_FILE_NAME;
 use const Morpho\Core\VENDOR_DIR_NAME;
 use Morpho\Test\Sut;
 

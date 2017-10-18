@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 //declare(strict_types=1);
-namespace Morpho\Web;
+namespace Morpho\Core;
 
 use Morpho\Base\Node as BaseNode;
 use Morpho\Di\{IHasServiceManager, IServiceManager};

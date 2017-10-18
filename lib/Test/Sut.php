@@ -6,8 +6,7 @@
  */
 namespace Morpho\Test;
 
-use Morpho\Base\NotImplementedException;
-use const Morpho\Web\CONFIG_FILE_NAME;
+use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Web\PathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;
@@ -65,18 +64,6 @@ class Sut {
             $this->publicDirPath = $this->baseDirPath() . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
-    }
-
-    public function siteConfig(array $dbConfig): array {
-        throw new NotImplementedException();
-/*        $config = require $this->baseModuleDirPath() . '/localhost/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME;
-        $config['services']['db'] = $dbConfig;
-        $config['errorHandler'] = [
-            'dumpListener' => false,
-            'noDupsListener' => false,
-        ];
-        $config['modules'][SystemModule::NAME]['throwDispatchErrors'] = false;
-        return $config;*/
     }
 
     public function settings(): TestSettings {
