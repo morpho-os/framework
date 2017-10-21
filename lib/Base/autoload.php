@@ -393,7 +393,7 @@ function typeOf($val): string {
     }
 }
 
-function buffer(callable $fn): string {
+function capture(callable $fn): string {
     ob_start();
     try {
         $fn();

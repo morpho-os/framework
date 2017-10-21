@@ -197,7 +197,7 @@ class TypeScriptCompiler extends Compiler {
             . 'tsc '
             . $argsString,
             array_merge(
-                (array)$cmdOptions, ['buffer' => true]
+                (array)$cmdOptions, ['capture' => true]
             )
         );
     }

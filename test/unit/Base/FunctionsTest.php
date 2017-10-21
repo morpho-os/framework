@@ -563,6 +563,10 @@ class FunctionsTest extends TestCase {
         $this->assertSame(2, $sumCalled);
     }
 
+    public function testCapture() {
+        $this->markTestIncomplete();
+    }
+
     private function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
         $this->assertEquals('foobar', call_user_func($fn, 'foobar'));

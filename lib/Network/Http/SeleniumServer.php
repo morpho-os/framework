@@ -100,7 +100,7 @@ class SeleniumServer {
 
     public function listening(): bool {
         // @TODO: Use php sockets.
-        $res = cmd('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkExitCode' => false, 'buffer' => true]);
+        $res = cmd('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkExitCode' => false, 'capture' => true]);
         return !$res->isError();
     }
 
@@ -113,7 +113,7 @@ class SeleniumServer {
     }
 
     private function findPid(): ?int {
-        $pid = (int) trim((string) cmd("lsof -t -c java -a -i ':" . escapeshellarg($this->port()) . "' 2>&1", ['buffer' => true, 'checkExitCode' => false]));
+        $pid = (int) trim((string) cmd("lsof -t -c java -a -i ':" . escapeshellarg($this->port()) . "' 2>&1", ['capture' => true, 'checkExitCode' => false]));
         // ss -t -a -n -p state all '( sport = 4444 )'
         return $pid > 0 ? $pid : null;
     }

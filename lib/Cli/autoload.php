@@ -18,6 +18,7 @@ const STD_PIPES = [
 
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\showLn;
+use function Morpho\Base\capture;
 use Morpho\Base\NotImplementedException;
 use Morpho\Error\ErrorHandler;
 
@@ -113,15 +114,15 @@ function shell(string $command, array $options = null): CommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
         'checkExitCode' => true,
         // @TODO: tee: buffer and display output
-        'buffer' => false,
+        'capture' => false,
     ]);
     $output = null;
     $exitCode = 1;
-    if (!$options['buffer']) {
+    if (!$options['capture']) {
         // @TODO: How to return $output?
         passthru($command, $exitCode);
     } else {
-        $output = \Morpho\Base\buffer(function () use ($command, &$exitCode) {
+        $output = capture(function () use ($command, &$exitCode) {
             passthru($command, $exitCode);
         });
     }
@@ -150,7 +151,7 @@ function proc(string $command, array $options = null): CommandResult {
 
 function cmd(string $command, array $options = null): CommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
-        'buffer' => false,
+        'capture' => false,
         'shell' => true,
         'checkExitCode' => true,
     ]);

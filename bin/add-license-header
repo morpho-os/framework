@@ -8,7 +8,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $add = true;
 if (posix_isatty(STDOUT)) {
-    $res = shell('dialog --stdout --yesno \'Add header?\' 0 0', ['checkExitCode' => false, 'buffer' => true]);
+    $res = shell('dialog --stdout --yesno \'Add header?\' 0 0', ['checkExitCode' => false, 'capture' => true]);
     $add = !$res->isError();
 }
 if ($add) {

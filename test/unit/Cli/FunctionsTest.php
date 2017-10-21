@@ -86,7 +86,7 @@ OUT
     }
 
     public function testCmd_CommandAsString() {
-        $result = cmd('ls '  . escapeshellarg(__DIR__), ['buffer' => true]);
+        $result = cmd('ls '  . escapeshellarg(__DIR__), ['capture' => true]);
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
         $this->assertContains(basename(__FILE__), (string)$result);

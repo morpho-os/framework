@@ -7,7 +7,7 @@
 namespace Morpho\Debug;
 
 use Morpho\Base\NotImplementedException;
-use function Morpho\Base\{typeOf, buffer};
+use function Morpho\Base\{typeOf, capture};
 
 /**
  * Utility class to debug any PHP application.
@@ -147,7 +147,7 @@ class Debugger {
     public function logToFile(string $filePath, ...$args) {
         $oldHtmlMode = $this->isHtmlMode;
         $this->isHtmlMode(false);
-        $content = buffer(function () use ($args) {
+        $content = capture(function () use ($args) {
             $this->varDump(...$args);
         });
         if (@filesize($filePath) == 0) {
@@ -159,7 +159,7 @@ class Debugger {
     }
 
     public function varToString($var, bool $fixOutput = true): string {
-        $output = trim(buffer(function () use ($var) {
+        $output = trim(capture(function () use ($var) {
             if ($var instanceof \Generator) {
                 var_dump("\\Generator which yields the values: " . var_export(iterator_to_array($var, false), true));
             } else {
