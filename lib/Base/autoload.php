@@ -520,7 +520,7 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
 }
 
 // ----------------------------------------------------------------------------
-// Iterable. Some iterable ideas or code inspired by the https://github.com/nikic/iter.
+// Iterables, some ideas or code inspired by the https://github.com/nikic/iter.
 
 function all(callable $predicate, iterable $list): bool {
     foreach ($list as $key => $value) {
@@ -540,22 +540,94 @@ function any(callable $predicate, iterable $list): bool {
     return false;
 }
 
-function map(callable $fn, $list): iterable {
-    foreach ($list as $k => $v) {
-        yield $k => $fn($v, $k);
+/**
+ * @return string|\Generator|array
+ */
+function map(callable $fn, $iter) {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
+        }
+        return '';
     }
+    if (is_array($iter)) {
+        $newArr = [];
+        foreach ($iter as $k => $v) {
+            $newArr[$k] = $fn($v, $k);
+        }
+        return $newArr;
+    }
+    // @TODO: Handle strings
+    return (function () use ($fn, $iter) {
+        foreach ($iter as $k => $v) {
+            yield $k => $fn($v, $k);
+        }
+    })();
 }
 
 /**
- * @return iterable
- *     array if $list is an array
- *     Generator if $list argument is not an array
+ * Modified version from the https://github.com/nikic/iter
+ * @Copyright (c) 2013 by Nikita Popov.
+ *
+ * Applies a function to each value in an iterator and flattens the result.
+ *
+ * The function is passed the current iterator value and should return an
+ * iterator of new values. The result will be a concatenation of the iterators
+ * returned by the mapping function.
+ *
+ * Examples
+ *     flatMap(function($v) { return [-$v, $v]; }, [1, 2, 3, 4, 5]);
+ *     => iterable(-1, 1, -2, 2, -3, 3, -4, 4, -5, 5)
+ *
+ * @param callable $function Mapping function: iterable function(mixed $value)
+ * @param iterable|string $iterable Iterable to be mapped over
+ *
+ * @return string|\Generator|array
  */
-function filter(callable $predicate, iterable $list): iterable {
-    if (is_array($list)) {
+function flatMap(callable $fn, $iter) {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
+        }
+        return '';
+    }
+    if (is_array($iter)) {
+        $newArr = [];
+        foreach ($iter as $value) {
+            foreach ($fn($value) as $k => $v) {
+                $newArr[$k] = $v;
+            }
+        }
+        return $newArr;
+    }
+    // @TODO: Handle strings
+    return (function () use ($fn, $iter) {
+        foreach ($iter as $value) {
+            foreach ($fn($value) as $k => $v) {
+                yield $k => $v;
+            }
+        }
+    })();
+}
+
+/**
+ * @param string|iterable $iter
+ * @return string|\Generator|array
+ *     string if $list : string
+ *     array if $list : array
+ *     Generator otherwise
+ */
+function filter(callable $predicate, $iter) {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
+        }
+        return '';
+    }
+    if (is_array($iter)) {
         $res = [];
         $numericKeys = true;
-        foreach ($list as $k => $v) {
+        foreach ($iter as $k => $v) {
             if ($numericKeys && !is_numeric($k)) {
                 $numericKeys = false;
             }
@@ -565,14 +637,13 @@ function filter(callable $predicate, iterable $list): iterable {
         }
         return $numericKeys ? array_values($res) : $res;
     } else {
-        $gen = function ($predicate, $list) {
-            foreach ($list as $k => $v) {
+        return (function () use ($predicate, $iter) {
+            foreach ($iter as $k => $v) {
                 if ($predicate($v, $k)) {
                     yield $k => $v;
                 }
             }
-        };
-        return $gen($predicate, $list);
+        })();
     }
 }
 
@@ -758,7 +829,7 @@ function contains($haystack, $needle): bool {
 }
 
 /**
- * Modified version from the https://github.com/nikic/iter/blob/master/test/iterTest.php
+ * Modified version from the https://github.com/nikic/iter
  * @Copyright (c) 2013 by Nikita Popov.
  *
  * Chains the iterables that were passed as arguments.
@@ -768,11 +839,9 @@ function contains($haystack, $needle): bool {
  * Example:
  *     chain(range(0, 5), range(6, 10), range(11, 15))
  *     => iterable(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
- *
- * @param array|\Traversable ...$iterables Iterables to chain
- *
  */
 function chain(...$iterables): iterable {
+    // @TODO: Handle strings
     //_assertAllIterable($iterables);
     foreach ($iterables as $iterable) {
         foreach ($iterable as $key => $value) {
