@@ -12,43 +12,47 @@ use Morpho\Di\IServiceManager;
 use Morpho\Core\Application as BaseApplication;
 
 class Application extends BaseApplication {
-    protected function newServiceManager(): IServiceManager {
-        $config = $this->config;
-        $baseDirPath = isset($config['baseDirPath'])
-            ? realpath(str_replace('\\', '/', $config['baseDirPath']))
-            : PathManager::detectBaseDirPath(__DIR__);
-        $pathManager = new PathManager($baseDirPath);
-        $site = $config['site'] ?? (new SiteFactory())($pathManager, $config);
+    protected function init(): IServiceManager {
+        $appConfig = $this->config;
+
+        /** @var Site $site */
+        [$site, $siteConfig] = $this->newSiteAndConfig($appConfig);
+
+        if (isset($siteConfig['iniSettings'])) {
+            $this->applyIniSettings($siteConfig['iniSettings']);
+        }
+        if (isset($siteConfig['umask'])) {
+            umask($siteConfig['umask']);
+        }
+
+        $newModuleIndexer = function ($siteModuleName) use ($appConfig, $siteConfig) {
+            $baseModuleDirPath = $appConfig['baseModuleDirPath'];
+            $cacheDirPath = $siteConfig['paths']['cacheDirPath'];
+            $indexFilePath = $cacheDirPath . '/module-index.php';
+            return new ModuleIndexer(
+                $baseModuleDirPath,
+                $indexFilePath,
+                [
+                    $siteModuleName => $siteConfig,
+                ],
+                // @TODO: Add module iterator
+                array_keys($siteConfig['modules'])
+            );
+        };
+
         $services = [
             'app'  => $this,
             'site' => $site,
-            'pathManager' => $pathManager,
+            'moduleIndexer' => $newModuleIndexer($site->moduleName()),
         ];
-        $siteConfig = $site->config();
-        $serviceManager = $siteConfig['serviceManager']
-            ? new $siteConfig['serviceManager']($services)
-            : new ServiceManager($services);
+        $serviceManager = $this->newServiceManager($siteConfig['serviceManager'] ?? null, $services);
+
         $serviceManager->setConfig($siteConfig['services']);
+
+        $serviceManager->get('environment')->init();
+        $serviceManager->get('errorHandler')->register();
+
         return $serviceManager;
-    }
-
-    protected function configure(IServiceManager $serviceManager): void {
-        parent::configure($serviceManager);
-
-        /** @var Site $site */
-        $site = $serviceManager->get('site');
-
-        $config = $site->config();
-        $this->applyIniSettings($config['iniSettings']);
-        if (isset($config['umask'])) {
-            umask($config['umask']);
-        }
-        if (!$config['useOwnPublicDir']) {
-            $site->pathManager()->setPublicDirPath($serviceManager->get('pathManager')->publicDirPath());
-        }
-
-        $serviceManager->get('moduleProvider')
-            ->append($site);
     }
 
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {
@@ -88,5 +92,16 @@ class Application extends BaseApplication {
             \ob_end_clean();
         }
         die(escapeHtml($message) . '.');
+    }
+
+    protected function newSiteAndConfig($appConfig) {
+        return (new SiteFactory())($appConfig);
+    }
+
+    protected function newServiceManager(?string $class, $services): IServiceManager {
+        if ($class) {
+            return new $class($services);
+        }
+        return new ServiceManager($services);
     }
 }

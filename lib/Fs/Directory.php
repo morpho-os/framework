@@ -87,7 +87,7 @@ class Directory extends Entry {
     }
 
     /**
-     * @param array|string $dirPaths
+     * @param string|iterable $dirPaths
      * @param string|\Closure $processor
      */
     public static function paths($dirPaths, $processor = null, array $options = []): \Generator {
@@ -109,9 +109,11 @@ class Directory extends Entry {
                 return $isDir || preg_match($regexp, $path);
             };
         }
-
+        if (is_string($dirPaths)) {
+            $dirPaths = (array) $dirPaths;
+        }
         $recursive = $options['recursive'];
-        foreach ((array)$dirPaths as $dirPath) {
+        foreach ($dirPaths as $dirPath) {
             foreach (new DirectoryIterator($dirPath) as $item) {
                 if ($item->isDot()) {
                     continue;
@@ -181,7 +183,7 @@ class Directory extends Entry {
     /**
      * Shortcut for the paths() with $options['type'] == Stat::DIR option.
      *
-     * @param string|array $dirPath
+     * @param string|iterable $dirPath
      * @param string|\Closure $processor
      */
     public static function dirPaths($dirPath, $processor = null, array $options = []): \Generator {

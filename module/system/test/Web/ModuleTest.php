@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\SystemTest;
+namespace MorphoTest\System\Web;
 
 use Monolog\Logger;
 use Morpho\Base\Event;
@@ -7,10 +7,11 @@ use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
-use Morpho\Web\ModulePathManager;
+use Morpho\Web\ModuleIndex;
+use Morpho\Web\ModuleMeta;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
-use Morpho\System\Module as SystemModule;
+use Morpho\System\Web\Module as SystemModule;
 use Morpho\Web\Response;
 
 class ModuleTest extends TestCase {
@@ -75,8 +76,13 @@ class ModuleTest extends TestCase {
     }
 
     private function newModule($config, $exception, $mustLogError) {
-        $module = new SystemModule('foo/bar', $this->createMock(ModulePathManager::class));
-        $module->setConfig($config);
+        $moduleIndex = $this->createMock(ModuleIndex::class);
+        $moduleName = 'morpho-os/system';
+        $moduleIndex->expects($this->any())
+            ->method('moduleMeta')
+            ->with($moduleName)
+            ->will($this->returnValue(new ModuleMeta($moduleName, $config)));
+        $module = new SystemModule($moduleName, $moduleIndex);
         $serviceManager = $this->createMock(ServiceManager::class);
         $errorLogger = $this->createMock(Logger::class);
         if ($mustLogError) {

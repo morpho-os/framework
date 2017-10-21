@@ -14,13 +14,13 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Di\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
-    protected $config = [];
+    protected $config;
 
-    public function setConfig(array $config): void {
+    public function setConfig($config): void {
         $this->config = $config;
     }
 
-    public function config(): array {
+    public function config() {
         return $this->config;
     }
 

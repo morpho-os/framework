@@ -15,6 +15,7 @@ use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\IRouter;
+use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\Logging\WebProcessor;
@@ -56,10 +57,15 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
+    protected function newModuleIndexService() {
+        return new ModuleIndex($this->get('moduleIndexer'));
+    }
+
     protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
-        $templateEngine->setCacheDirPath($this->get('site')->pathManager()->cacheDirPath());
+        $cacheDirPath = $this->get('moduleIndex')->moduleMeta($this->get('site')->moduleName())->cacheDirPath();
+        $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConfig['useCache']);
         $templateEngine->append(new PreHtmlParser($this))
             ->append(new FormPersister($this))
@@ -77,7 +83,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newModuleProviderService() {
-        return new ModuleProvider($this->get('pathManager'));
+        return new ModuleProvider($this->get('moduleIndex'));
     }
 
     protected function newDispatcherService() {
@@ -117,8 +123,8 @@ class ServiceManager extends BaseServiceManager {
     }
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {
-        $site = $this->get('site');
-        $filePath = $site->pathManager()->logDirPath() . '/' . $logger->getName() . '.log';
+        $moduleIndex = $this->get('moduleIndex');
+        $filePath = $moduleIndex->moduleMeta($this->get('site')->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)

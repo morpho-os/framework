@@ -9,20 +9,31 @@ namespace Morpho\Web\Routing;
 
 use Morpho\Base\IFn;
 use const Morpho\Core\CONTROLLER_SUFFIX;
+use const Morpho\Core\LIB_DIR_NAME;
+use Morpho\Core\ModuleIndex;
 use Morpho\Fs\Directory;
 
 class ControllerFileMetaProvider implements IFn {
-    private $moduleProvider;
+    private $moduleIndex;
 
-    public function __construct(\ArrayObject $moduleProvider) {
-        $this->moduleProvider = $moduleProvider;
+    public function __construct(ModuleIndex $moduleIndex) {
+        $this->moduleIndex = $moduleIndex;
     }
 
     public function __invoke($modules): iterable {
-        $moduleProvider = $this->moduleProvider;
-        foreach ($modules as $moduleName => $_) {
-            $module = $moduleProvider->offsetGet($moduleName);
-            $controllerDirPath = $module->pathManager()->controllerDirPath();
+        $index = $this->moduleIndex;
+        foreach ($modules as $moduleName) {
+            $paths = $index->moduleMeta($moduleName)['paths'];
+            if (isset($paths['controllerDirPath'])) {
+                $controllerDirPath = $paths['controllerDirPath'];
+            } else {
+                if (isset($paths['libDirPath'])) {
+                    $libDirPath = $paths['libDirPath'];
+                } else {
+                    $libDirPath = $paths['baseDirPath'] . '/' . $paths['relDirPath'] . '/' . LIB_DIR_NAME;
+                }
+                $controllerDirPath = $libDirPath . '/Web';
+            }
             if (!is_dir($controllerDirPath)) {
                 continue;
             }

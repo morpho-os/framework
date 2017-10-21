@@ -4,55 +4,49 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Web;
+namespace Morpho\Core;
 
 use Morpho\Base\ClassNotFoundException;
-use const Morpho\Core\AUTOLOAD_FILE_NAME;
-use Morpho\Core\Node;
 use Morpho\Base\Node as BaseNode;
-use const Morpho\Core\VENDOR_DIR_NAME;
 
 class ModuleProvider extends Node {
     /**
-     * @var PathManager
+     * @var ModuleIndex
      */
-    protected $pathManager;
+    protected $moduleIndex;
 
     /**
      * @var array
      */
     private $registeredModules = [];
 
-    public function __construct(PathManager $pathManager) {
+    public function __construct(ModuleIndex $moduleIndex) {
         parent::__construct('ModuleProvider');
-        $this->pathManager = $pathManager;
+        $this->moduleIndex = $moduleIndex;
     }
 
     /**
      * @return string|false
      */
     protected function childNameToClass(string $name) {
-        return $this->pathManager->moduleClass($name);
+        return $this->moduleIndex->moduleMeta($name)['class'];
     }
 
     protected function loadChild(string $moduleName): BaseNode {
-        $pathManager = $this->pathManager;
         $class = $this->childNameToClass($moduleName);
         if (false === $class) {
             throw new ClassNotFoundException("Unable to load the module '$moduleName'");
         }
         $this->registerModuleAutoloader($moduleName);
-        return new $class(
-            $moduleName,
-            new ModulePathManager($pathManager->moduleDirPath($moduleName))
-        );
+        return new $class($moduleName, $this->moduleIndex);
     }
 
     private function registerModuleAutoloader(string $moduleName): void {
         if (!isset($this->registeredModules[$moduleName])) {
             // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then
+            $moduleMeta = $this->moduleIndex->moduleMeta($moduleName);
             // call Composer's autoloader in case of fail.
-            require $this->pathManager->moduleDirPath($moduleName) . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+            require $moduleMeta['paths']['baseDirPath'] . '/' . $moduleMeta['paths']['relDirPath'] . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
             $this->registeredModules[$moduleName] = true;
         }
     }

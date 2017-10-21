@@ -101,6 +101,22 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         }
     }
 
+    /**
+     * @return mixed
+     */
+    public static function trackErrors(callable $fn) {
+        $handler = function ($severity, $message, $filePath, $lineNo) {
+            if (!(error_reporting() & $severity)) {
+                return;
+            }
+            throw new \ErrorException($message, 0, $severity, $filePath, $lineNo);
+        };
+        HandlerManager::registerHandler(HandlerManager::ERROR, $handler);
+        $res = $fn();
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, $handler);
+        return $res;
+    }
+
     public static function errorToException($severity, $message, $filePath, $lineNo, $context): \ErrorException {
         $class = self::exceptionClass($severity);
         return new $class($message, 0, $severity, $filePath, $lineNo);

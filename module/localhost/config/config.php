@@ -1,17 +1,23 @@
 <?php
+use const Morpho\Core\VENDOR;
+use const Morpho\Core\CACHE_DIR_NAME;
+
+$moduleDirPath = dirname(__DIR__);
 return [
     'serviceManager' => 'Morpho\Web\ServiceManager',
+    'paths' => [
+        'cacheDirPath' => $moduleDirPath . '/' . CACHE_DIR_NAME,
+    ],
     'modules' => [
-        \Morpho\Core\VENDOR . '/system' => [
+        VENDOR . '/system' => [
             'throwDispatchErrors' => false,
         ],
-        \Morpho\Core\VENDOR . '/user',
-        \Morpho\Core\VENDOR . '/localhost',
+        VENDOR . '/user',
     ],
     'services' => [
         'router' => [
             'home' => [
-                'handler' => [\Morpho\Core\VENDOR . '/system', 'Index', 'index'],
+                'handler' => [VENDOR . '/system', 'Index', 'index'],
                 'method' => 'get',
             ],
         ],
@@ -52,7 +58,6 @@ return [
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
-    'useOwnPublicDir' => false,
     'iniSettings' => [
         'session' => [
             // The commented out settings contain default values from the PHP manual: https://php.net/manual/en/session.configuration.php. The session.upload* settings have not been included here. Settings without comments are fixes for those settings for which it makes sense.

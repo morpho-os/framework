@@ -7,52 +7,36 @@
 namespace MorphoTest\Unit\Web\Routing;
 
 use Morpho\Base\IFn;
+use Morpho\Core\ModuleIndex;
 use Morpho\Test\TestCase;
-use Morpho\Web\Module;
-use Morpho\Web\ModulePathManager;
+use Morpho\Web\ModuleMeta;
 use Morpho\Web\Routing\ControllerFileMetaProvider;
 
 class ControllerFileMetaProviderTest extends TestCase {
     public function testInterface() {
-        $this->assertInstanceOf(IFn::class, new ControllerFileMetaProvider(new \ArrayObject()));
+        $this->assertInstanceOf(IFn::class, new ControllerFileMetaProvider($this->createMock(ModuleIndex::class)));
     }
 
     public function testInvoke() {
         $modules = [
-            'foo' => [],
-            'bar' => [],
-            'baz' => [], // should not be included in result: controller directory does not exist.
+            'foo',
+            'bar',
+            'baz', // should not be included in result: controller directory does not exist.
         ];
         $testDirPath = $this->getTestDirPath();
-        $moduleMocks = [];
+        $moduleIndex = $this->createMock(ModuleIndex::class);
         foreach ($modules as $name => $_) {
-            $pathManager = $this->createConfiguredMock(
-                ModulePathManager::class,
-                [
-                    'controllerDirPath' => $testDirPath . '/' . $name,
-                ]
-            );
-            $module = $this->createConfiguredMock(
-                Module::class,
-                [
-                    'pathManager' => $pathManager,
-                ]
-            );
-            $moduleMocks[$name] = $module;
+            $moduleIndex->expects($this->any())
+                ->method('moduleMeta')
+                ->will($this->returnCallback(function ($moduleName) use ($name, $testDirPath) {
+                    return new ModuleMeta($moduleName, [
+                        'paths' => [
+                            'controllerDirPath' => $testDirPath . '/' . $moduleName,
+                        ],
+                    ]);
+                }));
         }
-        $moduleProvider = new class ($moduleMocks) extends \ArrayObject {
-            private $moduleMocks;
-            public function __construct($moduleMocks) {
-                $this->moduleMocks = $moduleMocks;
-            }
-            public function offsetGet($name) {
-                if (isset($this->moduleMocks[$name])) {
-                    return $this->moduleMocks[$name];
-                }
-                throw new \UnexpectedValueException();
-            }
-        };
-        $controllerFileMetaProvider = new ControllerFileMetaProvider($moduleProvider);
+        $controllerFileMetaProvider = new ControllerFileMetaProvider($moduleIndex);
         $expected = [
             [
                 'module' => 'bar',

@@ -7,19 +7,33 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-class SiteFactory {
-    public function __invoke(PathManager $pathManager, $config): Site {
-        list($moduleName, $hostName) = $this->detectSite($config['sites'], $config['useMultiSiting']);
-        $dirName = explode('/', $moduleName)[1];
-        $siteDirPath = $pathManager->baseModuleDirPath() . '/' . $dirName;
-        $pathManager = new SitePathManager($siteDirPath);
-        return new Site($moduleName, $pathManager, $hostName);
+use Morpho\Base\IFn;
+use const Morpho\Core\CONFIG_DIR_NAME;
+use Zend\Stdlib\ArrayUtils;
+
+class SiteFactory implements IFn {
+    public function __invoke($config): array {
+        if ($config['multiSiting']) {
+            $hostName = $this->detectHostName();
+            foreach ($config['sites'] as $hostName1 => $siteConfig) {
+                if ($hostName === $hostName1) {
+                    return $this->newSiteAndConfig($hostName, $siteConfig, $config['publicDirPath']);
+                }
+            }
+            throw new BadRequestException("Unable to detect the current site");
+        } else {
+            // No multi-siting -> use first found site.
+            $sitesConfig = $config['sites'];
+            reset($sitesConfig);
+            $siteConfig = $sitesConfig[key($sitesConfig)];
+            return $this->newSiteAndConfig(null, $siteConfig, $config['publicDirPath']);
+        }
     }
 
     /**
      * @throws BadRequestException
      */
-    protected function detectHostName(): string {
+    public static function detectHostName(): string {
         // Use the `Host` header field-value, see https://tools.ietf.org/html/rfc3986#section-3.2.2
         $host = $_SERVER['HTTP_HOST'] ?? null;
 
@@ -48,26 +62,38 @@ class SiteFactory {
         return $hostWithoutPort;
     }
 
-    /**
-     * @throws BadRequestException
-     */
-    protected function detectSite(array $sites, bool $useMultiSiting): array {
-        $hostName = $siteName = null;
-        if (!$useMultiSiting) {
-            // No multi-siting -> use first found site.
-            $siteName = array_shift($sites);
-        } else {
-            $hostName = $this->detectHostName();
-            foreach ($sites as $hostName1 => $moduleName) {
-                if ($hostName === $hostName1) {
-                    $siteName = $moduleName;
-                    break;
-                }
+    protected function newSiteAndConfig(?string $hostName, $siteConfig, string $publicDirPath): array {
+        $siteModuleName = $siteConfig['module'];
+        $normalizedConfig = $this->normalizeConfig($siteConfig, $publicDirPath);
+        return [new Site($siteModuleName, $hostName), $normalizedConfig];
+    }
+    
+    protected function normalizeConfig($config, string $publicDirPath) {
+        $siteDirPath = $config['dirPath'];
+        $configFilePath = $config['dirPath'] . '/' . CONFIG_DIR_NAME . '/config.php';
+        $siteModuleName = $config['module'];
+        unset($config['module'], $config['dirPath']);
+        $normalizedConfig = ArrayUtils::merge($config, $this->loadSiteConfig($configFilePath));
+        $normalizedConfig['paths'] += ['dirPath' => $siteDirPath, 'publicDirPath' => $publicDirPath];
+        if (!isset($normalizedConfig['modules'])) {
+            $normalizedConfig['modules'] = [];
+        }
+        $newModules = [
+            $siteModuleName => [],
+        ]; // We use a new array to preserve ordering
+        foreach ($normalizedConfig['modules'] as $name => $conf) {
+            if (is_numeric($name)) {
+                $newModules[$conf] = [];
+            } else {
+                $newModules[$name] = $conf;
             }
         }
-        if (null === $siteName) {
-            throw new BadRequestException("Unable to detect the current site");
-        }
-        return [$siteName, $hostName];
+        $normalizedConfig['modules'] = $newModules;
+
+        return $normalizedConfig;
+    }
+
+    protected function loadSiteConfig(string $configFilePath) {
+        return require $configFilePath;
     }
 }

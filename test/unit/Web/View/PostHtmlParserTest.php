@@ -9,19 +9,22 @@ namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
+use Morpho\Web\ModuleIndex;
+use Morpho\Web\ModuleMeta;
+use Morpho\Web\Request;
 use Morpho\Web\Site;
-use Morpho\Web\SitePathManager;
+use Morpho\Web\Uri;
 use Morpho\Web\View\PostHtmlParser;
 
 class PostHtmlParserTest extends TestCase {
     private $parser;
 
     public function setUp() {
-        $serviceManager = $this->newServiceManager($this->newRequest(), $this->newSite());
+        $serviceManager = $this->newConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
         $this->parser = new PostHtmlParser($serviceManager);
     }
 
-    public function testDefaultHandlingOfChildParentPages() {
+    public function testHandlingOfScripts_InChildParentPages() {
         $childPage = <<<OUT
 This
 <script src="foo/child.js"></script>
@@ -44,7 +47,7 @@ OUT;
         $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="/base/path/bar/parent.js"></script>\s*<script src="/base/path/foo/child.js"></script>\s*</body>$~', $html);
     }
 
-    public function testIndexAttrRenderParentPageScriptsAfterChildPageScripts() {
+    public function testHandlingOfScripts_IndexAttribute() {
         $childPage = <<<OUT
 This
 <script src="foo/child.js"></script>
@@ -67,7 +70,7 @@ OUT;
         $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="/base/path/foo/child.js"></script>\s*<script src="/base/path/bar/parent.js"></script>\s*</body>$~', $html);
     }
 
-    public function dataForSkipAttr() {
+    public function dataForSkipAttribute() {
         return [
             [
                 'body',
@@ -79,9 +82,9 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForSkipAttr
+     * @dataProvider dataForSkipAttribute
      */
-    public function testSkipAttr($tag) {
+    public function testSkipAttribute($tag) {
         $parser = new class ($this->createMock(ServiceManager::class)) extends PostHtmlParser {
             protected function containerBody($tag) {
                 $res = parent::containerBody($tag);
@@ -89,6 +92,7 @@ OUT;
                     throw new \RuntimeException("The tag must be skipped");
                 }
             }
+
             protected function containerScript($tag) {
                 $res = parent::containerScript($tag);
                 if (null !== $res) {
@@ -102,7 +106,8 @@ OUT;
     }
 
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript() {
-        $parser = $this->newParserForAutoInclusionTest();
+        $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
+        $parser = new PostHtmlParser($serviceManager);
 
         $childPage = <<<OUT
 This
@@ -118,7 +123,8 @@ OUT;
     }
 
     public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
-        $parser = $this->newParserForAutoInclusionTest();
+        $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
+        $parser = new PostHtmlParser($serviceManager);
 
         $childPage = <<<OUT
 This
@@ -136,51 +142,38 @@ OUT;
         );
     }
 
-    private function newRequest() {
-        return new class {
-            public function uri() {
-                return new class {
-                    public function prependWithBasePath(string $uri) {
-                        return '/base/path/' . $uri;
-                    }
-                };
-            }
+    private function newConfiguredServiceManager($handler) {
+        $request = $this->createMock(Request::class);
+        $request->expects($this->any())
+            ->method('handler')
+            ->willReturn($handler);
+        $uri = $this->createMock(Uri::class);
+        $uri->expects($this->any())
+            ->method('prependWithBasePath')
+            ->will($this->returnCallback(function ($uri) {
+                return '/base/path/' . $uri;
+            }));
+        $request->expects($this->any())
+            ->method('uri')
+            ->willReturn($uri);
 
-            public function handler() {
-                return ['country', 'state', 'city'];
-            }
-        };
-    }
-
-    private function newSite() {
-        return $this->createConfiguredMock(Site::class, [
-            'pathManager' => $this->createConfiguredMock(SitePathManager::class, [
-                'publicDirPath' => $this->getTestDirPath(),
-            ])
+        $siteModuleName = 'random/example';
+        $site = $this->createConfiguredMock(Site::class, [
+            'moduleName' => $siteModuleName,
         ]);
-    }
-
-    private function newServiceManager($request, $site) {
-        $serviceManager = new ServiceManager();
-        $serviceManager->set('request', $request);
-        $serviceManager->set('site', $site);
+        $publicDirPath = $this->getTestDirPath();
+        $moduleMeta = $this->createConfiguredMock(ModuleMeta::class, ['publicDirPath' => $publicDirPath]);
+        $moduleIndex = $this->createMock(ModuleIndex::class);
+        $moduleIndex->expects($this->any())
+            ->method('moduleMeta')
+            ->with($siteModuleName)
+            ->willReturn($moduleMeta);
+        $services = [
+            'request' => $request,
+            'site' => $site,
+            'moduleIndex' => $moduleIndex,
+        ];
+        $serviceManager = new ServiceManager($services);
         return $serviceManager;
-    }
-
-    private function newParserForAutoInclusionTest() {
-        $request = new class {
-            public function uri() {
-                return new class {
-                    public function prependWithBasePath(string $uri) {
-                        return '/base/path/' . $uri;
-                    }
-                };
-            }
-
-            public function handler() {
-                return ['table', 'cat', 'tail'];
-            }
-        };
-        return new PostHtmlParser($this->newServiceManager($request, $this->newSite()));
     }
 }

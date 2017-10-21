@@ -100,7 +100,9 @@ class PostHtmlParser extends HtmlParser {
      */
     private function actionScripts(): array {
         [$module, $controller, $action] = $this->request()->handler();
-        $publicDirPath = $this->serviceManager->get('site')->pathManager()->publicDirPath();
+        $serviceManager = $this->serviceManager;
+        $siteModuleName = $serviceManager->get('site')->moduleName();
+        $publicDirPath = $serviceManager->get('moduleIndex')->moduleMeta($siteModuleName)->publicDirPath();
         // @TODO: Add automatic compilation of ts
         $jsModuleId = dasherize(last($module, '/')) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
         $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';

@@ -30,8 +30,5 @@ update:
 	# We use `install` instead of `update` to run the [scripts](https://docs.npmjs.com/misc/scripts#description) defined in the package.json file.
 	cd public && npm install
 
-reset: clean
-	sudo rm -f module/localhost/config/config.php
-
 .SILENT:
 .PHONY: js css test ftest mtest utest clean update reset

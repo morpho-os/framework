@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\System;
+namespace Morpho\System\Web;
 
 use Morpho\Base\Must;
 use const Morpho\Core\VENDOR;
@@ -28,18 +28,17 @@ class Module extends BaseModule implements IHasTheme {
         $request = $event->args['request'];
 
         $handleError = function (string $handlerName, int $statusCode, bool $logError) use ($request, $exception) {
-
             if ($logError) {
                 $this->logError($exception);
             }
 
-            $config = $this->config();
+            $moduleMeta = $this->moduleIndex->moduleMeta($this->name());
 
-            if (!empty($config['throwDispatchErrors'])) {
+            if (!empty($moduleMeta['throwDispatchErrors'])) {
                 throw $exception;
             }
 
-            $handler = $config[$handlerName] ?? null;
+            $handler = $moduleMeta[$handlerName] ?? null;
             if ($handler) {
                 $errorHandler = $handler['handler'];
             } else {

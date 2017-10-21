@@ -10,7 +10,6 @@ use FastRoute\Dispatcher as IDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use function Morpho\Base\compose;
-use function Morpho\Base\requireFile;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\Core\IRouter;
@@ -71,16 +70,11 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function dispatcher(): IDispatcher {
-        $cacheFilePath = $this->cacheFilePath();
-        if (!file_exists($cacheFilePath)) {
-            $this->rebuildRoutes($cacheFilePath);
+        if (!$this->cacheExists()) {
+            $this->rebuildRoutes();
         }
-        $dispatchData = requireFile($cacheFilePath);
+        $dispatchData = $this->loadDispatchData();
         return new GroupCountBasedDispatcher($dispatchData);
-    }
-
-    protected function cacheFilePath(): string {
-        return $this->serviceManager->get('site')->pathManager()->cacheDirPath() . '/route.php';
     }
 
     protected function handleHomeUri(Request $request, $uri): bool {
@@ -97,13 +91,29 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function routesMeta(): iterable {
-        $modules = $this->serviceManager->get('site')->config()['modules'];
+        $moduleIndex = $this->serviceManager->get('moduleIndex');
+        $modules = $moduleIndex->moduleNames();
         return compose(
             new RouteMetaProvider(),
             compose(
                 new ActionMetaProvider(),
-                new ControllerFileMetaProvider($this->serviceManager->get('moduleProvider'))
+                new ControllerFileMetaProvider($moduleIndex)
             )
         )($modules);
+    }
+
+    protected function cacheExists(): bool {
+        return is_file($this->cacheFilePath());
+    }
+
+    protected function loadDispatchData() {
+        return require $this->cacheFilePath();
+    }
+
+    private function cacheFilePath(): string {
+        $serviceManager = $this->serviceManager;
+        $siteModuleName = $serviceManager->get('site')->moduleName();
+        $cacheDirPath = $serviceManager->get('moduleIndex')->moduleMeta($siteModuleName)->cacheDirPath();
+        return $cacheDirPath . '/route.php';
     }
 }

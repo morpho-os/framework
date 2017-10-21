@@ -7,8 +7,8 @@
 namespace Morpho\Test;
 
 use const Morpho\Core\CONFIG_FILE_NAME;
+use function Morpho\Core\baseDirPath;
 use const Morpho\Core\MODULE_DIR_NAME;
-use Morpho\Web\PathManager;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
@@ -43,7 +43,7 @@ class Sut {
 
     public function baseDirPath() {
         if (null === $this->baseDirPath) {
-            $this->baseDirPath = PathManager::detectBaseDirPath(__DIR__);
+            $this->baseDirPath = baseDirPath(__DIR__);
         }
         return $this->baseDirPath;
     }

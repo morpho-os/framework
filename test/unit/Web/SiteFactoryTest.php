@@ -1,32 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-declare(strict_types=1);
 namespace MorphoTest\Unit\Web;
 
-use Morpho\Web\PathManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
 
 class SiteFactoryTest extends TestCase {
-    /**
-     * @var SiteFactory
-     */
-    private $factory;
-
-    public function setUp() {
-        $this->factory = new class () extends SiteFactory {
-            // Make the protected method public for testing.
-            public function detectHostName(): string {
-                return parent::detectHostName();
-            }
-        };
-    }
-
     public function dataForDetectHostName_ValidIps() {
         return [
             // IPv4
@@ -79,7 +63,7 @@ class SiteFactoryTest extends TestCase {
      */
     public function testDetectHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
-        $this->assertEquals(strtolower($expected), $this->factory->detectHostName());
+        $this->assertSame(strtolower($expected), SiteFactory::detectHostName());
     }
 
     public function dataForDetectHostName_InvalidIps() {
@@ -115,40 +99,127 @@ class SiteFactoryTest extends TestCase {
     public function testDetectHostName_InvalidIps(string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
         $this->expectException(BadRequestException::class);
-        $this->factory->detectHostName();
+        SiteFactory::detectHostName();
     }
 
-    public function testInvoke_MultiSitingEnabled() {
-        $siteModuleName = 'vendor/foo-bar';
-        $hostName = 'choose-me';
-        $config = [
-            'useMultiSiting' => true,
-            'sites' => [
-                'this' => 'test/failed',
-                $hostName => $siteModuleName,
-            ],
-        ];
-        $_SERVER['HTTP_HOST'] = $hostName;
-        $pathManager = $this->createConfiguredMock(PathManager::class, [
-            'baseModuleDirPath' => $this->getTestDirPath(),
-        ]);
-        $site = $this->factory->__invoke($pathManager, $config);
-        $this->assertEquals($siteModuleName, $site->name());
+    public function dataForInvoke_MultiSiting() {
+        $testDirPath = $this->getTestDirPath();
+
+        $dataSet1 = function () use ($testDirPath) {
+            $publicDirPath = $testDirPath . '/random/dir';
+            $siteDirPath = $testDirPath . '/example';
+            $siteModuleName = 'hello/world';
+            $hostName = 'some-name.org';
+            $siteConfig = [
+                'module' => $siteModuleName,
+                'foo' => 'bar',
+                'dirPath' => $siteDirPath,
+            ];
+            $appConfig = [
+                'sites' => [
+                    $hostName => $siteConfig,
+                    'this' => [
+                        'module' => 'test/failed',
+                    ],
+                ],
+                'multiSiting' => false,
+                'publicDirPath' => $publicDirPath,
+            ];
+            $expectedSiteConfig = [
+                'foo' => 'bar',
+                'paths' => [
+                    'dirPath' => $siteDirPath,
+                    'publicDirPath' => $publicDirPath,
+                ],
+                'modules' => [
+                    $siteModuleName => [],
+                    'galaxy/mars' => [],
+                    'planet/earth' => []
+                ],
+                'test' => '123',
+            ];
+            return [
+                $appConfig,
+                $expectedSiteConfig,
+                null,
+                $hostName,
+                $siteModuleName,
+            ];
+        };
+
+        $dataSet2 = function () use ($testDirPath) {
+            $publicDirPath = $testDirPath . '/foo';
+            $siteDirPath = $testDirPath . '/my-site';
+            $siteModuleName = 'vendor/foo-bar';
+            $hostName = 'choose-me';
+            $siteConfig = [
+                'module' => $siteModuleName,
+                'foo' => 'bar',
+                'dirPath' => $siteDirPath,
+            ];
+            $appConfig = [
+                'sites' => [
+                    'this' => [
+                        'module' => 'test/failed',
+                    ],
+                    $hostName => $siteConfig,
+                ],
+                'multiSiting' => true,
+                'publicDirPath' => $publicDirPath,
+            ];
+            $expectedSiteConfig = [
+                'foo' => 'bar',
+                'paths' => [
+                    'dirPath' => $siteDirPath,
+                    'publicDirPath' => $publicDirPath,
+                ],
+                'modules' => [
+                    $siteModuleName => [],
+                    'galaxy/mars' => [],
+                    'planet/earth' => []
+                ],
+                'test' => '123',
+            ];
+            return [
+                $appConfig,
+                $expectedSiteConfig,
+                $hostName,
+                $hostName,
+                $siteModuleName,
+            ];
+        };
+        yield $dataSet1();
+        yield $dataSet2();
     }
 
-    public function testInvoke_MultiSitingDisabled() {
-        $hostName = 'my-host';
-        $config = [
-            'useMultiSiting' => false,
-            'sites' => [
-                'this' => 'test/success',
-                $hostName => 'vendor/foo-bar',
-            ],
-        ];
+    /**
+     * @dataProvider dataForInvoke_MultiSiting
+     */
+    public function testInvoke_MultiSiting($appConfig, $expectedSiteConfig, $expectedHostName, $hostName, $siteModuleName) {
         $_SERVER['HTTP_HOST'] = $hostName;
-        $pathManager = $this->createConfiguredMock(PathManager::class, [
-            'baseModuleDirPath' => $this->getTestDirPath(),
-        ]);
-        $this->assertEquals('test/success', $this->factory->__invoke($pathManager, $config)->name());
+
+        $siteFactory = $this->newSiteFactory();
+
+        [$site, $newSiteConfig] = $siteFactory->__invoke($appConfig);
+
+        $this->assertSame($expectedHostName, $site->hostName());
+        $this->assertSame($siteModuleName, $site->moduleName());
+
+        $this->assertSame($expectedSiteConfig, $newSiteConfig);
+    }
+
+    private function newSiteFactory() {
+        return new class extends SiteFactory {
+            public function loadSiteConfig(string $configFilePath) {
+                return [
+                    'paths' => [],
+                    'modules' => [
+                        'galaxy/mars',
+                        'planet/earth' => [],
+                    ],
+                    'test' => '123',
+                ];
+            }
+        };
     }
 }

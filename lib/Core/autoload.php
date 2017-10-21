@@ -6,6 +6,7 @@
  */
 namespace Morpho\Core;
 
+use Morpho\Fs\Path;
 const VENDOR = 'morpho-os';
 
 const APP_DIR_NAME = 'app';
@@ -33,3 +34,27 @@ const CONTROLLER_SUFFIX = 'Controller';
 const MODULE_SUFFIX = 'Module';
 const PLUGIN_SUFFIX = 'Plugin';
 const REPO_SUFFIX = 'Repo';
+
+/**
+ * @return false|string
+ */
+function baseDirPath(string $dirPath, bool $throwEx = true) {
+    $baseDirPath = null;
+    do {
+        $path = $dirPath . '/vendor/composer/ClassLoader.php';
+        if (is_file($path)) {
+            $baseDirPath = $dirPath;
+            break;
+        } else {
+            $chunks = explode(DIRECTORY_SEPARATOR, $dirPath, -1);
+            $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
+        }
+    } while ($chunks);
+    if (null === $baseDirPath) {
+        if ($throwEx) {
+            throw new \RuntimeException("Unable to find a path of the root directory");
+        }
+        return null;
+    }
+    return Path::normalize($baseDirPath);
+}

@@ -11,15 +11,15 @@ use Morpho\Error\ErrorHandler;
 
 abstract class Application {
     /**
-     * @var \ArrayAccess|array
+     * @var \ArrayObject
      */
     protected $config;
 
-    public function __construct($config = null) {
-        $this->config = $config;
+    public function __construct(\ArrayObject $config = null) {
+        $this->config = $config ?? new \ArrayObject([]);
     }
 
-    public static function main(array $config = null) {
+    public static function main(\ArrayObject $config = null) {
         $app = new static($config);
         return $app->run();
     }
@@ -29,8 +29,9 @@ abstract class Application {
      */
     public function run() {
         try {
-            $serviceManager = $this->newServiceManager();
-            $this->configure($serviceManager);
+            $serviceManager = ErrorHandler::trackErrors(function () {
+                return $this->init();
+            });
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
             $serviceManager->get('dispatcher')->dispatch($request);
@@ -41,7 +42,7 @@ abstract class Application {
         }
     }
 
-    public function config() {
+    public function config(): \ArrayObject {
         return $this->config;
     }
 
@@ -65,15 +66,7 @@ abstract class Application {
         }
     }
 
-    abstract protected function newServiceManager(): IServiceManager;
-
-    /**
-     * Configures an application.
-     */
-    protected function configure(IServiceManager $serviceManager): void {
-        $serviceManager->get('environment')->init();
-        $serviceManager->get('errorHandler')->register();
-    }
+    abstract protected function init(): IServiceManager;
 
     abstract protected function showError(\Throwable $e): void;
 }

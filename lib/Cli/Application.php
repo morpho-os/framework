@@ -10,7 +10,7 @@ namespace Morpho\Cli;
 use Morpho\Core\Application as BaseApplication;
 
 abstract class Application extends BaseApplication {
-    public static function main(array $config = null): int {
+    public static function main(\ArrayObject $config = null): int {
         $app = new static($config);
         /** @var Response|false $res */
         $res = $app->run();

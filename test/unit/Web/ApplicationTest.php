@@ -8,24 +8,17 @@ declare(strict_types=1);
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Di\IServiceManager;
-use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Application;
-use Morpho\Web\ModuleProvider;
+use Morpho\Web\ServiceManager;
 use Morpho\Web\Site;
 
 class ApplicationTest extends TestCase {
     private $umask;
     private $timezone;
-    private $application;
 
     public function setUp() {
         parent::setUp();
-        $this->application = new class extends Application {
-            public function configure(IServiceManager $serviceManager): void {
-                parent::configure($serviceManager);
-            }
-        };
         $this->umask = umask();
         $this->timezone = ini_get('date.timezone');
     }
@@ -54,14 +47,15 @@ class ApplicationTest extends TestCase {
      * @dataProvider dataForUmaskCanBeSetThroughSiteConfig
      */
     public function testUmaskCanBeSetThroughSiteConfig(int $newUmask) {
-        $config = array_merge(
-            $this->defaultSiteConfig(),
+        $siteConfig = array_merge(
+            $this->defaultSiteConfig($this->getTestDirPath()),
             [
-                'iniSettings' => [],
-                'umask' => $newUmask
+                'umask' => $newUmask,
             ]
         );
-        $this->application->configure($this->newServiceManager($config));
+        $application = $this->newConfiguredApplication($siteConfig);
+
+        $application->run();
 
         $this->assertSame($newUmask, umask());
     }
@@ -81,32 +75,74 @@ class ApplicationTest extends TestCase {
      * @dataProvider dataForTimezoneCanBeSetThroughSiteConfig
      */
     public function testTimezoneCanBeSetThroughSiteConfig(string $timeZone) {
-        $siteConfig = array_merge($this->defaultSiteConfig(), [
-            'iniSettings' => [
-                'date.timezone' => $timeZone
-            ],
-        ]);
-        $this->application->configure($this->newServiceManager($siteConfig));
+        $siteConfig = array_merge(
+            $this->defaultSiteConfig($this->getTestDirPath()),
+            [
+                'iniSettings' => [
+                    'date.timezone' => $timeZone
+                ],
+            ]
+        );
+
+        $application = $this->newConfiguredApplication($siteConfig);
+
+        $application->run();
 
         $this->assertSame($timeZone, ini_get('date.timezone'));
     }
 
-    private function newServiceManager(array $siteConfig): ServiceManager {
-        $serviceManager = new ServiceManager();
-        $serviceManager->set('environment', new class {
-            public function init() {
-            }
-        });
-        $serviceManager->set('errorHandler', new class {
-            public function register() {
-            }
-        });
-        $serviceManager->set('moduleProvider', $this->createMock(ModuleProvider::class));
-        $serviceManager->set('site', $this->createConfiguredMock(Site::class, ['config' => $siteConfig]));
-        return $serviceManager;
+    private function defaultSiteConfig($cacheDirPath) {
+        return [
+            'paths' => [
+                'cacheDirPath' => $cacheDirPath,
+            ],
+            'modules' => [],
+            'services' => [],
+        ];
     }
 
-    private function defaultSiteConfig() {
-        return ['useOwnPublicDir' => true];
+    private function newConfiguredApplication($siteConfig) {
+        $testDirPath = $this->getTestDirPath();
+        $appConfig = new \ArrayObject([
+            'baseModuleDirPath' => $testDirPath,
+        ]);
+
+        $site = $this->createMock(Site::class);
+
+        $serviceManager = $this->createMock(ServiceManager::class);
+        $serviceManager->expects($this->any())
+            ->method('get')
+            ->will($this->returnCallback(function ($id) {
+                if ($id === 'environment') {
+                    return new class { public function init() {} };
+                }
+                if ($id === 'errorHandler') {
+                    return new class { public function register() {} };
+                }
+                throw new \UnexpectedValueException($id);
+            }));
+
+        $mocks = [
+            'site' => $site,
+            'siteConfig' => $siteConfig,
+            'serviceManager' => $serviceManager,
+        ];
+        $application = new class ($appConfig, $mocks) extends Application {
+            private $mocks;
+            public function __construct($config, $mocks) {
+                parent::__construct($config);
+                $this->mocks = $mocks;
+            }
+            public function run() {
+                $this->init();
+            }
+            protected function newSiteAndConfig($appConfig) {
+                return [$this->mocks['site'], $this->mocks['siteConfig']];
+            }
+            protected function newServiceManager(?string $class, $services): IServiceManager {
+                return $this->mocks['serviceManager'];
+            }
+        };
+        return $application;
     }
 }

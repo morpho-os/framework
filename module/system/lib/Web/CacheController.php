@@ -6,7 +6,7 @@ use Morpho\Web\Controller;
 
 class CacheController extends Controller {
     public function clearAllAction() {
-        $cacheDirPath = $this->serviceManager->get('site')->pathManager()->cacheDirPath();
+        $cacheDirPath = $this->serviceManager->get('moduleIndex')->moduleMeta($this->serviceManager->get('site')->moduleName())->cacheDirPath();
         $gitignoreFileExists = is_file($cacheDirPath . '/.gitignore');
         Directory::delete($cacheDirPath, function (string $path, $isDir) use ($cacheDirPath, $gitignoreFileExists) {
             if ($isDir) {

@@ -11,10 +11,13 @@ use Morpho\Web\View\IHasTheme;
 
 class TestController extends Controller {
     public function indexAction() {
-        $controllerViewDirPath = $this->parentByType('Module')->pathManager()->viewDirPath() . '/' . dasherize($this->name());
+        $moduleName = $this->parentByType('Module')->name();
+        $moduleIndex = $this->serviceManager->get('moduleIndex');
+        $viewDirPath = $moduleIndex->moduleMeta($moduleName)['paths']['viewDirPath'];
+        $controllerViewDirPath = $viewDirPath . '/' . dasherize($this->name());
         $found = false;
         $moduleProvider = $this->serviceManager->get('moduleProvider');
-        foreach ($this->serviceManager->get('site')->config()['modules'] as $moduleName => $_) {
+        foreach ($moduleIndex->moduleNames() as $moduleName) {
             $module = $moduleProvider->offsetGet($moduleName);
             if ($module instanceof IHasTheme) {
                 $module->theme()->addBaseDirPath($controllerViewDirPath);

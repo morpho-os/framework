@@ -7,13 +7,13 @@
 namespace MorphoTest\Unit\Web\View;
 
 use function Morpho\Base\fromJson;
+use Morpho\Web\ModuleMeta;
+use Morpho\Web\ModuleIndex;
+use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Module;
-use Morpho\Web\ModulePathManager;
 use Morpho\Web\Request;
-use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\Theme;
 
 class ThemeTest extends TestCase {
@@ -99,67 +99,62 @@ class ThemeTest extends TestCase {
     }
 
     public function testRenderView_NonAjax() {
-        $theme = $this->newTheme();
-        $viewName = 'my-view-name';
-        $viewVars = ['news' => '123'];
+        $theme = new Theme();
+
+        $moduleName = 'foo/bar';
+        $controllerName = 'baz';
+        $viewName = 'edit';
+
+        $request = $this->createMock(Request::class);
+        $request->expects($this->any())
+            ->method('isAjax')
+            ->willReturn(false);
+        $request->expects($this->any())
+            ->method('moduleName')
+            ->willReturn($moduleName);
+        $request->expects($this->any())
+            ->method('controllerName')
+            ->willReturn($controllerName);
+
+        $viewDirPath = $this->getTestDirPath();
+        $moduleIndex = $this->createMock(ModuleIndex::class);
+        $moduleIndex->expects($this->any())
+            ->method('moduleMeta')
+            ->with($moduleName)
+            ->willReturn($this->createConfiguredMock(ModuleMeta::class, ['viewDirPath' => $viewDirPath]));
 
         $expected = 'abcdefg123';
 
-        $moduleName = 'foo-bar';
-        $controllerName = 'my-controller-name';
-        $moduleDirPath = $this->getTestDirPath() . '/' . $moduleName;
-
-        $request = new Request();
-        $request->setModuleName($moduleName)
-            ->setControllerName($controllerName);
-        $request->isAjax(false);
-        $_SERVER['REQUEST_URI'] = '/base/path/test/me?arg=val';
-
-
+        $moduleDirPath = $this->createTmpDir();
+        $theme->addBaseDirPath($moduleDirPath);
         $viewAbsFilePath = $moduleDirPath . '/' . $controllerName . '/' . $viewName . Theme::VIEW_FILE_EXT;
+        mkdir(dirname($viewAbsFilePath), 0777, true);
+        touch($viewAbsFilePath);
+
+        $viewVars = ['k' => 'v'];
+
         $templateEngine = $this->createMock(TemplateEngine::class);
         $templateEngine->expects($this->once())
             ->method('renderFile')
             ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
             ->will($this->returnValue($expected));
 
-        $module = $this->createMock(Module::class);
-        $pathManager = $this->createMock(ModulePathManager::class);
-        $pathManager->expects($this->any())
-            ->method('viewDirPath')
-            ->willReturn($moduleDirPath);
-        $module->expects($this->any())
-            ->method('name')
-            ->willReturn($moduleName);
-        $module->expects(($this->any()))
-            ->method('pathManager')
-            ->willReturn($pathManager);
-        $moduleProvider = new class ($module) extends \ArrayObject {
-            protected $name = 'moduleProvider';
-
-            private $module;
-
-            public function __construct($module) {
-                $this->module = $module;
-            }
-
-            public function offsetGet($name) {
-                if ($name === $this->module->name()) {
-                    return $this->module;
-                }
-                throw new \RuntimeException();
-            }
-        };
         $serviceManager = new ServiceManager([
             'request' => $request,
+            'moduleIndex' => $moduleIndex,
             'templateEngine' => $templateEngine,
-            'moduleProvider' => $moduleProvider,
         ]);
+
         $theme->setServiceManager($serviceManager);
 
-        $actual = $theme->renderView(new View($viewName, $viewVars));
+        $view = $this->createConfiguredMock(View::class, [
+            'name' => $viewName,
+            'vars' => $viewVars,
+        ]);
 
-        $this->assertEquals($expected, $actual);
+        $actual = $theme->renderView($view);
+
+        $this->assertSame($expected, $actual);
     }
 
     public function testBasePathAccessors() {

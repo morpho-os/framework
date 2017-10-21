@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\User;
+namespace Morpho\User\Web;
 
 use Morpho\Web\Module as BaseModule;
 use Morpho\Identity\UserManager;

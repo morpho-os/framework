@@ -6,50 +6,15 @@
  */
 namespace MorphoTest\Unit\Web;
 
-use Morpho\Web\SiteConfig;
-use const Morpho\Core\VENDOR;
 use Morpho\Test\TestCase;
-use Morpho\Web\Module;
 use Morpho\Web\Site;
-use Morpho\Web\SitePathManager;
-use Morpho\Web\View\IHasTheme;
-use Morpho\Web\View\THasTheme;
 
 class SiteTest extends TestCase {
-    public function testGettersOfConstructorParams() {
-        $pathManager = $this->createMock(SitePathManager::class);
-        $moduleName = VENDOR . '/localhost';
+    public function testAccessors() {
+        $moduleName = 'foo/bar';
         $hostName = 'example.com';
-        $site = new Site($moduleName, $pathManager, $hostName);
-        $this->assertSame($moduleName, $site->name());
+        $site = new Site($moduleName, $hostName);
         $this->assertSame($hostName, $site->hostName());
-        $this->assertSame($pathManager, $site->pathManager());
-    }
-
-    public function testConfig() {
-        $site = $this->newSite($this->createMock(SitePathManager::class));
-        $this->assertInstanceOf(SiteConfig::class, $site->config());
-    }
-
-    public function testConfig_AfterSettingNewPathManager() {
-        $site = $this->newSite($this->createMock(SitePathManager::class));
-        $oldConfig = $site->config();
-
-        $site->setPathManager($this->createMock(SitePathManager::class));
-        $newConfig = $site->config();
-
-        $this->assertNotSame($oldConfig, $newConfig);
-    }
-
-    public function testSiteIsAModuleAndWithTheme() {
-        $pathManager = $this->createConfiguredMock(SitePathManager::class, []);
-        $site = new class(VENDOR . '/foo', $pathManager, 'localhost') extends Site implements IHasTheme {
-            use THasTheme;
-        };
-        $this->assertInstanceOf(Module::class, $site);
-    }
-
-    private function newSite($pathManager) {
-        return new Site(VENDOR . '/foo', $pathManager, 'localhost');
+        $this->assertSame($moduleName, $site->moduleName());
     }
 }
