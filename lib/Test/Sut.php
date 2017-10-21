@@ -74,25 +74,28 @@ class Sut {
     }
 }
 
-class TestSettings {
-    private static $values = [];
+class TestSettings implements \ArrayAccess {
+    private $values = [];
 
-    private static $default = [
+    private $default = [
         'siteUri' => 'http://framework'
     ];
 
-    public static function set(string $name, $value) {
-        self::$values[$name] = $value;
+    public function offsetExists($name): bool {
+        return array_key_exists($name, $this->values) || array_key_exists($name, $this->default);
     }
 
-    public static function get(string $name) {
-        if (!array_key_exists($name, self::$values)) {
-            return self::$default[$name];
+    public function offsetGet($name) {
+        if (!array_key_exists($name, $this->values)) {
+            return $this->default[$name];
         }
-        return self::$values[$name];
+        return $this->values[$name];
     }
-
-    public static function has(string $name): bool {
-        return array_key_exists($name, self::$values) || array_key_exists($name, self::$default);
+    public function offsetSet($name, $value) {
+        $this->values[$name] = $value;
+    }
+    
+    public function offsetUnset($name) {
+        unset($this->values[$name]);
     }
 }

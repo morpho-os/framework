@@ -56,7 +56,7 @@ class BrowserTestCase extends TestCase {
     }
 
     protected function uri(string $relUri = null): string {
-        return $this->sut()->settings()->get('siteUri')
+        return $this->sut()->settings()['siteUri']
             . (null !== $relUri ? '/' . ltrim($relUri, '/') : '');
     }
 }
