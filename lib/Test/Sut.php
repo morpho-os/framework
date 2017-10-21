@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test;
 
+use Morpho\Base\TSingleton;
 use const Morpho\Core\CONFIG_FILE_NAME;
 use function Morpho\Core\baseDirPath;
 use const Morpho\Core\MODULE_DIR_NAME;
@@ -13,7 +14,7 @@ use const Morpho\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
 class Sut {
-    private static $instance;
+    use TSingleton;
 
     /**
      * @var ?string
@@ -33,13 +34,6 @@ class Sut {
      * @var ?TestSettings
      */
     private $settings;
-
-    public static function instance(): self {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
 
     public function baseDirPath() {
         if (null === $this->baseDirPath) {
