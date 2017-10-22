@@ -5,12 +5,13 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Error;
+use Morpho\Base\IFn;
 
 /**
  * Basic idea and code was found at:
  * @link https://github.com/DmitryKoterov/debug_errorhook.
  */
-class NoDupsListener implements IExceptionListener {
+class NoDupsListener implements IFn {
     const DEFAULT_PERIOD = 300;  // 5 min.
     const ERROR_FILE_EXT = ".error";
     const GC_PROBABILITY = 0.01;
@@ -23,7 +24,7 @@ class NoDupsListener implements IExceptionListener {
 
     protected $gcExecuted = false;
 
-    public function __construct(IExceptionListener $listener, string $lockFileDirPath = null, int $periodSec = null) {
+    public function __construct(IFn $listener, string $lockFileDirPath = null, int $periodSec = null) {
         if (null === $lockFileDirPath) {
             $lockFileDirPath = $this->defaultLockFileDirPath();
         }
@@ -33,11 +34,14 @@ class NoDupsListener implements IExceptionListener {
         $this->listener = $listener;
     }
 
-    public function onException(\Throwable $exception): void {
+    /**
+     * @param \Throwable $exception
+     */
+    public function __invoke($exception): void {
         $id = $this->lockId($exception);
 
         if ($this->isLockExpired($id, $exception)) {
-            $this->listener->onException($exception);
+            ($this->listener)($exception);
         }
 
         // Touch always, even if we did not send anything. Else same errors will

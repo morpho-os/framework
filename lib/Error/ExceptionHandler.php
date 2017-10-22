@@ -6,21 +6,25 @@
  */
 namespace Morpho\Error;
 
+use ArrayObject;
+
 class ExceptionHandler implements IExceptionHandler {
     private $registered = false;
 
-    protected $listeners = [];
+    /**
+     * @var ArrayObject
+     */
+    protected $listeners;
 
-    public function __construct(array $listeners = null) {
+    public function __construct(iterable $listeners = null) {
         if (null === $listeners) {
-            $listeners = [new DumpListener()];
+            $listeners = [];
         }
-        if (!count($listeners)) {
-            throw new \LogicException();
-        }
+        $listeners1 = new ArrayObject();
         foreach ($listeners as $listener) {
-            $this->attachListener($listener);
+            $listeners1->append($listener);
         }
+        $this->listeners = $listeners1;
     }
 
     public function register(): void {
@@ -40,15 +44,11 @@ class ExceptionHandler implements IExceptionHandler {
 
     public function handleException(\Throwable $e): void {
         foreach ($this->listeners as $listener) {
-            $listener->onException($e);
+            $listener($e);
         }
     }
 
-    public function attachListener(IExceptionListener $handler, $prepend = false): void {
-        if ($prepend) {
-            array_unshift($this->listeners, $handler);
-        } else {
-            $this->listeners[] = $handler;
-        }
+    public function listeners(): ArrayObject {
+        return $this->listeners;
     }
 }

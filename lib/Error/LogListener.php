@@ -6,16 +6,17 @@
  */
 namespace Morpho\Error;
 
+use Morpho\Base\IFn;
 use Psr\Log\LoggerInterface as ILogger;
 
-class LogListener implements IExceptionListener {
+class LogListener implements IFn {
     protected $logger;
 
     public function __construct(ILogger $logger) {
         $this->logger = $logger;
     }
 
-    public function onException(\Throwable $exception): void {
+    public function __invoke($exception): void {
         $this->logger->emergency($exception, ['exception' => $exception]);
     }
 }

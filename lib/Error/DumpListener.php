@@ -6,16 +6,17 @@
  */
 namespace Morpho\Error;
 
-class DumpListener implements IExceptionListener {
+class DumpListener {
     const FAILURE_EXIT_CODE = 1;
-    
-    public function onException(\Throwable $exception): void {
-        $exAsString = $exception->__toString();
 
+    /**
+     * @param \Throwable $exception
+     */
+    public function __invoke($exception): void {
+        $exAsString = $exception->__toString();
         // The d() function can be found in the morpho/debug package.
         if (function_exists('d')) {
-            d()->setExitCode(self::FAILURE_EXIT_CODE)
-                ->dump($exAsString);
+            d()->dumpWithExitCode($exAsString, self::FAILURE_EXIT_CODE);
         } else {
             $message = PHP_SAPI == 'cli'
                 ? $exAsString

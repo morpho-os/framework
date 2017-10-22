@@ -6,12 +6,14 @@
  */
 namespace Morpho\Error;
 
+use ArrayObject;
+
 interface IExceptionHandler {
     public function register(): void;
 
     public function unregister(): void;
 
-    public function attachListener(IExceptionListener $listener, $prepend = false): void;
+    public function listeners(): ArrayObject;
 
     public function handleException(\Throwable $e): void;
 }

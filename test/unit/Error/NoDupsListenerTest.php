@@ -6,24 +6,30 @@
  */
 namespace MorphoTest\Unit\Error;
 
+use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use Morpho\Error\NoDupsListener;
-use Morpho\Error\ExceptionEvent;
 
 class NoDupsListenerTest extends TestCase {
+    private $lockFileDirPath;
+
     public function setUp() {
         $this->lockFileDirPath = $this->createTmpDir();
     }
 
+    public function testInterfaces() {
+        $this->assertInstanceOf(IFn::class, new NoDupsListener($this->createMock(IFn::class), $this->lockFileDirPath));
+    }
+
     public function testNoDupsOnException() {
-        $listener = $this->createMock('\Morpho\Error\DumpListener');
+        $listener = $this->createMock(IFn::class);
         $ex = new \Exception();
         $listener->expects($this->once())
-            ->method('onException')
+            ->method('__invoke')
             ->with($this->identicalTo($ex));
         $listener = new NoDupsListener($listener, $this->lockFileDirPath);
 
-        $listener->onException($ex);
-        $listener->onException($ex);
+        $listener->__invoke($ex);
+        $listener->__invoke($ex);
     }
 }

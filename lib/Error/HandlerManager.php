@@ -37,9 +37,7 @@ class HandlerManager {
      */
     public static function unregisterHandler(string $handlerType, callable $callback = null) {
         self::checkHandlerType($handlerType);
-
         $method = 'restore_' . $handlerType . '_handler';
-
         do {
             $handler = self::handlerOfType($handlerType);
             $method();

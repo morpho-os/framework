@@ -20,6 +20,9 @@ use function Morpho\Base\{typeOf, capture};
 class Debugger {
     protected $ignoredFrames = [];
 
+    /**
+     * @var bool
+     */
     protected $isHtmlMode;
 
     private static $instance;
@@ -28,11 +31,11 @@ class Debugger {
     
     private $exitCode = 0;
 
-    public function type($obj) {
+    public function type($obj): void {
         $this->dump(typeOf($obj));
     }
     
-    public function dump() {
+    public function dump(): void {
         $argsCount = func_num_args();
         $output = '';
         for ($i = 0; $i < $argsCount; $i++) {
@@ -45,6 +48,11 @@ class Debugger {
         }
         echo $output;
         exit($this->exitCode);
+    }
+
+    public function dumpWithExitCode(...$args): void {
+        $this->setExitCode(array_pop($args))
+            ->dump(...$args);
     }
 
     public function trace() {

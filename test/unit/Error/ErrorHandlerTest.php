@@ -7,7 +7,9 @@
 namespace MorphoTest\Unit\Error;
 
 use Morpho\Error\ErrorHandler;
+use Morpho\Error\ExceptionHandler;
 use Morpho\Error\HandlerManager;
+use Morpho\Error\IErrorHandler;
 use Morpho\Error\NoticeException;
 use RuntimeException;
 
@@ -24,6 +26,12 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     public function tearDown() {
         parent::tearDown();
         ini_set('display_errors', $this->oldErrorLevel);
+    }
+
+    public function testInterfaces() {
+        $errorHandler = new ErrorHandler();
+        $this->assertInstanceOf(ExceptionHandler::class, $errorHandler);
+        $this->assertInstanceOf(IErrorHandler::class, $errorHandler);
     }
 
     public function testCheckError_ThrowsErrorExceptionWhenErrorGetLastIsSet() {
