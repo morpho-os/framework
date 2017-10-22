@@ -1,4 +1,4 @@
-<phpunit bootstrap="./bootstrap.php" colors="false" verbose="true" beStrictAboutTestsThatDoNotTestAnything="true">
+<phpunit bootstrap="./bootstrap.php" colors="false" verbose="true" beStrictAboutTestsThatDoNotTestAnything="true" failOnRisky="true" failOnWarning="true">
     <testsuites>
         <testsuite name="Morpho Test Suite">
             <file>TestSuite.php</file>
