@@ -64,7 +64,7 @@ define("system/lib/bom", ["require", "exports"], function (require, exports) {
     Math.floatsEqual = function (a, b) {
         return Math.floatEqualZero(a - b);
     };
-    String.prototype.escapeHtml = function () {
+    String.prototype.encodeHtml = function () {
         var entityMap = {
             "&": "&amp;",
             "<": "&lt;",
@@ -265,13 +265,13 @@ define("system/lib/message", ["require", "exports", "system/lib/widget", "system
     }(widget_1.Widget));
     exports.PageMessenger = PageMessenger;
     function renderMessage(message) {
-        var text = message.text.escapeHtml();
+        var text = message.text.encodeHtml();
         text = base_1.filterStringArgs(text, message.args, base_1.id);
         return wrapMessage(text, messageTypeToStr(message.type));
     }
     exports.renderMessage = renderMessage;
     function wrapMessage(text, type) {
-        return '<div class="' + type.toLowerCase().escapeHtml() + '">' + text + '</div>';
+        return '<div class="' + type.toLowerCase().encodeHtml() + '">' + text + '</div>';
     }
     function messageTypeToStr(type) {
         return MessageType[type];

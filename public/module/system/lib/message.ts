@@ -88,13 +88,13 @@ export class PageMessenger extends Widget {
 }
 
 export function renderMessage(message: Message): string {
-    let text = message.text.escapeHtml();
+    let text = message.text.encodeHtml();
     text = filterStringArgs(text, message.args, id);
     return wrapMessage(text, messageTypeToStr(message.type));
 }
 
 function wrapMessage(text: string, type: string): string {
-    return '<div class="' + type.toLowerCase().escapeHtml() + '">' + text + '</div>';
+    return '<div class="' + type.toLowerCase().encodeHtml() + '">' + text + '</div>';
 }
 
 export function messageTypeToStr(type: MessageType): string {

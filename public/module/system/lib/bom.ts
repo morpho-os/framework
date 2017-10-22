@@ -24,7 +24,7 @@ Math.floatsEqual = function (a: number, b: number): boolean {
 
 // --------------------------------------------------------------------------
 
-String.prototype.escapeHtml = function (this: String): string {
+String.prototype.encodeHtml = function (this: String): string {
     const entityMap = {
         "&": "&amp;",
         "<": "&lt;",

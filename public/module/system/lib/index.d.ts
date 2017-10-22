@@ -21,7 +21,7 @@ interface Math {
 }
 
 interface String {
-    escapeHtml(): string;
+    encodeHtml(): string;
     titleize(): string;
 }
 
