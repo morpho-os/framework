@@ -1,4 +1,4 @@
-<?php
+<?php //declare(strict_types=1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -7,18 +7,28 @@
 namespace Morpho\Web\View;
 
 use Morpho\Base\ArrayTool;
-use function Morpho\Base\escapeHtml;
 
-class TagRenderer {
+class Html {
+    public static function encode($text): string {
+        return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Inverts result that can be obtained with escapeHtml().
+     */
+    public static function decode($text): string {
+        return htmlspecialchars_decode($text, ENT_QUOTES);
+    }
+
     public static function openTag(string $tagName, array $attributes = [], bool $isXml = false): string {
         return '<'
-        . escapeHtml($tagName)
-        . self::attributes($attributes)
-        . ($isXml ? ' />' : '>');
+            . Html::encode($tagName)
+            . self::attributes($attributes)
+            . ($isXml ? ' />' : '>');
     }
 
     public static function closeTag(string $name): string {
-        return '</' . escapeHtml($name) . '>';
+        return '</' . Html::encode($name) . '>';
     }
 
     /**
@@ -28,19 +38,19 @@ class TagRenderer {
         foreach ($attributes as $attribute => &$data) {
             if (!is_numeric($attribute)) {
                 $data = implode(' ', (array)$data);
-                $data = $attribute . '="' . escapeHtml($data) . '"';
+                $data = $attribute . '="' . Html::encode($data) . '"';
             }
         }
 
         return $attributes ? ' ' . implode(' ', $attributes) : '';
     }
 
-    public static function renderSingle(string $tagName, array $attributes = null, array $options = []): string {
+    public static function singleTag(string $tagName, array $attributes = null, array $options = []): string {
         $options['isSingle'] = true;
-        return self::render($tagName, $attributes, null, $options);
+        return self::tag($tagName, $attributes, null, $options);
     }
 
-    public static function render(string $tagName, array $attributes = null, string $text = null, array $options = null): string {
+    public static function tag(string $tagName, array $attributes = null, string $text = null, array $options = null): string {
         $options = ArrayTool::handleOptions(
             (array)$options,
             [
@@ -52,7 +62,7 @@ class TagRenderer {
         );
         $output = self::openTag($tagName, (array)$attributes, $options['isXml']);
         if (!$options['isSingle']) {
-            $output .= $options['escapeText'] ? escapeHtml($text) : $text;
+            $output .= $options['escapeText'] ? self::encode($text) : $text;
             $output .= self::closeTag($tagName);
         }
         if ($options['eol']) {

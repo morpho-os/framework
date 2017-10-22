@@ -279,7 +279,7 @@ class HtmlSemiParser implements IFn {
             }
             $s .= " " . $k;
             if ($v !== null) {
-                //$s .= '="' . $this->escapeHtml($v) . '"';
+                //$s .= '="' . Html::encode($v) . '"';
                 $s .= '="' . $v . '"';
             }
         }
@@ -370,7 +370,7 @@ class HtmlSemiParser implements IFn {
             }
             /*
             if (strpos($value, '&') !== false) {
-                $value = $this->unescapeHtml($value);
+                $value = Html::decode($value);
             }
             */
             $tag[$name] = $value;

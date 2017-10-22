@@ -66,7 +66,7 @@ class MenuWidget {
         );
         $requestUri = $this->requestUri;
         $baseUri = $this->baseUri;
-        $html = '<ul' . TagRenderer::attributes($attributes) . '>';
+        $html = '<ul' . Html::attributes($attributes) . '>';
         foreach ($lines as $line) {
             $html .= '<li><a'
                 . ($line['uri'] == $requestUri ? ' class="active"' : '')

@@ -6,8 +6,6 @@
  */
 namespace Morpho\Web\View;
 
-use function Morpho\Base\escapeHtml;
-
 class TreeRendererPlugin extends Plugin {
     protected $internalNodeRenderer, $leafNodeRenderer;
 
@@ -42,7 +40,7 @@ class TreeRendererPlugin extends Plugin {
     public function internalNodeRenderer(): callable {
         if (null === $this->internalNodeRenderer) {
             $this->internalNodeRenderer = function (array $node, string $renderedChildren): string {
-                return '<li class="tree__node tree__node-internal">' . $this->escapeHtml($node['label'])
+                return '<li class="tree__node tree__node-internal">' . Html::encode($node['label'])
                     //. $this->renderCheckbox($name, true)
                     . $renderedChildren
                     . '</li>';
@@ -60,7 +58,7 @@ class TreeRendererPlugin extends Plugin {
         if (null === $this->leafNodeRenderer) {
             $this->leafNodeRenderer = function (array $node): string {
                 return '<li class="tree__node tree__node-leaf">'
-                    . $this->escapeHtml($node['label'])//$this->renderCheckbox($node['label'], false)
+                    . Html::encode($node['label'])//$this->renderCheckbox($node['label'], false)
                     . '</li>';
             };
         }
@@ -89,10 +87,7 @@ class TreeRendererPlugin extends Plugin {
             $parents[] = $name;
             return implode('___', array_map([$this, 'escapeHtml'], $parents));
         };
-        return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . $this->escapeHtml($name);
+        return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . Html::encode($name);
     }
 */
-    protected function escapeHtml(string $val): string {
-        return escapeHtml($val);
-    }
 }

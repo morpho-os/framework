@@ -19,8 +19,6 @@ use Morpho\Web\Uri;
 class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     protected $serviceManager;
     
-    protected $tagRenderer;
-
     private $uri;
 
     private $request;
@@ -37,13 +35,6 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         return $this->plugins[$name];
     }
     
-    public function tag() {
-        if (null === $this->tagRenderer) {
-            $this->tagRenderer = new TagRenderer();
-        }
-        return $this->tagRenderer;
-    }
-
     public static function formatFloat($val) {
         if (empty($val)) {
             $val = 0;
@@ -119,11 +110,11 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     public function link(string $uri, string $text, array $attributes = [], array $options = null): string {
         $attributes['href'] = $this->uri()
             ->prependWithBasePath($uri);
-        return TagRenderer::render('a', $attributes, $text, $options);
+        return Html::tag('a', $attributes, $text, $options);
     }
 
     public function hiddenField(string $name, $value, array $attributes = null): string {
-        return TagRenderer::renderSingle(
+        return Html::singleTag(
             'input',
             [
                 'name'  => $name,
@@ -148,7 +139,7 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
             foreach ($options as $value => $text) {
                 $value = (string) $value;
                 $selected = $value === $defaultValue ? ' selected' : '';
-                $html .= '<option value="' . $this->escapeHtml($value) . '"' . $selected . '>' . $this->escapeHtml($text) . '</option>';
+                $html .= '<option value="' . Html::encode($value) . '"' . $selected . '>' . Html::encode($text) . '</option>';
             }
             return $html;
         }
@@ -166,7 +157,7 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         }
         foreach ($newOptions as $value => $text) {
             $selected = isset($selectedOptions[$value]) ? ' selected' : '';
-            $html .= '<option value="' . $this->escapeHtml($value) . '"' . $selected . '>' . $this->escapeHtml($text) . '</option>';
+            $html .= '<option value="' . Html::encode($value) . '"' . $selected . '>' . Html::encode($text) . '</option>';
         }
         return $html;
     }
@@ -178,7 +169,7 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         } else {
             $range = intval($startYear) . '-' . $currentYear;
         }
-        return '© ' . $range . ', ' . $this->escapeHtml($brand);
+        return '© ' . $range . ', ' . Html::encode($brand);
     }
 
     public function __call($pluginName, array $args) {
@@ -188,10 +179,6 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
-    }
-
-    public static function escapeHtml($value): string {
-        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 
     protected function newPlugin(string $name) {

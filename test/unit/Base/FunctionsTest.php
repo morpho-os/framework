@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Base;
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, escapeHtml, unescapeHtml, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
+    endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -276,13 +276,6 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('12332', deleteDups(122332, 2));
         $this->assertEquals('aaa', deleteDups('aaa', 'b'));
         $this->assertEquals('a', deleteDups('aaa', 'a'));
-    }
-
-    public function testEscapeHtmlAndUnescapeHtml() {
-        $original = '<h1>Hello</h1>';
-        $text = escapeHtml($original);
-        $this->assertEquals('&lt;h1&gt;Hello&lt;/h1&gt;', $text);
-        $this->assertEquals($original, unescapeHtml($text));
     }
 
     public function testTrimMore() {

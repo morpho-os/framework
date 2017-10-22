@@ -39,8 +39,4 @@ abstract class HtmlParser extends HtmlSemiParser {
         }
         return $this->request;
     }
-
-    protected function escapeHtml($var): string {
-        return htmlspecialchars($var, ENT_QUOTES);
-    }
 }

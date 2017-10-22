@@ -8,6 +8,7 @@ declare(strict_types = 1);
 namespace Morpho\Base;
 
 use Closure;
+use Morpho\Web\View\Html;
 use RuntimeException;
 use Throwable;
 use UnexpectedValueException;
@@ -212,7 +213,7 @@ function camelize($string, bool $lcfirst = false): string {
 /**
  * Replaces the '_' character with space, works for camelCased strings also:
  * 'camelCased' -> 'camel cased'. Leaves other characters as is.
- * By default applies escapeHtml() method to escape of HTML special characters.
+ * By default applies Html::encode() method to escape of HTML special characters.
  */
 function humanize($string, bool $escape = true) {
     $result = preg_replace_callback(
@@ -224,7 +225,7 @@ function humanize($string, bool $escape = true) {
     );
 
     if ($escape) {
-        $result = escapeHtml($result);
+        $result = Html::encode($result);
     }
 
     return $result;
@@ -260,17 +261,6 @@ function sanitize(string $string, string $allowedCharacters, bool $deleteDups = 
     }
 
     return $result;
-}
-
-function escapeHtml($text): string {
-    return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
-}
-
-/**
- * Inverts result that can be obtained with escapeHtml().
- */
-function unescapeHtml($text): string {
-    return htmlspecialchars_decode($text, ENT_QUOTES);
 }
 
 /**

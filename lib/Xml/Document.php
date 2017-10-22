@@ -8,9 +8,9 @@ namespace Morpho\Xml;
 
 use DOMDocument;
 
-use function Morpho\Base\escapeHtml;
 use Morpho\Base\InvalidOptionsException;
 use Morpho\Fs\File;
+use Morpho\Web\View\Html;
 
 class Document extends DOMDocument {
     private $xPath;
@@ -57,7 +57,7 @@ class Document extends DOMDocument {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
-                $source = '<meta http-equiv="content-type" content="text/html; charset=' . escapeHtml($options['encoding'] ?? self::ENCODING) . '">'
+                $source = '<meta http-equiv="content-type" content="text/html; charset=' . Html::encode($options['encoding'] ?? self::ENCODING) . '">'
                     . $source;
             }
             $result = $doc->loadHTML($source);

@@ -7,9 +7,9 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use function Morpho\Base\escapeHtml;
 use Morpho\Di\IServiceManager;
 use Morpho\Core\Application as BaseApplication;
+use Morpho\Web\View\Html;
 
 class Application extends BaseApplication {
     protected function init(): IServiceManager {
@@ -91,7 +91,7 @@ class Application extends BaseApplication {
         while (\ob_get_level() > 0) {
             \ob_end_clean();
         }
-        die(escapeHtml($message) . '.');
+        die(Html::encode($message) . '.');
     }
 
     protected function newSiteAndConfig($appConfig) {

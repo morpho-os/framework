@@ -32,7 +32,7 @@ class FormPersister extends HtmlParser {
         } else {
             $request = $this->request();
             if (strtolower($tag['method']) === 'get') {
-                $tag['action'] = $this->escapeHtml($request->path());
+                $tag['action'] = Html::encode($request->path());
             } else {
                 // URI must be safe to insert after __toString().
                 $tag['action'] = $request->uri()->__toString();
