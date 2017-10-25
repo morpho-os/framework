@@ -20,7 +20,7 @@ class GeneralQuery extends BaseGeneralQuery {
         return 'SELECT DATABASE()';
     }
 
-    public function identifier(string $identifier): string {
+    public function quoteIdentifier(string $identifier): string {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
         return '`' . $identifier . '`';
     }
