@@ -49,7 +49,7 @@ class SelectQuery extends Query {
 
         $query = $this->db->query();
 
-        $fromStr = isset($this->parts[self::FROM]) ? $query->identifier($this->parts[self::FROM]) : null;
+        $fromStr = isset($this->parts[self::FROM]) ? $query->quoteIdentifier($this->parts[self::FROM]) : null;
 
         $whereSql = '';
         $args = [];

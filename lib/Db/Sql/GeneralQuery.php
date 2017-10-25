@@ -34,20 +34,20 @@ abstract class GeneralQuery {
         return [$whereSql, $whereArgs];
     }
 
-    public function identifiers(array $identifiers): array {
+    public function quoteIdentifiers(array $identifiers): array {
         $ids = [];
         foreach ($identifiers as $identifier) {
-            $ids[] = $this->identifier($identifier);
+            $ids[] = $this->quoteIdentifier($identifier);
         }
         return $ids;
     }
 
-    abstract public function identifier(string $identifier): string;
+    abstract public function quoteIdentifier(string $identifier): string;
 
     public function namedPlaceholders(array $row): array {
         $placeholders = [];
         foreach ($row as $key => $value) {
-            $placeholders[] = $this->identifier($key) . ' = ?';
+            $placeholders[] = $this->quoteIdentifier($key) . ' = ?';
         }
         return $placeholders;
     }

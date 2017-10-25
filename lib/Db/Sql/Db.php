@@ -75,6 +75,10 @@ abstract class Db {
         return $this->connection->quote($val, $type);
     }
 
+    public function quoteIdentifier($id): string {
+        return $this->query()->quoteIdentifier($id);
+    }
+
     abstract public function schemaManager(): SchemaManager;
 
     public function select(string $sql, array $args = null): Result {
@@ -88,8 +92,8 @@ abstract class Db {
     public function insertRow(string $tableName, array $row): void {
         // @TODO: Use InsertQuery
         $query = $this->query();
-        $sql = 'INSERT INTO ' . $query->identifier($tableName) . '(';
-        $sql .= implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
+        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . '(';
+        $sql .= implode(', ', $query->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->eval($sql, array_values($row));
     }
 
@@ -103,7 +107,7 @@ abstract class Db {
         // @TODO: use DeleteQuery
         $query = $this->query();
         [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
-        $sql = 'DELETE FROM ' . $query->identifier($tableName)
+        $sql = 'DELETE FROM ' . $query->quoteIdentifier($tableName)
             . $whereSql;
         /*$stmt = */$this->eval($sql, $whereArgs);
         //return $stmt->rowCount();
@@ -116,7 +120,7 @@ abstract class Db {
     public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null): void {
         // @TODO: Use UpdateQuery
         $query = $this->query();
-        $sql = 'UPDATE ' . $query->identifier($tableName)
+        $sql = 'UPDATE ' . $query->quoteIdentifier($tableName)
             . ' SET ' . implode(', ', $query->namedPlaceholders($row));
         $args = array_values($row);
         if (null !== $whereCondition) {

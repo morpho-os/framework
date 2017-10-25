@@ -45,7 +45,7 @@ class Tree {
         $columnPrefix = 'data';
         $rows = $this->db->select(
             't.childId, t.parentId, t.depth, ' . $this->addTableAliasAndColumnPrefix('d', $columnPrefix, $this->dataColumns['columns'])
-            . ' FROM ' . $this->db->query()->identifier($this->tableName) . " AS t
+            . ' FROM ' . $this->db->query()->quoteIdentifier($this->tableName) . " AS t
             INNER JOIN {$this->dataColumns['table']} as d
                 ON t.childId = d.{$this->dataColumns['columns'][0]}"
             . "\n$whereClause",

@@ -26,8 +26,8 @@ class InsertQuery extends Query {
     public function build(): array {
         $query = $this->db->query();
         $row = $this->parts[self::ROW];
-        $sql = 'INSERT INTO ' . $query->identifier($this->parts[self::TABLE])
-            . ' (' . implode(', ', $query->identifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
+        $sql = 'INSERT INTO ' . $query->quoteIdentifier($this->parts[self::TABLE])
+            . ' (' . implode(', ', $query->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
         $args = array_values($row);
         return [$sql, $args];
     }

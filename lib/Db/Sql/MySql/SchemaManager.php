@@ -24,7 +24,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createDatabase(string $dbName, string $charset = null, string $collation = null): void {
-        $this->db->eval("CREATE DATABASE " . $this->db->query()->identifier($dbName)
+        $this->db->eval("CREATE DATABASE " . $this->db->query()->quoteIdentifier($dbName)
             . " CHARACTER SET " . ($charset ?: self::CHARSET)
             . " COLLATE " . ($collation ?: self::COLLATION)
         );
@@ -43,7 +43,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteDatabase(string $dbName): void {
-        $this->db->eval("DROP DATABASE " . $this->db->query()->identifier($dbName));
+        $this->db->eval("DROP DATABASE " . $this->db->query()->quoteIdentifier($dbName));
     }
 
     public function sizeOfDatabases() {
@@ -85,7 +85,7 @@ class SchemaManager extends BaseSchemaManager {
             if ($isMySql) {
             */
             $db->eval('SET FOREIGN_KEY_CHECKS=0;');
-            $db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
+            $db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->quoteIdentifier($tableName));
             /*
             if ($isMySql) {
             }
@@ -103,7 +103,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function deleteTableIfExists(string $tableName): void {
-        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->identifier($tableName));
+        $this->db->eval('DROP TABLE IF EXISTS ' . $this->db->query()->quoteIdentifier($tableName));
     }
 
     /**
@@ -137,7 +137,7 @@ class SchemaManager extends BaseSchemaManager {
      * of the caller to provide safe arguments.
      */
     public function createTableSql(string $tableName): string {
-        return $this->db->eval("SHOW CREATE TABLE " . $this->db->query()->identifier($tableName))
+        return $this->db->eval("SHOW CREATE TABLE " . $this->db->query()->quoteIdentifier($tableName))
             ->row()['Create Table'];
     }
 
@@ -154,9 +154,9 @@ class SchemaManager extends BaseSchemaManager {
 
         if (isset($tableDefinition['foreignKeys'])) {
             foreach ($tableDefinition['foreignKeys'] as $fkDefinition) {
-                $columns[] = 'FOREIGN KEY (' . $query->identifier($fkDefinition['childColumn']) . ')'
-                    . ' REFERENCES ' . $query->identifier($fkDefinition['parentTable'])
-                    . '(' . $query->identifier($fkDefinition['parentColumn']) . ')';
+                $columns[] = 'FOREIGN KEY (' . $query->quoteIdentifier($fkDefinition['childColumn']) . ')'
+                    . ' REFERENCES ' . $query->quoteIdentifier($fkDefinition['parentTable'])
+                    . '(' . $query->quoteIdentifier($fkDefinition['parentColumn']) . ')';
             }
         }
 
@@ -175,7 +175,7 @@ class SchemaManager extends BaseSchemaManager {
                 // @TODO: Merge common logic with 'uniqueKeys' and 'primaryKey'.
                 $columns[] = 'KEY'
                     . (is_numeric($indexName)
-                        ? ' (' . $query->identifier($indexDefinition) . ')'
+                        ? ' (' . $query->quoteIdentifier($indexDefinition) . ')'
                         : ' ' . $this->indexDefinitionToSql($indexDefinition));
             }
         }
@@ -223,7 +223,7 @@ class SchemaManager extends BaseSchemaManager {
             }
         }
 
-        $sql = "CREATE TABLE " . $query->identifier($tableName)
+        $sql = "CREATE TABLE " . $query->quoteIdentifier($tableName)
             . " (\n"
             . implode(",\n", $columns)
             . "\n) " . $this->createTableOptions();
@@ -316,7 +316,7 @@ class SchemaManager extends BaseSchemaManager {
             }
         }
 
-        return $this->db->query()->identifier($columnName) . ' ' . $columnDefinitionSql;
+        return $this->db->query()->quoteIdentifier($columnName) . ' ' . $columnDefinitionSql;
     }
 
     /**
@@ -481,7 +481,7 @@ ORDER BY TABLE_SCHEMA,
         $sql[] = '('
             . (is_array($indexDefinition['columns'])
                 ? implode(', ', array_map([$query, 'identifier'], $indexDefinition['columns']))
-                : $query->identifier($indexDefinition['columns']))
+                : $query->quoteIdentifier($indexDefinition['columns']))
             . ')';
         if (isset($indexDefinition['option'])) {
             $sql[] = $indexDefinition['option'];

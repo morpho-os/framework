@@ -54,7 +54,7 @@ class Db extends BaseDb {
         }
         $query = $this->query();
         $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
-        $sql = 'INSERT INTO ' . $query->identifier($tableName) . ' (' . implode(', ', $query->identifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
+        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
         $this->eval($sql, $args);
     }
 
