@@ -7,36 +7,39 @@
 namespace MorphoTest\Unit\Base;
 
 use function Morpho\Base\{
-    all, any, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
+    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
 };
 use Morpho\Test\TestCase;
 
 class IterableFunctionsTest extends TestCase {
     public function dataForEmptyList() {
-        foreach (['filter', 'flatMap', 'map'] as $fn) {
-            $fn = '\\Morpho\\Base\\' . $fn;
-            yield from [
-                [
-                    $fn,
-                    [],
-                ],
-                [
-                    $fn,
-                    '',
-                ],
-                [
-                    $fn,
-                    new \ArrayIterator([]),
-                ],
-            ];
-        }
+        return [
+            [
+                [],
+            ],
+            [
+                '',
+            ],
+            [
+                new \ArrayIterator([]),
+            ],
+        ];
     }
 
     // --------------------------------------------------------------------------------
-    // flatMap
+    // Common tests for filter, flatMap, map
 
-    /** @dataProvider dataForEmptyList */
-    public function testEmptyList(callable $fn, $v) {
+    public function dataForEmptyList_Common() {
+        foreach (['filter', 'flatMap', 'map'] as $fn) {
+            $fn = '\\Morpho\\Base\\' . $fn;
+            foreach ($this->dataForEmptyList() as $row) {
+                yield array_merge([$fn], $row);
+            }
+        }
+    }
+
+    /** @dataProvider dataForEmptyList_Common */
+    public function testEmptyList_Common(callable $fn, $v) {
         if (is_string($v)) {
             $this->assertSame('', $fn($this->errFn(), $v));
         } elseif (is_array($v)) {
@@ -46,178 +49,6 @@ class IterableFunctionsTest extends TestCase {
             $this->assertInstanceOf(\Generator::class, $res);
             $this->assertSame([], toArray($res));
         }
-    }
-
-    /* * @dataProvider dataFor_String_WithSeparator */
-    public function testFlatMap_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_String_WithoutSeparator */
-    public function testFlatMap_String_WithoutSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Bytes */
-    public function testFlatMap_Bytes() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Array_NumericKeys */
-    public function testFlatMap_Array_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Array_StringKeys */
-    public function testFlatMap_Array_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Iterator_NumericKeys */
-    public function testFlatMap_Iterator_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Iterator_StringKeys */
-    public function testFlatMap_Iterator_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Generator_NumericKeys */
-    public function testFlatMap_Generator_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_Generator_StringKeys */
-    public function testFlatMap_Generator_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    // --------------------------------------------------------------------------------
-    // map
-
-    public function testMap_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_String_WithoutSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Bytes() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Array_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Array_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Iterator_NumericKeys() {
-        $it = new \ArrayIterator([
-            'a',
-            'b',
-            'c',
-            'd'
-        ]);
-        $res = map(function ($v, $k) {
-            $this->assertTrue(is_numeric($k));
-            $map = [
-                'a' => 'foo',
-                'b' => 'bar',
-                'c' => 'baz',
-                'd' => 'pizza'
-            ];
-            return $map[$v];
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['foo', 'bar', 'baz', 'pizza'], iterator_to_array($res, false));
-    }
-
-    public function testMap_Iterator_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Generator_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_Generator_StringKeys() {
-        $this->markTestIncomplete();
-    }
-
-    // --------------------------------------------------------------------------------
-    // filter
-
-    public function testFilter_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testFilter_String_WithoutSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testFilter_Bytes() {
-        $this->markTestIncomplete();
-    }
-
-    public function testFilter_Array_NumericKeys() {
-        $res = filter(function ($v, $_) {
-            return $v !== 'fruit';
-        }, ['fruit', 3, 'fruit', 'planet']);
-        $this->assertSame([3, 'planet'], $res);
-    }
-
-    public function testFilter_Array_StringKeys() {
-        $res = filter(function ($v, $k) {
-            return $k !== 'apple' && $v !== 3;
-        }, ['orange' => 'fruit', 'three' => 3, 'apple' => 'fruit', 'earth' => 'planet']);
-        $this->assertSame(['orange' => 'fruit', 'earth' => 'planet'], $res);
-    }
-
-    public function testFilter_Iterator_NumericKeys() {
-        $it = new \ArrayIterator([
-            'a',
-            'b',
-            'c',
-            'd'
-        ]);
-        $res = filter(function ($v, $k) {
-            $this->assertTrue(is_numeric($k));
-            return $v !== 'c';
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['a', 'b', 'd'], iterator_to_array($res, false));
-    }
-
-    public function testFilter_Iterator_StringKeys() {
-        $it = new \ArrayIterator([
-            'a' => 'Mercury',
-            'b'  => 'Jupiter',
-            'c' => 'Uranus',
-            'd' => 'Neptune',
-        ]);
-        $res = filter(function ($v, $k) {
-            $this->assertTrue(is_string($k));
-            return $v !== 'Uranus';
-        }, $it);
-        $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals([
-            'a' => 'Mercury',
-            'b'  => 'Jupiter',
-            'd' => 'Neptune',
-        ], iterator_to_array($res));
-    }
-
-    public function testFilter_Generator_NumericKeys() {
-        $this->markTestIncomplete();
-    }
-
-    public function testFilter_Generator_StringKeys() {
-        $this->markTestIncomplete();
     }
 
     // --------------------------------------------------------------------------------
@@ -350,6 +181,60 @@ class IterableFunctionsTest extends TestCase {
     }
 
     // --------------------------------------------------------------------------------
+    // apply
+
+    /** @dataProvider dataForEmptyList */
+    public function testApply_EmptyList($iter) {
+        $fn = $this->errFn();
+        $this->assertNull(apply($fn, $iter));
+    }
+
+    /* * @dataProvider dataForString_WithSeparator */
+    public function testApply_String_WithSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForString_WithoutSeparator */
+    public function testApply_String_WithoutSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForBytes */
+    public function testApply_Bytes() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForArray_NumericKeys */
+    public function testApply_Array_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForArray_StringKeys */
+    public function testApply_Array_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForIterator_NumericKeys */
+    public function testApply_Iterator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForIterator_StringKeys */
+    public function testApply_Iterator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForGenerator_NumericKeys */
+    public function testApply_Generator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForGenerator_StringKeys */
+    public function testApply_Generator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    // --------------------------------------------------------------------------------
     // contains
 
     public function testContains_EmptyList() {
@@ -389,6 +274,125 @@ class IterableFunctionsTest extends TestCase {
     }
 
     public function testContains_Generator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    // --------------------------------------------------------------------------------
+    // filter
+
+    public function testFilter_String_WithSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    public function testFilter_String_WithoutSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    public function testFilter_Bytes() {
+        $this->markTestIncomplete();
+    }
+
+    public function testFilter_Array_NumericKeys() {
+        $res = filter(function ($v, $_) {
+            return $v !== 'fruit';
+        }, ['fruit', 3, 'fruit', 'planet']);
+        $this->assertSame([3, 'planet'], $res);
+    }
+
+    public function testFilter_Array_StringKeys() {
+        $res = filter(function ($v, $k) {
+            return $k !== 'apple' && $v !== 3;
+        }, ['orange' => 'fruit', 'three' => 3, 'apple' => 'fruit', 'earth' => 'planet']);
+        $this->assertSame(['orange' => 'fruit', 'earth' => 'planet'], $res);
+    }
+
+    public function testFilter_Iterator_NumericKeys() {
+        $it = new \ArrayIterator([
+            'a',
+            'b',
+            'c',
+            'd'
+        ]);
+        $res = filter(function ($v, $k) {
+            $this->assertTrue(is_numeric($k));
+            return $v !== 'c';
+        }, $it);
+        $this->assertInstanceOf(\Generator::class, $res);
+        $this->assertEquals(['a', 'b', 'd'], iterator_to_array($res, false));
+    }
+
+    public function testFilter_Iterator_StringKeys() {
+        $it = new \ArrayIterator([
+            'a' => 'Mercury',
+            'b'  => 'Jupiter',
+            'c' => 'Uranus',
+            'd' => 'Neptune',
+        ]);
+        $res = filter(function ($v, $k) {
+            $this->assertTrue(is_string($k));
+            return $v !== 'Uranus';
+        }, $it);
+        $this->assertInstanceOf(\Generator::class, $res);
+        $this->assertEquals([
+            'a' => 'Mercury',
+            'b'  => 'Jupiter',
+            'd' => 'Neptune',
+        ], iterator_to_array($res));
+    }
+
+    public function testFilter_Generator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    public function testFilter_Generator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    // --------------------------------------------------------------------------------
+    // flatMap
+
+    /* * @dataProvider dataFor_String_WithSeparator */
+    public function testFlatMap_String_WithSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_String_WithoutSeparator */
+    public function testFlatMap_String_WithoutSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Bytes */
+    public function testFlatMap_Bytes() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Array_NumericKeys */
+    public function testFlatMap_Array_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Array_StringKeys */
+    public function testFlatMap_Array_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Iterator_NumericKeys */
+    public function testFlatMap_Iterator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Iterator_StringKeys */
+    public function testFlatMap_Iterator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Generator_NumericKeys */
+    public function testFlatMap_Generator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataFor_Generator_StringKeys */
+    public function testFlatMap_Generator_StringKeys() {
         $this->markTestIncomplete();
     }
 
@@ -563,6 +567,62 @@ class IterableFunctionsTest extends TestCase {
     }
 
     // --------------------------------------------------------------------------------
+    // map
+
+    public function testMap_String_WithSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_String_WithoutSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_Bytes() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_Array_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_Array_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_Iterator_NumericKeys() {
+        $it = new \ArrayIterator([
+            'a',
+            'b',
+            'c',
+            'd'
+        ]);
+        $res = map(function ($v, $k) {
+            $this->assertTrue(is_numeric($k));
+            $map = [
+                'a' => 'foo',
+                'b' => 'bar',
+                'c' => 'baz',
+                'd' => 'pizza'
+            ];
+            return $map[$v];
+        }, $it);
+        $this->assertInstanceOf(\Generator::class, $res);
+        $this->assertEquals(['foo', 'bar', 'baz', 'pizza'], iterator_to_array($res, false));
+    }
+
+    public function testMap_Iterator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_Generator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    public function testMap_Generator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    // --------------------------------------------------------------------------------
     // prepend
 
     public function testPrepend_EmptyList() {
@@ -705,6 +765,59 @@ class IterableFunctionsTest extends TestCase {
     }
 
     public function testTail_Generator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    // --------------------------------------------------------------------------------
+    // toArray
+
+    /** @dataProvider dataForEmptyList */
+    public function testToArray_EmptyList($v) {
+        $this->assertSame([], toArray($v));
+    }
+
+    /* * @dataProvider dataForString_WithSeparator */
+    public function testToArray_String_WithSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForString_WithoutSeparator */
+    public function testToArray_String_WithoutSeparator() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForBytes */
+    public function testToArray_Bytes() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForArray_NumericKeys */
+    public function testToArray_Array_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForArray_StringKeys */
+    public function testToArray_Array_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForIterator_NumericKeys */
+    public function testToArray_Iterator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForIterator_StringKeys */
+    public function testToArray_Iterator_StringKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForGenerator_NumericKeys */
+    public function testToArray_Generator_NumericKeys() {
+        $this->markTestIncomplete();
+    }
+
+    /* * @dataProvider dataForGenerator_StringKeys */
+    public function testToArray_Generator_StringKeys() {
         $this->markTestIncomplete();
     }
 

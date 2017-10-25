@@ -510,7 +510,9 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
 }
 
 // ----------------------------------------------------------------------------
-// Iterables, some ideas or code inspired by the https://github.com/nikic/iter.
+// Iterables
+// Some ideas or code inspired by the https://github.com/nikic/iter.
+// Functions are ordered by name.
 
 function all(callable $predicate, iterable $list): bool {
     foreach ($list as $key => $value) {
@@ -530,10 +532,68 @@ function any(callable $predicate, iterable $list): bool {
     return false;
 }
 
+function append(array $it, string $suffix) {
+    // @TODO: iterable
+    return array_map(suffix($suffix), $it);
+}
+
+function apply(callable $fn, $iter): void {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
+        }
+    } else {
+        foreach ($iter as $k => $v) {
+            $fn($v, $k);
+        }
+    }
+}
+
 /**
- * @return string|\Generator|array
+ * Modified version from the https://github.com/nikic/iter
+ * @Copyright (c) 2013 by Nikita Popov.
+ *
+ * Chains the iterables that were passed as arguments.
+ *
+ * The resulting iterator will contain the values of the first iterable, then the second, and so on.
+ *
+ * Example:
+ *     chain(range(0, 5), range(6, 10), range(11, 15))
+ *     => iterable(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
  */
-function map(callable $fn, $iter) {
+function chain(...$iterables): iterable {
+    // @TODO: Handle strings
+    //_assertAllIterable($iterables);
+    foreach ($iterables as $iterable) {
+        foreach ($iterable as $key => $value) {
+            yield $key => $value;
+        }
+    }
+}
+
+function contains($haystack, $needle): bool {
+    if (is_string($haystack)) {
+        if ($needle === '') {
+            return true;
+        }
+        //mb_strpos() ??
+        return false !== strpos($haystack, $needle);
+    } elseif (is_array($haystack)) {
+        return in_array($needle, $haystack, true);
+    } else {
+        // @TODO: iterable
+        throw new NotImplementedException();
+    }
+}
+
+/**
+ * @param string|iterable $iter
+ * @return string|\Generator|array
+ *     string if $list : string
+ *     array if $list : array
+ *     Generator otherwise
+ */
+function filter(callable $predicate, $iter) {
     if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
@@ -541,18 +601,26 @@ function map(callable $fn, $iter) {
         return '';
     }
     if (is_array($iter)) {
-        $newArr = [];
+        $res = [];
+        $numericKeys = true;
         foreach ($iter as $k => $v) {
-            $newArr[$k] = $fn($v, $k);
+            if ($numericKeys && !is_numeric($k)) {
+                $numericKeys = false;
+            }
+            if ($predicate($v, $k)) {
+                $res[$k] = $v;
+            }
         }
-        return $newArr;
+        return $numericKeys ? array_values($res) : $res;
+    } else {
+        return (function () use ($predicate, $iter) {
+            foreach ($iter as $k => $v) {
+                if ($predicate($v, $k)) {
+                    yield $k => $v;
+                }
+            }
+        })();
     }
-    // @TODO: Handle strings
-    return (function () use ($fn, $iter) {
-        foreach ($iter as $k => $v) {
-            yield $k => $fn($v, $k);
-        }
-    })();
 }
 
 /**
@@ -601,60 +669,6 @@ function flatMap(callable $fn, $iter) {
 }
 
 /**
- * @param string|iterable $iter
- * @return string|\Generator|array
- *     string if $list : string
- *     array if $list : array
- *     Generator otherwise
- */
-function filter(callable $predicate, $iter) {
-    if (is_string($iter)) {
-        if ($iter !== '') {
-            throw new NotImplementedException();
-        }
-        return '';
-    }
-    if (is_array($iter)) {
-        $res = [];
-        $numericKeys = true;
-        foreach ($iter as $k => $v) {
-            if ($numericKeys && !is_numeric($k)) {
-                $numericKeys = false;
-            }
-            if ($predicate($v, $k)) {
-                $res[$k] = $v;
-            }
-        }
-        return $numericKeys ? array_values($res) : $res;
-    } else {
-        return (function () use ($predicate, $iter) {
-            foreach ($iter as $k => $v) {
-                if ($predicate($v, $k)) {
-                    yield $k => $v;
-                }
-            }
-        })();
-    }
-}
-
-/**
- * $fn has type (mixed $prev, mixed $cur): mixed
- */
-function reduce(callable $fn, array $arr, $initial = null) {
-    return array_reduce($arr, $fn, $initial);
-}
-
-function prepend(array $it, string $prefix): array {
-    // @TODO: iterable
-    return array_map(prefix($prefix), $it);
-}
-
-function append(array $it, string $suffix) {
-    // @TODO: iterable
-    return array_map(suffix($suffix), $it);
-}
-
-/**
  * For abcd returns a
  */
 function head($list, string $separator = null) {
@@ -687,41 +701,6 @@ function head($list, string $separator = null) {
             throw new \RuntimeException('Empty list');
         }
         return $head;
-    }
-}
-
-/**
- * For abcd returns d
- */
-function last($list, string $separator = null) {
-    if (is_array($list)) {
-        if (!count($list)) {
-            throw new \RuntimeException('Empty list');
-        }
-        return array_pop($list);
-    } elseif (is_string($list)) {
-        if ($list === '') {
-            throw new \RuntimeException('Empty list');
-        }
-        // @TODO, mb_substr()
-        if (null === $separator) {
-            return substr($list, -1);
-        }
-        $pos = strrpos($list, $separator);
-        return false === $pos
-            ? $list
-            : substr($list, $pos + 1);
-    } else {
-        $empty = true;
-        $last = null;
-        foreach ($list as $v) {
-            $empty = false;
-            $last = $v;
-        }
-        if ($empty) {
-            throw new \RuntimeException('Empty list');
-        }
-        return $last;
     }
 }
 
@@ -761,6 +740,78 @@ function init($list, string $separator = null) {
 }
 
 /**
+ * For abcd returns d
+ */
+function last($list, string $separator = null) {
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new \RuntimeException('Empty list');
+        }
+        return array_pop($list);
+    } elseif (is_string($list)) {
+        if ($list === '') {
+            throw new \RuntimeException('Empty list');
+        }
+        // @TODO, mb_substr()
+        if (null === $separator) {
+            return substr($list, -1);
+        }
+        $pos = strrpos($list, $separator);
+        return false === $pos
+            ? $list
+            : substr($list, $pos + 1);
+    } else {
+        $empty = true;
+        $last = null;
+        foreach ($list as $v) {
+            $empty = false;
+            $last = $v;
+        }
+        if ($empty) {
+            throw new \RuntimeException('Empty list');
+        }
+        return $last;
+    }
+}
+
+/**
+ * @return string|\Generator|array
+ */
+function map(callable $fn, $iter) {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
+        }
+        return '';
+    }
+    if (is_array($iter)) {
+        $newArr = [];
+        foreach ($iter as $k => $v) {
+            $newArr[$k] = $fn($v, $k);
+        }
+        return $newArr;
+    }
+    // @TODO: Handle strings
+    return (function () use ($fn, $iter) {
+        foreach ($iter as $k => $v) {
+            yield $k => $fn($v, $k);
+        }
+    })();
+}
+
+function prepend(array $it, string $prefix): array {
+    // @TODO: iterable
+    return array_map(prefix($prefix), $it);
+}
+
+/**
+ * $fn has type (mixed $prev, mixed $cur): mixed
+ */
+function reduce(callable $fn, array $arr, $initial = null) {
+    return array_reduce($arr, $fn, $initial);
+}
+
+/**
  * For abcd returns bcd
  */
 function tail($list, string $separator = null) {
@@ -797,45 +848,14 @@ function tail($list, string $separator = null) {
     }
 }
 
-function toArray($arrOrTraversable, bool $useKeys = false): array {
-    return is_array($arrOrTraversable)
-        ? $arrOrTraversable
-        : iterator_to_array($arrOrTraversable, $useKeys);
-}
-
-function contains($haystack, $needle): bool {
-    if (is_string($haystack)) {
-        if ($needle === '') {
-            return true;
+function toArray($iter, bool $useKeys = false): array {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
         }
-        //mb_strpos() ??
-        return false !== strpos($haystack, $needle);
-    } elseif (is_array($haystack)) {
-        return in_array($needle, $haystack, true);
-    } else {
-        // @TODO: iterable
-        throw new NotImplementedException();
+        return [];
     }
-}
-
-/**
- * Modified version from the https://github.com/nikic/iter
- * @Copyright (c) 2013 by Nikita Popov.
- *
- * Chains the iterables that were passed as arguments.
- *
- * The resulting iterator will contain the values of the first iterable, then the second, and so on.
- *
- * Example:
- *     chain(range(0, 5), range(6, 10), range(11, 15))
- *     => iterable(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
- */
-function chain(...$iterables): iterable {
-    // @TODO: Handle strings
-    //_assertAllIterable($iterables);
-    foreach ($iterables as $iterable) {
-        foreach ($iterable as $key => $value) {
-            yield $key => $value;
-        }
-    }
+    return is_array($iter)
+        ? $iter
+        : iterator_to_array($iter, $useKeys);
 }
