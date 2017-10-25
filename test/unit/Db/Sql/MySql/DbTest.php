@@ -137,9 +137,22 @@ class DbTest extends DbTestCase {
         $this->assertInstanceOf(SchemaManager::class, $schemaManager);
     }
 
-    public function testEval_ReturnsResult() {
+    public function testEval_Result() {
         $res = $this->db->eval('SELECT 1');
         $this->assertInstanceOf(Result::class, $res);
+
+        $checkRes = function ($res, $expectedCount) {
+            $this->assertInstanceOf(\Countable::class, $res);
+            $this->assertSame($expectedCount, count($res));
+        };
+
+        $checkRes($res, 1);
+
+        $this->createTestTable();
+        $this->db->insertRow('test', ['foo' => 'first row']);
+        $this->db->insertRow('test', ['foo' => 'second row']);
+        $res = $this->db->eval('SELECT * FROM test');
+        $checkRes($res, 2);
     }
 
     private function setTestDataForUpdateRows() {

@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql;
 
-class Result extends \PDOStatement {
+class Result extends \PDOStatement implements \Countable {
     // Override the constructor to fix the "PDOException: SQLSTATE[HY000]: General error: user-supplied statement does not accept constructor arguments in ..."
     protected function __construct() {
     }
@@ -39,5 +39,16 @@ class Result extends \PDOStatement {
 
     public function map(): array {
         return $this->fetchAll(\PDO::FETCH_KEY_PAIR);
+    }
+
+    /**
+     * Has time complexity O(n)
+     */
+    public function count() {
+        $i = 0;
+        foreach ($this as $v) {
+            $i++;
+        }
+        return $i;
     }
 }
