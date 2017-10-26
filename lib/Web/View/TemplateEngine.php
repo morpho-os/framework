@@ -11,7 +11,7 @@ use Morpho\Base\ItemNotSetException;
 use Morpho\Base\Pipe;
 use Morpho\Fs\File;
 
-abstract class TemplateEngine extends Pipe {
+class TemplateEngine extends Pipe {
     protected $useCache = true;
 
     protected $vars = [];
@@ -24,13 +24,9 @@ abstract class TemplateEngine extends Pipe {
         $this->cacheDirPath = $dirPath;
     }
 
-    /**
-     * Renders file that contains code in PHPTemplate language and returns result after of PHP execution.
-     */
-    public function renderFile(string $filePath, array $vars = []): string {
-        $__filePath = $this->compiledFilePath($filePath);
-        unset($filePath);
-        extract($vars, EXTR_SKIP);
+    public function renderFileWithoutCompilation($__filePath, array $__vars): string {
+        extract($__vars, EXTR_SKIP);
+        unset($__vars);
         ob_start();
         try {
             require $__filePath;
@@ -43,18 +39,30 @@ abstract class TemplateEngine extends Pipe {
     }
 
     /**
-     * Renders code in PHPTemplate language and returns result after of PHP execution.
+     * Runs Pipe handlers.
      */
-    public function render(string $phpEngineCode, array $vars = []): string {
-        extract($vars, EXTR_SKIP);
+    public function render(string $code, array $vars = []): string {
+        $context = $this->__invoke(new \ArrayObject(['code' => $code, 'vars' => $vars]));
+        $__code = $context['code'];
+        $__vars = $context['vars'];
+        unset($context);
+        extract($__vars, EXTR_SKIP);
         ob_start();
         try {
-            eval('?>' . $this->__invoke($phpEngineCode));
+            eval('?>' . $__code);
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
         }
         return trim(ob_get_clean());
+    }
+
+    /**
+     * Compiles and renders the $filePath.
+     */
+    public function renderFile(string $filePath, array $vars = []): string {
+        $filePath = $this->compileFile($filePath);
+        return $this->renderFileWithoutCompilation($filePath, $vars);
     }
 
     public function useCache(bool $flag = null): bool {
@@ -95,19 +103,18 @@ abstract class TemplateEngine extends Pipe {
         return $this->vars;
     }
 
-    protected function compiledFilePath(string $filePath): string {
+    protected function compileFile(string $filePath): string {
         if (!$this->cacheDirPath) {
             throw new EmptyPropertyException($this, 'cacheFilePath');
         }
         $this->uniqueFileHash = md5($this->uniqueFileHash . '|' . $filePath);
         $cacheFilePath = $this->cacheDirPath . '/' . $this->uniqueFileHash . '.php';
         if (!is_file($cacheFilePath) || !$this->useCache()) {
+            // @TODO: Replace the setFilePath with $context
             foreach ($this as $fn) {
                 $fn->setFilePath($filePath);
             }
-            $php = $this->__invoke(
-                File::read($filePath)
-            );
+            $php = $this->__invoke(File::read($filePath));
             file_put_contents($cacheFilePath, $php);
         }
         return $cacheFilePath;
