@@ -9,7 +9,7 @@ namespace Morpho\Db\Sql;
 abstract class GeneralQuery {
     abstract public static function useDb(string $dbName): string;
 
-    abstract public static function currentDb(): string;
+    abstract public static function dbName(): string;
 
     /**
      * @param array|string $whereCondition

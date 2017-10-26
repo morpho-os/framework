@@ -27,6 +27,11 @@ class DbTest extends DbTestCase {
         $this->schemaManager->deleteAllTables();
     }
 
+    public function testDbName() {
+        $dbConfig = $this->dbConfig();
+        $this->assertSame($dbConfig['db'], $this->db->dbName());
+    }
+
     public function testConnection() {
         $connection = $this->db->pdo();
         $this->assertInstanceOf(\PDO::class, $connection);

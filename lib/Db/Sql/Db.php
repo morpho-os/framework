@@ -50,6 +50,13 @@ abstract class Db {
         //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
+    /**
+     * @return mixed|false
+     */
+    public function dbName() {
+        return $this->eval($this->query()->dbName())->cell();
+    }
+
     abstract public function query(): GeneralQuery;
 
     public function newSelectQuery(): SelectQuery {

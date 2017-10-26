@@ -480,7 +480,7 @@ ORDER BY TABLE_SCHEMA,
         $query = $this->db->query();
         $sql[] = '('
             . (is_array($indexDefinition['columns'])
-                ? implode(', ', array_map([$query, 'identifier'], $indexDefinition['columns']))
+                ? implode(', ', array_map([$query, 'quoteIdentifier'], $indexDefinition['columns']))
                 : $query->quoteIdentifier($indexDefinition['columns']))
             . ')';
         if (isset($indexDefinition['option'])) {

@@ -16,7 +16,7 @@ class GeneralQuery extends BaseGeneralQuery {
     /**
      * Returns a query to detect a current database.
      */
-    public static function currentDb(): string {
+    public static function dbName(): string {
         return 'SELECT DATABASE()';
     }
 
