@@ -9,6 +9,7 @@ namespace Morpho\Web;
 
 use Morpho\Base\IFn;
 use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\VENDOR_DIR_NAME;
 use Zend\Stdlib\ArrayUtils;
 
 class SiteFactory implements IFn {
@@ -63,6 +64,7 @@ class SiteFactory implements IFn {
     }
 
     protected function newSiteAndConfig(?string $hostName, $siteConfig, string $publicDirPath): array {
+        require_once $siteConfig['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
         $siteModuleName = $siteConfig['module'];
         $normalizedConfig = $this->normalizeConfig($siteConfig, $publicDirPath);
         return [new Site($siteModuleName, $hostName), $normalizedConfig];

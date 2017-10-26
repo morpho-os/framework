@@ -11,6 +11,18 @@ use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
 
 class SiteFactoryTest extends TestCase {
+    private $classLoaderRegisteredKey;
+
+    public function setUp() {
+        parent::setUp();
+        $this->classLoaderRegisteredKey = __CLASS__ . 'classLoaderRegistered';
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        unset($GLOBALS[$this->classLoaderRegisteredKey]);
+    }
+
     public function dataForDetectHostName_ValidIps() {
         return [
             // IPv4
@@ -202,10 +214,12 @@ class SiteFactoryTest extends TestCase {
 
         [$site, $newSiteConfig] = $siteFactory->__invoke($appConfig);
 
+        $this->checkClassLoaderRegistered();
         $this->assertSame($expectedHostName, $site->hostName());
         $this->assertSame($siteModuleName, $site->moduleName());
 
         $this->assertSame($expectedSiteConfig, $newSiteConfig);
+
     }
 
     private function newSiteFactory() {
@@ -221,5 +235,9 @@ class SiteFactoryTest extends TestCase {
                 ];
             }
         };
+    }
+
+    private function checkClassLoaderRegistered(): void {
+        $this->assertTrue($GLOBALS[$this->classLoaderRegisteredKey]);
     }
 }
