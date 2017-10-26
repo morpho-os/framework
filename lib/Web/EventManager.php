@@ -22,7 +22,7 @@ class EventManager extends BaseEventManager {
     protected function attachHandlers() {
         $moduleProvider = $this->serviceManager->get('moduleProvider');
         /**
-         * @var \Morpho\System\Module $module
+         * @var \Morpho\System\Web\Module $module
          */
         $module = $moduleProvider->offsetGet(self::SYSTEM_MODULE);
         $this->on('dispatchError', function (Event $event) use ($module) {
