@@ -7,8 +7,10 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
+use Morpho\Core\IModuleIndexer;
 use Morpho\Di\IServiceManager;
 use Morpho\Core\Application as BaseApplication;
+use Morpho\Fs\Directory;
 use Morpho\Web\View\Html;
 
 class Application extends BaseApplication {
@@ -25,25 +27,10 @@ class Application extends BaseApplication {
             umask($siteConfig['umask']);
         }
 
-        $newModuleIndexer = function ($siteModuleName) use ($appConfig, $siteConfig) {
-            $baseModuleDirPath = $appConfig['baseModuleDirPath'];
-            $cacheDirPath = $siteConfig['paths']['cacheDirPath'];
-            $indexFilePath = $cacheDirPath . '/module-index.php';
-            return new ModuleIndexer(
-                $baseModuleDirPath,
-                $indexFilePath,
-                [
-                    $siteModuleName => $siteConfig,
-                ],
-                // @TODO: Add module iterator
-                array_keys($siteConfig['modules'])
-            );
-        };
-
         $services = [
             'app'  => $this,
             'site' => $site,
-            'moduleIndexer' => $newModuleIndexer($site->moduleName()),
+            'moduleIndexer' => $this->newModuleIndexer($site->moduleName(), [$appConfig['baseModuleDirPath']], $siteConfig),
         ];
         $serviceManager = $this->newServiceManager($siteConfig['serviceManager'] ?? null, $services);
 
@@ -103,5 +90,29 @@ class Application extends BaseApplication {
             return new $class($services);
         }
         return new ServiceManager($services);
+    }
+
+    protected function newModuleIndexer(string $siteModuleName, iterable $baseModuleDirPaths, $siteConfig): IModuleIndexer {
+        $moduleDirsProvider = function () use ($baseModuleDirPaths) {
+            foreach ($baseModuleDirPaths as $baseModuleDirPath) {
+                foreach (Directory::dirPaths($baseModuleDirPath, null, ['recursive' => false]) as $moduleDirPath) {
+                    yield [
+                        'baseModuleDirPath' => $baseModuleDirPath,
+                        'moduleDirPath' => $moduleDirPath
+                    ];
+                }
+            }
+        };
+        $cacheDirPath = $siteConfig['paths']['cacheDirPath'];
+        $indexFilePath = $cacheDirPath . '/module-index.php';
+        return new ModuleIndexer(
+            $moduleDirsProvider(),
+            $indexFilePath,
+            [
+                $siteModuleName => $siteConfig,
+            ],
+            // @TODO: Add module iterator
+            array_keys($siteConfig['modules'])
+        );
     }
 }
