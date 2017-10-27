@@ -77,7 +77,7 @@ class Browser extends RemoteWebDriver {
         return $this->wait($this->waitTimeout, $this->waitInterval)->until($predicate, $message);
     }
 
-    public function waitUntilTitleIs(string $expectedTitle): void {
+    public function waitUntilTitleIsEqual(string $expectedTitle): void {
         $this->waitUntil(WebDriverExpectedCondition::titleIs($expectedTitle));
     }
 

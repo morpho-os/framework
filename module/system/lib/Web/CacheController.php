@@ -26,7 +26,7 @@ class CacheController extends Controller {
      */
     public function rebuildRoutesAction() {
         $this->serviceManager->get('router')->rebuildRoutes();
-        $this->redirectToHome("Routes were rebuilt successfully");
+        $this->redirectToHome("Routes have been rebuilt successfully");
     }
 
     /**

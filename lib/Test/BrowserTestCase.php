@@ -38,7 +38,7 @@ class BrowserTestCase extends TestCase {
         $this->assertEquals($expectedText, $this->browser()->findElement($elSelector)->getAttribute('value'));
     }
 
-    protected function browser() {
+    protected function browser(): Browser {
         if (null === $this->browser) {
             $browser = $this->newBrowser();
             $this->configureBrowser($browser);
