@@ -13,12 +13,12 @@ use const Morpho\Core\VENDOR_DIR_NAME;
 use Zend\Stdlib\ArrayUtils;
 
 class SiteFactory implements IFn {
-    public function __invoke($config): array {
+    public function __invoke($config): Site {
         if ($config['multiSiting']) {
             $hostName = $this->detectHostName();
             foreach ($config['sites'] as $hostName1 => $siteConfig) {
                 if ($hostName === $hostName1) {
-                    return $this->newSiteAndConfig($hostName, $siteConfig, $config['publicDirPath']);
+                    return $this->newSite($hostName, $siteConfig, $config['publicDirPath']);
                 }
             }
             throw new BadRequestException("Unable to detect the current site");
@@ -27,7 +27,7 @@ class SiteFactory implements IFn {
             $sitesConfig = $config['sites'];
             reset($sitesConfig);
             $siteConfig = $sitesConfig[key($sitesConfig)];
-            return $this->newSiteAndConfig(null, $siteConfig, $config['publicDirPath']);
+            return $this->newSite(null, $siteConfig, $config['publicDirPath']);
         }
     }
 
@@ -63,11 +63,11 @@ class SiteFactory implements IFn {
         return $hostWithoutPort;
     }
 
-    protected function newSiteAndConfig(?string $hostName, $siteConfig, string $publicDirPath): array {
+    protected function newSite(?string $hostName, $siteConfig, string $publicDirPath): Site {
         require_once $siteConfig['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
         $siteModuleName = $siteConfig['module'];
         $normalizedConfig = $this->normalizeConfig($siteConfig, $publicDirPath);
-        return [new Site($siteModuleName, $hostName), $normalizedConfig];
+        return new Site($siteModuleName, $hostName, $normalizedConfig);
     }
     
     protected function normalizeConfig($config, string $publicDirPath) {

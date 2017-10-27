@@ -7,12 +7,23 @@
 namespace Morpho\Web;
 
 class Site {
+    /**
+     * @var string
+     */
     protected $moduleName;
+    /**
+     * @var null|string
+     */
     protected $hostName;
+    /**
+     * @var array
+     */
+    private $config;
 
-    public function __construct($moduleName, $hostName) {
+    public function __construct(string $moduleName, ?string $hostName, array $config) {
         $this->moduleName = $moduleName;
         $this->hostName = $hostName;
+        $this->config = $config;
     }
 
     public function moduleName(): string {
@@ -21,5 +32,9 @@ class Site {
 
     public function hostName(): ?string {
         return $this->hostName;
+    }
+
+    public function config() {
+        return $this->config;
     }
 }

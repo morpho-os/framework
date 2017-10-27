@@ -15,9 +15,11 @@ use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\IRouter;
+use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
+use Morpho\Fs\Directory;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\FastRouter;
@@ -38,6 +40,32 @@ class ServiceManager extends BaseServiceManager {
 /*    protected function newDbService() {
         return Db::connect($this->config['db']);
     }*/
+
+    protected function newModuleIndexerService() {
+        $site = $this->get('site');
+        $siteConfig = $site->config();
+        return new ModuleIndexer(
+            $this->get('moduleDirsProvider'),
+            $siteConfig['paths']['cacheDirPath'] . '/module-index.php',
+            [
+                $site->moduleName() => $siteConfig,
+            ],
+            // @TODO: Add module iterator
+            array_keys($siteConfig['modules'])
+        );
+    }
+
+    protected function newModuleDirsProviderService() {
+        return (function () {
+            $baseModuleDirPath = $this->get('app')->config()['baseDirPath'] . '/' . MODULE_DIR_NAME;
+            foreach (Directory::dirPaths($baseModuleDirPath, null, ['recursive' => false]) as $moduleDirPath) {
+                yield [
+                    'baseModuleDirPath' => $baseModuleDirPath,
+                    'moduleDirPath' => $moduleDirPath
+                ];
+            }
+        })();
+    }
 
     protected function newSessionService() {
         return new Session(__CLASS__);

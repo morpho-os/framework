@@ -209,17 +209,14 @@ class SiteFactoryTest extends TestCase {
      */
     public function testInvoke_MultiSiting($appConfig, $expectedSiteConfig, $expectedHostName, $hostName, $siteModuleName) {
         $_SERVER['HTTP_HOST'] = $hostName;
-
         $siteFactory = $this->newSiteFactory();
 
-        [$site, $newSiteConfig] = $siteFactory->__invoke($appConfig);
+        $site = $siteFactory->__invoke($appConfig);
 
         $this->checkClassLoaderRegistered();
         $this->assertSame($expectedHostName, $site->hostName());
         $this->assertSame($siteModuleName, $site->moduleName());
-
-        $this->assertSame($expectedSiteConfig, $newSiteConfig);
-
+        $this->assertSame($expectedSiteConfig, $site->config());
     }
 
     private function newSiteFactory() {

@@ -7,18 +7,34 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use Morpho\Core\IModuleIndexer;
 use Morpho\Di\IServiceManager;
 use Morpho\Core\Application as BaseApplication;
-use Morpho\Fs\Directory;
 use Morpho\Web\View\Html;
 
 class Application extends BaseApplication {
     protected function init(): IServiceManager {
         $appConfig = $this->config;
 
-        /** @var Site $site */
-        [$site, $siteConfig] = $this->newSiteAndConfig($appConfig);
+        // factory can have a type: string (class name) | \Closure | IBootstrapFactory (instance)
+        if (isset($appConfig['factory'])) {
+            if (is_object($appConfig['factory'])) {
+                if ($appConfig['factory'] instanceof \Closure) {
+                    $factory = $appConfig['factory']();
+                } else {
+                    // factory is IBootstrapFactory instance
+                    $factory = $appConfig['factory'];
+                }
+            } else {
+                // factory is a string containing a class name
+                $factory = new $appConfig['factory'];
+            }
+        } else {
+            $factory = new BootstrapFactory();
+        }
+
+        $site = $factory->newSite($appConfig);
+
+        $siteConfig = $site->config();
 
         if (isset($siteConfig['iniSettings'])) {
             $this->applyIniSettings($siteConfig['iniSettings']);
@@ -30,9 +46,9 @@ class Application extends BaseApplication {
         $services = [
             'app'  => $this,
             'site' => $site,
-            'moduleIndexer' => $this->newModuleIndexer($site->moduleName(), [$appConfig['baseModuleDirPath']], $siteConfig),
         ];
-        $serviceManager = $this->newServiceManager($siteConfig['serviceManager'] ?? null, $services);
+        /** @var ServiceManager $serviceManager */
+        $serviceManager = $factory->newServiceManager($services);
 
         $serviceManager->setConfig($siteConfig['services']);
 
@@ -79,40 +95,5 @@ class Application extends BaseApplication {
             \ob_end_clean();
         }
         die(Html::encode($message) . '.');
-    }
-
-    protected function newSiteAndConfig($appConfig) {
-        return (new SiteFactory())($appConfig);
-    }
-
-    protected function newServiceManager(?string $class, $services): IServiceManager {
-        if ($class) {
-            return new $class($services);
-        }
-        return new ServiceManager($services);
-    }
-
-    protected function newModuleIndexer(string $siteModuleName, iterable $baseModuleDirPaths, $siteConfig): IModuleIndexer {
-        $moduleDirsProvider = function () use ($baseModuleDirPaths) {
-            foreach ($baseModuleDirPaths as $baseModuleDirPath) {
-                foreach (Directory::dirPaths($baseModuleDirPath, null, ['recursive' => false]) as $moduleDirPath) {
-                    yield [
-                        'baseModuleDirPath' => $baseModuleDirPath,
-                        'moduleDirPath' => $moduleDirPath
-                    ];
-                }
-            }
-        };
-        $cacheDirPath = $siteConfig['paths']['cacheDirPath'];
-        $indexFilePath = $cacheDirPath . '/module-index.php';
-        return new ModuleIndexer(
-            $moduleDirsProvider(),
-            $indexFilePath,
-            [
-                $siteModuleName => $siteConfig,
-            ],
-            // @TODO: Add module iterator
-            array_keys($siteConfig['modules'])
-        );
     }
 }

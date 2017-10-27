@@ -13,8 +13,10 @@ class SiteTest extends TestCase {
     public function testAccessors() {
         $moduleName = 'foo/bar';
         $hostName = 'example.com';
-        $site = new Site($moduleName, $hostName);
+        $config = ['test' => '123'];
+        $site = new Site($moduleName, $hostName, $config);
         $this->assertSame($hostName, $site->hostName());
         $this->assertSame($moduleName, $site->moduleName());
+        $this->assertSame($config, $site->config());
     }
 }
