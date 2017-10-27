@@ -35,7 +35,7 @@ class AllPagesTests extends BrowserTestCase {
      */
     public function testCacheAndIndexPages($expectedMessage, $menuItemsText) {
         $this->browser()->get($this->uri());
-        $this->clickMenuItem($menuItemsText);
+        $this->clickMenuItems($menuItemsText);
         $this->assertContains(
             $expectedMessage,
             $this->browser()->findElement(By::cssSelector('#page-messages .alert-success'))->getText()
@@ -48,7 +48,7 @@ class AllPagesTests extends BrowserTestCase {
         $this->assertSame($expectedTitle, $this->browser()->findElement(By::tagName('h1'))->getText());
     }
 
-    private function clickMenuItem($menuItemsText) {
+    private function clickMenuItems(iterable $menuItemsText) {
         foreach ($menuItemsText as $menuItemText) {
             $this->browser()->findElement(By::xpath("//a[contains(text(), '$menuItemText')]"))->click();
         }
