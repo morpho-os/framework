@@ -43,10 +43,9 @@ class ModuleProvider extends Node {
 
     private function registerModuleAutoloader(string $moduleName): void {
         if (!isset($this->registeredModules[$moduleName])) {
-            // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then
+            // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of fail.
             $moduleMeta = $this->moduleIndex->moduleMeta($moduleName);
-            // call Composer's autoloader in case of fail.
-            require $moduleMeta['paths']['baseDirPath'] . '/' . $moduleMeta['paths']['relDirPath'] . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+            require $moduleMeta->autoloadFilePath();
             $this->registeredModules[$moduleName] = true;
         }
     }

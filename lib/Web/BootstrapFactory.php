@@ -6,10 +6,9 @@
  */
 namespace Morpho\Web;
 
-//use Morpho\Core\IModuleIndexer;
 use Morpho\Di\IServiceManager;
 
-class BootstrapFactory {
+class BootstrapFactory implements IBootstrapFactory {
     public function newSite($appConfig): Site {
         return (new SiteFactory())($appConfig);
     }

@@ -18,11 +18,7 @@ class ModuleMeta extends \ArrayObject {
         return $this['paths']['dirPath'];
     }
 
-    public function baseDirPath() {
-        return $this['paths']['baseDirPath'];
-    }
-
-    public function relDirPath() {
-        return $this['paths']['relDirPath'];
+    public function autoloadFilePath(): string {
+        return $this->dirPath() . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
     }
 }

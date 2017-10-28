@@ -4,7 +4,6 @@ namespace Morpho\Web;
 
 use Morpho\Core\IModuleIndexer;
 use Morpho\Fs\File;
-use Morpho\Fs\Path;
 use Zend\Stdlib\ArrayUtils;
 use const Morpho\Core\AUTOLOAD_FILE_NAME;
 use const Morpho\Core\META_FILE_NAME;
@@ -13,12 +12,12 @@ use const Morpho\Core\VENDOR_DIR_NAME;
 
 class ModuleIndexer implements IModuleIndexer {
     private $indexFilePath;
-    private $moduleDirsProvider;
+    private $moduleDirsIterator;
     private $activeModules;
     private $modulesConfig;
 
-    public function __construct(iterable $moduleDirsProvider, string $indexFilePath, array $modulesConfig, array $activeModules) {
-        $this->moduleDirsProvider = $moduleDirsProvider;
+    public function __construct(iterable $moduleDirsIterator, string $indexFilePath, array $modulesConfig, array $activeModules) {
+        $this->moduleDirsIterator = $moduleDirsIterator;
         $this->indexFilePath = $indexFilePath;
         $this->modulesConfig = $modulesConfig;
         $this->activeModules = array_flip($activeModules);
@@ -43,8 +42,7 @@ class ModuleIndexer implements IModuleIndexer {
 
     private function indexModules() {
         $index = [];
-        foreach ($this->moduleDirsProvider as $moduleDir) {
-            ['moduleDirPath' => $moduleDirPath, 'baseModuleDirPath' => $baseModuleDirPath] = $moduleDir;
+        foreach ($this->moduleDirsIterator as $moduleDirPath) {
             $moduleMetaFilePath = $moduleDirPath . '/' . META_FILE_NAME;
             if (is_file($moduleMetaFilePath)) {
                 $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
@@ -63,10 +61,9 @@ class ModuleIndexer implements IModuleIndexer {
                         $class = Module::class;
                     }
                     $paths = [
-                        'baseDirPath' => $baseModuleDirPath,
-                        'relDirPath'  => Path::toRelative($baseModuleDirPath, $moduleDirPath),
+                        'dirPath' => $moduleDirPath,
+                        'viewDirPath' => $moduleDirPath . '/' . VIEW_DIR_NAME,
                     ];
-                    $paths['viewDirPath'] = $paths['baseDirPath'] . '/' . $paths['relDirPath'] . '/' . VIEW_DIR_NAME;
                     $index[$moduleName] = [
                         'paths'     => $paths,
                         'namespace' => $namespace,

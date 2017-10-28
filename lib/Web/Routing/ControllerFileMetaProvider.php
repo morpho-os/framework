@@ -30,7 +30,7 @@ class ControllerFileMetaProvider implements IFn {
                 if (isset($paths['libDirPath'])) {
                     $libDirPath = $paths['libDirPath'];
                 } else {
-                    $libDirPath = $paths['baseDirPath'] . '/' . $paths['relDirPath'] . '/' . LIB_DIR_NAME;
+                    $libDirPath = $paths['dirPath'] . '/' . LIB_DIR_NAME;
                 }
                 $controllerDirPath = $libDirPath . '/Web';
             }

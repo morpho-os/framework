@@ -45,7 +45,7 @@ class ServiceManager extends BaseServiceManager {
         $site = $this->get('site');
         $siteConfig = $site->config();
         return new ModuleIndexer(
-            $this->get('moduleDirsProvider'),
+            $this->get('moduleDirsIterator'),
             $siteConfig['paths']['cacheDirPath'] . '/module-index.php',
             [
                 $site->moduleName() => $siteConfig,
@@ -55,16 +55,9 @@ class ServiceManager extends BaseServiceManager {
         );
     }
 
-    protected function newModuleDirsProviderService() {
-        return (function () {
-            $baseModuleDirPath = $this->get('app')->config()['baseDirPath'] . '/' . MODULE_DIR_NAME;
-            foreach (Directory::dirPaths($baseModuleDirPath, null, ['recursive' => false]) as $moduleDirPath) {
-                yield [
-                    'baseModuleDirPath' => $baseModuleDirPath,
-                    'moduleDirPath' => $moduleDirPath
-                ];
-            }
-        })();
+    protected function newModuleDirsIteratorService() {
+        $baseModuleDirPath = $this->get('app')->config()['baseDirPath'] . '/' . MODULE_DIR_NAME;
+        return Directory::dirPaths($baseModuleDirPath, null, ['recursive' => false]);
     }
 
     protected function newSessionService() {
