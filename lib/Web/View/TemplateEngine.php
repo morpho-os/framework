@@ -115,7 +115,10 @@ class TemplateEngine extends Pipe {
                 $fn->setFilePath($filePath);
             }
             $php = $this->__invoke(File::read($filePath));
-            file_put_contents($cacheFilePath, $php);
+            $res = file_put_contents($cacheFilePath, $php, LOCK_EX);
+            if (false === $res) {
+                throw new \RuntimeException("Unable to write the compiled file '$cacheFilePath'");
+            }
         }
         return $cacheFilePath;
     }
