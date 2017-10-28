@@ -23,8 +23,6 @@ class Theme implements IHasServiceManager {
 
     protected $templateEngine;
 
-    //private $isThemeDirAdded = false;
-
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager): void {
@@ -56,14 +54,9 @@ class Theme implements IHasServiceManager {
             return toJson($view->vars());
         }
 
-/*        if (!$this->isThemeDirAdded) {
-            if (get_class($this) !== __CLASS__) {
-                $this->addBaseDirPath($this->viewDirPath());
-            }
-            $this->isThemeDirAdded = true;
-        }*/
+        $moduleIndex = $serviceManager->get('moduleIndex');
 
-        $viewDirPath = $serviceManager->get('moduleIndex')->moduleMeta($request->moduleName())->viewDirPath();
+        $viewDirPath = $moduleIndex->moduleMeta($request->moduleName())->viewDirPath();
         $this->addBaseDirPath($viewDirPath);
 
         $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($view->name());

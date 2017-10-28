@@ -8,10 +8,9 @@ namespace Morpho\Web;
 
 use Morpho\Base\Event;
 use Morpho\Base\EventManager as BaseEventManager;
-use const Morpho\Core\VENDOR;
+use Morpho\Core\Module;
 
 class EventManager extends BaseEventManager {
-    private const SYSTEM_MODULE = VENDOR . '/system';
     protected $serviceManager;
 
     public function __construct($serviceManager) {
@@ -20,21 +19,39 @@ class EventManager extends BaseEventManager {
     }
 
     protected function attachHandlers() {
-        $moduleProvider = $this->serviceManager->get('moduleProvider');
-        /**
-         * @var \Morpho\System\Web\Module $module
-         */
-        $module = $moduleProvider->offsetGet(self::SYSTEM_MODULE);
-        $this->on('dispatchError', function (Event $event) use ($module) {
+        // Attach error handlers.
+        $this->attachErrorHandlers();
+        $this->attachViewHandlers();
+    }
+
+    private function attachErrorHandlers(): void {
+        $this->on('dispatchError', function (Event $event) {
+            $module = $this->moduleFromSetting('errorHandler');
             return $module->dispatchError($event);
         });
-        $this->on('render', function (Event $event) use ($module) {
+    }
+
+    private function attachViewHandlers(): void {
+        // Attach view handlers.
+        $this->on('render', function (Event $event) {
+            $module = $this->moduleFromSetting('errorHandler');
             /** @var View\View $view */
             $view = $event->args['view'];
             return $module->theme()->renderView($view);
         });
-        $this->on('afterDispatch', function (Event $event) use ($module) {
+        $this->on('afterDispatch', function (Event $event) {
+            $module = $this->moduleFromSetting('errorHandler');
             $module->afterDispatch($event);
         });
+    }
+
+    private function moduleFromSetting(string $setting): Module {
+        $serviceManager = $this->serviceManager;
+        $moduleProvider = $serviceManager->get('moduleProvider');
+        $moduleName = $serviceManager->get('site')->moduleName();
+        $moduleMeta = $serviceManager->get('moduleIndex')->moduleMeta($moduleName);
+        $config = $moduleMeta['services']['eventManager'];
+        $module = $moduleProvider->offsetGet($config[$setting]);
+        return $module;
     }
 }

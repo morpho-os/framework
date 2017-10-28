@@ -8,5 +8,6 @@ namespace Morpho\Core;
 
 interface IModuleIndexer {
     public function build();
+
     public function clear();
 }
