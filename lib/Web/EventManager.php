@@ -26,32 +26,40 @@ class EventManager extends BaseEventManager {
 
     private function attachErrorHandlers(): void {
         $this->on('dispatchError', function (Event $event) {
-            $module = $this->moduleFromSetting('errorHandler');
-            return $module->dispatchError($event);
+            $serviceManager = $this->serviceManager;
+            $siteModuleName = $serviceManager->get('site')->moduleName();
+            $moduleMeta = $serviceManager->get('moduleIndex')->moduleMeta($siteModuleName);
+            $config = $moduleMeta['services']['eventManager'];
+
+            $moduleProvider = $serviceManager->get('moduleProvider');
+            $errorHandlerModule = $moduleProvider->offsetGet($config['errorHandler']);
+            return $errorHandlerModule->dispatchError($event);
         });
     }
 
     private function attachViewHandlers(): void {
-        // Attach view handlers.
         $this->on('render', function (Event $event) {
-            $module = $this->moduleFromSetting('errorHandler');
-            /** @var View\View $view */
             $view = $event->args['view'];
-            return $module->theme()->renderView($view);
+            /** @var View\Theme $theme */
+            $theme = $this->serviceManager->get('theme');
+            return $theme->renderView($view);
         });
         $this->on('afterDispatch', function (Event $event) {
-            $module = $this->moduleFromSetting('errorHandler');
-            $module->afterDispatch($event);
-        });
-    }
+            $serviceManager = $this->serviceManager;
 
-    private function moduleFromSetting(string $setting): Module {
-        $serviceManager = $this->serviceManager;
-        $moduleProvider = $serviceManager->get('moduleProvider');
-        $moduleName = $serviceManager->get('site')->moduleName();
-        $moduleMeta = $serviceManager->get('moduleIndex')->moduleMeta($moduleName);
-        $config = $moduleMeta['services']['eventManager'];
-        $module = $moduleProvider->offsetGet($config[$setting]);
-        return $module;
+            $siteModuleName = $serviceManager->get('site')->moduleName();
+            $moduleIndex = $serviceManager->get('moduleIndex');
+            $moduleMeta = $moduleIndex->moduleMeta($siteModuleName);
+            $config = $moduleMeta['services']['eventManager'];
+            $moduleName = $config['layoutHandler'];
+
+            /** @var View\Theme $theme */
+            $theme = $this->serviceManager->get('theme');
+            $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
+            $theme->appendBaseDirPath($viewDirPath);
+
+            $request = $event->args['request'];
+            $theme->renderLayout($request);
+        });
     }
 }

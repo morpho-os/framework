@@ -15,21 +15,34 @@ class View {
     /**
      * @var array
      */
-    private $vars;
+    protected $vars;
     /**
      * @var array
      */
-    private $properties;
+    protected $properties;
     /**
      * @var bool
      */
-    private $isRendered;
+    protected $isRendered;
+
+    /**
+     * @var null|string
+     */
+    protected $dirPath;
 
     public function __construct(string $name, array $vars = null, array $properties = null, bool $isRendered = null) {
         $this->name = $name;
         $this->vars = (array)$vars;
         $this->properties = (array)$properties;
         $this->isRendered = (bool) $isRendered;
+    }
+
+    public function setDirPath(string $dirPath): void {
+        $this->dirPath = $dirPath;
+    }
+
+    public function dirPath(): ?string {
+        return $this->dirPath;
     }
 
     public function isRendered(bool $flag = null): bool {

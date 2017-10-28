@@ -30,6 +30,7 @@ use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\PostHtmlParser;
 use Morpho\Web\View\PreHtmlParser;
 use function Morpho\Code\composerAutoloader;
+use Morpho\Web\View\Theme;
 
 class ServiceManager extends BaseServiceManager {
     public function newRouterService(): IRouter {
@@ -80,6 +81,10 @@ class ServiceManager extends BaseServiceManager {
 
     protected function newModuleIndexService() {
         return new ModuleIndex($this->get('moduleIndexer'));
+    }
+
+    protected function newThemeService() {
+        return new Theme();
     }
 
     protected function newTemplateEngineService() {

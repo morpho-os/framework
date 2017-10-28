@@ -58,7 +58,7 @@ return [
         ],
         'eventManager' => [
             'errorHandler' => VENDOR . '/system',
-            'view' => VENDOR . '/system',
+            'layoutHandler' => VENDOR . '/system',
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.

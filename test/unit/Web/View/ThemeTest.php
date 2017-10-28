@@ -126,7 +126,7 @@ class ThemeTest extends TestCase {
         $expected = 'abcdefg123';
 
         $moduleDirPath = $this->createTmpDir();
-        $theme->addBaseDirPath($moduleDirPath);
+        $theme->appendBaseDirPath($moduleDirPath);
         $viewAbsFilePath = $moduleDirPath . '/' . $controllerName . '/' . $viewName . Theme::VIEW_FILE_EXT;
         mkdir(dirname($viewAbsFilePath), 0777, true);
         touch($viewAbsFilePath);
@@ -159,14 +159,28 @@ class ThemeTest extends TestCase {
 
     public function testBasePathAccessors() {
         $theme = $this->newTheme();
+
         $this->assertEquals([], $theme->baseDirPaths());
-        $baseDirPath = $this->getTestDirPath() . '/foo/bar';
-        $theme->addBaseDirPath($baseDirPath);
-        $this->assertEquals([$baseDirPath], $theme->baseDirPaths());
-        // Add the same path twice.
-        $theme->addBaseDirPath($baseDirPath);
-        $this->assertEquals([$baseDirPath], $theme->baseDirPaths());
+
+        $baseDirPath1 = $this->getTestDirPath() . '/foo';
+
+        $theme->appendBaseDirPath($baseDirPath1);
+
+        $this->assertEquals([$baseDirPath1], $theme->baseDirPaths());
+
+        $baseDirPath2 = $this->getTestDirPath() . '/bar';
+
+        $theme->appendBaseDirPath($baseDirPath2);
+
+        $this->assertEquals([$baseDirPath1, $baseDirPath2], $theme->baseDirPaths());
+
+        // Append the same path twice
+        $theme->appendBaseDirPath($baseDirPath2);
+
+        $this->assertEquals([$baseDirPath1, $baseDirPath2], $theme->baseDirPaths());
+
         $theme->clearBaseDirPaths();
+
         $this->assertEquals([], $theme->baseDirPaths());
     }
 

@@ -7,7 +7,7 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\Controller;
 use Morpho\Web\NotFoundException;
-use Morpho\Web\View\IHasTheme;
+use Morpho\Web\View\View;
 
 class TestController extends Controller {
     public function indexAction() {
@@ -15,19 +15,9 @@ class TestController extends Controller {
         $moduleIndex = $this->serviceManager->get('moduleIndex');
         $viewDirPath = $moduleIndex->moduleMeta($moduleName)['paths']['viewDirPath'];
         $controllerViewDirPath = $viewDirPath . '/' . dasherize($this->name());
-        $found = false;
-        $moduleProvider = $this->serviceManager->get('moduleProvider');
-        foreach ($moduleIndex->moduleNames() as $moduleName) {
-            $module = $moduleProvider->offsetGet($moduleName);
-            if ($module instanceof IHasTheme) {
-                $module->theme()->addBaseDirPath($controllerViewDirPath);
-                $found = true;
-            }
-        }
-        if (!$found) {
-            throw new \RuntimeException("Unable to find a theme");
-        }
-        $this->setLayout('test');
+        $layout = new View('test');
+        $layout->setDirPath($controllerViewDirPath);
+        $this->setLayout($layout);
     }
 
     public function status400Action() {

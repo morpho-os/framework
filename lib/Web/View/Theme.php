@@ -57,7 +57,7 @@ class Theme implements IHasServiceManager {
         $moduleIndex = $serviceManager->get('moduleIndex');
 
         $viewDirPath = $moduleIndex->moduleMeta($request->moduleName())->viewDirPath();
-        $this->addBaseDirPath($viewDirPath);
+        $this->appendBaseDirPath($viewDirPath);
 
         $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($view->name());
         return $this->renderFile(
@@ -105,6 +105,10 @@ class Theme implements IHasServiceManager {
                     }
                 }
             } else {
+                $dirPath = $layout->dirPath();
+                if ($dirPath) {
+                    $this->appendBaseDirPath($dirPath);
+                }
                 if (!$response->isRedirect()) {
                     $response->setContent(
                         $this->renderFile($layout->name(), ['body' => $response->content()])
@@ -115,10 +119,9 @@ class Theme implements IHasServiceManager {
         }
     }
 
-    public function addBaseDirPath(string $dirPath): void {
-        if (false === array_search($dirPath, $this->baseDirPaths, true)) {
-            array_unshift($this->baseDirPaths, $dirPath);
-        }
+    public function appendBaseDirPath(string $dirPath): void {
+        $this->baseDirPaths[] = $dirPath;
+        $this->baseDirPaths = array_values(array_unique($this->baseDirPaths));
     }
     
     public function baseDirPaths(): array {
@@ -137,8 +140,9 @@ class Theme implements IHasServiceManager {
         if (Path::isAbsolute($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
             return $relOrAbsFilePath;
         }
-        foreach ($this->baseDirPaths as $basePath) {
-            $filePath = Path::combine($basePath, $relOrAbsFilePath);
+        for ($i = count($this->baseDirPaths()) - 1; $i >= 0; $i--) {
+            $baseDirPath = $this->baseDirPaths[$i];
+            $filePath = Path::combine($baseDirPath, $relOrAbsFilePath);
             if (is_readable($filePath)) {
                 return $filePath;
             }

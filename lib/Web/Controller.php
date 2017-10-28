@@ -260,7 +260,8 @@ class Controller extends Node implements IFn {
      */
     protected function setLayout($nameOrLayout): void {
         $this->request->params()->offsetSet(
-            'layout', is_string($nameOrLayout) ? new View($nameOrLayout) : $nameOrLayout
+            'layout',
+            is_string($nameOrLayout) ? new View($nameOrLayout) : $nameOrLayout
         );
     }
 

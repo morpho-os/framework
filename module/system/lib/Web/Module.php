@@ -10,12 +10,8 @@ use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
 use Morpho\Web\Module as BaseModule;
-use Morpho\Web\View\IHasTheme;
-use Morpho\Web\View\THasTheme;
 
-class Module extends BaseModule implements IHasTheme {
-    use THasTheme;
-
+class Module extends BaseModule {
     public const NAME = VENDOR . '/system';
 
     private $thrownExceptions = [];
