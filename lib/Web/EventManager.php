@@ -39,9 +39,16 @@ class EventManager extends BaseEventManager {
 
     private function attachViewHandlers(): void {
         $this->on('render', function (Event $event) {
-            $view = $event->args['view'];
+            $serviceManager = $this->serviceManager;
+
+            $moduleName = $serviceManager->get('request')->moduleName();
+            $moduleIndex = $serviceManager->get('moduleIndex');
+            $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
             /** @var View\Theme $theme */
-            $theme = $this->serviceManager->get('theme');
+            $theme = $serviceManager->get('theme');
+            $theme->appendBaseDirPath($viewDirPath);
+
+            $view = $event->args['view'];
             return $theme->renderView($view);
         });
         $this->on('afterDispatch', function (Event $event) {

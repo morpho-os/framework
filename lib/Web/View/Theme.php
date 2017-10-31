@@ -54,11 +54,6 @@ class Theme implements IHasServiceManager {
             return toJson($view->vars());
         }
 
-        $moduleIndex = $serviceManager->get('moduleIndex');
-
-        $viewDirPath = $moduleIndex->moduleMeta($request->moduleName())->viewDirPath();
-        $this->appendBaseDirPath($viewDirPath);
-
         $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($view->name());
         return $this->renderFile(
             $relFilePath,
@@ -120,8 +115,13 @@ class Theme implements IHasServiceManager {
     }
 
     public function appendBaseDirPath(string $dirPath): void {
-        $this->baseDirPaths[] = $dirPath;
-        $this->baseDirPaths = array_values(array_unique($this->baseDirPaths));
+        $baseDirPaths = $this->baseDirPaths;
+        $key = array_search($dirPath, $baseDirPaths);
+        if (false !== $key) {
+            unset($baseDirPaths[$key]);
+        }
+        $baseDirPaths[] = $dirPath;
+        $this->baseDirPaths = array_values($baseDirPaths);
     }
     
     public function baseDirPaths(): array {

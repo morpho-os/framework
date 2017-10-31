@@ -7,8 +7,6 @@
 namespace MorphoTest\Unit\Web\View;
 
 use function Morpho\Base\fromJson;
-use Morpho\Web\ModuleMeta;
-use Morpho\Web\ModuleIndex;
 use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\View;
 use Morpho\Di\ServiceManager;
@@ -101,7 +99,6 @@ class ThemeTest extends TestCase {
     public function testRenderView_NonAjax() {
         $theme = new Theme();
 
-        $moduleName = 'foo/bar';
         $controllerName = 'baz';
         $viewName = 'edit';
 
@@ -110,18 +107,8 @@ class ThemeTest extends TestCase {
             ->method('isAjax')
             ->willReturn(false);
         $request->expects($this->any())
-            ->method('moduleName')
-            ->willReturn($moduleName);
-        $request->expects($this->any())
             ->method('controllerName')
             ->willReturn($controllerName);
-
-        $viewDirPath = $this->getTestDirPath();
-        $moduleIndex = $this->createMock(ModuleIndex::class);
-        $moduleIndex->expects($this->any())
-            ->method('moduleMeta')
-            ->with($moduleName)
-            ->willReturn($this->createConfiguredMock(ModuleMeta::class, ['viewDirPath' => $viewDirPath]));
 
         $expected = 'abcdefg123';
 
@@ -141,7 +128,6 @@ class ThemeTest extends TestCase {
 
         $serviceManager = new ServiceManager([
             'request' => $request,
-            'moduleIndex' => $moduleIndex,
             'templateEngine' => $templateEngine,
         ]);
 
@@ -163,21 +149,20 @@ class ThemeTest extends TestCase {
         $this->assertEquals([], $theme->baseDirPaths());
 
         $baseDirPath1 = $this->getTestDirPath() . '/foo';
+        $baseDirPath2 = $this->getTestDirPath() . '/bar';
 
         $theme->appendBaseDirPath($baseDirPath1);
 
         $this->assertEquals([$baseDirPath1], $theme->baseDirPaths());
 
-        $baseDirPath2 = $this->getTestDirPath() . '/bar';
-
         $theme->appendBaseDirPath($baseDirPath2);
 
         $this->assertEquals([$baseDirPath1, $baseDirPath2], $theme->baseDirPaths());
 
-        // Append the same path twice
-        $theme->appendBaseDirPath($baseDirPath2);
+        // Append the same path twice, it must be placed at the end to render it in FIFO order.
+        $theme->appendBaseDirPath($baseDirPath1);
 
-        $this->assertEquals([$baseDirPath1, $baseDirPath2], $theme->baseDirPaths());
+        $this->assertEquals([$baseDirPath2, $baseDirPath1], $theme->baseDirPaths());
 
         $theme->clearBaseDirPaths();
 
