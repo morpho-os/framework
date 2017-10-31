@@ -805,7 +805,7 @@ function prepend(array $it, string $prefix): array {
 }
 
 /**
- * $fn has type (mixed $prev, mixed $cur): mixed
+ * $fn accepts 2 arguments: (mixed $acc, mixed $cur), where $acc is the accumulator, and $cur is the current element.
  */
 function reduce(callable $fn, array $arr, $initial = null) {
     return array_reduce($arr, $fn, $initial);
