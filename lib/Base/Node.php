@@ -16,6 +16,9 @@ class Node extends Object {
 
     protected $type;
 
+    /**
+     * @var Node
+     */
     protected $parent;
 
     public function __construct(string $name) {

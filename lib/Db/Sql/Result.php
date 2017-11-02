@@ -45,6 +45,7 @@ class Result extends \PDOStatement implements \Countable {
      * Has time complexity O(n)
      */
     public function count() {
+        // @TODO: replace with iterator_count() ?
         $i = 0;
         foreach ($this as $v) {
             $i++;
