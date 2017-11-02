@@ -23,7 +23,7 @@ class ModuleIndexer implements IModuleIndexer {
         $this->activeModules = array_flip($activeModules);
     }
 
-    public function build() {
+    public function index() {
         $indexFilePath = $this->indexFilePath;
         if (is_file($indexFilePath)) {
             return require $indexFilePath;
@@ -36,7 +36,7 @@ class ModuleIndexer implements IModuleIndexer {
         }
     }
 
-    public function clear() {
+    public function clear(): void {
         File::deleteIfExists($this->indexFilePath);
     }
 

@@ -7,7 +7,14 @@
 namespace Morpho\Core;
 
 interface IModuleIndexer {
-    public function build();
+    /**
+     * Indexes all modules and returns the index. Can cache the result.
+     * @return array|\ArrayAccess
+     */
+    public function index();
 
-    public function clear();
+    /**
+     * Clears the internal state and cache so that the next call of the index() will build a new index.
+     */
+    public function clear(): void;
 }

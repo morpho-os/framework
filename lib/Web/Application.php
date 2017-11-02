@@ -12,7 +12,7 @@ use Morpho\Core\Application as BaseApplication;
 use Morpho\Web\View\Html;
 
 class Application extends BaseApplication {
-    protected function init(): IServiceManager {
+    protected function newServiceManager(): IServiceManager {
         $appConfig = $this->config;
 
         // factory can have a type: string (class name) | \Closure | IBootstrapFactory (instance)

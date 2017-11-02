@@ -48,7 +48,7 @@ abstract class ModuleIndex {
 
     private function init(): void {
         if (null === $this->index) {
-            $this->index = $this->indexer->build();
+            $this->index = $this->indexer->index();
         }
     }
 }

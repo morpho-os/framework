@@ -45,7 +45,7 @@ class ModuleProvider extends Node {
         if (!isset($this->registeredModules[$moduleName])) {
             // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of fail.
             $moduleMeta = $this->moduleIndex->moduleMeta($moduleName);
-            require $moduleMeta->autoloadFilePath();
+            require_once $moduleMeta->autoloadFilePath();
             $this->registeredModules[$moduleName] = true;
         }
     }

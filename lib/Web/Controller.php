@@ -8,7 +8,6 @@ namespace Morpho\Web;
 
 use Morpho\Base\Event;
 use Morpho\Base\IFn;
-use Morpho\Base\NotImplementedException;
 use Morpho\Web\Session\Session;
 use Morpho\Web\View\View;
 use Morpho\Core\Node;
@@ -18,10 +17,17 @@ class Controller extends Node implements IFn {
      * @var \Morpho\Di\IServiceManager
      */
     protected $serviceManager;
+    /**
+     * @var \Morpho\Web\Request
+     */
     protected $request;
+    /**
+     * @var \Morpho\Web\View\View
+     */
     private $view;
 
     public function __invoke($request): void {
+        /** @var \Morpho\Core\Request $request */
         $this->request = $request;
         $this->view = null;
         $action = $request->actionName();
@@ -44,7 +50,7 @@ class Controller extends Node implements IFn {
             // $view: null|array|View
             if (!$view instanceof View) {
                 // $view: null|array
-                $view = $this->view ?: new View($action, $view);
+                $view = $this->view ?: $this->newView($view);
             }
             if ($this->shouldRenderView($view)) {
                 $renderedView = $this->renderView($view);
@@ -77,18 +83,6 @@ class Controller extends Node implements IFn {
      */
     protected function afterEach(): void {
     }
-
-    protected function moduleName(): string {
-        return $this->parent->name();
-    }
-
-/*    protected function db() {
-        return $this->serviceManager->get('db');
-    }*/
-
-/*    protected function repo(string $name) {
-        return $this->parent->repo($name);
-    }*/
 
     protected function shouldRenderView(View $view): bool {
         $request = $this->request;
@@ -128,7 +122,7 @@ class Controller extends Node implements IFn {
 
         $request->isDispatched(false);
     }
-
+/*
     protected function redirectToAction(string $action, string $controller = null, string $module = null, string $httpMethod = null, array $routingParams = null): void {
         // @TODO
         throw new NotImplementedException(__METHOD__);
@@ -147,8 +141,8 @@ class Controller extends Node implements IFn {
                 ->get('router')
                 ->assemble($action, $httpMethod, $controller, $module, $params)
         );
-        */
     }
+*/
 
     protected function redirectToUri(string $uri = null, int $httpStatusCode = null): void {
         $request = $this->request;
@@ -267,5 +261,9 @@ class Controller extends Node implements IFn {
 
     protected function userManager() {
         return $this->serviceManager->get('userManager');
+    }
+
+    protected function newView(array $vars = null, array $properties = null, bool $isRendered = null): View {
+        return new View($this->request->actionName(), $vars, $properties, $isRendered);
     }
 }

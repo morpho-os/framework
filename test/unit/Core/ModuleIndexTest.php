@@ -1,4 +1,4 @@
-<?php //declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -17,7 +17,7 @@ class ModuleIndexTest extends TestCase {
         $moduleIndex = $this->newModuleIndex($moduleIndexer);
         $moduleName = 'foo/bar';
         $moduleIndexer->expects($this->exactly(2))
-            ->method('build')
+            ->method('index')
             ->willReturnOnConsecutiveCalls([$moduleName => ['first']], [$moduleName => ['second']]);
 
         $this->assertSame('first', $moduleIndex->moduleMeta($moduleName)[0]);
@@ -56,7 +56,7 @@ class ModuleIndexTest extends TestCase {
 
     private function newModuleIndexer() {
         $moduleIndexer = $this->createConfiguredMock(IModuleIndexer::class, [
-            'build' => [
+            'index' => [
                 'galaxy/neptune' => [
                     'namespace' => __CLASS__ . '/Neptune',
                 ],
