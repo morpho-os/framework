@@ -39,16 +39,8 @@ class IterableFunctionsTest extends TestCase {
     }
 
     /** @dataProvider dataForEmptyList_Common */
-    public function testEmptyList_Common(callable $fn, $v) {
-        if (is_string($v)) {
-            $this->assertSame('', $fn($this->errFn(), $v));
-        } elseif (is_array($v)) {
-            $this->assertSame([], $fn($this->errFn(), $v));
-        } else {
-            $res = $fn($this->errFn(), $v);
-            $this->assertInstanceOf(\Generator::class, $res);
-            $this->assertSame([], toArray($res));
-        }
+    public function testEmptyList_Common(callable $fnToTest, $iter) {
+        $this->checkResForEmptyList($fnToTest($this->errFn(), $iter), $iter);
     }
 
     // --------------------------------------------------------------------------------
@@ -58,11 +50,7 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testAll_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testAll_String_WithoutSeparator() {
+    public function testAll_String() {
         $this->markTestIncomplete();
     }
 
@@ -101,11 +89,7 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testAny_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testAny_String_WithoutSeparator() {
+    public function testAny_String() {
         $this->markTestIncomplete();
     }
 
@@ -144,11 +128,7 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testAppend_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testAppend_String_WithoutSeparator() {
+    public function testAppend_String() {
         $this->markTestIncomplete();
     }
 
@@ -189,13 +169,8 @@ class IterableFunctionsTest extends TestCase {
         $this->assertNull(apply($fn, $iter));
     }
 
-    /* * @dataProvider dataForString_WithSeparator */
-    public function testApply_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataForString_WithoutSeparator */
-    public function testApply_String_WithoutSeparator() {
+    /* * @dataProvider dataForString */
+    public function testApply_String() {
         $this->markTestIncomplete();
     }
 
@@ -241,11 +216,7 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testContains_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testContains_String_WithoutSeparator() {
+    public function testContains_String() {
         $this->markTestIncomplete();
     }
 
@@ -280,11 +251,7 @@ class IterableFunctionsTest extends TestCase {
     // --------------------------------------------------------------------------------
     // filter
 
-    public function testFilter_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testFilter_String_WithoutSeparator() {
+    public function testFilter_String() {
         $this->markTestIncomplete();
     }
 
@@ -351,13 +318,8 @@ class IterableFunctionsTest extends TestCase {
     // --------------------------------------------------------------------------------
     // flatMap
 
-    /* * @dataProvider dataFor_String_WithSeparator */
-    public function testFlatMap_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataFor_String_WithoutSeparator */
-    public function testFlatMap_String_WithoutSeparator() {
+    /* * @dataProvider dataFor_String */
+    public function testFlatMap_String() {
         $this->markTestIncomplete();
     }
 
@@ -569,11 +531,7 @@ class IterableFunctionsTest extends TestCase {
     // --------------------------------------------------------------------------------
     // map
 
-    public function testMap_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testMap_String_WithoutSeparator() {
+    public function testMap_String() {
         $this->markTestIncomplete();
     }
 
@@ -629,11 +587,7 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testPrepend_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testPrepend_String_WithoutSeparator() {
+    public function testPrepend_String() {
         $this->markTestIncomplete();
     }
 
@@ -672,11 +626,7 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testReduce_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    public function testReduce_String_WithoutSeparator() {
+    public function testReduce_String() {
         $this->markTestIncomplete();
     }
 
@@ -776,13 +726,8 @@ class IterableFunctionsTest extends TestCase {
         $this->assertSame([], toArray($v));
     }
 
-    /* * @dataProvider dataForString_WithSeparator */
-    public function testToArray_String_WithSeparator() {
-        $this->markTestIncomplete();
-    }
-
-    /* * @dataProvider dataForString_WithoutSeparator */
-    public function testToArray_String_WithoutSeparator() {
+    /* * @dataProvider dataForString */
+    public function testToArray_String() {
         $this->markTestIncomplete();
     }
 
@@ -918,5 +863,16 @@ class IterableFunctionsTest extends TestCase {
         return function () {
             throw new \RuntimeException('This function must not be called');
         };
+    }
+
+    private function checkResForEmptyList($res, $iter) {
+        if (is_string($iter)) {
+            $this->assertSame('', $res);
+        } elseif (is_array($iter)) {
+            $this->assertSame([], $res);
+        } else {
+            $this->assertInstanceOf(\Generator::class, $res);
+            $this->assertSame([], toArray($res));
+        }
     }
 }
