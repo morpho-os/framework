@@ -9,8 +9,9 @@ namespace MorphoTest\Unit\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    argsString, cmd, escapeArgs, showOk, stylize
+    argsString, cmd, escapeArgs, proc, showOk, stylize
 };
+use Morpho\Cli\ProcCommandResult;
 use Morpho\Test\TestCase;
 
 class FunctionsTest extends TestCase {
@@ -141,5 +142,28 @@ OUT
         proc_close($process);
 
         $this->assertEquals("$question? (y/n): Invalid choice, please type y or n\ntrue", $out);
+    }
+
+    public function testProc() {
+        $cmd = 'ls -al ' . escapeshellarg(__DIR__);
+        $result = proc($cmd);
+        $this->assertInstanceOf(ProcCommandResult::class, $result);
+        $this->assertSame($cmd, $result->command());
+        $checkStdOut = function ($stdOut) {
+            $this->assertContains(".\n", $stdOut);
+            $this->assertContains("..\n", $stdOut);
+            $this->assertContains(basename(__FILE__), $stdOut);
+        };
+        $checkStdOut($result->stdOut());
+        $this->assertSame(0, $result->exitCode());
+        $this->assertFalse($result->isError());
+        $lines = iterator_to_array($result->lines());
+        $this->assertTrue(count($lines) > 0);
+        $checkStdOut(implode("\n", $lines));
+    }
+
+    public function testProc_CheckExit() {
+        $this->expectException(\RuntimeException::class, 'Command returned non-zero exit code: ');
+        proc('invalidcmd123_asnani2i2');
     }
 }

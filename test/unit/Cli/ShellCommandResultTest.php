@@ -6,12 +6,13 @@
  */
 namespace MorphoTest\Unit\Cli;
 
+use Morpho\Cli\ICommandResult;
 use Morpho\Test\TestCase;
-use Morpho\Cli\CommandResult;
+use Morpho\Cli\ShellCommandResult;
 
-class CommandResultTest extends TestCase {
+class ShellCommandResultTest extends TestCase {
     public function testLines_DefaultArgs() {
-        $res = new CommandResult('foo', 0, <<<OUT
+        $res = new ShellCommandResult('foo', 0, <<<OUT
  First line
 
         Second line
@@ -19,6 +20,8 @@ class CommandResultTest extends TestCase {
         Third line
         
 OUT
+            ,
+            ''
         );
 
         $this->assertEquals(
@@ -32,6 +35,7 @@ OUT
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(\IteratorAggregate::class, new CommandResult('foo', 0, ''));
+        $this->assertInstanceOf(\IteratorAggregate::class, new ShellCommandResult('foo', 0, '', ''));
+        $this->assertInstanceOf(ICommandResult::class, new ShellCommandResult('foo', 0, '', ''));
     }
 }

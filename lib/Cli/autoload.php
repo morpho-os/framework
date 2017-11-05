@@ -22,6 +22,7 @@ use function Morpho\Base\capture;
 use Morpho\Base\NotImplementedException;
 use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
+use Symfony\Component\Process\Process;
 
 //use Symfony\Component\Process\Process;
 
@@ -111,50 +112,48 @@ function argsString($args): string {
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
-function shell(string $command, array $options = null): CommandResult {
+function shell(string $command, array $options = null): ICommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
-        'checkExitCode' => true,
+        'checkExit' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
     ]);
-    $output = null;
+    $output = '';
     $exitCode = 1;
     if (!$options['capture']) {
-        // @TODO: How to return $output?
         passthru($command, $exitCode);
     } else {
         $output = capture(function () use ($command, &$exitCode) {
             passthru($command, $exitCode);
         });
     }
-    if ($options['checkExitCode']) {
-        checkExitCode($exitCode);
+    if ($options['checkExit']) {
+        checkExit($exitCode);
     }
     // @TODO: How to get stdErr?
-    return new CommandResult($command, $exitCode, $output, $output);
+    return new ShellCommandResult($command, $exitCode, $output, $output);
 }
 
 // @TODO: See \Composer\Util\ProcessExecutor
-function proc(string $command, array $options = null): CommandResult {
-    throw new NotImplementedException();
-/*
+function proc(string $command, array $options = null): ICommandResult {
+    $options = ArrayTool::handleOptions((array) $options, [
+        'checkExit' => true,
+        // @TODO: tee: buffer and display output
+        //'capture' => false, // @TODO
+    ]);
     $process = new Process($command);
-    $process->run();
-//        $process->setTimeout(null);
-    $exitCode = $process->getExitCode();
-
-    throw new NotImplementedException();
-
-    // @TODO: handle $options['buffer'] and handler $output.
-    $output = $process->getOutput();
-*/
+    $exitCode = $process->run();
+    if ($options['checkExit']) {
+        checkExit($exitCode);
+    }
+    return new ProcCommandResult($process, $exitCode);
 }
 
-function cmd(string $command, array $options = null): CommandResult {
+function cmd(string $command, array $options = null): ICommandResult {
     $options = ArrayTool::handleOptions((array) $options, [
         'capture' => false,
         'shell' => true,
-        'checkExitCode' => true,
+        'checkExit' => true,
     ]);
     if (PHP_SAPI !== 'cli') {
         // @TODO
@@ -169,11 +168,11 @@ function cmd(string $command, array $options = null): CommandResult {
     }
 }
 
-function shellSu(string $command, array $options = null): CommandResult {
+function shellSu(string $command, array $options = null): ICommandResult {
     return shell('sudo bash -c "' . $command . '"', $options);
 }
 
-function checkExitCode(int $exitCode): int {
+function checkExit(int $exitCode): int {
     if ($exitCode !== 0) {
         throw new \RuntimeException("Command returned non-zero exit code: " . (int)$exitCode);
     }
