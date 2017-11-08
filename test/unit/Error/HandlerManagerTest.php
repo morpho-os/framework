@@ -22,10 +22,10 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
     }
 
     public function testHandlersOfType_DoesNotChangeCurrentHandlers() {
-        $this->assertEquals(1, count(HandlerManager::handlersOfType('error')));
-        $this->assertEquals(0, count(HandlerManager::handlersOfType('exception')));
-        $this->assertEquals(1, count(HandlerManager::handlersOfType('error')));
-        $this->assertEquals(0, count(HandlerManager::handlersOfType('exception')));
+        $this->assertEquals(1, count(HandlerManager::handlersOfType(HandlerManager::ERROR)));
+        $this->assertEquals(0, count(HandlerManager::handlersOfType(HandlerManager::EXCEPTION)));
+        $this->assertEquals(1, count(HandlerManager::handlersOfType(HandlerManager::ERROR)));
+        $this->assertEquals(0, count(HandlerManager::handlersOfType(HandlerManager::EXCEPTION)));
     }
 
     public function testRegisterAndUnregisterHandler() {
@@ -50,6 +50,30 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
     }
 
+    public function testUnregisterErrorHandler_OnlySecondHandler() {
+        $handler1 = function () {
+
+        };
+        $handler2 = function () {
+
+        };
+        $handler3 = function () {
+
+        };
+        $handler4 = function () {
+
+        };
+
+        set_error_handler($handler1);
+        set_error_handler($handler2);
+        set_error_handler($handler3);
+        set_error_handler($handler4);
+
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, $handler3);
+
+        $this->assertSame([$handler1, $handler2, $handler4], $this->errorHandlers());
+    }
+
     public function testThrowsExceptionIfInvalidHandlerTypeProvided() {
         $class = '\Morpho\Error\HandlerManager';
         $methods = array_diff(get_class_methods($class), ['exceptionHandlers', 'errorHandlers', 'exceptionHandler', 'errorHandler']);
@@ -62,5 +86,13 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
                 $this->assertEquals("Invalid handler type was provided 'invalid-type'.", $e->getMessage());
             }
         }
+    }
+
+    private function errorHandlers() {
+        $handlers = HandlerManager::handlersOfType(HandlerManager::ERROR);
+        if (isset($handlers[0][0]) && is_string($handlers[0][0]) && 0 === strpos($handlers[0][0], 'PHPUnit\\')) {
+            array_shift($handlers);
+        }
+        return $handlers;
     }
 }

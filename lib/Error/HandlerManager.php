@@ -35,13 +35,40 @@ class HandlerManager {
      *     was provided then all handlers before will be deleted that are
      *     above in the inner PHP stack of handlers.
      */
-    public static function unregisterHandler(string $handlerType, callable $callback = null) {
+    public static function unregisterHandler(string $handlerType, callable $fn = null) {
         self::checkHandlerType($handlerType);
-        $method = 'restore_' . $handlerType . '_handler';
-        do {
-            $handler = self::handlerOfType($handlerType);
-            $method();
-        } while ($handler && $handler !== $callback);
+        if (null === $fn) {
+            // Restore default error handler
+            ('set_' . $handlerType . '_handler')(null);
+        } else {
+            $popHandler = 'restore_' . $handlerType . '_handler';
+            $handlers = [];
+            /** @noinspection PhpAssignmentInConditionInspection */
+            while ($handler = self::handlerOfType($handlerType)) {
+                $popHandler();
+                if ($handler === $fn) {
+                    break;
+                } else {
+                    $handlers[] = $handler;
+                }
+            }
+            $pushHandler = 'set_' . $handlerType . '_handler';
+            foreach ($handlers as $handler) {
+                $pushHandler($handler);
+            }
+        }
+    }
+
+    public static function popHandlersUntil(string $handlerType, callable $predicate) {
+        self::checkHandlerType($handlerType);
+        $popHandler = 'restore_' . $handlerType . '_handler';
+        /** @noinspection PhpAssignmentInConditionInspection */
+        while ($currentHandler = self::handlerOfType($handlerType)) {
+            if ($predicate($currentHandler)) {
+                return;
+            }
+            $popHandler();
+        }
     }
 
     public static function exceptionHandler() {
@@ -63,26 +90,27 @@ class HandlerManager {
     public static function handlersOfType(string $handlerType) {
         self::checkHandlerType($handlerType);
 
-        $unregisterMethod = 'restore_' . $handlerType . '_handler';
-        $registerMethod = 'set_' . $handlerType . '_handler';
+        $popHandler = 'restore_' . $handlerType . '_handler';
+        $pushHandler = 'set_' . $handlerType . '_handler';
 
         $handlers = [];
-
         do {
             $handler = self::handlerOfType($handlerType);
-            $unregisterMethod();
+            $popHandler();
             if (!$handler) {
                 break;
             }
             $handlers[] = $handler;
         } while ($handler);
 
+        $handlers = array_reverse($handlers);
+
         // Restore handlers back.
         foreach ($handlers as $handler) {
-            $registerMethod($handler);
+            $pushHandler($handler);
         }
 
-        return array_reverse($handlers);
+        return $handlers;
     }
 
     /**
