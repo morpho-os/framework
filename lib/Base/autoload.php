@@ -407,6 +407,54 @@ function suffix(string $suffix): Closure {
     };
 }
 
+/**
+ * Modified version of the operator() from the https://github.com/nikic/iter
+ * @Copyright (c) 2013 by Nikita Popov.
+ */
+function op($operator, $arg = null): \Closure {
+    $functions = [
+        'instanceof' => function ($a, $b) { return $a instanceof $b; },
+        '*'          => function ($a, $b) { return $a * $b; },
+        '/'          => function ($a, $b) { return $a / $b; },
+        '%'          => function ($a, $b) { return $a % $b; },
+        '+'          => function ($a, $b) { return $a + $b; },
+        '-'          => function ($a, $b) { return $a - $b; },
+        '.'          => function ($a, $b) { return $a . $b; },
+        '<<'         => function ($a, $b) { return $a << $b; },
+        '>>'         => function ($a, $b) { return $a >> $b; },
+        '<'          => function ($a, $b) { return $a < $b; },
+        '<='         => function ($a, $b) { return $a <= $b; },
+        '>'          => function ($a, $b) { return $a > $b; },
+        '>='         => function ($a, $b) { return $a >= $b; },
+        '=='         => function ($a, $b) { return $a == $b; },
+        '!='         => function ($a, $b) { return $a != $b; },
+        '==='        => function ($a, $b) { return $a === $b; },
+        '!=='        => function ($a, $b) { return $a !== $b; },
+        '&'          => function ($a, $b) { return $a & $b; },
+        '^'          => function ($a, $b) { return $a ^ $b; },
+        '|'          => function ($a, $b) { return $a | $b; },
+        '&&'         => function ($a, $b) { return $a && $b; },
+        '||'         => function ($a, $b) { return $a || $b; },
+        '**'         => function ($a, $b) { return \pow($a, $b); },
+        '<=>'        => function ($a, $b) { return $a == $b ? 0 : ($a < $b ? -1 : 1); },
+    ];
+
+    if (!isset($functions[$operator])) {
+        throw new \InvalidArgumentException("Unknown operator \"$operator\"");
+    }
+
+    $fn = $functions[$operator];
+    if (func_num_args() === 1) {
+        // Return a function which expects 2 arguments.
+        return $fn;
+    } else {
+        // Capture the first argument of the binary operator, return a function which expect the second one (currying).
+        return function($a) use ($fn, $arg) {
+            return $fn($a, $arg);
+        };
+    }
+}
+
 function not(callable $predicateFn): Closure {
     return function (...$args) use ($predicateFn) {
         return !$predicateFn(...$args);

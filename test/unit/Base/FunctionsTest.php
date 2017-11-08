@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Base;
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, memoize, not, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
+    endsWith, hasPrefix, hasSuffix, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -558,6 +558,55 @@ class FunctionsTest extends TestCase {
 
     public function testCapture() {
         $this->markTestIncomplete();
+    }
+
+    /**
+     * Modified version of the providesOperator() from the https://github.com/nikic/iter
+     * @Copyright (c) 2013 by Nikita Popov.
+     */
+    public function dataForOp() {
+        return [
+            ['instanceof', new \stdClass, 'stdClass', true],
+            ['*', 3, 2, 6],
+            ['/', 3, 2, 1.5],
+            ['%', 3, 2, 1],
+            ['+', 3, 2, 5],
+            ['-', 3, 2, 1],
+            ['.', 'foo', 'bar', 'foobar'],
+            ['<<', 1, 8, 256],
+            ['>>', 256, 8, 1],
+            ['<', 3, 5, true],
+            ['<=', 5, 5, true],
+            ['>', 3, 5, false],
+            ['>=', 3, 5, false],
+            ['==', 0, 'foo', true],
+            ['!=', 1, 'foo', true],
+            ['===', 0, 'foo', false],
+            ['!==', 0, 'foo', true],
+            ['&', 3, 1, 1],
+            ['|', 3, 1, 3],
+            ['^', 3, 1, 2],
+            ['&&', true, false, false],
+            ['||', true, false, true],
+            ['**', 2, 4, 16],
+            ['<=>', [0 => 1, 1 => 0], [1 => 0, 0 => 1], 0],
+            ['<=>', '2e1', '1e10', -1],
+            ['<=>', new \stdClass(), new \SplStack(), 1],
+            ['<=>', new \SplStack(), new \stdClass(), 1],
+        ];
+    }
+
+    /**
+     * Modified version of the testOperator() from the https://github.com/nikic/iter
+     * @Copyright (c) 2013 by Nikita Popov.
+     * @dataProvider dataForOp
+     */
+    public function testOp($op, $a, $b, $result) {
+        $fn1 = op($op);
+        $fn2 = op($op, $b);
+
+        $this->assertSame($result, $fn1($a, $b));
+        $this->assertSame($result, $fn2($a));
     }
 
     private function assertCommon($fn) {
