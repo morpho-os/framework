@@ -44,13 +44,6 @@ class ModuleMeta extends BaseModuleMeta {
         return $this['paths']['controllerDirPath'] = $this->libDirPath() . '/Web';
     }
 
-    public function rcDirPath(): string {
-        if (isset($this['paths']['rcDirPath'])) {
-            return $this['paths']['rcDirPath'];
-        }
-        return $this['paths']['rcDirPath'] = $this->dirPath() . '/' . CACHE_DIR_NAME;
-    }
-
     public function libDirPath(): string {
         if (isset($this['paths']['libDirPath'])) {
             return $this['paths']['libDirPath'];

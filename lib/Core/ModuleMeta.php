@@ -14,11 +14,22 @@ class ModuleMeta extends \ArrayObject {
         parent::__construct($meta);
     }
 
+    public function autoloadFilePath(): string {
+        return $this->vendorDirPath() . '/' . AUTOLOAD_FILE_NAME;
+    }
+
+    public function vendorDirPath(): string {
+        return $this->dirPath() . '/' . VENDOR_DIR_NAME;
+    }
+
     public function dirPath(): string {
         return $this['paths']['dirPath'];
     }
 
-    public function autoloadFilePath(): string {
-        return $this->dirPath() . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+    public function rcDirPath(): string {
+        if (isset($this['paths']['rcDirPath'])) {
+            return $this['paths']['rcDirPath'];
+        }
+        return $this['paths']['rcDirPath'] = $this->dirPath() . '/' . RC_DIR_NAME;
     }
 }
