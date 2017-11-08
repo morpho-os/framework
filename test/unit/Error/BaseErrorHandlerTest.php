@@ -27,7 +27,7 @@ abstract class BaseErrorHandlerTest extends TestCase {
 
     public function tearDown() {
         HandlerManager::popHandlersUntil(HandlerManager::ERROR, op('===', $this->prevErrorHandler));
-        HandlerManager::popHandlersUntil(HandlerManager::EXCEPTION, op('===',  $this->prevExceptionHandler));
+        HandlerManager::popHandlersUntil(HandlerManager::EXCEPTION, op('===', $this->prevExceptionHandler));
     }
 
     public function myHandler() {

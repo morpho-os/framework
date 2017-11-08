@@ -52,16 +52,12 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
 
     public function testUnregisterErrorHandler_OnlySecondHandler() {
         $handler1 = function () {
-
         };
         $handler2 = function () {
-
         };
         $handler3 = function () {
-
         };
         $handler4 = function () {
-
         };
 
         set_error_handler($handler1);
@@ -72,6 +68,25 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         HandlerManager::unregisterHandler(HandlerManager::ERROR, $handler3);
 
         $this->assertSame([$handler1, $handler2, $handler4], $this->errorHandlers());
+
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, $handler1);
+
+        $this->assertSame([$handler2, $handler4], $this->errorHandlers());
+
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, $handler2);
+
+        $this->assertSame([$handler4], $this->errorHandlers());
+
+        HandlerManager::unregisterHandler(HandlerManager::ERROR, $handler4);
+
+        $this->assertSame([], $this->errorHandlers());
+
+        try {
+            HandlerManager::unregisterHandler(HandlerManager::ERROR, function () {});
+            $this->fail('Exception has not been thrown');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Unable to unregister the error handler', $e->getMessage());
+        }
     }
 
     public function testThrowsExceptionIfInvalidHandlerTypeProvided() {

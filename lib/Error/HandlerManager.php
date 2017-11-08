@@ -43,18 +43,23 @@ class HandlerManager {
         } else {
             $popHandler = 'restore_' . $handlerType . '_handler';
             $handlers = [];
+            $found = false;
             /** @noinspection PhpAssignmentInConditionInspection */
             while ($handler = self::handlerOfType($handlerType)) {
                 $popHandler();
                 if ($handler === $fn) {
+                    $found = true;
                     break;
                 } else {
                     $handlers[] = $handler;
                 }
             }
             $pushHandler = 'set_' . $handlerType . '_handler';
-            foreach ($handlers as $handler) {
+            foreach (array_reverse($handlers) as $handler) {
                 $pushHandler($handler);
+            }
+            if (!$found) {
+                throw new \RuntimeException('Unable to unregister the ' . $handlerType . ' handler');
             }
         }
     }
