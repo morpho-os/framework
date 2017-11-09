@@ -15,22 +15,29 @@ abstract class Db {
     public const MYSQL_DRIVER  = 'mysql';
     public const SQLITE_DRIVER = 'sqlite';
 
-    public function __construct($optionsOrConnection) {
-        $this->connection = $connection = $optionsOrConnection instanceof \PDO
-            ? $optionsOrConnection
-            : $this->newPdo($optionsOrConnection);
-        self::configurePdo($connection);
+    public function __construct($configOrPdo) {
+        if ($configOrPdo instanceof \PDO) {
+            $this->connection = $configOrPdo;
+        } else {
+            $connection = $this->newPdo($configOrPdo);
+            self::configurePdo($connection);
+            $this->connection = $connection;
+        }
     }
 
-    public static function connect(array $config): self {
-        $driver = $config['driver'];
-        unset($config['driver']);
-        switch ($driver) {
+    public static function connect($configOrPdo): self {
+        if ($configOrPdo instanceof \PDO) {
+            $driverName = $configOrPdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        } else {
+            $driverName = $configOrPdo['driver'];
+            unset($configOrPdo['driver']);
+        }
+        switch ($driverName) {
             case self::MYSQL_DRIVER:
-                $db = new MySql\Db($config);
+                $db = new MySql\Db($configOrPdo);
                 break;
             case self::SQLITE_DRIVER:
-                $db = new Sqlite\Db($config);
+                $db = new Sqlite\Db($configOrPdo);
                 break;
             default:
                 throw new \UnexpectedValueException();
@@ -175,5 +182,5 @@ abstract class Db {
         return \PDO::getAvailableDrivers();
     }
 
-    abstract protected function newPdo(array $options): \PDO;
+    abstract protected function newPdo(array $config): \PDO;
 }

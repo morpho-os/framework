@@ -11,9 +11,9 @@ use Morpho\Db\Sql\MySql\Db;
 use Morpho\Db\Sql\MySql\SchemaManager;
 use Morpho\Db\Sql\Query;
 use Morpho\Db\Sql\Result;
-use Morpho\Test\DbTestCase;
+use MorphoTest\Unit\Db\Sql\DbTest as BaseDbTest;
 
-class DbTest extends DbTestCase {
+class DbTest extends BaseDbTest {
     /**
      * @var \Morpho\Db\Sql\MySql\Db
      */
@@ -158,6 +158,14 @@ class DbTest extends DbTestCase {
         $this->db->insertRow('test', ['foo' => 'second row']);
         $res = $this->db->eval('SELECT * FROM test');
         $checkRes($res, 2);
+    }
+
+    public function testConnect_PdoInstanceArgument() {
+        $dbConfig = $this->dbConfig();
+        $dsn = 'mysql:dbname=;' . $dbConfig['host'];
+        $pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
+        $connection = \Morpho\Db\Sql\Db::connect($pdo);
+        $this->assertInstanceOf(Db::class, $connection);
     }
 
     private function setTestDataForUpdateRows() {

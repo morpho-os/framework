@@ -6,10 +6,15 @@
  */
 namespace Morpho\Db\Sql\Sqlite;
 
+use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\Query as BaseQuery;
 
 class Query extends BaseQuery {
     public function identifier(string $identifier): string {
         return '"' . $identifier . '"';
+    }
+
+    public function build(): array {
+        throw new NotImplementedException();
     }
 }
