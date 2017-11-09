@@ -9,8 +9,8 @@ namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\ModuleIndex;
-use Morpho\Web\ModuleMeta;
+use Morpho\Core\ModuleIndex;
+use Morpho\Core\ModuleMeta;
 use Morpho\Web\Request;
 use Morpho\Web\Site;
 use Morpho\Web\Uri;

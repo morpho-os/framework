@@ -20,6 +20,7 @@ const RC_DIR_NAME = 'rc';
 const TEST_DIR_NAME = 'test';
 const TMP_DIR_NAME = 'tmp';
 const VENDOR_DIR_NAME = 'vendor';
+const VIEW_DIR_NAME = 'view';
 
 const AUTOLOAD_FILE_NAME = 'autoload.php';
 const CONFIG_FILE_NAME = 'config.php';

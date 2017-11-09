@@ -9,7 +9,7 @@ namespace Morpho\Core;
 /**
  * Index of all known modules.
  */
-abstract class ModuleIndex {
+class ModuleIndex {
     private $index;
     private $indexer;
     private $loaded;
@@ -44,7 +44,9 @@ abstract class ModuleIndex {
         $this->indexer->clear();
     }
 
-    abstract protected function newModuleMeta(string $moduleName, $meta);
+    protected function newModuleMeta(string $moduleName, $meta): ModuleMeta {
+        return new ModuleMeta($moduleName, $meta);
+    }
 
     private function init(): void {
         if (null === $this->index) {

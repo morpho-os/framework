@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Web\Routing;
 use Morpho\Base\IFn;
 use Morpho\Core\ModuleIndex;
 use Morpho\Test\TestCase;
-use Morpho\Web\ModuleMeta;
+use Morpho\Core\ModuleMeta;
 use Morpho\Web\Routing\ControllerFileMetaProvider;
 
 class ControllerFileMetaProviderTest extends TestCase {

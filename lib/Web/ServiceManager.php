@@ -16,6 +16,7 @@ use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Core\IRouter;
 use const Morpho\Core\MODULE_DIR_NAME;
+use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;

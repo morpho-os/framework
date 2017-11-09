@@ -48,7 +48,7 @@ class ModuleIndexTest extends TestCase {
 
     private function newModuleIndex($moduleIndexer) {
         return new class ($moduleIndexer) extends ModuleIndex {
-            protected function newModuleMeta(string $moduleName, $meta) {
+            protected function newModuleMeta(string $moduleName, $meta): ModuleMeta {
                 return new ModuleMeta($moduleName, $meta);
             }
         };
