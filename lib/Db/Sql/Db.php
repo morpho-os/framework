@@ -17,6 +17,7 @@ abstract class Db {
 
     public function __construct($configOrPdo) {
         if ($configOrPdo instanceof \PDO) {
+            self::configurePdo($configOrPdo);
             $this->connection = $configOrPdo;
         } else {
             $connection = $this->newPdo($configOrPdo);
@@ -53,8 +54,6 @@ abstract class Db {
         $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         $connection->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
-        // @TODO
-        //$db->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
     }
 
     /**
