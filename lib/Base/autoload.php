@@ -342,15 +342,25 @@ function fromJson(string $json, bool $objectsToArrays = true) {
     return $res;
 }
 
-function endsWith($string, $suffix): bool {
+function endsWith(string $string, string $suffix): bool {
     return substr($string, -strlen($suffix)) === $suffix;
 }
 
-function startsWith($string, $prefix): bool {
+function startsWith(string $string, string $prefix): bool {
     if ($prefix === '') {
         return true;
     }
     return 0 === strpos($string, $prefix);
+}
+
+/**
+ * Inspired by the lines function in Haskell.
+ */
+function lines(string $text): array {
+/*    if ($text === '') {
+        return [];
+    }*/
+    return preg_split(EOL_FULL_RE, $text);
 }
 
 function typeOf($val): string {

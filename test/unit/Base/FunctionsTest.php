@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Base;
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
+    endsWith, hasPrefix, hasSuffix, lines, memoize, nonEmptyLines, not, op, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -22,6 +22,27 @@ class FunctionsTest extends TestCase {
         if (isset($this->tmpHandle)) {
             fclose($this->tmpHandle);
         }
+    }
+
+    public function dataForLines() {
+        yield ["\n"];   // *nix
+        yield ["\r\n"]; // Win
+        yield ["\r"];   // old Mac
+    }
+
+    /**
+     * @dataProvider dataForLines
+     */
+    public function testLines($sep) {
+        // Cases taken from http://hackage.haskell.org/package/base-4.10.0.0/docs/Prelude.html#v:lines
+        // They were changed to match our criteria.
+        $this->assertSame([''], lines(''));
+        $this->assertSame(['', ''], lines("$sep"));
+        $this->assertSame(['one'], lines("one"));
+        $this->assertSame(['one', ''], lines("one$sep"));
+        $this->assertSame(['one', '', ''], lines("one$sep$sep"));
+        $this->assertSame(['one', 'two'], lines("one{$sep}two"));
+        $this->assertSame(['one', 'two', ''], lines("one{$sep}two$sep"));
     }
 
     public function testWaitUntilNoOfAttempts_PredicateReturnsTrueOnSomeIteration() {
