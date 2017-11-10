@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Network\Http;
-use function Morpho\Cli\cmd;
+use function Morpho\Cli\shell;
 use Morpho\Fs\FileNotFoundException;
 
 // Uses external tools: lsof, nc, kill, killall, geckodriver, selenium-server-standalone.jar, java, printf, bash.
@@ -83,7 +83,7 @@ class SeleniumServer {
                 . ' &> /dev/null &';
             //showLn("Starting server: " . $cmd);
             proc_close(proc_open($cmd, [], $pipes));
-            //cmd($cmd);
+            //shell($cmd);
             $i = 0;
             do {
                 //showLn("Server started, i == " . $i);
@@ -100,20 +100,20 @@ class SeleniumServer {
 
     public function listening(): bool {
         // @TODO: Use php sockets.
-        $res = cmd('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkExit' => false, 'capture' => true]);
+        $res = shell('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkExit' => false, 'capture' => true]);
         return !$res->isError();
     }
 
     public function stop(): void {
         $pid = $this->findPid();
         if ($pid) {
-            cmd('kill ' . intval($pid) . ' > /dev/null');
+            shell('kill ' . intval($pid) . ' > /dev/null');
         }
-        cmd('killall geckodriver &> /dev/null || true');
+        shell('killall geckodriver &> /dev/null || true');
     }
 
     private function findPid(): ?int {
-        $pid = (int) trim((string) cmd("lsof -t -c java -a -i ':" . escapeshellarg($this->port()) . "' 2>&1", ['capture' => true, 'checkExit' => false]));
+        $pid = (int) trim((string) shell("lsof -t -c java -a -i ':" . escapeshellarg($this->port()) . "' 2>&1", ['capture' => true, 'checkExit' => false]));
         // ss -t -a -n -p state all '( sport = 4444 )'
         return $pid > 0 ? $pid : null;
     }

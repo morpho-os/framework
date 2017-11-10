@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Morpho\Network\Http;
 
 use function Morpho\Base\filter;
-use function Morpho\Cli\cmd;
+use function Morpho\Cli\shell;
 use Morpho\Xml\Document;
 
 // Based on https://github.com/jarib/selenium-travis/blob/master/selenium-webdriver/lib/selenium/server.rb
@@ -24,7 +24,7 @@ class SeleniumServerDownloader {
         if (is_file($destFilePath)) {
             return $destFilePath;
         }
-        cmd('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
+        shell('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
         return $destFilePath;
     }
 

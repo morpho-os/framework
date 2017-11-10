@@ -22,11 +22,16 @@ class GeckoDriverDownloader {
         $curDirPath = getcwd();
         try {
             chdir(dirname($destFilePath));
-            $geckoDriverDownloadUri = array_reduce(fromJson((new HttpClient())->sendGet('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->getBody())['assets'], function ($acc, $asset) {
-                return false !== strpos($asset['browser_download_url'], 'linux64') ? $asset['browser_download_url'] : $acc;
-            });
+            $geckoDriverDownloadUri = array_reduce(
+                fromJson(
+                    (new HttpClient())->get('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->getBody()
+               )['assets'],
+                function ($acc, $asset) {
+                    return false !== strpos($asset['browser_download_url'], 'linux64') ? $asset['browser_download_url'] : $acc;
+                }
+            );
             $arcFilePath = dirname($destFilePath) . '/geckodriver.tar.gz';
-            (new HttpClient())->downloadFile($geckoDriverDownloadUri, $arcFilePath);
+            (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
             shell('tar xzf ' . escapeshellarg($arcFilePath) . ' && chmod +x ' . escapeshellarg($binFileName) . ' && rm -f ' . escapeshellarg($arcFilePath));
         } finally {
             chdir($curDirPath);

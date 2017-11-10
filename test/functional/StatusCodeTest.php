@@ -36,7 +36,7 @@ class StatusCodeTest extends BrowserTestCase {
     public function testResponseCodes($relUri, $expectedCode, ?string $expectedTitle, ?string $expectedText) {
         $response = (new HttpClient())
             ->setMaxNumberOfRedirects(0)
-            ->sendGet($this->uri($relUri), null);
+            ->get($this->uri($relUri), null);
         $this->assertEquals($expectedCode, $response->getStatusCode(), 'Response: ' . substr($response->getBody(), 0, 1000));
 
         if (null !== $expectedTitle || null !== $expectedText) {

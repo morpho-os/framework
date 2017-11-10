@@ -6,59 +6,71 @@
  */
 namespace Morpho\Network\Http;
 
-use function Morpho\Cli\cmd;
+use function Morpho\Cli\shell;
 use Zend\Http\Client;
 use Zend\Http\Response;
 use Zend\Stdlib\Parameters;
 
-class HttpClient extends Client {
-    public function sendGet($uri, array $data = null, $headers = null): Response {
+class HttpClient {
+    private $client;
+    /**
+     * @var int
+     */
+    private $maxNumberOfRedirects = 5;
+
+    public function __construct() {
+        $this->client = new Client();
+    }
+
+    public function get($uri, array $data = null, $headers = null): Response {
         if ($uri !== null) {
-            $this->setUri($uri);
+            $this->client->setUri($uri);
         }
-        $request = $this->getRequest();
+        $request = $this->client->getRequest();
         if (null !== $headers) {
             $request->getHeaders()->addHeaders($headers);
         }
         if (null !== $data) {
             $request->setQuery(new Parameters((array) $data));
         }
-        return $this->send($request);
+        $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
+        return $this->client->send($request);
     }
 
-    public function sendPost($uri, array $data = null, $headers = null): Response {
+    public function post($uri, array $data = null, $headers = null): Response {
         if ($uri !== null) {
-            $this->setUri($uri);
+            $this->client->setUri($uri);
         }
-        $request = $this->getRequest();
+        $request = $this->client->getRequest();
         if (null !== $headers) {
             $request->getHeaders()->addHeaders($headers);
         }
         if (null !== $data) {
             $request->setPost(new Parameters((array) $data));
         }
-        return $this->send($request);
+        $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
+        return $this->client->send($request);
     }
 
     public function setMaxNumberOfRedirects(int $n): self {
         if ($n < 0) {
             throw new \InvalidArgumentException("The value must be >= 0");
         }
-        $this->config['maxredirects'] = $n;
+        $this->maxNumberOfRedirects = $n;
         return $this;
     }
 
     public function maxNumberOfRedirects(): int {
-        return $this->config['maxredirects'];
+        return $this->maxNumberOfRedirects;
     }
 
-    public static function downloadFile(string $uri, string $destFilePath = null): string {
+    public static function download(string $uri, string $destFilePath = null): string {
         if (null === $destFilePath) {
             $destFilePath = getcwd() . '/' . basename($uri);
         }
         // @TODO: Implement without call of the external tool.
         // @TODO: use curl, wget or fetch, see the `man parallel`
-        cmd('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
+        shell('curl -L -o ' . escapeshellarg($destFilePath) . ' ' . escapeshellarg($uri));
         return $destFilePath;
     }
 }
