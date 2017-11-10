@@ -130,6 +130,7 @@ function shell(string $command, array $options = null): ICommandResult {
     if ($options['checkExit']) {
         checkExit($exitCode);
     }
+    // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
     // @TODO: How to get stdErr?
     return new ShellCommandResult($command, $exitCode, $output, $output);
 }
@@ -147,25 +148,6 @@ function proc(string $command, array $options = null): ICommandResult {
         checkExit($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);
-}
-
-function cmd(string $command, array $options = null): ICommandResult {
-    $options = ArrayTool::handleOptions((array) $options, [
-        'capture' => false,
-        'shell' => true,
-        'checkExit' => true,
-    ]);
-    if (PHP_SAPI !== 'cli') {
-        // @TODO
-        throw new NotImplementedException();
-    }
-    // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
-    if ($options['shell']) {
-        unset($options['shell']);
-        return shell($command, $options);
-    } else {
-        return proc($command, $options);
-    }
 }
 
 function shellSu(string $command, array $options = null): ICommandResult {

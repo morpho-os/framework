@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    argsString, cmd, escapeArgs, proc, showOk, stylize
+    argsString, shell, escapeArgs, proc, showOk, stylize
 };
 use Morpho\Cli\ProcCommandResult;
 use Morpho\Test\TestCase;
@@ -81,22 +81,22 @@ OUT
         $this->assertEquals(" 'foo' 'bar'", argsString($gen()));
     }
 
-    public function testCmd_ThrowsExceptionOnInvalidOption() {
+    public function testShell_ThrowsExceptionOnInvalidOption() {
         $this->expectException(InvalidOptionsException::class);
-        cmd('ls', ['some invalid option' => 'value of invalid option']);
+        shell('ls', ['some invalid option' => 'value of invalid option']);
     }
 
-    public function testCmd_CommandAsString() {
-        $result = cmd('ls '  . escapeshellarg(__DIR__), ['capture' => true]);
+    public function testShell_CommandAsString() {
+        $result = shell('ls '  . escapeshellarg(__DIR__), ['capture' => true]);
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
         $this->assertContains(basename(__FILE__), (string)$result);
     }
 
-    public function testCmd_CheckExitOption() {
+    public function testShell_CheckExitOption() {
         $exitCode = 134;
         $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
-        cmd('php -r "exit(' . $exitCode . ');"');
+        shell('php -r "exit(' . $exitCode . ');"');
     }
 
     public function testShellSu() {
