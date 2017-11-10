@@ -3,6 +3,7 @@
 namespace Morpho\Web;
 
 use Morpho\Core\IModuleIndexer;
+use const Morpho\Core\VIEW_DIR_NAME;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
 use const Morpho\Core\AUTOLOAD_FILE_NAME;
