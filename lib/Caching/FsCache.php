@@ -14,23 +14,17 @@ namespace Morpho\Caching;
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
-class FilesystemCache extends FileCache {
+class FsCache extends FileCache {
     const EXTENSION = '.doctrinecache.data';
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($directory, $extension = self::EXTENSION, $umask = 0002) {
         parent::__construct($directory, $extension, $umask);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doFetch($id) {
+    protected function fetch($key) {
         $data = '';
         $lifetime = -1;
-        $filename = $this->getFilename($id);
+        $filename = $this->getFilename($key);
 
         if (!is_file($filename)) {
             return false;
@@ -57,12 +51,9 @@ class FilesystemCache extends FileCache {
         return unserialize($data);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doContains($id) {
+    protected function contains($key) {
         $lifetime = -1;
-        $filename = $this->getFilename($id);
+        $filename = $this->getFilename($key);
 
         if (!is_file($filename)) {
             return false;
@@ -79,16 +70,13 @@ class FilesystemCache extends FileCache {
         return $lifetime === 0 || $lifetime > time();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doSave($id, $data, $lifeTime = 0) {
+    protected function save($key, $data, $lifeTime = 0) {
         if ($lifeTime > 0) {
             $lifeTime = time() + $lifeTime;
         }
 
         $data = serialize($data);
-        $filename = $this->getFilename($id);
+        $filename = $this->getFilename($key);
 
         return $this->writeFile($filename, $lifeTime . PHP_EOL . $data);
     }

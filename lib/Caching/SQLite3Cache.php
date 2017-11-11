@@ -17,7 +17,7 @@ use SQLite3Result;
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Jake Bell <jake@theunraveler.com>
  */
-class SQLite3Cache extends CacheProvider {
+class SQLite3Cache extends Cache {
     /**
      * The ID field will store the cache key.
      */
@@ -60,6 +60,54 @@ class SQLite3Cache extends CacheProvider {
         $this->ensureTableExists();
     }
 
+    public function stats(): ?array {
+        return null;
+    }
+
+    public function delete($key) {
+        list($idField) = $this->getFields();
+
+        $statement = $this->sqlite->prepare(sprintf(
+            'DELETE FROM %s WHERE %s = :id',
+            $this->table,
+            $idField
+        ));
+
+        $statement->bindValue(':id', $key);
+
+        return $statement->execute() instanceof SQLite3Result;
+    }
+
+    public function clear(): bool {
+        return $this->sqlite->exec(sprintf('DELETE FROM %s', $this->table));
+    }
+
+    protected function contains(string $key): bool {
+        return null !== $this->findById($key, false);
+    }
+
+    protected function save(string $key, $data, $lifeTime = 0): bool {
+        $statement = $this->sqlite->prepare(sprintf(
+            'INSERT OR REPLACE INTO %s (%s) VALUES (:id, :data, :expire)',
+            $this->table,
+            implode(',', $this->getFields())
+        ));
+
+        $statement->bindValue(':id', $key);
+        $statement->bindValue(':data', serialize($data), SQLITE3_BLOB);
+        $statement->bindValue(':expire', $lifeTime > 0 ? time() + $lifeTime : null);
+
+        return $statement->execute() instanceof SQLite3Result;
+    }
+
+    protected function fetch(string $key) {
+        $item = $this->findById($key);
+        if (!$item) {
+            return false;
+        }
+        return unserialize($item[self::DATA_FIELD]);
+    }
+
     private function ensureTableExists(): void {
         $this->sqlite->exec(
             sprintf(
@@ -73,27 +121,14 @@ class SQLite3Cache extends CacheProvider {
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function doFetch($id) {
-        $item = $this->findById($id);
-
-        if (!$item) {
-            return false;
-        }
-
-        return unserialize($item[self::DATA_FIELD]);
-    }
-
-    /**
      * Find a single row by ID.
      *
-     * @param mixed $id
+     * @param mixed $key
      * @param bool $includeData
      *
      * @return array|null
      */
-    private function findById($id, bool $includeData = true): ?array {
+    private function findById($key, bool $includeData = true): ?array {
         list($idField) = $fields = $this->getFields();
 
         if (!$includeData) {
@@ -108,7 +143,7 @@ class SQLite3Cache extends CacheProvider {
             $idField
         ));
 
-        $statement->bindValue(':id', $id, SQLITE3_TEXT);
+        $statement->bindValue(':id', $key, SQLITE3_TEXT);
 
         $item = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
@@ -117,7 +152,7 @@ class SQLite3Cache extends CacheProvider {
         }
 
         if ($this->isExpired($item)) {
-            $this->doDelete($id);
+            $this->delete($key);
 
             return null;
         }
@@ -145,60 +180,5 @@ class SQLite3Cache extends CacheProvider {
         return isset($item[static::EXPIRATION_FIELD]) &&
             $item[self::EXPIRATION_FIELD] !== null &&
             $item[self::EXPIRATION_FIELD] < time();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doDelete($id) {
-        list($idField) = $this->getFields();
-
-        $statement = $this->sqlite->prepare(sprintf(
-            'DELETE FROM %s WHERE %s = :id',
-            $this->table,
-            $idField
-        ));
-
-        $statement->bindValue(':id', $id);
-
-        return $statement->execute() instanceof SQLite3Result;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doContains($id) {
-        return null !== $this->findById($id, false);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doSave($id, $data, $lifeTime = 0) {
-        $statement = $this->sqlite->prepare(sprintf(
-            'INSERT OR REPLACE INTO %s (%s) VALUES (:id, :data, :expire)',
-            $this->table,
-            implode(',', $this->getFields())
-        ));
-
-        $statement->bindValue(':id', $id);
-        $statement->bindValue(':data', serialize($data), SQLITE3_BLOB);
-        $statement->bindValue(':expire', $lifeTime > 0 ? time() + $lifeTime : null);
-
-        return $statement->execute() instanceof SQLite3Result;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doFlush() {
-        return $this->sqlite->exec(sprintf('DELETE FROM %s', $this->table));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doGetStats() {
-        // no-op.
     }
 }

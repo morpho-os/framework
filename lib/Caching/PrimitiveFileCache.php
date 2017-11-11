@@ -130,4 +130,8 @@ class PrimitiveFileCache implements ICache {
     public function has($key) {
         // TODO: Implement has() method.
     }
+
+    public function stats(): ?array {
+        return null;
+    }
 }

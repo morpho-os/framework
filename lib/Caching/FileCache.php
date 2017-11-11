@@ -15,7 +15,7 @@ namespace Morpho\Caching;
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  * @author Tobias Schultze <http://tobion.de>
  */
-abstract class FileCache extends CacheProvider {
+abstract class FileCache extends Cache {
     /**
      * The cache directory.
      *
@@ -125,27 +125,24 @@ abstract class FileCache extends CacheProvider {
         return $this->extension;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doDelete($id) {
-        $filename = $this->getFilename($id);
+    public function delete($key) {
+        $filename = $this->getFilename($key);
 
         return @unlink($filename) || !file_exists($filename);
     }
 
     /**
-     * @param string $id
+     * @param string $key
      *
      * @return string
      */
-    protected function getFilename($id) {
-        $hash = hash('sha256', $id);
+    protected function getFilename($key) {
+        $hash = hash('sha256', $key);
 
         // This ensures that the filename is unique and that there are no invalid chars in it.
-        if ('' === $id
-            || ((strlen($id) * 2 + $this->extensionStringLength) > 255)
-            || ($this->isRunningOnWindows && ($this->directoryStringLength + 4 + strlen($id) * 2 + $this->extensionStringLength) > 258)
+        if ('' === $key
+            || ((strlen($key) * 2 + $this->extensionStringLength) > 255)
+            || ($this->isRunningOnWindows && ($this->directoryStringLength + 4 + strlen($key) * 2 + $this->extensionStringLength) > 258)
         ) {
             // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
             // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.
@@ -154,7 +151,7 @@ abstract class FileCache extends CacheProvider {
             // collisions between the hash and bin2hex.
             $filename = '_' . $hash;
         } else {
-            $filename = bin2hex($id);
+            $filename = bin2hex($key);
         }
 
         return $this->directory
@@ -165,10 +162,7 @@ abstract class FileCache extends CacheProvider {
             . $this->extension;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doFlush() {
+    public function clear(): bool {
         foreach ($this->getIterator() as $name => $file) {
             if ($file->isDir()) {
                 // Remove the intermediate directories which have been created to balance the tree. It only takes effect
@@ -205,10 +199,7 @@ abstract class FileCache extends CacheProvider {
             || strrpos($name, $this->extension) === (strlen($name) - $this->extensionStringLength);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doGetStats() {
+    public function stats(): ?array {
         $usage = 0;
         foreach ($this->getIterator() as $name => $file) {
             if (!$file->isDir() && $this->isFilenameEndingWithExtension($name)) {
