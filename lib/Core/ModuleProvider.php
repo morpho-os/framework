@@ -38,7 +38,7 @@ class ModuleProvider extends Node {
             throw new ClassNotFoundException("Unable to load the module '$moduleName'");
         }
         $this->registerModuleAutoloader($moduleName);
-        return new $class($moduleName, $this->moduleIndex);
+        return new $class($moduleName, $this->moduleIndex->moduleMeta($moduleName)['namespace']);
     }
 
     private function registerModuleAutoloader(string $moduleName): void {

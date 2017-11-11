@@ -7,7 +7,7 @@
 namespace Morpho\Web\Routing;
 
 use function Morpho\Base\{
-    compose, dasherize, last
+    dasherize, last
 };
 use Morpho\Base\IFn;
 use Morpho\Web\Request;

@@ -9,10 +9,8 @@ return [
         'cacheDirPath' => $moduleDirPath . '/' . CACHE_DIR_NAME,
     ],
     'modules' => [
-        VENDOR . '/system' => [
-            'throwDispatchErrors' => false,
-        ],
-        VENDOR . '/user',
+        VENDOR . '/system',
+//        VENDOR . '/user',
     ],
     'services' => [
         'router' => [
@@ -34,8 +32,8 @@ return [
         ],
         'templateEngine' => [
             'useCache' => false,
-            'forceCompileTs' => false,
-            'nodeBinDirPath' => '/opt/nodejs/4.2.3/bin',
+/*            'forceCompileTs' => false,
+            'nodeBinDirPath' => getenv('NODE_BIN_DIR_PATH') ?: '/usr/bin',
             'tsOptions' => [
                 '--forceConsistentCasingInFileNames',
                 '--removeComments',
@@ -44,11 +42,14 @@ return [
                 '--noEmitOnError',
                 '--newLine LF',
                 '--allowJs',
-            ],
+            ],*/
         ],
         'errorHandler' => [
             'dumpListener' => true,
             'noDupsListener' => false,
+        ],
+        'dispatchErrorHandler' => [
+            'throwErrors' => false,
         ],
         'errorLogger' => [
             'mailOnError' => false,
@@ -57,8 +58,7 @@ return [
             'logToFile' => true,
         ],
         'eventManager' => [
-            'errorHandler' => VENDOR . '/system',
-            'layoutHandler' => VENDOR . '/system',
+            'layoutModule' => VENDOR . '/system',
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.

@@ -8,7 +8,6 @@ namespace Morpho\Web;
 
 use Morpho\Base\Event;
 use Morpho\Base\EventManager as BaseEventManager;
-use Morpho\Core\Module;
 
 class EventManager extends BaseEventManager {
     protected $serviceManager;
@@ -26,14 +25,16 @@ class EventManager extends BaseEventManager {
 
     private function attachErrorHandlers(): void {
         $this->on('dispatchError', function (Event $event) {
-            $serviceManager = $this->serviceManager;
-            $siteModuleName = $serviceManager->get('site')->moduleName();
-            $moduleMeta = $serviceManager->get('moduleIndex')->moduleMeta($siteModuleName);
-            $config = $moduleMeta['services']['eventManager'];
-
-            $moduleProvider = $serviceManager->get('moduleProvider');
-            $errorHandlerModule = $moduleProvider->offsetGet($config['errorHandler']);
-            return $errorHandlerModule->dispatchError($event);
+            /** @var DispatchErrorHandler $dispatchErrorHandler */
+            $dispatchErrorHandler = $this->serviceManager->get('dispatchErrorHandler');
+            $config = $this->serviceManager->config()['dispatchErrorHandler'];
+            $dispatchErrorHandler->throwErrors($config['throwErrors']);
+            if (isset($config['handlers'])) {
+                foreach ($config['handlers'] as $errorType => $handler) {
+                    $dispatchErrorHandler->setHandler($errorType, $handler);
+                }
+            }
+            $dispatchErrorHandler->handleError($event->args['exception'], $event->args['request']);
         });
     }
 
@@ -51,18 +52,13 @@ class EventManager extends BaseEventManager {
             $view = $event->args['view'];
             return $theme->renderView($view);
         });
+
         $this->on('afterDispatch', function (Event $event) {
             $serviceManager = $this->serviceManager;
-
-            $siteModuleName = $serviceManager->get('site')->moduleName();
-            $moduleIndex = $serviceManager->get('moduleIndex');
-            $moduleMeta = $moduleIndex->moduleMeta($siteModuleName);
-            $config = $moduleMeta['services']['eventManager'];
-            $moduleName = $config['layoutHandler'];
-
+            $moduleName = $serviceManager->config()['eventManager']['layoutModule'];
             /** @var View\Theme $theme */
-            $theme = $this->serviceManager->get('theme');
-            $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
+            $theme = $serviceManager->get('theme');
+            $viewDirPath = $serviceManager->get('moduleIndex')->moduleMeta($moduleName)->viewDirPath();
             $theme->appendBaseDirPath($viewDirPath);
 
             $request = $event->args['request'];

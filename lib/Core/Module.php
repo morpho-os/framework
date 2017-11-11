@@ -10,12 +10,21 @@ class Module extends Node {
     protected $type = 'Module';
 
     /**
-     * @var ModuleIndex
+     * @var string
      */
-    protected $moduleIndex;
+    protected $moduleNamespace;
 
-    public function __construct(string $name, ModuleIndex $moduleIndex) {
+    public function __construct(string $name, string $moduleNamespace) {
         parent::__construct($name);
-        $this->moduleIndex = $moduleIndex;
+        $this->moduleNamespace = $moduleNamespace;
+    }
+
+    protected function childNameToClass(string $name) {
+        if (false === strpos($name, '\\')) {
+            // By default assume that it is a controller.
+            $name = (PHP_SAPI == 'cli' ? 'Cli' : 'Web') . '\\' . $name . CONTROLLER_SUFFIX;
+        }
+        $class = $this->moduleNamespace . '\\' . $name;
+        return class_exists($class) ? $class : false;
     }
 }

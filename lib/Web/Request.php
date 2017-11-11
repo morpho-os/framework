@@ -19,12 +19,6 @@ use Morpho\Core\Request as BaseRequest;
  * @TODO: Specify what chunks and mark of them specially.
  */
 class Request extends BaseRequest {
-    public const ACCESS_DENIED_ERROR_HANDLER = 'accessDeniedHandler';
-    public const BAD_REQUEST_ERROR_HANDLER   = 'badRequestHandler';
-    public const HOME_HANDLER                = 'homeHandler';
-    public const NOT_FOUND_ERROR_HANDLER     = 'notFoundHandler';
-    public const UNCAUGHT_ERROR_HANDLER      = 'uncaughtErrorHandler';
-
     // See https://tools.ietf.org/html/rfc7231#section-4
     public const CONNECT_METHOD = 'CONNECT';
     public const DELETE_METHOD = 'DELETE';

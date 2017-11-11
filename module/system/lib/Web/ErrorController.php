@@ -17,7 +17,7 @@ class ErrorController extends Controller {
     public function accessDeniedAction() {
     }
 
-    public function uncaughtErrorAction() {
+    public function uncaughtAction() {
         /*
         $exception = $this->request->param('error')
         d($exception->getMessage(), $exception->getFile(), $exception->getLine());

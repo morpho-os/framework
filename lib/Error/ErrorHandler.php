@@ -77,14 +77,14 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     public function registerAsFatalErrorHandler(bool $flag = null): bool {
         if (null !== $flag) {
-            $this->registerAsFatalErrorHandler = (bool)$flag;
+            $this->registerAsFatalErrorHandler = $flag;
         }
         return $this->registerAsFatalErrorHandler;
     }
 
     public function exitOnFatalError(bool $flag = null): bool {
         if (null !== $flag) {
-            $this->exitOnFatalError = (bool)$flag;
+            $this->exitOnFatalError = $flag;
         }
         return $this->exitOnFatalError;
     }

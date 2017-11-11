@@ -6,8 +6,6 @@
  */
 namespace Morpho\Core;
 
-use Zend\Stdlib\Message;
-
 abstract class Request {
     protected $moduleName;
 
@@ -43,10 +41,7 @@ abstract class Request {
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function moduleName() {
+    public function moduleName(): ?string {
         return $this->moduleName;
     }
 
@@ -55,10 +50,7 @@ abstract class Request {
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function controllerName() {
+    public function controllerName(): ?string {
         return $this->controllerName;
     }
 
@@ -67,10 +59,7 @@ abstract class Request {
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function actionName() {
+    public function actionName(): ?string {
         return $this->actionName;
     }
 
@@ -95,5 +84,5 @@ abstract class Request {
         return $this->response;
     }
 
-    abstract protected function newResponse(): Message;
+    abstract protected function newResponse();
 }

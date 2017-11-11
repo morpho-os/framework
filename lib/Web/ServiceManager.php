@@ -14,13 +14,14 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
+use Morpho\Caching\Cache;
 use Morpho\Core\IRouter;
 use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Core\ModuleIndex;
+use Morpho\Core\ModuleIndexer;
 use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
-use Morpho\Fs\Directory;
 use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\FastRouter;
@@ -44,22 +45,18 @@ class ServiceManager extends BaseServiceManager {
     }*/
 
     protected function newModuleIndexerService() {
-        $site = $this->get('site');
-        $siteConfig = $site->config();
         return new ModuleIndexer(
-            $this->get('moduleDirsIterator'),
-            $siteConfig['paths']['cacheDirPath'] . '/module-index.php',
-            [
-                $site->moduleName() => $siteConfig,
-            ],
-            // @TODO: Add module iterator
-            array_keys($siteConfig['modules'])
+            $this->get('moduleMetaProvider'),
+            Cache::newFileCache($this->get('site')->config()['paths']['cacheDirPath'])
         );
     }
 
-    protected function newModuleDirsIteratorService() {
+    protected function newModuleMetaProviderService() {
+        $site = $this->get('site');
+        $siteConfig = $site->config();
+        $activeModules = array_keys($siteConfig['modules']);
         $baseModuleDirPath = $this->get('app')->config()['baseDirPath'] . '/' . MODULE_DIR_NAME;
-        return Directory::dirPaths($baseModuleDirPath, null, ['recursive' => false]);
+        return new ModuleMetaProvider($baseModuleDirPath, $activeModules, [$site->moduleName() => $siteConfig]);
     }
 
     protected function newSessionService() {
@@ -147,6 +144,10 @@ class ServiceManager extends BaseServiceManager {
         }
 
         return $logger;
+    }
+
+    protected function newDispatchErrorHandlerService() {
+        return new DispatchErrorHandler();
     }
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {

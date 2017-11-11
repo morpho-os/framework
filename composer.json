@@ -42,7 +42,8 @@
         "zendframework/zend-math": "dev-master",
         "zendframework/zend-stdlib": "dev-master",
         "zendframework/zend-uri": "dev-master",
-        "zendframework/zend-validator": "dev-master"
+        "zendframework/zend-validator": "dev-master",
+        "roave/doctrine-simplecache": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4",
