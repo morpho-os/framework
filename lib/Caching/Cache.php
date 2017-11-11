@@ -6,10 +6,7 @@
  */
 namespace Morpho\Caching;
 
-use Doctrine\Common\Cache\PhpFileCache;
 use function Morpho\Base\dasherize;
-use Psr\SimpleCache\CacheInterface as ICache;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 
 class Cache {
     public static function normalizeKey(string $key): string {
@@ -17,6 +14,6 @@ class Cache {
     }
 
     public static function newFileCache(string $cacheDirPath): ICache {
-        return new SimpleCacheAdapter(new PhpFileCache($cacheDirPath));
+        return new PhpFileCache($cacheDirPath);
     }
 }
