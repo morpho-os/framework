@@ -5,6 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Caching;
+use function Morpho\Base\requireFile;
 
 /**
  * This class based on \Doctrine\Common\Cache\PhpFileCache from Doctrine project
@@ -71,7 +72,7 @@ class PhpFileCache extends FileCache {
         if (!is_file($filePath)) {
             return null;
         }
-        $value = require $filePath;
+        $value = requireFile($filePath);
         return isset($value['lifetime']) ? $value : null;
     }
 }
