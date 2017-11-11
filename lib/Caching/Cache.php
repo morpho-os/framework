@@ -32,30 +32,23 @@ abstract class Cache implements ICache {
     protected const STATS_MEMORY_AVAILABLE = 'memory_available';
 
     public function get($key, $default = null) {
-        $value = $this->fetch($key);
-        if ($value === false) {
-            // Doctrine cache returns `false` when cache doesn't contain, but also `false` if the value stored is
-            // `false`, so check to see if the cache contains the key; if so, we probably meant to return `false`
-            if ($this->contains($key)) {
-                return false;
-            }
-            return $default;
-        }
-        return $value;
+        [$found, $value] = $this->fetch($key);
+        return $found ? $value : $default;
     }
 
     public function set($key, $value, $ttl = null): bool {
         if ($ttl === null) {
-            return $this->save($key, $value);
-        }
-        if ($ttl instanceof \DateInterval) {
-            $ttl = $this->dateIntervalToInt($ttl);
-        }
-        if (!is_int($ttl)) {
-            throw new \InvalidArgumentException('Invalid ttl');
-        }
-        if ($ttl <= 0) {
-            return $this->delete($key);
+            $ttl = 0;
+        } else {
+            if ($ttl instanceof \DateInterval) {
+                $ttl = $this->dateIntervalToInt($ttl);
+            }
+            if (!is_int($ttl)) {
+                throw new \InvalidArgumentException('Invalid ttl');
+            }
+            if ($ttl <= 0) {
+                return $this->delete($key);
+            }
         }
         return $this->save($key, $value, $ttl);
     }
@@ -76,16 +69,17 @@ abstract class Cache implements ICache {
      */
     public function setMultiple($values, $ttl = null): bool {
         if ($ttl === null) {
-            return $this->saveMultiple($values);
-        }
-        if ($ttl instanceof \DateInterval) {
-            $ttl = $this->dateIntervalToInt($ttl);
-        }
-        if (!is_int($ttl)) {
-            throw new \InvalidArgumentException('Invalid ttl');
-        }
-        if ($ttl <= 0) {
-            return $this->deleteMultiple(array_keys($values));
+            $ttl = 0;
+        } else {
+            if ($ttl instanceof \DateInterval) {
+                $ttl = $this->dateIntervalToInt($ttl);
+            }
+            if (!is_int($ttl)) {
+                throw new \InvalidArgumentException('Invalid ttl');
+            }
+            if ($ttl <= 0) {
+                return $this->deleteMultiple(array_keys($values));
+            }
         }
         return $this->saveMultiple($values, $ttl);
     }
@@ -100,24 +94,31 @@ abstract class Cache implements ICache {
         return $success;
     }
 
-    public function has($key): bool {
-        return $this->contains($key);
+    /**
+     * @return array a tuple, where
+     *     the first element must be false in case of cache miss, and true otherwise
+     *     the second element must be the actual value in case of success or null in case of cache miss.
+     */
+    abstract protected function fetch(string $key): array;
+
+    protected function fetchMultiple(array $keys) {
+        $res = [];
+        foreach ($keys as $key) {
+            [$found, $value] = $this->fetch($key);
+            if ($found) {
+                $res[$key] = $value;
+            }
+        }
+        return $res;
     }
 
     /**
-     * @return mixed|false The cached data or false, if no cache entry exists for the given id.
+     * Puts data into the cache.
+     *
+     * @param int $lifeTime If 0 then infinite lifetime.
+     * @return bool true if the entry was successfully stored in the cache, false otherwise.
      */
-    abstract protected function fetch(string $key);
-
-    protected function fetchMultiple(array $keys) {
-        $returnValues = [];
-        foreach ($keys as $key) {
-            if (false !== ($item = $this->fetch($key)) || $this->contains($key)) {
-                $returnValues[$key] = $item;
-            }
-        }
-        return $returnValues;
-    }
+    abstract protected function save(string $key, $data, $lifeTime): bool;
 
     /**
      * Default implementation of doSaveMultiple. Each driver that supports multi-put should override it.
@@ -126,7 +127,7 @@ abstract class Cache implements ICache {
      * @param int $lifetime The lifetime. If != 0, sets a specific lifetime for these
      *                              cache entries (0 => infinite lifeTime).
      */
-    protected function saveMultiple(array $keysAndValues, int $lifetime = 0): bool {
+    protected function saveMultiple(array $keysAndValues, int $lifetime): bool {
         $success = true;
         foreach ($keysAndValues as $key => $value) {
             if (!$this->save($key, $value, $lifetime)) {
@@ -135,20 +136,6 @@ abstract class Cache implements ICache {
         }
         return $success;
     }
-
-    /**
-     * Tests if an entry exists in the cache.
-     * @return bool true if a cache entry exists for the given cache id, false otherwise.
-     */
-    abstract protected function contains(string $key): bool;
-
-    /**
-     * Puts data into the cache.
-     *
-     * @param int $lifeTime If 0 then infinite lifetime.
-     * @return bool true if the entry was successfully stored in the cache, false otherwise.
-     */
-    abstract protected function save(string $key, $data, $lifeTime = 0): bool;
 
     private function dateIntervalToInt(\DateInterval $ttl): int {
         // Timestamp has 2038 year limitation, but it's unlikely to set TTL that long.

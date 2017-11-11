@@ -14,70 +14,55 @@ namespace Morpho\Caching;
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
-class FsCache extends FileCache {
-    const EXTENSION = '.doctrinecache.data';
+class TextFileCache extends FileCache {
+    protected const EXTENSION = '.cache';
 
-    public function __construct($directory, $extension = self::EXTENSION, $umask = 0002) {
-        parent::__construct($directory, $extension, $umask);
+    public function __construct(string $dirPath, string $extension = null, int $umask = 0002) {
+        parent::__construct($dirPath, $extension ?: self::EXTENSION, $umask);
     }
 
-    protected function fetch($key) {
-        $data = '';
+    public function has($key): bool {
         $lifetime = -1;
-        $filename = $this->getFilename($key);
-
+        $filename = $this->cacheFilePath($key);
         if (!is_file($filename)) {
             return false;
         }
-
         $resource = fopen($filename, "r");
-
         if (false !== ($line = fgets($resource))) {
             $lifetime = (int)$line;
         }
-
-        if ($lifetime !== 0 && $lifetime < time()) {
-            fclose($resource);
-
-            return false;
-        }
-
-        while (false !== ($line = fgets($resource))) {
-            $data .= $line;
-        }
-
         fclose($resource);
-
-        return unserialize($data);
-    }
-
-    protected function contains($key) {
-        $lifetime = -1;
-        $filename = $this->getFilename($key);
-
-        if (!is_file($filename)) {
-            return false;
-        }
-
-        $resource = fopen($filename, "r");
-
-        if (false !== ($line = fgets($resource))) {
-            $lifetime = (int)$line;
-        }
-
-        fclose($resource);
-
         return $lifetime === 0 || $lifetime > time();
     }
 
-    protected function save($key, $data, $lifeTime = 0) {
+    protected function fetch(string $key): array {
+        $data = '';
+        $lifetime = -1;
+        $filename = $this->cacheFilePath($key);
+        if (!is_file($filename)) {
+            return [false, null];
+        }
+        $resource = fopen($filename, "r");
+        if (false !== ($line = fgets($resource))) {
+            $lifetime = (int)$line;
+        }
+        if ($lifetime !== 0 && $lifetime < time()) {
+            fclose($resource);
+            return [false, null];
+        }
+        while (false !== ($line = fgets($resource))) {
+            $data .= $line;
+        }
+        fclose($resource);
+        return [true, unserialize($data)];
+    }
+
+    protected function save(string $key, $data, $lifeTime = 0): bool {
         if ($lifeTime > 0) {
             $lifeTime = time() + $lifeTime;
         }
-
         $data = serialize($data);
-        $filename = $this->getFilename($key);
-
-        return $this->writeFile($filename, $lifeTime . PHP_EOL . $data);
+        $cacheFilePath = $this->cacheFilePath($key);
+        return $this->writeFile($cacheFilePath, $lifeTime . PHP_EOL . $data);
     }
 }

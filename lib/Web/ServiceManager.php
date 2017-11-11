@@ -14,7 +14,7 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\Caching\Cache;
+use Morpho\Caching\VarExportFileCache;
 use Morpho\Core\IRouter;
 use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Core\ModuleIndex;
@@ -45,10 +45,7 @@ class ServiceManager extends BaseServiceManager {
     }*/
 
     protected function newModuleIndexerService() {
-        return new ModuleIndexer(
-            $this->get('moduleMetaProvider'),
-            Cache::newFileCache($this->get('site')->config()['paths']['cacheDirPath'])
-        );
+        return new ModuleIndexer(new VarExportFileCache($this->get('site')->config()['paths']['cacheDirPath']));
     }
 
     protected function newModuleMetaProviderService() {

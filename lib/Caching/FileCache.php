@@ -21,7 +21,7 @@ abstract class FileCache extends Cache {
      *
      * @var string
      */
-    protected $directory;
+    protected $dirPath;
 
     /**
      * The cache file extension.
@@ -38,132 +38,51 @@ abstract class FileCache extends Cache {
     /**
      * @var int
      */
-    private $directoryStringLength;
+    private $dirPathStrLength;
 
     /**
      * @var int
      */
-    private $extensionStringLength;
+    private $extensionStrLength;
 
     /**
      * @var bool
      */
     private $isRunningOnWindows;
 
-    /**
-     * Constructor.
-     *
-     * @param string $directory The cache directory.
-     * @param string $extension The cache file extension.
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __construct($directory, $extension = '', $umask = 0002) {
-        // YES, this needs to be *before* createPathIfNeeded()
-        if (!is_int($umask)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The umask parameter is required to be integer, was: %s',
-                gettype($umask)
-            ));
-        }
+    public function __construct(string $dirPath, string $extension, int $umask = 0002) {
         $this->umask = $umask;
 
-        if (!$this->createPathIfNeeded($directory)) {
+        if (!$this->createDirIfNeeded($dirPath)) {
             throw new \InvalidArgumentException(sprintf(
                 'The directory "%s" does not exist and could not be created.',
-                $directory
+                $dirPath
             ));
         }
 
-        if (!is_writable($directory)) {
+        if (!is_writable($dirPath)) {
             throw new \InvalidArgumentException(sprintf(
                 'The directory "%s" is not writable.',
-                $directory
+                $dirPath
             ));
         }
 
         // YES, this needs to be *after* createPathIfNeeded()
-        $this->directory = realpath($directory);
-        $this->extension = (string)$extension;
+        $this->dirPath = realpath($dirPath);
+        $this->extension = $extension;
 
-        $this->directoryStringLength = strlen($this->directory);
-        $this->extensionStringLength = strlen($this->extension);
+        $this->dirPathStrLength = strlen($this->dirPath);
+        $this->extensionStrLength = strlen($this->extension);
         $this->isRunningOnWindows = defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
-    /**
-     * Create path if needed.
-     *
-     * @param string $path
-     * @return bool TRUE on success or if path already exists, FALSE if path cannot be created.
-     */
-    private function createPathIfNeeded(string $path): bool {
-        if (!is_dir($path)) {
-            if (false === @mkdir($path, 0777 & (~$this->umask), true) && !is_dir($path)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Gets the cache directory.
-     *
-     * @return string
-     */
-    public function getDirectory() {
-        return $this->directory;
-    }
-
-    /**
-     * Gets the cache file extension.
-     *
-     * @return string
-     */
-    public function getExtension() {
-        return $this->extension;
-    }
-
     public function delete($key) {
-        $filename = $this->getFilename($key);
-
-        return @unlink($filename) || !file_exists($filename);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return string
-     */
-    protected function getFilename($key) {
-        $hash = hash('sha256', $key);
-
-        // This ensures that the filename is unique and that there are no invalid chars in it.
-        if ('' === $key
-            || ((strlen($key) * 2 + $this->extensionStringLength) > 255)
-            || ($this->isRunningOnWindows && ($this->directoryStringLength + 4 + strlen($key) * 2 + $this->extensionStringLength) > 258)
-        ) {
-            // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
-            // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.
-            // And there is a bug in PHP (https://bugs.php.net/bug.php?id=70943) with path lengths of 259.
-            // So if the id in hex representation would surpass the limit, we use the hash instead. The prefix prevents
-            // collisions between the hash and bin2hex.
-            $filename = '_' . $hash;
-        } else {
-            $filename = bin2hex($key);
-        }
-
-        return $this->directory
-            . DIRECTORY_SEPARATOR
-            . substr($hash, 0, 2)
-            . DIRECTORY_SEPARATOR
-            . $filename
-            . $this->extension;
+        $filePath = $this->cacheFilePath($key);
+        return @unlink($filePath) || !file_exists($filePath);
     }
 
     public function clear(): bool {
-        foreach ($this->getIterator() as $name => $file) {
+        foreach ($this->dirIter() as $name => $file) {
             if ($file->isDir()) {
                 // Remove the intermediate directories which have been created to balance the tree. It only takes effect
                 // if the directory is empty. If several caches share the same directory but with different file extensions,
@@ -179,35 +98,15 @@ abstract class FileCache extends Cache {
         return true;
     }
 
-    /**
-     * @return \Iterator
-     */
-    private function getIterator(): \Iterator {
-        return new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($this->directory, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-    }
-
-    /**
-     * @param string $name The filename
-     *
-     * @return bool
-     */
-    private function isFilenameEndingWithExtension(string $name): bool {
-        return '' === $this->extension
-            || strrpos($name, $this->extension) === (strlen($name) - $this->extensionStringLength);
-    }
-
     public function stats(): ?array {
         $usage = 0;
-        foreach ($this->getIterator() as $name => $file) {
+        foreach ($this->dirIter() as $name => $file) {
             if (!$file->isDir() && $this->isFilenameEndingWithExtension($name)) {
                 $usage += $file->getSize();
             }
         }
 
-        $free = disk_free_space($this->directory);
+        $free = disk_free_space($this->dirPath);
 
         return [
             Cache::STATS_HITS             => null,
@@ -226,29 +125,85 @@ abstract class FileCache extends Cache {
      *
      * @return bool TRUE on success, FALSE if path cannot be created, if path is not writable or an any other error.
      */
-    protected function writeFile(string $filename, string $content): bool {
-        $filepath = pathinfo($filename, PATHINFO_DIRNAME);
-
-        if (!$this->createPathIfNeeded($filepath)) {
+    protected function writeFile(string $cacheFilePath, string $content): bool {
+        $dirPath = pathinfo($cacheFilePath, PATHINFO_DIRNAME);
+        if (!$this->createDirIfNeeded($dirPath)) {
             return false;
         }
-
-        if (!is_writable($filepath)) {
+        if (!is_writable($dirPath)) {
             return false;
         }
+        $tmpFilePath = tempnam($dirPath, 'swap');
+        @chmod($tmpFilePath, 0666 & (~$this->umask));
 
-        $tmpFile = tempnam($filepath, 'swap');
-        @chmod($tmpFile, 0666 & (~$this->umask));
-
-        if (file_put_contents($tmpFile, $content) !== false) {
-            @chmod($tmpFile, 0666 & (~$this->umask));
-            if (@rename($tmpFile, $filename)) {
+        if (file_put_contents($tmpFilePath, $content) !== false) {
+            @chmod($tmpFilePath, 0666 & (~$this->umask));
+            if (@rename($tmpFilePath, $cacheFilePath)) {
                 return true;
             }
+            @unlink($tmpFilePath);
+        }
+        return false;
+    }
 
-            @unlink($tmpFile);
+    protected function cacheFilePath(string $key): string {
+        $hash = hash('sha256', $key);
+
+        // This ensures that the filename is unique and that there are no invalid chars in it.
+        if ('' === $key
+            || ((strlen($key) * 2 + $this->extensionStrLength) > 255)
+            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + strlen($key) * 2 + $this->extensionStrLength) > 258)
+        ) {
+            // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
+            // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.
+            // And there is a bug in PHP (https://bugs.php.net/bug.php?id=70943) with path lengths of 259.
+            // So if the id in hex representation would surpass the limit, we use the hash instead. The prefix prevents
+            // collisions between the hash and bin2hex.
+            $filename = '_' . $hash;
+        } else {
+            $filename = bin2hex($key);
         }
 
-        return false;
+        return $this->dirPath
+            . DIRECTORY_SEPARATOR
+            . substr($hash, 0, 2)
+            . DIRECTORY_SEPARATOR
+            . $filename
+            . $this->extension;
+    }
+
+    /**
+     * @return \Iterator
+     */
+    private function dirIter(): \Iterator {
+        return new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($this->dirPath, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+    }
+
+    /**
+     * @param string $name The filename
+     *
+     * @return bool
+     */
+    private function isFilenameEndingWithExtension(string $name): bool {
+        return '' === $this->extension
+            || strrpos($name, $this->extension) === (strlen($name) - $this->extensionStrLength);
+    }
+
+    /**
+     * Create path if needed.
+     *
+     * @param string $path
+     * @return bool TRUE on success or if path already exists, FALSE if path cannot be created.
+     */
+    private function createDirIfNeeded(string $path): bool {
+        if (!is_dir($path)) {
+            if (false === @mkdir($path, 0777 & (~$this->umask), true) && !is_dir($path)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

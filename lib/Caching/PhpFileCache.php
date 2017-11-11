@@ -15,51 +15,40 @@ namespace Morpho\Caching;
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
 class PhpFileCache extends FileCache {
-    const EXTENSION = '.doctrinecache.php';
+    protected const EXTENSION = '.cache.php';
 
-    public function __construct($directory, $extension = self::EXTENSION, $umask = 0002) {
-        parent::__construct($directory, $extension, $umask);
+    public function __construct(string $dirPath, string $extension = null, int $umask = 0002) {
+        parent::__construct($dirPath, $extension ?: self::EXTENSION, $umask);
     }
 
-    protected function fetch($key) {
-        $value = $this->includeFileForId($key);
-
+    public function has($key): bool {
+        $value = $this->includeFile($key);
         if ($value === null) {
             return false;
         }
-
-        if ($value['lifetime'] !== 0 && $value['lifetime'] < time()) {
-            return false;
-        }
-
-        return $value['data'];
-    }
-
-    private function includeFileForId(string $key): ?array {
-        $filePath = $this->getFilename($key);
-        if (!is_file($filePath)) {
-            return null;
-        }
-        $value = require $filePath;
-        return $value['lifetime'] ?? null;
-    }
-
-    protected function contains($key) {
-        $value = $this->includeFileForId($key);
-
-        if ($value === null) {
-            return false;
-        }
-
         return $value['lifetime'] === 0 || $value['lifetime'] > time();
     }
 
-    protected function save($key, $data, $lifeTime = 0) {
+    protected function fetch(string $key): array {
+        $value = $this->includeFile($key);
+
+        if ($value === null) {
+            return [false, null];
+        }
+
+        if ($value['lifetime'] !== 0 && $value['lifetime'] < time()) {
+            return [false, null];
+        }
+
+        return [true, $value['data']];
+    }
+
+    protected function save(string $key, $data, $lifeTime = 0): bool {
         if ($lifeTime > 0) {
             $lifeTime = time() + $lifeTime;
         }
 
-        $filename = $this->getFilename($key);
+        $cacheFilePath = $this->cacheFilePath($key);
 
         $value = [
             'lifetime' => $lifeTime,
@@ -74,6 +63,15 @@ class PhpFileCache extends FileCache {
             $code = sprintf('<?php return unserialize(%s);', $value);
         }
 
-        return $this->writeFile($filename, $code);
+        return $this->writeFile($cacheFilePath, $code);
+    }
+
+    private function includeFile(string $key): ?array {
+        $filePath = $this->cacheFilePath($key);
+        if (!is_file($filePath)) {
+            return null;
+        }
+        $value = require $filePath;
+        return isset($value['lifetime']) ? $value : null;
     }
 }

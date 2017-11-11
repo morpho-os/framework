@@ -43,6 +43,11 @@ class ArrayCache extends Cache {
         $this->upTime = time();
     }
 
+    public function delete($key) {
+        unset($this->data[$key]);
+        return true;
+    }
+
     public function stats(): ?array {
         return [
             Cache::STATS_HITS             => $this->hitsCount,
@@ -53,19 +58,12 @@ class ArrayCache extends Cache {
         ];
     }
 
-    protected function fetch($key) {
-        if (!$this->contains($key)) {
-            $this->missesCount += 1;
-
-            return false;
-        }
-
-        $this->hitsCount += 1;
-
-        return $this->data[$key][0];
+    public function clear(): bool {
+        $this->data = [];
+        return true;
     }
 
-    protected function contains(string $key): bool {
+    public function has($key): bool {
         if (!isset($this->data[$key])) {
             return false;
         }
@@ -77,18 +75,17 @@ class ArrayCache extends Cache {
         return true;
     }
 
-    public function delete($key) {
-        unset($this->data[$key]);
-        return true;
+    protected function fetch(string $key): array {
+        if (!isset($this->data[$key])) {
+            $this->missesCount += 1;
+            return [false, null];
+        }
+        $this->hitsCount += 1;
+        return [true, $this->data[$key][0]];
     }
 
-    protected function save($key, $data, $lifeTime = 0) {
+    protected function save(string $key, $data, $lifeTime = 0): bool {
         $this->data[$key] = [$data, $lifeTime ? time() + $lifeTime : false];
-        return true;
-    }
-
-    public function clear(): bool {
-        $this->data = [];
         return true;
     }
 }
