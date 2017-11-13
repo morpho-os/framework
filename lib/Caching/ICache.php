@@ -9,7 +9,7 @@ namespace Morpho\Caching;
 /**
  * Some ideas for this interface taken from \Doctrine\Common\Cache\CacheProvider from Doctrine project (http://www.doctrine-project.org)
  *
- * Based also on https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md
+ * https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md
  */
 interface ICache extends \Psr\SimpleCache\CacheInterface {
     /**

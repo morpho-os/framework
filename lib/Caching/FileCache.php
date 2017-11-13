@@ -7,10 +7,8 @@
 namespace Morpho\Caching;
 
 /**
- * This class based on \Doctrine\Common\Cache\FileCache from Doctrine project
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
+ * This class based on \Doctrine\Common\Cache\FileCache from Doctrine project (MIT license).
+ * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  * @author Tobias Schultze <http://tobion.de>
@@ -123,7 +121,7 @@ abstract class FileCache extends Cache {
      * @param string $filename Path to the file where to write the data.
      * @param string $content The content to write
      *
-     * @return bool TRUE on success, FALSE if path cannot be created, if path is not writable or an any other error.
+     * @return bool true on success, false if path cannot be created, if path is not writable or an any other error.
      */
     protected function writeFile(string $cacheFilePath, string $content): bool {
         $dirPath = pathinfo($cacheFilePath, PATHINFO_DIRNAME);
@@ -196,7 +194,7 @@ abstract class FileCache extends Cache {
      * Create path if needed.
      *
      * @param string $path
-     * @return bool TRUE on success or if path already exists, FALSE if path cannot be created.
+     * @return bool true on success or if path already exists, false if path cannot be created.
      */
     private function createDirIfNeeded(string $path): bool {
         if (!is_dir($path)) {

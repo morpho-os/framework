@@ -8,10 +8,8 @@ namespace Morpho\Caching;
 use function Morpho\Base\requireFile;
 
 /**
- * This class based on \Doctrine\Common\Cache\PhpFileCache from Doctrine project
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
+ * This class based on \Doctrine\Common\Cache\PhpFileCache from Doctrine project (MIT license).
+ * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  */

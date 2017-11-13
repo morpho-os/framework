@@ -7,10 +7,8 @@
 namespace Morpho\Caching;
 
 /**
- * This class based on \Doctrine\Common\Cache\ArrayCache from Doctrine project
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
+ * This class based on \Doctrine\Common\Cache\ArrayCache from Doctrine project (MIT license).
+ * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
