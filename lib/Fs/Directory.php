@@ -266,15 +266,15 @@ class Directory extends Entry {
      * This method recursively removes the $dirPath and all its contents. You should be extremely careful with this method as it has the potential to erase everything that the current user has access to.
      *
      * @param string|iterable $dirPath
-     * @param bool|callable $predicateOrDeleteSelf If callable then it must return true for the all entries which will be deleted and false otherwise. If boolean it must return true if the directory $dirPath must be deleted and false otherwise.
+     * @param bool|callable $predicateFnOrFlag If callable then it must return true for the all entries which will be deleted and false otherwise. If boolean it must return true if the directory $dirPath must be deleted and false otherwise.
      */
-    public static function delete($dirPath, $predicateOrDeleteSelf = true): void {
+    public static function delete($dirPath, $predicateFnOrFlag = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
-                static::delete_($path, $predicateOrDeleteSelf);
+                static::delete_($path, $predicateFnOrFlag);
             }
         } else {
-            static::delete_($dirPath, $predicateOrDeleteSelf);
+            static::delete_($dirPath, $predicateFnOrFlag);
         }
     }
 
