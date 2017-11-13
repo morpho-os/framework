@@ -59,6 +59,14 @@ return [
         ],
         'eventManager' => [
             'layoutModule' => VENDOR . '/system',
+            /*
+            'handlers' => [
+                \Morpho\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyCError', 'accessDenied'],
+                \Morpho\Web\DispatchErrorHandler::BAD_REQUEST_ERROR => ['my-vendor/my-module', 'MyError', 'badRequest'],
+                \Morpho\Web\DispatchErrorHandler::NOT_FOUND_ERROR => ['my-vendor/my-module', 'MyError', 'notFound'],
+                \Morpho\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],
+            ],
+             */
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
