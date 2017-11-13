@@ -7,6 +7,9 @@
 namespace Morpho\Di;
 
 trait THasServiceManager {
+    /**
+     * @var IServiceManager
+     */
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager): void {
