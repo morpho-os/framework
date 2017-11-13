@@ -37,6 +37,7 @@ class Node extends Object {
     }
 
     public function append($node): void {
+        /** @var Node node */
         if (empty($node->name())) {
             throw new RuntimeException("The node must have name");
         }
