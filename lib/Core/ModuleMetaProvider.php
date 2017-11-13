@@ -4,14 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Web;
+namespace Morpho\Core;
 
-use const Morpho\Core\AUTOLOAD_FILE_NAME;
-use const Morpho\Core\META_FILE_NAME;
-use Morpho\Core\Module;
-use const Morpho\Core\MODULE_CLASS_FILE_NAME;
-use const Morpho\Core\VENDOR_DIR_NAME;
-use const Morpho\Core\VIEW_DIR_NAME;
+use Morpho\Di\IServiceManager;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
@@ -20,25 +15,22 @@ class ModuleMetaProvider implements \IteratorAggregate {
     /**
      * @var string
      */
-    private $baseModuleDirPath;
+    protected $baseDirPath;
     /**
      * @var array
      */
-    private $activeModules;
-
+    private $enabledModules;
     /**
      * @var array
      */
     private $metaPatch;
 
-    public function __construct(string $baseModuleDirPath, array $activeModules, array $metaPatch) {
-        $this->baseModuleDirPath = $baseModuleDirPath;
-        $this->activeModules = array_flip($activeModules);
-        $this->metaPatch = $metaPatch;
+    public function __construct(IServiceManager $serviceManager) {
+        $this->init($serviceManager);
     }
 
     public function getIterator() {
-        foreach (Directory::dirPaths($this->baseModuleDirPath, null, ['recursive' => false]) as $moduleDirPath) {
+        foreach ($this->dirIter() as $moduleDirPath) {
             $metaFilePath = $moduleDirPath . '/' . META_FILE_NAME;
             if (!is_file($metaFilePath)) {
                 continue;
@@ -48,7 +40,7 @@ class ModuleMetaProvider implements \IteratorAggregate {
                 continue;
             }
             $moduleName = $classLoaderMeta['name'];
-            if (!isset($this->activeModules[$moduleName])) {
+            if (!$this->filter($moduleName)) {
                 continue;
             }
             $namespace = isset($classLoaderMeta['autoload']['psr-4']) ? rtrim(key($classLoaderMeta['autoload']['psr-4']), '\\') : false;
@@ -56,7 +48,10 @@ class ModuleMetaProvider implements \IteratorAggregate {
                 continue;
             }
             $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
-            require $autoloadFilePath;
+            if (!is_file($autoloadFilePath)) {
+                continue;
+            }
+            require_once $autoloadFilePath;
             $class1 = $namespace . '\\' . basename(MODULE_CLASS_FILE_NAME, '.php');
             if ($class1 && class_exists($class1)) {
                 $class = $class1;
@@ -71,12 +66,33 @@ class ModuleMetaProvider implements \IteratorAggregate {
                 ],
                 'namespace' => $namespace,
                 'class'     => $class,
-                'weight' => $this->activeModules[$moduleName],
             ];
-            if (isset($this->metaPatch[$moduleName])) {
-                $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
-            }
-            yield $moduleMeta;
+            yield $this->map($moduleMeta);
         }
+    }
+
+    protected function dirIter(): iterable {
+        return Directory::dirPaths($this->baseDirPath . '/' . MODULE_DIR_NAME, null, ['recursive' => false]);
+    }
+
+    protected function filter(string $moduleName): bool {
+        return isset($this->enabledModules[$moduleName]);
+    }
+
+    protected function map(array $moduleMeta): array {
+        $moduleName = $moduleMeta['name'];
+        $moduleMeta['weight'] = $this->enabledModules[$moduleName];
+        if (isset($this->metaPatch[$moduleName])) {
+            $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
+        }
+        return $moduleMeta;
+    }
+
+    protected function init(IServiceManager $serviceManager): void {
+        $site = $serviceManager->get('site');
+        $siteConfig = $site->config();
+        $this->enabledModules = array_flip(array_keys($siteConfig['modules']));
+        $this->metaPatch = [$site->moduleName() => $siteConfig];
+        $this->baseDirPath = $serviceManager->get('app')->config()['baseDirPath'];
     }
 }

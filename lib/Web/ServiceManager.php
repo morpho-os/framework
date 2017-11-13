@@ -16,9 +16,9 @@ use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\Core\IRouter;
-use const Morpho\Core\MODULE_DIR_NAME;
 use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleIndexer;
+use Morpho\Core\ModuleMetaProvider;
 use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
@@ -49,11 +49,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newModuleMetaProviderService() {
-        $site = $this->get('site');
-        $siteConfig = $site->config();
-        $activeModules = array_keys($siteConfig['modules']);
-        $baseModuleDirPath = $this->get('app')->config()['baseDirPath'] . '/' . MODULE_DIR_NAME;
-        return new ModuleMetaProvider($baseModuleDirPath, $activeModules, [$site->moduleName() => $siteConfig]);
+        return new ModuleMetaProvider($this);
     }
 
     protected function newSessionService() {
