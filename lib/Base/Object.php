@@ -1,20 +1,28 @@
-<?php
+<?php //declare(strict_types = 1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-declare(strict_types = 1);
 namespace Morpho\Base;
 
 use Morpho\Fs\Path;
 use ReflectionObject;
 
 abstract class Object extends \ArrayObject {
+    /**
+     * @var ?bool
+     */
     private $reflected;
 
+    /**
+     * @var ?string
+     */
     private $classDirPath;
 
+    /**
+     * @var ?string
+     */
     private $classFilePath;
 
     public function namespace(): string {
