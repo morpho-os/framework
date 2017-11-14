@@ -8,14 +8,14 @@ namespace MorphoTest\Unit\Db\Sql\MySql;
 
 use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\Db;
-use Morpho\Db\Sql\MySql\SchemaManager;
+use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Test\DbTestCase;
 
-class SchemaManagerTest extends DbTestCase {
+class SchemaTest extends DbTestCase {
     /**
-     * @var SchemaManager
+     * @var Schema
      */
-    protected $schemaManager;
+    protected $schema;
 
     private $dbs = [];
     /**
@@ -28,8 +28,8 @@ class SchemaManagerTest extends DbTestCase {
     public function setUp() {
         parent::setUp();
         $db = $this->newDbConnection();
-        $this->schemaManager = new SchemaManager($db);
-        $this->schemaManager->deleteAllTables();
+        $this->schema = new Schema($db);
+        $this->schema->deleteAllTables();
         $this->db = $db;
         $this->dbs = [];
     }
@@ -44,18 +44,18 @@ class SchemaManagerTest extends DbTestCase {
     public function testDatabaseOperations() {
         $dbSuffix = md5(__FUNCTION__);
         $dbName = 't' . $dbSuffix;
-        $this->assertFalse($this->schemaManager->databaseExists($dbName));
-        $this->callCreateDatabase($dbName, SchemaManager::CHARSET, SchemaManager::COLLATION);
-        $this->assertTrue($this->schemaManager->databaseExists($dbName));
+        $this->assertFalse($this->schema->databaseExists($dbName));
+        $this->callCreateDatabase($dbName, Schema::CHARSET, Schema::COLLATION);
+        $this->assertTrue($this->schema->databaseExists($dbName));
     }
 
     public function testTableDefinitionForNonExistingTable() {
         $this->expectException('\RuntimeException', "The table 'foo' does not exist");
-        $this->schemaManager->tableDefinition('foo');
+        $this->schema->tableDefinition('foo');
     }
 
     public function testCreateTablesWithFksOnOneColumn() {
-        $this->schemaManager->createTables([
+        $this->schema->createTables([
             'product'      => [
                 'columns'     => [
                     'id'          => [
@@ -143,9 +143,9 @@ class SchemaManagerTest extends DbTestCase {
                 'type',
             ],
         ];
-        $this->schemaManager->createTable('file', $tableDefinition);
+        $this->schema->createTable('file', $tableDefinition);
 
-        $this->assertEquals(['file'], $this->schemaManager->tableNames());
+        $this->assertEquals(['file'], $this->schema->tableNames());
 
         $this->assertEquals(<<<OUT
 CREATE TABLE `file` (
@@ -158,7 +158,7 @@ CREATE TABLE `file` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 OUT
             ,
-            $this->schemaManager->createTableSql('file')
+            $this->schema->createTableSql('file')
         );
     }
 
@@ -173,7 +173,7 @@ OUT
 `$columnName` tinyint(1) NOT NULL
 OUT
             ,
-            $this->schemaManager->columnDefinitionToSql($columnName, $columnDefinition)
+            $this->schema->columnDefinitionToSql($columnName, $columnDefinition)
         );
 
         $columnDefinition = [
@@ -184,7 +184,7 @@ OUT
 `$columnName` tinyint(1)
 OUT
             ,
-            $this->schemaManager->columnDefinitionToSql($columnName, $columnDefinition)
+            $this->schema->columnDefinitionToSql($columnName, $columnDefinition)
         );
     }
 
@@ -211,7 +211,7 @@ OUT
                 ],
             ],
         ];
-        list($sql, $args) = $this->schemaManager->tableDefinitionToSql($tableName, $tableDefinition);
+        list($sql, $args) = $this->schema->tableDefinitionToSql($tableName, $tableDefinition);
         $this->assertEquals(<<<OUT
 CREATE TABLE `$tableName` (
 `login` varchar(255) NOT NULL,
@@ -226,7 +226,7 @@ OUT
     }
 
     private function assertCreateTableSql() {
-        $actualTableNames = $this->schemaManager->tableNames();
+        $actualTableNames = $this->schema->tableNames();
         sort($actualTableNames);
         $this->assertEquals(['order', 'product', 'productOrder'], $actualTableNames);
 
@@ -239,7 +239,7 @@ CREATE TABLE `product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores products'
 OUT
             ,
-            $this->schemaManager->createTableSql('product')
+            $this->schema->createTableSql('product')
         );
         $this->assertEquals(<<<OUT
 CREATE TABLE `order` (
@@ -248,7 +248,7 @@ CREATE TABLE `order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 OUT
             ,
-            $this->schemaManager->createTableSql('order')
+            $this->schema->createTableSql('order')
         );
 
         $this->assertEquals(<<<OUT
@@ -262,7 +262,7 @@ CREATE TABLE `productOrder` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 OUT
             ,
-            $this->schemaManager->createTableSql('productOrder')
+            $this->schema->createTableSql('productOrder')
         );
     }
     
@@ -273,7 +273,7 @@ OUT
     }
 
     public function testSizeOfDatabase() {
-        $size = $this->schemaManager->sizeOfDatabase('mysql');
+        $size = $this->schema->sizeOfDatabase('mysql');
         $this->assertGreaterThan(0, $size);
         $sum = 0;
         foreach ($this->db->eval("SELECT DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'mysql'") as $row) {
@@ -283,7 +283,7 @@ OUT
     }
 
     public function testSizeOfTables() {
-        $size = $this->schemaManager->sizeOfTables('mysql');
+        $size = $this->schema->sizeOfTables('mysql');
         $this->assertInternalType('array', $size);
         $this->assertNotEmpty($size);
         $expectedKeys = ['tableName', 'tableType', 'sizeInBytes'];
@@ -315,9 +315,9 @@ OUT
         ];
         $this->assertEquals(
             $expected,
-            $this->schemaManager->availableCharsetsWithDefaultCollation(['utf8', 'latin1'])
+            $this->schema->availableCharsetsWithDefaultCollation(['utf8', 'latin1'])
         );
-        $rows = $this->schemaManager->availableCharsetsWithDefaultCollation();
+        $rows = $this->schema->availableCharsetsWithDefaultCollation();
         $this->assertTrue(count($rows) > count($expected));
         $expectedKeys = array_keys($expected[0]);
         foreach ($rows as $row) {
@@ -327,7 +327,7 @@ OUT
 
     public function testAvailableCollationsForCharset() {
         $charset = 'utf8';
-        $rows = $this->schemaManager->availableCollationsForCharset($charset);
+        $rows = $this->schema->availableCollationsForCharset($charset);
         $this->assertNotEmpty($rows);
         $expectedKeys = [
             'Collation',
@@ -345,7 +345,7 @@ OUT
     }
     
     public function testCharsetAndCollationVars() {
-        $vars = $this->schemaManager->charsetAndCollationVars();
+        $vars = $this->schema->charsetAndCollationVars();
         $expectedKeys = [
             'character_set_client',
             'character_set_connection',
@@ -366,13 +366,13 @@ OUT
         $charset = 'gb2312';
         $collation = $charset . '_bin';
         $dbName = $this->callCreateDatabase('t' . md5(__FUNCTION__), $charset, $collation);
-        $this->assertEquals(['charset' => $charset, 'collation' => $collation], $this->schemaManager->charsetAndCollationOfDatabase($dbName));
+        $this->assertEquals(['charset' => $charset, 'collation' => $collation], $this->schema->charsetAndCollationOfDatabase($dbName));
     }
     
     public function testCharsetAndCollationOfTables() {
         $this->db->eval("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
         $this->db->eval("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
-        $rows = $this->schemaManager->charsetAndCollationOfTables(self::DB);
+        $rows = $this->schema->charsetAndCollationOfTables(self::DB);
         $this->assertNotEmpty($rows);
         foreach ($rows as $row) {
             $this->assertCount(5, $row);
@@ -398,7 +398,7 @@ OUT
     }
 
     public function testCreateTableOptions() {
-        $this->assertSame('ENGINE=InnoDB DEFAULT CHARSET=utf8', $this->schemaManager->createTableOptions());
+        $this->assertSame('ENGINE=InnoDB DEFAULT CHARSET=utf8', $this->schema->createTableOptions());
     }
 
     private function assertArrayHasOnlyItemsWithKeys(array $expectedKeys, array $arr) {

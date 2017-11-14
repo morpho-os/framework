@@ -140,7 +140,7 @@ class Tree {
             ],
             'description' => 'Stores hierarchy as tree',
         ];
-        $this->db->schemaManager()->createTable($this->tableName, $tableDefinition);
+        $this->db->schema()->createTable($this->tableName, $tableDefinition);
     }
 
     public function setDataColumns(string $table, array $columns)/*: void */ {

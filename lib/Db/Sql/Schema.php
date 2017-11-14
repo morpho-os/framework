@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql;
 
-abstract class SchemaManager {
+abstract class Schema {
     protected $db;
 
     public function __construct(Db $db) {

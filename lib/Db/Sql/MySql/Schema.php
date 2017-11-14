@@ -8,9 +8,9 @@ namespace Morpho\Db\Sql\MySql;
 
 use Morpho\Base\Must;
 use Morpho\Base\NotImplementedException;
-use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
+use Morpho\Db\Sql\Schema as BaseSchema;
 
-class SchemaManager extends BaseSchemaManager {
+class Schema extends BaseSchema {
     const ENGINE    = 'InnoDB';
     const CHARSET   = 'utf8';
     const COLLATION = 'utf8_general_ci';

@@ -8,9 +8,9 @@ namespace Morpho\Db\Sql\Sqlite;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\Result;
-use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
+use Morpho\Db\Sql\Schema as BaseSchema;
 
-class SchemaManager extends BaseSchemaManager {
+class Schema extends BaseSchema {
     /**
      * This function uses slightly changed getListTablesSQL() method from the doctrine/dbal package
      * (https://github.com/doctrine/dbal/blob/master/lib/Doctrine/DBAL/Platforms/SqlitePlatform.php)

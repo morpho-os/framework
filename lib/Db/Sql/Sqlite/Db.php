@@ -11,7 +11,7 @@ use Morpho\Base\OptionRequiredException;
 use Morpho\Db\Sql\Db as BaseDb;
 use Morpho\Db\Sql\GeneralQuery;
 use Morpho\Db\Sql\ReplaceQuery;
-use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
+use Morpho\Db\Sql\Schema as BaseSchema;
 
 class Db extends BaseDb {
     public function query(): GeneralQuery {
@@ -22,8 +22,8 @@ class Db extends BaseDb {
         throw new NotImplementedException();
     }
 
-    public function schemaManager(): BaseSchemaManager {
-        return new SchemaManager($this);
+    public function schema(): BaseSchema {
+        return new Schema($this);
     }
 
     public function insertRows(string $tableName, array $rows): void {

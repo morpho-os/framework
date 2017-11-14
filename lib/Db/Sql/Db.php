@@ -92,7 +92,7 @@ abstract class Db {
         return $this->query()->quoteIdentifier($id);
     }
 
-    abstract public function schemaManager(): SchemaManager;
+    abstract public function schema(): Schema;
 
     public function select(string $sql, array $args = null): Result {
         return $this->eval('SELECT ' . $sql, $args);

@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\IQuery;
 use Morpho\Db\Sql\MySql\Db;
-use Morpho\Db\Sql\MySql\SchemaManager;
+use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\Query;
 use Morpho\Db\Sql\Result;
 use MorphoTest\Unit\Db\Sql\DbTest as BaseDbTest;
@@ -19,12 +19,12 @@ class DbTest extends BaseDbTest {
      */
     private $db;
 
-    private $schemaManager;
+    private $schema;
 
     public function setUp() {
         $this->db = $this->newDbConnection();
-        $this->schemaManager = new SchemaManager($this->db);
-        $this->schemaManager->deleteAllTables();
+        $this->schema = new Schema($this->db);
+        $this->schema->deleteAllTables();
     }
 
     public function testDbName() {
@@ -39,7 +39,7 @@ class DbTest extends BaseDbTest {
     }
 
     public function testLastInsertId_ForNonAutoincrementCol() {
-        $this->schemaManager->createTable('foo', [
+        $this->schema->createTable('foo', [
             'columns' => [
                 'some' => [
                     'type' => 'varchar',
@@ -52,7 +52,7 @@ class DbTest extends BaseDbTest {
     }
 
     public function testLastInsertId_ForAutoincrementCol() {
-        $this->schemaManager->createTable('foo', [
+        $this->schema->createTable('foo', [
             'columns' => [
                 'some' => [
                     'type' => 'primaryKey',
@@ -136,10 +136,10 @@ class DbTest extends BaseDbTest {
         $this->assertSame($this->db->query(), $this->db->query());
     }
 
-    public function testSchemaManager_ReturnsNotUniqueInstance() {
-        $schemaManager = $this->db->schemaManager();
-        $this->assertSame($schemaManager, $this->db->schemaManager());
-        $this->assertInstanceOf(SchemaManager::class, $schemaManager);
+    public function testSchema_ReturnsNotUniqueInstance() {
+        $schema = $this->db->schema();
+        $this->assertSame($schema, $this->db->schema());
+        $this->assertInstanceOf(Schema::class, $schema);
     }
 
     public function testEval_Result() {
@@ -192,7 +192,7 @@ class DbTest extends BaseDbTest {
     }
 
     private function createTestTable() {
-        $this->schemaManager->createTable(
+        $this->schema->createTable(
             'test',
             [
                 'columns' => [

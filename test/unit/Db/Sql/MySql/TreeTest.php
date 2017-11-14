@@ -15,7 +15,7 @@ class TreeTest extends DbTestCase {
 
     public function setUp() {
         $this->db = $this->newDbConnection();
-        $this->db->schemaManager()->deleteAllTables();
+        $this->db->schema()->deleteAllTables();
         $this->tree = new Tree($this->db);
         $dataTableName = 'tree_data_fs';
         $this->tree->setDataColumns($dataTableName, ['id', 'filePath']);
@@ -30,7 +30,7 @@ class TreeTest extends DbTestCase {
                 ],
             ],
         ];
-        $this->db->schemaManager()->createTable($dataTableName, $dataTableDefinition);
+        $this->db->schema()->createTable($dataTableName, $dataTableDefinition);
         $this->tree->createDbTable();
     }
 

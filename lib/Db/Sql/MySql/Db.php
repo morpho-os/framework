@@ -9,7 +9,7 @@ namespace Morpho\Db\Sql\MySql;
 use Morpho\Base\ArrayTool;
 use Morpho\Db\Sql\Db as BaseDb;
 use Morpho\Db\Sql\ReplaceQuery;
-use Morpho\Db\Sql\SchemaManager as BaseSchemaManager;
+use Morpho\Db\Sql\Schema as BaseSchema;
 use Morpho\Db\Sql\GeneralQuery as BaseGeneralQuery;
 
 class Db extends BaseDb {
@@ -20,7 +20,7 @@ class Db extends BaseDb {
     const DEFAULT_CHARSET = 'utf8';
     const DEFAULT_DB = '';
 
-    private $schemaManager;
+    private $schema;
 
     private $query;
 
@@ -31,11 +31,11 @@ class Db extends BaseDb {
         return $this->query;
     }
 
-    public function schemaManager(): BaseSchemaManager {
-        if (null === $this->schemaManager) {
-            $this->schemaManager = new SchemaManager($this);
+    public function schema(): BaseSchema {
+        if (null === $this->schema) {
+            $this->schema = new Schema($this);
         }
-        return $this->schemaManager;
+        return $this->schema;
     }
 
     // @TODO: Move to Query
