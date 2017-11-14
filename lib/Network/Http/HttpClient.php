@@ -8,7 +8,6 @@ namespace Morpho\Network\Http;
 
 use function Morpho\Cli\shell;
 use Zend\Http\Client;
-use Zend\Http\Response;
 use Zend\Stdlib\Parameters;
 
 class HttpClient {
@@ -22,7 +21,7 @@ class HttpClient {
         $this->client = new Client();
     }
 
-    public function get($uri, array $data = null, $headers = null): Response {
+    public function get($uri, array $data = null, $headers = null): HttpResponse {
         if ($uri !== null) {
             $this->client->setUri($uri);
         }
@@ -34,10 +33,11 @@ class HttpClient {
             $request->setQuery(new Parameters((array) $data));
         }
         $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
-        return $this->client->send($request);
+        $res = $this->client->send($request);
+        return new HttpResponse($res);
     }
 
-    public function post($uri, array $data = null, $headers = null): Response {
+    public function post($uri, array $data = null, $headers = null): HttpResponse {
         if ($uri !== null) {
             $this->client->setUri($uri);
         }
@@ -49,7 +49,7 @@ class HttpClient {
             $request->setPost(new Parameters((array) $data));
         }
         $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
-        return $this->client->send($request);
+        return new HttpResponse($this->client->send($request));
     }
 
     public function setMaxNumberOfRedirects(int $n): self {

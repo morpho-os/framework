@@ -24,7 +24,7 @@ class GeckoDriverDownloader {
             chdir(dirname($destFilePath));
             $geckoDriverDownloadUri = array_reduce(
                 fromJson(
-                    (new HttpClient())->get('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->getBody()
+                    (new HttpClient())->get('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->body()
                )['assets'],
                 function ($acc, $asset) {
                     return false !== strpos($asset['browser_download_url'], 'linux64') ? $asset['browser_download_url'] : $acc;
