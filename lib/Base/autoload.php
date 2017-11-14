@@ -417,6 +417,10 @@ function suffix(string $suffix): Closure {
     };
 }
 
+function id($v) {
+    return $v;
+}
+
 /**
  * Modified version of the operator() from the https://github.com/nikic/iter
  * @Copyright (c) 2013 by Nikita Popov.

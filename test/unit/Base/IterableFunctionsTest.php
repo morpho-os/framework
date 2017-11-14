@@ -7,7 +7,7 @@
 namespace MorphoTest\Unit\Base;
 
 use function Morpho\Base\{
-    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
+    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray, id
 };
 use Morpho\Test\TestCase;
 
@@ -621,6 +621,12 @@ class IterableFunctionsTest extends TestCase {
 
     // --------------------------------------------------------------------------------
     // reduce
+
+    public function testReduce_PreservingInitialValue() {
+        $this->assertNull(reduce('Morpho\\Base\\id', ['foo', 'bar', 'baz']));
+        $v = new \stdClass();
+        $this->assertSame($v, reduce('Morpho\\Base\\id', ['foo', 'bar', 'baz'], $v));
+    }
 
     public function testReduce_EmptyList() {
         $this->markTestIncomplete();
