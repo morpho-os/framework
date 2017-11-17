@@ -26,7 +26,7 @@ class DirectoryTest extends TestCase {
         $this->assertEquals(0, preg_match(Directory::PHP_FILES_RE, '.ts'));
     }
 
-    public function testUsingAnother() {
+    public function testDoIn() {
         $curDirPath = getcwd();
         $otherDirPath = $this->createTmpDir();
         $fn = function ($otherDirPathArg) use ($otherDirPath, &$called) {
@@ -35,7 +35,7 @@ class DirectoryTest extends TestCase {
             $called = true;
             return 'res from fn';
         };
-        $res = Directory::usingAnother($otherDirPath, $fn);
+        $res = Directory::doIn($otherDirPath, $fn);
         $this->assertEquals('res from fn', $res);
         $this->assertTrue($called);
         $this->assertEquals($curDirPath, getcwd());

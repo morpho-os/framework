@@ -363,7 +363,7 @@ class Directory extends Entry {
     /**
      * @return mixed
      */
-    public static function usingAnother(string $otherDirPath, callable $fn) {
+    public static function doIn(string $otherDirPath, callable $fn) {
         $curDirPath = getcwd();
         try {
             chdir($otherDirPath);
