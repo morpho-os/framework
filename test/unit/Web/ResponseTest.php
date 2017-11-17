@@ -29,12 +29,12 @@ class ResponseTest extends TestCase {
         $this->assertFalse($this->response->isRedirect());
         $this->response->redirect('/foo/bar');
         $this->assertTrue($this->response->isRedirect());
-        $this->assertEquals(Response::STATUS_CODE_302, $this->response->getStatusCode());
+        $this->assertSame(Response::FOUND_STATUS_CODE, $this->response->statusCode());
     }
 
     public function testIsSuccess() {
         $this->assertTrue($this->response->isSuccess());
-        $this->response->setStatusCode(Response::STATUS_CODE_500);
+        $this->response->setStatusCode(Response::INTERNAL_SERVER_ERROR_STATUS_CODE);
         $this->assertFalse($this->response->isSuccess());
     }
 }

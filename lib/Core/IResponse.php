@@ -7,5 +7,5 @@
 namespace Morpho\Core;
 
 interface IResponse {
-    public function send(): self;
+    public function send(): void;
 }

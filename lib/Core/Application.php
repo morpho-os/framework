@@ -55,7 +55,9 @@ abstract class Application implements IHasServiceManager {
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
             $serviceManager->get('dispatcher')->dispatch($request);
-            return $request->response()->send();
+            $response = $request->response();
+            $response->send();
+            return $response;
         } catch (\Throwable $e) {
             $this->handleError($e, $serviceManager ?? null);
             return false;

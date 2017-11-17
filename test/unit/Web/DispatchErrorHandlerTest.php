@@ -21,16 +21,16 @@ class DispatchErrorHandlerTest extends TestCase {
     public function dataForHandleError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         return [
             [
-                new AccessDeniedException(), DispatchErrorHandler::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403, false,
+                new AccessDeniedException(), DispatchErrorHandler::ACCESS_DENIED_ERROR, Response::FORBIDDEN_STATUS_CODE, false,
             ],
             [
-                new NotFoundException(), DispatchErrorHandler::NOT_FOUND_ERROR, Response::STATUS_CODE_404, false,
+                new NotFoundException(), DispatchErrorHandler::NOT_FOUND_ERROR, Response::NOT_FOUND_STATUS_CODE, false,
             ],
             [
-                new BadRequestException(), DispatchErrorHandler::BAD_REQUEST_ERROR,Response::STATUS_CODE_400, false,
+                new BadRequestException(), DispatchErrorHandler::BAD_REQUEST_ERROR,Response::BAD_REQUEST_STATUS_CODE, false,
             ],
             [
-                new \RuntimeException(), DispatchErrorHandler::UNCAUGHT_ERROR, Response::STATUS_CODE_500, true,
+                new \RuntimeException(), DispatchErrorHandler::UNCAUGHT_ERROR, Response::INTERNAL_SERVER_ERROR_STATUS_CODE, true,
             ],
         ];
     }
@@ -103,7 +103,7 @@ class DispatchErrorHandlerTest extends TestCase {
         $this->assertFalse($request->isDispatched());
         $this->assertEquals($expectedHandler, $request->handler());
         $this->assertEquals($exception, $request->params()['error']);
-        $this->assertEquals($expectedStatusCode, $request->response()->getStatusCode());
+        $this->assertEquals($expectedStatusCode, $request->response()->statusCode());
 
         try {
             $dispatchErrorHandler->handleError($exception, $request);

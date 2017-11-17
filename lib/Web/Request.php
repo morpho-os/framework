@@ -8,7 +8,7 @@
 namespace Morpho\Web;
 
 use function Morpho\Base\trimMore;
-use Zend\Stdlib\Message;
+use Morpho\Core\IResponse;
 use Zend\Validator\Hostname as HostNameValidator;
 use Zend\Http\Headers;
 use Morpho\Core\Request as BaseRequest;
@@ -284,7 +284,7 @@ class Request extends BaseRequest {
      * }
      */
 
-    protected function newResponse(): Message {
+    protected function newResponse(): IResponse {
         return new Response();
     }
 

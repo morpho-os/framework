@@ -94,9 +94,9 @@ class Theme implements IHasServiceManager {
                     if ($response->isContentEmpty()) {
                         $locationHeader = $response->headers()->get('Location');
                         $notEncodedContent = ['success' => ['redirect' => $locationHeader->getUri()]];
-                        $response->setContent(toJson($notEncodedContent))
-                            ->setStatusCode(Response::STATUS_CODE_200)
-                            ->getHeaders()->removeHeader($locationHeader);
+                        $response->setContent(toJson($notEncodedContent));
+                        $response->setStatusCode(Response::OK_STATUS_CODE);
+                        $response->headers()->removeHeader($locationHeader);
                     }
                 }
             } else {

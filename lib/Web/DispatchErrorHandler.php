@@ -45,13 +45,13 @@ class DispatchErrorHandler implements IHasServiceManager {
 
     public function handleError(\Throwable $exception, $request) {
         if ($exception instanceof NotFoundException) {
-            $params = [self::NOT_FOUND_ERROR, Response::STATUS_CODE_404, false];
+            $params = [self::NOT_FOUND_ERROR, Response::NOT_FOUND_STATUS_CODE, false];
         } elseif ($exception instanceof AccessDeniedException) {
-            $params = [self::ACCESS_DENIED_ERROR, Response::STATUS_CODE_403, false];
+            $params = [self::ACCESS_DENIED_ERROR, Response::FORBIDDEN_STATUS_CODE, false];
         } elseif ($exception instanceof BadRequestException) {
-            $params = [self::BAD_REQUEST_ERROR, Response::STATUS_CODE_400, false];
+            $params = [self::BAD_REQUEST_ERROR, Response::BAD_REQUEST_STATUS_CODE, false];
         } else {
-            $params = [self::UNCAUGHT_ERROR, Response::STATUS_CODE_500, true];
+            $params = [self::UNCAUGHT_ERROR, Response::INTERNAL_SERVER_ERROR_STATUS_CODE, true];
         }
         [$errorType, $httpStatusCode, $logError] = $params;
 

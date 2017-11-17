@@ -10,8 +10,7 @@ use Morpho\Core\IResponse;
 use Zend\Stdlib\Message;
 
 class Response extends Message implements IResponse {
-    public function send(): IResponse {
+    public function send(): void {
         echo $this->getContent();
-        return $this;
     }
 }

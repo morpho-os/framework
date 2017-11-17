@@ -11,39 +11,70 @@ use Zend\Http\Headers;
 use Zend\Http\PhpEnvironment\Response as BaseResponse;
 
 // @TODO: Merge with Morpho\Network\Http\HttpResponse
-class Response extends BaseResponse implements IResponse {
-    public function redirect($uri, $httpStatusCode = null): void {
+
+/**
+ * @TODO: Add copyright from ZF.
+ */
+class Response implements IResponse {
+    private $response;
+    private $headers;
+
+    // @TODO: Implement most useful codes, see https://developer.mozilla.org/en/docs/Web/HTTP/Status
+    public const OK_STATUS_CODE = 200;
+    public const FOUND_STATUS_CODE = 302;
+    public const NOT_MODIFIED_STATUS_CODE = 304;
+    public const BAD_REQUEST_STATUS_CODE = 400;
+    public const FORBIDDEN_STATUS_CODE = 403;
+    public const NOT_FOUND_STATUS_CODE = 404;
+    public const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
+
+    public function __construct() {
+        $this->response = new BaseResponse();
+    }
+
+    public function redirect($uri, int $httpStatusCode = null): void {
         $this->headers()->addHeaderLine('Location', (string)$uri);
-        $this->setStatusCode($httpStatusCode ?: self::STATUS_CODE_302);
+        $this->setStatusCode($httpStatusCode ?: self::FOUND_STATUS_CODE);
+    }
+
+    public function setStatusCode(int $statusCode): void {
+        $this->response->setStatusCode($statusCode);
+    }
+
+    public function statusCode(): int {
+        return $this->response->getStatusCode();
+    }
+
+    public function setContent(string $content): void {
+        $this->response->setContent($content);
     }
 
     public function content() {
-        return $this->content;
+        return $this->response->getContent();
+    }
+
+    public function isRedirect(): bool {
+        return $this->response->isRedirect();
     }
 
     public function headers() {
-        if ($this->headers === null || is_string($this->headers)) {
-            // this is only here for fromString lazy loading
-            $this->headers = (is_string($this->headers)) ? Headers::fromString($this->headers) : new Headers();
+        if ($this->headers === null) {
+            // @TODO: Eliminate the dependency from ZF Headers??
+            $this->headers = new Headers();
         }
         return $this->headers;
     }
 
     public function isContentEmpty(): bool {
-        // @TODO: !isset($this->content[0]) is better??
-        return $this->content == '';
+        return $this->response->getContent() == '';
     }
 
     public function isSuccess(): bool {
-        // Use condition from jQuery: 304 == Not Modified.
-        return parent::isSuccess() || $this->getStatusCode() === self::STATUS_CODE_304;
+        // Use condition from jQuery.
+        return $this->response->isSuccess() || $this->statusCode() === self::NOT_MODIFIED_STATUS_CODE;
     }
 
-    /**
-     * @TODO: Remove this method after switching to >= PHP 7.2
-     */
-    public function send(): IResponse {
-        parent::send();
-        return $this;
+    public function send(): void {
+        $this->response->send();
     }
 }
