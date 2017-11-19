@@ -6,8 +6,10 @@
  */
 namespace Morpho\DataProcessing\Filtering;
 
-class PriceFilter extends Filter {
-    public function filter($value) {
+use Morpho\Base\IFn;
+
+class PriceFilter implements IFn {
+    public function __invoke($value) {
         if (!is_scalar($value)) {
             return null;
         }

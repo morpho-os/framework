@@ -40,9 +40,9 @@ class FastRouter implements IHasServiceManager, IRouter {
             ->dispatch($request->method(), $uri);
         if ($routeInfo[0] === IDispatcher::FOUND) {
             $handlerInfo = $routeInfo[1];
-            $request->setModuleName($handlerInfo['module'])
-                ->setControllerName($handlerInfo['controller'])
-                ->setActionName($handlerInfo['action']);
+            $request->setModuleName($handlerInfo['module']);
+            $request->setControllerName($handlerInfo['controller']);
+            $request->setActionName($handlerInfo['action']);
             $params = $routeInfo[2] ?? null;
             if ($params) {
                 $request->setRoutingParams($params);
@@ -82,8 +82,8 @@ class FastRouter implements IHasServiceManager, IRouter {
             $routerConfig = $this->serviceManager->config()['router'];
             if (isset($routerConfig['home'])) {
                 $handler = $routerConfig['home'];
-                $request->setHandler($handler['handler'])
-                    ->setMethod($handler['method']);
+                $request->setHandler($handler['handler']);
+                $request->setMethod($handler['method']);
                 return true;
             }
         }

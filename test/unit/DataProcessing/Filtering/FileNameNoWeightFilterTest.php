@@ -25,7 +25,7 @@ class FileNameNoWeightFilterTest extends TestCase {
      */
     public function testFilter($long, $short) {
         $filter = new FileNameNoWeightFilter();
-        $this->assertEquals('/foo/bar/baz', $filter->filter($long));
-        $this->assertEquals('baz', $filter->filter($short));
+        $this->assertEquals('/foo/bar/baz', $filter->__invoke($long));
+        $this->assertEquals('baz', $filter->__invoke($short));
     }
 }

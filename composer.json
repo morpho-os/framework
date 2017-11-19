@@ -36,7 +36,6 @@
         "sebastian/exporter": "dev-master",
         "symfony/finder": "dev-master",
         "symfony/process": "dev-master",
-        "zendframework/zend-filter": "dev-master",
         "zendframework/zend-http": "dev-master",
         "zendframework/zend-mail": "dev-master",
         "zendframework/zend-math": "dev-master",

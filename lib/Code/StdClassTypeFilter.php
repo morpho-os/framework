@@ -6,9 +6,9 @@
  */
 namespace Morpho\Code;
 
-use Morpho\DataProcessing\Filtering\Filter;
+use Morpho\Base\IFn;
 
-class StdClassTypeFilter extends Filter {
+class StdClassTypeFilter implements IFn {
     public static $stdClasses = [
         'AppendIterator',
         'ArithmeticError',
@@ -178,7 +178,7 @@ class StdClassTypeFilter extends Filter {
         'stdClass',
     ];
     
-    public function filter($classTypes) {
+    public function __invoke($classTypes) {
         return array_values(
             array_diff(
                 $classTypes,

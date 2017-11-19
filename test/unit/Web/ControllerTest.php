@@ -70,7 +70,10 @@ class ControllerTest extends TestCase {
         $this->assertTrue($request->isDispatched());
         $response = $request->response();
         $this->assertTrue($response->isRedirect());
-        $this->assertEquals("Location: $basePath/some/page", trim($response->headers()->toString()));
+        $this->assertEquals(
+            ['Location' => "$basePath/some/page"],
+            $response->headers()->getArrayCopy()
+        );
     }
 
     public function testForwardTo() {

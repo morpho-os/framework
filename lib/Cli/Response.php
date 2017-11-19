@@ -6,11 +6,7 @@
  */
 namespace Morpho\Cli;
 
-use Morpho\Core\IResponse;
-use Zend\Stdlib\Message;
+use Morpho\Core\Response as BaseResponse;
 
-class Response extends Message implements IResponse {
-    public function send(): void {
-        echo $this->getContent();
-    }
+class Response extends BaseResponse {
 }

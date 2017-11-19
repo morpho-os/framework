@@ -14,9 +14,10 @@ abstract class Application extends BaseApplication {
         $app = new static($config);
         /** @var Response|false $res */
         $res = $app->run();
-        return false === $res
-            ? Environment::FAILURE_CODE
-            : $res->getMetadata('exitCode', Environment::SUCCESS_CODE);
+        if (false === $res) {
+            return Environment::FAILURE_CODE;
+        }
+        return $res->meta()['exitCode'] ?? Environment::SUCCESS_CODE;
     }
 
     protected function showError(\Throwable $e): void {

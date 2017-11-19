@@ -10,6 +10,9 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Request;
 
 class RequestTest extends TestCase {
+    /**
+     * @var Request
+     */
     private $request;
 
     public function setUp() {
@@ -26,10 +29,73 @@ class RequestTest extends TestCase {
     }
 
     public function testIsAjax_ByDefaultReturnsValueFromHeaders() {
-        $this->request->headers()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
+        $this->request->headers()['X-Requested-With'] = 'XMLHttpRequest';
         $this->assertTrue($this->request->isAjax());
-        $this->request->headers()->clearHeaders();
+        $this->request->headers()->exchangeArray([]);
         $this->assertFalse($this->request->isAjax());
+    }
+
+    public function dataForSettingHeadersThroughServerVars() {
+        yield [true];
+        yield [false];
+    }
+
+    /**
+     * @dataProvider dataForSettingHeadersThroughServerVars
+     */
+    public function testSettingHeadersThroughServerVars($useGlobalServerVar) {
+        $serverVars = [
+            "HOME" => "/foo/bar",
+            "USER" => "user-name",
+            "HTTP_CACHE_CONTROL" => "max-age=0",
+            "HTTP_CONNECTION" => "keep-alive",
+            "HTTP_UPGRADE_INSECURE_REQUESTS" => "1",
+            "HTTP_COOKIE" => "TestCookie=something+from+somewhere",
+            "HTTP_ACCEPT_LANGUAGE" => "en-US,en;q=0.5",
+            "HTTP_ACCEPT_ENCODING" =>  "gzip, deflate",
+            "HTTP_USER_AGENT" => "Test user agent",
+            "REDIRECT_STATUS" => "200",
+            "HTTP_HOST" => "localhost",
+            "SERVER_NAME" => "localhost",
+            "SERVER_ADDR" => "127.0.0.1",
+            "HTTP_FOO" => "Bar",
+            "SERVER_PORT" => "80",
+            "REMOTE_PORT" => "12345",
+            "HTTP_ACCEPT" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "SCRIPT_NAME" => "/test.php",
+            "CONTENT_LENGTH" => "4521",
+            "CONTENT_TYPE"   => "",
+            "REQUEST_METHOD" => "POST",
+            "CONTENT_MD5" => "Q2hlY2sgSW50ZWdyaXR5IQ==",
+        ];
+        $expectedHeaders = [
+            'Cache-Control' => $serverVars['HTTP_CACHE_CONTROL'],
+            'Connection' => $serverVars['HTTP_CONNECTION'],
+            'Upgrade-Insecure-Requests' => $serverVars['HTTP_UPGRADE_INSECURE_REQUESTS'],
+            'Accept-Language' => $serverVars['HTTP_ACCEPT_LANGUAGE'],
+            'Accept-Encoding' => $serverVars['HTTP_ACCEPT_ENCODING'],
+            'User-Agent' => $serverVars['HTTP_USER_AGENT'],
+            'Host' => $serverVars['HTTP_HOST'],
+            'Foo' => $serverVars['HTTP_FOO'],
+            'Accept' => $serverVars['HTTP_ACCEPT'],
+            'Content-Length' => $serverVars['CONTENT_LENGTH'],
+            'Content-Type' => $serverVars['CONTENT_TYPE'],
+            'Content-MD5' => $serverVars['CONTENT_MD5'],
+        ];
+        if ($useGlobalServerVar) {
+            $_SERVER = $serverVars;
+            $request = new Request();
+        } else {
+            $request = new Request($serverVars);
+        }
+        $this->assertSame($expectedHeaders, $request->headers()->getArrayCopy());
+    }
+
+    public function testHeadersAccessors() {
+        $this->assertSame([], $this->request->headers()->getArrayCopy());
+        $this->request->headers()['foo'] = 'bar';
+        $this->assertSame('bar', $this->request->headers()['foo']);
+        $this->assertSame(['foo' => 'bar'], $this->request->headers()->getArrayCopy());
     }
 
     public function testParamAccessors() {

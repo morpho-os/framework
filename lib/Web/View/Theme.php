@@ -13,6 +13,7 @@ use function Morpho\Base\{
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IHasServiceManager;
 use Morpho\Fs\Path;
+use Morpho\Web\Request;
 use Morpho\Web\Response;
 
 class Theme implements IHasServiceManager {
@@ -77,7 +78,7 @@ class Theme implements IHasServiceManager {
     }
     */
 
-    public function renderLayout($request): void {
+    public function renderLayout(Request $request): void {
         $params = $request->params();
         if ($params->offsetExists('layout')) {
             $layout = $params->offsetGet('layout');
@@ -86,17 +87,17 @@ class Theme implements IHasServiceManager {
             $params->offsetSet('layout', $layout);
         }
         if ($request->isDispatched() && !$layout->isRendered()) {
+            /** @var \Morpho\Web\Response $response */
             $response = $request->response();
             if ($request->isAjax()) {
-                $response->headers()
-                    ->addHeaderLine('Content-Type', 'application/json');
+                $response->headers()->offsetSet('Content-Type', 'application/json');
                 if ($response->isRedirect()) {
-                    if ($response->isContentEmpty()) {
-                        $locationHeader = $response->headers()->get('Location');
-                        $notEncodedContent = ['success' => ['redirect' => $locationHeader->getUri()]];
-                        $response->setContent(toJson($notEncodedContent));
+                    if ($response->isBodyEmpty()) {
+                        $locationHeader = $response->headers()->offsetGet('Location');
+                        $notEncodedContent = ['success' => ['redirect' => $locationHeader]];
+                        $response->setBody(toJson($notEncodedContent));
                         $response->setStatusCode(Response::OK_STATUS_CODE);
-                        $response->headers()->removeHeader($locationHeader);
+                        $response->headers()->offsetUnset('Location');
                     }
                 }
             } else {
@@ -105,8 +106,8 @@ class Theme implements IHasServiceManager {
                     $this->appendBaseDirPath($dirPath);
                 }
                 if (!$response->isRedirect()) {
-                    $response->setContent(
-                        $this->renderFile($layout->name(), ['body' => $response->content()])
+                    $response->setBody(
+                        $this->renderFile($layout->name(), ['body' => $response->body()])
                     );
                 }
             }

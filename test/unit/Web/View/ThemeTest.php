@@ -24,13 +24,13 @@ class ThemeTest extends TestCase {
         $content = 'foo bar baz';
         $response = $request->response();
         $response->redirect($redirectUri);
-        $response->setContent($content);
+        $response->setBody($content);
 
         $theme = $this->newTheme();
 
         $theme->renderLayout($request);
 
-        $this->assertEquals($content, $response->content());
+        $this->assertEquals($content, $response->body());
     }
 
     public function testRenderLayout_AjaxRedirect() {
@@ -41,14 +41,17 @@ class ThemeTest extends TestCase {
         $redirectUri = '/foo/bar';
         $response = $request->response();
         $response->redirect($redirectUri);
-        $response->setContent('');
+        $response->setBody('');
 
         $theme = $this->newTheme();
 
         $theme->renderLayout($request);
 
-        $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->content()));
-        $this->assertEquals('application/json', $response->headers()->get('Content-Type')->getFieldValue());
+        $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->body()));
+        $this->assertEquals(
+            'application/json',
+            $response->headers()['Content-Type']
+        );
     }
 
     public function testRenderLayout_RenderedOnce() {

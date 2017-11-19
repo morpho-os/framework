@@ -10,6 +10,9 @@ use Morpho\Test\TestCase;
 use Morpho\DataProcessing\Filtering\PriceFilter;
 
 class PriceFilterTest extends TestCase {
+    /**
+     * @var \Morpho\Base\IFn
+     */
     private $filter;
 
     public function setUp() {
@@ -17,29 +20,29 @@ class PriceFilterTest extends TestCase {
     }
 
     public function testReturnsNullIfNotPossibleToFilter() {
-        $this->assertNull($this->filter->filter('abc'));
+        $this->assertNull($this->filter->__invoke('abc'));
     }
 
     public function testReturnsNullForNonScalar() {
-        $this->assertNull($this->filter->filter([]));
+        $this->assertNull($this->filter->__invoke([]));
     }
 
     public function testCanFilterMixedValue() {
         $this->assertEquals(
             '3.1415',
-            $this->filter->filter(
+            $this->filter->__invoke(
                 "ab3 , c1 f\n4fa^1**5z"
             )
         );
     }
 
     public function testMultipleDotsAndCommas() {
-        $this->assertEquals(14.12, $this->filter->filter('14,..,...12'));
-        $this->assertNull($this->filter->filter('1..,4,..,...12'));
+        $this->assertEquals(14.12, $this->filter->__invoke('14,..,...12'));
+        $this->assertNull($this->filter->__invoke('1..,4,..,...12'));
     }
 
     public function testNegativeValue() {
         $value = -0.001;
-        $this->assertEquals($value, $this->filter->filter($value));
+        $this->assertEquals($value, $this->filter->__invoke($value));
     }
 }

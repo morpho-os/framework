@@ -7,6 +7,7 @@
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
+use Morpho\Web\Environment;
 use Morpho\Web\Response;
 
 class ResponseTest extends TestCase {
@@ -19,10 +20,11 @@ class ResponseTest extends TestCase {
         $this->response = new Response();
     }
 
-    public function testIsContentEmpty() {
-        $this->assertTrue($this->response->isContentEmpty());
-        $this->response->setContent('foo');
-        $this->assertFalse($this->response->isContentEmpty());
+    public function testStatusCodeAccessors() {
+        $this->assertSame(Response::OK_STATUS_CODE, $this->response->statusCode());
+        $newStatusCode = Response::FORBIDDEN_STATUS_CODE;
+        $this->assertNull($this->response->setStatusCode($newStatusCode));
+        $this->assertSame($newStatusCode, $this->response->statusCode());
     }
 
     public function testRedirect() {
@@ -36,5 +38,96 @@ class ResponseTest extends TestCase {
         $this->assertTrue($this->response->isSuccess());
         $this->response->setStatusCode(Response::INTERNAL_SERVER_ERROR_STATUS_CODE);
         $this->assertFalse($this->response->isSuccess());
+    }
+
+    public function testStatusLineAccessors() {
+        $this->assertSame(
+            Environment::httpProtocolVersion() . ' ' . Response::OK_STATUS_CODE . ' OK',
+            $this->response->statusLine()
+        );
+        $newStatusLine = Environment::httpProtocolVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
+        $this->assertNull($this->response->setStatusLine($newStatusLine));
+        $this->assertSame($newStatusLine, $this->response->statusLine());
+    }
+
+    public function testHeadersAccessors() {
+        $headers = $this->response->headers();
+        $this->assertInstanceOf(\ArrayObject::class, $headers);
+        $headersToSet = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="sample.pdf"',
+        ];
+        $headers->exchangeArray($headersToSet);
+        $headers['Location'] = 'http://example.com';
+        $this->assertSame(
+            array_merge($headersToSet, ['Location' => 'http://example.com']),
+            $this->response->headers()->getArrayCopy()
+        );
+    }
+
+    public function dataForStatusCodeToStatusLine() {
+        yield [
+            200, 'OK'
+        ];
+        yield [
+            302, 'Found',
+        ];
+        yield [
+            304, 'Not Modified',
+        ];
+        yield [
+            400, 'Bad Request',
+        ];
+        yield [
+            403, 'Forbidden',
+        ];
+        yield [
+            404, 'Not Found',
+        ];
+        yield [
+            500, 'Internal Server Error',
+        ];
+        yield [
+            201, 'Created',
+        ];
+        yield [
+            144, 'Unassigned',
+        ];
+    }
+
+    /**
+     * @dataProvider dataForStatusCodeToStatusLine
+     */
+    public function testStatusCodeToStatusLine(int $statusCode, string $expectedReasonPhrase) {
+        $this->response->setStatusCode($statusCode);
+        $this->assertSame(
+            Environment::PROTOCOL_VERSION . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
+            $this->response->statusLine()
+        );
+    }
+
+    public function testSend() {
+        $response = new class extends Response {
+            public $called = [];
+            protected function sendHeader(string $value): void {
+                $this->called[] = [__FUNCTION__, func_get_args()];
+            }
+        };
+        $body = 'Such page does not exist';
+        $response->setStatusCode(404);
+        $response->setBody($body);
+        $response->headers()->exchangeArray([
+            'Location' => 'http://example.com',
+        ]);
+        ob_start();
+        $response->send();
+        $this->assertSame($body, ob_get_clean());
+        $this->assertSame(
+            [
+                ['sendHeader', [Environment::httpProtocolVersion() . ' 404 Not Found']],
+                ['sendHeader', ['Location: http://example.com']],
+            ],
+            $response->called
+        );
     }
 }

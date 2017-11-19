@@ -10,13 +10,13 @@ namespace Morpho\Web;
 use function Morpho\Base\trimMore;
 use Morpho\Core\IResponse;
 use Zend\Validator\Hostname as HostNameValidator;
-use Zend\Http\Headers;
 use Morpho\Core\Request as BaseRequest;
 
 /**
- * Some chunks of code for this class was taken from the Request class
- * from Zend Framework 2.x (http://framework.zend.com/),
- * @TODO: Specify what chunks and mark of them specially.
+ * This class based on \Zend\Http\PhpEnvironment\Request class.
+ * @see https://github.com/zendframework/zend-http for the canonical source repository
+ * @copyright Copyright (c) 2005-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest {
     // See https://tools.ietf.org/html/rfc7231#section-4
@@ -29,12 +29,34 @@ class Request extends BaseRequest {
     public const PUT_METHOD = 'PUT';
     public const TRACE_METHOD = 'TRACE';
 
+    /**
+     * @var \ArrayObject
+     */
     protected $headers;
 
+    /**
+     * @var ?string
+     */
     protected $method;
-    
+
+    /**
+     * @var ?bool
+     */
     protected $isAjax;
 
+    /**
+     * @var array
+     */
+    protected $routingParams = [];
+
+    /**
+     * @var ?array
+     */
+    private $serverVars;
+
+    /**
+     * @var ?Uri
+     */
     private $uri;
 
     private $mapPostTo;
@@ -50,7 +72,9 @@ class Request extends BaseRequest {
         self::TRACE_METHOD,
     ];
 
-    protected $routingParams = [];
+    public function __construct(array $serverVars = null) {
+        $this->serverVars = $serverVars;
+    }
 
     public function hasRoutingParams(): bool {
         return count($this->routingParams) > 0;
@@ -155,7 +179,7 @@ class Request extends BaseRequest {
         return $this->data($_POST, $name, $trim);
     }
 
-    public function hasQuery(string $name) {
+    public function hasQuery(string $name): bool {
         return isset($_GET[$name]);
     }
 
@@ -164,15 +188,15 @@ class Request extends BaseRequest {
         return $this->data($_GET, $name, $trim);
     }
 
-    public function isAjax($flag = null): bool {
+    public function isAjax(bool $flag = null): bool {
         if (null !== $flag) {
             $this->isAjax = (bool)$flag;
         }
         if (null !== $this->isAjax) {
             return $this->isAjax;
         }
-        $header = $this->headers()->get('X_REQUESTED_WITH');
-        return false !== $header && $header->getFieldValue() == 'XMLHttpRequest';
+        $headers = $this->headers();
+        return $headers->offsetExists('X-Requested-With') && $headers->offsetGet('X-Requested-With') === 'XMLHttpRequest';
     }
 
     /**
@@ -260,14 +284,10 @@ class Request extends BaseRequest {
         return self::$methods;
     }
 
-    public function header($name, $default = false) {
-        $headers = $this->headers();
-        return $headers->has($name)
-            ? $headers->get($name)
-            : $default;
-    }
-
-    public function headers() {
+    /**
+     * Note: Returned headers can contain user input and therefore can be not safe in some scenarious.
+     */
+    public function headers(): \ArrayObject {
         if (null === $this->headers) {
             $this->initHeaders();
         }
@@ -288,17 +308,17 @@ class Request extends BaseRequest {
         return new Response();
     }
 
-    protected function initHeaders() {
+    protected function initHeaders(): void{
         $headers = [];
-        foreach ($_SERVER as $key => $value) {
-            if ($value && strpos($key, 'HTTP_') === 0) {
+        foreach ($this->serverVars ?: $_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
                 if (strpos($key, 'HTTP_COOKIE') === 0) {
                     // Cookies are handled using the $_COOKIE superglobal
                     continue;
                 }
                 $name = strtr(substr($key, 5), '_', ' ');
                 $name = strtr(ucwords(strtolower($name)), ' ', '-');
-            } elseif ($value && strpos($key, 'CONTENT_') === 0) {
+            } elseif (strpos($key, 'CONTENT_') === 0) {
                 $name = substr($key, 8); // Content-
                 $name = 'Content-' . (($name == 'MD5') ? $name : ucfirst(strtolower($name)));
             } else {
@@ -306,14 +326,13 @@ class Request extends BaseRequest {
             }
             $headers[$name] = $value;
         }
-        $this->headers = $hdrs = new Headers();
-        $hdrs->addHeaders($headers);
+        $this->headers = new \ArrayObject($headers);
     }
 
     /**
      * This method uses chunks of code found in the \Zend\Http\PhpEnvironment\Request::setServer() method.
      */
-    protected function initUri() {
+    protected function initUri(): void {
         $uri = new Uri();
 
         if ((!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
@@ -330,8 +349,8 @@ class Request extends BaseRequest {
         $port = null;
 
         // Set the host
-        if ($this->headers()->get('host')) {
-            $host = $this->headers()->get('host')->getFieldValue();
+        if ($this->headers()->offsetExists('Host')) {
+            $host = $this->headers()->offsetGet('Host');
 
             // works for regname, IPv4 & IPv6
             if (preg_match('|\:(\d+)$|', $host, $matches)) {
@@ -398,7 +417,7 @@ class Request extends BaseRequest {
         return '/' . $basePath;
     }
 
-    private static function normalizedMethod($httpMethod): string {
+    private static function normalizedMethod(?string $httpMethod): string {
         if (!$httpMethod) {
             if (!isset($_SERVER['REQUEST_METHOD'])) {
                 return self::GET_METHOD;

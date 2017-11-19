@@ -6,8 +6,8 @@
  */
 namespace Morpho\Cli;
 
+use Morpho\Core\IResponse;
 use Morpho\Core\Request as BaseRequest;
-use Zend\Stdlib\Message;
 
 class Request extends BaseRequest {
     /**
@@ -26,7 +26,7 @@ class Request extends BaseRequest {
         return $this->args;
     }
 
-    protected function newResponse(): Message {
+    protected function newResponse(): IResponse {
         return new Response();
     }
 }

@@ -11,6 +11,8 @@ use Morpho\Base\Environment as BaseEnvironment;
 
 class Environment extends BaseEnvironment {
     protected $startSession = false;
+
+    public const PROTOCOL_VERSION = 'HTTP/1.1';
     
     public static function clientIp(): array {
         return [
@@ -27,7 +29,7 @@ class Environment extends BaseEnvironment {
                 return $protocol;
             }
         }
-        return 'HTTP/1.1';
+        return self::PROTOCOL_VERSION;
     }
 
     public static function httpHost(): string {

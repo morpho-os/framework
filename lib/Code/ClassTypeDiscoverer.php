@@ -69,9 +69,6 @@ class ClassTypeDiscoverer {
         return $this->discoverStrategy;
     }
 
-    /**
-     * @throws \ReflectionException
-     */
     public static function classTypeFilePath(string $classType): string {
         return (new \ReflectionClass($classType))->getFileName();
     }
@@ -89,7 +86,7 @@ class ClassTypeDiscoverer {
         $traverser->addVisitor($depsCollector);
         $traverser->traverse($statements);
         return $excludeStdClasses
-            ? (new StdClassTypeFilter())->filter($depsCollector->classTypes())
+            ? (new StdClassTypeFilter())->__invoke($depsCollector->classTypes())
             : $depsCollector->classTypes();
     }
 }

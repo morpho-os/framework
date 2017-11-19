@@ -7,5 +7,13 @@
 namespace Morpho\Core;
 
 interface IResponse {
+    public function setBody(string $body): void;
+
+    public function body(): string;
+
+    public function isBodyEmpty(): bool;
+
     public function send(): void;
+
+    public function meta(): \ArrayObject;
 }

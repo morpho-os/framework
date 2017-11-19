@@ -45,7 +45,7 @@ class Controller extends Node implements IFn {
         if (is_string($view)) {
             // Already rendered View.
             $this->request->response()
-                ->setContent($view);
+                ->setBody($view);
         } else {
             // $view: null|array|View
             if (!$view instanceof View) {
@@ -55,7 +55,7 @@ class Controller extends Node implements IFn {
             if ($this->shouldRenderView($view)) {
                 $renderedView = $this->renderView($view);
                 $this->request->response()
-                    ->setContent($renderedView);
+                    ->setBody($renderedView);
             }
         }
     }
@@ -112,9 +112,9 @@ class Controller extends Node implements IFn {
             $controller = $this->name();
         }
 
-        $request->setModuleName($module)
-            ->setControllerName($controller)
-            ->setActionName($action);
+        $request->setModuleName($module);
+        $request->setControllerName($controller);
+        $request->setActionName($action);
 
         if (null !== $routingParams) {
             $request->setRoutingParams($routingParams);

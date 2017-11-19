@@ -7,17 +7,44 @@
 namespace Morpho\Core;
 
 abstract class Request {
+    /**
+     * @var ?string
+     */
     protected $moduleName;
 
+    /**
+     * @var ?string
+     */
     protected $controllerName;
 
+    /**
+     * @var ?string
+     */
     protected $actionName;
 
+    /**
+     * @var ?ArrayObject
+     */
     protected $params;
 
+    /**
+     * @var bool
+     */
     private $isDispatched = false;
 
+    /**
+     * @var ?IResponse
+     */
     private $response;
+
+    /**
+     * @var ?array
+     */
+    private $serverVars;
+
+    public function __construct(array $serverVars = null) {
+        $this->serverVars = $serverVars;
+    }
 
     public function isDispatched(bool $flag = null): bool {
         if ($flag !== null) {
@@ -26,37 +53,34 @@ abstract class Request {
         return $this->isDispatched;
     }
 
-    public function setHandler(array $handler): self {
-        return $this->setModuleName($handler[0])
-            ->setControllerName($handler[1])
-            ->setActionName($handler[2]);
+    public function setHandler(array $handler): void {
+        $this->setModuleName($handler[0]);
+        $this->setControllerName($handler[1]);
+        $this->setActionName($handler[2]);
     }
 
     public function handler(): array {
         return [$this->moduleName(), $this->controllerName(), $this->actionName()];
     }
 
-    public function setModuleName(string $moduleName) {
+    public function setModuleName(string $moduleName): void {
         $this->moduleName = $moduleName;
-        return $this;
     }
 
     public function moduleName(): ?string {
         return $this->moduleName;
     }
 
-    public function setControllerName(string $controllerName) {
+    public function setControllerName(string $controllerName): void {
         $this->controllerName = $controllerName;
-        return $this;
     }
 
     public function controllerName(): ?string {
         return $this->controllerName;
     }
 
-    public function setActionName(string $actionName) {
+    public function setActionName(string $actionName): void {
         $this->actionName = $actionName;
-        return $this;
     }
 
     public function actionName(): ?string {
@@ -77,12 +101,12 @@ abstract class Request {
         $this->response = $response;
     }
 
-    public function response() {
+    public function response(): IResponse {
         if (null === $this->response) {
             $this->response = $this->newResponse();
         }
         return $this->response;
     }
 
-    abstract protected function newResponse();
+    abstract protected function newResponse(): IResponse;
 }
