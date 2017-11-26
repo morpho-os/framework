@@ -628,8 +628,27 @@ class IterableFunctionsTest extends TestCase {
         $this->assertSame($v, reduce('Morpho\\Base\\id', ['foo', 'bar', 'baz'], $v));
     }
 
-    public function testReduce_EmptyList() {
-        $this->markTestIncomplete();
+    /**
+     * Taken from https://github.com/nikic/iter/blob/master/test/iterTest.php
+     * @Copyright (c) 2013 by Nikita Popov.
+     */
+    public function testComplexReduce() {
+        $this->assertSame('abcdef', reduce(function ($acc, $value, $key) {
+            return $acc . $key . $value;
+        }, ['a' => 'b', 'c' => 'd', 'e' => 'f'], ''));
+    }
+
+    /**
+     * @dataProvider dataForEmptyList
+     */
+    public function testReduce_EmptyList($iter) {
+        if (is_string($iter)) {
+            $this->markTestIncomplete();
+        }
+        $fn = $this->errFn();
+        $init = 'abc';
+        $this->assertSame($init, reduce($fn, $iter, $init));
+        $this->assertNull(reduce($fn, $iter));
     }
 
     public function testReduce_String() {

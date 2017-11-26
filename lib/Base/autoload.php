@@ -545,6 +545,7 @@ function memoize(callable $fn): \Closure {
             return $hash;
         });
 */
+        // @TODO: avoid overwritting different functions called with the same arguments.
         $hash = md5(json_encode($args)); // NB: md5() can cause collisions
         if (array_key_exists($hash, $memo)) {
             return $memo[$hash];
@@ -573,7 +574,7 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
 
 // ----------------------------------------------------------------------------
 // Iterables
-// Some ideas or code inspired by the https://github.com/nikic/iter.
+// Code below based on the https://github.com/nikic/iter (Copyright (c) 2013 by Nikita Popov)
 // Functions are ordered by name.
 
 function all(callable $predicate, iterable $list): bool {
@@ -867,10 +868,38 @@ function prepend(array $it, string $prefix): array {
 }
 
 /**
- * $fn accepts 2 arguments: (mixed $acc, mixed $cur), where $acc is the accumulator, and $cur is the current element.
+ * Modified version from the https://github.com/nikic/iter
+ * @Copyright (c) 2013 by Nikita Popov.
+ *
+ * Reduce iterable $iter using a function $fn into a single value.
+ * The `reduce` function also known as the `fold`.
+ *
+ * Examples:
+ *      reduce(op('+'), range(1, 5), 0)
+ *      => 15
+ *      reduce(op('*'), range(1, 5), 1)
+ *      => 120
+ *
+ * @param callable $function Reduction function: (mixed $acc, mixed $curValue, mixed $curKey)
+ *     where $acc is the accumulator
+ *           $curValue is the current element
+ *           $curKey is a key of the current element
+ *     The reduction function must return a new accumulator value.
+ * @param iterable|string $iter Iterable to reduce.
+ * @param mixed $initial Start value for accumulator. Usually identity value of $function.
+ *
+ * @return mixed Result of the reduction.
  */
-function reduce(callable $fn, array $arr, $initial = null) {
-    return array_reduce($arr, $fn, $initial);
+function reduce(callable $fn, $iter, $initial = null) {
+    if (is_string($iter)) {
+        // @TODO:  array mb_split ( string $pattern , string $string [, int $limit = -1 ] )
+        throw new NotImplementedException();
+    }
+    $acc = $initial;
+    foreach ($iter as $key => $value) {
+        $acc = $fn($acc, $value, $key);
+    }
+    return $acc;
 }
 
 /**
