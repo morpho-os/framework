@@ -391,7 +391,7 @@ class Request extends BaseRequest {
         $uri->setPort($port);
 
         // URI path
-        $requestUri = $_SERVER['REQUEST_URI'];
+        $requestUri = $this->detectRequestUri();
         if (($qpos = strpos($requestUri, '?')) !== false) {
             $requestUri = substr($requestUri, 0, $qpos);
         }
@@ -403,12 +403,56 @@ class Request extends BaseRequest {
             $uri->setQuery($_SERVER['QUERY_STRING']);
         }
 
-        $uri->setBasePath($this->detectBasePath());
+        $uri->setBasePath($this->detectBasePath($requestUri));
 
         $this->uri = $uri;
     }
 
-    protected function detectBasePath(): string {
+    protected function detectRequestUri(): string {
+        if (isset($_SERVER['REQUEST_URI'])) {
+            return $_SERVER['REQUEST_URI'];
+        }
+
+        $requestUri = null;
+
+        // Check this first so IIS will catch.
+        $httpXRewriteUrl = $_SERVER['HTTP_X_REWRITE_URL'] ?? null;
+        if ($httpXRewriteUrl !== null) {
+            $requestUri = $httpXRewriteUrl;
+        }
+
+        // Check for IIS 7.0 or later with ISAPI_Rewrite
+        $httpXOriginalUrl = $_SERVER['HTTP_X_ORIGINAL_URL'] ?? null;
+        if ($httpXOriginalUrl !== null) {
+            $requestUri = $httpXOriginalUrl;
+        }
+
+        // IIS7 with URL Rewrite: make sure we get the unencoded url
+        // (double slash problem).
+        $iisUrlRewritten = $_SERVER['IIS_WasUrlRewritten'] ?? null;
+        $unencodedUrl    = $_SERVER['UNENCODED_URL'] ?? '';
+        if ('1' == $iisUrlRewritten && '' !== $unencodedUrl) {
+            return $unencodedUrl;
+        }
+
+        if ($requestUri !== null) {
+            return preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
+        }
+
+        // IIS 5.0, PHP as CGI.
+        $origPathInfo = $_SERVER['ORIG_PATH_INFO'] ?? null;
+        if ($origPathInfo !== null) {
+            $queryString = $_SERVER['QUERY_STRING'] ?? '';
+            if ($queryString !== '') {
+                $origPathInfo .= '?' . $queryString;
+            }
+            return $origPathInfo;
+        }
+
+        return '/';
+    }
+
+    protected function detectBasePath(string $requestUri): string {
         // @TODO: Check on Windows.
         $basePath = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
         if (!Uri::validatePath($basePath)) {
