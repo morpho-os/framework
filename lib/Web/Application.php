@@ -91,7 +91,8 @@ class Application extends BaseApplication {
             // @TODO: Use http_response_code()?
             header($header);
         }
-        while (\ob_get_level() > 0) {
+        for ($i = 0, $n = ob_get_level(); $i < $n; $i++) {
+            //ob_end_flush();
             \ob_end_clean();
         }
         die(Html::encode($message) . '.');
