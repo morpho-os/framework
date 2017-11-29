@@ -151,4 +151,8 @@ class Uri extends BaseUri {
             )
         );
     }
+
+    public function scheme() {
+        return $this->getScheme();
+    }
 }

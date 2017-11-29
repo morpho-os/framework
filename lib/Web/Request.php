@@ -9,6 +9,7 @@ namespace Morpho\Web;
 
 use function Morpho\Base\trimMore;
 use Morpho\Core\IResponse;
+use Morpho\Fs\Path;
 use Zend\Validator\Hostname as HostNameValidator;
 use Morpho\Core\Request as BaseRequest;
 
@@ -71,6 +72,11 @@ class Request extends BaseRequest {
         self::PUT_METHOD,
         self::TRACE_METHOD,
     ];
+
+    /**
+     * @var array
+     */
+    private $trustedProxyIps;
 
     public function __construct(array $serverVars = null) {
         $this->serverVars = $serverVars;
@@ -294,6 +300,14 @@ class Request extends BaseRequest {
         return $this->headers;
     }
 
+    public function setTrustedProxyIps(array $ips): void {
+        $this->trustedProxyIps = $ips;
+    }
+
+    public function trustedProxyIps(): ?array {
+        return $this->trustedProxyIps;
+    }
+
     /**
      * @return bool
 
@@ -330,20 +344,48 @@ class Request extends BaseRequest {
     }
 
     /**
-     * This method uses chunks of code found in the \Zend\Http\PhpEnvironment\Request::setServer() method.
+     * Based on Request::isSecure() from the https://github.com/symfony/symfony/blob/master/src/Symfony/Component/HttpFoundation/Request.php
+     * (c) Fabien Potencier <fabien@symfony.com>
      */
+    protected function isSecure(): bool {
+        $https = $this->serverVar('HTTPS');
+        if ($https) {
+            return 'off' !== strtolower($https);
+        }
+        if ($this->isFromTrustedProxy()) {
+            return in_array(strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')), ['https', 'on', 'ssl', '1'], true);
+        }
+        return false;
+    }
+
     protected function initUri(): void {
         $uri = new Uri();
 
-        if ((!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
-            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-        ) {
-            $scheme = 'https';
-        } else {
-            $scheme = 'http';
-        }
-        $uri->setScheme($scheme);
+        $uri->setScheme($this->isSecure() ? 'https' : 'http');
 
+        [$host, $port] = $this->detectHostAndPort();
+        if ($host) {
+            $uri->setHost($host);
+            if ($port) {
+                $uri->setPort($port);
+            }
+        }
+
+        $requestUri = $this->detectRequestUri();
+
+        $uri->setPath($requestUri);
+
+        $query = $this->serverVar('QUERY_STRING');
+        if (null !== $query) {
+            $uri->setQuery($query);
+        }
+
+        $uri->setBasePath($this->detectBasePath($requestUri));
+
+        $this->uri = $uri;
+    }
+
+    protected function detectHostAndPort(): array {
         // URI host & port
         $host = null;
         $port = null;
@@ -353,7 +395,7 @@ class Request extends BaseRequest {
             $host = $this->headers()->offsetGet('Host');
 
             // works for regname, IPv4 & IPv6
-            if (preg_match('|\:(\d+)$|', $host, $matches)) {
+            if (preg_match('~\:(\d+)$~', $host, $matches)) {
                 $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
                 $port = (int)$matches[1];
             }
@@ -371,102 +413,105 @@ class Request extends BaseRequest {
             }
         }
 
-        if (!$host && isset($_SERVER['SERVER_NAME'])) {
-            $host = $_SERVER['SERVER_NAME'];
-            if (isset($_SERVER['SERVER_PORT'])) {
-                $port = (int)$_SERVER['SERVER_PORT'];
-            }
-            // Check for missinterpreted IPv6-Address
-            // Reported at least for Safari on Windows
-            if (isset($_SERVER['SERVER_ADDR']) && preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
-                $host = '[' . $_SERVER['SERVER_ADDR'] . ']';
-                if ($port . ']' == substr($host, strrpos($host, ':') + 1)) {
-                    // The last digit of the IPv6-Address has been taken as port
-                    // Unset the port so the default port can be used
-                    $port = null;
+        $serverName = $this->serverVar('SERVER_NAME');
+        if (!$host && $serverName) {
+            $host = $serverName;
+            $port = intval($this->serverVar('SERVER_PORT', -1));
+            if ($port < 1) {
+                $port = null;
+            } else {
+                // Check for missinterpreted IPv6-Address
+                // Reported at least for Safari on Windows
+                $serverAddr = $this->serverVar('SERVER_ADDR');
+                if (isset($serverAddr) && preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
+                    $host = '[' . $serverAddr . ']';
+                    if ($port . ']' == substr($host, strrpos($host, ':') + 1)) {
+                        // The last digit of the IPv6-Address has been taken as port
+                        // Unset the port so the default port can be used
+                        $port = null;
+                    }
                 }
             }
         }
-        $uri->setHost($host);
-        $uri->setPort($port);
-
-        // URI path
-        $requestUri = $this->detectRequestUri();
-        if (($qpos = strpos($requestUri, '?')) !== false) {
-            $requestUri = substr($requestUri, 0, $qpos);
-        }
-
-        $uri->setPath($requestUri);
-
-        // URI query
-        if (isset($_SERVER['QUERY_STRING'])) {
-            $uri->setQuery($_SERVER['QUERY_STRING']);
-        }
-
-        $uri->setBasePath($this->detectBasePath($requestUri));
-
-        $this->uri = $uri;
+        return [$host, $port];
     }
 
     protected function detectRequestUri(): string {
-        if (isset($_SERVER['REQUEST_URI'])) {
-            return $_SERVER['REQUEST_URI'];
-        }
+        $requestUri = $this->serverVar('REQUEST_URI');
 
-        $requestUri = null;
+        $normalizeUri = function ($requestUri) {
+            if (($qpos = strpos($requestUri, '?')) !== false) {
+                return substr($requestUri, 0, $qpos);
+            }
+            return $requestUri;
+        };
 
         // Check this first so IIS will catch.
-        $httpXRewriteUrl = $_SERVER['HTTP_X_REWRITE_URL'] ?? null;
+        $httpXRewriteUrl = $this->serverVar('HTTP_X_REWRITE_URL');
         if ($httpXRewriteUrl !== null) {
             $requestUri = $httpXRewriteUrl;
         }
 
         // Check for IIS 7.0 or later with ISAPI_Rewrite
-        $httpXOriginalUrl = $_SERVER['HTTP_X_ORIGINAL_URL'] ?? null;
+        $httpXOriginalUrl = $this->serverVar('HTTP_X_ORIGINAL_URL');
         if ($httpXOriginalUrl !== null) {
             $requestUri = $httpXOriginalUrl;
         }
 
         // IIS7 with URL Rewrite: make sure we get the unencoded url
         // (double slash problem).
-        $iisUrlRewritten = $_SERVER['IIS_WasUrlRewritten'] ?? null;
-        $unencodedUrl    = $_SERVER['UNENCODED_URL'] ?? '';
+        $iisUrlRewritten = $this->serverVar('IIS_WasUrlRewritten');
+        $unencodedUrl    = $this->serverVar('UNENCODED_URL', '');
         if ('1' == $iisUrlRewritten && '' !== $unencodedUrl) {
-            return $unencodedUrl;
+            return $normalizeUri($unencodedUrl);
         }
 
         if ($requestUri !== null) {
-            return preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
+            return $normalizeUri(preg_replace('#^[^/:]+://[^/]+#', '', $requestUri));
         }
 
         // IIS 5.0, PHP as CGI.
-        $origPathInfo = $_SERVER['ORIG_PATH_INFO'] ?? null;
+        $origPathInfo = $this->serverVar('ORIG_PATH_INFO');
         if ($origPathInfo !== null) {
-            $queryString = $_SERVER['QUERY_STRING'] ?? '';
+            $queryString = $this->serverVar('QUERY_STRING', '');
             if ($queryString !== '') {
                 $origPathInfo .= '?' . $queryString;
             }
-            return $origPathInfo;
+            return $normalizeUri($origPathInfo);
         }
 
         return '/';
     }
 
     protected function detectBasePath(string $requestUri): string {
-        // @TODO: Check on Windows.
-        $basePath = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        $basePath = ltrim(Path::normalize(dirname($this->serverVar('SCRIPT_NAME'))), '/');
         if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();
         }
         return '/' . $basePath;
     }
 
-    private static function normalizedMethod(?string $httpMethod): string {
+    protected function isFromTrustedProxy(): bool {
+        return null !== $this->trustedProxyIps && in_array($this->serverVar('REMOTE_ADDR'), $this->trustedProxyIps, true);
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function serverVar(string $name, $default = null) {
+        if (null !== $this->serverVars) {
+            return $this->serverVars[$name] ?? $default;
+        }
+        return $_SERVER[$name] ?? $default;
+    }
+
+    private function normalizedMethod(?string $httpMethod): string {
         if (!$httpMethod) {
-            if (!isset($_SERVER['REQUEST_METHOD'])) {
+            $requestMethod = $this->serverVar('REQUEST_METHOD');
+            if (null === $requestMethod) {
                 return self::GET_METHOD;
             }
-            $httpMethod = $_SERVER['REQUEST_METHOD'];
+            $httpMethod = $requestMethod;
         }
         $method = strtoupper($httpMethod);
         return self::isValidMethod($method) ? $method : self::GET_METHOD;

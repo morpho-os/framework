@@ -37,15 +37,6 @@ abstract class Request {
      */
     private $response;
 
-    /**
-     * @var ?array
-     */
-    private $serverVars;
-
-    public function __construct(array $serverVars = null) {
-        $this->serverVars = $serverVars;
-    }
-
     public function isDispatched(bool $flag = null): bool {
         if ($flag !== null) {
             $this->isDispatched = $flag;

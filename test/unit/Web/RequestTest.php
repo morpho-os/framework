@@ -126,6 +126,9 @@ class RequestTest extends TestCase {
     }
 
     public function testUri_HasValidComponents() {
+        $trustedProxyIp = '127.0.0.3';
+        $_SERVER['REMOTE_ADDR'] = $trustedProxyIp;
+        $this->request->setTrustedProxyIps([$trustedProxyIp]);
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
         $_SERVER['HTTP_HOST'] = 'blog.example.com:8042';
         $_SERVER['REQUEST_URI'] = '/top.htm?page=news&skip=10';
@@ -217,5 +220,40 @@ class RequestTest extends TestCase {
             ['non' => null, 'foo' => ['bar' => 'baz']],
             $this->request->args(['foo', 'non'])
         );
+    }
+
+    public function testInitializationOfUri_BasePath() {
+        $basePath = '/foo/bar/baz';
+        $request = new Request(['SCRIPT_NAME' => $basePath . '/index.php']);
+        $this->assertSame($basePath, $request->uri()->basePath());
+    }
+
+    public function dataForInitializationOfUri_Scheme() {
+        yield [false, []];
+        yield [true, ['HTTPS' => 'on']];
+        yield [false, ['HTTPS' => 'off']];
+        yield [false, ['HTTPS' => 'OFF']];
+        yield [true, ['HTTP_X_FORWARDED_PROTO' => 'https']];
+        yield [true, ['HTTP_X_FORWARDED_PROTO' => 'on']];
+        yield [false, ['HTTP_X_FORWARDED_PROTO' => 'off']];
+        yield [false, ['HTTP_X_FORWARDED_PROTO' => 'OFF']];
+        yield [true, ['HTTP_X_FORWARDED_PROTO' => 'ssl']];
+        yield [true, ['HTTP_X_FORWARDED_PROTO' => '1']];
+        yield [false, ['HTTP_X_FORWARDED_PROTO' => '']];
+    }
+
+    /**
+     * @dataProvider dataForInitializationOfUri_Scheme
+     */
+    public function testInitializationOfUri_Scheme($isHttps, $serverVars) {
+        $trustedProxyIp = '127.0.0.2';
+        $serverVars['REMOTE_ADDR'] = $trustedProxyIp;
+        $request = new Request($serverVars);
+        $request->setTrustedProxyIps([$trustedProxyIp]);
+        if ($isHttps) {
+            $this->assertSame('https', $request->uri()->scheme());
+        } else {
+            $this->assertSame('http', $request->uri()->scheme());
+        }
     }
 }
