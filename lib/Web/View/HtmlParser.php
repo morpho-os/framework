@@ -24,13 +24,12 @@ abstract class HtmlParser extends HtmlSemiParser {
         $this->filePath = $filePath;
     }
 
-    protected function prependUriWithBasePath(string $uri): string {
-        if (substr($uri, 0, 2) === '<?') {
-            return $uri;
+    protected function prependUriWithBasePath(string $uriStr): string {
+        if (substr($uriStr, 0, 2) === '<?') {
+            return $uriStr;
         }
-        return $this->request()
-            ->uri()
-            ->prependWithBasePath($uri);
+        $uri = $this->request()->uri();
+        return $uri->prependWithBasePath($uriStr);
     }
 
     protected function request() {

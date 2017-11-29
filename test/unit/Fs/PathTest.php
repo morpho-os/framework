@@ -174,22 +174,39 @@ class PathTest extends TestCase {
     }
 
     public function testCombine_UnixPaths() {
-        $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', 'baz'));
-        $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', '/baz'));
-        $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar', 'baz'));
-        $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar', '/baz'));
-        $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar/', '/baz'));
-        $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar/', '/baz'));
+        if ($this->isWindows()) {
+            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', 'baz'));
+            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', '/baz'));
+            $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar', 'baz'));
+            $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar', '/baz'));
+            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar/', '/baz'));
+            $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar/', '/baz'));
+        } else {
+            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', 'baz'));
+            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', '/baz'));
+            $this->assertEquals('/foo\\bar/baz', Path::combine('/foo\\bar', 'baz'));
+            $this->assertEquals('/foo\\bar/baz', Path::combine('/foo\\bar', '/baz'));
+            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar/', '/baz'));
+            $this->assertEquals('/foo\\bar/baz', Path::combine('/foo\\bar/', '/baz'));
+        }
     }
 
     public function testCombine_WinPaths() {
-        $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', 'baz'));
-        $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', '/baz'));
-        $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar', 'baz'));
-        $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar', '/baz'));
-
-        $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar/', '/baz'));
-        $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar/', '/baz'));
+        if ($this->isWindows()) {
+            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', 'baz'));
+            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', '/baz'));
+            $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar', 'baz'));
+            $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar', '/baz'));
+            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar/', '/baz'));
+            $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar/', '/baz'));
+        } else {
+            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', 'baz'));
+            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', '/baz'));
+            $this->assertEquals('C:/foo\\bar/baz', Path::combine('C:/foo\\bar', 'baz'));
+            $this->assertEquals('C:/foo\\bar/baz', Path::combine('C:/foo\\bar', '/baz'));
+            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar/', '/baz'));
+            $this->assertEquals('C:/foo\\bar/baz', Path::combine('C:/foo\\bar/', '/baz'));
+        }
     }
 
     public function testCombine_WithRootSlash() {
@@ -204,6 +221,10 @@ class PathTest extends TestCase {
 
     public function testCombine_ArraySyntax() {
         $this->assertEquals('foo/bar/baz', Path::combine(['foo', 'bar', null, 'baz']));
+    }
+
+    public function testCombineEmpty() {
+        $this->assertSame('', Path::combine(['', '', '']));
     }
 
     public function dataForCombine_AbsoluteUri() {
@@ -246,13 +267,24 @@ class PathTest extends TestCase {
     }
 
     public function testNormalize() {
-        $this->assertEquals('foo/bar/baz', Path::normalize('foo\bar\baz/'));
-        $this->assertEquals('/foo/bar/baz', Path::normalize('/foo\bar\baz/'));
-        $this->assertEquals('/foo/bar/baz', Path::normalize('/foo\bar\baz/'));
+        if ($this->isWindows()) {
+            $this->assertEquals('foo/bar/baz', Path::normalize('foo\\bar\\baz/'));
+            $this->assertEquals('/foo/bar/baz', Path::normalize('/foo\\bar\\baz/'));
+            $this->assertEquals('/foo/bar/baz', Path::normalize('/foo\\bar\\baz/'));
+            $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\\bar\\baz/'));
+            $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\\bar\\baz/'));
+            $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\\bar\\baz\\'));
+        } else {
+            // In Linux the `\` character is allowed for file name.
+            $this->assertEquals('foo\\bar\\baz', Path::normalize('foo\\bar\\baz/'));
+            $this->assertEquals('/foo\\bar\\baz', Path::normalize('/foo\\bar\\baz/'));
+            $this->assertEquals('/foo\\bar\\baz', Path::normalize('/foo\\bar\\baz/'));
+            $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz/'));
+            $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz/'));
+            $this->assertEquals('C:/foo\\bar\\baz\\', Path::normalize('C:/foo\\bar\\baz\\'));
+        }
         $this->assertEquals('/', Path::normalize('/'));
-
-        $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\bar\baz/'));
-        $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\bar\baz/'));
+        $this->assertEquals('', Path::normalize(''));
     }
 
     public function testNormalize_RelativeBetween() {
@@ -334,7 +366,11 @@ class PathTest extends TestCase {
     }
 
     public function testDropExt() {
-        $this->assertEquals('C:/foo/bar/test', Path::dropExt('C:\\foo\\bar\\test'));
+        if ($this->isWindows()) {
+            $this->assertEquals('C:/foo/bar/test', Path::dropExt('C:\\foo\\bar\\test'));
+        } else {
+            $this->assertEquals('C:\\foo\\bar\\test', Path::dropExt('C:\\foo\\bar\\test'));
+        }
         $this->assertEquals('/foo/bar/test', Path::dropExt('/foo/bar/test.php'));
         $this->assertEquals('test', Path::dropExt('test.php'));
     }

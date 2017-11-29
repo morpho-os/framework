@@ -155,7 +155,7 @@ abstract class TestCase extends BaseTestCase {
         // $this->assertTrue(true) may work too.
     }
 
-    protected function windowsSys(): bool {
+    protected function isWindows(): bool {
         return defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
@@ -220,7 +220,9 @@ abstract class TestCase extends BaseTestCase {
 
     private function classFilePath(): string {
         if (!isset($this->classFilePath)) {
-            $this->classFilePath = str_replace('\\', '/', (new \ReflectionObject($this))->getFileName());
+            $filePath = (new \ReflectionObject($this))->getFileName();
+            $isWindows = defined('PHP_WINDOWS_VERSION_BUILD');
+            $this->classFilePath = $isWindows ? str_replace('\\', '/', $filePath) : $filePath;
         }
 
         return $this->classFilePath;

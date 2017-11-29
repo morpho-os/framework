@@ -6,6 +6,7 @@
  */
 namespace Morpho\Fs;
 
+use Morpho\Base\Environment;
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
 use Zend\Uri\Uri;
@@ -34,7 +35,9 @@ class Path {
         if ($path === '') {
             return $path;
         }
-        $path = str_replace('\\', '/', $path);
+        if (Environment::isWindows()) {
+            $path = str_replace('\\', '/', $path);
+        }
         if ($path === '/') {
             return $path;
         }
@@ -49,13 +52,16 @@ class Path {
 
         $result = [];
         $i = 0;
+        $isWindows = Environment::isWindows();
         foreach ($paths as $path) {
             $path = (string)$path;
             if ($path === '') {
                 continue;
             }
 
-            $path = str_replace('\\', '/', $path);
+            if ($isWindows) {
+                $path = str_replace('\\', '/', $path);
+            }
 
             if (!$i) {
                 if ($path[0] === '/') {

@@ -100,7 +100,7 @@ OUT
     }
 
     public function testShellSu() {
-        if ($this->windowsSys()) {
+        if ($this->isWindows()) {
             $this->markTestSkipped();
         }
         $this->markTestIncomplete();
@@ -111,7 +111,7 @@ OUT
     }
 
     public function testAskYesNo() {
-        if ($this->windowsSys()) {
+        if ($this->isWindows()) {
             $this->markTestSkipped();
         }
 
