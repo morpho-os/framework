@@ -13,8 +13,10 @@ use Morpho\Xml\Document;
 
 // Based on https://github.com/jarib/selenium-travis/blob/master/selenium-webdriver/lib/selenium/server.rb
 class SeleniumServerDownloader {
-    public function __invoke(string $destDirPath): string {
-        $version = $this->latestVersion();
+    public function __invoke(string $destDirPath, string $version = null): string {
+        if (!$version) {
+            $version = $this->latestVersion();
+        }
         $downloadFileName = "selenium-server-standalone-$version.jar";
         if (!preg_match('/(\d+\.\d+)\./As', $version, $match)) {
             throw new \UnexpectedValueException();
