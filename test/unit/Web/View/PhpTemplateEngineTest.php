@@ -10,8 +10,8 @@ use Morpho\Base\ItemNotSetException;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
-use Morpho\Web\View\PostHtmlParser;
-use Morpho\Web\View\PreHtmlParser;
+use Morpho\Web\View\ScriptProcessor;
+use Morpho\Web\View\UriProcessor;
 use Morpho\Web\View\MessengerPlugin;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\Compiler;
@@ -27,9 +27,9 @@ class PhpTemplateEngineTest extends TestCase {
 
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
-        $this->templateEngine->append(new PreHtmlParser($serviceManager))
+        $this->templateEngine->append(new UriProcessor($serviceManager))
             ->append($compiler)
-            ->append(new PostHtmlParser($serviceManager));
+            ->append(new ScriptProcessor($serviceManager));
 
         $this->templateEngine->setServiceManager($serviceManager);
 

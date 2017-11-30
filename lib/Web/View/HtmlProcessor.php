@@ -8,7 +8,7 @@ namespace Morpho\Web\View;
 
 use Morpho\Di\ServiceManager;
 
-abstract class HtmlParser extends HtmlSemiParser {
+abstract class HtmlProcessor extends HtmlSemiParser {
     protected const SKIP_ATTR = '_skip';
 
     protected $serviceManager;
@@ -27,7 +27,8 @@ abstract class HtmlParser extends HtmlSemiParser {
     }
 
     protected function prependBasePath(string $uriStr): string {
-        return $this->request()->uri()->basePath() . '/' . ltrim($uriStr, '/');
+        $basePath = $this->request()->uri()->basePath();
+        return rtrim($basePath, '/') . '/' . ltrim($uriStr, '/');
     }
 
     protected function request() {

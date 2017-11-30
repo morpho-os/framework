@@ -13,14 +13,14 @@ use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleMeta;
 use Morpho\Web\Request;
 use Morpho\Web\Site;
-use Morpho\Web\View\PostHtmlParser;
+use Morpho\Web\View\ScriptProcessor;
 
-class PostHtmlParserTest extends TestCase {
-    private $parser;
+class ScriptProcessorTest extends TestCase {
+    private $processor;
 
     public function setUp() {
         $serviceManager = $this->newConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
-        $this->parser = new PostHtmlParser($serviceManager);
+        $this->processor = new ScriptProcessor($serviceManager);
     }
 
     public function testHandlingOfScripts_InChildParentPages() {
@@ -30,8 +30,8 @@ This
 is a child
 OUT;
 
-        // Parser should save child scripts
-        $this->assertRegExp('~^This\s+is a child$~', $this->parser->__invoke($childPage));
+        // processor should save child scripts
+        $this->assertRegExp('~^This\s+is a child$~', $this->processor->__invoke($childPage));
 
         $parentPage = <<<OUT
 <body>
@@ -41,7 +41,7 @@ parent
 </body>
 OUT;
         // And now render them for <body>
-        $html = $this->parser->__invoke($parentPage);
+        $html = $this->processor->__invoke($parentPage);
 
         $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="bar/parent.js"></script>\s*<script src="foo/child.js"></script>\s*</body>$~', $html);
     }
@@ -53,8 +53,8 @@ This
 is a child
 OUT;
 
-        // Parser should save child scripts
-        $this->parser->__invoke($childPage);
+        // processor should save child scripts
+        $this->processor->__invoke($childPage);
 
         $parentPage = <<<OUT
 <body>
@@ -64,7 +64,7 @@ parent
 </body>
 OUT;
         // And now render them for <body>
-        $html = $this->parser->__invoke($parentPage);
+        $html = $this->processor->__invoke($parentPage);
 
         $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="foo/child.js"></script>\s*<script src="bar/parent.js"></script>\s*</body>$~', $html);
     }
@@ -84,7 +84,7 @@ OUT;
      * @dataProvider dataForSkipAttribute
      */
     public function testSkipAttribute($tag) {
-        $parser = new class ($this->createMock(ServiceManager::class)) extends PostHtmlParser {
+        $processor = new class ($this->createMock(ServiceManager::class)) extends ScriptProcessor {
             protected function containerBody($tag) {
                 $res = parent::containerBody($tag);
                 if (null !== $res) {
@@ -101,29 +101,32 @@ OUT;
         };
 
         $html = '<' . $tag . ' _skip></' . $tag . '>';
-        $this->assertSame($html, $parser->__invoke($html));
+        $this->assertSame($html, $processor->__invoke($html));
     }
 
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript() {
         $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
-        $parser = new PostHtmlParser($serviceManager);
+        $processor = new ScriptProcessor($serviceManager);
 
-        $childPage = <<<OUT
+        $childPageHtml = <<<OUT
 This
 <script src="foo/first.js"></script>
 <script src="bar/second.js"></script>
 is a child
 OUT;
-        $parser->__invoke($childPage);
+        $processor->__invoke($childPageHtml);
+
+        $processedBody = $processor->__invoke('<body></body>');
+
         $this->assertRegExp(
             '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*\$\(function \(\) \{\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(\);\s*\}\);\s*\}\);\s*</script>\s*</body>$~s',
-            $parser->__invoke('<body></body>')
+            $processedBody
         );
     }
 
     public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
         $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
-        $parser = new PostHtmlParser($serviceManager);
+        $processor = new ScriptProcessor($serviceManager);
 
         $childPage = <<<OUT
 This
@@ -134,10 +137,10 @@ alert("OK");
 <script src="bar/second.js"></script>
 is a child
 OUT;
-        $parser->__invoke($childPage);
+        $processor->__invoke($childPage);
         $this->assertRegExp(
             '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
-            $parser->__invoke('<body></body>')
+            $processor->__invoke('<body></body>')
         );
     }
 

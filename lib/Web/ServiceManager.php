@@ -29,8 +29,8 @@ use Morpho\Web\Session\Session;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Web\View\PostHtmlParser;
-use Morpho\Web\View\PreHtmlParser;
+use Morpho\Web\View\ScriptProcessor;
+use Morpho\Web\View\UriProcessor;
 use function Morpho\Code\composerAutoloader;
 use Morpho\Web\View\Theme;
 
@@ -84,10 +84,10 @@ class ServiceManager extends BaseServiceManager {
         $cacheDirPath = $this->get('moduleIndex')->moduleMeta($this->get('site')->moduleName())->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConfig['useCache']);
-        $templateEngine->append(new PreHtmlParser($this))
+        $templateEngine->append(new Compiler())
             ->append(new FormPersister($this))
-            ->append(new Compiler())
-            ->append(new PostHtmlParser($this/*, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']*/));
+            ->append(new UriProcessor($this))
+            ->append(new ScriptProcessor($this/*, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']*/));
         return $templateEngine;
     }
 

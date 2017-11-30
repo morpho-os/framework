@@ -11,7 +11,7 @@ namespace Morpho\Web\View;
  * http://forum.dklab.ru/users/DmitryKoterov/, original code was found at:
  * https://github.com/DmitryKoterov/html_formpersister
  */
-class FormPersister extends HtmlParser {
+class FormPersister extends HtmlProcessor {
     const DEFAULT_METHOD = 'post';
     private $fp_autoindexes;
 

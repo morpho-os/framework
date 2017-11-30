@@ -11,7 +11,7 @@ use function Morpho\Base\last;
 use const Morpho\Core\APP_DIR_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
 
-class PostHtmlParser extends HtmlParser {
+class ScriptProcessor extends HtmlProcessor {
     private $scripts = [];
 
     protected const INDEX_ATTR = '_index';

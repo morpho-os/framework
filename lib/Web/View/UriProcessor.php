@@ -8,7 +8,7 @@ namespace Morpho\Web\View;
 
 use function Morpho\Base\startsWith;
 
-class PreHtmlParser extends HtmlParser {
+class UriProcessor extends HtmlProcessor {
     protected function tagLink($tag) {
         return $this->prependUriInTag($tag, 'href');
     }
@@ -30,7 +30,7 @@ class PreHtmlParser extends HtmlParser {
             return $tag;
         }
         if (isset($tag[$attrName]) && $this->shouldPrependBasePath($tag[$attrName])) {
-            $tag[$attrName] = $this->prependBasePath(ltrim($tag[$attrName], '/'));
+            $tag[$attrName] = $this->prependBasePath($tag[$attrName]);
         }
         return $tag;
     }
