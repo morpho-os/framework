@@ -8,8 +8,8 @@ namespace Morpho\Code\Js;
 
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
+use Morpho\Cli\ICommandResult;
 use function Morpho\Cli\shell;
-use Morpho\Cli\CommandResult;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
 
@@ -71,7 +71,7 @@ class TypeScriptCompiler extends Compiler {
     /**
      * @param string|iterable $inFilePath
      */
-    public function compileToFile($inFilePath, string $outFilePath = null, array $cmdOptions = null): CommandResult {
+    public function compileToFile($inFilePath, string $outFilePath = null, array $cmdOptions = null): ICommandResult {
         $options = [];
         if ($inFilePath) {
             $options = array_merge($options, (array)$inFilePath);
@@ -83,7 +83,7 @@ class TypeScriptCompiler extends Compiler {
         return $this->tsc($optionsStr, $cmdOptions);
     }
 
-    public function compileToDir(string $inFilePath, string $outDirPath = null): CommandResult {
+    public function compileToDir(string $inFilePath, string $outDirPath = null): ICommandResult {
         $options = $this->escapeOptions(
             array_merge(
                 $this->options(),
@@ -191,7 +191,7 @@ class TypeScriptCompiler extends Compiler {
         return $safe;
     }
 
-    protected function tsc(string $argsString, array $cmdOptions = null): CommandResult {
+    protected function tsc(string $argsString, array $cmdOptions = null): ICommandResult {
         return shell(
             ($this->pathEnvVar ? 'PATH=' . escapeshellarg($this->pathEnvVar) . ' ' : '')
             . 'tsc '
