@@ -16,7 +16,7 @@ seleniumLogFilePath="$testDirPath/functional/selenium.log"
 
 #$phpUnitBinFilePath --version
 
-export SELENIUM_VERSION=3.7.1
+export SELENIUM_VERSION=latest
 
 php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@" || {
     if [[ -n ${TRAVIS:-} ]]; then
