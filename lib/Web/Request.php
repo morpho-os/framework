@@ -181,7 +181,7 @@ class Request extends BaseRequest {
     }
 
     public function post($name = null, bool $trim = true) {
-        // @TODO: Optimize this method for memory for usage.
+        // @TODO: Optimize this method for memory usage.
         return $this->data($_POST, $name, $trim);
     }
 
@@ -217,6 +217,7 @@ class Request extends BaseRequest {
         return $this->uri;
     }
 
+    // @TODO: return void
     public function setUri(Uri $uri): self {
         $this->uri = $uri;
         return $this;
@@ -229,6 +230,7 @@ class Request extends BaseRequest {
         return $this->uri->path();
     }
 
+    // @TODO: return void
     public function setMethod(string $method): self {
         $this->method = $this->normalizedMethod($method);
         return $this;

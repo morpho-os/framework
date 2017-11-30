@@ -24,18 +24,12 @@ class FormPersister extends HtmlParser {
         if (!isset($tag['method'])) {
             $tag['method'] = self::DEFAULT_METHOD;
         }
-        if (isset($tag['action'])) {
-            $uri = $tag['action'];
-            if (isset($uri[0]) && $uri[0] == '/') {
-                $tag['action'] = $this->prependUriWithBasePath($uri);
-            }
-        } else {
+        if (!isset($tag['action'])) {
             $request = $this->request();
             if (strtolower($tag['method']) === 'get') {
                 $tag['action'] = Html::encode($request->path());
             } else {
-                // URI must be safe to insert after __toString().
-                $tag['action'] = $request->uri()->__toString();
+                $tag['action'] = Html::encode($request->uri()->__toString());
             }
         }
         return $tag;

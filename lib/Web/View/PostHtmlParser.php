@@ -12,10 +12,9 @@ use const Morpho\Core\APP_DIR_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
 
 class PostHtmlParser extends HtmlParser {
-    protected $scripts = [];
+    private $scripts = [];
 
-    private const INDEX_ATTR = '_index';
-    private const SKIP_ATTR = '_skip';
+    protected const INDEX_ATTR = '_index';
 
     protected function containerBody($tag) {
         if (isset($tag[self::SKIP_ATTR])) {
@@ -86,9 +85,6 @@ class PostHtmlParser extends HtmlParser {
         });
         //ksort($scripts, SORT_NUMERIC);
         foreach ($scripts as $tag) {
-            if (isset($tag['src'])) {
-                $tag['src'] = $this->prependUriWithBasePath($tag['src']);
-            }
             unset($tag[self::INDEX_ATTR]);
             $html[] = $this->renderTag($tag);
         }

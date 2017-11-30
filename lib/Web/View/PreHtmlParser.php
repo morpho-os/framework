@@ -6,11 +6,36 @@
  */
 namespace Morpho\Web\View;
 
+use function Morpho\Base\startsWith;
+
 class PreHtmlParser extends HtmlParser {
+    protected function tagLink($tag) {
+        return $this->prependUriInTag($tag, 'href');
+    }
+
     protected function tagA($tag) {
-        if (isset($tag['href'][0]) && $tag['href'][0] === '/') {
-            $tag['href'] = $this->prependUriWithBasePath($tag['href']);
+        return $this->prependUriInTag($tag, 'href');
+    }
+
+    protected function tagForm($tag) {
+        return $this->prependUriInTag($tag, 'action');
+    }
+
+    protected function tagScript($tag) {
+        return $this->prependUriInTag($tag, 'src');
+    }
+
+    protected function prependUriInTag(array $tag, string $attrName): array {
+        if (isset($tag[self::SKIP_ATTR])) {
             return $tag;
         }
+        if (isset($tag[$attrName]) && $this->shouldPrependBasePath($tag[$attrName])) {
+            $tag[$attrName] = $this->prependBasePath(ltrim($tag[$attrName], '/'));
+        }
+        return $tag;
+    }
+
+    protected function shouldPrependBasePath(string $uri): bool {
+        return parent::shouldPrependBasePath($uri) && !startsWith($uri, '<?');
     }
 }

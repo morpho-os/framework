@@ -111,7 +111,7 @@ class Uri extends BaseUri {
     /**
      * Returns $uri as is if it contains authority, returns the $uri prepended with $basePath otherwise.
      */
-    public function prependWithBasePath(string $uri): string {
+    public function prependBasePath(string $uri): string {
         if (Uri::hasAuthority($uri)) {
             return $uri;
         }

@@ -10,17 +10,17 @@ use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
 
 class UriTest extends TestCase {
-    public function testPrependWithBasePath() {
+    public function testPrependBasePath() {
         $uri = (new Uri())->setBasePath('/base/path');
 
         $uriString = 'http://example.com/system?bar=baz#some';
-        $this->assertEquals($uriString, $uri->prependWithBasePath($uriString));
+        $this->assertEquals($uriString, $uri->prependBasePath($uriString));
 
-        $this->assertEquals('/base/path/system?bar=baz#some', $uri->prependWithBasePath('/system?bar=baz#some'));
-        $this->assertEquals('/base/path/system?bar=baz#some', $uri->prependWithBasePath('system?bar=baz#some'));
-        $this->assertEquals('/base/path?bar=baz#some', $uri->prependWithBasePath('?bar=baz#some'));
+        $this->assertEquals('/base/path/system?bar=baz#some', $uri->prependBasePath('/system?bar=baz#some'));
+        $this->assertEquals('/base/path/system?bar=baz#some', $uri->prependBasePath('system?bar=baz#some'));
+        $this->assertEquals('/base/path?bar=baz#some', $uri->prependBasePath('?bar=baz#some'));
 
-        $this->assertEquals('/base/path', $uri->prependWithBasePath(''));
+        $this->assertEquals('/base/path', $uri->prependBasePath(''));
     }
 
     public function testAppendQueryArgs() {

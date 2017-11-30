@@ -6,6 +6,7 @@
  */
 namespace MorphoTest\Unit\Web\View;
 
+use Morpho\Base\ItemNotSetException;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri;
@@ -38,7 +39,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testVar_ReadUndefinedVarThrowsException() {
-        $this->expectException('\Morpho\Base\ItemNotSetException', "The template variable 'foo' was not set.");
+        $this->expectException(ItemNotSetException::class, "The template variable 'foo' was not set.");
         $this->templateEngine->foo;
     }
     

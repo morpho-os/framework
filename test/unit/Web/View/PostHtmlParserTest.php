@@ -13,7 +13,6 @@ use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleMeta;
 use Morpho\Web\Request;
 use Morpho\Web\Site;
-use Morpho\Web\Uri;
 use Morpho\Web\View\PostHtmlParser;
 
 class PostHtmlParserTest extends TestCase {
@@ -44,7 +43,7 @@ OUT;
         // And now render them for <body>
         $html = $this->parser->__invoke($parentPage);
 
-        $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="/base/path/bar/parent.js"></script>\s*<script src="/base/path/foo/child.js"></script>\s*</body>$~', $html);
+        $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="bar/parent.js"></script>\s*<script src="foo/child.js"></script>\s*</body>$~', $html);
     }
 
     public function testHandlingOfScripts_IndexAttribute() {
@@ -67,7 +66,7 @@ OUT;
         // And now render them for <body>
         $html = $this->parser->__invoke($parentPage);
 
-        $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="/base/path/foo/child.js"></script>\s*<script src="/base/path/bar/parent.js"></script>\s*</body>$~', $html);
+        $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="foo/child.js"></script>\s*<script src="bar/parent.js"></script>\s*</body>$~', $html);
     }
 
     public function dataForSkipAttribute() {
@@ -117,7 +116,7 @@ is a child
 OUT;
         $parser->__invoke($childPage);
         $this->assertRegExp(
-            '~^<body>\s*<script src="/base/path/foo/first.js"></script>\s*<script src="/base/path/bar/second.js"></script>\s*<script src="/base/path/module/table/app/cat/tail.js"></script>\s*<script>\s*\$\(function \(\) \{\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(\);\s*\}\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*\$\(function \(\) \{\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(\);\s*\}\);\s*\}\);\s*</script>\s*</body>$~s',
             $parser->__invoke('<body></body>')
         );
     }
@@ -137,7 +136,7 @@ is a child
 OUT;
         $parser->__invoke($childPage);
         $this->assertRegExp(
-            '~^<body>\s*<script src="/base/path/foo/first.js"></script>\s*<script src="/base/path/bar/second.js"></script>\s*<script src="/base/path/module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
             $parser->__invoke('<body></body>')
         );
     }
@@ -147,15 +146,6 @@ OUT;
         $request->expects($this->any())
             ->method('handler')
             ->willReturn($handler);
-        $uri = $this->createMock(Uri::class);
-        $uri->expects($this->any())
-            ->method('prependWithBasePath')
-            ->will($this->returnCallback(function ($uri) {
-                return '/base/path/' . $uri;
-            }));
-        $request->expects($this->any())
-            ->method('uri')
-            ->willReturn($uri);
 
         $siteModuleName = 'random/example';
         $site = $this->createConfiguredMock(Site::class, [

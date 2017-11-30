@@ -9,6 +9,8 @@ namespace Morpho\Web\View;
 use Morpho\Di\ServiceManager;
 
 abstract class HtmlParser extends HtmlSemiParser {
+    protected const SKIP_ATTR = '_skip';
+
     protected $serviceManager;
 
     protected $filePath;
@@ -24,12 +26,8 @@ abstract class HtmlParser extends HtmlSemiParser {
         $this->filePath = $filePath;
     }
 
-    protected function prependUriWithBasePath(string $uriStr): string {
-        if (substr($uriStr, 0, 2) === '<?') {
-            return $uriStr;
-        }
-        $uri = $this->request()->uri();
-        return $uri->prependWithBasePath($uriStr);
+    protected function prependBasePath(string $uriStr): string {
+        return $this->request()->uri()->basePath() . '/' . ltrim($uriStr, '/');
     }
 
     protected function request() {
@@ -37,5 +35,9 @@ abstract class HtmlParser extends HtmlSemiParser {
             $this->request = $this->serviceManager->get('request');
         }
         return $this->request;
+    }
+
+    protected function shouldPrependBasePath(string $uri): bool {
+        return $uri && $uri[0] === '/' && isset($uri[1]) && $uri[1] !== '/';
     }
 }

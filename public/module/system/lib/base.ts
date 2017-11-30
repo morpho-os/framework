@@ -32,7 +32,7 @@ export class Re {
 }
 /*
 export class Uri {
-    public prependWithBasePath(uri: string): string {
+    public prependBasePath(uri: string): string {
         // @TODO
         return uri;
     }

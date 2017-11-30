@@ -150,7 +150,7 @@ class Controller extends Node implements IFn {
             $uri = (new Uri($request->query('redirect')))->unsetQueryArg('redirect')->__toString();
         }
         $response = $request->response();
-        $response->redirect($request->uri()->prependWithBasePath($uri), $httpStatusCode);
+        $response->redirect($request->uri()->prependBasePath($uri), $httpStatusCode);
     }
 
     protected function redirectToSelf(string $successMessage = null, $queryArgs = null, string $fragment = null): void {

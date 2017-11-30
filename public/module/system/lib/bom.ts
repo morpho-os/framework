@@ -56,7 +56,7 @@ export function redirectToSelf(): void {
 
 export function redirectToHome(): void {
     // @TODO:
-    // redirectTo(uri.prependWithBasePath('/'));
+    // redirectTo(uri.prependBasePath('/'));
     redirectTo('/');
 }
 
