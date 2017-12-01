@@ -223,13 +223,6 @@ class Request extends BaseRequest {
         return $this;
     }
 
-    public function uriPath(): string {
-        if (null === $this->uri) {
-            $this->initUri();
-        }
-        return $this->uri->path();
-    }
-
     // @TODO: return void
     public function setMethod(string $method): self {
         $this->method = $this->normalizedMethod($method);

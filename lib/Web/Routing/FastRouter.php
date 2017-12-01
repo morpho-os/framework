@@ -27,7 +27,8 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     public function route($request): void {
-        $uri = Path::normalize($request->uriPath());
+        /** @var Request $uri */
+        $uri = Path::normalize($request->uri()->path());
         if ($uri === '') {
             $uri = '/';
         }
