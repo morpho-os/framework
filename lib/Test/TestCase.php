@@ -131,14 +131,27 @@ abstract class TestCase extends BaseTestCase {
         $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
-    protected function checkAccessors($object, $initialValue, $newValue, string $methodName): void {
-        if ($initialValue instanceof \Closure) {
-            $initialValue($object->$methodName());
-        } else {
-            $this->assertSame($initialValue, $object->$methodName());
+    protected function checkAccessors(callable $getter, $initialValue, $newValue): void {
+        if (!isset($getter[1]) || !is_string($getter[1])) {
+            throw new \InvalidArgumentException();
         }
-        $this->assertSame($object, $object->{'set' . $methodName}($newValue));
+        if ($initialValue instanceof \Closure) {
+            $initialValue($getter());
+        } else {
+            $this->assertSame($initialValue, $getter());
+        }
+        [$object, $methodName] = $getter;
+        $this->assertNull($object->{'set' . $methodName}($newValue));
         $this->assertSame($newValue, $object->$methodName());
+    }
+
+    protected function checkCanSetNull(callable $getter): void {
+        if (!isset($getter[1]) || !is_string($getter[1])) {
+            throw new \InvalidArgumentException();
+        }
+        [$object, $methodName] = $getter;
+        $this->assertNull($object->{'set' . $methodName}(null));
+        $this->assertNull($getter());
     }
 
     protected function setDefaultTimezone(): void {

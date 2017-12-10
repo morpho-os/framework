@@ -7,28 +7,78 @@
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\Uri;
 use Morpho\Web\UriParseException;
 use Morpho\Web\UriParser;
 
-/**
- * @TODO: Complement this class with tests from the \ZendTest\Uri\UriTest and the \ZendTest\Uri\HttpTest
- * This class complemented with tests from the \ZendTest\Uri\UriTest class and \ZendTest\Uri\HttpTest classes.
- * @see https://github.com/zendframework/zend-http for the canonical source repository
- * @copyright Copyright (c) 2005-2017 Zend Technologies USA Inc. (http://www.zend.com)
- * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
- */
 class UriParserTest extends TestCase {
-    public function testValidateComponentsAccessor() {
-        $this->checkBoolAccessor([new UriParser(), 'validateComponents'], false);
-    }
-
     public function dataForParse() {
         return [
+            // Cases for authority
+            [
+                'http://localhost/', // ends with '/'
+                [
+                    'scheme'    => 'http',
+                    'authority' => 'localhost',
+                    'path'      => '/',
+                    'query'     => null,
+                    'fragment'  => null,
+                ],
+            ],
+            [
+                'http://localhost?', // ends with '?'
+                [
+                    'scheme'    => 'http',
+                    'authority' => 'localhost',
+                    'path'      => '',
+                    'query'     => '',
+                    'fragment'  => null,
+                ],
+            ],
+            [
+                'http://localhost#', // ends with '#'
+                [
+                    'scheme'    => 'http',
+                    'authority' => 'localhost',
+                    'path'      => '',
+                    'query'     => null,
+                    'fragment'  => '',
+                ]
+            ],
+            [
+                'http://localhost',  // ends with end of URI
+                [
+                    'scheme'    => 'http',
+                    'authority' => 'localhost',
+                    'path'      => '',
+                    'query'     => null,
+                    'fragment'  => null,
+                ]
+            ],
+            // Cases for path
+            [
+                'foo://info.example.com?fred',
+                [
+                    'scheme'=> 'foo',
+                    'authority' => 'info.example.com',
+                    'path' => '',
+                    'query' => 'fred',
+                    'fragment' => null,
+                ],
+            ],
+            [
+                'foo://info.example.com/system/module#test',
+                [
+                    'scheme'=> 'foo',
+                    'authority' => 'info.example.com',
+                    'path' => '/system/module',
+                    'query' => null,
+                    'fragment' => 'test',
+                ],
+            ],
             // Modified samples from RFC 3986
             [
+                'http://www.ics.uci.edu/pub/ietf/uri/?foo=bar&baz=quak#Related',
                 [
-                    'uri' => 'http://www.ics.uci.edu/pub/ietf/uri/?foo=bar&baz=quak#Related',
                     'scheme' => 'http',
                     'authority' => 'www.ics.uci.edu',
                     'path' => '/pub/ietf/uri/',
@@ -38,8 +88,8 @@ class UriParserTest extends TestCase {
             ],
             // Samples from RFC 3986
             [
+                'ftp://ftp.is.co.za/rfc/rfc1808.txt',
                 [
-                    'uri' => 'ftp://ftp.is.co.za/rfc/rfc1808.txt',
                     'scheme' => 'ftp',
                     'authority' => 'ftp.is.co.za',
                     'path' => '/rfc/rfc1808.txt',
@@ -48,8 +98,8 @@ class UriParserTest extends TestCase {
                 ],
             ],
             [
+                'http://www.ietf.org/rfc/rfc2396.txt',
                 [
-                    'uri' => 'http://www.ietf.org/rfc/rfc2396.txt',
                     'scheme' => 'http',
                     'authority' => 'www.ietf.org',
                     'path' => '/rfc/rfc2396.txt',
@@ -58,8 +108,8 @@ class UriParserTest extends TestCase {
                 ],
             ],
             [
+                'ldap://[2001:db8::7]/c=GB?objectClass?one',
                 [
-                    'uri' => 'ldap://[2001:db8::7]/c=GB?objectClass?one',
                     'scheme' => 'ldap',
                     'authority' => '[2001:db8::7]',
                     'path' => '/c=GB',
@@ -68,38 +118,38 @@ class UriParserTest extends TestCase {
                 ],
             ],
             [
+                'mailto:John.Doe@example.com',
                 [
-                    'uri' => 'mailto:John.Doe@example.com',
                     'scheme' => 'mailto',
-                    'authority' => '',
+                    'authority' => null,
                     'path' => 'John.Doe@example.com',
                     'query' => null,
                     'fragment' => null,
                 ],
             ],
             [
+                'news:comp.infosystems.www.servers.unix',
                 [
-                    'uri' => 'news:comp.infosystems.www.servers.unix',
                     'scheme' => 'news',
-                    'authority' => '',
+                    'authority' => null,
                     'path' => 'comp.infosystems.www.servers.unix',
                     'query' => null,
                     'fragment' => null,
                 ],
             ],
             [
+                'tel:+1-816-555-1212',
                 [
-                    'uri' => 'tel:+1-816-555-1212',
                     'scheme' => 'tel',
-                    'authority' => '',
+                    'authority' => null,
                     'path' => '+1-816-555-1212',
                     'query' => null,
                     'fragment' => null,
                 ],
             ],
             [
+                'telnet://192.0.2.16:80/',
                 [
-                    'uri' => 'telnet://192.0.2.16:80/',
                     'scheme' => 'telnet',
                     'authority' => '192.0.2.16:80',
                     'path' => '/',
@@ -108,18 +158,19 @@ class UriParserTest extends TestCase {
                 ],
             ],
             [
+                'urn:oasis:names:specification:docbook:dtd:xml:4.1.2',
                 [
-                    'uri' => 'urn:oasis:names:specification:docbook:dtd:xml:4.1.2',
                     'scheme' => 'urn',
-                    'authority' => '',
+                    'authority' => null,
                     'path' => 'oasis:names:specification:docbook:dtd:xml:4.1.2',
                     'query' => null,
                     'fragment' => null,
                 ],
             ],
+            // Other cases
             [
+                'foo://example.com:8042/over/there?name=ferret#nose',
                 [
-                    'uri' => 'foo://example.com:8042/over/there?name=ferret#nose',
                     'scheme' => 'foo',
                     'authority' => 'example.com:8042',
                     'path' => '/over/there',
@@ -128,13 +179,57 @@ class UriParserTest extends TestCase {
                 ]
             ],
             [
+                'http://привет.мир/базовый/путь?первый=123&второй=quak#таблица-1',
                 [
-                    'uri' => 'http://привет.мир/базовый/путь?первый=123&второй=quak#таблица-1',
                     'scheme' => 'http',
                     'authority' => 'привет.мир',
                     'path' => '/базовый/путь',
                     'query' => 'первый=123&второй=quak',
                     'fragment' => 'таблица-1',
+                ],
+            ],
+            [
+                // A traditional file URI for a local file with an empty authority.
+                'file:///home/user/.vimrc',
+                [
+                    'scheme' => 'file',
+                    'authority' => '', // empty authority
+                    'path' => '/home/user/.vimrc',
+                    'query' => null,
+                    'fragment' => null,
+                ],
+            ],
+            [
+                '//example.com',
+                [
+                    'scheme' => '',
+                    'authority' => 'example.com',
+                    'path' => '',
+                    'query' => null,
+                    'fragment' => null,
+                ]
+            ],
+            // Samples from RFC 8089:
+            [
+                // The minimal representation of a local file with no authority field and an absolute path that begins with a slash "/".
+                'file:/path/to/file',
+                [
+                    'scheme' => 'file',
+                    'authority' => null, // no authority
+                    'path' => '/path/to/file',
+                    'query' => null,
+                    'fragment' => null,
+                ],
+            ],
+            [
+                // The minimal representation of a local file with no authority field and an absolute path that begins with a slash "/".
+                'file://host.example.com/path/to/file',
+                [
+                    'scheme' => 'file',
+                    'authority' => 'host.example.com',
+                    'path' => '/path/to/file',
+                    'query' => null,
+                    'fragment' => null,
                 ],
             ],
         ];
@@ -143,123 +238,143 @@ class UriParserTest extends TestCase {
     /**
      * @dataProvider dataForParse
      */
-    public function testParse(array $uriMeta) {
-        $this->checkParse($uriMeta);
+    public function testParse(string $uriStr, array $expected) {
+        $this->checkParse($uriStr, $expected);
     }
 
-    public function testSchemeAccessors() {
-        $this->checkAccessors([new Uri(), 'scheme'], null, 'http');
-    }
+    public function dataForParseOnlyAuthority_ValidCases() {
+        yield [
+            'user:password@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80',
+            [
+                'userInfo' => 'user:password',
+                'host' => '[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
+                'port' => 80,
+            ],
+        ];
+        yield [
+            'user:pass^word@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
+            [
+                'userInfo' => 'user:pass^word',
+                'host' => '[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
+                'port' => null,
+            ],
+        ];
+        yield [
+            '127.0.0.1',
+            [
+                'userInfo' => null,
+                'host' => '127.0.0.1',
+                'port' => null,
+            ],
+        ];
+        yield [
+            '127.0.0.1:80',
+            [
+                'userInfo' => null,
+                'host' => '127.0.0.1',
+                'port' => 80,
+            ],
+        ];
+        yield [
+            '@127.0.0.1:80',
+            [
+                'userInfo' => '',
+                'host' => '127.0.0.1',
+                'port' => 80,
+            ],
+        ];
 
-    public function testPathAccessors() {
-        $this->checkAccessors([new Uri(), 'path'], null, '/foo/bar/baz');
-    }
-
-    public function testHostAccessors() {
-        $this->checkAccessors([new Uri(), 'host'], null, 'localhost');
-    }
-
-    public function testPortAccessors() {
-        $this->checkAccessors([new Uri(), 'port'], null, 123);
-    }
-
-    public function dataForParseScheme() {
-        return [
+        // IPv6, some cases found in OpenJDK and RFCs.
+        yield [
+            '[1080:0:0:0:8:800:200C:417A]',
             [
-                '', false,
+                'userInfo' => null,
+                'host' => '[1080:0:0:0:8:800:200C:417A]',
+                'port' => null,
             ],
+        ];
+        yield [
+            '[3ffe:2a00:100:7031::1]',
             [
-                'http', true,
+                'userInfo' => null,
+                'host' => '[3ffe:2a00:100:7031::1]',
+                'port' => null,
             ],
+        ];
+        yield [
+            '[1080::8:800:200C:417A]',
             [
-                'HTTP', true,
+                'userInfo' => null,
+                'host' => '[1080::8:800:200C:417A]',
+                'port' => null,
             ],
+        ];
+        yield [
+            '[::192.9.5.5]',
             [
-                'h', true,
+                'userInfo' => null,
+                'host' => '[::192.9.5.5]',
+                'port' => null,
             ],
+        ];
+        yield [
+            '[::FFFF:129.144.52.38]',
             [
-                'H', true,
+                'userInfo' => null,
+                'host' => '[::FFFF:129.144.52.38]',
+                'port' => null,
             ],
+        ];
+        yield [
+            '[::FFFF:129.144.52.38]:80',
             [
-                'q^u', false,
+                'userInfo' => null,
+                'host' => '[::FFFF:129.144.52.38]',
+                'port' => 80,
+            ],
+        ];
+        yield [
+            '[2010:836B:4179::836B:4179]',
+            [
+                'userInfo' => null,
+                'host' => '[2010:836B:4179::836B:4179]',
+                'port' => null,
+            ],
+        ];
+        yield [
+            '[::1]',
+            [
+                'userInfo' => null,
+                'host' => '[::1]',
+                'port' => null,
             ],
         ];
     }
 
     /**
-     * @dataProvider dataForParseScheme
+     * @dataProvider dataForParseOnlyAuthority_ValidCases
      */
-    public function testParseScheme(string $scheme, bool $isValid) {
-        $uriParser = new UriParser();
-        $uriParser->validateComponents(true);
-        $uriStr = $scheme . '://localhost';
-        if (!$isValid) {
-            $this->expectException(UriParseException::class, 'Invalid scheme');
-            $uriParser->__invoke($uriStr);
-        } else {
-            $this->assertSame($scheme, $uriParser->__invoke($uriStr)->scheme());
-        }
+    public function testParseOnlyAuthority_ValidCases($authority, $expected) {
+        $parts = (new UriParser())->parseOnlyAuthority($authority);
+        $this->assertSame($expected['userInfo'], $parts['userInfo']);
+        $this->assertSame($expected['host'], $parts['host']);
+        $this->assertSame($expected['port'], $parts['port']);
+        $this->assertCount(3, $parts);
     }
 
-    public function dataForParseAuthority() {
-        // The authority component is preceded by a double slash ("//") and is terminated by the next slash ("/"), question mark ("?"), or number sign ("#") character, or by the end of the URI.
-        return [
-            [
-                [
-                    'uri'       => 'http://localhost/', // ends with '/'
-                    'scheme'    => 'http',
-                    'authority' => 'localhost',
-                    'path'      => '/',
-                    'query'     => null,
-                    'fragment'  => null,
-                ],
-            ],
-            [
-                [
-                    'uri'       => 'http://localhost?', // ends with '?'
-                    'scheme'    => 'http',
-                    'authority' => 'localhost',
-                    'path'      => '',
-                    'query'     => '',
-                    'fragment'  => null,
-                ],
-            ],
-            [
-                [
-                    'uri'       => 'http://localhost#', // ends with '#'
-                    'scheme'    => 'http',
-                    'authority' => 'localhost',
-                    'path'      => '',
-                    'query'     => '',
-                    'fragment'  => '',
-                ]
-            ],
-            [
-                [
-                    'uri'       => 'http://localhost',  // ends with end of URI
-                    'scheme'    => 'http',
-                    'authority' => 'localhost',
-                    'path'      => '',
-                    'query'     => null,
-                    'fragment'  => null,
-                ]
-            ],
+    public function dataForParseOnlyAuthority_InvalidCases() {
+        yield [
+            '',
         ];
     }
 
     /**
-     * @dataProvider dataForParseAuthority
+     * @dataProvider dataForParseOnlyAuthority_InvalidCases
      */
-    public function testParseAuthority(array $uriMeta) {
-        $this->checkParse($uriMeta);
-    }
-
-    public function testParsePath() {
-/*
-   <mailto:fred@example.com> has a path of "fred@example.com", whereas
-   the URI <foo://info.example.com?fred> has an empty path.
-*/
-        $this->markTestIncomplete();
+    public function testParseOnlyAuthority_InvalidCases($authority) {
+        $parser = new UriParser();
+        $this->expectException(UriParseException::class, 'Invalid authority');
+        $parser->parseOnlyAuthority($authority);
     }
 
     public function testParseTheSameUriTwice() {
@@ -275,12 +390,12 @@ class UriParserTest extends TestCase {
         }
     }
 
-    private function checkParse(array $uriMeta): void {
-        $uri = (new UriParser())->__invoke($uriMeta['uri']);
-        $this->assertSame($uriMeta['scheme'], $uri->scheme());
-        $this->assertSame($uriMeta['authority'], $uri->authority());
-        $this->assertSame($uriMeta['path'], $uri->path());
-        $this->assertSame($uriMeta['query'], $uri->query());
-        $this->assertSame($uriMeta['fragment'], $uri->fragment());
+    private function checkParse(string $uriStr, array $expected): void {
+        $uri = (new UriParser())->__invoke($uriStr);
+        $this->assertSame($expected['scheme'], $uri->scheme());
+        $this->assertSame($expected['authority'], $uri->authority());
+        $this->assertSame($expected['path'], $uri->path());
+        $this->assertSame($expected['query'], $uri->query());
+        $this->assertSame($expected['fragment'], $uri->fragment());
     }
 }
