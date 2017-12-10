@@ -10,11 +10,10 @@ namespace Morpho\Web;
 use function Morpho\Base\trimMore;
 use Morpho\Core\IResponse;
 use Morpho\Fs\Path;
-use Zend\Validator\Hostname as HostNameValidator;
 use Morpho\Core\Request as BaseRequest;
 
 /**
- * This class based on \Zend\Http\PhpEnvironment\Request class.
+ * Some methods in this class based on \Zend\Http\PhpEnvironment\Request class.
  * @see https://github.com/zendframework/zend-http for the canonical source repository
  * @copyright Copyright (c) 2005-2017 Zend Technologies USA Inc. (http://www.zend.com)
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
@@ -168,6 +167,9 @@ class Request extends BaseRequest {
         );
     }*/
 
+    /**
+     * @return mixed @TODO Specify concrete types.
+     */
     public function put($name = null, bool $trim = true) {
         return $this->data(
             $this->mapPostTo === self::PUT_METHOD ? $_POST : $this->parsedContent(),
@@ -217,16 +219,12 @@ class Request extends BaseRequest {
         return $this->uri;
     }
 
-    // @TODO: return void
-    public function setUri(Uri $uri): self {
+    public function setUri(Uri $uri): void {
         $this->uri = $uri;
-        return $this;
     }
 
-    // @TODO: return void
-    public function setMethod(string $method): self {
+    public function setMethod(string $method): void {
         $this->method = $this->normalizedMethod($method);
-        return $this;
     }
 
     public function method(): string {

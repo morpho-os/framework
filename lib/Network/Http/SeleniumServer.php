@@ -24,36 +24,32 @@ class SeleniumServer {
         $this->serverJarFilePath = $serverJarFilePath;
     }
 
-    public function setServerJarFilePath(string $filePath): self {
+    public function setServerJarFilePath(string $filePath): void {
         $this->serverJarFilePath = $filePath;
-        return $this;
     }
 
     public function serverJarFilePath(): ?string {
         return $this->serverJarFilePath;
     }
 
-    public function setLogFilePath(string $filePath): self {
+    public function setLogFilePath(string $filePath): void {
         $this->logFilePath = $filePath;
-        return $this;
     }
 
     public function logFilePath(): ?string {
         return $this->logFilePath;
     }
 
-    public function setPort(int $port): self {
+    public function setPort(int $port): void {
         $this->port = $port;
-        return $this;
     }
 
     public function port(): int {
         return $this->port ?: self::PORT;
     }
 
-    public function setGeckoBinFilePath(string $filePath): self {
+    public function setGeckoBinFilePath(string $filePath): void {
         $this->geckoBinFilePath = $filePath;
-        return $this;
     }
 
     public function geckoBinFilePath(): string {
@@ -63,7 +59,7 @@ class SeleniumServer {
         return $this->geckoBinFilePath;
     }
 
-    public function start(): self {
+    public function start(): void {
         $pid = $this->findPid();
         if (!$pid) {
             $geckoBinFilePath = $this->geckoBinFilePath();
@@ -95,7 +91,6 @@ class SeleniumServer {
             }
             //showLn("Running tests...");
         }
-        return $this;
     }
 
     public function listening(): bool {

@@ -15,6 +15,9 @@ use Morpho\Test\BrowserTestSuite;
 use Morpho\Test\Sut;
 
 class TestSuite extends BrowserTestSuite {
+    /**
+     * @var PhpServer
+     */
     private $phpServer;
 
     public function testFilePaths(): iterable {
@@ -52,9 +55,9 @@ class TestSuite extends BrowserTestSuite {
         //$seleniumStandaloneFilePath = $toolsDirPath . '/selenium-server-standalone-3.4.0.jar';
         $seleniumStandaloneFilePath = (new SeleniumServerDownloader())($toolsDirPath, getenv('SELENIUM_VERSION') ?: null);
 
-        $seleniumServer->setServerJarFilePath($seleniumStandaloneFilePath)
-            ->setGeckoBinFilePath($geckoBinFilePath)
-            ->setLogFilePath($toolsDirPath . '/selenium.log')
-            ->setPort(SeleniumServer::PORT);
+        $seleniumServer->setServerJarFilePath($seleniumStandaloneFilePath);
+        $seleniumServer->setGeckoBinFilePath($geckoBinFilePath);
+        $seleniumServer->setLogFilePath($toolsDirPath . '/selenium.log');
+        $seleniumServer->setPort(SeleniumServer::PORT);
     }
 }

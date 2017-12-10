@@ -18,19 +18,19 @@ class SeleniumServerTest extends TestCase {
     }
 
     public function testServerJarFilePathAccessors() {
-        $this->checkAccessors($this->seleniumServer, $this->checkNotEmpty(), '/foo/bar/baz', 'serverJarFilePath');
+        $this->checkAccessors([$this->seleniumServer, 'serverJarFilePath'], $this->checkNotEmpty(), '/foo/bar/baz');
     }
 
     public function testLogFilePathAccessors() {
-        $this->checkAccessors($this->seleniumServer, null, '/foo/bar/baz', 'logFilePath');
+        $this->checkAccessors([$this->seleniumServer, 'logFilePath'], null, '/foo/bar/baz');
     }
 
     public function testPortAccessors() {
-        $this->checkAccessors($this->seleniumServer, SeleniumServer::PORT, 1234, 'port');
+        $this->checkAccessors([$this->seleniumServer, 'port'], SeleniumServer::PORT, 1234);
     }
 
     public function testGeckoBinFilePathAccessors() {
-        $this->checkAccessors($this->seleniumServer, $this->checkNotEmpty(), '/foo/bar/baz', 'geckoBinFilePath');
+        $this->checkAccessors([$this->seleniumServer, 'geckoBinFilePath'], $this->checkNotEmpty(), '/foo/bar/baz');
     }
 
     private function checkNotEmpty() {
