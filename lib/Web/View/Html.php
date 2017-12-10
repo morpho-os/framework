@@ -71,4 +71,38 @@ class Html {
 
         return $output;
     }
+
+    /**
+     * @param array|\Traversable $options
+     * @param array|\Traversable|scalar|null $selectedOption
+     */
+    public static function options($options, $selectedOption = null): string {
+        $html = '';
+        if (null === $selectedOption || is_scalar($selectedOption)) {
+            $defaultValue = (string) $selectedOption;
+            foreach ($options as $value => $text) {
+                $value = (string) $value;
+                $selected = $value === $defaultValue ? ' selected' : '';
+                $html .= '<option value="' . Html::encode($value) . '"' . $selected . '>' . Html::encode($text) . '</option>';
+            }
+            return $html;
+        }
+        if (!is_array($selectedOption) && !$selectedOption instanceof \Traversable) {
+            throw new \UnexpectedValueException();
+        }
+        $newOptions = [];
+        foreach ($options as $value => $text) {
+            $newOptions[(string) $value] = $text;
+        }
+        $selectedOptions = [];
+        foreach ($selectedOption as $val) {
+            $val = (string) $val;
+            $selectedOptions[$val] = true;
+        }
+        foreach ($newOptions as $value => $text) {
+            $selected = isset($selectedOptions[$value]) ? ' selected' : '';
+            $html .= '<option value="' . Html::encode($value) . '"' . $selected . '>' . Html::encode($text) . '</option>';
+        }
+        return $html;
+    }
 }
