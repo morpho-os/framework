@@ -229,7 +229,9 @@ class PhpTemplateEngineTest extends TestCase {
 
     private function newServiceManager(): ServiceManager {
         $request = new Request();
-        $request->setUri((new Uri())->setBasePath('/base/path'));
+        $uri = new Uri();
+        $uri->setBasePath('/base/path');
+        $request->setUri($uri);
         $request->setHandler(['foo/bar', 'Test', 'Some']);
         $serviceManager = new ServiceManager(['request' => $request]);
         return $serviceManager;
