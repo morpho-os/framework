@@ -27,9 +27,9 @@ class FormPersister extends HtmlProcessor {
         if (!isset($tag['action'])) {
             $request = $this->request();
             if (strtolower($tag['method']) === 'get') {
-                $tag['action'] = Html::encode($request->path());
+                $tag['action'] = $request->path();
             } else {
-                $tag['action'] = Html::encode($request->uri()->__toString());
+                $tag['action'] = $request->uri()->__toString();
             }
         }
         return $tag;

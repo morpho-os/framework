@@ -277,10 +277,9 @@ class HtmlSemiParser implements IFn {
             if ($k == "_text" || $k == "_tagName" || $k == "_orig") {
                 continue;
             }
-            $s .= " " . $k;
+            $s .= " " . Html::encode($k);
             if ($v !== null) {
-                //$s .= '="' . Html::encode($v) . '"';
-                $s .= '="' . $v . '"';
+                $s .= '="' . Html::encode($v) . '"';
             }
         }
         if (!@$attr['_tagName']) {
