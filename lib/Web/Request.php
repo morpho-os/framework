@@ -393,7 +393,7 @@ class Request extends BaseRequest {
                 $port = (int)$matches[1];
             }
 
-            // set up a validator that check if the hostname is legal (not spoofed)
+/*            // set up a validator that check if the hostname is legal (not spoofed)
             $hostnameValidator = new HostnameValidator([
                 'allow'       => HostnameValidator::ALLOW_ALL,
                 'useIdnCheck' => false,
@@ -403,7 +403,7 @@ class Request extends BaseRequest {
             if (!$hostnameValidator->isValid($host)) {
                 $host = null;
                 $port = null;
-            }
+            }*/
         }
 
         $serverName = $this->serverVar('SERVER_NAME');
@@ -478,9 +478,9 @@ class Request extends BaseRequest {
 
     protected function detectBasePath(string $requestUri): string {
         $basePath = ltrim(Path::normalize(dirname($this->serverVar('SCRIPT_NAME'))), '/');
-        if (!Uri::validatePath($basePath)) {
+/*        if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();
-        }
+        }*/
         return '/' . $basePath;
     }
 
