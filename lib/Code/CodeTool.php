@@ -7,17 +7,8 @@
 namespace Morpho\Code;
 
 use Morpho\Base\NotImplementedException;
-use SebastianBergmann\Exporter\Exporter;
 
 class CodeTool {
-    /**
-     * @TODO: Rename/remove/move?
-     */
-    public static function prettyPrintVar($var, bool $short = false): string {
-        $exporter = new Exporter();
-        return $short ? $exporter->shortenedExport($var) : $exporter->export($var);
-    }
-
     public static function format(string $php): string {
         throw new NotImplementedException();
     }
