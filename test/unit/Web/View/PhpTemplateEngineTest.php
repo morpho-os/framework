@@ -18,6 +18,9 @@ use Morpho\Web\View\Compiler;
 use Morpho\Web\Request;
 
 class PhpTemplateEngineTest extends TestCase {
+    /**
+     * @var PhpTemplateEngine
+     */
     private $templateEngine;
 
     public function setUp() {
@@ -27,7 +30,8 @@ class PhpTemplateEngineTest extends TestCase {
 
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
-        $this->templateEngine->append(new UriProcessor($serviceManager))
+        $this->templateEngine
+            ->append(new UriProcessor($serviceManager))
             ->append($compiler)
             ->append(new ScriptProcessor($serviceManager));
 
@@ -36,6 +40,15 @@ class PhpTemplateEngineTest extends TestCase {
         $this->templateEngine->setCacheDirPath($this->tmpDirPath());
         $this->templateEngine->useCache(false);
         $this->setDefaultTimezone();
+    }
+
+    public function testUriWithRedirectToSelf() {
+        $curUriStr = 'http://localhost/?three=qux&four=pizza';
+        #$uri = new Uri($curUriStr);
+        $this->assertSame(
+            '/foo/bar?one=1&two=2&redirect=' . $curUriStr,
+            $this->templateEngine->uriWithRedirectToSelf('/foo/bar?redirect=' . rawurlencode($curUriStr))->__toString()
+        );
     }
 
     public function testVar_ReadUndefinedVarThrowsException() {

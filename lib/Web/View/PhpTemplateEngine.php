@@ -98,13 +98,20 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         return $this->uri;
     }
 
-    public function uriWithRedirectToSelf(string $uri): string {
-        $currentUri = clone $this->uri();
-        $currentUri->unsetQueryArg('redirect');
-        $relativeRef = $currentUri->relativeRef();
-        return $currentUri->parse($currentUri->prependBasePath($uri))
-            ->appendQueryArgs(['redirect' => $relativeRef])
-            ->__toString();
+    /**
+     * For the $uri === 'http://foo/bar' adds the query argument redirect=$currentPageUri
+     * i.e. returns Uri which will redirect to the current page.
+     * E.g.: if the current URI === 'http://baz/' then the call
+     *     $templateEngine->uriWithRedirectToSelf('http://foo/bar')
+     * will return 'http://foo/bar?redirect=http://baz
+     * @return Uri
+     */
+    public function uriWithRedirectToSelf($uri): Uri {
+        if (is_string($uri)) {
+            $uri = new Uri($uri);
+        }
+        $uri->query()['redirect'] = $this->uri();
+        return $uri;
     }
 
     public function link(string $uri, string $text, array $attributes = [], array $options = null): string {

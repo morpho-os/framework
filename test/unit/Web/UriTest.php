@@ -7,127 +7,45 @@
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
+use Morpho\Web\Authority;
+use Morpho\Web\Query;
 use Morpho\Web\Uri;
 
 class UriTest extends TestCase {
+    use TUriParserDataProvider;
+
+    public function testBasePathAccessors() {
+        $this->checkAccessors([new Uri(), 'basePath'], null, '/base/uri');
+    }
+
     public function testSchemeAccessors() {
-        $this->checkAccessors([new Uri(), 'scheme'], null, 'http');
+        $this->checkAccessors([new Uri(), 'scheme'], '', 'http');
+        $this->checkAccessors([new Uri(), 'scheme'], '', 'http');
     }
 
     public function testAuthorityAccessors() {
-        $this->checkAccessors([new Uri(), 'authority'], null, 'example.com');
-    }
-
-    public function testSetAuthority_ChangesHostAndPort() {
-        $uri = new Uri();
-        $host = 'example.com';
-        $port = 80;
-        $uri->setAuthority("$host:$port");
-        $this->assertSame($host, $uri->host());
-        $this->assertSame($port, $uri->port());
-    }
-
-    public function testSetAuthorityParts_ChangesAuthority() {
-        $uri = new Uri();
-        $uri->setUserInfo('foo:bar');
-        $uri->setHost('example.com');
-        $uri->setPort(80);
-        $this->assertSame('foo:bar@example.com:80', $uri->authority());
-    }
-
-    public function testUserInfoAccessors() {
-        $this->checkAccessors([new Uri(), 'userInfo'], null, 'name:1234');
-    }
-
-    public function testHostAccessors() {
-        $this->checkAccessors([new Uri(), 'host'], null, 'example.com');
-    }
-
-    public function testPortAccessors() {
-        $this->checkAccessors([new Uri(), 'port'], null, 123);
+        $this->checkAccessors([new Uri(), 'authority'], null, new Authority('example.com'));
+        $this->checkAccessors([new Uri(), 'authority'], null, null);
     }
 
     public function testPathAccessors() {
-        $this->checkAccessors([new Uri(), 'path'], null, '/foo/bar/baz');
+        $this->checkAccessors([new Uri(), 'path'], '', '/foo/bar/baz');
     }
 
     public function testQueryAccessors() {
-        $this->checkAccessors([new Uri(), 'query'], null, 'foo=bar&test=123');
+        $this->checkAccessors([new Uri(), 'query'], null, new Query('foo=bar&test=123'));
+        $this->checkAccessors([new Uri(), 'query'], null, null);
     }
 
     public function testFragmentAccessors() {
         $this->checkAccessors([new Uri(), 'fragment'], null, 'toc');
+        $this->checkAccessors([new Uri(), 'fragment'], null, null);
     }
     
     public function dataForToString() {
-        // Cases for authority
-        yield [
-            'http://localhost/', // ends with '/'
-        ];
-        yield [
-            'http://localhost?', // ends with '?'
-        ];
-        yield [
-            'http://localhost#', // ends with '#'
-        ];
-        yield [
-            'http://localhost',  // ends with end of URI
-        ];
-        // Cases for path
-        yield [
-            'foo://info.example.com?fred',
-        ];
-        yield [
-            'foo://info.example.com/system/module#test',
-        ];
-        // Modified samples from RFC 3986
-        yield [
-            'http://www.ics.uci.edu/pub/ietf/uri/?foo=bar&baz=quak#Related',
-        ];
-        // Samples from RFC 3986
-        yield [
-            'ftp://ftp.is.co.za/rfc/rfc1808.txt',
-        ];
-        yield [
-            'http://www.ietf.org/rfc/rfc2396.txt',
-        ];
-        yield [
-            'ldap://[2001:db8::7]/c=GB?objectClass?one',
-        ];
-        yield [
-            'mailto:John.Doe@example.com',
-        ];
-        yield [
-            'news:comp.infosystems.www.servers.unix',
-        ];
-        yield [
-            'tel:+1-816-555-1212',
-        ];
-        yield [
-            'telnet://192.0.2.16:80/',
-        ];
-        yield [
-            'urn:oasis:names:specification:docbook:dtd:xml:4.1.2',
-        ];
-        // Other cases
-        yield [
-            'foo://example.com:8042/over/there?name=ferret#nose',
-        ];
-        yield [
-            'http://привет.мир/базовый/путь?первый=123&второй=quak#таблица-1',
-        ];
-        yield [
-            'file:///home/user/.vimrc',
-        ];
-        yield [
-            '//example.com',
-        ];
-        yield [
-            'file:/path/to/file',
-        ];
-        yield [
-            'file://host.example.com/path/to/file',
-        ];
+        foreach ($this->dataForParse() as $sample) {
+            yield [$sample[0]];
+        }
     }
 
     /**
@@ -135,6 +53,75 @@ class UriTest extends TestCase {
      */
     public function testToString(string $uriStr) {
         $uri = new Uri($uriStr);
-        $this->assertSame($uriStr, (string)$uri);
+        $this->assertSame($uriStr, $uri->toString(false));
+    }
+    
+    public function dataForAppended_NormalExamples() {
+        yield ['g:h', 'g:h'];
+        yield ['g', 'http://a/b/c/g'];
+        yield ['./g', 'http://a/b/c/g'];
+        yield ['g/', 'http://a/b/c/g/'];
+        yield ['/g', 'http://a/g'];
+        yield ['//g', 'http://g'];
+        yield ['?y', 'http://a/b/c/d;p?y'];
+        yield ['g?y', 'http://a/b/c/g?y'];
+        yield ['#s', 'http://a/b/c/d;p?q#s'];
+        yield ['g#s', 'http://a/b/c/g#s'];
+        yield ['g?y#s', 'http://a/b/c/g?y#s'];
+        yield [';x', 'http://a/b/c/;x'];
+        yield ['g;x', 'http://a/b/c/g;x'];
+        yield ['g;x?y#s', 'http://a/b/c/g;x?y#s'];
+        yield ['', 'http://a/b/c/d;p?q'];
+        yield ['.', 'http://a/b/c/'];
+        yield ['./', 'http://a/b/c/'];
+        yield ['..', 'http://a/b/'];
+        yield ['../', 'http://a/b/'];
+        yield ['../g', 'http://a/b/g'];
+        yield ['../..', 'http://a/'];
+        yield ['../../', 'http://a/'];
+        yield ['../../g', 'http://a/g'];
+
+        yield ['http://foo/bar', 'http://foo/bar'];
+    }
+
+    /**
+     * @dataProvider dataForAppended_NormalExamples
+     */
+    public function testAppended_NormalExamples($relativeRef, $expected) {
+        $uri = new Uri('http://a/b/c/d;p?q');
+        $uri1 = clone $uri;
+        $targetUri = $uri->appended($relativeRef);
+        $this->assertSame($expected, $targetUri->toString(false));
+        $this->assertEquals($uri1, $uri); // $uri should not be changed
+    }
+    
+    public function dataForAppended_AbnormalExamples() {
+        yield ['../../../g', 'http://a/g'];
+        yield ['../../../../g', 'http://a/g'];
+        yield ['/./g', 'http://a/g'];
+        yield ['/../g', 'http://a/g'];
+        yield ['g.', 'http://a/b/c/g.'];
+        yield ['.g', 'http://a/b/c/.g'];
+        yield ['g..', 'http://a/b/c/g..'];
+        yield ['..g', 'http://a/b/c/..g'];
+        yield ['./../g', 'http://a/b/g'];
+        yield ['./g/.', 'http://a/b/c/g/'];
+        yield ['g/./h', 'http://a/b/c/g/h'];
+        yield ['g/../h', 'http://a/b/c/h'];
+        yield ['g;x, 1/./y', 'http://a/b/c/g;x, 1/y'];
+        yield ['g;x, 1/../y', 'http://a/b/c/y'];
+        yield ['g?y/./x', 'http://a/b/c/g?y/./x'];
+        yield ['g?y/../x', 'http://a/b/c/g?y/../x'];
+        yield ['g#s/./x', 'http://a/b/c/g#s/./x'];
+        yield ['g#s/../x', 'http://a/b/c/g#s/../x'];
+        yield ['http:g', 'http:g'];
+    }
+
+    /**
+     * @dataProvider dataForAppended_AbnormalExamples
+     */
+    public function testAppend_AbnormalExamples($relativeRef, $expected) {
+        $uri = new Uri('http://a/b/c/d;p?q');
+        $this->assertSame($expected, $uri->appended($relativeRef)->toString(false));
     }
 }

@@ -38,8 +38,11 @@ class Response extends BaseResponse {
     public const NOT_FOUND_STATUS_CODE = 404;
     public const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
 
-    public function redirect(string $uri, int $httpStatusCode = null ): void {
-        $this->headers()->offsetSet('Location', $uri);
+    /**
+     * @param string|Uri $uri
+     */
+    public function redirect($uri, int $httpStatusCode = null): void {
+        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toString());
         $this->setStatusCode($httpStatusCode ?: self::FOUND_STATUS_CODE);
     }
 
@@ -71,7 +74,7 @@ class Response extends BaseResponse {
 
     public function isRedirect(): bool {
         $statusCode = $this->statusCode;
-        return 300 <= $statusCode && $statusCode < self::BAD_REQUEST_STATUS_CODE;
+        return 300 <= $statusCode && $statusCode < 400;
     }
 
     public function isSuccess(): bool {

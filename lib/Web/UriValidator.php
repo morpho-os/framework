@@ -27,9 +27,8 @@ class UriValidator implements IValidator {
     }
 
     public static function validateAuthority(string $authority): bool {
-        try {
-            $parts = UriParser::parseOnlyAuthority($authority);
-        } catch (UriParseException $e) {
+        $authority = UriParser::parseOnlyAuthority($authority);
+        if (false === $authority) {
             return false;
         }
 
@@ -39,7 +38,7 @@ class UriValidator implements IValidator {
         $hexDigRe = self::HEX_DIGIT_RE;
 
         $userInfoRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe | : )*";
-        if (!preg_match('{^' . $userInfoRe . '$}six', $parts['userInfo'])) {
+        if (!preg_match('{^' . $userInfoRe . '$}six', $authority->userInfo)) {
             return false;
         }
 
@@ -69,12 +68,12 @@ class UriValidator implements IValidator {
         $regNameRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe )*";
         $hostRe = "( $ipLiteralRe | $ipV4AddressRe | $regNameRe)";
 
-        if (!preg_match('{^' . $hostRe . '$}six', $parts['host'])) {
+        if (!preg_match('{^' . $hostRe . '$}six', $authority->host)) {
             return false;
         }
 
-        if (null !== $parts['port']) {
-            return (bool) preg_match('~^\d*$~s', $parts['port']);
+        if (null !== $authority->port) {
+            return (bool) preg_match('~^\d*$~s', $authority->port);
         }
 
         return true;

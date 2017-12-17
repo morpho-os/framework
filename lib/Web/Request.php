@@ -365,7 +365,6 @@ class Request extends BaseRequest {
         }
 
         $requestUri = $this->detectRequestUri();
-
         $uri->setPath($requestUri);
 
         $query = $this->serverVar('QUERY_STRING');

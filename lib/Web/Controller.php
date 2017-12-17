@@ -122,74 +122,23 @@ class Controller extends Node implements IFn {
 
         $request->isDispatched(false);
     }
-/*
-    protected function redirectToAction(string $action, string $controller = null, string $module = null, string $httpMethod = null, array $routingParams = null): void {
-        // @TODO
-        throw new NotImplementedException(__METHOD__);
-        /*
-        if (null === $controller) {
-            $controller = $this->request->controllerName();
-        }
-        if (null === $module) {
-            $module = $this->request->moduleName();
-        }
-        if (null === $httpMethod) {
-            $httpMethod = Request::GET_METHOD;
-        }
-        return $this->redirectToUri(
-            $this->serviceManager
-                ->get('router')
-                ->assemble($action, $httpMethod, $controller, $module, $params)
-        );
-    }
-*/
 
-    protected function redirectToUri(string $uri = null, int $httpStatusCode = null): void {
+    protected function redirect($uri = null, int $httpStatusCode = null): void {
         $request = $this->request;
-        if ($request->hasQuery('redirect')) {
-            $uri = (new Uri($request->query('redirect')))->unsetQueryArg('redirect')->__toString();
+        if (null === $uri) {
+            $uri = $request->uri();
         }
+        /** @var Response $response */
         $response = $request->response();
-        $response->redirect($request->uri()->prependBasePath($uri), $httpStatusCode);
+        $response->redirect($uri, $httpStatusCode);
     }
 
-    protected function redirectToSelf(string $successMessage = null, $queryArgs = null, string $fragment = null): void {
-        if (null !== $successMessage) {
-            $this->addSuccessMessage($successMessage);
-        }
-        $uri = $this->request->uri();
-        if ($queryArgs) {
-            $uri->setQuery($queryArgs);
-        }
-        if ($fragment) {
-            $uri->setFragment($fragment);
-        }
-        $this->redirectToUri($uri->__toString());
-    }
-
-    protected function redirectToHome(string $successMessage = null): void {
-        if (null !== $successMessage) {
-            $this->addSuccessMessage($successMessage);
-        }
-        $this->redirectToUri('/');
-    }
-
-    protected function success($data = null): array {
-        //if (!$this->request->isAjax()) {
-        return ['success' => $data ?: true];
-        /*}
-        $this->addSuccessMessage(...$data);
-        return null;
-        */
+    protected function ok($data = null): array {
+        return ['ok' => $data ?: true];
     }
 
     protected function error($data = null): array {
         return ['error' => $data ?: true];
-        /*
-        if (!$this->request->isAjax()) {
-        }
-        $this->addErrorMessage(...$data);
-        */
     }
 
     protected function messages(bool $clear = true): array {
@@ -199,18 +148,6 @@ class Controller extends Node implements IFn {
             $messenger->clearMessages();
         }
         return $messages;
-    }
-
-    protected function addSuccessMessage(string $message, array $args = null): void {
-        $this->serviceManager->get('messenger')->addSuccessMessage($message, $args);
-    }
-
-    protected function addErrorMessage(string $message, array $args = null): void {
-        $this->serviceManager->get('messenger')->addErrorMessage($message, $args);
-    }
-
-    protected function addWarningMessage(string $message, array $args = null): void {
-        $this->serviceManager->get('messenger')->addWarningMessage($message, $args);
     }
 
     protected function accessDenied(): void {
@@ -237,7 +174,7 @@ class Controller extends Node implements IFn {
         return $this->request->data($source, $name, $trim);
     }
 
-    protected function isPostMethod(): bool {
+    protected function isPost(): bool {
         return $this->request->isPostMethod();
     }
 

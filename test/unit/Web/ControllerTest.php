@@ -56,24 +56,53 @@ class ControllerTest extends TestCase {
         $this->assertEquals([new Event('render', ['view' => new View($viewName)])], $controller->triggerArgs);
     }
 
-    public function testDispatch_Redirect() {
+    public function dataForRedirect_HasArgs() {
+        yield [300];
+        yield [301];
+        yield [302];
+    }
+
+    /**
+     * @dataProvider dataForRedirect_HasArgs
+     */
+    public function testRedirect_HasArguments($statusCode) {
         $controller = new MyController('foo');
-        $basePath = '/some/base/path';
+        $controller->statusCode = $statusCode;
         $request = $this->newRequest();
-        $uri = new Uri();
-        $uri->setBasePath($basePath);
-        $request->setUri($uri);
-        $request->setActionName('redirectToSomePage');
+        $request->setUri(new Uri('http://localhost/base/path/some/module?foo=bar'));
+        $request->setActionName('redirectHasArgs');
 
         $controller->__invoke($request);
 
         $this->assertTrue($request->isDispatched());
+        /** @var \Morpho\Web\Response $response */
         $response = $request->response();
         $this->assertTrue($response->isRedirect());
         $this->assertEquals(
-            ['Location' => "$basePath/some/page"],
+            ['Location' => "/some/page"],
             $response->headers()->getArrayCopy()
         );
+        $this->assertSame($statusCode, $response->statusCode());
+    }
+
+    public function testRedirect_NoArgs() {
+        $controller = new MyController('foo');
+        $request = $this->newRequest();
+        $uriStr = 'http://localhost/base/path/some/module?foo=bar';
+        $request->setUri(new Uri($uriStr));
+        $request->setActionName('redirectNoArgs');
+
+        $controller->__invoke($request);
+
+        $this->assertTrue($request->isDispatched());
+        /** @var \Morpho\Web\Response $response */
+        $response = $request->response();
+        $this->assertTrue($response->isRedirect());
+        $this->assertEquals(
+            ['Location' => $uriStr],
+            $response->headers()->getArrayCopy()
+        );
+        $this->assertSame(302, $response->statusCode());
     }
 
     public function testForwardTo() {
@@ -124,16 +153,18 @@ class ControllerTest extends TestCase {
 }
 
 class MyController extends Controller {
-    public function doRedirectToUri() {
-        $this->redirectToUri('/system/module/list');
-    }
+    public $statusCode;
 
     public function doForwardToAction($action, $controller, $module, $params) {
         $this->forwardToAction($action, $controller, $module, $params);
     }
 
-    public function redirectToSomePageAction() {
-        $this->redirectToUri('/some/page');
+    public function redirectHasArgsAction() {
+        $this->redirect('/some/page', $this->statusCode);
+    }
+
+    public function redirectNoArgsAction() {
+        $this->redirect();
     }
 }
 
@@ -144,7 +175,7 @@ class MyOtherController extends Controller {
         parent::redirectToAction(...$args);
     }
 
-    protected function redirectToUri(string $uri = null, int $httpStatusCode = null): void {
+    protected function redirect($uri = null, int $httpStatusCode = null): void {
         $this->redirectArgs = func_get_args();
     }
 }
