@@ -24,7 +24,7 @@ class TestSuite extends BrowserTestSuite {
         return $this->testFilesInDir(__DIR__);
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         //if (getenv('TRAVIS')) {
             $this->phpServer = $phpServer = new PhpServer(
@@ -40,7 +40,7 @@ class TestSuite extends BrowserTestSuite {
         $this->sut()->settings()['siteUri'] = 'http://' . $address;
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         if ($this->phpServer) {
             $this->phpServer->stop();

@@ -12,7 +12,7 @@ use Morpho\Network\Http\SeleniumServer;
 abstract class BrowserTestSuite extends TestSuite {
     private $server;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $server = new SeleniumServer();
         $this->configureSeleniumServer($server);
@@ -20,7 +20,7 @@ abstract class BrowserTestSuite extends TestSuite {
         $this->server = $server;
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         if ($this->server) {
             $this->server->stop();
