@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Base;
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, lines, memoize, nonEmptyLines, not, op, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
+    endsWith, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -93,6 +93,12 @@ class FunctionsTest extends TestCase {
             [
                 true, 'foo', 'fo',
             ],
+            [
+                true, 'Привет', 'При'
+            ],
+            [
+                false, 'Привет', 'при'
+            ],
         ];
     }
 
@@ -109,6 +115,12 @@ class FunctionsTest extends TestCase {
                 true, '', '',
             ],
             [
+                false, '', 'foo',
+            ],
+            [
+                true, 'foo', '',
+            ],
+            [
                 true, 'abc', 'c',
             ],
             [
@@ -121,7 +133,10 @@ class FunctionsTest extends TestCase {
                 false, 'abc', 'eabc',
             ],
             [
-                false, '', 'abc',
+                false, 'Привет', 'Вет'
+            ],
+            [
+                true, 'Привет', 'вет'
             ],
         ];
     }
@@ -280,10 +295,10 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foobar', shorten('foobar', 6));
         $this->assertEquals('fooba', shorten('fooba', 6));
         $this->assertEquals('foob', shorten('foob', 6));
-        $this->assertEquals('foo', shorten('foo'), 6);
-        $this->assertEquals('fo', shorten('fo'), 6);
-        $this->assertEquals('f', shorten('f'), 6);
-        $this->assertEquals('', shorten(''), 6);
+        $this->assertEquals('foo', shorten('foo', 6));
+        $this->assertEquals('fo', shorten('fo', 6));
+        $this->assertEquals('f', shorten('f', 6));
+        $this->assertEquals('', shorten('', 6));
 
         $this->assertEquals('foob!!', shorten('foobarb', 6, '!!'));
     }

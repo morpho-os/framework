@@ -343,6 +343,9 @@ function fromJson(string $json, bool $objectsToArrays = true) {
 }
 
 function endsWith(string $string, string $suffix): bool {
+    if ($suffix === '') {
+        return true;
+    }
     return substr($string, -strlen($suffix)) === $suffix;
 }
 
