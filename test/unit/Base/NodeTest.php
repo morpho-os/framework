@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Base;
 
 use Morpho\Base\EmptyPropertyException;
 use Morpho\Base\Node;
-use Morpho\Base\Object;
+use Morpho\Base\ArrayObject;
 use Morpho\Test\TestCase;
 use RuntimeException;
 
@@ -32,7 +32,7 @@ class NodeTest extends TestCase {
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(Object::class, $this->node);
+        $this->assertInstanceOf(ArrayObject::class, $this->node);
     }
 
     public function testAppend_SetsParent() {

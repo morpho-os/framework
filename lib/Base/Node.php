@@ -8,7 +8,7 @@ namespace Morpho\Base;
 
 use RuntimeException;
 
-class Node extends Object {
+class Node extends ArrayObject {
     /**
      * Name must be unique among all child nodes.
      */

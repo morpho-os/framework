@@ -9,7 +9,7 @@ namespace Morpho\Base;
 use Morpho\Fs\Path;
 use ReflectionObject;
 
-abstract class Object extends \ArrayObject {
+abstract class ArrayObject extends \ArrayObject {
     /**
      * @var ?bool
      */

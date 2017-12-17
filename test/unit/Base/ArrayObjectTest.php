@@ -6,10 +6,15 @@
  */
 namespace MorphoTest\Unit\Base;
 
-use Morpho\Base\Object;
+use Morpho\Base\ArrayObject;
 use Morpho\Test\TestCase;
 
-class ObjectTest extends TestCase {
+class ArrayObjectTest extends TestCase {
+    /**
+     * @var ArrayObject
+     */
+    private $object;
+
     public function setUp() {
         $this->object = new MyObject();
     }
@@ -23,5 +28,5 @@ class ObjectTest extends TestCase {
     }
 }
 
-class MyObject extends Object {
+class MyObject extends ArrayObject {
 }
