@@ -7,35 +7,40 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\startsWith;
+use Morpho\Fs\Path;
 
 class UriProcessor extends HtmlProcessor {
     protected function tagLink($tag) {
-        return $this->prependUriInTag($tag, 'href');
+        return $this->prependBasePath($tag, 'href');
     }
 
     protected function tagA($tag) {
-        return $this->prependUriInTag($tag, 'href');
+        return $this->prependBasePath($tag, 'href');
     }
 
     protected function tagForm($tag) {
-        return $this->prependUriInTag($tag, 'action');
+        return $this->prependBasePath($tag, 'action');
     }
 
     protected function tagScript($tag) {
-        return $this->prependUriInTag($tag, 'src');
+        return $this->prependBasePath($tag, 'src');
     }
 
-    protected function prependUriInTag(array $tag, string $attrName): array {
+    protected function prependBasePath(array $tag, string $attrName): array {
         if (isset($tag[self::SKIP_ATTR])) {
             return $tag;
         }
-        if (isset($tag[$attrName]) && $this->shouldPrependBasePath($tag[$attrName])) {
-            $tag[$attrName] = $this->prependBasePath($tag[$attrName]);
+        if (isset($tag[$attrName]) && !startsWith($tag[$attrName], '<?')) {
+            $uriStr = $tag[$attrName];
+            if (isset($uriStr[0]) && $uriStr[0] === '/') {
+                if (isset($uriStr[1]) && $uriStr[1] === '/') {
+                    // URI starts with //
+                    return $tag;
+                }
+                $basePath = $this->request()->uri()->path()->basePath();
+                $tag[$attrName] = Path::combine($basePath, substr($uriStr, 1));
+            }
         }
         return $tag;
-    }
-
-    protected function shouldPrependBasePath(string $uri): bool {
-        return parent::shouldPrependBasePath($uri) && !startsWith($uri, '<?');
     }
 }

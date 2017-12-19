@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Web\View;
 use Morpho\Base\ItemNotSetException;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Uri;
+use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\ScriptProcessor;
 use Morpho\Web\View\UriProcessor;
 use Morpho\Web\View\MessengerPlugin;
@@ -25,30 +25,32 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function setUp() {
         $this->templateEngine = new PhpTemplateEngine();
-
         $serviceManager = $this->newServiceManager();
-
-        $compiler = new Compiler();
-        $compiler->appendSourceInfo(false);
-        $this->templateEngine
-            ->append(new UriProcessor($serviceManager))
-            ->append($compiler)
-            ->append(new ScriptProcessor($serviceManager));
-
-        $this->templateEngine->setServiceManager($serviceManager);
-
-        $this->templateEngine->setCacheDirPath($this->tmpDirPath());
-        $this->templateEngine->useCache(false);
-        $this->setDefaultTimezone();
+        $this->configureTemplateEngine($this->templateEngine, $serviceManager);
     }
 
     public function testUriWithRedirectToSelf() {
         $curUriStr = 'http://localhost/?three=qux&four=pizza';
-        #$uri = new Uri($curUriStr);
+        $serviceManager = $this->newServiceManager();
+        $curUri = new Uri($curUriStr);
+
+        $request = $this->createMock(Request::class);
+        $request->expects($this->any())
+            ->method('uri')
+            ->willReturn($curUri);
+        $serviceManager->set('request', $request);
+
+        $templateEngine = new PhpTemplateEngine();
+        $this->configureTemplateEngine($templateEngine, $serviceManager);
+
         $this->assertSame(
-            '/foo/bar?one=1&two=2&redirect=' . $curUriStr,
-            $this->templateEngine->uriWithRedirectToSelf('/foo/bar?redirect=' . rawurlencode($curUriStr))->__toString()
+            '/foo/bar?one=1&two=2&redirect=' . rawurlencode($curUriStr),
+            $templateEngine->uriWithRedirectToSelf('/foo/bar?one=1&two=2')
         );
+    }
+
+    public function testLink() {
+        $this->markTestIncomplete();
     }
 
     public function testVar_ReadUndefinedVarThrowsException() {
@@ -243,10 +245,26 @@ class PhpTemplateEngineTest extends TestCase {
     private function newServiceManager(): ServiceManager {
         $request = new Request();
         $uri = new Uri();
-        $uri->setBasePath('/base/path');
+        $uri->setPath('/base/path/foo/bar');
+        $uri->path()->setBasePath('/base/path');
         $request->setUri($uri);
         $request->setHandler(['foo/bar', 'Test', 'Some']);
         $serviceManager = new ServiceManager(['request' => $request]);
         return $serviceManager;
+    }
+
+    private function configureTemplateEngine($templateEngine, $serviceManager) {
+        $compiler = new Compiler();
+        $compiler->appendSourceInfo(false);
+        $templateEngine
+            ->append(new UriProcessor($serviceManager))
+            ->append($compiler)
+            ->append(new ScriptProcessor($serviceManager));
+
+        $templateEngine->setServiceManager($serviceManager);
+
+        $templateEngine->setCacheDirPath($this->tmpDirPath());
+        $templateEngine->useCache(false);
+        $this->setDefaultTimezone();
     }
 }

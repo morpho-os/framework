@@ -92,7 +92,7 @@ class Controller extends Node implements IFn {
     }
 
     /**
-     * @param string|View $name
+     * @param string|View $nameOrView
      */
     protected function setView($nameOrView): void {
         $this->view = is_string($nameOrView) ? new View($nameOrView) : $nameOrView;
@@ -128,6 +128,9 @@ class Controller extends Node implements IFn {
         if (null === $uri) {
             $uri = $request->uri();
         }
+        $uri = prependBasePath(function () {
+            return $this->request->uri()->path()->basePath();
+        }, $uri);
         /** @var Response $response */
         $response = $request->response();
         $response->redirect($uri, $httpStatusCode);
@@ -139,15 +142,6 @@ class Controller extends Node implements IFn {
 
     protected function error($data = null): array {
         return ['error' => $data ?: true];
-    }
-
-    protected function messages(bool $clear = true): array {
-        $messenger = $this->serviceManager->get('messenger');
-        $messages = $messenger->toArray();
-        if ($clear) {
-            $messenger->clearMessages();
-        }
-        return $messages;
     }
 
     protected function accessDenied(): void {
@@ -187,7 +181,7 @@ class Controller extends Node implements IFn {
     }
 
     /**
-     * @param string|View $name
+     * @param string|View $nameOrLayout
      */
     protected function setLayout($nameOrLayout): void {
         $this->request->params()->offsetSet(

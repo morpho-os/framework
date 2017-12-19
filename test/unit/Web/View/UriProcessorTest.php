@@ -10,7 +10,8 @@ namespace MorphoTest\Unit\Web\View;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Request;
-use Morpho\Web\Uri;
+use Morpho\Web\Uri\Path;
+use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\UriProcessor;
 
 class UriProcessorTest extends TestCase {
@@ -29,6 +30,7 @@ class UriProcessorTest extends TestCase {
     <form action="//host/news/test1"></form>
     <form action="/news/test1"></form>
     <form action="<?= 'test' ?>/news/test1"></form>
+    <form action="/news/<?= 'test' ?>/test1<?php echo 'ok'; ?>"></form>
     <form action="/news/<?= 'test' ?>/test1"></form>
         
     <link href="http://host/css/test1.css">
@@ -53,7 +55,9 @@ class UriProcessorTest extends TestCase {
     <script src="/js/<?= 'test' ?>/test1.js"></script>
 OUT;
 
-        $uri = $this->createConfiguredMock(Uri::class, ['basePath' => $basePath]);
+
+        $path = $this->createConfiguredMock(Path::class, ['basePath' => $basePath]);
+        $uri = $this->createConfiguredMock(Uri::class, ['path' => $path]);
 
         $request = $this->createMock(Request::class);
         $request->expects($this->any())
@@ -75,6 +79,7 @@ OUT;
     <form action="//host/news/test1"></form>
     <form action="$expectedBasePath/news/test1"></form>
     <form action="<?= 'test' ?>/news/test1"></form>
+    <form action="$expectedBasePath/news/<?= 'test' ?>/test1<?php echo 'ok'; ?>"></form>
     <form action="$expectedBasePath/news/<?= 'test' ?>/test1"></form>
         
     <link href="http://host/css/test1.css">

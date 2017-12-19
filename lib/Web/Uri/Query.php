@@ -4,32 +4,41 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Web;
+namespace Morpho\Web\Uri;
 
 class Query extends \ArrayObject {
     /**
-     * @param string|array|object $queryStrOrQueryArgs
+     * @var bool
      */
-    public function __construct($queryStrOrQueryArgs = []) {
+    private $initialized = false;
+
+    /**
+     * @param string|array|object|null $queryStrOrQueryArgs
+     */
+    public function __construct($queryStrOrQueryArgs = null) {
+        if (null === $queryStrOrQueryArgs) {
+            return;
+        }
         if (is_string($queryStrOrQueryArgs)) {
+            $this->initialized = true;
             $query = UriParser::parseOnlyQuery($queryStrOrQueryArgs);
-            if (false === $query) {
-                $query = [];
-            }
             $this->exchangeArray($query);
         } else {
             parent::__construct($queryStrOrQueryArgs);
         }
     }
 
-    public function isEmpty(): bool {
+    public function isNull(): bool {
+        if ($this->initialized) {
+            return false;
+        }
         foreach ($this as $name => $value) {
             return false;
         }
         return true;
     }
 
-    public function toString(bool $encode = true): string {
+    public function toStr(bool $encode = true): string {
         $queryStr = '';
         foreach ($this as $name => $value) {
             $queryStr .= '&' . ($encode ? rawurlencode($name) : $name);

@@ -11,6 +11,8 @@ use function Morpho\Base\trimMore;
 use Morpho\Core\IResponse;
 use Morpho\Fs\Path;
 use Morpho\Core\Request as BaseRequest;
+use Morpho\Web\Uri\Authority;
+use Morpho\Web\Uri\Uri;
 
 /**
  * Some methods in this class based on \Zend\Http\PhpEnvironment\Request class.
@@ -207,11 +209,6 @@ class Request extends BaseRequest {
         return $headers->offsetExists('X-Requested-With') && $headers->offsetGet('X-Requested-With') === 'XMLHttpRequest';
     }
 
-    /**
-     * Returns URI that can be changed without changing original URI (clone).
-     *
-     * @param string|array|null $queryArgs
-     */
     public function uri(): Uri {
         if (null === $this->uri) {
             $this->initUri();
@@ -356,23 +353,25 @@ class Request extends BaseRequest {
 
         $uri->setScheme($this->isSecure() ? 'https' : 'http');
 
+        $authority = new Authority();
         [$host, $port] = $this->detectHostAndPort();
         if ($host) {
-            $uri->setHost($host);
+            $authority->setHost($host);
             if ($port) {
-                $uri->setPort($port);
+                $authority->setPort($port);
             }
         }
+        $uri->setAuthority($authority);
 
         $requestUri = $this->detectRequestUri();
         $uri->setPath($requestUri);
 
-        $query = $this->serverVar('QUERY_STRING');
-        if (null !== $query) {
-            $uri->setQuery($query);
-        }
+        $uri->path()->setBasePath($this->detectBasePath($requestUri));
 
-        $uri->setBasePath($this->detectBasePath($requestUri));
+        $queryStr = $this->serverVar('QUERY_STRING');
+        if ($queryStr !== '') {
+            $uri->setQuery($queryStr);
+        }
 
         $this->uri = $uri;
     }

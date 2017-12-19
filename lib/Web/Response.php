@@ -39,10 +39,10 @@ class Response extends BaseResponse {
     public const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
 
     /**
-     * @param string|Uri $uri
+     * @param string|Uri\Uri $uri
      */
     public function redirect($uri, int $httpStatusCode = null): void {
-        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toString());
+        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toStr());
         $this->setStatusCode($httpStatusCode ?: self::FOUND_STATUS_CODE);
     }
 

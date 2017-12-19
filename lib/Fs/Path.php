@@ -9,7 +9,7 @@ namespace Morpho\Fs;
 use Morpho\Base\Environment;
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
-use Zend\Uri\Uri;
+use Morpho\Web\Uri\Path as UriPath;
 
 class Path {
     public static function isAbsolute(string $path): bool {
@@ -25,10 +25,16 @@ class Path {
     }
 
     public static function isNormalized(string $path): bool {
-        if (false !== strpos($path, '\\') || false !== strpos($path, '..')) {
-            return false;
+        $isWindows = Environment::isWindows();
+        if ($isWindows) {
+            if (false !== strpos($path, '\\')) {
+                return false;
+            }
         }
-        return substr($path, -1, 1) !== '/';
+        $last = substr($path, -1, 1);
+        return $last !== '/'
+            && (!$isWindows && $last !== '\\')
+            && false === strpos($path, '..');
     }
 
     public static function normalize(string $path): string {
@@ -42,9 +48,9 @@ class Path {
             return $path;
         }
         if (false !== strpos($path, '/..')) {
-            $path = Uri::removePathDotSegments($path);
+            $path = UriPath::removeDotSegments($path);
         }
-        return rtrim($path, '/');
+        return rtrim($path, '/\\');
     }
 
     public static function combine(...$paths): string {
@@ -89,19 +95,19 @@ class Path {
         return $normalize ? self::normalize($absPath) : $absPath;
     }
 
-    public static function toRelative(string $basePath, string $path): string {
+    public static function toRelative(string $path, string $basePath): string {
         $path = static::normalize($path);
         $basePath = static::normalize($basePath);
 
         if ($path === '') {
             return $basePath;
         }
-        if (empty($basePath)) {
-            throw new Exception("The base path can't be empty.");
+        if ($basePath === '') {
+            return $path;
         }
         $pos = strpos($path, $basePath);
         if ($pos !== 0) {
-            throw new Exception("The path '$path' does not contain the base path '$basePath'.");
+            throw new Exception("The path '$path' does not contain the base path '$basePath'");
         }
 
         return (string)substr($path, strlen($basePath) + 1);

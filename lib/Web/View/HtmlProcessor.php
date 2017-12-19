@@ -26,19 +26,10 @@ abstract class HtmlProcessor extends HtmlSemiParser {
         $this->filePath = $filePath;
     }
 
-    protected function prependBasePath(string $uriStr): string {
-        $basePath = $this->request()->uri()->basePath();
-        return rtrim($basePath, '/') . '/' . ltrim($uriStr, '/');
-    }
-
     protected function request() {
         if (null === $this->request) {
             $this->request = $this->serviceManager->get('request');
         }
         return $this->request;
-    }
-
-    protected function shouldPrependBasePath(string $uri): bool {
-        return $uri && $uri[0] === '/' && isset($uri[1]) && $uri[1] !== '/';
     }
 }

@@ -19,7 +19,7 @@ class HtmlSemiParser implements IFn {
     /**
      * Characters inside tag RE (between < and >).
      */
-    protected $regexpTagIn = '(?>(?xs) (?> [^>"\']+ | " [^"]* " | \' [^\']* \' )* )';
+    protected $tagRe = '(?>(?xs) (?> [^>"\']+ | " [^"]* " | \' [^\']* \' )* )';
 
     protected $isHtml5 = true;
 
@@ -137,7 +137,7 @@ class HtmlSemiParser implements IFn {
      * @return string Text after all replacements.
      */
     public function __invoke($html) {
-        $reTagIn = $this->regexpTagIn;
+        $reTagIn = $this->tagRe;
 
         // Remove ignored container bodies from the string.
         $this->spIgnored = [];
@@ -272,28 +272,48 @@ class HtmlSemiParser implements IFn {
      */
     protected function renderTag(array $attr): string {
         // Join & return tag.
-        $s = "";
-        foreach ($attr as $k => $v) {
-            if ($k == "_text" || $k == "_tagName" || $k == "_orig") {
+        $attrStr = '';
+        foreach ($attr as $name => $value) {
+            if ($name == '_text' || $name == '_tagName' || $name == '_orig') {
                 continue;
             }
-            $s .= " " . Html::encode($k);
-            if ($v !== null) {
-                $s .= '="' . Html::encode($v) . '"';
+            $attrStr .= ' ' . Html::encode($name);
+            if ($value !== null) {
+                $attrStr .= '="' . $this->encodeAttrValue($value) . '"';
             }
         }
-        if (!@$attr['_tagName']) {
-            $attr['_tagName'] = "???";
+        if (empty($attr['_tagName'])) {
+            // Return empty string? When this case can occur?
+            throw new \RuntimeException('Tag name is empty');
+            //$attr['_tagName'] = '???';
         }
 
         if (!array_key_exists('_text', $attr)) { // do not use isset()!
-            $tag = "<{$attr['_tagName']}{$s}>";
-        } elseif ($attr['_text'] === null) { // null
-            $tag = "<{$attr['_tagName']}{$s}" . ($this->isHtml5 ? '>' : ' />');
+            $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}>";
+        } elseif ($attr['_text'] === null) {
+            $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}" . ($this->isHtml5 ? '>' : ' />');
         } else {
-            $tag = "<{$attr['_tagName']}{$s}>{$attr['_text']}</{$attr['_tagName']}>";
+            $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}>{$attr['_text']}</{$attr['_tagName']}>";
         }
-        return $tag;
+        return $tagHtmlStr;
+    }
+
+    protected function encodeAttrValue(string $attrValue): string {
+        if (false !== strpos($attrValue, '<?')) {
+            // Modified RE from https://github.com/nikic/PHP-Parser/blob/master/grammar/rebuildParsers.php#L34
+            $groups = preg_split('~(?P<php> (?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?> )~six', $attrValue, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+            $value = '';
+            foreach ($groups as $group) {
+                if (preg_match('~^(?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?>$~six', $group)) { // ignore PHP code
+                    $value .= $group;
+                } else {
+                    $value .= Html::encode($group);
+                }
+            }
+            return $value;
+        } else {
+            return Html::encode($attrValue);
+        }
     }
 
     /**
@@ -359,7 +379,7 @@ class HtmlSemiParser implements IFn {
         $tag = [];
         for ($i = 0, $c = count($names); $i < $c; $i++) {
             $name = strtolower($names[$i]);
-            if (!@$checks[$i]) {
+            if (empty($checks[$i])) {
                 $value = $name;
             } else {
                 $value = $values[$i];
@@ -367,11 +387,6 @@ class HtmlSemiParser implements IFn {
                     $value = substr($value, 1, -1);
                 }
             }
-            /*
-            if (strpos($value, '&') !== false) {
-                $value = Html::decode($value);
-            }
-            */
             $tag[$name] = $value;
         }
         return $tag;

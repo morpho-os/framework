@@ -12,8 +12,7 @@ use Morpho\Web\View\View;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
-use Morpho\Di\ServiceManager;
-use Morpho\Web\Uri;
+use Morpho\Web\Uri\Uri;
 
 class ControllerTest extends TestCase {
     public function testInterfaces() {
@@ -69,7 +68,10 @@ class ControllerTest extends TestCase {
         $controller = new MyController('foo');
         $controller->statusCode = $statusCode;
         $request = $this->newRequest();
-        $request->setUri(new Uri('http://localhost/base/path/some/module?foo=bar'));
+        $uri = new Uri('http://localhost/base/path/some/module?foo=bar');
+        $basePath = '/base/path';
+        $uri->path()->setBasePath($basePath);
+        $request->setUri($uri);
         $request->setActionName('redirectHasArgs');
 
         $controller->__invoke($request);
@@ -79,7 +81,7 @@ class ControllerTest extends TestCase {
         $response = $request->response();
         $this->assertTrue($response->isRedirect());
         $this->assertEquals(
-            ['Location' => "/some/page"],
+            ['Location' => "$basePath/some/page"],
             $response->headers()->getArrayCopy()
         );
         $this->assertSame($statusCode, $response->statusCode());
@@ -122,29 +124,6 @@ class ControllerTest extends TestCase {
         $this->assertFalse($request->isDispatched());
     }
 
-    public function testRedirectToAction() {
-        $this->markTestIncomplete();
-
-        $controller = new MyOtherController('foo');
-
-        $serviceManager = new ServiceManager();
-
-        $this->assertNull($controller->redirectArgs);
-        $actionName = 'redirect-here';
-        $controllerName = 'my-some';
-        $moduleName = 'morpho-test';
-        $httpMethod = Request::POST_METHOD;
-
-        $controller->setServiceManager($serviceManager);
-
-        $controller->doRedirectToAction($actionName, $httpMethod, $controllerName, $moduleName, ['foo' => 'bar']);
-
-        $this->assertEquals(
-            ["/$moduleName/$controllerName/$actionName/foo/bar"],
-            $controller->redirectArgs
-        );
-    }
-
     private function newRequest() {
         $request = new Request();
         $request->isDispatched(true);
@@ -165,17 +144,5 @@ class MyController extends Controller {
 
     public function redirectNoArgsAction() {
         $this->redirect();
-    }
-}
-
-class MyOtherController extends Controller {
-    public $redirectArgs;
-
-    public function doRedirectToAction(...$args) {
-        parent::redirectToAction(...$args);
-    }
-
-    protected function redirect($uri = null, int $httpStatusCode = null): void {
-        $this->redirectArgs = func_get_args();
     }
 }

@@ -14,7 +14,8 @@ use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Di\IServiceManager;
 use Morpho\Di\IHasServiceManager;
 use Morpho\Web\Controller;
-use Morpho\Web\Uri;
+use function Morpho\Web\prependBasePath;
+use Morpho\Web\Uri\Uri;
 
 class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     protected $serviceManager;
@@ -104,19 +105,17 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
      * E.g.: if the current URI === 'http://baz/' then the call
      *     $templateEngine->uriWithRedirectToSelf('http://foo/bar')
      * will return 'http://foo/bar?redirect=http://baz
-     * @return Uri
      */
-    public function uriWithRedirectToSelf($uri): Uri {
+    public function uriWithRedirectToSelf($uri): string {
         if (is_string($uri)) {
             $uri = new Uri($uri);
         }
-        $uri->query()['redirect'] = $this->uri();
-        return $uri;
+        $uri->query()['redirect'] = $this->uri()->toStr();
+        return $uri->toStr();
     }
 
     public function link(string $uri, string $text, array $attributes = [], array $options = null): string {
-        $attributes['href'] = $this->uri()
-            ->prependBasePath($uri);
+        $attributes['href'] = prependBasePath(function () { return $this->uri(); }, $uri)->toStr();
         return Html::tag('a', $attributes, $text, $options);
     }
 

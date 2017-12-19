@@ -106,20 +106,18 @@ class PathTest extends TestCase {
     }
 
     public function dataForIsNormalizedInvalid() {
-        return [
-            ['\foo\bar\baz'],
+        $dataSet = [
             ['\foo\bar\baz\\'],
             ['\foo\bar\baz/'],
 
-            ['\foo\..\baz'],
             ['\foo\..\baz\\'],
             ['\foo\..\baz/'],
 
+            ['\foo\..\baz'],
             ['/foo/../baz'],
             ['/foo/../baz\\'],
             ['/foo/../baz/'],
 
-            ['C:\foo\bar\baz'],
             ['C:\foo\bar\baz\\'],
             ['C:\foo\bar\baz/'],
 
@@ -131,6 +129,14 @@ class PathTest extends TestCase {
             ['C:/foo/../baz\\'],
             ['C:/foo/../baz/'],
         ];
+        $isWin = $this->isWindows();
+        if ($isWin) {
+            $dataSet = array_merge($dataSet, [
+                ['\foo\bar\baz'],
+                ['C:\foo\bar\baz'],
+            ]);
+        }
+        return $dataSet;
     }
 
     /**
@@ -281,7 +287,7 @@ class PathTest extends TestCase {
             $this->assertEquals('/foo\\bar\\baz', Path::normalize('/foo\\bar\\baz/'));
             $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz/'));
             $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo\\bar\\baz\\', Path::normalize('C:/foo\\bar\\baz\\'));
+            $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz\\'));
         }
         $this->assertEquals('/', Path::normalize('/'));
         $this->assertEquals('', Path::normalize(''));
@@ -293,10 +299,10 @@ class PathTest extends TestCase {
 
     public function testToRelative() {
         $baseDirPath = __DIR__ . '/../../..';
-        $this->assertEquals('module/foo/bar', Path::toRelative($baseDirPath, $baseDirPath . '/module/foo/bar'));
-        $this->assertSame('', Path::toRelative($baseDirPath, $baseDirPath));
-        $this->assertSame('', Path::toRelative($baseDirPath, $baseDirPath . '/'));
-        $this->assertSame('index.php', Path::toRelative($baseDirPath, $baseDirPath . '/index.php'));
+        $this->assertEquals(Path::toRelative($baseDirPath . '/module/foo/bar', $baseDirPath), 'module/foo/bar');
+        $this->assertSame(Path::toRelative($baseDirPath, $baseDirPath), '');
+        $this->assertSame(Path::toRelative($baseDirPath . '/', $baseDirPath), '');
+        $this->assertSame(Path::toRelative($baseDirPath . '/index.php', $baseDirPath), 'index.php');
     }
 
     public function testToRelative_ThrowsExceptionWhenBasePathNotContainedWithinPath() {
@@ -304,9 +310,9 @@ class PathTest extends TestCase {
         $path = __DIR__;
         $this->expectException(
             FsException::class,
-            "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'."
+            "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
         );
-        Path::toRelative($baseDirPath, $path);
+        Path::toRelative($path, $baseDirPath);
     }
 
     public function testNameWithoutExt() {

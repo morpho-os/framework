@@ -133,8 +133,9 @@ class RequestTest extends TestCase {
         $_SERVER['HTTP_HOST'] = 'blog.example.com:8042';
         $_SERVER['REQUEST_URI'] = '/top.htm?page=news&skip=10';
         $_SERVER['QUERY_STRING'] = 'page=news&skip=10';
+        $_SERVER['SCRIPT_NAME'] = '/';
         $uri = $this->request->uri();
-        $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->__toString());
+        $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->toStr());
     }
 
     public function dataForIsHttpMethod() {
@@ -224,8 +225,12 @@ class RequestTest extends TestCase {
 
     public function testInitializationOfUri_BasePath() {
         $basePath = '/foo/bar/baz';
-        $request = new Request(['SCRIPT_NAME' => $basePath . '/index.php']);
-        $this->assertSame($basePath, $request->uri()->basePath());
+        $request = new Request([
+            'REQUEST_URI' => $basePath . '/index.php/one/two',
+            'SCRIPT_NAME' => $basePath . '/index.php'
+        ]);
+        $uri = $request->uri();
+        $this->assertSame($basePath, $uri->path()->basePath());
     }
 
     public function dataForInitializationOfUri_Scheme() {
@@ -255,5 +260,16 @@ class RequestTest extends TestCase {
         } else {
             $this->assertSame('http', $request->uri()->scheme());
         }
+    }
+
+    public function testInitializationOfUri_Query() {
+        $request = new Request([
+            'REQUEST_URI' => '/',
+            'SCRIPT_NAME' => '/index.php',
+            'QUERY_STRING' => '',
+            'HTTP_HOST' => 'framework',
+        ]);
+        $uri = $request->uri();
+        $this->assertSame('http://framework/', $uri->toStr());
     }
 }

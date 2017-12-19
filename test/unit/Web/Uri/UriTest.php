@@ -4,19 +4,16 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Web;
+namespace MorphoTest\Unit\Web\Uri;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\Authority;
-use Morpho\Web\Query;
-use Morpho\Web\Uri;
+use Morpho\Web\Uri\Authority;
+use Morpho\Web\Uri\Path;
+use Morpho\Web\Uri\Query;
+use Morpho\Web\Uri\Uri;
 
 class UriTest extends TestCase {
     use TUriParserDataProvider;
-
-    public function testBasePathAccessors() {
-        $this->checkAccessors([new Uri(), 'basePath'], null, '/base/uri');
-    }
 
     public function testSchemeAccessors() {
         $this->checkAccessors([new Uri(), 'scheme'], '', 'http');
@@ -24,17 +21,41 @@ class UriTest extends TestCase {
     }
 
     public function testAuthorityAccessors() {
-        $this->checkAccessors([new Uri(), 'authority'], null, new Authority('example.com'));
-        $this->checkAccessors([new Uri(), 'authority'], null, null);
+        $uri = new Uri();
+
+        $authority = $uri->authority();
+        $this->assertEquals(new Authority(), $authority);
+        $this->assertTrue($authority->isNull());
+
+        $newAuthority = new Authority('example.com');
+        $this->assertNull($uri->setAuthority($newAuthority));
+        $this->assertSame($newAuthority, $uri->authority());
     }
 
     public function testPathAccessors() {
-        $this->checkAccessors([new Uri(), 'path'], '', '/foo/bar/baz');
+        $uri = new Uri();
+
+        $this->assertEquals(new Path(''), $uri->path());
+
+        $path = '/foo/bar';
+        $this->assertNull($uri->setPath($path));
+        $this->assertEquals(new Path($path), $uri->path());
+
+        $path = new Path($path);
+        $this->assertNull($uri->setPath($path));
+        $this->assertSame($path, $uri->path());
     }
 
     public function testQueryAccessors() {
-        $this->checkAccessors([new Uri(), 'query'], null, new Query('foo=bar&test=123'));
-        $this->checkAccessors([new Uri(), 'query'], null, null);
+        $uri = new Uri();
+
+        $query = $uri->query();
+        $this->assertEquals(new Query(), $query);
+        $this->assertTrue($query->isNull());
+
+        $newQuery = new Query('foo=bar&test=123');
+        $this->assertNull($uri->setQuery($newQuery));
+        $this->assertSame($newQuery, $uri->query());
     }
 
     public function testFragmentAccessors() {
@@ -42,21 +63,21 @@ class UriTest extends TestCase {
         $this->checkAccessors([new Uri(), 'fragment'], null, null);
     }
     
-    public function dataForToString() {
+    public function dataForToStr() {
         foreach ($this->dataForParse() as $sample) {
             yield [$sample[0]];
         }
     }
 
     /**
-     * @dataProvider dataForToString
+     * @dataProvider dataForToStr
      */
-    public function testToString(string $uriStr) {
+    public function testToStr(string $uriStr) {
         $uri = new Uri($uriStr);
-        $this->assertSame($uriStr, $uri->toString(false));
+        $this->assertSame($uriStr, $uri->toStr(false));
     }
     
-    public function dataForAppended_NormalExamples() {
+    public function dataForResolveRelUri_NormalExamples() {
         yield ['g:h', 'g:h'];
         yield ['g', 'http://a/b/c/g'];
         yield ['./g', 'http://a/b/c/g'];
@@ -85,17 +106,14 @@ class UriTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAppended_NormalExamples
+     * @dataProvider dataForResolveRelUri_NormalExamples
      */
-    public function testAppended_NormalExamples($relativeRef, $expected) {
-        $uri = new Uri('http://a/b/c/d;p?q');
-        $uri1 = clone $uri;
-        $targetUri = $uri->appended($relativeRef);
-        $this->assertSame($expected, $targetUri->toString(false));
-        $this->assertEquals($uri1, $uri); // $uri should not be changed
+    public function testResolveRelUri_NormalExamples($relUri, $expected) {
+        $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);
+        $this->assertSame($expected, $uri->toStr(false));
     }
     
-    public function dataForAppended_AbnormalExamples() {
+    public function dataForResolveRelUri_AbnormalExamples() {
         yield ['../../../g', 'http://a/g'];
         yield ['../../../../g', 'http://a/g'];
         yield ['/./g', 'http://a/g'];
@@ -118,10 +136,10 @@ class UriTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAppended_AbnormalExamples
+     * @dataProvider dataForResolveRelUri_AbnormalExamples
      */
-    public function testAppend_AbnormalExamples($relativeRef, $expected) {
-        $uri = new Uri('http://a/b/c/d;p?q');
-        $this->assertSame($expected, $uri->appended($relativeRef)->toString(false));
+    public function testResolveRelUri_AbnormalExamples($relUri, $expected) {
+        $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);
+        $this->assertSame($expected, $uri->toStr(false));
     }
 }

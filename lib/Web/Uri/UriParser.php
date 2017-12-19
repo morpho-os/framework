@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Web;
+namespace Morpho\Web\Uri;
 
 use Morpho\Base\IFn;
 
@@ -46,31 +46,32 @@ class UriParser implements IFn {
         return $this->uri;
     }
 
-    /**
-     * @param string $authority
-     * @return Authority|false
-     */
-    public static function parseOnlyAuthority(string $authority) {
+    public static function parseOnlyAuthority(string $authorityStr): Authority {
         // authority = [ userinfo "@" ] host [ ":" port ]
+        $authority = new Authority();
+        if ($authorityStr === '') {
+            $authority->setUserInfo('');
+            $authority->setHost('');
+            return $authority;
+        }
         if (!preg_match('~^
             (?P<userInfo_>(?P<userInfo>[^@]*)@)?
-            (?P<host>(?:\[[^\]]+\]|[^:]+))
+            (?P<host>(?:\[[^\]]+\]|[^:]+)?)
             (:(?P<port>\d+))?
-            $~six', $authority, $authorityMatch)) {
-            return false;
+            $~six', $authorityStr, $authorityMatch)) {
+            return $authority;
         }
         $hasUserInfo = $authorityMatch['userInfo_'] !== '';
-        $authority = new Authority();
-        $authority->userInfo = $hasUserInfo ? $authorityMatch['userInfo'] : null;
-        $authority->host = $authorityMatch['host'];
-        $authority->port = isset($authorityMatch['port']) ? (int)$authorityMatch['port'] : null;
+        $authority->setUserInfo($hasUserInfo ? $authorityMatch['userInfo'] : null);
+        $authority->setHost($authorityMatch['host']);
+        $authority->setPort(isset($authorityMatch['port']) ? (int)$authorityMatch['port'] : null);
         return $authority;
     }
 
-    /**
-     * @return Query|false
-     */
-    public static function parseOnlyQuery(string $query) {
+    public static function parseOnlyQuery(string $query): Query {
+        if ($query === '') {
+            return new Query();
+        }
         // NB: The parse_str() for the 'foo' string returns ['foo' => ''], but we need to return ['foo' => null], so we can't use it
         $parts = explode('&', $query);
         $queryArgs = [];
@@ -82,8 +83,11 @@ class UriParser implements IFn {
                 $ch = mb_substr($key, $i, 1);
                 switch ($state) {
                     case null:
-                        // expect the arg name or the '['
+                        // expect the arg name.
                         if ($ch === '[') {
+                            if ($k === null) {
+                                return false;
+                            }
                             $state = '[';
                             $stack[] = $k;
                             $k = null;
@@ -149,7 +153,7 @@ class UriParser implements IFn {
             if (false !== strpos($key, '[') || false !== strpos($key, ']')) {
                 $res = $setValue($key, $value);
                 if (false === $res) {
-                    return false;
+                    continue;
                 }
             } else {
                 $queryArgs[$key] = $value;

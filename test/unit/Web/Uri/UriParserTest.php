@@ -4,11 +4,11 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Web;
+namespace MorphoTest\Unit\Web\Uri;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\UriParseException;
-use Morpho\Web\UriParser;
+use Morpho\Web\Uri\Authority;
+use Morpho\Web\Uri\UriParser;
 
 class UriParserTest extends TestCase {
     use TUriParserDataProvider;
@@ -21,6 +21,14 @@ class UriParserTest extends TestCase {
     }
 
     public function dataForParseOnlyAuthority_ValidCases() {
+        yield [
+            '',
+            [
+                'userInfo' => '',
+                'host' => '',
+                'port' => null,
+            ],
+        ];
         yield [
             'user:password@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80',
             [
@@ -134,9 +142,9 @@ class UriParserTest extends TestCase {
      */
     public function testParseOnlyAuthority_ValidCases($authority, $expected) {
         $authority = UriParser::parseOnlyAuthority($authority);
-        $this->assertSame($expected['userInfo'], $authority->userInfo);
-        $this->assertSame($expected['host'], $authority->host);
-        $this->assertSame($expected['port'], $authority->port);
+        $this->assertSame($expected['userInfo'], $authority->userInfo());
+        $this->assertSame($expected['host'], $authority->host());
+        $this->assertSame($expected['port'], $authority->port());
     }
 
     public function dataForParseOnlyAuthority_InvalidCases() {
@@ -149,7 +157,7 @@ class UriParserTest extends TestCase {
      * @dataProvider dataForParseOnlyAuthority_InvalidCases
      */
     public function testParseOnlyAuthority_InvalidCases($authority) {
-        $this->assertFalse(UriParser::parseOnlyAuthority($authority));
+        $this->assertEquals(new Authority(), UriParser::parseOnlyAuthority($authority));
     }
 
     public function testParseTheSameUriTwice() {
@@ -158,9 +166,9 @@ class UriParserTest extends TestCase {
         for ($i = 0; $i < 2; $i++) {
             $uri = $uriParser->__invoke($uriStr);
             $this->assertSame('foo', $uri->scheme());
-            $this->assertSame('example.com:8042', $uri->authority()->toString(false));
-            $this->assertSame('/over/there', $uri->path());
-            $this->assertSame('name=ferret', $uri->query()->toString(false));
+            $this->assertSame('example.com:8042', $uri->authority()->toStr(false));
+            $this->assertSame('/over/there', $uri->path()->toStr());
+            $this->assertSame('name=ferret', $uri->query()->toStr(false));
             $this->assertSame('nose', $uri->fragment());
         }
     }
@@ -179,6 +187,12 @@ class UriParserTest extends TestCase {
             [
                 'foo' => 'bar',
                 'baz' => 'test',
+            ],
+        ];
+        yield [
+            'foo=bar&foo=baz',
+            [
+                'foo' => 'baz',
             ],
         ];
         yield [
@@ -251,55 +265,72 @@ class UriParserTest extends TestCase {
             ],
         ];
         yield [
-            '[]',
+            '[]&foo=bar',
             [
-                [
-                    null,
-                ],
+                'foo' => 'bar',
             ],
         ];
         yield [
-            '[][]',
+            '[][]&foo=bar',
             [
-                [
-                    [
-                        null,
-                    ],
-                ],
+                'foo' => 'bar'
             ],
         ];
         yield [
-            '[][]=test',
+            '[][]=test&foo=bar',
             [
-                [
-                    [
-                        'test',
-                    ],
-                ],
+                'foo' => 'bar',
             ],
         ];
         yield [
-            '=test', // no name
-            [],
+            '=test&foo=bar', // no name
+            [
+                'foo' => 'bar',
+            ],
         ];
         yield [
-            '=', // no name and value
-            []
+            '=&test=123', // no name and value
+            [
+                'test' => '123',
+            ]
         ];
         yield [
-            'name=', // no value
+            'name=&test=123', // no value
             [
                 'name' => '',
+                'test' => '123',
             ],
         ];
         yield [
-            '==', // two `=` chars, no name and value for both
-            [],
+            '==&test=123', // two `=` chars, no name and value for both
+            [
+                'test' => '123',
+            ],
         ];
-        yield ['foo[[', false];
-        yield ['foo][', false];
-        yield ['foo[', false];
-        yield ['foo]', false];
+        yield [
+            'foo[[&test=123',
+            [
+                'test' => '123',
+            ],
+        ];
+        yield [
+            'foo][&test=123',
+            [
+                'test' => '123',
+            ],
+        ];
+        yield [
+            'foo[&test=123',
+            [
+                'test' => '123',
+            ],
+        ];
+        yield [
+            'foo]&test=123',
+            [
+                'test' => '123',
+            ],
+        ];
     }
 
     /**
@@ -307,11 +338,7 @@ class UriParserTest extends TestCase {
      */
     public function testParseOnlyQuery($queryStr, $expected) {
         $query = UriParser::parseOnlyQuery($queryStr);
-        if (false === $expected) {
-            $this->assertFalse($query);
-        } else {
-            $this->assertSame($expected, $query->getArrayCopy());
-        }
+        $this->assertSame($expected, $query->getArrayCopy());
     }
 
     private function checkParse(string $uriStr, array $expected): void {
@@ -320,17 +347,17 @@ class UriParserTest extends TestCase {
         $this->assertSame($expected['scheme'], $uri->scheme());
 
         if (null === $expected['authority']) {
-            $this->assertNull($uri->authority());
+            $this->assertTrue($uri->authority()->isNull());
         } else {
-            $this->assertSame($expected['authority'], $uri->authority()->toString(false));
+            $this->assertSame($expected['authority'], $uri->authority()->toStr(false));
         }
 
-        $this->assertSame($expected['path'], $uri->path());
+        $this->assertSame($expected['path'], $uri->path()->toStr());
 
         if (null === $expected['query']) {
-            $this->assertNull($uri->query());
+            $this->assertTrue($uri->query()->isNull());
         } else {
-            $this->assertSame($expected['query'], $uri->query()->toString(false));
+            $this->assertSame($expected['query'], $uri->query()->toStr(false));
         }
 
         $this->assertSame($expected['fragment'], $uri->fragment());

@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Web;
+namespace Morpho\Web\Uri;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\DataProcessing\Validation\IValidator;
@@ -28,9 +28,6 @@ class UriValidator implements IValidator {
 
     public static function validateAuthority(string $authority): bool {
         $authority = UriParser::parseOnlyAuthority($authority);
-        if (false === $authority) {
-            return false;
-        }
 
         $subDelimsRe = self::SUBDELIMS_RE;
         $pctEncodedRe = self::PCT_ENCODED_RE;
@@ -38,7 +35,7 @@ class UriValidator implements IValidator {
         $hexDigRe = self::HEX_DIGIT_RE;
 
         $userInfoRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe | : )*";
-        if (!preg_match('{^' . $userInfoRe . '$}six', $authority->userInfo)) {
+        if (!preg_match('{^' . $userInfoRe . '$}six', $authority->userInfo())) {
             return false;
         }
 
@@ -68,12 +65,13 @@ class UriValidator implements IValidator {
         $regNameRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe )*";
         $hostRe = "( $ipLiteralRe | $ipV4AddressRe | $regNameRe)";
 
-        if (!preg_match('{^' . $hostRe . '$}six', $authority->host)) {
+        if (!preg_match('{^' . $hostRe . '$}six', $authority->host())) {
             return false;
         }
 
-        if (null !== $authority->port) {
-            return (bool) preg_match('~^\d*$~s', $authority->port);
+        $port = $authority->port();
+        if (null !== $port) {
+            return (bool) preg_match('~^\d*$~s', $port);
         }
 
         return true;

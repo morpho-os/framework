@@ -18,7 +18,8 @@ class CacheController extends Controller {
                 return $path !== $cacheDirPath . '/.gitignore';
             }
         });
-        $this->redirectToHome("The cache has been cleared successfully");
+        d($this->query('redirect'));
+        $this->redirect("The cache has been cleared successfully");
     }
 
     /**
@@ -26,6 +27,7 @@ class CacheController extends Controller {
      */
     public function rebuildRoutesAction() {
         $this->serviceManager->get('router')->rebuildRoutes();
+        d($this->query('redirect'));
         $this->redirectToHome("Routes have been rebuilt successfully");
     }
 

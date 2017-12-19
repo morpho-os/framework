@@ -80,7 +80,7 @@ class Directory extends Entry {
                 continue;
             }
             $entryPath = $item->getPathname();
-            $relPath = Path::toRelative($sourceDirPath, $entryPath);
+            $relPath = Path::toRelative($entryPath, $sourceDirPath);
             Entry::copy($entryPath, $targetDirPath . '/' . $relPath);
         }
         return $targetDirPath;

@@ -71,12 +71,12 @@ class DefineCallFixer {
         if ($moduleId[0] === '.' || contains($moduleId, '/')) {
             return $moduleId;
         }
-        $newModuleId = Path::toRelative($baseDirPath, dirname($jsFilePath) . '/' . $moduleId);
+        $newModuleId = Path::toRelative(dirname($jsFilePath) . '/' . $moduleId, $baseDirPath);
         return $newModuleId;
     }
 
     private static function moduleIdFromPath(string $baseDirPath, string $jsFilePath): string {
-        return Path::dropExt(Path::toRelative($baseDirPath, $jsFilePath));
+        return Path::dropExt(Path::toRelative($jsFilePath, $baseDirPath));
     }
 }
 
