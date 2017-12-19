@@ -26,11 +26,11 @@ class FormPersister extends HtmlProcessor {
         }
         if (!isset($tag['action'])) {
             $request = $this->request();
-            if (strtolower($tag['method']) === 'get') {
+/*            if (strtolower($tag['method']) === 'get') {
                 $tag['action'] = $request->path();
             } else {
-                $tag['action'] = $request->uri()->__toString();
-            }
+                */
+            $tag['action'] = $request->uri()->toStr();
         }
         return $tag;
     }

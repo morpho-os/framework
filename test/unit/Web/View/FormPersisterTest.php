@@ -11,7 +11,13 @@ use Morpho\Test\TestCase;
 use Morpho\Web\View\FormPersister;
 
 class FormPersisterTest extends TestCase {
-    public function testInvoke_FormWithoutAction_DefaultMethod_AddsRequestUri() {
+    /**
+     * @var FormPersister
+     */
+    private $formPersister;
+
+    public function setUp() {
+        parent::setUp();
         $serviceManager = new ServiceManager();
         $serviceManager->set('request', new class {
             public function path() {
@@ -20,14 +26,23 @@ class FormPersisterTest extends TestCase {
 
             public function uri() {
                 return new class {
-                    public function __toString() {
+                    public function toStr() {
                         return '/foo/bar<script?one=ok&two=done';
                     }
                 };
             }
         });
-        $formPersister = new FormPersister($serviceManager);
+        $this->formPersister = new FormPersister($serviceManager);
+    }
+
+    public function testInvoke_FormWithoutAction_DefaultMethod_AddsRequestUri() {
+        $this->assertSame('post', FormPersister::DEFAULT_METHOD);
         $html = '<form></form>';
-        $this->assertEquals('<form method="' . FormPersister::DEFAULT_METHOD . '" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>', $formPersister->__invoke($html));
+        $this->assertEquals('<form method="' . FormPersister::DEFAULT_METHOD . '" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>', $this->formPersister->__invoke($html));
+    }
+
+    public function testInvoke_FormWithoutAction_GetMethod_AddsRequestUri() {
+        $html = '<form method="get"></form>';
+        $this->assertEquals('<form method="get" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>', $this->formPersister->__invoke($html));
     }
 }
