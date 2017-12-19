@@ -8,6 +8,7 @@ namespace Morpho\Web;
 
 use Morpho\Base\Event;
 use Morpho\Base\IFn;
+use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Session\Session;
 use Morpho\Web\View\View;
 use Morpho\Core\Node;
@@ -82,6 +83,20 @@ class Controller extends Node implements IFn {
      * Called after calling of any action.
      */
     protected function afterEach(): void {
+    }
+
+    protected function addSuccessMessage(string $message, array $args = null): void {
+        $this->messenger()->addSuccessMessage($message, $args);
+    }
+    protected function addErrorMessage(string $message, array $args = null): void {
+        $this->messenger()->addErrorMessage($message, $args);
+    }
+    protected function addWarningMessage(string $message, array $args = null): void {
+        $this->messenger()->addWarningMessage($message, $args);
+    }
+
+    protected function messenger(): Messenger {
+        return $this->serviceManager->get('messenger');
     }
 
     protected function shouldRenderView(View $view): bool {

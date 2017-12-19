@@ -6,6 +6,9 @@
  */
 namespace Morpho\Web\Messages;
 
+/**
+ * @TODO: Implement \IteratorAggregate
+ */
 class Messenger implements \Countable {
     public const ERROR   = 'error';
     public const INFO    = 'info';
@@ -84,11 +87,11 @@ class Messenger implements \Countable {
 
     protected function initMessageStorage(): void {
         if (null === $this->messages) {
-            $this->messages = $this->createMessageStorage();
+            $this->messages = $this->newMessageStorage();
         }
     }
 
-    protected function createMessageStorage(): IMessageStorage {
+    protected function newMessageStorage(): IMessageStorage {
         return new SessionMessageStorage(__CLASS__);
     }
 
