@@ -8,7 +8,7 @@ namespace Morpho\Base;
 
 use RuntimeException;
 
-class Node extends ArrayObject {
+class Node extends \ArrayObject {
     /**
      * Name must be unique among all child nodes.
      */
@@ -79,6 +79,11 @@ class Node extends ArrayObject {
             $parent = $parent->parentByType($type);
         }
         return $parent;
+    }
+
+    public function namespace(): string {
+        $class = get_class($this);
+        return substr($class, 0, strrpos($class, '\\'));
     }
 
     /**
