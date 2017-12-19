@@ -28,7 +28,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         ini_set('display_errors', $this->oldErrorLevel);
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $errorHandler = new ErrorHandler();
         $this->assertInstanceOf(ExceptionHandler::class, $errorHandler);
         $this->assertInstanceOf(IErrorHandler::class, $errorHandler);

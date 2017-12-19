@@ -7,9 +7,14 @@
 namespace MorphoTest\Unit\Web\Uri;
 
 use Morpho\Test\TestCase;
+use Morpho\Web\Uri\IUriComponent;
 use Morpho\Web\Uri\Query;
 
 class QueryTest extends TestCase {
+    public function testInterface() {
+        $this->assertInstanceOf(IUriComponent::class, new Query());
+    }
+
     public function testNonEmptyConstructorArg() {
         $query = new Query('first=value&arr[]=foo bar&arr[test]=baz');
         $this->assertSame('value', $query['first']);
@@ -20,35 +25,35 @@ class QueryTest extends TestCase {
     public function testEmptyConstructorArg() {
         $query = new Query('');
         $this->assertFalse($query->isNull());
-        $this->assertSame('', $query->toStr());
+        $this->assertSame('', $query->toStr(true));
     }
 
     public function testQueryArgWithoutValueOrWithEmptyValue() {
         $query = new Query('foo');
-        $this->assertSame('foo', $query->toStr());
+        $this->assertSame('foo', $query->toStr(true));
 
         $query = new Query('foo=');
-        $this->assertSame('foo=', $query->toStr());
+        $this->assertSame('foo=', $query->toStr(true));
     }
 
     public function testQuery() {
         $query = new Query();
 
         $this->assertTrue($query->isNull());
-        $this->assertSame('', $query->toStr());
+        $this->assertSame('', $query->toStr(true));
 
         $query['foo'] = 'bar';
         $this->assertFalse($query->isNull());
 
         $query['has space'] = 'тест';
-$this->assertSame('foo=bar&has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr());
+$this->assertSame('foo=bar&has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr(true));
 
         unset($query['foo']);
-        $this->assertSame('has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr());
+        $this->assertSame('has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr(true));
         $this->assertFalse($query->isNull());
 
         unset($query['has space']);
         $this->assertTrue($query->isNull());
-        $this->assertSame('', $query->toStr());
+        $this->assertSame('', $query->toStr(true));
     }
 }

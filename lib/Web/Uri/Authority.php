@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web\Uri;
 
-class Authority {
+class Authority implements IUriComponent {
     /**
      * @var null|string
      */
@@ -57,16 +57,31 @@ class Authority {
         return null === $this->userInfo && null === $this->host && null === $this->port;
     }
 
-    public function toStr(bool $encode = true) {
+    public function toStr(bool $encode): string {
         // @TODO: Handle $encode
-        $authority = (string)$this->userInfo;
+        $userInfo = (string) $this->userInfo;
+        $authority = '';
+        if ($encode && $userInfo !== '') {
+            $pos = strpos($userInfo, ':');
+            if (false !== $pos) {
+                $login = substr($userInfo, 0, $pos);
+                $password = substr($userInfo, $pos + 1);
+                $authority .= rawurlencode($login) . ':' . rawurlencode($password);
+            } else {
+                $authority .= rawurlencode($userInfo);
+            }
+        }
+
         if ('' !== $authority) {
             $authority .= '@';
         }
-        $authority .= $this->host;
+
+        $authority .= $encode ? rawurlencode($this->host) : $this->host;
+
         if (null !== $this->port) {
-            $authority .= ':' . $this->port;
+            $authority .= ':' . (int) $this->port;
         }
-        return $authority;//$authority !== '' ? $authority : null;
+
+        return $authority;
     }
 }

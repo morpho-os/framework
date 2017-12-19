@@ -9,6 +9,16 @@ namespace MorphoTest\Unit\Web\Uri;
 trait TUriParserDataProvider {
     public function dataForParse() {
         return [
+            [
+                '',
+                [
+                    'scheme' => '',
+                    'authority' => null,
+                    'path' => '',
+                    'query' => null,
+                    'fragment' => null,
+                ],
+            ],
             // Cases for authority
             [
                 'http://localhost/', // ends with '/'

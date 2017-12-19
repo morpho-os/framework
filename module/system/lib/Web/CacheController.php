@@ -19,6 +19,7 @@ class CacheController extends Controller {
             }
         });
         $this->addSuccessMessage("The cache has been cleared successfully");
+        // @TODO: CSRF
         $this->redirect($this->query('redirect') ?: '/');
     }
 
@@ -28,6 +29,7 @@ class CacheController extends Controller {
     public function rebuildRoutesAction() {
         $this->serviceManager->get('router')->rebuildRoutes();
         $this->addSuccessMessage("Routes have been rebuilt successfully");
+        // @TODO: CSRF
         $this->redirect($this->query('redirect') ?: '/');
     }
     /**

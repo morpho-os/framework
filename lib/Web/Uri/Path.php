@@ -11,7 +11,7 @@ use function Morpho\Base\startsWith;
 use function Morpho\Base\contains;
 use Morpho\Fs\Path as FsPath;
 
-class Path {
+class Path implements IUriComponent {
     /**
      * @var ?string
      */
@@ -31,7 +31,10 @@ class Path {
         $this->path = $path;
     }
 
-    public function toStr(): string {
+    public function toStr(bool $encode): string {
+        if ($encode) {
+            return str_replace('%2F', '/', rawurlencode($this->path));
+        }
         return $this->path;
     }
 
@@ -69,7 +72,7 @@ class Path {
     public static function removeDotSegments($path): string {
         if (!is_string($path)) {
             /** @var Path $path */
-            $path = $path->toStr();
+            $path = $path->toStr(false);
         }
 
         $output = '';

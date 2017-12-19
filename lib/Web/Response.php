@@ -42,7 +42,7 @@ class Response extends BaseResponse {
      * @param string|Uri\Uri $uri
      */
     public function redirect($uri, int $httpStatusCode = null): void {
-        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toStr());
+        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toStr(true));
         $this->setStatusCode($httpStatusCode ?: self::FOUND_STATUS_CODE);
     }
 

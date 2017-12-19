@@ -17,7 +17,7 @@ class NoDupsListenerTest extends TestCase {
         $this->lockFileDirPath = $this->createTmpDir();
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf(IFn::class, new NoDupsListener($this->createMock(IFn::class), $this->lockFileDirPath));
     }
 

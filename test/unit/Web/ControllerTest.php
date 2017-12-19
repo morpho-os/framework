@@ -15,7 +15,7 @@ use Morpho\Web\Request;
 use Morpho\Web\Uri\Uri;
 
 class ControllerTest extends TestCase {
-    public function testInterfaces() {
+    public function testInterface() {
         $this->assertInstanceOf(IFn::class, new Controller('foo'));
     }
 

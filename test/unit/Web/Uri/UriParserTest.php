@@ -167,7 +167,7 @@ class UriParserTest extends TestCase {
             $uri = $uriParser->__invoke($uriStr);
             $this->assertSame('foo', $uri->scheme());
             $this->assertSame('example.com:8042', $uri->authority()->toStr(false));
-            $this->assertSame('/over/there', $uri->path()->toStr());
+            $this->assertSame('/over/there', $uri->path()->toStr(false));
             $this->assertSame('name=ferret', $uri->query()->toStr(false));
             $this->assertSame('nose', $uri->fragment());
         }
@@ -352,7 +352,7 @@ class UriParserTest extends TestCase {
             $this->assertSame($expected['authority'], $uri->authority()->toStr(false));
         }
 
-        $this->assertSame($expected['path'], $uri->path()->toStr());
+        $this->assertSame($expected['path'], $uri->path()->toStr(false));
 
         if (null === $expected['query']) {
             $this->assertTrue($uri->query()->isNull());

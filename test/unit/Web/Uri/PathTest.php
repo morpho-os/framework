@@ -7,14 +7,29 @@
 namespace MorphoTest\Unit\Web\Uri;
 
 use Morpho\Test\TestCase;
+use Morpho\Web\Uri\IUriComponent;
 use Morpho\Web\Uri\Path;
 
 class PathTest extends TestCase {
     public function testInitialState() {
         $path = new Path('');
-        $this->assertSame('', $path->toStr());
+        $this->assertSame('', $path->toStr(false));
         $this->assertNull($path->basePath());
         $this->assertNull($path->relPath());
+    }
+
+    public function testInterface() {
+        $this->assertInstanceOf(IUriComponent::class, new Path('test'));
+    }
+
+    public function testToStr_Encode() {
+        $pathComp1 = 'это';
+        $pathComp2 = 'тест';
+        $path = new Path($pathComp1 . '/' . $pathComp2);
+        $this->assertSame(
+            rawurlencode($pathComp1) . '/' . rawurlencode($pathComp2),
+            $path->toStr(true)
+        );
     }
 
     public function dataForBasePathAccessors() {

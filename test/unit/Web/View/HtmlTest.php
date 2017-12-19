@@ -57,7 +57,7 @@ class HtmlTest extends TestCase {
         );
     }
 
-    public function testSingleTag_WithXmlOption() {
+    public function testSingleTag_XmlOption() {
         $attributes = ['bar' => 'test'];
         $expected = '<foo bar="test" />';
         $this->assertEquals(
@@ -76,12 +76,12 @@ class HtmlTest extends TestCase {
         $this->assertEquals('<a href="foo/bar">Hello</a>', Html::tag('a', $attributes, 'Hello', $options));
     }
 
-    public function testTag_WithEol() {
-        $this->assertEquals("<foo></foo>\n", Html::tag('foo', [], null));
+    public function testTag_EolOption() {
+        $this->assertEquals("<foo></foo>", Html::tag('foo', [], null));
         $this->assertEquals("<foo></foo>\n", Html::tag('foo', [], null, ['eol' => true]));
     }
 
-    public function testTag_WithEscapeTextOption() {
+    public function testTag_EscapeTextOption() {
         $this->assertEquals('<foo>&quot;</foo>', Html::tag('foo', [], '"', ['eol' => false, 'escapeText' => true]));
         $this->assertEquals('<foo>&quot;</foo>', Html::tag('foo', [], '"', ['eol' => false]));
         $this->assertEquals('<foo>"</foo>', Html::tag('foo', [], '"', ['eol' => false, 'escapeText' => false]));

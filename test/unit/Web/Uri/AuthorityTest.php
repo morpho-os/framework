@@ -8,6 +8,7 @@ namespace MorphoTest\Unit\Web\Uri;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri\Authority;
+use Morpho\Web\Uri\IUriComponent;
 
 class AuthorityTest extends TestCase {
     public function testAuthority() {
@@ -16,8 +17,23 @@ class AuthorityTest extends TestCase {
         $this->assertSame('foo:bar', $authority->userInfo());
         $this->assertSame('example.com', $authority->host());
         $this->assertSame(80, $authority->port());
-        $this->assertSame($authorityStr, $authority->toStr());
+        $this->assertSame($authorityStr, $authority->toStr(true));
         $this->assertFalse($authority->isNull());
+    }
+
+    public function testInterface() {
+        $this->assertInstanceOf(IUriComponent::class, new Authority('test'));
+    }
+
+    public function testToStr_Encode() {
+        $login = 'логин';
+        $password = 'пароль';
+        $userInfo = "$login:$password";
+        $host = 'емаил.com';
+        $authority = new Authority("$userInfo@$host:80");
+        $this->assertSame(
+            rawurlencode($login) . ':' . rawurlencode($password) . '@' . rawurlencode($host) . ':80',
+            $authority->toStr(true));
     }
 
     public function testIsNull() {

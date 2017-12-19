@@ -108,11 +108,6 @@ class Request extends BaseRequest {
         return file_get_contents('php://input');
     }
 
-    public function parsedContent(): array {
-        // @TODO: Ensure that it is safe.
-        return Uri::stringToQueryArgs($this->content());
-    }
-
     /**
      * Calls one of:
      *     - get()

@@ -110,12 +110,19 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         if (is_string($uri)) {
             $uri = new Uri($uri);
         }
-        $uri->query()['redirect'] = $this->uri()->toStr();
-        return $uri->toStr();
+        $newUri = prependBasePath(function () {
+            return $this->uri()->path()->basePath();
+        }, $uri);
+        $newUri->query()['redirect'] = $this->uri()->toStr(false);
+        return $newUri->toStr(true);
     }
 
-    public function link(string $uri, string $text, array $attributes = [], array $options = null): string {
-        $attributes['href'] = prependBasePath(function () { return $this->uri(); }, $uri)->toStr();
+    /**
+     * @param string|Uri $uri
+     */
+    public function link($uri, string $text, array $attributes = null, array $options = null): string {
+        $attributes = (array) $attributes;
+        $attributes['href'] = prependBasePath(function () { return $this->uri()->path()->basePath(); }, $uri)->toStr(false);
         return Html::tag('a', $attributes, $text, $options);
     }
 

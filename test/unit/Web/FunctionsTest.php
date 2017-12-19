@@ -40,7 +40,12 @@ class FunctionsTest extends TestCase {
             '/base/path',
             '/foo/bar?test=123#toc',
             '/base/path/foo/bar?test=123#toc',
-       ];
+        ];
+        yield [
+            '/base/path',
+            '/foo/bar?redirect=' . rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza'),
+            '/base/path/foo/bar?redirect=' . rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza')
+        ];
     }
 
     /**
@@ -50,6 +55,6 @@ class FunctionsTest extends TestCase {
         $uri = prependBasePath(function () use ($basePath) {
             return $basePath;
         }, $uriStr);
-        $this->assertSame($expected, $uri->toStr());
+        $this->assertSame($expected, $uri->toStr(false));
     }
 }

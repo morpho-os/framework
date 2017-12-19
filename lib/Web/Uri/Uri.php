@@ -176,7 +176,7 @@ class Uri {
                 $targetUri->setPath(Path::removeDotSegments($relUri->path()));
                 $targetUri->setQuery($relUri->query());
             } else {
-                $path = $relUri->path()->toStr();
+                $path = $relUri->path()->toStr(false);
                 if ($path === '') {
                     // @TODO: Remove dot segments?
                     $targetUri->setPath($baseUri->path());
@@ -187,13 +187,13 @@ class Uri {
                         $targetUri->setQuery($baseUri->query());
                     }
                 } else {
-                    $relUriPath = $relUri->path()->toStr();
+                    $relUriPath = $relUri->path()->toStr(false);
                     if (startsWith($relUriPath, '/')) {
                         $targetUri->setPath(Path::removeDotSegments($relUriPath));
                     } else {
                         // 5.2.3. Merge Paths.
                         $hasAuthority = !$baseUri->authority()->isNull();
-                        $basePath = $baseUri->path()->toStr();
+                        $basePath = $baseUri->path()->toStr(false);
                         if ($hasAuthority && $basePath === '') {
                             $targetPath = '/' . $relUriPath;
                         } else {
@@ -201,7 +201,7 @@ class Uri {
                             if (false === $rPos) {
                                 $targetPath = $relUriPath;
                             } else {
-                                $targetPath = mb_substr($basePath, 0, $rPos + 1) . $relUri->path()->toStr();
+                                $targetPath = mb_substr($basePath, 0, $rPos + 1) . $relUri->path()->toStr(false);
                             }
                         }
                         $targetPath = Path::removeDotSegments($targetPath);
@@ -218,12 +218,12 @@ class Uri {
         return $targetUri;
     }
 
-    public function toStr(bool $encode = true): string {
+    public function toStr(bool $encode): string {
         $uriStr = '';
 
         $scheme = $this->scheme();
         if ($scheme !== '') {
-            $uriStr .= $scheme . ':';
+            $uriStr .= ($encode ? rawurlencode($scheme) : $scheme) . ':';
         }
 
         $authority = $this->authority();
@@ -231,7 +231,7 @@ class Uri {
             $uriStr .= '//' . $authority->toStr($encode);
         }
 
-        $uriStr .= $this->path()->toStr();
+        $uriStr .= $this->path()->toStr($encode);
 
         $query = $this->query();
         if (!$query->isNull()) {
@@ -240,7 +240,7 @@ class Uri {
 
         $fragment = $this->fragment();
         if (null !== $fragment) {
-            $uriStr .= '#' . $fragment;
+            $uriStr .= '#' . ($encode ? rawurlencode($fragment) : $fragment);
         }
 
         return $uriStr;

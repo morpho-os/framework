@@ -135,7 +135,7 @@ class RequestTest extends TestCase {
         $_SERVER['QUERY_STRING'] = 'page=news&skip=10';
         $_SERVER['SCRIPT_NAME'] = '/';
         $uri = $this->request->uri();
-        $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->toStr());
+        $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->toStr(true));
     }
 
     public function dataForIsHttpMethod() {
@@ -270,6 +270,14 @@ class RequestTest extends TestCase {
             'HTTP_HOST' => 'framework',
         ]);
         $uri = $request->uri();
-        $this->assertSame('http://framework/', $uri->toStr());
+        $this->assertSame('http://framework/', $uri->toStr(true));
+    }
+    
+    public function testPut() {
+        $this->markTestIncomplete();
+        /*
+        file_put_contents('php://input', 'test');
+        d(file_get_contents('php://input'));
+        */
     }
 }

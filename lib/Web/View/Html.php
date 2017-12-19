@@ -57,7 +57,7 @@ class Html {
                 'escapeText' => true,
                 'isSingle'   => false,
                 'isXml'      => false,
-                'eol'        => true,
+                'eol'        => false,
             ]
         );
         $output = self::openTag($tagName, (array)$attributes, $options['isXml']);
@@ -68,7 +68,6 @@ class Html {
         if ($options['eol']) {
             $output .= "\n";
         }
-
         return $output;
     }
 

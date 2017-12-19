@@ -29,28 +29,38 @@ class PhpTemplateEngineTest extends TestCase {
         $this->configureTemplateEngine($this->templateEngine, $serviceManager);
     }
 
-    public function testUriWithRedirectToSelf() {
-        $curUriStr = 'http://localhost/?three=qux&four=pizza';
-        $serviceManager = $this->newServiceManager();
-        $curUri = new Uri($curUriStr);
+    public function dataForUriWithRedirectToSelf() {
+        $curUriStr = 'http://localhost/some/base/path/abc/def?three=qux&four=pizza';
+        yield [
+            '/foo/bar?one=1&two=2',
+            $curUriStr,
+            '/some/base/path/foo/bar?one=1&two=2&redirect=' . rawurlencode($curUriStr),
+        ];
+        yield [
+            'http://example.com',
+            $curUriStr,
+            'http://example.com?redirect=' . rawurlencode($curUriStr),
+        ];
+    }
 
+    /**
+     * @dataProvider dataForUriWithRedirectToSelf
+     */
+    public function testUriWithRedirectToSelf(string $uriStr, string $curUriStr, string $expectedUriStr) {
+        $curUri = new Uri($curUriStr);
+        $curUri->path()->setBasePath('/some/base/path');
         $request = $this->createMock(Request::class);
         $request->expects($this->any())
             ->method('uri')
             ->willReturn($curUri);
-        $serviceManager->set('request', $request);
-
+        $serviceManager = $this->newServiceManager(['request' => $request]);
         $templateEngine = new PhpTemplateEngine();
         $this->configureTemplateEngine($templateEngine, $serviceManager);
-
+        $uri = $templateEngine->uriWithRedirectToSelf($uriStr);
         $this->assertSame(
-            '/foo/bar?one=1&two=2&redirect=' . rawurlencode($curUriStr),
-            $templateEngine->uriWithRedirectToSelf('/foo/bar?one=1&two=2')
+            $expectedUriStr,
+            $uri
         );
-    }
-
-    public function testLink() {
-        $this->markTestIncomplete();
     }
 
     public function testVar_ReadUndefinedVarThrowsException() {
@@ -63,7 +73,7 @@ class PhpTemplateEngineTest extends TestCase {
             public $called;
             private $templateEngine;
 
-            public function __construct($templateEngine) {
+            public function __construct(PhpTemplateEngine $templateEngine) {
                 $this->templateEngine = $templateEngine;
             }
             
@@ -96,11 +106,13 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertEquals([], $this->templateEngine->vars());
 
         $templateEngine->called = null;
+        /** @noinspection PhpUndefinedFieldInspection */
         $templateEngine->foo = 'bar';
         $this->assertEquals(['__set', ['foo', 'bar']], $templateEngine->called);
         $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
 
         $templateEngine->called = null;
+        /** @noinspection PhpUndefinedFieldInspection */
         $this->assertEquals('bar', $templateEngine->foo);
         $this->assertEquals(['__get', ['foo']], $templateEngine->called);
         $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
@@ -119,9 +131,11 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testVarMethods() {
         $this->assertEquals([], $this->templateEngine->vars());
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->templateEngine->setVars(['foo' => 'bar']));
         $this->assertEquals(['foo' => 'bar'], $this->templateEngine->vars());
         $newVals = ['baz' => 'Other', 'foo' => 'New'];
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->templateEngine->mergeVars($newVals));
         $this->assertEquals($newVals, $this->templateEngine->vars());
     }
@@ -142,7 +156,17 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testLink_FullUriWithAttributes() {
-        $this->assertEquals('<a foo="bar" href="http://example.com/base/path/some/path?arg=val">Link text</a>', $this->templateEngine->link('http://example.com/base/path/some/path?arg=val', 'Link text', ['foo' => 'bar'], ['eol' => false]));
+        $this->assertEquals('<a data-foo="bar" href="http://example.com/base/path/some/path?arg=val">Link text</a>', $this->templateEngine->link('http://example.com/base/path/some/path?arg=val', 'Link text', ['data-foo' => 'bar'], ['eol' => false]));
+    }
+
+    public function testLink_PrependBasePath() {
+        $serviceManager = $this->newServiceManager();
+        $templateEngine = new PhpTemplateEngine();
+        $this->configureTemplateEngine($templateEngine, $serviceManager);
+
+        $uri = new Uri('/one/two');
+        $html = $templateEngine->link($uri, 'News');
+        $this->assertSame('<a href="/base/path/one/two">News</a>', $html);
     }
 
     public function testCopyright() {
@@ -220,7 +244,7 @@ class PhpTemplateEngineTest extends TestCase {
                 $this->ns = $ns;
             }
 
-            public function offsetGet($name) {
+            public function offsetGet() {
                 return new class ($this->ns) {
                     private $ns;
 
@@ -242,18 +266,20 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertSame($plugin, $this->templateEngine->plugin($pluginName));
     }
 
-    private function newServiceManager(): ServiceManager {
-        $request = new Request();
-        $uri = new Uri();
-        $uri->setPath('/base/path/foo/bar');
-        $uri->path()->setBasePath('/base/path');
-        $request->setUri($uri);
-        $request->setHandler(['foo/bar', 'Test', 'Some']);
-        $serviceManager = new ServiceManager(['request' => $request]);
-        return $serviceManager;
+    private function newServiceManager($services = null): ServiceManager {
+        if (null === $services) {
+            $request = new Request();
+            $uri = new Uri();
+            $uri->setPath('/base/path/foo/bar');
+            $uri->path()->setBasePath('/base/path');
+            $request->setUri($uri);
+            $request->setHandler(['foo/bar', 'Test', 'Some']);
+            $services = ['request' => $request];
+        }
+        return new ServiceManager($services);
     }
 
-    private function configureTemplateEngine($templateEngine, $serviceManager) {
+    private function configureTemplateEngine(PhpTemplateEngine $templateEngine, $serviceManager) {
         $compiler = new Compiler();
         $compiler->appendSourceInfo(false);
         $templateEngine

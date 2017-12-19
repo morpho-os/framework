@@ -42,7 +42,7 @@ class ReflectionFileTest extends TestCase {
         });
     }
 
-    public function testInterfaces() {
+    public function testInterface() {
         $this->checkClasses('interfaces', 2, function ($i, $rClass) {
             switch ($i) {
                 case 0:

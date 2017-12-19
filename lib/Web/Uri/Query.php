@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web\Uri;
 
-class Query extends \ArrayObject {
+class Query extends \ArrayObject implements IUriComponent {
     /**
      * @var bool
      */
@@ -38,7 +38,7 @@ class Query extends \ArrayObject {
         return true;
     }
 
-    public function toStr(bool $encode = true): string {
+    public function toStr(bool $encode): string {
         $queryStr = '';
         foreach ($this as $name => $value) {
             $queryStr .= '&' . ($encode ? rawurlencode($name) : $name);
