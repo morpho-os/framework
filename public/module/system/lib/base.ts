@@ -31,11 +31,5 @@ export class Re {
     public static readonly email = /^[^@]+@[^@]+$/;
 }
 /*
-export class Uri {
-    public prependBasePath(uri: string): string {
-        // @TODO
-        return uri;
-    }
-}
 // @TODO: Use global Application
 export const uri = new Uri();*/
