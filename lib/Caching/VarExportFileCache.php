@@ -25,7 +25,7 @@ class VarExportFileCache extends PhpFileCache {
             'lifetime' => $lifeTime,
             'data'     => $data,
         ];
-        $code = '<?php return ' . CodeTool::varToString($value);
+        $code = '<?php return ' . CodeTool::varToStr($value);
         return $this->writeFile($cacheFilePath, $code);
     }
 }

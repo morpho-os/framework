@@ -40,7 +40,7 @@ class Debugger {
         $output = '';
         for ($i = 0; $i < $argsCount; $i++) {
             $var = func_get_arg($i);
-            $output .= $this->varToString($var);
+            $output .= $this->varToStr($var);
         }
         $output .= $this->calledAt();
         if ($this->isHtmlMode()) {
@@ -56,7 +56,7 @@ class Debugger {
     }
 
     public function trace() {
-        $output = $this->traceToString();
+        $output = $this->traceToStr();
         if ($this->isHtmlMode()) {
             $output = $this->formatHtml($output);
         }
@@ -102,7 +102,7 @@ class Debugger {
         $output = '';
         for ($i = 0; $i < $argsCount; $i++) {
             $var = func_get_arg($i);
-            $output .= $this->varToString($var);
+            $output .= $this->varToStr($var);
         }
         $output .= $this->calledAt();
         if ($this->isHtmlMode()) {
@@ -166,7 +166,7 @@ class Debugger {
         return $result !== false;
     }
 
-    public function varToString($var, bool $fixOutput = true): string {
+    public function varToStr($var, bool $fixOutput = true): string {
         $output = trim(capture(function () use ($var) {
             if ($var instanceof \Generator) {
                 var_dump("\\Generator which yields the values: " . var_export(iterator_to_array($var, false), true));
@@ -180,7 +180,7 @@ class Debugger {
         return $this->formatLine($output);
     }
 
-    public function traceToString(): string {
+    public function traceToStr(): string {
         return $this->formatLine(new Trace());
     }
 

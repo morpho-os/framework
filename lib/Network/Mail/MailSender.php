@@ -21,6 +21,9 @@ class MailSender {
 
     private $lastTransport;
 
+    /**
+     * @var ?Message
+     */
     private $lastMessage;
 
     public function send($fromEmail, $toEmail = null, string $subject = null, $body = null) {
@@ -39,7 +42,7 @@ class MailSender {
         $transport = $this->transport();
         if ($this->enableDiagnostics) {
             if ($transport instanceof SendmailTransport) {
-                $this->lastMessage= $message;
+                $this->lastMessage = $message;
             }
             $this->lastTransport = $transport;
         }
@@ -72,6 +75,7 @@ class MailSender {
         } elseif ($transport instanceof InMemoryTransport) {
             $diagnostics = ['log' => $transport->getLastMessage()->toString()];
         } elseif ($transport instanceof SendmailTransport) {
+            // @TODO: Can be null?
             $diagnostics = ['log' => $this->lastMessage->toString()];
         }
         return array_merge($diagnostics, ['transport' => get_class($transport)]);

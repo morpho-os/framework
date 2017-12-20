@@ -55,8 +55,8 @@ class AddressTest extends TestCase {
     /**
      * @dataProvider dataForToString
      */
-    public function testFromString(string $host, ?int $port) {
-        $address = Address::fromString($host . (null === $port ? '' : ':' . $port));
+    public function testParse(string $host, ?int $port) {
+        $address = Address::parse($host . (null === $port ? '' : ':' . $port));
         $this->assertEquals(
             new Address($host, $port),
             $address

@@ -10,9 +10,9 @@ use Morpho\Test\TestCase;
 use Morpho\Code\CodeTool;
 
 class CodeToolTest extends TestCase {
-    public function testVarToString_ClosuresToFile() {
+    public function testVarToStr_ClosuresToFile() {
         $this->markTestIncomplete();
-        $php = CodeTool::varToString(function () {
+        $php = CodeTool::varToStr(function () {
             echo "OK";
         });
         $this->assertEquals(<<<OUT

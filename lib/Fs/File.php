@@ -172,7 +172,7 @@ class File extends Entry {
     }
 
     public static function writePhpVar(string $filePath, $var, bool $stripNumericKeys = true): string {
-        File::write($filePath, '<?php return ' . CodeTool::varToString($var, $stripNumericKeys));
+        File::write($filePath, '<?php return ' . CodeTool::varToStr($var, $stripNumericKeys));
         return $filePath;
     }
 

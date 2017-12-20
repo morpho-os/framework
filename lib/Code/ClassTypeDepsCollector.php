@@ -36,7 +36,6 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
 
     public function enterNode(Node $node) {
         if ($node instanceof Function_ || $node instanceof Closure) {
-            //$this->curNode = $node->namespacedName->toString();
             if ($node->returnType && $node->returnType instanceof FullyQualified) {
                 $this->classTypes[] = implode('\\', $node->returnType->parts);
             }
@@ -45,12 +44,6 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
                 $this->classTypes[] = implode('\\', $node->returnType->parts);
             }
         } elseif ($node instanceof Class_) {
-            /*
-            if (!isset($node->namespacedName)) {
-                // Anonymous class.
-                //$this->curNode = $node->namespacedName->toString();
-            }
-            */
             if (isset($node->extends)) {
                 $this->classTypes[] = $node->extends->toString();
             }
@@ -60,7 +53,6 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
                 }
             }
         } elseif ($node instanceof Interface_) {
-            //$this->curNode = $node->namespacedName->toString();
             foreach ($node->extends as $nodeName) {
                 $this->classTypes[] = $nodeName->toString();
             }

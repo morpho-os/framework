@@ -13,7 +13,7 @@ class CodeTool {
         throw new NotImplementedException();
     }
 
-    public static function varToString($var, bool $stripNumericKeys = true): string {
+    public static function varToStr($var, bool $stripNumericKeys = true): string {
         // @TODO: Replace with Formatter::format().
         $php = preg_replace(
                 [

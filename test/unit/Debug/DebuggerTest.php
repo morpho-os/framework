@@ -11,18 +11,21 @@ use Morpho\Debug\Debugger;
 use Morpho\Base\Environment;
 
 class DebuggerTest extends TestCase {
+    /**
+     * @var Debugger
+     */
     private $debugger;
 
     public function setUp() {
         $this->debugger = Debugger::instance();
     }
 
-    public function testVarToString_FixOutput() {
+    public function testVarToStr_FixOutput() {
         $this->checkXdebug();
-        $this->assertEquals("\nstring(3) \"<=>\"\n", $this->debugger->varToString('<=>'));
+        $this->assertEquals("\nstring(3) \"<=>\"\n", $this->debugger->varToStr('<=>'));
     }
 
-    public function testVarToString() {
+    public function testVarToStr() {
         $this->checkXdebug();
 
         ob_start();
@@ -33,7 +36,7 @@ array(1) {
 }
 <?php
         $expected = ob_get_clean();
-        $this->assertEquals($expected, $this->debugger->varToString(['foo' => 'bar']));
+        $this->assertEquals($expected, $this->debugger->varToStr(['foo' => 'bar']));
     }
 
     public function testIsHtmlMode() {

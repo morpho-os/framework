@@ -97,7 +97,7 @@ class PhpServer {
      * NB: This method can return invalid result in an environment when other processes can start listening during running of this method.
      */
     protected function findFreePort(Address $address): Address {
-        return Address::fromString(stream_socket_get_name(
+        return Address::parse(stream_socket_get_name(
             stream_socket_server("tcp://{$address->host}:0"),
             false
         ));

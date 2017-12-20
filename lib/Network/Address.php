@@ -15,7 +15,7 @@ class Address {
         $this->port = $port;
     }
 
-    public static function fromString(string $address): self {
+    public static function parse(string $address): self {
         $pos = strrpos($address, ':');
         if (false === $pos) {
             return new static($address, null);

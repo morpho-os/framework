@@ -40,7 +40,7 @@ class SeleniumServerDownloader {
         */
         $xml = file_get_contents('https://selenium-release.storage.googleapis.com');
         //}
-        $doc = Document::fromString($xml);
+        $doc = Document::parse($xml);
         $doc->xPath()->registerNamespace('s3', 'http://doc.s3.amazonaws.com/2006-03-01');
         // "//Key[contains(text(), 'selenium-server-standalone-')]"
         $versions = filter(function (&$v, $k) {

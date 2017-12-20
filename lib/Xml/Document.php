@@ -39,10 +39,10 @@ class Document extends DOMDocument {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
         $source = File::read($filePath, ['binary' => false]);
-        return self::fromString($source, $options);
+        return self::parse($source, $options);
     }
 
-    public static function fromString(string $source, array $options = null): Document {
+    public static function parse(string $source, array $options = null): Document {
         $source = trim($source);
 
         $options = (array) $options;

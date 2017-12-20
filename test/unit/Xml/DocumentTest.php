@@ -23,7 +23,7 @@ class DocumentTest extends TestCase {
     </ol>
 </div>
 OUT;
-        $doc = Document::fromString($html);
+        $doc = Document::parse($html);
         $nodes = $doc->select('//li');
         $this->assertSame(3, count($nodes));
         $this->assertSame('One', $nodes->item(0)->nodeValue);
@@ -69,16 +69,16 @@ OUT;
         $this->assertNotSame($doc, $doc1);
     }
 
-    public function testFromString_ThrowsExceptionOnInvalidOptions() {
+    public function testParse_ThrowsExceptionOnInvalidOptions() {
         $this->expectException(InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
-        Document::fromString("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
+        Document::parse("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testFromString_FixEncodingOption() {
+    public function testParse_FixEncodingOption() {
         $html = <<<OUT
 <!DOCTYPE html><html><body>µ</body></html>
 OUT;
-        $doc = Document::fromString($html, ['fixEncoding' => true, 'formatOutput' => false]);
+        $doc = Document::parse($html, ['fixEncoding' => true, 'formatOutput' => false]);
         $this->assertHtmlEquals(<<<OUT
 <!DOCTYPE html>
 <html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body>µ</body></html>
@@ -86,7 +86,7 @@ OUT
             , $doc->saveHTML()
         );
 
-        $doc = Document::fromString($html, ['fixEncoding' => false, 'formatOutput' => false]);
+        $doc = Document::parse($html, ['fixEncoding' => false, 'formatOutput' => false]);
         $this->assertHtmlEquals(<<<OUT
 <!DOCTYPE html>
 <html><body>&Acirc;&micro;</body></html>
