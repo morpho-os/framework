@@ -114,7 +114,7 @@ class ApplicationTest extends TestCase {
                 throw new \UnexpectedValueException($id);
             }));
         $site = $this->createConfiguredMock(Site::class, [
-            'config' => $siteConfig,
+            'config' => new \ArrayObject($siteConfig),
         ]);
         $appConfig = new \ArrayObject([
             'factory' => $this->createConfiguredMock(IBootstrapFactory::class, [

@@ -7,6 +7,7 @@
 namespace MorphoTest\Unit\Web\View;
 
 use function Morpho\Base\fromJson;
+use Morpho\Base\IFn;
 use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\View;
 use Morpho\Di\ServiceManager;
@@ -16,7 +17,7 @@ use Morpho\Web\View\Theme;
 
 class ThemeTest extends TestCase {
     public function testRenderLayout_NonAjaxRedirect() {
-        $request = new Request();
+        $request = $this->newRequest();
         $request->isDispatched(true);
         $request->isAjax(false);
 
@@ -34,7 +35,7 @@ class ThemeTest extends TestCase {
     }
 
     public function testRenderLayout_AjaxRedirect() {
-        $request = new Request();
+        $request = $this->newRequest();
         $request->isDispatched(true);
         $request->isAjax(true);
 
@@ -55,7 +56,7 @@ class ThemeTest extends TestCase {
     }
 
     public function testRenderLayout_RenderedOnce() {
-        $request = new Request();
+        $request = $this->newRequest();
         $layoutName = 'index';
         $request->params()['layout'] = new View($layoutName);
         $request->isDispatched(true);
@@ -89,7 +90,7 @@ class ThemeTest extends TestCase {
     public function testRenderView_Ajax() {
         $theme = $this->newTheme();
         $viewVars = ['foo' => 'bar'];
-        $request = new Request();
+        $request = $this->newRequest();
         $request->isAjax(true);
         $serviceManager = new ServiceManager(['request' => $request]);
         $theme->setServiceManager($serviceManager);
@@ -174,5 +175,12 @@ class ThemeTest extends TestCase {
 
     private function newTheme() {
         return new Theme();
+    }
+
+    private function newRequest(array $serverVars = null) {
+        return new Request(
+            $serverVars,
+            new class implements IFn { public function __invoke($value) {} }
+        );
     }
 }

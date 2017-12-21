@@ -6,6 +6,8 @@
  */
 namespace MorphoTest\Unit\Web;
 
+use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_FILE_NAME;
 use Morpho\Test\TestCase;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
@@ -114,127 +116,87 @@ class SiteFactoryTest extends TestCase {
         SiteFactory::detectHostName();
     }
 
-    public function dataForInvoke_MultiSiting() {
-        $testDirPath = $this->getTestDirPath();
-
-        $dataSet1 = function () use ($testDirPath) {
-            $publicDirPath = $testDirPath . '/random/dir';
-            $siteDirPath = $testDirPath . '/example';
-            $siteModuleName = 'hello/world';
-            $hostName = 'some-name.org';
-            $siteConfig = [
-                'module' => $siteModuleName,
-                'foo' => 'bar',
-                'dirPath' => $siteDirPath,
-            ];
-            $appConfig = [
-                'sites' => [
-                    $hostName => $siteConfig,
-                    'this' => [
-                        'module' => 'test/failed',
-                    ],
-                ],
-                'multiSiting' => false,
-                'publicDirPath' => $publicDirPath,
-            ];
-            $expectedSiteConfig = [
-                'foo' => 'bar',
-                'paths' => [
-                    'dirPath' => $siteDirPath,
-                    'publicDirPath' => $publicDirPath,
-                ],
-                'modules' => [
-                    $siteModuleName => [],
-                    'galaxy/mars' => [],
-                    'planet/earth' => []
-                ],
-                'test' => '123',
-            ];
-            return [
-                $appConfig,
-                $expectedSiteConfig,
-                null,
-                $hostName,
-                $siteModuleName,
-            ];
-        };
-
-        $dataSet2 = function () use ($testDirPath) {
-            $publicDirPath = $testDirPath . '/foo';
-            $siteDirPath = $testDirPath . '/my-site';
-            $siteModuleName = 'vendor/foo-bar';
-            $hostName = 'choose-me';
-            $siteConfig = [
-                'module' => $siteModuleName,
-                'foo' => 'bar',
-                'dirPath' => $siteDirPath,
-            ];
-            $appConfig = [
-                'sites' => [
-                    'this' => [
-                        'module' => 'test/failed',
-                    ],
-                    $hostName => $siteConfig,
-                ],
-                'multiSiting' => true,
-                'publicDirPath' => $publicDirPath,
-            ];
-            $expectedSiteConfig = [
-                'foo' => 'bar',
-                'paths' => [
-                    'dirPath' => $siteDirPath,
-                    'publicDirPath' => $publicDirPath,
-                ],
-                'modules' => [
-                    $siteModuleName => [],
-                    'galaxy/mars' => [],
-                    'planet/earth' => []
-                ],
-                'test' => '123',
-            ];
-            return [
-                $appConfig,
-                $expectedSiteConfig,
-                $hostName,
-                $hostName,
-                $siteModuleName,
-            ];
-        };
-        yield $dataSet1();
-        yield $dataSet2();
+    public function dataForInvoke_ValidHost() {
+        yield [
+            'hostName' => 'foo.bar.com',
+            'moduleName' => 'test/example',
+            'siteDirPath' => $this->getTestDirPath() . '/example',
+            'siteConfig' => ['abc' => 123],
+        ];
+        yield [
+            'hostName' => 'some-name',
+            'moduleName' => 'foo/bar',
+            'siteDirPath' => $this->getTestDirPath() . '/my-site',
+            'siteConfig' => ['hello' => 'world'],
+        ];
     }
 
     /**
-     * @dataProvider dataForInvoke_MultiSiting
+     * @dataProvider dataForInvoke_ValidHost
      */
-    public function testInvoke_MultiSiting($appConfig, $expectedSiteConfig, $expectedHostName, $hostName, $siteModuleName) {
+    public function testInvoke_ValidHost(string $hostName, string $moduleName, string $siteDirPath, array $siteConfig) {
+        $expectedSiteConfig = new \ArrayObject(array_merge($siteConfig, [
+            'paths' => [
+                'dirPath' => $siteDirPath,
+            ],
+            'modules' => [
+                $moduleName => [],
+            ],
+        ]));
+
         $_SERVER['HTTP_HOST'] = $hostName;
-        $siteFactory = $this->newSiteFactory();
+
+        $appConfig = [
+            'hostMapper' => function ($hostName1) use (&$called, $hostName, $moduleName, $siteDirPath) {
+                $called = true;
+                if ($hostName1 === $hostName) {
+                    return [
+                        'module' => $moduleName,
+                        'paths' => [
+                            'dirPath' => $siteDirPath,
+                        ],
+                    ];
+                }
+            }
+        ];
+
+        $map = [
+            $siteDirPath . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME => $siteConfig,
+        ];
+
+        $siteFactory = new class ($map) extends SiteFactory {
+            private $map;
+            public function __construct(array $map) {
+                $this->map = $map;
+            }
+
+            protected function requireFile(string $filePath) {
+                return $this->map[$filePath];
+            }
+        };
+        $siteFactory->__invoke($appConfig);
 
         $site = $siteFactory->__invoke($appConfig);
 
-        $this->checkClassLoaderRegistered();
-        $this->assertSame($expectedHostName, $site->hostName());
-        $this->assertSame($siteModuleName, $site->moduleName());
-        $this->assertSame($expectedSiteConfig, $site->config());
-    }
-
-    private function newSiteFactory() {
-        return new class extends SiteFactory {
-            public function loadSiteConfig(string $configFilePath) {
-                return [
-                    'paths' => [],
-                    'modules' => [
-                        'galaxy/mars',
-                        'planet/earth' => [],
-                    ],
-                    'test' => '123',
-                ];
-            }
-        };
-    }
-
-    private function checkClassLoaderRegistered(): void {
+        $this->assertTrue($called);
         $this->assertTrue($GLOBALS[$this->classLoaderRegisteredKey]);
+
+        $this->assertSame($hostName, $site->hostName());
+        $this->assertSame($moduleName, $site->moduleName());
+        $this->assertEquals($expectedSiteConfig, $site->config());
+    }
+
+    public function testInvoke_InvalidHost() {
+        $siteFactory = new SiteFactory();
+
+        $hostName = 'abc';
+        $appConfig = [
+            'hostMapper' => function ($hostName) {
+            },
+        ];
+        $_SERVER['HTTP_HOST'] = $hostName;
+
+        $this->expectException(BadRequestException::class, 'Unable to detect the current site');
+        $siteFactory->__invoke($appConfig);
     }
 }

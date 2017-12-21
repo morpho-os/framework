@@ -124,8 +124,8 @@ class ControllerTest extends TestCase {
         $this->assertFalse($request->isDispatched());
     }
 
-    private function newRequest() {
-        $request = new Request();
+    private function newRequest(array $serverVars = null) {
+        $request = new Request($serverVars, new class implements IFn { public function __invoke($value) {} });
         $request->isDispatched(true);
         return $request;
     }

@@ -6,10 +6,10 @@
  */
 namespace Morpho\Web\Uri;
 
+use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
-use Morpho\DataProcessing\Validation\IValidator;
 
-class UriValidator implements IValidator {
+class UriValidator implements IFn {
     private const HEX_DIGIT_RE = '[0-9A-F]';
     private const ALPHA_RE = '[A-Z]';
     private const DIGIT_RE = '\d';
@@ -18,7 +18,7 @@ class UriValidator implements IValidator {
 
     private const SUBDELIMS_RE = "[!$&'()*+,;=]";
 
-    public function isValid($uri): bool {
+    public function __invoke($uri): bool {
         throw new NotImplementedException();
     }
 

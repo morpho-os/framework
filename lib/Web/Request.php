@@ -7,6 +7,7 @@
 //declare(strict_types = 1);
 namespace Morpho\Web;
 
+use Morpho\Base\IFn;
 use function Morpho\Base\trimMore;
 use Morpho\Core\IResponse;
 use Morpho\Fs\Path;
@@ -77,10 +78,17 @@ class Request extends BaseRequest {
     /**
      * @var array
      */
+
     private $trustedProxyIps;
 
-    public function __construct(array $serverVars = null) {
+    /**
+     * @var IFn
+     */
+    private $uriChecker;
+
+    public function __construct(array $serverVars = null, IFn $uriChecker) {
         $this->serverVars = $serverVars;
+        $this->uriChecker = $uriChecker;
     }
 
     public function hasRoutingParams(): bool {
@@ -368,6 +376,8 @@ class Request extends BaseRequest {
             $uri->setQuery($queryStr);
         }
 
+        $this->checkUri($uri);
+
         $this->uri = $uri;
     }
 
@@ -489,6 +499,16 @@ class Request extends BaseRequest {
             return $this->serverVars[$name] ?? $default;
         }
         return $_SERVER[$name] ?? $default;
+    }
+
+    /**
+     * Must throw the BadRequestException if the $uri can be considered as dangerous.
+     */
+    protected function checkUri(Uri $uri): void {
+        $checked = $this->uriChecker->__invoke($uri);
+        if (!$checked) {
+            throw new BadRequestException('Invalid URI');
+        }
     }
 
     private function normalizedMethod(?string $httpMethod): string {

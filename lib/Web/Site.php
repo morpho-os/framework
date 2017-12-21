@@ -15,12 +15,13 @@ class Site {
      * @var null|string
      */
     protected $hostName;
+
     /**
      * @var array
      */
-    private $config;
+    protected $config;
 
-    public function __construct(string $moduleName, ?string $hostName, array $config) {
+    public function __construct(string $moduleName, string $hostName, \ArrayObject $config) {
         $this->moduleName = $moduleName;
         $this->hostName = $hostName;
         $this->config = $config;
@@ -30,11 +31,11 @@ class Site {
         return $this->moduleName;
     }
 
-    public function hostName(): ?string {
+    public function hostName(): string {
         return $this->hostName;
     }
 
-    public function config() {
+    public function config(): \ArrayObject {
         return $this->config;
     }
 }

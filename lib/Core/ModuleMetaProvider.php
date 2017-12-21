@@ -19,11 +19,11 @@ class ModuleMetaProvider implements \IteratorAggregate {
     /**
      * @var array
      */
-    private $enabledModules;
+    protected $enabledModules;
     /**
      * @var array
      */
-    private $metaPatch;
+    protected $metaPatch;
 
     public function __construct(IServiceManager $serviceManager) {
         $this->init($serviceManager);
@@ -89,10 +89,6 @@ class ModuleMetaProvider implements \IteratorAggregate {
     }
 
     protected function init(IServiceManager $serviceManager): void {
-        $site = $serviceManager->get('site');
-        $siteConfig = $site->config();
-        $this->enabledModules = array_flip(array_keys($siteConfig['modules']));
-        $this->metaPatch = [$site->moduleName() => $siteConfig];
         $this->baseDirPath = $serviceManager->get('app')->config()['baseDirPath'];
     }
 }

@@ -9,26 +9,20 @@ namespace Morpho\Web;
 
 use Morpho\Base\IFn;
 use const Morpho\Core\CONFIG_DIR_NAME;
+use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\VENDOR_DIR_NAME;
 use Zend\Stdlib\ArrayUtils;
 
 class SiteFactory implements IFn {
     public function __invoke($config): Site {
-        if ($config['multiSiting']) {
-            $hostName = $this->detectHostName();
-            foreach ($config['sites'] as $hostName1 => $siteConfig) {
-                if ($hostName === $hostName1) {
-                    return $this->newSite($hostName, $siteConfig, $config['publicDirPath']);
-                }
-            }
+        $hostName = $this->detectHostName();
+        $siteConfig = $config['hostMapper']($hostName);
+        if (!$siteConfig) {
             throw new BadRequestException("Unable to detect the current site");
-        } else {
-            // No multi-siting -> use first found site.
-            $sitesConfig = $config['sites'];
-            reset($sitesConfig);
-            $siteConfig = $sitesConfig[key($sitesConfig)];
-            return $this->newSite(null, $siteConfig, $config['publicDirPath']);
         }
+        $siteModuleName = $siteConfig['module'];
+        unset($siteConfig['module']);
+        return new Site($siteModuleName, $hostName, $this->loadMergedConfig($siteModuleName, $siteConfig));
     }
 
     /**
@@ -63,39 +57,29 @@ class SiteFactory implements IFn {
         return $hostWithoutPort;
     }
 
-    protected function newSite(?string $hostName, $siteConfig, string $publicDirPath): Site {
-        require_once $siteConfig['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
-        $siteModuleName = $siteConfig['module'];
-        $normalizedConfig = $this->normalizeConfig($siteConfig, $publicDirPath);
-        return new Site($siteModuleName, $hostName, $normalizedConfig);
-    }
-    
-    protected function normalizeConfig($config, string $publicDirPath) {
-        $siteDirPath = $config['dirPath'];
-        $configFilePath = $config['dirPath'] . '/' . CONFIG_DIR_NAME . '/config.php';
-        $siteModuleName = $config['module'];
-        unset($config['module'], $config['dirPath']);
-        $normalizedConfig = ArrayUtils::merge($config, $this->loadSiteConfig($configFilePath));
-        $normalizedConfig['paths'] += ['dirPath' => $siteDirPath, 'publicDirPath' => $publicDirPath];
-        if (!isset($normalizedConfig['modules'])) {
-            $normalizedConfig['modules'] = [];
+    protected function loadMergedConfig(string $siteModuleName, array $siteConfig): \ArrayObject {
+        require $siteConfig['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
+
+        $configFilePath = $siteConfig['paths']['dirPath'] . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME;
+        $loadedConfig = ArrayUtils::merge($siteConfig, $this->requireFile($configFilePath));
+
+        if (!isset($loadedConfig['modules'])) {
+            $loadedConfig['modules'] = [];
         }
-        $newModules = [
-            $siteModuleName => [],
-        ]; // We use a new array to preserve ordering
-        foreach ($normalizedConfig['modules'] as $name => $conf) {
+        $newModules = [$siteModuleName => []]; // Store the site config as first item
+        foreach ($loadedConfig['modules'] as $name => $moduleConfig) {
             if (is_numeric($name)) {
-                $newModules[$conf] = [];
+                $newModules[$moduleConfig] = [];
             } else {
-                $newModules[$name] = $conf;
+                $newModules[$name] = $moduleConfig;
             }
         }
-        $normalizedConfig['modules'] = $newModules;
+        $loadedConfig['modules'] = $newModules;
 
-        return $normalizedConfig;
+        return new \ArrayObject($loadedConfig);
     }
 
-    protected function loadSiteConfig(string $configFilePath) {
-        return require $configFilePath;
+    protected function requireFile(string $filePath) {
+        return require $filePath;
     }
 }

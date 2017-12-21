@@ -7,6 +7,7 @@
 namespace MorphoTest\Unit\Web;
 
 use Monolog\Logger;
+use Morpho\Base\IFn;
 use const Morpho\Core\VENDOR;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
@@ -73,7 +74,7 @@ class DispatchErrorHandlerTest extends TestCase {
      */
     public function testEffectOfTheThrowErrorFlag(\Throwable $exception, bool $mustLogError) {
         $dispatchErrorHandler = new DispatchErrorHandler();
-        $request = new Request();
+        $request = $this->newRequest();
         $request->isDispatched(true);
         $exceptionMessage = $exception->getMessage();
         $dispatchErrorHandler->throwErrors(true);
@@ -91,7 +92,7 @@ class DispatchErrorHandlerTest extends TestCase {
     }
 
     private function checkHandlesTheSameErrorOccurredTwice(DispatchErrorHandler $dispatchErrorHandler, array $expectedHandler, \Throwable $exception, int $expectedStatusCode, bool $mustLogError) {
-        $request = new Request();
+        $request = $this->newRequest();
         $request->isDispatched(true);
 
         $serviceManager = $this->newServiceManagerWithLogger($mustLogError, $exception, 2);
@@ -131,5 +132,12 @@ class DispatchErrorHandlerTest extends TestCase {
             ->with('errorLogger')
             ->willReturn($errorLogger);
         return $serviceManager;
+    }
+
+    private function newRequest(array $serverVars = null) {
+        return new Request(
+            $serverVars,
+            new class implements IFn { public function __invoke($value) {} }
+        );
     }
 }

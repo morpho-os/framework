@@ -6,7 +6,9 @@
  */
 namespace MorphoTest\Unit\Web;
 
+use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
+use Morpho\Web\BadRequestException;
 use Morpho\Web\Request;
 
 class RequestTest extends TestCase {
@@ -16,7 +18,7 @@ class RequestTest extends TestCase {
     private $request;
 
     public function setUp() {
-        $this->request = new Request();
+        $this->request = $this->newRequest();
     }
 
     public function testResponse_ReturnsTheSameInstance() {
@@ -84,9 +86,9 @@ class RequestTest extends TestCase {
         ];
         if ($useGlobalServerVar) {
             $_SERVER = $serverVars;
-            $request = new Request();
+            $request = $this->newRequest(null);
         } else {
-            $request = new Request($serverVars);
+            $request = $this->newRequest($serverVars);
         }
         $this->assertSame($expectedHeaders, $request->headers()->getArrayCopy());
     }
@@ -223,9 +225,9 @@ class RequestTest extends TestCase {
         );
     }
 
-    public function testInitializationOfUri_BasePath() {
+    public function testUriInitialization_BasePath() {
         $basePath = '/foo/bar/baz';
-        $request = new Request([
+        $request = $this->newRequest([
             'REQUEST_URI' => $basePath . '/index.php/one/two',
             'SCRIPT_NAME' => $basePath . '/index.php'
         ]);
@@ -233,7 +235,7 @@ class RequestTest extends TestCase {
         $this->assertSame($basePath, $uri->path()->basePath());
     }
 
-    public function dataForInitializationOfUri_Scheme() {
+    public function dataForUriInitialization_Scheme() {
         yield [false, []];
         yield [true, ['HTTPS' => 'on']];
         yield [false, ['HTTPS' => 'off']];
@@ -248,12 +250,12 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForInitializationOfUri_Scheme
+     * @dataProvider dataForUriInitialization_Scheme
      */
-    public function testInitializationOfUri_Scheme($isHttps, $serverVars) {
+    public function testUriInitialization_Scheme($isHttps, $serverVars) {
         $trustedProxyIp = '127.0.0.2';
         $serverVars['REMOTE_ADDR'] = $trustedProxyIp;
-        $request = new Request($serverVars);
+        $request = $this->newRequest($serverVars);
         $request->setTrustedProxyIps([$trustedProxyIp]);
         if ($isHttps) {
             $this->assertSame('https', $request->uri()->scheme());
@@ -262,8 +264,8 @@ class RequestTest extends TestCase {
         }
     }
 
-    public function testInitializationOfUri_Query() {
-        $request = new Request([
+    public function testUriInitialization_Query() {
+        $request = $this->newRequest([
             'REQUEST_URI' => '/',
             'SCRIPT_NAME' => '/index.php',
             'QUERY_STRING' => '',
@@ -273,11 +275,33 @@ class RequestTest extends TestCase {
         $this->assertSame('http://framework/', $uri->toStr(true));
     }
     
+    public function testUriInitialization_ThrowsBadRequestOnNotAllowedHost() {
+        $request = new Request(
+            ['HTTP_HOST' => 'malicious'],
+            new class implements IFn {
+                public function __invoke($value) {
+                    return false;
+                }
+            }
+        );
+        $this->expectException(BadRequestException::class, 'Invalid URI');
+        $request->uri();
+    }
+    
     public function testPut() {
         $this->markTestIncomplete();
         /*
         file_put_contents('php://input', 'test');
         d(file_get_contents('php://input'));
         */
+    }
+
+    private function newRequest(array $serverVars = null) {
+        return new Request(
+            $serverVars,
+            new class implements IFn { public function __invoke($value) {
+                return true;
+            } }
+        );
     }
 }

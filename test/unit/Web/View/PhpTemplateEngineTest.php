@@ -6,6 +6,7 @@
  */
 namespace MorphoTest\Unit\Web\View;
 
+use Morpho\Base\IFn;
 use Morpho\Base\ItemNotSetException;
 use Morpho\Di\ServiceManager;
 use Morpho\Test\TestCase;
@@ -268,7 +269,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     private function newServiceManager($services = null): ServiceManager {
         if (null === $services) {
-            $request = new Request();
+            $request = $this->newRequest();
             $uri = new Uri();
             $uri->setPath('/base/path/foo/bar');
             $uri->path()->setBasePath('/base/path');
@@ -292,5 +293,12 @@ class PhpTemplateEngineTest extends TestCase {
         $templateEngine->setCacheDirPath($this->tmpDirPath());
         $templateEngine->useCache(false);
         $this->setDefaultTimezone();
+    }
+
+    private function newRequest(array $serverVars = null) {
+        return new Request(
+            $serverVars,
+            new class implements IFn { public function __invoke($value) {} }
+        );
     }
 }

@@ -18,7 +18,6 @@ use Morpho\Caching\VarExportFileCache;
 use Morpho\Core\IRouter;
 use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleIndexer;
-use Morpho\Core\ModuleMetaProvider;
 use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
@@ -26,6 +25,7 @@ use Morpho\Web\Logging\WebProcessor;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\Session\Session;
+use Morpho\Web\Uri\UriChecker;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\PhpTemplateEngine;
@@ -57,7 +57,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newRequestService() {
-        return new Request();
+        return new Request(null, new UriChecker($this));
     }
 
     protected function newEnvironmentService() {
