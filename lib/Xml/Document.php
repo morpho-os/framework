@@ -12,6 +12,9 @@ use Morpho\Base\InvalidOptionsException;
 use Morpho\Fs\File;
 use Morpho\Web\View\Html;
 
+/**
+ * @method XPathResult select(string $xPath, $contextNode = null)
+ */
 class Document extends DOMDocument {
     private $xPath;
 
@@ -34,7 +37,7 @@ class Document extends DOMDocument {
         'xmlVersion' => true,
     ];
 
-    public static function fromFile(string $filePath, array $options = null): Document {
+    public static function parseFile(string $filePath, array $options = null): Document {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
@@ -97,11 +100,18 @@ class Document extends DOMDocument {
         return call_user_func_array([$this->xPath(), $method], $args);
     }
 
-    public function xPath() {
+    public function xPath(): XPathQuery {
         if (null === $this->xPath) {
             $this->xPath = new XPathQuery($this);
         }
         return $this->xPath;
+    }
+
+    public function namespaces() {
+        $xpath = new \DOMXPath($this);
+        foreach ($xpath->query("namespace::*", $this->documentElement) as $node) {
+            yield $node->localName => $node->nodeValue;
+        }
     }
     /*
     public function addDomNode(DOMDocument $doc, $parentNode, $name, $value, array $attributes = array())

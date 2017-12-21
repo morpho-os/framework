@@ -6,6 +6,8 @@
  */
 namespace Morpho\Xml;
 
+use Morpho\Base\NotImplementedException;
+
 class XPathQuery {
     private $xPath;
 
@@ -42,6 +44,7 @@ class XPathQuery {
     }
 
     public function xPathString($node) {
+        throw new NotImplementedException();
         /*
         @TODO
         if ($node instanceof SimpleXMLElement) {
@@ -64,7 +67,7 @@ class XPathQuery {
     }
 
     public function position($xPath) {
-        return $this->xPath("count($xPath/preceding-sibling::*)+1");
+        return $this->eval("count($xPath/preceding-sibling::*)+1");
     }
 
     public function __call($method, $args) {

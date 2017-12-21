@@ -24,14 +24,14 @@ class XPathResult implements \Iterator, Countable {
     }
 
     public function toHtml(array $options = null): string {
-        $doc = Document::create($options);
+        $doc = Document::new($options);
         foreach ($this->nodeList as $node) {
             $doc->appendChild($doc->importNode($node, true));
         }
         return $doc->saveHTML();
     }
 
-    public function head(): \DOMElement {
+    public function head(): ?\DOMElement {
         return $this->nodeList->item(0);
     }
 
@@ -48,7 +48,7 @@ class XPathResult implements \Iterator, Countable {
         return $res;
     }
 
-    public function last(): \DOMElement {
+    public function last(): ?\DOMElement {
         return $this->item($this->count() - 1);
     }
 
@@ -64,7 +64,7 @@ class XPathResult implements \Iterator, Countable {
         return $res;
     }
 
-    public function item(int $offset) {
+    public function item(int $offset): ?\DOMElement {
         return $this->nodeList->item($offset);
     }
     
