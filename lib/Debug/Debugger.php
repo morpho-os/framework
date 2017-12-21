@@ -115,31 +115,9 @@ class Debugger {
      * Improved version of the var_export
      */
     public function varExport($var, bool $return = false, bool $stripNumericKeys = true) {
-        $php = preg_replace(
-                [
-                    '~=>\s+array~si',
-                    '~array \(~si',
-                ],
-                [
-                    '=> array',
-                    'array(',
-                ],
-                var_export($var, true)
-            ) . ';';
-        if ($stripNumericKeys) {
-            $php = preg_replace('~^(\s+)\d+.*=> ~mi', '\\1', $php);
-        }
-        // Reindent code: replace 2 spaces -> 4 spaces.
-        $php = preg_replace_callback(
-            '~^\s+~m',
-            function ($match) {
-                $count = substr_count($match[0], '  ');
-                return str_repeat('  ', $count * 2);
-            },
-            $php
-        );
+        $out = $this->describeVar($var, $stripNumericKeys);
 
-        $output = $this->formatLine($php)
+        $output = $this->formatLine($out)
             . $this->calledAt();
 
         if ($this->isHtmlMode()) {
@@ -169,7 +147,7 @@ class Debugger {
     public function varToStr($var, bool $fixOutput = true): string {
         $output = trim(capture(function () use ($var) {
             if ($var instanceof \Generator) {
-                var_dump("\\Generator which yields the values: " . var_export(iterator_to_array($var, false), true));
+                var_dump("\\Generator which yields the values: " . $this->describeGen($var), true);
             } else {
                 var_dump($var);
             }
@@ -393,5 +371,40 @@ OUT;
                 $this->dump($e->__toString());
             }
         }
+    }
+
+    protected function describeGen(\Generator $val): string {
+        $out = '';
+        foreach ($val as $key => $value) {
+            $out .= $this->formatLine(rtrim($this->describeVal($key), ';') . ' => ' . rtrim($this->describeVal($value)));
+        }
+        return $out;
+    }
+
+    protected function describeVal($val, bool $stripNumericKeys = true): string {
+        $res = preg_replace(
+                [
+                    '~=>\s+array~si',
+                    '~array \(~si',
+                ],
+                [
+                    '=> array',
+                    'array(',
+                ],
+                var_export($val, true)
+            ) . ';';
+        if ($stripNumericKeys) {
+            $res = preg_replace('~^(\s+)\d+.*=> ~mi', '\\1', $res);
+        }
+        // Reindent code: replace 2 spaces -> 4 spaces.
+        $res = preg_replace_callback(
+            '~^\s+~m',
+            function ($match) {
+                $count = substr_count($match[0], '  ');
+                return str_repeat('  ', $count * 2);
+            },
+            $res
+        );
+        return $res;
     }
 }
