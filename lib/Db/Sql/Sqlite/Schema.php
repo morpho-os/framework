@@ -7,7 +7,6 @@
 namespace Morpho\Db\Sql\Sqlite;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Db\Sql\Result;
 use Morpho\Db\Sql\Schema as BaseSchema;
 
 class Schema extends BaseSchema {
@@ -15,7 +14,7 @@ class Schema extends BaseSchema {
      * This function uses slightly changed getListTablesSQL() method from the doctrine/dbal package
      * (https://github.com/doctrine/dbal/blob/master/lib/Doctrine/DBAL/Platforms/SqlitePlatform.php)
      */
-    public function tableNames(): Result {
+    public function tableNames(): iterable {
         return $this->db->select("name
             FROM sqlite_master
             WHERE type = 'table' AND name != 'sqlite_sequence' AND name != 'geometry_columns' AND name != 'spatial_ref_sys'
@@ -30,7 +29,7 @@ class Schema extends BaseSchema {
         throw new NotImplementedException();
     }
 
-    public function deleteTable(string $tableName)/*: void */ {
+    public function deleteTable(string $tableName): void {
         throw new NotImplementedException();
     }
 
@@ -38,7 +37,15 @@ class Schema extends BaseSchema {
         throw new NotImplementedException();
     }
 
-    public function deleteTableIfExists(string $tableName)/*: void */ {
+    public function deleteTableIfExists(string $tableName): void {
+        throw new NotImplementedException();
+    }
+
+    public function createDatabase(string $dbName): void {
+        throw new NotImplementedException();
+    }
+
+    public function createTableSql(string $tableName): string {
         throw new NotImplementedException();
     }
 }
