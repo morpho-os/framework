@@ -151,13 +151,13 @@ class Controller extends Node implements IFn {
         $response->redirect($uri, $httpStatusCode);
     }
 
-    protected function ok($data = null): array {
+/*    protected function ok($data = null): array {
         return ['ok' => $data ?: true];
     }
 
     protected function error($data = null): array {
         return ['error' => $data ?: true];
-    }
+    }*/
 
     protected function accessDenied(): void {
         throw new AccessDeniedException();

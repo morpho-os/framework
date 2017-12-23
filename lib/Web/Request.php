@@ -528,7 +528,7 @@ class Request extends BaseRequest {
     protected function checkUri(Uri $uri): void {
         $checked = $this->uriChecker->__invoke($uri);
         if (!$checked) {
-            throw new BadRequestException('Invalid URI');
+            throw new BadRequestException('Invalid URI'); // or AccessDenied?
         }
     }
 
