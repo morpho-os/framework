@@ -1,2 +1,0 @@
-<?php
-\Morpho\Code\Js\alert("hello");
