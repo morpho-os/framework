@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Base;
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
+    endsWith, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -594,6 +594,16 @@ class FunctionsTest extends TestCase {
 
     public function testCapture() {
         $this->markTestIncomplete();
+    }
+
+    public function testTpl() {
+        $code = '<?php echo "Hello $world";';
+        $filePath = $this->createTmpFile();
+        file_put_contents($filePath, $code);
+        $this->assertSame(
+            'Hello World!',
+            tpl($filePath, ['world' => 'World!'])
+        );
     }
 
     /**

@@ -408,6 +408,20 @@ function capture(callable $fn): string {
     return ob_get_clean();
 }
 
+function tpl($__filePath, array $__vars): string {
+    extract($__vars, EXTR_SKIP);
+    unset($__vars);
+    ob_start();
+    try {
+        require $__filePath;
+    } catch (\Throwable $e) {
+        // Don't output any result in case of Error
+        ob_end_clean();
+        throw $e;
+    }
+    return trim(ob_get_clean());
+}
+
 function prefix(string $prefix): Closure {
     return function (string $s) use ($prefix) {
         return $prefix . $s;

@@ -10,18 +10,6 @@ use Morpho\Test\TestCase;
 use Morpho\Web\View\TemplateEngine;
 
 class TemplateEngineTest extends TestCase {
-    public function testRenderFileWithoutCompilation() {
-        $code = '<?php echo "Hello $world";';
-        $filePath = $this->createTmpFile();
-        file_put_contents($filePath, $code);
-        $engine = new TemplateEngine();
-
-        $this->assertSame(
-            'Hello World!',
-            $engine->renderFileWithoutCompilation($filePath, ['world' => 'World!'])
-        );
-    }
-
     public function testRender_WithoutElements() {
         $engine = new TemplateEngine();
         $code = '<?php echo "Hello $world";';

@@ -9,6 +9,7 @@ namespace Morpho\Web\View;
 use Morpho\Base\EmptyPropertyException;
 use Morpho\Base\ItemNotSetException;
 use Morpho\Base\Pipe;
+use function Morpho\Base\tpl;
 use Morpho\Fs\File;
 
 class TemplateEngine extends Pipe {
@@ -22,20 +23,6 @@ class TemplateEngine extends Pipe {
 
     public function setCacheDirPath(string $dirPath): void {
         $this->cacheDirPath = $dirPath;
-    }
-
-    public function renderFileWithoutCompilation($__filePath, array $__vars): string {
-        extract($__vars, EXTR_SKIP);
-        unset($__vars);
-        ob_start();
-        try {
-            require $__filePath;
-        } catch (\Throwable $e) {
-            // Don't output any result in case of Error
-            ob_end_clean();
-            throw $e;
-        }
-        return trim(ob_get_clean());
     }
 
     /**
@@ -62,7 +49,7 @@ class TemplateEngine extends Pipe {
      */
     public function renderFile(string $filePath, array $vars = []): string {
         $filePath = $this->compileFile($filePath);
-        return $this->renderFileWithoutCompilation($filePath, $vars);
+        return tpl($filePath, $vars);
     }
 
     public function useCache(bool $flag = null): bool {
