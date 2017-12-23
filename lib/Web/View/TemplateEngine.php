@@ -25,7 +25,7 @@ class TemplateEngine extends Pipe {
     }
 
     public function renderFileWithoutCompilation($__filePath, array $__vars): string {
-        // We can't use the Base\tpl() function as we need to preserve $this
+        // NB: We can't use the Base\tpl() function as we need to preserve $this
         extract($__vars, EXTR_SKIP);
         unset($__vars);
         ob_start();

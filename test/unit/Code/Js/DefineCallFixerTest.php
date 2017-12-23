@@ -56,7 +56,7 @@ class DefineCallFixerTest extends TestCase {
         );
     }
     
-    public function testFixDefineCall_RelativeJsFilePath() {
+    public function testFixDefineCall_RelJsFilePath() {
         $line = 'define(["require", "exports"], function (require, exports) {';
         $this->assertEquals(
             'define("system/lib/test-case", ["require", "exports"], function (require, exports) {',

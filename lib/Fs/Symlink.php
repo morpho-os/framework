@@ -27,7 +27,7 @@ class Symlink extends Entry {
         if (false === $targetPath) {
             return false;
         }
-        if (Path::isAbsolute($targetPath)) {
+        if (Path::isAbs($targetPath)) {
             return !Stat::isEntry($targetPath);
         }
         $curDirPath = getcwd();

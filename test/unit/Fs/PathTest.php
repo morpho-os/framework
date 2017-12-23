@@ -11,7 +11,7 @@ use Morpho\Fs\Path;
 use Morpho\Fs\Exception as FsException;
 
 class PathTest extends TestCase {
-    public function dataForIsAbsolute() {
+    public function dataForIsAbs() {
         return [
             [
                 '',
@@ -61,10 +61,10 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIsAbsolute
+     * @dataProvider dataForIsAbs
      */
-    public function testIsAbsolute($path, $isAbsolute) {
-        $isAbsolute ? $this->assertTrue(Path::isAbsolute($path)) : $this->assertFalse(Path::isAbsolute($path));
+    public function testIsAbs($path, $isAbs) {
+        $isAbs ? $this->assertTrue(Path::isAbs($path)) : $this->assertFalse(Path::isAbs($path));
     }
 
     public function dataForAssertSafe() {
@@ -152,13 +152,13 @@ class PathTest extends TestCase {
         $this->assertTrue(Path::isNormalized('C:/foo/bar/baz'));
     }
 
-    public function testToAbsoluteShouldThrowExceptionForInvalidPath() {
+    public function testToAbsShouldThrowExceptionForInvalidPath() {
         $invalidPath = __DIR__ . '/ttttt';
-        $this->expectException('\Morpho\Fs\Exception', "Unable to detect absolute path for the '$invalidPath' path.");
-        Path::toAbsolute($invalidPath);
+        $this->expectException(FsException::class, "Unable to detect absolute path for the '$invalidPath' path.");
+        Path::toAbs($invalidPath);
     }
 
-    public function dataForToAbsolute() {
+    public function dataForToAbs() {
         return [
             [
                 '/', '/',
@@ -172,10 +172,10 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForToAbsolute
+     * @dataProvider dataForToAbs
      */
-    public function testToAbsolute($expected, $path) {
-        $actual = Path::toAbsolute($path);
+    public function testToAbs($expected, $path) {
+        $actual = Path::toAbs($path);
         $this->assertSame(str_replace('\\', '/', $expected), $actual);
     }
 
@@ -233,7 +233,7 @@ class PathTest extends TestCase {
         $this->assertSame('', Path::combine(['', '', '']));
     }
 
-    public function dataForCombine_AbsoluteUri() {
+    public function dataForCombine_AbsUri() {
         return [
             [
                 'http://foo/bar',
@@ -266,9 +266,9 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCombine_AbsoluteUri
+     * @dataProvider dataForCombine_AbsUri
      */
-    public function testCombine_AbsoluteUri($expected, $uri, $path1, $path2 = null) {
+    public function testCombine_AbsUri($expected, $uri, $path1, $path2 = null) {
         $this->assertEquals($expected, Path::combine($uri, $path1, $path2));
     }
 
@@ -293,26 +293,26 @@ class PathTest extends TestCase {
         $this->assertEquals('', Path::normalize(''));
     }
 
-    public function testNormalize_RelativeBetween() {
+    public function testNormalize_RelBetween() {
         $this->assertEquals('/foo/bar/setosa/versicolor', Path::normalize('/foo/bar/baz/../setosa/versicolor'));
     }
 
-    public function testToRelative() {
+    public function testToRel() {
         $baseDirPath = __DIR__ . '/../../..';
-        $this->assertEquals(Path::toRelative($baseDirPath . '/module/foo/bar', $baseDirPath), 'module/foo/bar');
-        $this->assertSame(Path::toRelative($baseDirPath, $baseDirPath), '');
-        $this->assertSame(Path::toRelative($baseDirPath . '/', $baseDirPath), '');
-        $this->assertSame(Path::toRelative($baseDirPath . '/index.php', $baseDirPath), 'index.php');
+        $this->assertEquals(Path::toRel($baseDirPath . '/module/foo/bar', $baseDirPath), 'module/foo/bar');
+        $this->assertSame(Path::toRel($baseDirPath, $baseDirPath), '');
+        $this->assertSame(Path::toRel($baseDirPath . '/', $baseDirPath), '');
+        $this->assertSame(Path::toRel($baseDirPath . '/index.php', $baseDirPath), 'index.php');
     }
 
-    public function testToRelative_ThrowsExceptionWhenBasePathNotContainedWithinPath() {
+    public function testToRel_ThrowsExceptionWhenBasePathNotContainedWithinPath() {
         $baseDirPath = '/foo/bar/baz/';
         $path = __DIR__;
         $this->expectException(
             FsException::class,
             "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
         );
-        Path::toRelative($path, $baseDirPath);
+        Path::toRel($path, $baseDirPath);
     }
 
     public function testNameWithoutExt() {

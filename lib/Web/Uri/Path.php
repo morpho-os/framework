@@ -145,7 +145,7 @@ class Path implements IUriComponent {
     public function relPath(): ?string {
         if (null === $this->relPath) {
             if (null !== $this->basePath) {
-                $this->relPath = FsPath::toRelative($this->path, $this->basePath);
+                $this->relPath = FsPath::toRel($this->path, $this->basePath);
             }
         }
         return $this->relPath;

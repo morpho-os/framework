@@ -80,7 +80,7 @@ class Directory extends Entry {
                 continue;
             }
             $entryPath = $item->getPathname();
-            $relPath = Path::toRelative($entryPath, $sourceDirPath);
+            $relPath = Path::toRel($entryPath, $sourceDirPath);
             Entry::copy($entryPath, $targetDirPath . '/' . $relPath);
         }
         return $targetDirPath;
@@ -253,9 +253,9 @@ class Directory extends Entry {
     /**
      * @return Path to the created directory.
      */
-    public static function createTmp(string $relativeDirPath, int $mode = Stat::DIR_MODE): string {
+    public static function createTmp(string $relDirPath, int $mode = Stat::DIR_MODE): string {
         return self::create(
-            Path::combine(Environment::tmpDirPath(), $relativeDirPath),
+            Path::combine(Environment::tmpDirPath(), $relDirPath),
             $mode
         );
     }

@@ -651,6 +651,10 @@ function chain(...$iterables): iterable {
     }
 }
 
+/**
+ * @param iterable|string $haystack
+ * @param mixed $needle
+ */
 function contains($haystack, $needle): bool {
     if (is_string($haystack)) {
         if ($needle === '') {

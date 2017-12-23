@@ -43,7 +43,7 @@ class Theme implements IHasServiceManager {
     }
 
 /*    public function canRender(string $viewPath): bool {
-        return false !== $this->absoluteFilePath($viewPath, false);
+        return false !== $this->absFilePath($viewPath, false);
     }*/
 
     public function renderView(View $view): string {
@@ -136,9 +136,9 @@ class Theme implements IHasServiceManager {
     /**
      * @return bool|string
      */
-    protected function absoluteFilePath(string $relOrAbsFilePath, bool $throwExIfNotFound = true) {
+    protected function absFilePath(string $relOrAbsFilePath, bool $throwExIfNotFound = true) {
         $relOrAbsFilePath .= self::VIEW_FILE_EXT;
-        if (Path::isAbsolute($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
+        if (Path::isAbs($relOrAbsFilePath) && is_readable($relOrAbsFilePath)) {
             return $relOrAbsFilePath;
         }
         for ($i = count($this->baseDirPaths()) - 1; $i >= 0; $i--) {
@@ -168,7 +168,7 @@ class Theme implements IHasServiceManager {
         if (null !== $instanceVars) {
             $templateEngine->mergeVars($instanceVars);
         }
-        return $templateEngine->renderFile($this->absoluteFilePath($relFilePath), $vars);
+        return $templateEngine->renderFile($this->absFilePath($relFilePath), $vars);
     }
 
     protected function newDefaultLayout(): View {

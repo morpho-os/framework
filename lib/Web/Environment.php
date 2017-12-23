@@ -25,6 +25,7 @@ class Environment extends BaseEnvironment {
     public static function httpProtocolVersion(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
             $protocol = $_SERVER['SERVER_PROTOCOL'];
+            // preg_match('~^HTTP/\d+\.\d+$~si', $protocol)
             if ($protocol === 'HTTP/1.1' || $protocol === 'HTTP/2.0' || $protocol === 'HTTP/1.0') {
                 return $protocol;
             }

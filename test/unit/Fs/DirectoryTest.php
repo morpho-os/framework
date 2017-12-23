@@ -193,7 +193,7 @@ class DirectoryTest extends TestCase {
         $this->assertEquals(['foo', 'foo/pig.txt'], $this->pathsInDir($tmpDirPath));
     }
 
-    public function testMustExist_RelativePath_0AsArg() {
+    public function testMustExist_RelPath_0AsArg() {
         $tmpDirPath = $this->createTmpDir();
         $dirPath = $tmpDirPath . '/0';
         mkdir($dirPath);

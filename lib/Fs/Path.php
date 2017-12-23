@@ -12,7 +12,7 @@ use function Morpho\Base\unpackArgs;
 use Morpho\Web\Uri\Path as UriPath;
 
 class Path {
-    public static function isAbsolute(string $path): bool {
+    public static function isAbs(string $path): bool {
         return $path !== ''
             && ($path[0] === '/' || $path[0] === '\\')
             || (isset($path[1]) && $path[1] === ':');
@@ -87,7 +87,7 @@ class Path {
             : implode('/', $result);
     }
 
-    public static function toAbsolute(string $path, bool $normalize = true): string {
+    public static function toAbs(string $path, bool $normalize = true): string {
         $absPath = realpath($path);
         if (false === $absPath) {
             throw new Exception("Unable to detect absolute path for the '$path' path.");
@@ -95,7 +95,7 @@ class Path {
         return $normalize ? self::normalize($absPath) : $absPath;
     }
 
-    public static function toRelative(string $path, string $basePath): string {
+    public static function toRel(string $path, string $basePath): string {
         $path = static::normalize($path);
         $basePath = static::normalize($basePath);
 
