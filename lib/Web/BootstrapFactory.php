@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IServiceManager;
 
 class BootstrapFactory implements IBootstrapFactory {
     public function newSite($appConfig): Site {

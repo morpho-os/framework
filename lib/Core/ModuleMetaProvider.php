@@ -6,7 +6,7 @@
  */
 namespace Morpho\Core;
 
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;

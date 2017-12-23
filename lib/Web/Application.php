@@ -7,7 +7,7 @@
 //declare(strict_types=1);
 namespace Morpho\Web;
 
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Core\Application as BaseApplication;
 use Morpho\Web\View\Html;
 

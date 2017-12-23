@@ -6,8 +6,8 @@
  */
 namespace Morpho\Core;
 
-use Morpho\Di\IHasServiceManager;
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
 abstract class Application implements IHasServiceManager {

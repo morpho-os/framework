@@ -10,7 +10,7 @@ use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
-use Morpho\Di\ServiceManager as BaseServiceManager;
+use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected $config;

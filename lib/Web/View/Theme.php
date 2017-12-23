@@ -10,8 +10,8 @@ namespace Morpho\Web\View;
 use function Morpho\Base\{
     dasherize, toJson
 };
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
 use Morpho\Fs\Path;
 use Morpho\Web\Request;
 use Morpho\Web\Response;

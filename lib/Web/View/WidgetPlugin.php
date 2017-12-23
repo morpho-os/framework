@@ -7,8 +7,8 @@
 namespace Morpho\Web\View;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
 
 class WidgetPlugin extends Plugin implements IHasServiceManager {
     private $serviceManager;

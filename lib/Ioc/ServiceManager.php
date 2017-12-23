@@ -4,8 +4,13 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Di;
+namespace Morpho\Ioc;
 
+/**
+ * Implements IoC pattern and allows to use two approaches to manage dependencies:
+ *     1) DI/Dependency Injection - inject/push dependent objects to the objects but not inject self
+ *     2) Service Locator - inject/push self to the object and allow to pull from self
+ */
 class ServiceManager implements IServiceManager {
     protected $services = [];
 

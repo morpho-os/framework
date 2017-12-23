@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web\View;
 
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 
 abstract class HtmlProcessor extends HtmlSemiParser {
     protected const SKIP_ATTR = '_skip';

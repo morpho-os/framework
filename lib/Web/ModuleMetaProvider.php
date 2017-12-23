@@ -7,7 +7,7 @@
 namespace Morpho\Web;
 
 use Morpho\Core\ModuleMetaProvider as BaseModuleMetaProvider;
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IServiceManager;
 
 class ModuleMetaProvider extends BaseModuleMetaProvider {
     protected function init(IServiceManager $serviceManager): void {

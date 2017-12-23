@@ -7,8 +7,8 @@
 namespace Morpho\Core;
 
 use Morpho\Caching\ICache;
-use Morpho\Di\IHasServiceManager;
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
 
 class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
     private $cache;

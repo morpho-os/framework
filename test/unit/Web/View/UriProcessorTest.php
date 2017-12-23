@@ -7,7 +7,7 @@
 declare(strict_types=1);
 namespace MorphoTest\Unit\Web\View;
 
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Request;
 use Morpho\Web\Uri\Path;

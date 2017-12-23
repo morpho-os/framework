@@ -15,7 +15,7 @@ use Morpho\Core\Node;
 
 class Controller extends Node implements IFn {
     /**
-     * @var \Morpho\Di\IServiceManager
+     * @var \Morpho\Ioc\IServiceManager
      */
     protected $serviceManager;
     /**

@@ -11,8 +11,8 @@ use function Morpho\Base\{
 };
 use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
 use Morpho\Web\Controller;
 use function Morpho\Web\prependBasePath;
 use Morpho\Web\Uri\Uri;

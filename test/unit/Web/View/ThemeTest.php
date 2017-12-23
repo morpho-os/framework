@@ -10,7 +10,7 @@ use function Morpho\Base\fromJson;
 use Morpho\Base\IFn;
 use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\View;
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Request;
 use Morpho\Web\View\Theme;

@@ -6,11 +6,11 @@
  */
 namespace MorphoTest\Unit\Di;
 
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IHasServiceManager;
-use Morpho\Di\ServiceNotFoundException;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\ServiceNotFoundException;
 use Morpho\Test\TestCase;
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 
 class ServiceManagerTest extends TestCase {
     private $serviceManager;

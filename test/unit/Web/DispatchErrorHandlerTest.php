@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Web;
 use Monolog\Logger;
 use Morpho\Base\IFn;
 use const Morpho\Core\VENDOR;
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;

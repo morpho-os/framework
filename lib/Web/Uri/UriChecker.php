@@ -7,7 +7,7 @@
 namespace Morpho\Web\Uri;
 
 use Morpho\Base\IFn;
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IServiceManager;
 
 class UriChecker implements IFn {
     private $serviceManager;

@@ -6,8 +6,8 @@
  */
 namespace Morpho\DataProcessing\Pagination;
 
-use Morpho\Di\IServiceManager;
-use Morpho\Di\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Ioc\IHasServiceManager;
 
 abstract class DbPager extends Pager implements IHasServiceManager {
     protected $serviceManager;

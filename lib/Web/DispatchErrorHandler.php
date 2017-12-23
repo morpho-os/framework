@@ -8,8 +8,8 @@ namespace Morpho\Web;
 
 use Morpho\Base\Must;
 use const Morpho\Core\VENDOR;
-use Morpho\Di\IHasServiceManager;
-use Morpho\Di\THasServiceManager;
+use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\THasServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class DispatchErrorHandler implements IHasServiceManager {

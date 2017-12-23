@@ -9,7 +9,7 @@ namespace Morpho\Web\View;
 use function Morpho\Base\{
     dasherize, filterStringArgs
 };
-use Morpho\Di\{
+use Morpho\Ioc\{
     IServiceManager, IHasServiceManager
 };
 

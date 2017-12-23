@@ -6,7 +6,7 @@
  */
 namespace MorphoTest\Unit\Web\View;
 
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Messages\IMessageStorage;

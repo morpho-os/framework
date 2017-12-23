@@ -6,7 +6,7 @@
  */
 namespace MorphoTest\Unit\Core {
 
-    use Morpho\Di\IServiceManager;
+    use Morpho\Ioc\IServiceManager;
     use Morpho\Test\TestCase;
     use MorphoTest\Unit\Core\ApplicationTest\App;
 
@@ -46,8 +46,8 @@ namespace MorphoTest\Unit\Core {
 namespace MorphoTest\Unit\Core\ApplicationTest {
     use Morpho\Base\NotImplementedException;
     use Morpho\Core\Application;
-    use Morpho\Di\IServiceManager;
-    use Morpho\Di\ServiceManager as BaseServiceManager;
+    use Morpho\Ioc\IServiceManager;
+    use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
     class App extends Application {
         protected function showError(\Throwable $e): void {

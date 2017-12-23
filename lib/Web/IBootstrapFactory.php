@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Di\IServiceManager;
+use Morpho\Ioc\IServiceManager;
 
 interface IBootstrapFactory {
     public function newServiceManager($services): IServiceManager;

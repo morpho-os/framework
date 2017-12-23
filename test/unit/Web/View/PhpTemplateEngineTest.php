@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Base\IFn;
 use Morpho\Base\ItemNotSetException;
-use Morpho\Di\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\ScriptProcessor;

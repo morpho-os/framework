@@ -8,7 +8,7 @@
 namespace Morpho\Core;
 
 use Morpho\Base\Node as BaseNode;
-use Morpho\Di\{IHasServiceManager, IServiceManager};
+use Morpho\Ioc\{IHasServiceManager, IServiceManager};
 
 abstract class Node extends BaseNode implements IHasServiceManager {
     protected $serviceManager;
