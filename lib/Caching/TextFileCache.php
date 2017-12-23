@@ -25,11 +25,17 @@ class TextFileCache extends FileCache {
         if (!is_file($filename)) {
             return false;
         }
-        $resource = fopen($filename, "r");
-        if (false !== ($line = fgets($resource))) {
-            $lifetime = (int)$line;
+        $handle = fopen($filename, 'r');
+        if (!$handle) {
+            throw new \RuntimeException('Unable to open file for reading');
         }
-        fclose($resource);
+        try {
+            if (false !== ($line = fgets($handle))) {
+                $lifetime = (int)$line;
+            }
+        } finally {
+            fclose($handle);
+        }
         return $lifetime === 0 || $lifetime > time();
     }
 
@@ -40,18 +46,24 @@ class TextFileCache extends FileCache {
         if (!is_file($filename)) {
             return [false, null];
         }
-        $resource = fopen($filename, "r");
-        if (false !== ($line = fgets($resource))) {
-            $lifetime = (int)$line;
+        $handle = fopen($filename, 'r');
+        if (!$handle) {
+            throw new \RuntimeException('Unable to open file for reading');
         }
-        if ($lifetime !== 0 && $lifetime < time()) {
-            fclose($resource);
-            return [false, null];
+        try {
+            if (false !== ($line = fgets($handle))) {
+                $lifetime = (int)$line;
+            }
+            if ($lifetime !== 0 && $lifetime < time()) {
+                fclose($handle);
+                return [false, null];
+            }
+            while (false !== ($line = fgets($handle))) {
+                $data .= $line;
+            }
+        } finally {
+            fclose($handle);
         }
-        while (false !== ($line = fgets($resource))) {
-            $data .= $line;
-        }
-        fclose($resource);
         return [true, unserialize($data)];
     }
 

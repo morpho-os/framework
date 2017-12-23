@@ -63,13 +63,22 @@ class File extends Entry {
             return self::write($filePath, implode("\n", $lines));
         }
         $handle = fopen($filePath, 'w');
-        foreach ($lines as $line) {
-            fwrite($handle, $line . "\n");
+        if (!$handle) {
+            throw new Exception("Unable to open the '$filePath' file for writing");
         }
-        fclose($handle);
+        try {
+            foreach ($lines as $line) {
+                fwrite($handle, $line . "\n");
+            }
+        } finally {
+            fclose($handle);
+        }
         return $filePath;
     }
 
+    /**
+     * @param null|\Closure|array $filterOrOptions
+     */
     public static function readLines(string $filePath, $filterOrOptions = null, array $options = null): \Generator {
         if (is_array($filterOrOptions)) {
             if (is_array($options)) {
@@ -88,26 +97,29 @@ class File extends Entry {
         $options = ArrayTool::handleOptions((array) $options, $defaultOptions);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
-            throw new Exception("Unable to read the '$filePath' file");
+            throw new Exception("Unable to open the '$filePath' file for reading");
         }
-        while (false !== ($line = fgets($handle))) {
-            if ($options['rtrim']) {
-                $line = rtrim($line);
-            }
-            if ($options['skipEmptyLines']) {
-                if (strlen($line) === 0) {
-                    continue;
+        try {
+            while (false !== ($line = fgets($handle))) {
+                if ($options['rtrim']) {
+                    $line = rtrim($line);
                 }
-            }
-            if (null !== $filterOrOptions) {
-                if ($filterOrOptions($line)) {
+                if ($options['skipEmptyLines']) {
+                    if (strlen($line) === 0) {
+                        continue;
+                    }
+                }
+                if (null !== $filterOrOptions) {
+                    if ($filterOrOptions($line)) {
+                        yield $line;
+                    }
+                } else {
                     yield $line;
                 }
-            } else {
-                yield $line;
             }
+        } finally {
+            fclose($handle);
         }
-        fclose($handle);
     }
 
     /**
@@ -125,14 +137,17 @@ class File extends Entry {
     }
 
     public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): \Generator {
-        $handle = fopen($filePath, "r");
+        $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
         }
-        while (false !== ($line = fgetcsv($handle, 0, $delimiter, $enclosure, $escape))) {
-            yield $line;
+        try {
+            while (false !== ($line = fgetcsv($handle, 0, $delimiter, $enclosure, $escape))) {
+                yield $line;
+            }
+        } finally {
+            fclose($handle);
         }
-        fclose($handle);
     }
 
     public static function writeCsv(string $filePath): string {
@@ -190,7 +205,7 @@ class File extends Entry {
      * Truncates the file to zero length.
      */
     public static function truncate(string $filePath): void {
-        $handle = @fopen($filePath, 'w');
+        $handle = fopen($filePath, 'w');
         if (false === $handle) {
             throw new Exception("Unable to open the file '$filePath' for writing");
         }
