@@ -147,6 +147,7 @@ class Request extends BaseRequest {
     }
 
     public function data(array $source, $name = null, bool $trim = true) {
+        // NB: On change sync with query() and post()
         if (null === $name) {
             return $trim ? trimMore($source) : $source;
         }
@@ -183,8 +184,23 @@ class Request extends BaseRequest {
     }
 
     public function post($name = null, bool $trim = true) {
-        // @TODO: Optimize this method for memory usage.
-        return $this->data($_POST, $name, $trim);
+        // NB: On change sync with data() and query()
+        if (null === $name) {
+            return $trim ? trimMore($_POST) : $_POST;
+        }
+        if (is_array($name)) {
+            $data = array_intersect_key($_POST, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
+            return $trim ? trimMore($data) : $data;
+        }
+        if ($trim) {
+            return isset($_POST[$name])
+                ? trimMore($_POST[$name])
+                : null;
+        }
+        return isset($_POST[$name])
+            ? $_POST[$name]
+            : null;
     }
 
     public function hasQuery(string $name): bool {
@@ -192,8 +208,23 @@ class Request extends BaseRequest {
     }
 
     public function query($name = null, bool $trim = true) {
-        // @TODO: Optimize this method for memory usage.
-        return $this->data($_GET, $name, $trim);
+        // NB: On change sync with data() and post()
+        if (null === $name) {
+            return $trim ? trimMore($_GET) : $_GET;
+        }
+        if (is_array($name)) {
+            $data = array_intersect_key($_GET, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
+            return $trim ? trimMore($data) : $data;
+        }
+        if ($trim) {
+            return isset($_GET[$name])
+                ? trimMore($_GET[$name])
+                : null;
+        }
+        return isset($_GET[$name])
+            ? $_GET[$name]
+            : null;
     }
 
     public function isAjax(bool $flag = null): bool {
