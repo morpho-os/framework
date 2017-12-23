@@ -101,7 +101,7 @@ class RouteMetaProviderTest extends TestCase {
                 'module' => $module,
                 'controller' => $controller,
                 'action' => $action,
-                'docComment' => "/** @POST|PUT $relUriPath */",
+                'docComment' => "/** @POST|PATCH $relUriPath */",
                 'class' => __CLASS__,
             ],
         ];
@@ -119,7 +119,7 @@ class RouteMetaProviderTest extends TestCase {
                     'class' => __CLASS__,
                 ],
                 [
-                    'httpMethod' => 'PUT',
+                    'httpMethod' => 'PATCH',
                     'uri' => $relUriPath,
                     'module' => $module,
                     'controller' => $controller,

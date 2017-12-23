@@ -22,15 +22,16 @@ use Morpho\Web\Uri\Uri;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest {
-    // See https://tools.ietf.org/html/rfc7231#section-4
-    public const CONNECT_METHOD = 'CONNECT';
+    // See https://tools.ietf.org/html/rfc7231#section-4, https://tools.ietf.org/html/rfc5789
+    //public const CONNECT_METHOD = 'CONNECT';
     public const DELETE_METHOD = 'DELETE';
     public const GET_METHOD = 'GET';
-    public const HEAD_METHOD = 'HEAD';
-    public const OPTIONS_METHOD = 'OPTIONS';
+    //public const HEAD_METHOD = 'HEAD';
+    //public const OPTIONS_METHOD = 'OPTIONS';
+    public const PATCH_METHOD = 'PATCH';
     public const POST_METHOD = 'POST';
-    public const PUT_METHOD = 'PUT';
-    public const TRACE_METHOD = 'TRACE';
+    //public const PUT_METHOD = 'PUT';
+    //public const TRACE_METHOD = 'TRACE';
 
     /**
      * @var \ArrayObject
@@ -62,17 +63,18 @@ class Request extends BaseRequest {
      */
     private $uri;
 
-    private $mapPostTo;
-
     private static $methods = [
+        /*
         self::CONNECT_METHOD,
+        */
         self::DELETE_METHOD,
         self::GET_METHOD,
-        self::HEAD_METHOD,
-        self::OPTIONS_METHOD,
+        //self::HEAD_METHOD,
+        //self::OPTIONS_METHOD,
         self::POST_METHOD,
-        self::PUT_METHOD,
-        self::TRACE_METHOD,
+        self::PATCH_METHOD,
+        //self::PUT_METHOD,
+        //self::TRACE_METHOD,
     ];
 
     /**
@@ -86,7 +88,12 @@ class Request extends BaseRequest {
      */
     private $uriChecker;
 
-    public function __construct(array $serverVars = null, IFn $uriChecker) {
+    /**
+     * @var ?bool
+     */
+    private $mapPost;
+
+    public function __construct(?array $serverVars, IFn $uriChecker) {
         $this->serverVars = $serverVars;
         $this->uriChecker = $uriChecker;
     }
@@ -111,21 +118,16 @@ class Request extends BaseRequest {
         return isset($this->routingParams[$name]) ? $this->routingParams[$name] : $default;
     }
 
-    public function content(): string {
-        // @TODO
-        return file_get_contents('php://input');
-    }
-
     /**
      * Calls one of:
      *     - get()
+     *     - patch()
      *     - post()
-     *     - put()
      * @TODO:
      *     - options()
+     *     - delete()
      *     - head()
-     *     - delete(),
-     *     - patch()
+     *     - put()
      *     - trace()
      *     - connect()
      *     - propfind()
@@ -136,16 +138,15 @@ class Request extends BaseRequest {
             case self::GET_METHOD:
                 return $this->query($name, $trim);
             case self::POST_METHOD:
-            //case self::PATCH_METHOD:
-            case self::PUT_METHOD:
-                return $this->$method($name, $trim);
+                return $this->post($name, $trim);
+            case self::PATCH_METHOD:
+                return $this->patch($name, $trim);
             default:
                 new BadRequestException();
         }
     }
 
     public function data(array $source, $name = null, bool $trim = true) {
-        // @TODO: Optimize this method for memory usage.
         if (null === $name) {
             return $trim ? trimMore($source) : $source;
         }
@@ -164,23 +165,17 @@ class Request extends BaseRequest {
             : null;
     }
 
-/*    public function patch($name = null, bool $trim = true) {
-        return $this->data(
-            $this->mapPostTo === self::PATCH_METHOD ? $_POST : $this->parsedContent(),
-            $name,
-            $trim
-        );
-    }*/
-
     /**
      * @return mixed @TODO Specify concrete types.
      */
-    public function put($name = null, bool $trim = true) {
-        return $this->data(
-            $this->mapPostTo === self::PUT_METHOD ? $_POST : $this->parsedContent(),
-            $name,
-            $trim
-        );
+    public function patch($name = null, bool $trim = true) {
+        $this->method();
+        if ($this->mapPost) {
+            return $this->post($name, $trim);
+        }
+        // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
+        // @TODO: Replace with MethodNotAllowed extends HttpException, handle MethodNotALlowed in other places.
+        throw new HttpException('Method not allowed');
     }
 
     public function hasPost(string $name) {
@@ -224,28 +219,19 @@ class Request extends BaseRequest {
     }
 
     public function setMethod(string $method): void {
-        $this->method = $this->normalizedMethod($method);
+        $this->method = $this->normalizeMethod($method);
     }
 
     public function method(): string {
         if (null === $this->method) {
-            // Handle the '_method' like in 'Ruby on Rails'.
-            if (isset($_POST['_method'])) {
-                $method = strtoupper($_POST['_method']);
-                if (in_array($method, [/*self::PATCH_METHOD, */self::DELETE_METHOD, self::PUT_METHOD], true)) {
-                    $this->method = $method;
-                    $this->mapPostTo = $method;
-                    return $method;
-                }
-            }
-            $this->method = $this->normalizedMethod(null);
+            [$this->method, $this->mapPost] = $this->detectMethod();
         }
         return $this->method;
     }
 
-    public function isConnectMethod(): bool {
+/*    public function isConnectMethod(): bool {
         return $this->method() === self::CONNECT_METHOD;
-    }
+    }*/
 
     public function isDeleteMethod(): bool {
         return $this->method() === self::DELETE_METHOD;
@@ -255,25 +241,29 @@ class Request extends BaseRequest {
         return $this->method() === self::GET_METHOD;
     }
 
-    public function isHeadMethod(): bool {
+/*    public function isHeadMethod(): bool {
         return $this->method() === self::HEAD_METHOD;
-    }
+    }*/
 
-    public function isOptionsMethod(): bool {
+/*    public function isOptionsMethod(): bool {
         return $this->method() === self::OPTIONS_METHOD;
+    }*/
+
+    public function isPatchMethod(): bool {
+        return $this->method() === self::PATCH_METHOD;
     }
 
     public function isPostMethod(): bool {
         return $this->method() === self::POST_METHOD;
     }
 
-    public function isPutMethod(): bool {
+/*    public function isPutMethod(): bool {
         return $this->method() === self::PUT_METHOD;
     }
 
     public function isTraceMethod(): bool {
         return $this->method() === self::TRACE_METHOD;
-    }
+    }*/
 
     public static function isValidMethod(string $httpMethod): bool {
         return in_array($httpMethod, self::$methods, true);
@@ -511,14 +501,19 @@ class Request extends BaseRequest {
         }
     }
 
-    private function normalizedMethod(?string $httpMethod): string {
-        if (!$httpMethod) {
-            $requestMethod = $this->serverVar('REQUEST_METHOD');
-            if (null === $requestMethod) {
-                return self::GET_METHOD;
-            }
-            $httpMethod = $requestMethod;
+    protected function detectMethod(): array {
+        if (isset($_POST['_method'])) {
+            $httpMethod = $_POST['_method'];
+            unset($_POST['_method']);
+            $mapPost = true;
+        } else {
+            $httpMethod = $this->serverVar('REQUEST_METHOD');
+            $mapPost = false;
         }
+        return [$this->normalizeMethod($httpMethod), $mapPost];
+    }
+
+    private function normalizeMethod(string $httpMethod): string {
         $method = strtoupper($httpMethod);
         return self::isValidMethod($method) ? $method : self::GET_METHOD;
     }

@@ -152,6 +152,12 @@ class RequestTest extends TestCase {
      * @dataProvider dataForIsHttpMethod
      */
     public function testIsHttpMethod($httpMethod) {
+        $_SERVER['REQUEST_METHOD'] = 'unknown';
+        if ($httpMethod === Request::GET_METHOD) {
+            $this->assertTrue($this->request->isGetMethod());
+        } else {
+            $this->assertFalse($this->request->{'is' . $httpMethod . 'Method'}());
+        }
         $this->request->setMethod($httpMethod);
         $this->assertTrue($this->request->{'is' . $httpMethod . 'Method'}());
     }
@@ -287,21 +293,28 @@ class RequestTest extends TestCase {
         $this->expectException(BadRequestException::class, 'Invalid URI');
         $request->uri();
     }
+
+    public function testData() {
+        $request = $this->newRequest();
+        $this->assertSame(['bar' => 'baz'], $request->data(['foo' => ['bar' => ' baz  ']], 'foo'));
+    }
     
-    public function testPut() {
-        $this->markTestIncomplete();
-        /*
-        file_put_contents('php://input', 'test');
-        d(file_get_contents('php://input'));
-        */
+    public function testMappingPostToPatch() {
+        $request = $this->newRequest();
+        $data = ['foo' => 'bar', 'baz' => 'abc'];
+        $_POST = array_merge($data, ['_method' => Request::PATCH_METHOD]);
+        $this->assertTrue($request->isPatchMethod());
+        $this->assertSame($data, $request->patch());
     }
 
     private function newRequest(array $serverVars = null) {
         return new Request(
             $serverVars,
-            new class implements IFn { public function __invoke($value) {
-                return true;
-            } }
+            new class implements IFn {
+                public function __invoke($value) {
+                    return true;
+                }
+            }
         );
     }
 }
