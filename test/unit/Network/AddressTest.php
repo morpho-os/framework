@@ -46,8 +46,8 @@ class AddressTest extends TestCase {
     public function testToString(string $host, ?int $port) {
         $address = new Address($host, $port);
 
-        $this->assertSame($host, $address->host);
-        $this->assertSame($port, $address->port);
+        $this->assertSame($host, $address->host());
+        $this->assertSame($port, $address->port());
 
         $this->assertSame($host . (null === $port ? '' : ':' . $port), $address->__toString());
     }
@@ -61,7 +61,7 @@ class AddressTest extends TestCase {
             new Address($host, $port),
             $address
         );
-        $this->assertSame($host, $address->host);
-        $this->assertSame($port, $address->port);
+        $this->assertSame($host, $address->host());
+        $this->assertSame($port, $address->port());
     }
 }

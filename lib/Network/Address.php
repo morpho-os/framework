@@ -7,8 +7,8 @@
 namespace Morpho\Network;
 
 class Address {
-    public $host;
-    public $port;
+    protected $host;
+    protected $port;
 
     public function __construct(string $host, ?int $port) {
         $this->host = $host;
@@ -23,6 +23,22 @@ class Address {
         $host = substr($address, 0, $pos);
         $port = substr($address, $pos + 1);
         return new static($host, (int)$port);
+    }
+
+    public function setHost(string $host): void {
+        $this->host = $host;
+    }
+
+    public function host(): string {
+        return $this->host;
+    }
+
+    public function setPort(int $port): void {
+        $this->port = $port;
+    }
+
+    public function port(): ?int {
+        return $this->port;
     }
 
     public function __toString() {

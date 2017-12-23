@@ -26,13 +26,13 @@ class PhpServerTest extends TestCase {
         $address = $server->start();
 
         $this->assertInstanceOf(Address::class, $address);
-        $this->assertSame($host, $address->host);
-        $this->assertRegExp('~^\d+$~', (string)$address->port);
+        $this->assertSame($host, $address->host());
+        $this->assertRegExp('~^\d+$~', (string)$address->port());
 
         $this->assertRegExp('~^[1-9]\d*$~', (string)$server->pid());
         $this->assertTrue($server->isStarted());
 
-        $handle = fsockopen('tcp://' . $address->host . ':' . $address->port);
+        $handle = fsockopen('tcp://' . $address->host() . ':' . $address->port());
 
         fwrite($handle, "GET / HTTP/1.1\r\n\r\n");
         $response = '';

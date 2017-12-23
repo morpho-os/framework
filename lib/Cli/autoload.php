@@ -19,12 +19,9 @@ const STD_PIPES = [
 use Morpho\Base\ArrayTool;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
-use Morpho\Base\NotImplementedException;
 use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 use Symfony\Component\Process\Process;
-
-//use Symfony\Component\Process\Process;
 
 function bootstrap(): void {
     (new Environment())->init();

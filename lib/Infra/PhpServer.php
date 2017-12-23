@@ -28,12 +28,12 @@ class PhpServer {
     }
 
     public function start(): Address {
-        $this->actualAddress = $address = null === $this->address->port
+        $this->actualAddress = $address = null === $this->address->port()
             ? $this->findFreePort($this->address)
             : $this->address;
         $cmd = [
             $this->phpBinFilePath(),
-            '-S', $address->host . ':' . $address->port,
+            '-S', $address->host() . ':' . $address->port(),
             '-t', $this->docRootDirPath
         ];
         $process = new Process($cmd, $this->docRootDirPath);
@@ -98,7 +98,7 @@ class PhpServer {
      */
     protected function findFreePort(Address $address): Address {
         return Address::parse(stream_socket_get_name(
-            stream_socket_server("tcp://{$address->host}:0"),
+            stream_socket_server("tcp://{$address->host()}:0"),
             false
         ));
     }
