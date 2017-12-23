@@ -120,7 +120,7 @@ class ControllerTest extends TestCase {
         $this->assertEquals($actionName, $request->actionName());
         $this->assertEquals($controllerName, $request->controllerName());
         $this->assertEquals($moduleName, $request->moduleName());
-        $this->assertEquals(['p1' => 'v1'], $request->routingParams());
+        $this->assertEquals(['p1' => 'v1'], $request->routingParams()->getArrayCopy());
         $this->assertFalse($request->isDispatched());
     }
 

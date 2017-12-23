@@ -166,15 +166,21 @@ class RequestTest extends TestCase {
         $this->checkBoolAccessor([$this->request, 'isDispatched'], false);
     }
 
-    public function testRoutingParamsAccessors() {
-        $this->assertFalse($this->request->hasRoutingParams());
-        $this->request->setRoutingParam('foo', 'bar');
-        $this->assertTrue($this->request->hasRoutingParams());
-        $this->assertEquals(['foo' => 'bar'], $this->request->routingParams());
-        $this->request->setRoutingParams([]);
-        $this->assertFalse($this->request->hasRoutingParams());
-        $this->request->setRoutingParams(['cat' => 'dog']);
-        $this->assertEquals(['cat' => 'dog'], $this->request->routingParams());
+    public function testRoutingParams() {
+        $routingParams = $this->request->routingParams();
+        $this->assertInstanceOf(\ArrayObject::class, $routingParams);
+        $routingParams['foo'] = 'bar';
+        $this->assertSame(['foo' => 'bar'], $this->request->routingParams()->getArrayCopy());
+
+        $newRoutingParams = new \ArrayObject(['test' => '123']);
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertNull($this->request->setRoutingParams($newRoutingParams));
+        $this->assertSame($newRoutingParams, $this->request->routingParams());
+
+        $newRoutingParams = ['hello' => 456];
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertNull($this->request->setRoutingParams($newRoutingParams));
+        $this->assertSame($newRoutingParams, $this->request->routingParams()->getArrayCopy());
     }
 
     public function testTrim_Query() {
@@ -296,7 +302,10 @@ class RequestTest extends TestCase {
 
     public function testData() {
         $request = $this->newRequest();
-        $this->assertSame(['bar' => 'baz'], $request->data(['foo' => ['bar' => ' baz  ']], 'foo'));
+        $this->assertSame(
+            ['bar' => 'baz'],
+            $request->data(['foo' => ['bar' => ' baz  ']], 'foo')
+        );
     }
     
     public function testMappingPostToPatch() {

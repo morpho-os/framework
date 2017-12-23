@@ -117,7 +117,10 @@ class Controller extends Node implements IFn {
         return $this->trigger(new Event('render', ['view' => $view]));
     }
 
-    protected function forwardToAction(string $action, string $controller = null, string $module = null, array $routingParams = null): void {
+    /**
+     * @param \ArrayObject|array $routingParams
+     */
+    protected function forwardToAction(string $action, string $controller = null, string $module = null, $routingParams = null): void {
         $request = $this->request;
 
         if (null === $module) {

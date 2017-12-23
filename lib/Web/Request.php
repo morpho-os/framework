@@ -49,9 +49,9 @@ class Request extends BaseRequest {
     protected $isAjax;
 
     /**
-     * @var array
+     * @var \ArrayObject
      */
-    protected $routingParams = [];
+    protected $routingParams;
 
     /**
      * @var ?array
@@ -96,26 +96,22 @@ class Request extends BaseRequest {
     public function __construct(?array $serverVars, IFn $uriChecker) {
         $this->serverVars = $serverVars;
         $this->uriChecker = $uriChecker;
+        $this->routingParams = new \ArrayObject();
     }
 
-    public function hasRoutingParams(): bool {
-        return count($this->routingParams) > 0;
+    /**
+     * @param \ArrayObject|array $routingParams
+     */
+    public function setRoutingParams($routingParams): void {
+        if (is_array($routingParams)) {
+            $this->routingParams = new \ArrayObject($routingParams);
+        } else {
+            $this->routingParams = $routingParams;
+        }
     }
 
-    public function setRoutingParams(array $params): void {
-        $this->routingParams = $params;
-    }
-
-    public function routingParams(): array {
+    public function routingParams(): \ArrayObject {
         return $this->routingParams;
-    }
-
-    public function setRoutingParam(string $name, $value): void {
-        $this->routingParams[$name] = $value;
-    }
-
-    public function routingParam(string $name, $default = null) {
-        return isset($this->routingParams[$name]) ? $this->routingParams[$name] : $default;
     }
 
     /**

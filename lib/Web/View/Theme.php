@@ -49,6 +49,7 @@ class Theme implements IHasServiceManager {
     public function renderView(View $view): string {
         $serviceManager = $this->serviceManager;
 
+        /** @var Request $request */
         $request = $serviceManager->get('request');
 
         if ($request->isAjax()) {
