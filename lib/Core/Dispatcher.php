@@ -15,7 +15,7 @@ abstract class Dispatcher {
     /**
      * @var int
      */
-    protected $maxNoOfDispatchIterations = 30;
+    protected $maxNoOfDispatchIterations = 20;
 
     /**
      * @var \ArrayObject
