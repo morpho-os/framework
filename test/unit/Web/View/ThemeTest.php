@@ -6,149 +6,15 @@
  */
 namespace MorphoTest\Unit\Web\View;
 
-use function Morpho\Base\fromJson;
-use Morpho\Base\IFn;
-use Morpho\Web\View\TemplateEngine;
-use Morpho\Web\View\View;
-use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Request;
+use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\Theme;
+use Morpho\Web\View\View;
 
 class ThemeTest extends TestCase {
-    public function testRenderLayout_NonAjaxRedirect() {
-        $request = $this->newRequest();
-        $request->isDispatched(true);
-        $request->isAjax(false);
-
-        $redirectUri = '/foo/bar';
-        $content = 'foo bar baz';
-        $response = $request->response();
-        $response->redirect($redirectUri);
-        $response->setBody($content);
-
-        $theme = $this->newTheme();
-
-        $theme->renderLayout($request);
-
-        $this->assertEquals($content, $response->body());
-    }
-
-    public function testRenderLayout_AjaxRedirect() {
-        $request = $this->newRequest();
-        $request->isDispatched(true);
-        $request->isAjax(true);
-
-        $redirectUri = '/foo/bar';
-        $response = $request->response();
-        $response->redirect($redirectUri);
-        $response->setBody('');
-
-        $theme = $this->newTheme();
-
-        $theme->renderLayout($request);
-
-        $this->assertEquals(['success' => ['redirect' => $redirectUri]], fromJson($response->body()));
-        $this->assertEquals(
-            'application/json',
-            $response->headers()['Content-Type']
-        );
-    }
-
-    public function testRenderLayout_RenderedOnce() {
-        $request = $this->newRequest();
-        $layoutName = 'index';
-        $request->params()['layout'] = new View($layoutName);
-        $request->isDispatched(true);
-
-        $newTheme = function () {
-            return new class ('foo/bar', $this->getTestDirPath()) extends Theme {
-                public $renderFileArgs;
-
-                protected function renderFile(string $relFilePath, array $vars, array $instanceVars = null): string {
-                    $this->renderFileArgs = func_get_args();
-                    return 'ok';
-                }
-            };
-        };
-
-        $theme1 = $newTheme();
-
-        $theme1->renderLayout($request);
-
-        $this->assertSame([$layoutName, ['body' => '']], $theme1->renderFileArgs);
-        $this->assertTrue($request->params()['layout']->isRendered());
-
-        $theme2 = $newTheme();
-
-        $theme2->renderLayout($request);
-
-        $this->assertNull($theme2->renderFileArgs);
-        $this->assertTrue($request->params()['layout']->isRendered());
-    }
-
-    public function testRenderView_Ajax() {
-        $theme = $this->newTheme();
-        $viewVars = ['foo' => 'bar'];
-        $request = $this->newRequest();
-        $request->isAjax(true);
-        $serviceManager = new ServiceManager(['request' => $request]);
-        $theme->setServiceManager($serviceManager);
-
-        $rendered = $theme->renderView(new View('some', $viewVars));
-
-        $this->assertEquals($viewVars, fromJson($rendered));
-    }
-
-    public function testRenderView_NonAjax() {
-        $theme = new Theme();
-
-        $controllerName = 'baz';
-        $viewName = 'edit';
-
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('isAjax')
-            ->willReturn(false);
-        $request->expects($this->any())
-            ->method('controllerName')
-            ->willReturn($controllerName);
-
-        $expected = 'abcdefg123';
-
-        $moduleDirPath = $this->createTmpDir();
-        $theme->appendBaseDirPath($moduleDirPath);
-        $viewAbsFilePath = $moduleDirPath . '/' . $controllerName . '/' . $viewName . Theme::VIEW_FILE_EXT;
-        mkdir(dirname($viewAbsFilePath), 0777, true);
-        touch($viewAbsFilePath);
-
-        $viewVars = ['k' => 'v'];
-
-        $templateEngine = $this->createMock(TemplateEngine::class);
-        $templateEngine->expects($this->once())
-            ->method('renderFile')
-            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
-            ->will($this->returnValue($expected));
-
-        $serviceManager = new ServiceManager([
-            'request' => $request,
-            'templateEngine' => $templateEngine,
-        ]);
-
-        $theme->setServiceManager($serviceManager);
-
-        $view = $this->createConfiguredMock(View::class, [
-            'name' => $viewName,
-            'vars' => $viewVars,
-        ]);
-
-        $actual = $theme->renderView($view);
-
-        $this->assertSame($expected, $actual);
-    }
-
     public function testBasePathAccessors() {
-        $theme = $this->newTheme();
+        /** @noinspection PhpParamsInspection */
+        $theme = new Theme($this->createMock(TemplateEngine::class));
 
         $this->assertEquals([], $theme->baseDirPaths());
 
@@ -173,14 +39,34 @@ class ThemeTest extends TestCase {
         $this->assertEquals([], $theme->baseDirPaths());
     }
 
-    private function newTheme() {
-        return new Theme();
-    }
+    public function testRender() {
+        $baseViewDirPath = $this->createTmpDir();
+        $viewPath = 'foo/bar';
 
-    private function newRequest(array $serverVars = null) {
-        return new Request(
-            $serverVars,
-            new class implements IFn { public function __invoke($value) {} }
-        );
+        $viewAbsFilePath = $baseViewDirPath . '/' . $viewPath . Theme::VIEW_FILE_EXT;
+        mkdir(dirname($viewAbsFilePath), 0777, true);
+        touch($viewAbsFilePath);
+
+        $expected = 'abcdefg123';
+        $viewVars = new \ArrayObject(['k' => 'v']);
+
+        $templateEngine = $this->createMock(TemplateEngine::class);
+        $templateEngine->method('renderFile')
+            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
+            ->willReturn($expected);
+
+        /** @noinspection PhpParamsInspection */
+        $theme = new Theme($templateEngine);
+
+        $theme->appendBaseDirPath($baseViewDirPath);
+
+        $view = $this->createConfiguredMock(View::class, [
+            'vars' => $viewVars,
+            'path' => $viewPath
+        ]);
+        /** @noinspection PhpParamsInspection */
+        $actual = $theme->render($view);
+
+        $this->assertSame($expected, $actual);
     }
 }

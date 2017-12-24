@@ -79,6 +79,18 @@ abstract class Request {
     }
 
     /**
+     * Sets internal params, should not contain user input.
+     * @param \ArrayObject|array $params
+     */
+    public function setParams($params): void {
+        if (is_array($params)) {
+            $this->params = new \ArrayObject($params);
+        } else {
+            $this->params = $params;
+        }
+    }
+
+    /**
      * Returns storage for internal params.
      */
     public function params(): \ArrayObject {

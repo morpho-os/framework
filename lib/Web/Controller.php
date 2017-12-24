@@ -6,12 +6,12 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Base\Event;
+use function Morpho\Base\dasherize;
 use Morpho\Base\IFn;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Session\Session;
-use Morpho\Web\View\View;
 use Morpho\Core\Node;
+use Morpho\Web\View\Page;
 
 class Controller extends Node implements IFn {
     /**
@@ -19,58 +19,44 @@ class Controller extends Node implements IFn {
      */
     protected $serviceManager;
     /**
-     * @var \Morpho\Web\Request
+     * @var null|Request
      */
     protected $request;
     /**
-     * @var \Morpho\Web\View\View
+     * @var View\Page
      */
-    private $view;
+    private $page;
 
+    /**
+     * @param Request $request
+     */
     public function __invoke($request): void {
-        /** @var \Morpho\Core\Request $request */
+        /** @var Request $request */
         $this->request = $request;
-        $this->view = null;
+        $this->page = null;
         $action = $request->actionName();
         if (empty($action)) {
             throw new \LogicException("Empty action name");
         }
         $this->beforeEach();
-        /** @var null|string|array|View $view */
-        $view = null;
+        $page = null;
         $method = $action . 'Action';
         if (method_exists($this, $method)) {
-            $view = $this->$method();
+            $page = $this->$method();
         }
         $this->afterEach();
-        if (is_string($view)) {
-            // Already rendered View.
-            $this->request->response()
-                ->setBody($view);
-        } else {
-            // $view: null|array|View
-            if (!$view instanceof View) {
-                // $view: null|array
-                $view = $this->view ?: $this->newView($view);
-            }
-            if ($this->shouldRenderView($view)) {
-                $renderedView = $this->renderView($view);
-                $this->request->response()
-                    ->setBody($renderedView);
-            }
+        if (null === $page || is_array($page)) {
+            $page = $this->newPage($page);
         }
+        $request->params()['page'] = $page;
     }
 
-    public function setRequest($request): void {
+    public function setRequest(Request $request): void {
         $this->request = $request;
     }
 
-    public function request() {
+    public function request(): ?Request {
         return $this->request;
-    }
-
-    protected function trigger(Event $event) {
-        return $this->serviceManager->get('eventManager')->trigger($event);
     }
 
     /**
@@ -85,42 +71,11 @@ class Controller extends Node implements IFn {
     protected function afterEach(): void {
     }
 
-    protected function addSuccessMessage(string $message, array $args = null): void {
-        $this->messenger()->addSuccessMessage($message, $args);
-    }
-    protected function addErrorMessage(string $message, array $args = null): void {
-        $this->messenger()->addErrorMessage($message, $args);
-    }
-    protected function addWarningMessage(string $message, array $args = null): void {
-        $this->messenger()->addWarningMessage($message, $args);
-    }
-
     protected function messenger(): Messenger {
         return $this->serviceManager->get('messenger');
     }
 
-    protected function shouldRenderView(View $view): bool {
-        $request = $this->request;
-        return $request->isDispatched()
-            && !$request->response()->isRedirect()
-            && !$view->isRendered();
-    }
-
-    /**
-     * @param string|View $nameOrView
-     */
-    protected function setView($nameOrView): void {
-        $this->view = is_string($nameOrView) ? new View($nameOrView) : $nameOrView;
-    }
-
-    protected function renderView(View $view): string {
-        return $this->trigger(new Event('render', ['view' => $view]));
-    }
-
-    /**
-     * @param \ArrayObject|array $routingParams
-     */
-    protected function forwardToAction(string $action, string $controller = null, string $module = null, $routingParams = null): void {
+    protected function forward(string $action, string $controller = null, string $module = null, array $routingParams = null): void {
         $request = $this->request;
 
         if (null === $module) {
@@ -135,13 +90,13 @@ class Controller extends Node implements IFn {
         $request->setActionName($action);
 
         if (null !== $routingParams) {
-            $request->setRoutingParams($routingParams);
+            $request->params()['routing'] = $routingParams;
         }
 
         $request->isDispatched(false);
     }
 
-    protected function redirect($uri = null, int $httpStatusCode = null): void {
+    protected function redirect($uri = null, int $httpStatusCode = null): Response {
         $request = $this->request;
         if (null === $uri) {
             $uri = $request->uri();
@@ -151,16 +106,8 @@ class Controller extends Node implements IFn {
         }, $uri);
         /** @var Response $response */
         $response = $request->response();
-        $response->redirect($uri, $httpStatusCode);
+        return $response->redirect($uri, $httpStatusCode);
     }
-
-/*    protected function ok($data = null): array {
-        return ['ok' => $data ?: true];
-    }
-
-    protected function error($data = null): array {
-        return ['error' => $data ?: true];
-    }*/
 
     protected function accessDenied(): void {
         throw new AccessDeniedException();
@@ -198,21 +145,7 @@ class Controller extends Node implements IFn {
         return $this->request->query($name, $trim);
     }
 
-    /**
-     * @param string|View $nameOrLayout
-     */
-    protected function setLayout($nameOrLayout): void {
-        $this->request->params()->offsetSet(
-            'layout',
-            is_string($nameOrLayout) ? new View($nameOrLayout) : $nameOrLayout
-        );
-    }
-
-    protected function userManager() {
-        return $this->serviceManager->get('userManager');
-    }
-
-    protected function newView(array $vars = null, array $properties = null, bool $isRendered = null): View {
-        return new View($this->request->actionName(), $vars, $properties, $isRendered);
+    protected function newPage(array $vars = null, bool $isRendered = null): Page {
+        return new Page(dasherize($this->request->actionName()), $vars);
     }
 }

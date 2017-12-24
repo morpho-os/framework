@@ -46,7 +46,7 @@ class FastRouter implements IHasServiceManager, IRouter {
             $request->setActionName($handlerInfo['action']);
             $params = $routeInfo[2] ?? null;
             if ($params) {
-                $request->setRoutingParams($params);
+                $request->params()['routing'] = $params;
             }
         }
     }

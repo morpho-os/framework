@@ -7,113 +7,25 @@
 //declare(strict_types=1);
 namespace Morpho\Web\View;
 
-use function Morpho\Base\{
-    dasherize, toJson
-};
-use Morpho\Ioc\IServiceManager;
-use Morpho\Ioc\IHasServiceManager;
 use Morpho\Fs\Path;
-use Morpho\Web\Request;
-use Morpho\Web\Response;
 
-class Theme implements IHasServiceManager {
+class Theme {
     public const VIEW_FILE_EXT = '.phtml';
-    public const DEFAULT_LAYOUT = 'index';
 
     protected $baseDirPaths = [];
 
     protected $templateEngine;
 
-    protected $serviceManager;
-
-    public function setServiceManager(IServiceManager $serviceManager): void {
-        $this->serviceManager = $serviceManager;
-    }
-
-    public function setTemplateEngine($templateEngine): void {
+    public function __construct(TemplateEngine $templateEngine) {
         $this->templateEngine = $templateEngine;
-    }
-
-    public function templateEngine() {
-        if (null === $this->templateEngine) {
-            $this->templateEngine = $templateEngine = $this->serviceManager->get('templateEngine');
-            $this->initTemplateEngineVars($templateEngine);
-        }
-        return $this->templateEngine;
     }
 
 /*    public function canRender(string $viewPath): bool {
         return false !== $this->absFilePath($viewPath, false);
     }*/
 
-    public function renderView(View $view): string {
-        $serviceManager = $this->serviceManager;
-
-        /** @var Request $request */
-        $request = $serviceManager->get('request');
-
-        if ($request->isAjax()) {
-            return toJson($view->vars());
-        }
-
-        $relFilePath = dasherize($request->controllerName()) . '/' . dasherize($view->name());
-        return $this->renderFile(
-            $relFilePath,
-            $view->vars(),
-            $view->properties()
-        );
-    }
-
-    /**
-     * @Listen beforeDispatch -9999
-     * /
-    public function beforeDispatch($event) {
-        //$this->autoDecodeRequestJson();
-        /*
-        $request = $this->request;
-        $header = $request->header('Content-Type');
-        if (false !== $header && false !== stripos($header->getFieldValue(), 'application/json')) {
-            $data = Json::decode($request->content());
-            $request->replace((array) $data);
-        }
-    }
-    */
-
-    public function renderLayout(Request $request): void {
-        $params = $request->params();
-        if ($params->offsetExists('layout')) {
-            $layout = $params->offsetGet('layout');
-        } else {
-            $layout = $this->newDefaultLayout();
-            $params->offsetSet('layout', $layout);
-        }
-        if ($request->isDispatched() && !$layout->isRendered()) {
-            /** @var \Morpho\Web\Response $response */
-            $response = $request->response();
-            if ($request->isAjax()) {
-                $response->headers()->offsetSet('Content-Type', 'application/json');
-                if ($response->isRedirect()) {
-                    if ($response->isBodyEmpty()) {
-                        $locationHeader = $response->headers()->offsetGet('Location');
-                        $notEncodedContent = ['success' => ['redirect' => $locationHeader]];
-                        $response->setBody(toJson($notEncodedContent));
-                        $response->setStatusCode(Response::OK_STATUS_CODE);
-                        $response->headers()->offsetUnset('Location');
-                    }
-                }
-            } else {
-                $dirPath = $layout->dirPath();
-                if ($dirPath) {
-                    $this->appendBaseDirPath($dirPath);
-                }
-                if (!$response->isRedirect()) {
-                    $response->setBody(
-                        $this->renderFile($layout->name(), ['body' => $response->body()])
-                    );
-                }
-            }
-            $layout->isRendered(true);
-        }
+    public function render(View $view): string {
+        return $this->renderFile($view->path(), $view->vars());
     }
 
     public function appendBaseDirPath(string $dirPath): void {
@@ -158,21 +70,10 @@ class Theme implements IHasServiceManager {
         return false;
     }
 
-    protected function initTemplateEngineVars($templateEngine): void {
-        $templateEngine->setVars([
-            'uri' => $this->serviceManager->get('request')->uri(),
-        ]);
-    }
-
-    protected function renderFile(string $relFilePath, array $vars, array $instanceVars = null): string {
-        $templateEngine = $this->templateEngine();
-        if (null !== $instanceVars) {
-            $templateEngine->mergeVars($instanceVars);
-        }
-        return $templateEngine->renderFile($this->absFilePath($relFilePath), $vars);
-    }
-
-    protected function newDefaultLayout(): View {
-        return new View(self::DEFAULT_LAYOUT);
+    /**
+     * @param \ArrayObject|array $vars
+     */
+    protected function renderFile(string $relFilePath, $vars): string {
+        return $this->templateEngine->renderFile($this->absFilePath($relFilePath), $vars);
     }
 }

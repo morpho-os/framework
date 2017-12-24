@@ -13,16 +13,6 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
-    protected $config;
-
-    public function setConfig($config): void {
-        $this->config = $config;
-    }
-
-    public function config() {
-        return $this->config;
-    }
-
     protected function newErrorHandlerService() {
         $listeners = [];
         $logListener = new LogListener($this->get('errorLogger'));

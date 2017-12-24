@@ -6,9 +6,7 @@
  */
 namespace MorphoTest\Unit\Web;
 
-use Morpho\Base\Event;
 use Morpho\Base\IFn;
-use Morpho\Web\View\View;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
@@ -17,42 +15,6 @@ use Morpho\Web\Uri\Uri;
 class ControllerTest extends TestCase {
     public function testInterface() {
         $this->assertInstanceOf(IFn::class, new Controller('foo'));
-    }
-
-    public function dataForDispatch_SetDifferentViewFromAction() {
-        return [
-            [
-                'list', 'list',
-            ],
-            [
-                'create', new View('create'),
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForDispatch_SetDifferentViewFromAction
-     */
-    public function testInvoke_SetDifferentViewFromAction($viewName, $view) {
-        $controller = new class('foo') extends Controller {
-            public $triggerArgs;
-
-            protected function firstAction() {
-                $this->setView($this->anotherView);
-            }
-
-            protected function trigger(Event $event) {
-                $this->triggerArgs = func_get_args();
-                return '';
-            }
-        };
-        $request = $this->newRequest();
-        $request->setActionName('first');
-        $controller->anotherView = $view;
-
-        $controller->__invoke($request);
-
-        $this->assertEquals([new Event('render', ['view' => new View($viewName)])], $controller->triggerArgs);
     }
 
     public function dataForRedirect_HasArgs() {
@@ -120,7 +82,7 @@ class ControllerTest extends TestCase {
         $this->assertEquals($actionName, $request->actionName());
         $this->assertEquals($controllerName, $request->controllerName());
         $this->assertEquals($moduleName, $request->moduleName());
-        $this->assertEquals(['p1' => 'v1'], $request->routingParams()->getArrayCopy());
+        $this->assertEquals(['p1' => 'v1'], $request->params()['routing']);
         $this->assertFalse($request->isDispatched());
     }
 
@@ -135,7 +97,7 @@ class MyController extends Controller {
     public $statusCode;
 
     public function doForwardToAction($action, $controller, $module, $params) {
-        $this->forwardToAction($action, $controller, $module, $params);
+        $this->forward($action, $controller, $module, $params);
     }
 
     public function redirectHasArgsAction() {

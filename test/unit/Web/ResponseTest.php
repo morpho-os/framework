@@ -29,7 +29,7 @@ class ResponseTest extends TestCase {
 
     public function testRedirect() {
         $this->assertFalse($this->response->isRedirect());
-        $this->response->redirect('/foo/bar');
+        $this->assertSame($this->response, $this->response->redirect('/foo/bar'));
         $this->assertTrue($this->response->isRedirect());
         $this->assertSame(Response::FOUND_STATUS_CODE, $this->response->statusCode());
     }

@@ -43,7 +43,7 @@ class DispatchErrorHandler implements IHasServiceManager {
         $this->handlers[$errorType] = $handler;
     }
 
-    public function handleError(\Throwable $exception, $request) {
+    public function handleError(\Throwable $exception, Request $request) {
         if ($exception instanceof NotFoundException) {
             $params = [self::NOT_FOUND_ERROR, Response::NOT_FOUND_STATUS_CODE, false];
         } elseif ($exception instanceof AccessDeniedException) {

@@ -16,6 +16,8 @@ class ServiceManager implements IServiceManager {
 
     protected $aliases = [];
 
+    protected $config;
+
     private $loading = [];
 
     public function __construct(array $services = null) {
@@ -24,6 +26,14 @@ class ServiceManager implements IServiceManager {
                 $this->set($id, $service);
             }
         }
+    }
+
+    public function setConfig($config): void {
+        $this->config = $config;
+    }
+
+    public function config() {
+        return $this->config;
     }
 
     public function set(string $id, $service): void {

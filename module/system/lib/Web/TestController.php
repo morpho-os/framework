@@ -7,17 +7,14 @@ use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\Controller;
 use Morpho\Web\NotFoundException;
-use Morpho\Web\View\View;
 
 class TestController extends Controller {
     public function indexAction() {
-        $moduleName = $this->parentByType('Module')->name();
-        $moduleIndex = $this->serviceManager->get('moduleIndex');
-        $viewDirPath = $moduleIndex->moduleMeta($moduleName)['paths']['viewDirPath'];
-        $controllerViewDirPath = $viewDirPath . '/' . dasherize($this->name());
-        $layout = new View('test');
-        $layout->setDirPath($controllerViewDirPath);
-        $this->setLayout($layout);
+        $page = $this->newPage();
+        $layout = $page->layout();
+        $layout->setDirPath(dasherize($this->name()));
+        $layout->setName('test');
+        return $page;
     }
 
     public function status400Action() {

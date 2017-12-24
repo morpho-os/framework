@@ -7,6 +7,8 @@
 //declare(strict_types=1);
 namespace Morpho\Web\View;
 
+use Morpho\Fs\Path;
+
 class View {
     /**
      * @var string
@@ -17,24 +19,35 @@ class View {
      */
     protected $vars;
     /**
-     * @var array
-     */
-    protected $properties;
-    /**
      * @var bool
      */
-    protected $isRendered;
-
+    protected $isRendered = false;
     /**
      * @var null|string
      */
     protected $dirPath;
 
-    public function __construct(string $name, array $vars = null, array $properties = null, bool $isRendered = null) {
+    /**
+     * @param array|null|\ArrayObject $vars
+     */
+    public function __construct(string $name, $vars = null) {
         $this->name = $name;
-        $this->vars = (array)$vars;
-        $this->properties = (array)$properties;
-        $this->isRendered = (bool) $isRendered;
+        if (null === $vars) {
+            $vars = [];
+        }
+        if (is_array($vars)) {
+            $this->vars = new \ArrayObject($vars);
+        } else {
+            $this->vars = $vars;
+        }
+    }
+
+    public function setName(string $name): void {
+        $this->name = $name;
+    }
+
+    public function name(): string {
+        return $this->name;
     }
 
     public function setDirPath(string $dirPath): void {
@@ -52,23 +65,11 @@ class View {
         return $this->isRendered;
     }
 
-    public function name(): string {
-        return $this->name;
+    public function path(): string {
+        return Path::combine($this->dirPath, $this->name);
     }
 
-    public function setProperties(array $properties) {
-        $this->properties = $properties;
-    }
-
-    public function properties(): array {
-        return $this->properties;
-    }
-
-    public function setVars(array $vars) {
-        $this->vars = $vars;
-    }
-
-    public function vars(): array {
+    public function vars(): \ArrayObject {
         return $this->vars;
     }
 }

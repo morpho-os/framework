@@ -7,6 +7,10 @@
 namespace Morpho\Ioc;
 
 interface IServiceManager {
+    public function setConfig($config): void;
+
+    public function config();
+
     /**
      * @return mixed
      */

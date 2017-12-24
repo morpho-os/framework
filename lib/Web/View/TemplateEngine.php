@@ -60,10 +60,11 @@ class TemplateEngine extends Pipe {
 
     /**
      * Compiles and renders the $filePath.
+     * @param array|\ArrayObject $vars
      */
-    public function renderFile(string $filePath, array $vars = []): string {
+    public function renderFile(string $filePath, $vars = []): string {
         $filePath = $this->compileFile($filePath);
-        return $this->renderFileWithoutCompilation($filePath, $vars);
+        return $this->renderFileWithoutCompilation($filePath, is_array($vars) ? $vars : $vars->getArrayCopy());
     }
 
     public function useCache(bool $flag = null): bool {

@@ -58,7 +58,6 @@ return [
             'logToFile' => true,
         ],
         'eventManager' => [
-            'layoutModule' => VENDOR . '/system',
             /*
             'handlers' => [
                 \Morpho\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyCError', 'accessDenied'],
@@ -67,6 +66,9 @@ return [
                 \Morpho\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],
             ],
              */
+        ],
+        'view' => [
+            'layoutModule' => VENDOR . '/system',
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.

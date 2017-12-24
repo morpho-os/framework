@@ -29,6 +29,7 @@ use Morpho\Web\Uri\UriChecker;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\PhpTemplateEngine;
+use Morpho\Web\View\RendererFactory;
 use Morpho\Web\View\ScriptProcessor;
 use Morpho\Web\View\UriProcessor;
 use function Morpho\Code\composerAutoloader;
@@ -75,7 +76,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newThemeService() {
-        return new Theme();
+        return new Theme($this->get('templateEngine'));
     }
 
     protected function newTemplateEngineService() {
@@ -137,6 +138,10 @@ class ServiceManager extends BaseServiceManager {
         }
 
         return $logger;
+    }
+
+    protected function newContentNegotiatorService() {
+        return new ContentNegotiator();
     }
 
     protected function newDispatchErrorHandlerService() {

@@ -166,23 +166,6 @@ class RequestTest extends TestCase {
         $this->checkBoolAccessor([$this->request, 'isDispatched'], false);
     }
 
-    public function testRoutingParams() {
-        $routingParams = $this->request->routingParams();
-        $this->assertInstanceOf(\ArrayObject::class, $routingParams);
-        $routingParams['foo'] = 'bar';
-        $this->assertSame(['foo' => 'bar'], $this->request->routingParams()->getArrayCopy());
-
-        $newRoutingParams = new \ArrayObject(['test' => '123']);
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($this->request->setRoutingParams($newRoutingParams));
-        $this->assertSame($newRoutingParams, $this->request->routingParams());
-
-        $newRoutingParams = ['hello' => 456];
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($this->request->setRoutingParams($newRoutingParams));
-        $this->assertSame($newRoutingParams, $this->request->routingParams()->getArrayCopy());
-    }
-
     public function testTrim_Query() {
         $val = '   baz  ';
         $_GET['foo']['bar'] = $val;
