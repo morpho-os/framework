@@ -42,10 +42,10 @@ class ResponseTest extends TestCase {
 
     public function testStatusLineAccessors() {
         $this->assertSame(
-            Environment::httpProtocolVersion() . ' ' . Response::OK_STATUS_CODE . ' OK',
+            Environment::httpVersion() . ' ' . Response::OK_STATUS_CODE . ' OK',
             $this->response->statusLine()
         );
-        $newStatusLine = Environment::httpProtocolVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
+        $newStatusLine = Environment::httpVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
         $this->assertNull($this->response->setStatusLine($newStatusLine));
         $this->assertSame($newStatusLine, $this->response->statusLine());
     }
@@ -101,7 +101,7 @@ class ResponseTest extends TestCase {
     public function testStatusCodeToStatusLine(int $statusCode, string $expectedReasonPhrase) {
         $this->response->setStatusCode($statusCode);
         $this->assertSame(
-            Environment::PROTOCOL_VERSION . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
+            Environment::HTTP_VERSION . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
             $this->response->statusLine()
         );
     }
@@ -124,7 +124,7 @@ class ResponseTest extends TestCase {
         $this->assertSame($body, ob_get_clean());
         $this->assertSame(
             [
-                ['sendHeader', [Environment::httpProtocolVersion() . ' 404 Not Found']],
+                ['sendHeader', [Environment::httpVersion() . ' 404 Not Found']],
                 ['sendHeader', ['Location: http://example.com']],
             ],
             $response->called

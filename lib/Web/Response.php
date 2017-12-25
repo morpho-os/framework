@@ -91,10 +91,10 @@ class Response extends BaseResponse {
     }
 
     public function statusCodeToStatusLine(int $statusCode): string {
-        return Environment::httpProtocolVersion() . ' ' . intval($statusCode) . ' ' . $this->statusCodeToReasonPhrase($statusCode);
+        return Environment::httpVersion() . ' ' . intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
     }
 
-    public function statusCodeToReasonPhrase(int $statusCode): string {
+    public function statusCodeToReason(int $statusCode): string {
         // http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
         switch ($statusCode) {
             case self::OK_STATUS_CODE:

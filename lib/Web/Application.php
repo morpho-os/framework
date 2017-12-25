@@ -73,23 +73,23 @@ class Application extends BaseApplication {
     }
 
     protected function showError(\Throwable $e): void {
-        $header = null;
+        $statusLine = null;
         if ($e instanceof NotFoundException) {
-            $header = Environment::httpProtocolVersion() . ' 404 Not Found';
+            $statusLine = Environment::httpVersion() . ' 404 Not Found';
             $message = "The requested page was not found";
         } elseif ($e instanceof AccessDeniedException) {
-            $header = Environment::httpProtocolVersion() . ' 403 Forbidden';
+            $statusLine = Environment::httpVersion() . ' 403 Forbidden';
             $message = "You don't have access to the requested resource";
         } elseif ($e instanceof BadRequestException) {
-            $header = Environment::httpProtocolVersion() . ' 400 Bad Request';
+            $statusLine = Environment::httpVersion() . ' 400 Bad Request';
             $message = "Bad request, please contact site's support";
         } else {
-            $header = Environment::httpProtocolVersion() . ' 500 Internal Server Error';
+            $statusLine = Environment::httpVersion() . ' 500 Internal Server Error';
             $message = "Unable to handle the request. Please contact site's support and try to return to this page again later";
         }
         if (!headers_sent()) {
             // @TODO: Use http_response_code()?
-            header($header);
+            header($statusLine);
         }
         for ($i = 0, $n = ob_get_level(); $i < $n; $i++) {
             //ob_end_flush();

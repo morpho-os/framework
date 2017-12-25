@@ -12,7 +12,7 @@ use Morpho\Base\Environment as BaseEnvironment;
 class Environment extends BaseEnvironment {
     protected $startSession = false;
 
-    public const PROTOCOL_VERSION = 'HTTP/1.1';
+    public const HTTP_VERSION = 'HTTP/1.1';
     
     public static function clientIp(): array {
         return [
@@ -22,15 +22,14 @@ class Environment extends BaseEnvironment {
         ];
     }
     
-    public static function httpProtocolVersion(): string {
+    public static function httpVersion(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
             $protocol = $_SERVER['SERVER_PROTOCOL'];
-            // preg_match('~^HTTP/\d+\.\d+$~si', $protocol)
-            if ($protocol === 'HTTP/1.1' || $protocol === 'HTTP/2.0' || $protocol === 'HTTP/1.0') {
+            if (preg_match('~^HTTP/\d\.\d$~si', $protocol)) {
                 return $protocol;
             }
         }
-        return self::PROTOCOL_VERSION;
+        return self::HTTP_VERSION;
     }
 
     public static function httpHost(): string {
@@ -45,7 +44,7 @@ class Environment extends BaseEnvironment {
     }
 
     /**
-     * @TODO: Refactor this method.
+     * @TODO: Rewrite this method.
      *
      * @return int|string Returns max upload file size in bytes or as string with suffix.
      */
@@ -64,7 +63,7 @@ class Environment extends BaseEnvironment {
     protected function _init(): void {
         parent::_init();
         $_SERVER['HTTP_REFERER'] = self::httpReferrer();
-        $_SERVER['SERVER_PROTOCOL'] = self::httpProtocolVersion();
+        $_SERVER['SERVER_PROTOCOL'] = self::httpVersion();
         $_SERVER['HTTP_HOST'] = self::httpHost();
         $_SERVER += [
             'SCRIPT_NAME'     => null,
