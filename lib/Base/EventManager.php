@@ -17,6 +17,25 @@ class EventManager implements IEventManager {
     }
 
     /**
+     * @param callable|null $handlerSelector Selects which handlers must be deleted.
+     */
+    public function off(string $eventName, callable $handlerSelector = null): void {
+        if (null === $handlerSelector) {
+            unset($this->handlers[$eventName]);
+        } else {
+            if (!isset($this->handlers[$eventName])) {
+                return;
+            }
+            foreach ($this->handlers[$eventName] as $key => $handler1) {
+                if ($handlerSelector($handler1)) {
+                    unset($this->handlers[$eventName][$key]);
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function trigger(Event $event) {

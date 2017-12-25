@@ -22,47 +22,37 @@ class HtmlRenderer implements IFn {
      * @param Request $request
      */
     public function __invoke($request): void {
-        if (!$request->isDispatched()) {
-            return;
-        }
-        /** @var \Morpho\Web\Response $response */
-        $response = $request->response();
-        if ($response->isRedirect()) {
-            return;
-        }
-
         $serviceManager = $this->serviceManager;
-        $moduleIndex = $serviceManager->get('moduleIndex');
-        /** @var Theme $theme */
-        $theme = $serviceManager->get('theme');
 
         // 1. Render view
         $moduleName = $request->moduleName();
-        $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
-        $theme->appendBaseDirPath($viewDirPath);
-
         /** @var Page $page */
         $page = $request->params()['page'];
-
         $view = $page->view();
         if (!$view->dirPath()) {
             $view->setDirPath(dasherize($request->controllerName()));
         }
-        $renderedView = $theme->render($view);
-        $view->isRendered(true);
+        $renderedView = $this->render($moduleName, $view);
 
         // 2. Render Layout
         $moduleName = $serviceManager->config()['view']['layoutModule'];
-        $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
-        $theme->appendBaseDirPath($viewDirPath);
-
         $layout = $page->layout();
         $layout->vars()['body'] = $renderedView;
-        $renderedLayout = $theme->render($layout);
-        $layout->isRendered(true);
+        $renderedLayout = $this->render($moduleName, $layout);
 
+        /** @var \Morpho\Web\Response $response */
+        $response = $request->response();
         $response->setBody($renderedLayout);
         $response->headers()['Content-Type'] = 'text/html; charset=UTF-8';
-        $page->isRendered(true);
+    }
+
+    protected function render(string $moduleName, View $view): string {
+        $serviceManager = $this->serviceManager;
+        $moduleIndex = $serviceManager->get('moduleIndex');
+        /** @var Theme $theme */
+        $theme = $serviceManager->get('theme');
+        $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
+        $theme->appendBaseDirPath($viewDirPath);
+        return $theme->render($view);
     }
 }

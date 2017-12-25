@@ -19,10 +19,6 @@ class View {
      */
     protected $vars;
     /**
-     * @var bool
-     */
-    protected $isRendered = false;
-    /**
      * @var null|string
      */
     protected $dirPath;
@@ -56,13 +52,6 @@ class View {
 
     public function dirPath(): ?string {
         return $this->dirPath;
-    }
-
-    public function isRendered(bool $flag = null): bool {
-        if (null !== $flag) {
-            $this->isRendered = $flag;
-        }
-        return $this->isRendered;
     }
 
     public function path(): string {

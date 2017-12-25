@@ -10,6 +10,7 @@ use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
 use Morpho\Web\Request;
+use Morpho\Web\Response;
 use Morpho\Web\Uri\Uri;
 
 class ControllerTest extends TestCase {
@@ -47,6 +48,7 @@ class ControllerTest extends TestCase {
             $response->headers()->getArrayCopy()
         );
         $this->assertSame($statusCode, $response->statusCode());
+        $this->assertTrue(!isset($request->params()['page']));
     }
 
     public function testRedirect_NoArgs() {
@@ -67,23 +69,54 @@ class ControllerTest extends TestCase {
             $response->headers()->getArrayCopy()
         );
         $this->assertSame(302, $response->statusCode());
+        $this->assertTrue(!isset($request->params()['page']));
     }
 
     public function testForwardTo() {
         $controller = new MyController('foo');
         $request = $this->newRequest();
         $controller->setRequest($request);
+
         $actionName = 'forward-here';
         $controllerName = 'my-other';
         $moduleName = 'morpho-test';
+        $request->setActionName('forward');
+        $controller->forwardTo = [$actionName, $controllerName, $moduleName, ['p1' => 'v1']];
         
-        $controller->doForwardToAction($actionName, $controllerName, $moduleName, ['p1' => 'v1']);
+        $controller->__invoke($request);
         
         $this->assertEquals($actionName, $request->actionName());
         $this->assertEquals($controllerName, $request->controllerName());
         $this->assertEquals($moduleName, $request->moduleName());
         $this->assertEquals(['p1' => 'v1'], $request->params()['routing']);
         $this->assertFalse($request->isDispatched());
+        $this->assertTrue(!isset($request->params()['page']));
+    }
+
+    public function testReturningResponseFromAction() {
+        $controller = new MyController('foo');
+        $controller->returnResponse = $response = new Response();
+        $response->setBody('foo');
+        $request = $this->newRequest();
+        $request->setActionName('returnResponse');
+
+        $controller->__invoke($request);
+
+        $this->assertSame($response, $request->response());
+        $this->assertTrue(!isset($request->params()['page']));
+        $this->assertSame('foo', $response->body());
+    }
+    
+    public function testReturningArrayFromAction() {
+        $controller = new MyController('foo');
+        $request = $this->newRequest();
+        $request->setActionName('returnArray');
+
+        $controller->__invoke($request);
+
+        $page = $request->params()['page'];
+        $this->assertSame(['foo' => 'bar'], $page->vars()->getArrayCopy());
+        $this->assertSame('', $request->response()->body());
     }
 
     private function newRequest(array $serverVars = null) {
@@ -95,9 +128,10 @@ class ControllerTest extends TestCase {
 
 class MyController extends Controller {
     public $statusCode;
+    public $forwardTo;
 
-    public function doForwardToAction($action, $controller, $module, $params) {
-        $this->forward($action, $controller, $module, $params);
+    public function forwardAction() {
+        $this->forward(...$this->forwardTo);
     }
 
     public function redirectHasArgsAction() {
@@ -106,5 +140,13 @@ class MyController extends Controller {
 
     public function redirectNoArgsAction() {
         $this->redirect();
+    }
+
+    public function returnResponseAction() {
+        return $this->returnResponse;
+    }
+
+    public function returnArrayAction() {
+        return ['foo' => 'bar'];
     }
 }

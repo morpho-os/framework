@@ -7,31 +7,18 @@
 namespace Morpho\Web\View;
 
 use Morpho\Base\IFn;
+use function Morpho\Base\toJson;
 
 class JsonRenderer implements IFn {
     /**
      * @param \Morpho\Web\Request $request
-     * @return string
      */
-    public function __invoke($request) {
-        d($request);
+    public function __invoke($request): void {
+        $response = $request->response();
 
-        /**
-         * @Listen beforeDispatch -9999
-         * /
-        public function beforeDispatch($event) {
-        //$this->autoDecodeRequestJson();
-        /*
-        $request = $this->request;
-        $header = $request->header('Content-Type');
-        if (false !== $header && false !== stripos($header->getFieldValue(), 'application/json')) {
-        $data = Json::decode($request->content());
-        $request->replace((array) $data);
-        }
-        }
-         *
-         *
-         * "application/json; charset=utf-8"
-         */
+        $page = $request->params()['page'];
+
+        $response->headers()['Content-Type'] = 'application/json';
+        $response->setBody(toJson($page->vars()));
     }
 }

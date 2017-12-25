@@ -35,32 +35,61 @@ class EventManager extends BaseEventManager {
                     $dispatchErrorHandler->setHandler($errorType, $handler);
                 }
             }
-            $dispatchErrorHandler->handleError($event->args['exception'], $event->args['request']);
+            /** @var Request $request */
+            $request = $event->args['request'];
+            $dispatchErrorHandler->handleError($event->args['exception'], $request);
+            // $request->response()->isRendered(false);
         });
 
         $this->on('afterDispatch', function (Event $event) {
             /** @var Request $request */
             $request = $event->args['request'];
+
+            if (!$this->shouldRender($request)) {
+                return;
+            }
+
             $serviceManager = $this->serviceManager;
+
             /** @var IFn $renderer */
             $rendererType = $serviceManager->get('contentNegotiator')->__invoke($request);
             if (false === $rendererType) {
                 $rendererType = 'html';
             }
-            switch ($rendererType) {
-                default:
-                case 'html':
-                    $renderer = new HtmlRenderer($serviceManager);
-                    break;
-                case 'json';
-                    $renderer = new JsonRenderer();
-                    break;
-                /* @TODO
-                case 'xml':
-                    break;
-                */
-            }
+            $renderer = $this->newRenderer($rendererType, $serviceManager);
             $renderer->__invoke($request);
         });
+    }
+
+    public function shouldRender(Request $request): bool {
+        if (!$request->isDispatched()) {
+            return false;
+        }
+        /** @var \Morpho\Web\Response $response */
+        $response = $request->response();
+        if ($response->isRedirect()) {
+            return false;
+        }
+        if (!isset($request->params()['page'])) {
+            return false;
+        }
+        return true;
+    }
+
+    protected function newRenderer(string $rendererType, IServiceManager $serviceManager): IFn {
+        switch ($rendererType) {
+            default:
+            case 'html':
+                $renderer = new HtmlRenderer($serviceManager);
+                break;
+            case 'json';
+                $renderer = new JsonRenderer();
+                break;
+            /* @TODO
+            case 'xml':
+            break;
+             */
+        }
+        return $renderer;
     }
 }

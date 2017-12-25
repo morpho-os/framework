@@ -7,11 +7,15 @@
 namespace MorphoTest\Unit\Web;
 
 use Morpho\Base\Event;
+use Morpho\Base\IFn;
 use Morpho\Core\ServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\DispatchErrorHandler;
 use Morpho\Web\EventManager;
 use Morpho\Web\Request;
+use Morpho\Web\Response;
+use Morpho\Web\View\Page;
 
 class EventManagerTest extends TestCase {
     public function testDispatchErrorEventHandling() {
@@ -53,9 +57,94 @@ class EventManagerTest extends TestCase {
             ->method('get')
             ->with($this->identicalTo('dispatchErrorHandler'))
             ->will($this->returnValue($dispatchErrorHandler));
+        /** @noinspection PhpParamsInspection */
         $eventManager = new EventManager($serviceManager);
         $event = new Event('dispatchError', ['exception' => $exception, 'request' => $request]);
 
         $eventManager->trigger($event);
+    }
+
+    public function testAfterDispatch() {
+        /** @noinspection PhpParamsInspection */
+        $request = $this->newConfiguredRequest(true, false, $this->createMock(Page::class));
+        $serviceManager = $this->createMock(ServiceManager::class);
+        $serviceManager->expects($this->any())
+            ->method('get')
+            ->with('contentNegotiator')
+            ->willReturn(new class {
+                public function __invoke() {
+                    return false;
+                }
+            });
+
+        /** @noinspection PhpParamsInspection */
+        $eventManager = new class ($serviceManager) extends EventManager {
+            public $renderer;
+            protected function newRenderer(string $rendererType, IServiceManager $serviceManager): IFn {
+                if ($rendererType === 'html') {
+                    return $this->renderer;
+                }
+                throw new \UnexpectedValueException();
+            }
+        };
+        $renderer = new class implements IFn {
+            public $args;
+            public function __invoke($value) {
+                $this->args = func_get_args();
+            }
+        };
+        $eventManager->renderer = $renderer;
+
+        $event = new Event('afterDispatch', [
+            'request' => $request,
+        ]);
+        $eventManager->trigger($event);
+
+        $this->assertSame([$request], $renderer->args);
+    }
+
+    public function dataForShouldRender() {
+        yield [false, false, $this->createMock(Page::class), false];
+        yield [false, false, null, false];
+        yield [false, true, $this->createMock(Page::class), false];
+        yield [false, true, null, false];
+        yield [true, false, $this->createMock(Page::class), true];
+        yield [true, false, null, false];
+        yield [true, true, $this->createMock(Page::class), false];
+        yield [true, true, null, false];
+    }
+
+    /**
+     * @dataProvider dataForShouldRender
+     */
+    public function testShouldRender(bool $isDispatched, bool $isRedirect, ?Page $page, bool $expected) {
+        $request = $this->newConfiguredRequest($isDispatched, $isRedirect, $page);
+        $serviceManager = $this->createMock(IServiceManager::class);
+        /** @noinspection PhpParamsInspection */
+        $renderer = new EventManager($serviceManager);
+
+        /** @noinspection PhpParamsInspection */
+        $this->assertSame($expected, $renderer->shouldRender($request));
+    }
+
+    private function newConfiguredRequest(bool $isDispatched, bool $isRedirect, ?Page $page) {
+        $request = $this->createMock(Request::class);
+        $request->expects($this->any())
+            ->method('isDispatched')
+            ->willReturn($isDispatched);
+        $response = $this->createMock(Response::class);
+        $response->expects($this->any())
+            ->method('isRedirect')
+            ->willReturn($isRedirect);
+        $request->expects($this->any())
+            ->method('response')
+            ->willReturn($response);
+        if ($page) {
+            $params = new \ArrayObject(['page' => $page]);
+            $request->expects($this->any())
+                ->method('params')
+                ->willReturn($params);
+        }
+        return $request;
     }
 }

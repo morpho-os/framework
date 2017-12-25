@@ -22,10 +22,6 @@ class Controller extends Node implements IFn {
      * @var null|Request
      */
     protected $request;
-    /**
-     * @var View\Page
-     */
-    private $page;
 
     /**
      * @param Request $request
@@ -33,7 +29,6 @@ class Controller extends Node implements IFn {
     public function __invoke($request): void {
         /** @var Request $request */
         $this->request = $request;
-        $this->page = null;
         $action = $request->actionName();
         if (empty($action)) {
             throw new \LogicException("Empty action name");
@@ -45,6 +40,13 @@ class Controller extends Node implements IFn {
             $page = $this->$method();
         }
         $this->afterEach();
+        if ($page instanceof Response) {
+            $request->setResponse($page);
+            return;
+        }
+        if (!$request->isDispatched() || $request->response()->isRedirect()) {
+            return;
+        }
         if (null === $page || is_array($page)) {
             $page = $this->newPage($page);
         }
@@ -145,7 +147,7 @@ class Controller extends Node implements IFn {
         return $this->request->query($name, $trim);
     }
 
-    protected function newPage(array $vars = null, bool $isRendered = null): Page {
+    protected function newPage(array $vars = null): Page {
         return new Page(dasherize($this->request->actionName()), $vars);
     }
 }

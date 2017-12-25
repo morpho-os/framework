@@ -18,7 +18,7 @@ class Page extends View {
      */
     private $layout;
 
-    public function setView(View $view): string {
+    public function setView(View $view): void {
         $this->view = $view;
     }
 
@@ -38,5 +38,17 @@ class Page extends View {
             $this->layout = new View(self::DEFAULT_LAYOUT);
         }
         return $this->layout;
+    }
+
+    public function setDirPath(string $dirPath): void {
+        throw new \LogicException();
+    }
+
+    public function dirPath(): ?string {
+        throw new \LogicException();
+    }
+
+    public function path(): string {
+        throw new \LogicException();
     }
 }

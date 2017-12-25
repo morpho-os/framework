@@ -20,7 +20,7 @@ class CacheController extends Controller {
         });
         $this->messenger()->addSuccessMessage("The cache has been cleared successfully");
         // @TODO: CSRF
-        $this->redirect($this->query('redirect') ?: '/');
+        return $this->redirect($this->query('redirect') ?: '/');
     }
 
     /**
