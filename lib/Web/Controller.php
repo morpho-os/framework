@@ -27,7 +27,6 @@ class Controller extends Node implements IFn {
      * @param Request $request
      */
     public function __invoke($request): void {
-        /** @var Request $request */
         $this->request = $request;
         $action = $request->actionName();
         if (empty($action)) {
@@ -87,9 +86,7 @@ class Controller extends Node implements IFn {
             $controller = $this->name();
         }
 
-        $request->setModuleName($module);
-        $request->setControllerName($controller);
-        $request->setActionName($action);
+        $request->setHandler([$module, $controller, $action]);
 
         if (null !== $routingParams) {
             $request->params()['routing'] = $routingParams;

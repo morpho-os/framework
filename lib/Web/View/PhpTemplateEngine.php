@@ -7,7 +7,7 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\{
-    classify, htmlId, dasherize, last
+    classify, dasherize, last
 };
 use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
@@ -35,23 +35,11 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         }
         return $this->plugins[$name];
     }
-    
-    public static function formatFloat($val) {
-        if (empty($val)) {
-            $val = 0;
-        }
-        $val = str_replace(',', '.', $val);
-        return number_format(round(floatval($val), 2), 2, '.', ' ');
-    }
-
-    public function htmlId($id): string {
-        return htmlId($id);
-    }
 
     public function pageCssId(): string {
-        return dasherize(last(self::moduleName(), '/'))
-            . '-' . dasherize(self::controllerName())
-            . '-' . dasherize(self::actionName());
+        return dasherize(last($this->moduleName(), '/'))
+            . '-' . dasherize($this->controllerName())
+            . '-' . dasherize($this->actionName());
     }
 
     public function controller(): Controller {
@@ -84,13 +72,13 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         return $actionName;
     }
 
-    public function isUserLoggedIn(): bool {
+/*    public function isUserLoggedIn(): bool {
         return $this->serviceManager->get('userManager')->isUserLoggedIn();
     }
 
     public function loggedInUser() {
         return $this->serviceManager->get('userManager')->loggedInUser();
-    }
+    }*/
 
     public function uri(): Uri {
         if (null === $this->uri) {
@@ -126,31 +114,6 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
         return Html::tag('a', $attributes, $text, $options);
     }
 
-    public function hiddenField(string $name, $value, array $attributes = null): string {
-        return Html::singleTag(
-            'input',
-            [
-                'name'  => $name,
-                'value' => $value,
-                'type'  => 'hidden',
-            ] + (array)$attributes
-        );
-    }
-    
-    public function httpMethodHiddenField(string $method = null, array $attributes = null): string {
-        return $this->hiddenField('_method', $method, $attributes);
-    }
-
-    public function copyright(string $brand, $startYear = null): string {
-        $currentYear = date('Y');
-        if ($startYear == $currentYear) {
-            $range = $currentYear;
-        } else {
-            $range = intval($startYear) . '-' . $currentYear;
-        }
-        return '© ' . $range . ', ' . Html::encode($brand);
-    }
-
     public function __call($pluginName, array $args) {
         $plugin = $this->plugin($pluginName);
         return $plugin($args);
@@ -158,6 +121,7 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
+        $this->request = $this->uri = null;
     }
 
     protected function newPlugin(string $name) {

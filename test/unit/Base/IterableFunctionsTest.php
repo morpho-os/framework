@@ -623,9 +623,9 @@ class IterableFunctionsTest extends TestCase {
     // reduce
 
     public function testReduce_PreservingInitialValue() {
-        $this->assertNull(reduce('Morpho\\Base\\id', ['foo', 'bar', 'baz']));
+        $this->assertNull(reduce(function ($v) { return $v; }, ['foo', 'bar', 'baz']));
         $v = new \stdClass();
-        $this->assertSame($v, reduce('Morpho\\Base\\id', ['foo', 'bar', 'baz'], $v));
+        $this->assertSame($v, reduce(function ($v) { return $v; }, ['foo', 'bar', 'baz'], $v));
     }
 
     /**

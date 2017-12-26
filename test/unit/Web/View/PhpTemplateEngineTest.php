@@ -8,8 +8,11 @@ namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Base\IFn;
 use Morpho\Base\ItemNotSetException;
+use Morpho\Core\Module;
+use Morpho\Core\ModuleProvider;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
+use Morpho\Web\Controller;
 use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\ScriptProcessor;
 use Morpho\Web\View\UriProcessor;
@@ -170,23 +173,6 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertSame('<a href="/base/path/one/two">News</a>', $html);
     }
 
-    public function testCopyright() {
-        $curYear = date('Y');
-        $brand = 'Mices\'s';
-
-        $startYear = $curYear - 2;
-        $this->assertEquals(
-            '© ' . $startYear . '-' . $curYear . ', Mices&#039;s',
-            $this->templateEngine->copyright($brand, $startYear)
-        );
-
-        $startYear = $curYear;
-        $this->assertEquals(
-            '© ' . $startYear . ', Mices&#039;s',
-            $this->templateEngine->copyright($brand, $startYear)
-        );
-    }
-
     public function testInvoke_NotClosedLink() {
         $this->assertEquals('<a href="', $this->templateEngine->__invoke('<a href="'));
     }
@@ -265,6 +251,58 @@ class PhpTemplateEngineTest extends TestCase {
         $plugin = $this->templateEngine->plugin($pluginName);
         $this->assertInstanceOf(MessengerPlugin::class, $plugin);
         $this->assertSame($plugin, $this->templateEngine->plugin($pluginName));
+    }
+
+    public function testModuleControllerActionName() {
+        $request = $this->newRequest();
+        $moduleName = 'foo/bar';
+        $controllerName = 'News';
+        $actionName = 'edit';
+        $request->setHandler([$moduleName, $controllerName, $actionName]);
+        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $this->templateEngine->setServiceManager($serviceManager);
+        $this->assertSame($moduleName, $this->templateEngine->moduleName());
+        $this->assertSame($controllerName, $this->templateEngine->controllerName());
+        $this->assertSame($actionName, $this->templateEngine->actionName());
+
+        $request = $this->newRequest();
+        $moduleName = 'baz/test';
+        $controllerName = 'Blog';
+        $actionName = 'update';
+        $request->setHandler([$moduleName, $controllerName, $actionName]);
+        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $this->templateEngine->setServiceManager($serviceManager);
+        $this->assertSame($moduleName, $this->templateEngine->moduleName());
+        $this->assertSame($controllerName, $this->templateEngine->controllerName());
+        $this->assertSame($actionName, $this->templateEngine->actionName());
+    }
+    
+    public function testUri() {
+        $request = $this->newRequest();
+        $uri = new Uri();
+        $uri1 = $this->templateEngine->uri();
+        $this->assertNotSame($uri, $uri1);
+        $this->assertSame($uri1, $this->templateEngine->uri());
+        $request->setUri($uri);
+        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $this->templateEngine->setServiceManager($serviceManager);
+        $this->assertSame($uri, $this->templateEngine->uri());
+    }
+
+    public function testController() {
+        $request = $this->newRequest();
+        $moduleName = 'foo/bar';
+        $controllerName = 'News';
+        $request->setHandler([$moduleName, $controllerName, 'edit']);
+        $controller = $this->createMock(Controller::class);
+        $module = new \ArrayObject([$controllerName => $controller]);
+        $moduleProvider = new \ArrayObject([$moduleName => $module]);
+        $serviceManager = $this->newServiceManager([
+            'moduleProvider' => $moduleProvider,
+            'request' => $request,
+        ]);
+        $this->templateEngine->setServiceManager($serviceManager);
+        $this->assertSame($controller, $this->templateEngine->controller());
     }
 
     private function newServiceManager($services = null): ServiceManager {

@@ -22,13 +22,13 @@ class Html {
 
     public static function openTag(string $tagName, array $attributes = [], bool $isXml = false): string {
         return '<'
-            . Html::encode($tagName)
+            . self::encode($tagName)
             . self::attributes($attributes)
             . ($isXml ? ' />' : '>');
     }
 
     public static function closeTag(string $name): string {
-        return '</' . Html::encode($name) . '>';
+        return '</' . self::encode($name) . '>';
     }
 
     /**
@@ -38,7 +38,7 @@ class Html {
         foreach ($attributes as $attribute => &$data) {
             if (!is_numeric($attribute)) {
                 $data = implode(' ', (array)$data);
-                $data = $attribute . '="' . Html::encode($data) . '"';
+                $data = $attribute . '="' . self::encode($data) . '"';
             }
         }
 
@@ -82,7 +82,7 @@ class Html {
             foreach ($options as $value => $text) {
                 $value = (string) $value;
                 $selected = $value === $defaultValue ? ' selected' : '';
-                $html .= '<option value="' . Html::encode($value) . '"' . $selected . '>' . Html::encode($text) . '</option>';
+                $html .= '<option value="' . self::encode($value) . '"' . $selected . '>' . self::encode($text) . '</option>';
             }
             return $html;
         }
@@ -100,8 +100,33 @@ class Html {
         }
         foreach ($newOptions as $value => $text) {
             $selected = isset($selectedOptions[$value]) ? ' selected' : '';
-            $html .= '<option value="' . Html::encode($value) . '"' . $selected . '>' . Html::encode($text) . '</option>';
+            $html .= '<option value="' . self::encode($value) . '"' . $selected . '>' . self::encode($text) . '</option>';
         }
         return $html;
+    }
+
+    public function hiddenField(string $name, $value, array $attributes = null): string {
+        return self::singleTag(
+            'input',
+            [
+                'name'  => $name,
+                'value' => $value,
+                'type'  => 'hidden',
+            ] + (array)$attributes
+        );
+    }
+
+    public function httpMethodField(string $method = null, array $attributes = null): string {
+        return $this->hiddenField('_method', $method, $attributes);
+    }
+
+    public static function copyright(string $brand, $startYear = null): string {
+        $currentYear = date('Y');
+        if ($startYear == $currentYear) {
+            $range = $currentYear;
+        } else {
+            $range = intval($startYear) . '-' . $currentYear;
+        }
+        return '© ' . $range . ', ' . self::encode($brand);
     }
 }

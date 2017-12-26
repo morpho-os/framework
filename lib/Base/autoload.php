@@ -434,10 +434,6 @@ function suffix(string $suffix): Closure {
     };
 }
 
-function id($v) {
-    return $v;
-}
-
 /**
  * Modified version of the operator() from the https://github.com/nikic/iter
  * @Copyright (c) 2013 by Nikita Popov.
@@ -536,6 +532,14 @@ function formatBytes(string $bytes, string $format = null): string {
         $s .= sprintf($format, ord($bytes[$i]));
     }
     return $s;
+}
+
+function formatFloat($val): string {
+    if (empty($val)) {
+        $val = 0;
+    }
+    $val = str_replace(',', '.', $val);
+    return number_format(round(floatval($val), 2), 2, '.', ' ');
 }
 
 function hash($var): string {

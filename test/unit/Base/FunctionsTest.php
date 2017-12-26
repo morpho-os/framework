@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Base;
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use function Morpho\Base\{
-    endsWith, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
+    endsWith, formatFloat, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
@@ -526,6 +526,14 @@ class FunctionsTest extends TestCase {
         $bytes = "\x2f\xe0\xab\x00\x01\xe0";
         $this->assertEquals('\x2f\xe0\xab\x00\x01\xe0', formatBytes($bytes));
         $this->assertEquals('\x2F\xE0\xAB\x00\x01\xE0', formatBytes($bytes, '\x%02X'));
+    }
+
+    public function testFormatFloat() {
+        $this->assertSame('-0.12', formatFloat(-0.1212323));
+        $this->assertSame('-0.13', formatFloat(-0.1252323));
+        $this->assertSame('0.00', formatFloat(0));
+        $this->assertSame('0.12', formatFloat(0.1212323));
+        $this->assertSame('0.13', formatFloat(0.1252323));
     }
 
     public function testMemoize() {

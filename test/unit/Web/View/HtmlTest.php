@@ -86,4 +86,21 @@ class HtmlTest extends TestCase {
         $this->assertEquals('<foo>&quot;</foo>', Html::tag('foo', [], '"', ['eol' => false]));
         $this->assertEquals('<foo>"</foo>', Html::tag('foo', [], '"', ['eol' => false, 'escapeText' => false]));
     }
+
+    public function testCopyright() {
+        $curYear = date('Y');
+        $brand = 'Mices\'s';
+
+        $startYear = $curYear - 2;
+        $this->assertEquals(
+            '© ' . $startYear . '-' . $curYear . ', Mices&#039;s',
+            Html::copyright($brand, $startYear)
+        );
+
+        $startYear = $curYear;
+        $this->assertEquals(
+            '© ' . $startYear . ', Mices&#039;s',
+            Html::copyright($brand, $startYear)
+        );
+    }
 }
