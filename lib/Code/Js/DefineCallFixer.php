@@ -7,7 +7,7 @@
 declare(strict_types=1);
 namespace Morpho\Code\Js;
 
-use Morpho\Code\StringReader;
+use Morpho\Code\Parsing\StringReader;
 use Morpho\Fs\Path;
 use function Morpho\Base\contains;
 
