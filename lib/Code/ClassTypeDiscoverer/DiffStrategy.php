@@ -7,7 +7,6 @@
 namespace Morpho\Code\ClassTypeDiscoverer;
 
 use function Morpho\Base\requireFile;
-use Morpho\Code\ClassTypeDiscoverer;
 
 class DiffStrategy implements IDiscoverStrategy {
     public function classTypesDefinedInFile(string $filePath): array {

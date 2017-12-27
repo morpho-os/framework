@@ -8,6 +8,7 @@
 namespace Morpho\Code;
 
 use function Morpho\Base\requireFile;
+use Morpho\Code\ClassTypeDiscoverer\ClassTypeDiscoverer;
 use Morpho\Fs\File;
 
 class ClassTypeMapAutoloader extends Autoloader {

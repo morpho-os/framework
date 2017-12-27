@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Unit\Code\ClassTypeDiscovererTest;
+namespace MorphoTest\Unit\Code\ClassTypeDiscoverer\ClassTypeDiscovererTest;
 
 class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImplementsB {
     use C_ClassUsesTrait;

@@ -4,12 +4,17 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Code;
+namespace MorphoTest\Unit\Code\ClassTypeDiscoverer;
 
+use Morpho\Code\ClassTypeDiscoverer\IDiscoverStrategy;
+use Morpho\Code\ClassTypeDiscoverer\TokenStrategy;
 use Morpho\Test\TestCase;
-use Morpho\Code\ClassTypeDiscoverer;
+use Morpho\Code\ClassTypeDiscoverer\ClassTypeDiscoverer;
 
 class ClassTypeDiscovererTest extends TestCase {
+    /**
+     * @var ClassTypeDiscoverer
+     */
     private $classTypeDiscoverer;
 
     public function setUp() {
@@ -21,11 +26,11 @@ class ClassTypeDiscovererTest extends TestCase {
     }
 
     public function testDefaultStrategy() {
-        $this->assertInstanceOf('\Morpho\Code\ClassTypeDiscoverer\TokenStrategy', $this->classTypeDiscoverer->discoverStrategy());
+        $this->assertInstanceOf(TokenStrategy::class, $this->classTypeDiscoverer->discoverStrategy());
     }
 
     public function testClassTypesDefinedInDir_UsingCustomStrategy() {
-        $discoverStrategy = $this->createMock(ClassTypeDiscoverer::class . '\\IDiscoverStrategy');
+        $discoverStrategy = $this->createMock(IDiscoverStrategy::class);
         $discoverStrategy->expects($this->atLeastOnce())
             ->method('classTypesDefinedInFile')
             ->will($this->returnValue([]));
