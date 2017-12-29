@@ -366,6 +366,8 @@ function lines(string $text): array {
     return preg_split(EOL_FULL_RE, $text);
 }
 
+// @TODO: implement nonEmptyLines()
+
 function typeOf($val): string {
     if (is_object($val)) {
         return get_class($val);
