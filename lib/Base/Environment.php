@@ -103,7 +103,7 @@ abstract class Environment {
 
     protected function _init(): void {
         error_reporting(E_ALL | E_STRICT);
-        ini_set('display_errors', 0);
+        ini_set('display_errors', '0');
         ini_set('date.timezone', self::TIMEZONE);
         ini_set('default_charset', self::ENCODING);
     }

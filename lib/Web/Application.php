@@ -67,7 +67,7 @@ class Application extends BaseApplication {
             }
         }
         if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
-            ini_set('cookie_secure', true);
+            ini_set('cookie_secure', '1');
         }
     }
 

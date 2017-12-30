@@ -108,7 +108,7 @@ class SeleniumServer {
     }
 
     private function findPid(): ?int {
-        $pid = (int) trim((string) shell("lsof -t -c java -a -i ':" . escapeshellarg($this->port()) . "' 2>&1", ['capture' => true, 'checkExit' => false]));
+        $pid = (int) trim((string) shell("lsof -t -c java -a -i ':" . escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkExit' => false]));
         // ss -t -a -n -p state all '( sport = 4444 )'
         return $pid > 0 ? $pid : null;
     }

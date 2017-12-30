@@ -79,31 +79,31 @@ return [
             // Type: string
             'cookie_domain' => '',
             // Type: int
-            'cookie_lifetime' => 0,
+            'cookie_lifetime' => '0',
             // Type: string
             'cookie_path' => '/',
             // Type: bool
-            'cookie_secure' => false,
+            'cookie_secure' => '0',
             // Type: bool
-            'cookie_httponly' => false,
+            'cookie_httponly' => '0',
             // Type: bool
-            'use_cookies' => true,
+            'use_cookies' => '1',
             // Type: bool
-            'use_only_cookies' => true,
+            'use_only_cookies' => '1',
             */
 
             // Type: bool
-            'use_strict_mode' => true,
+            'use_strict_mode' => '1',
             /*
             // Type: int
-            'gc_divisor' => 1,
+            'gc_divisor' => '1',
             // Type: int
-            'gc_probability' => 100,
+            'gc_probability' => '100',
             // Type: ??
-            'gc_maxlifetime' => 1440,
+            'gc_maxlifetime' => '1440',
 
             // Type: bool
-            'lazy_write' => true,
+            'lazy_write' => '1',
             */
             // Type: string
             'name' => 's',
@@ -113,13 +113,13 @@ return [
             // Type: string, possible values: "nocache" (default) | "private" | "private_no_expire" | "public"
             'cache_limiter' => "nocache",
             // Type: int
-            'cache_expire' => 180,
+            'cache_expire' => '180',
             // Type: string
             'save_handler' => 'files',
             // Type: string
             'save_path' => '',
             // Type: bool
-            'use_trans_sid' => false,
+            'use_trans_sid' => '0',
             // Type: string
             'trans_sid_tags' => "a=href,area=href,frame=src,form=",
             // Type: string
@@ -129,9 +129,9 @@ return [
             'serialize_handler' => 'php_serialize',
             /*
             // Type: int
-            'sid_bits_per_character' => 5,
+            'sid_bits_per_character' => '5',
             // Type: int
-            'sid_length' => 32,
+            'sid_length' => '32',
             */
         ],
     ],
