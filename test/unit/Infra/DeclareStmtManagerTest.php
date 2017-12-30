@@ -116,6 +116,117 @@ OUT
         $this->assertSame($expected, $manager->removeDeclareStmt($code));
     }
 
+    public function dataForAddDeclareStmt() {
+        $sample = <<<OUT
+<?php
+/**
+ * Multi-line
+ * comment
+ */
+namespace Foo\Bar;
+OUT;
+
+        yield [
+            $sample,
+            DeclareStmtManager::ON_FIRST_LINE,
+            <<<OUT
+<?php declare(strict_types=1);
+/**
+ * Multi-line
+ * comment
+ */
+namespace Foo\Bar;
+OUT
+        ];
+
+        yield [
+            $sample,
+            DeclareStmtManager::ON_SECOND_LINE,
+            <<<OUT
+<?php
+declare(strict_types=1);
+/**
+ * Multi-line
+ * comment
+ */
+namespace Foo\Bar;
+OUT
+        ];
+
+        yield [
+            $sample,
+            DeclareStmtManager::AFTER_FIRST_MULTI_COMMENT,
+            <<<OUT
+<?php
+/**
+ * Multi-line
+ * comment
+ */
+declare(strict_types=1);
+namespace Foo\Bar;
+OUT
+        ];
+
+        $sample = <<<OUT
+<?php
+namespace Foo\Bar;
+OUT;
+
+        yield [
+            $sample,
+            DeclareStmtManager::ON_FIRST_LINE,
+            <<<OUT
+<?php declare(strict_types=1);
+namespace Foo\Bar;
+OUT
+        ];
+
+        yield [
+            $sample,
+            DeclareStmtManager::ON_SECOND_LINE,
+            <<<OUT
+<?php
+declare(strict_types=1);
+namespace Foo\Bar;
+OUT
+        ];
+
+        yield [
+            $sample,
+            DeclareStmtManager::AFTER_FIRST_MULTI_COMMENT,
+            <<<OUT
+<?php
+declare(strict_types=1);
+namespace Foo\Bar;
+OUT
+        ];
+
+        yield [
+            '',
+            DeclareStmtManager::ON_FIRST_LINE,
+            <<<OUT
+<?php declare(strict_types=1);
+OUT
+        ];
+
+        yield [
+            '<?php',
+            DeclareStmtManager::ON_FIRST_LINE,
+            <<<OUT
+<?php declare(strict_types=1);
+OUT
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAddDeclareStmt
+     */
+    public function testAddDeclareStmt(string $code, int $position, string $expected) {
+        $this->markTestIncomplete();
+        $manager = new DeclareStmtManager();
+        $this->assertSame($expected, $manager->addDeclareStmt($code, $position));
+    }
+
     private function commonCases(): iterable {
         yield [
             <<<OUT

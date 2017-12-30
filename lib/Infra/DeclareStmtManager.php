@@ -6,108 +6,118 @@
  */
 namespace Morpho\Infra;
 
+use Morpho\Code\Parsing\SyntaxError;
+
 class DeclareStmtManager {
+    public const ON_FIRST_LINE = 0;
+    public const ON_SECOND_LINE = 1;
+    public const AFTER_FIRST_MULTI_COMMENT = 2;
+
+    private const TOKENS = [
+        'openTag' => '~^<\?php(?:[\040\t]|\n)~siA',
+        'multiComment' => '~/\*.*?\*/~siA',
+        'singleComment' => '~//[^\n\r]*~siA',
+        'declareStmt' => '~declare\s*\(strict_types\s*=\s*[01]\s*\)\s*;~siA',
+        //'otherCode' => '~(?<otherCode>\S+)~siA',
+    ];
+
+    private const OPEN_TAG_NODE = 'openTag';
+    private const SINGLE_COMMENT_NODE = 'singleComment';
+    private const MULTI_COMMENT_NODE = 'multiComment';
+    private const DECLARE_STMT_NODE = 'declareStmt';
+    private const OTHER_CODE_NODE = 'otherCode';
+
+    /**
+     * @var int
+     */
     private $offset;
+    /**
+     * @var string
+     */
     private $code;
-    private const OPEN_TAG_RE = '~^<\?php(?:[\040\t]|\n)~si';
-    private const MULTI_COMMENT_RE = '~/\*.*?\*/~siA';
-    private const SINGLE_COMMEN_RE = '~//[^\n\r]*~siA';
-    private const DECLARE_RE = '~declare\s*\(strict_types\s*=\s*[01]\s*\)\s*;~siA';
+    /**
+     * @var array
+     */
+    private $ast;
 
     public function removeCommentedOutDeclareStmt(string $code): string {
-        if (!preg_match(self::OPEN_TAG_RE, $code, $match)) {
+        $this->parse($code);
+        if (!$this->ast) {
             return $code;
         }
-        $this->code = $code;
-        $this->offset = strlen($match[0]);
-        $n = strlen($code);
-
-        $declareFound = false;
-        $locs = [];
-        while ($this->offset < $n) {
-            $this->skipSpaces();
-            if ($this->match(self::MULTI_COMMENT_RE)) {
-                $this->skip(self::MULTI_COMMENT_RE);
-                $this->skipSpaces();
-                continue;
-            }
-            if ($this->match(self::SINGLE_COMMEN_RE)) {
-                $res = $this->match('~//\s*declare\s*\(strict[^\n\r]*~siA');
-                if ($res) {
-                    $locs[] = [$this->offset, strlen($res[0])];
-                }
-                $this->skip(self::SINGLE_COMMEN_RE);
-                $this->skipSpaces();
-                continue;
-            }
-            if (!$declareFound && $this->match(self::DECLARE_RE)) {
-                $this->skip(self::DECLARE_RE);
-                $this->skipSpaces();
-                $declareFound = true;
-                continue;
-            }
-            if ($this->match('~\S~siA')) {
-                break;
+        $locations = [];
+        foreach ($this->ast as $node) {
+            switch ($node['type']) {
+                case self::OPEN_TAG_NODE:
+                case self::DECLARE_STMT_NODE:
+                case self::MULTI_COMMENT_NODE:
+                case self::OTHER_CODE_NODE:
+                    break;
+                case self::SINGLE_COMMENT_NODE:
+                    if (preg_match('~//\s*declare\s*\(strict[^\n\r]*~siA', $node['value'], $match)) {
+                        $locations[] = [$node['offset'], strlen($match[0])];
+                    }
+                    break;
+                default:
+                    throw new \UnexpectedValueException();
             }
         }
-        if ($locs) {
-            return $this->removeLocs($code, $locs);
+        if ($locations) {
+            return $this->removeLocations($code, $locations);
         }
         return $code;
     }
 
     public function removeDeclareStmt(string $code): string {
-        if (!preg_match(self::OPEN_TAG_RE, $code, $match)) {
+        $this->parse($code);
+        if (!$this->ast) {
             return $code;
         }
-        $this->code = $code;
-        $this->offset = strlen($match[0]);
-        $n = strlen($code);
-
-        $locs = [];
-        while ($this->offset < $n) {
-            $this->skipSpaces();
-            if ($this->match(self::MULTI_COMMENT_RE)) {
-                $this->skip(self::MULTI_COMMENT_RE);
-                $this->skipSpaces();
-                continue;
-            }
-            if ($this->match(self::SINGLE_COMMEN_RE)) {
-                $this->skip(self::SINGLE_COMMEN_RE);
-                $this->skipSpaces();
-                continue;
-            }
-            if ($res = $this->match(self::DECLARE_RE)) {
-                $locs[] = [$this->offset, strlen($res[0])];
-                break;
-            }
-            if ($this->match('~\S~siA')) {
-                break;
+        $locations = [];
+        foreach ($this->ast as $node) {
+            switch ($node['type']) {
+                case self::DECLARE_STMT_NODE:
+                    $locations[] = [$node['offset'], strlen($node['value'])];
+                    break;
+                case self::OPEN_TAG_NODE:
+                case self::MULTI_COMMENT_NODE:
+                case self::OTHER_CODE_NODE:
+                case self::SINGLE_COMMENT_NODE:
+                    break;
+                default:
+                    throw new \UnexpectedValueException();
             }
         }
-        if ($locs) {
-            return $this->removeLocs($code, $locs);
+        if ($locations) {
+            return $this->removeLocations($code, $locations);
         }
         return $code;
     }
 
-    private function skipSpaces(): void {
-        $this->skip('~\s+~siA');
-    }
-
-    private function skip(string $re): void {
-        $res = $this->match($re);
-        if ($res) {
-            $this->offset += strlen($res[0]);
+    public function addDeclareStmt(string $code, int $position): string {
+        $this->parse($code);
+        $locations = [];
+        foreach ($this->ast as $node) {
+            switch ($node['type']) {
+                case self::DECLARE_STMT_NODE:
+                    $locations[] = [$node['offset'], strlen($node['value'])];
+                    break;
+                case self::OPEN_TAG_NODE:
+                case self::MULTI_COMMENT_NODE:
+                case self::OTHER_CODE_NODE:
+                case self::SINGLE_COMMENT_NODE:
+                    break;
+                default:
+                    throw new \UnexpectedValueException();
+            }
         }
+        if ($locations) {
+            return $this->removeLocations($code, $locations);
+        }
+        return $code;
     }
 
-    private function match(string $re): array {
-        preg_match($re, $this->code, $match, 0, $this->offset);
-        return $match;
-    }
-
-    private function removeLocs(string $code, array $locs): string {
+    private function removeLocations(string $code, array $locs): string {
         $newCode = '';
         $p = 0;
         foreach ($locs as $loc) {
@@ -121,5 +131,88 @@ class DeclareStmtManager {
             $p += $length;
         }
         return rtrim($newCode);
+    }
+
+    private function parse(string $code): void {
+        $this->ast = new \ArrayObject();
+        $this->code = $code;
+        $this->offset = 0;
+        $n = strlen($code);
+        $node = $this->laNextNode(self::OPEN_TAG_NODE);
+        if (!$node) {
+            return;
+        }
+        $this->emit($node);
+
+        $declareFound = false;
+        while ($this->offset < $n) {
+            // @TODO: Preserve spaces
+            $this->skipOptionalSpaces();
+            $node = $this->laNextNode(self::MULTI_COMMENT_NODE);
+            if ($node) {
+                $this->emit($node);
+                //$this->skipOptionalSpaces();
+                continue;
+            }
+            $node = $this->laNextNode(self::SINGLE_COMMENT_NODE);
+            if ($node) {
+                $this->emit($node);
+                //$this->skipOptionalSpaces();
+                continue;
+            }
+            if (!$declareFound) {
+                $node = $this->laNextNode(self::DECLARE_STMT_NODE);
+                if ($node) {
+                    $this->emit($node);
+                    //$this->skipOptionalSpaces();
+                    $declareFound = true;
+                    continue;
+                }
+            }
+            if (preg_match('~\S~siA', $this->code, $match, 0, $this->offset)) {
+                $value = substr($this->code, $this->offset);
+                $this->emit($this->newNode($value, self::OTHER_CODE_NODE));
+                break;
+            }
+        }
+    }
+
+    /**
+     * @return \ArrayObject|false Returns a Node or false
+     */
+    private function laNextNode(string $nodeType) {
+        $re = self::TOKENS[$nodeType];
+        if (!preg_match($re, $this->code, $match, 0, $this->offset)) {
+            return false;
+        }
+        $value = array_pop($match);
+        return $this->newNode($value, $nodeType);
+    }
+
+    private function newNode(string $value, string $type): \ArrayObject {
+        return new \ArrayObject([
+            'value' => $value,
+            'type' => $type,
+            'offset' => $this->offset,
+        ]);
+    }
+
+    private function emit(\ArrayObject $node): void {
+        $this->offset += strlen($node['value']);
+        $this->ast[] = $node;
+    }
+
+    private function skipOptionalSpaces(): void {
+        $this->skip('~\s+~siA', false);
+    }
+
+    private function skip(string $re, bool $required): void {
+        if (!preg_match($re, $this->code, $match, 0, $this->offset)) {
+            if ($required) {
+                throw new SyntaxError();
+            }
+            return;
+        }
+        $this->offset += strlen(array_pop($match));
     }
 }
