@@ -22,7 +22,7 @@ abstract class Query implements IQuery {
     public function dump(): string {
         [$sql, $args] = $this->build();
         $notSafeQuote = function ($value) { // @TODO: Move to Query::notSafeQuote()
-            if (preg_match('~^-?\d+$~s', $value)) {
+            if (preg_match('~^-?\d+$~s', (string)$value)) {
                 return intval($value);
             }
             // @TODO: Handle floats

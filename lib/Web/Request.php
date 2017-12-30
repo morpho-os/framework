@@ -481,7 +481,11 @@ class Request extends BaseRequest {
     }
 
     protected function detectBasePath(string $requestUri): string {
-        $basePath = ltrim(Path::normalize(dirname($this->serverVar('SCRIPT_NAME'))), '/');
+        $scriptName = $this->serverVar('SCRIPT_NAME', '');
+        if ('' === $scriptName) {
+            return '/';
+        }
+        $basePath = ltrim(Path::normalize(dirname($scriptName)), '/');
 /*        if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();
         }*/

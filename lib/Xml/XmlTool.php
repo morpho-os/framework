@@ -24,7 +24,7 @@ class XmlTool {
                     self::arrayToXml($value, $doc, $node);
                 }
             } else {
-                $currentNode->appendChild($doc->createElement($key, $value));
+                $currentNode->appendChild($doc->createElement($key, (string)$value));
             }
         }
     }

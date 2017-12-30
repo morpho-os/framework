@@ -133,7 +133,7 @@ class DateTime extends DateTimeImmutable {
     }
 
     public function getTimestamp(): int {
-        return PHP_INT_SIZE === 4 ? $this->format('U') : parent::getTimestamp();
+        return PHP_INT_SIZE === 4 ? (int)$this->format('U') : parent::getTimestamp();
     }
 
     /**
@@ -141,6 +141,7 @@ class DateTime extends DateTimeImmutable {
      * @return bool
      */
     public static function isTimestamp($value) {
+        $value = (string)$value;
         return is_numeric($value) && preg_match('~^\d+$~s', $value) && strlen($value) === 10;
     }
 

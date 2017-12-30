@@ -68,14 +68,15 @@ abstract class Environment {
             // false values:
             'off' => false, 'false' => false, 'no' => false, 'none' => false, '' => false, '0' => false,
         ];
-        return $map[strtolower($value)] ?? (bool)$value;
+        return $map[strtolower((string)$value)] ?? (bool)$value;
     }
 
     /**
+     * @param int|string $value
      * Returns true if the ini-value looks like bool.
      */
     public static function isBoolLikeIniVal($value): bool {
-        return in_array(strtolower($value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
+        return in_array(strtolower((string)$value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
     public static function tmpDirPath(): string {

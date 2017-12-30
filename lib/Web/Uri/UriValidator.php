@@ -35,8 +35,11 @@ class UriValidator implements IFn {
         $hexDigRe = self::HEX_DIGIT_RE;
 
         $userInfoRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe | : )*";
-        if (!preg_match('{^' . $userInfoRe . '$}six', $authority->userInfo())) {
-            return false;
+        $userInfo = $authority->userInfo();
+        if (null !== $userInfo) {
+            if (!preg_match('{^' . $userInfoRe . '$}six', $userInfo)) {
+                return false;
+            }
         }
 
         // @TODO: Extract IpValidator, IpV4Validator, IpV6Validator
@@ -71,7 +74,7 @@ class UriValidator implements IFn {
 
         $port = $authority->port();
         if (null !== $port) {
-            return (bool) preg_match('~^\d*$~s', $port);
+            return (bool) preg_match('~^\d*$~s', (string)$port);
         }
 
         return true;

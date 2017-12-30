@@ -132,9 +132,9 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
 
     protected function setIniSettings(): void {
         $oldIniSettings = [];
-        $oldIniSettings['display_errors'] = ini_set('display_errors', 0);
+        $oldIniSettings['display_errors'] = ini_set('display_errors', '0');
         // @TODO: Do we need set the 'display_startup_errors'?
-        $oldIniSettings['display_startup_errors'] = ini_set('display_startup_errors', 0);
+        $oldIniSettings['display_startup_errors'] = ini_set('display_startup_errors', '0');
         $this->oldIniSettings = $oldIniSettings;
     }
 
