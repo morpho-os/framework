@@ -128,7 +128,7 @@ OUT;
 
         yield [
             $sample,
-            DeclareStmtManager::ON_FIRST_LINE,
+            DeclareStmtManager::AT_FIRST_LINE,
             <<<OUT
 <?php declare(strict_types=1);
 /**
@@ -141,7 +141,7 @@ OUT
 
         yield [
             $sample,
-            DeclareStmtManager::ON_SECOND_LINE,
+            DeclareStmtManager::AT_SECOND_LINE,
             <<<OUT
 <?php
 declare(strict_types=1);
@@ -174,7 +174,7 @@ OUT;
 
         yield [
             $sample,
-            DeclareStmtManager::ON_FIRST_LINE,
+            DeclareStmtManager::AT_FIRST_LINE,
             <<<OUT
 <?php declare(strict_types=1);
 namespace Foo\Bar;
@@ -183,7 +183,7 @@ OUT
 
         yield [
             $sample,
-            DeclareStmtManager::ON_SECOND_LINE,
+            DeclareStmtManager::AT_SECOND_LINE,
             <<<OUT
 <?php
 declare(strict_types=1);
@@ -196,22 +196,19 @@ OUT
             DeclareStmtManager::AFTER_FIRST_MULTI_COMMENT,
             <<<OUT
 <?php
-declare(strict_types=1);
 namespace Foo\Bar;
 OUT
         ];
 
         yield [
             '',
-            DeclareStmtManager::ON_FIRST_LINE,
-            <<<OUT
-<?php declare(strict_types=1);
-OUT
+            DeclareStmtManager::AT_FIRST_LINE,
+            '',
         ];
 
         yield [
             '<?php',
-            DeclareStmtManager::ON_FIRST_LINE,
+            DeclareStmtManager::AT_FIRST_LINE,
             <<<OUT
 <?php declare(strict_types=1);
 OUT
@@ -222,7 +219,6 @@ OUT
      * @dataProvider dataForAddDeclareStmt
      */
     public function testAddDeclareStmt(string $code, int $position, string $expected) {
-        $this->markTestIncomplete();
         $manager = new DeclareStmtManager();
         $this->assertSame($expected, $manager->addDeclareStmt($code, $position));
     }
@@ -246,10 +242,12 @@ echo "Test";
 OUT
         ];
         yield [
-            <<<OUT
-<?php
-OUT
-            , '<?php'
+            "<?php\n",
+            "<?php\n",
+        ];
+        yield [
+            '<?php',
+            '<?php',
         ];
         yield [
             '',

@@ -6,19 +6,17 @@
  */
 namespace Morpho\Infra;
 
-use Morpho\Code\Parsing\SyntaxError;
-
 class DeclareStmtManager {
-    public const ON_FIRST_LINE = 0;
-    public const ON_SECOND_LINE = 1;
+    public const AT_FIRST_LINE = 0;
+    public const AT_SECOND_LINE = 1;
     public const AFTER_FIRST_MULTI_COMMENT = 2;
 
     private const TOKENS = [
-        'openTag' => '~^<\?php(?:[\040\t]|\n)~siA',
+        'openTag' => '~^<\?php(?:[\040\t]|\n)?~siA',
         'multiComment' => '~/\*.*?\*/~siA',
         'singleComment' => '~//[^\n\r]*~siA',
         'declareStmt' => '~declare\s*\(strict_types\s*=\s*[01]\s*\)\s*;~siA',
-        //'otherCode' => '~(?<otherCode>\S+)~siA',
+        'whitespace' => '~\s+~siA',
     ];
 
     private const OPEN_TAG_NODE = 'openTag';
@@ -26,6 +24,7 @@ class DeclareStmtManager {
     private const MULTI_COMMENT_NODE = 'multiComment';
     private const DECLARE_STMT_NODE = 'declareStmt';
     private const OTHER_CODE_NODE = 'otherCode';
+    private const WHITESPACE_NODE = 'whitespace';
 
     /**
      * @var int
@@ -42,95 +41,101 @@ class DeclareStmtManager {
 
     public function removeCommentedOutDeclareStmt(string $code): string {
         $this->parse($code);
-        if (!$this->ast) {
-            return $code;
-        }
-        $locations = [];
+        $code = '';
         foreach ($this->ast as $node) {
             switch ($node['type']) {
                 case self::OPEN_TAG_NODE:
                 case self::DECLARE_STMT_NODE:
                 case self::MULTI_COMMENT_NODE:
                 case self::OTHER_CODE_NODE:
+                case self::WHITESPACE_NODE:
+                    $code .= $node['value'];
                     break;
                 case self::SINGLE_COMMENT_NODE:
-                    if (preg_match('~//\s*declare\s*\(strict[^\n\r]*~siA', $node['value'], $match)) {
-                        $locations[] = [$node['offset'], strlen($match[0])];
+                    if (preg_match('~//\s*declare\s*\(strict[^\n\r]*~siA', $node['value'])) {
+                        if (preg_match('~^<\?php\s+~', $code)) {
+                            $code = rtrim($code);
+                        }
+                        break;
                     }
+                    $code .= $node['value'];
                     break;
                 default:
                     throw new \UnexpectedValueException();
             }
-        }
-        if ($locations) {
-            return $this->removeLocations($code, $locations);
         }
         return $code;
     }
 
     public function removeDeclareStmt(string $code): string {
         $this->parse($code);
-        if (!$this->ast) {
-            return $code;
-        }
-        $locations = [];
+        $code = '';
         foreach ($this->ast as $node) {
             switch ($node['type']) {
                 case self::DECLARE_STMT_NODE:
-                    $locations[] = [$node['offset'], strlen($node['value'])];
+                    if (preg_match('~^<\?php\s+~', $code)) {
+                        $code = rtrim($code);
+                    }
                     break;
                 case self::OPEN_TAG_NODE:
                 case self::MULTI_COMMENT_NODE:
                 case self::OTHER_CODE_NODE:
                 case self::SINGLE_COMMENT_NODE:
+                case self::WHITESPACE_NODE:
+                    $code .= $node['value'];
                     break;
                 default:
                     throw new \UnexpectedValueException();
             }
-        }
-        if ($locations) {
-            return $this->removeLocations($code, $locations);
         }
         return $code;
     }
 
     public function addDeclareStmt(string $code, int $position): string {
         $this->parse($code);
-        $locations = [];
+
+        if (!count($this->ast)) {
+            return '';
+        }
         foreach ($this->ast as $node) {
             switch ($node['type']) {
                 case self::DECLARE_STMT_NODE:
-                    $locations[] = [$node['offset'], strlen($node['value'])];
-                    break;
+                    return $code;
+            }
+        }
+
+        $code = '';
+        $declareStmt = 'declare(strict_types=1);';
+        $added = false;
+        foreach ($this->ast as $index => $node) {
+            switch ($node['type']) {
                 case self::OPEN_TAG_NODE:
+                    if ($position === self::AT_FIRST_LINE) {
+                        $code .= rtrim($node['value']) . " $declareStmt" . (isset($this->ast[$index + 1]) ? "\n" : '');
+                    } elseif ($position === self::AT_SECOND_LINE) {
+                        $code .= rtrim($node['value']) . "\n$declareStmt" . (isset($this->ast[$index + 1]) ? "\n" : '');
+                    } else {
+                        $code .= $node['value'];
+                    }
+                    break;
                 case self::MULTI_COMMENT_NODE:
-                case self::OTHER_CODE_NODE:
+                    if (!$added && $position === self::AFTER_FIRST_MULTI_COMMENT) {
+                         $code .= rtrim($node['value']) . "\n$declareStmt";
+                         $added = true;
+                    } else {
+                        $code .= $node['value'];
+                    }
+                    break;
                 case self::SINGLE_COMMENT_NODE:
+                case self::WHITESPACE_NODE:
+                case self::OTHER_CODE_NODE:
+                    $code .= $node['value'];
                     break;
                 default:
                     throw new \UnexpectedValueException();
             }
         }
-        if ($locations) {
-            return $this->removeLocations($code, $locations);
-        }
         return $code;
-    }
-
-    private function removeLocations(string $code, array $locs): string {
-        $newCode = '';
-        $p = 0;
-        foreach ($locs as $loc) {
-            [$offset, $length] = $loc;
-            $newCode .= substr($code, $p, $offset);
-            if (preg_match('~^<\?php\s+$~si', $newCode)) {
-                $newCode = rtrim($newCode) .  substr($code, $offset + $length);
-            } else {
-                $newCode .= ltrim(substr($code, $offset + $length));
-            }
-            $p += $length;
-        }
-        return rtrim($newCode);
     }
 
     private function parse(string $code): void {
@@ -138,6 +143,7 @@ class DeclareStmtManager {
         $this->code = $code;
         $this->offset = 0;
         $n = strlen($code);
+
         $node = $this->laNextNode(self::OPEN_TAG_NODE);
         if (!$node) {
             return;
@@ -146,25 +152,25 @@ class DeclareStmtManager {
 
         $declareFound = false;
         while ($this->offset < $n) {
-            // @TODO: Preserve spaces
-            $this->skipOptionalSpaces();
+            $node = $this->laNextNode(self::WHITESPACE_NODE);
+            if ($node) {
+                $this->emit($node);
+                continue;
+            }
             $node = $this->laNextNode(self::MULTI_COMMENT_NODE);
             if ($node) {
                 $this->emit($node);
-                //$this->skipOptionalSpaces();
                 continue;
             }
             $node = $this->laNextNode(self::SINGLE_COMMENT_NODE);
             if ($node) {
                 $this->emit($node);
-                //$this->skipOptionalSpaces();
                 continue;
             }
             if (!$declareFound) {
                 $node = $this->laNextNode(self::DECLARE_STMT_NODE);
                 if ($node) {
                     $this->emit($node);
-                    //$this->skipOptionalSpaces();
                     $declareFound = true;
                     continue;
                 }
@@ -200,19 +206,5 @@ class DeclareStmtManager {
     private function emit(\ArrayObject $node): void {
         $this->offset += strlen($node['value']);
         $this->ast[] = $node;
-    }
-
-    private function skipOptionalSpaces(): void {
-        $this->skip('~\s+~siA', false);
-    }
-
-    private function skip(string $re, bool $required): void {
-        if (!preg_match($re, $this->code, $match, 0, $this->offset)) {
-            if ($required) {
-                throw new SyntaxError();
-            }
-            return;
-        }
-        $this->offset += strlen(array_pop($match));
     }
 }
