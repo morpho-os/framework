@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -11,8 +11,6 @@
  * https://github.com/composer/composer/blob/master/src/Composer/Autoload/ClassLoader.php
  * Copyright (c) 2015 Nils Adermann, Jordi Boggiano
  */
-
-//declare(strict_types = 1);
 
 namespace Morpho\Code\Autoloading;
 
