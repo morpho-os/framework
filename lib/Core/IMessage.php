@@ -6,12 +6,12 @@
  */
 namespace Morpho\Core;
 
-interface IResponse extends IMessage {
-    public function setBody(string $body): void;
+interface IMessage {
+    /**
+     * Sets internal params, should not contain user input.
+     * @param \ArrayObject|array $params
+     */
+    public function setParams($params): void;
 
-    public function body(): string;
-
-    public function isBodyEmpty(): bool;
-
-    public function send(): void;
+    public function params(): \ArrayObject;
 }

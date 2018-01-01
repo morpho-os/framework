@@ -6,15 +6,11 @@
  */
 namespace Morpho\Core;
 
-class Response implements IResponse {
+class Response extends Message implements IResponse {
     /**
      * @var string
      */
     protected $body = '';
-    /**
-     * @var ?ArrayObject
-     */
-    private $meta;
 
     public function setBody(string $body): void {
         $this->body = $body;
@@ -30,13 +26,6 @@ class Response implements IResponse {
 
     public function send(): void {
         $this->sendBody();
-    }
-
-    public function meta(): \ArrayObject {
-        if (null === $this->meta) {
-            $this->meta = new \ArrayObject();
-        }
-        return $this->meta;
     }
 
     protected function sendBody(): void {

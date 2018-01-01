@@ -6,10 +6,13 @@
  */
 namespace MorphoTest\Unit\Core;
 
+use Morpho\Core\IMessage;
 use Morpho\Core\Response;
-use Morpho\Test\TestCase;
 
-class ResponseTest extends TestCase {
+class ResponseTest extends MessageTest {
+    /**
+     * @var Response
+     */
     private $response;
 
     public function setUp() {
@@ -17,18 +20,17 @@ class ResponseTest extends TestCase {
         $this->response = new Response();
     }
 
-    public function testMetaAccessors() {
-        $this->assertSame([], $this->response->meta()->getArrayCopy());
-        $this->response->meta()['foo'] = 'bar';
-        $this->assertSame('bar', $this->response->meta()['foo']);
-    }
-
     public function testBodyAccessors() {
         $this->assertTrue($this->response->isBodyEmpty());
         $this->assertSame('', $this->response->body());
         $newBody = 'foo';
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->response->setBody($newBody));
         $this->assertSame($newBody, $this->response->body());
         $this->assertFalse($this->response->isBodyEmpty());
+    }
+
+    protected function newMessage(): IMessage {
+        return clone $this->response;
     }
 }

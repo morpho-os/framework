@@ -6,7 +6,6 @@
  */
 namespace MorphoTest\Unit\Core {
 
-    use Morpho\Ioc\IServiceManager;
     use Morpho\Test\TestCase;
     use MorphoTest\Unit\Core\ApplicationTest\App;
 
@@ -22,23 +21,6 @@ namespace MorphoTest\Unit\Core {
             $newConfig = new \ArrayObject(['color' => 'orange']);
             $this->assertNull($app->setConfig($newConfig));
             $this->assertSame($newConfig, $app->config());
-        }
-
-        public function testGet_DelegatesToCustomServiceManagerIfItWasSet() {
-            $app = new App();
-            $serviceManager = $this->createMock(IServiceManager::class);
-            $val = new \stdClass();
-            $serviceManager->expects($this->once())
-                ->method('get')
-                ->with('foo')
-                ->willReturn($val);
-            $app->setServiceManager($serviceManager);
-            $this->assertSame($val, $app->get('foo'));
-        }
-
-        public function testGet_DelegatesToDefaultServiceManagerIfItWasNotSet() {
-            $app = new App();
-            $this->assertSame('bar', $app->get('foo'));
         }
     }
 }

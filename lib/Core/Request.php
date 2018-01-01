@@ -6,7 +6,7 @@
  */
 namespace Morpho\Core;
 
-abstract class Request {
+abstract class Request extends Message {
     /**
      * @var ?string
      */
@@ -21,11 +21,6 @@ abstract class Request {
      * @var ?string
      */
     protected $actionName;
-
-    /**
-     * @var ?ArrayObject
-     */
-    protected $params;
 
     /**
      * @var bool
@@ -76,28 +71,6 @@ abstract class Request {
 
     public function actionName(): ?string {
         return $this->actionName;
-    }
-
-    /**
-     * Sets internal params, should not contain user input.
-     * @param \ArrayObject|array $params
-     */
-    public function setParams($params): void {
-        if (is_array($params)) {
-            $this->params = new \ArrayObject($params);
-        } else {
-            $this->params = $params;
-        }
-    }
-
-    /**
-     * Returns storage for internal params.
-     */
-    public function params(): \ArrayObject {
-        if (null === $this->params) {
-            $this->params = new \ArrayObject();
-        }
-        return $this->params;
     }
 
     public function setResponse($response): void {

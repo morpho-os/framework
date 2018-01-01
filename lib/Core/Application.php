@@ -34,24 +34,15 @@ abstract class Application implements IHasServiceManager {
     }
 
     /**
-     * @return mixed
-     */
-    public function get(string $serviceId) {
-        if (null === $this->serviceManager) {
-            $this->init();
-        }
-        return $this->serviceManager->get($serviceId);
-    }
-
-    /**
      * @return bool|IResponse
      */
     public function run() {
         try {
             $serviceManager = ErrorHandler::trackErrors(function () {
                 $this->init();
-                return $this->serviceManager;
+                return $this->serviceManager();
             });
+            /** @var Request $request */
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
             $serviceManager->get('dispatcher')->dispatch($request);
@@ -64,12 +55,23 @@ abstract class Application implements IHasServiceManager {
         }
     }
 
+    public function init(): void {
+    }
+
     public function setConfig(\ArrayObject $config): void {
         $this->config = $config;
     }
 
     public function config(): \ArrayObject {
         return $this->config;
+    }
+
+    public function serviceManager(): IServiceManager {
+        if (null === $this->serviceManager) {
+            // Already initialized
+            $this->serviceManager = $this->newServiceManager();
+        }
+        return $this->serviceManager;
     }
 
     protected function handleError(\Throwable $e, ?IServiceManager $serviceManager): void {
@@ -99,11 +101,4 @@ abstract class Application implements IHasServiceManager {
     abstract protected function showError(\Throwable $e): void;
 
     abstract protected function newServiceManager(): IServiceManager;
-
-    protected function init(): void {
-        if (null === $this->serviceManager) {
-            // Already initialized
-            $this->serviceManager = $this->newServiceManager();
-        }
-    }
 }

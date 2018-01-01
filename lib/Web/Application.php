@@ -11,6 +11,12 @@ use Morpho\Core\Application as BaseApplication;
 use Morpho\Web\View\Html;
 
 class Application extends BaseApplication {
+    public function init(): void {
+        $serviceManager = $this->serviceManager();
+        $serviceManager->get('environment')->init();
+        $serviceManager->get('errorHandler')->register();
+    }
+
     protected function newServiceManager(): IServiceManager {
         $appConfig = $this->config;
 
@@ -50,9 +56,6 @@ class Application extends BaseApplication {
         $serviceManager = $factory->newServiceManager($services);
 
         $serviceManager->setConfig($siteConfig['services']);
-
-        $serviceManager->get('environment')->init();
-        $serviceManager->get('errorHandler')->register();
 
         return $serviceManager;
     }
@@ -94,6 +97,6 @@ class Application extends BaseApplication {
             //ob_end_flush();
             \ob_end_clean();
         }
-        die(Html::encode($message) . '.');
+        echo Html::encode($message) . '.';
     }
 }

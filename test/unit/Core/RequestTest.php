@@ -6,26 +6,24 @@
  */
 namespace MorphoTest\Unit\Core;
 
-use Morpho\Cli\Request;
-use Morpho\Test\TestCase;
+use Morpho\Base\NotImplementedException;
+use Morpho\Core\IResponse;
+use Morpho\Core\Request;
+use Morpho\Core\IMessage;
 
-class RequestTest extends TestCase {
-    public function testParams() {
-        $request = new Request();
+class RequestTest extends MessageTest {
+    private $request;
 
-        $params = $request->params();
-        $this->assertInstanceOf(\ArrayObject::class, $params);
-        $params['foo'] = 'bar';
-        $this->assertSame(['foo' => 'bar'], $request->params()->getArrayCopy());
+    public function setUp() {
+        parent::setUp();
+        $this->request = new class extends Request {
+            protected function newResponse(): IResponse {
+                throw new NotImplementedException(__METHOD__);
+            }
+        };
+    }
 
-        $newParams = new \ArrayObject(['test' => '123']);
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($request->setParams($newParams));
-        $this->assertSame($newParams, $request->params());
-
-        $newParams = ['hello' => 456];
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($request->setParams($newParams));
-        $this->assertSame($newParams, $request->params()->getArrayCopy());
+    protected function newMessage(): IMessage {
+        return clone $this->request;
     }
 }
