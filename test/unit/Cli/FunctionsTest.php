@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidOptionsException;
 use function Morpho\Cli\{
-    argsString, shell, escapeArgs, proc, showOk, stylize
+    argsStr, shell, escapeArgs, proc, showOk, stylize
 };
 use Morpho\Cli\ProcCommandResult;
 use Morpho\Test\TestCase;
@@ -71,14 +71,14 @@ OUT
         );
     }
 
-    public function testArgsString() {
-        $this->assertEquals(" 'foo'", argsString('foo'));
-        $this->assertEquals(" 'foo' 'bar'", argsString(['foo', 'bar']));
+    public function testArgsStr() {
+        $this->assertEquals(" 'foo'", argsStr('foo'));
+        $this->assertEquals(" 'foo' 'bar'", argsStr(['foo', 'bar']));
         $gen = function () {
             yield 'foo';
             yield 'bar';
         };
-        $this->assertEquals(" 'foo' 'bar'", argsString($gen()));
+        $this->assertEquals(" 'foo' 'bar'", argsStr($gen()));
     }
 
     public function testShell_ThrowsExceptionOnInvalidOption() {

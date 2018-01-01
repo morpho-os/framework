@@ -94,7 +94,7 @@ function escapeArgs(iterable $args): array {
     return $res;
 }
 
-function argsString($args): string {
+function argsStr($args): string {
     if (!is_array($args)) {
         if (!$args instanceof \Traversable) {
             $args = (array)$args;
