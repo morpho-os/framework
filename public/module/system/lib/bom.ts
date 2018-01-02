@@ -51,7 +51,8 @@ export function showUnknownError(message?: string): void {
 }
 
 export function redirectToSelf(): void {
-    redirectTo(window.location.href);
+    //redirectTo(window.location.href);
+    window.location.reload();
 }
 
 export function redirectToHome(): void {
