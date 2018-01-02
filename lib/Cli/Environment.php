@@ -9,8 +9,8 @@ namespace Morpho\Cli;
 use Morpho\Base\Environment as BaseEnvironment;
 
 class Environment extends BaseEnvironment {
-    protected function _init(): void {
-        parent::_init();
+    public static function init(): void {
+        parent::init();
         $_SERVER += [
             'HTTP_HOST'       => 'localhost',
             'SCRIPT_NAME'     => null,

@@ -9,21 +9,12 @@ namespace Morpho\Core;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
-use Zend\Stdlib\ArrayUtils;
 
 class ModuleMetaProvider implements \IteratorAggregate {
     /**
      * @var string
      */
-    protected $baseDirPath;
-    /**
-     * @var array
-     */
-    protected $enabledModules;
-    /**
-     * @var array
-     */
-    protected $metaPatch;
+    private $baseDirPath;
 
     public function __construct(IServiceManager $serviceManager) {
         $this->init($serviceManager);
@@ -35,38 +26,13 @@ class ModuleMetaProvider implements \IteratorAggregate {
             if (!is_file($metaFilePath)) {
                 continue;
             }
-            $classLoaderMeta = File::readJson($metaFilePath);
-            if (!isset($classLoaderMeta['name'])) {
-                continue;
-            }
-            $moduleName = $classLoaderMeta['name'];
-            if (!$this->filter($moduleName)) {
-                continue;
-            }
-            $namespace = isset($classLoaderMeta['autoload']['psr-4']) ? rtrim(key($classLoaderMeta['autoload']['psr-4']), '\\') : false;
-            if (!$namespace) {
-                continue;
-            }
-            $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
-            if (!is_file($autoloadFilePath)) {
-                continue;
-            }
-            require_once $autoloadFilePath;
-            $class1 = $namespace . '\\' . basename(MODULE_CLASS_FILE_NAME, '.php');
-            if ($class1 && class_exists($class1)) {
-                $class = $class1;
-            } else {
-                $class = Module::class;
-            }
-            $moduleMeta = [
-                'name' => $moduleName,
-                'paths' => [
-                    'dirPath' => $moduleDirPath,
-                    'viewDirPath' => $moduleDirPath . '/' . VIEW_DIR_NAME,
-                ],
-                'namespace' => $namespace,
-                'class'     => $class,
+            $moduleMeta = File::readJson($metaFilePath);
+            $moduleMeta['paths'] = [
+                'dirPath' => $moduleDirPath,
             ];
+            if (!$this->filter($moduleMeta)) {
+                continue;
+            }
             yield $this->map($moduleMeta);
         }
     }
@@ -75,16 +41,34 @@ class ModuleMetaProvider implements \IteratorAggregate {
         return Directory::dirPaths($this->baseDirPath . '/' . MODULE_DIR_NAME, null, ['recursive' => false]);
     }
 
-    protected function filter(string $moduleName): bool {
-        return isset($this->enabledModules[$moduleName]);
+    protected function filter(array $moduleMeta): bool {
+        if (!isset($moduleMeta['name'])) {
+            return false;
+        }
+        $autoloadFilePath = $moduleMeta['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+        return is_file($autoloadFilePath);
     }
 
     protected function map(array $moduleMeta): array {
-        $moduleName = $moduleMeta['name'];
-        $moduleMeta['weight'] = $this->enabledModules[$moduleName];
-        if (isset($this->metaPatch[$moduleName])) {
-            $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
+        $class = Module::class;
+        if (isset($moduleMeta['extra'])) {
+            foreach ($moduleMeta['extra'] as $key => $value) {
+                if ($key === VENDOR . '/module') {
+                    $class = $value;
+                    break;
+                }
+            }
         }
+        $moduleName = $moduleMeta['name'];
+        $moduleMeta = [
+            'name' => $moduleName,
+            'paths' => $moduleMeta['paths'],
+            'class' => $class,
+        ];
+        //$moduleMeta['weight'] = $this->enabledModules[$moduleName] ?? 0;
+/*        if (isset($this->metaPatch[$moduleName])) {
+            $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
+        }*/
         return $moduleMeta;
     }
 

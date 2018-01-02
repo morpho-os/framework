@@ -52,9 +52,7 @@ class ApplicationTest extends TestCase {
                 'umask' => $newUmask,
             ]
         );
-        $application = $this->newConfiguredApplication($siteConfig);
-
-        $application->run();
+        $this->newConfiguredApplication($siteConfig);
 
         $this->assertSame($newUmask, umask());
     }
@@ -83,9 +81,7 @@ class ApplicationTest extends TestCase {
             ]
         );
 
-        $application = $this->newConfiguredApplication($siteConfig);
-
-        $application->run();
+        $this->newConfiguredApplication($siteConfig);
 
         $this->assertSame($timeZone, ini_get('date.timezone'));
     }
@@ -105,11 +101,11 @@ class ApplicationTest extends TestCase {
         $serviceManager->expects($this->any())
             ->method('get')
             ->will($this->returnCallback(function ($id) {
-                if ($id === 'environment') {
-                    return new class { public function init() {} };
-                }
                 if ($id === 'errorHandler') {
-                    return new class { public function register() {} };
+                    return new class {
+                        public function register() {
+                        }
+                    };
                 }
                 throw new \UnexpectedValueException($id);
             }));
@@ -122,11 +118,7 @@ class ApplicationTest extends TestCase {
                 'newServiceManager' => $serviceManager,
             ]),
         ]);
-        $application = new class ($appConfig) extends Application {
-            public function run() {
-                $this->init();
-            }
-        };
+        $application = new Application($appConfig);
         return $application;
     }
 }

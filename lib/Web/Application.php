@@ -11,9 +11,9 @@ use Morpho\Core\Application as BaseApplication;
 use Morpho\Web\View\Html;
 
 class Application extends BaseApplication {
-    public function init(): void {
+    protected function init(): void {
+        Environment::init();
         $serviceManager = $this->serviceManager();
-        $serviceManager->get('environment')->init();
         $serviceManager->get('errorHandler')->register();
     }
 

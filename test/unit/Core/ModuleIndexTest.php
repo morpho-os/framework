@@ -45,6 +45,17 @@ class ModuleIndexTest extends TestCase {
 
         $moduleIndex->moduleMeta('galaxy/invalid');
     }
+    
+    public function testIter() {
+        $moduleIndex = $this->newModuleIndex($this->newModuleIndexer());
+        $this->assertInstanceOf(\Traversable::class, $moduleIndex);
+        $i = 0;
+        foreach ($moduleIndex as $moduleName) {
+            $this->assertTrue(in_array($moduleName, ['galaxy/neptune', 'galaxy/mars'], true));
+            $i++;
+        }
+        $this->assertSame(2, $i);
+    }
 
     private function newModuleIndex($moduleIndexer) {
         return new class ($moduleIndexer) extends ModuleIndex {

@@ -19,6 +19,10 @@ abstract class Application extends BaseApplication {
         return $response->params()['exitCode'] ?? Environment::SUCCESS_CODE;
     }
 
+    protected function init(): void {
+        Environment::init();
+    }
+
     protected function showError(\Throwable $e): void {
         errorLn((string) $e);
     }

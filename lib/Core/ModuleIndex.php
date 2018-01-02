@@ -9,7 +9,7 @@ namespace Morpho\Core;
 /**
  * Index of all known modules.
  */
-class ModuleIndex {
+class ModuleIndex implements \IteratorAggregate {
     private $index;
     private $indexer;
     private $loaded;
@@ -51,6 +51,13 @@ class ModuleIndex {
     private function init(): void {
         if (null === $this->index) {
             $this->index = $this->indexer->index();
+        }
+    }
+
+    public function getIterator() {
+        $this->init();
+        foreach ($this->index as $moduleName => $_) {
+            yield $moduleName;
         }
     }
 }

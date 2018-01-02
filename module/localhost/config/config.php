@@ -73,6 +73,9 @@ return [
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
     'iniSettings' => [
+        //'display_errors' => '1',
+        //'date.timezone' => 'UTC',
+        //'default_charset' => 'UTF-8',
         'session' => [
             // The commented out settings contain default values from the PHP manual: https://php.net/manual/en/session.configuration.php. The session.upload* settings have not been included here. Settings without comments are fixes for those settings for which it makes sense.
             /*

@@ -10,10 +10,6 @@ use Monolog\Logger;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
-    protected function newEnvironmentService() {
-        return new Environment();
-    }
-
     protected function newErrorLoggerService() {
         $logger = new Logger('error');
         return $logger;

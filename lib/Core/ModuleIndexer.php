@@ -15,9 +15,9 @@ class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
     private $cacheKey;
     private $serviceManager;
 
-    public function __construct(ICache $cache) {
+    public function __construct(ICache $cache, string $cacheKey = null) {
         $this->cache = $cache;
-        $this->cacheKey = __METHOD__;
+        $this->cacheKey = $cacheKey ?? get_class($this) . '::' . __FUNCTION__;
     }
 
     /**

@@ -29,10 +29,8 @@ use Morpho\Web\Uri\UriChecker;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Web\View\RendererFactory;
 use Morpho\Web\View\ScriptProcessor;
 use Morpho\Web\View\UriProcessor;
-use function Morpho\Code\composerAutoloader;
 use Morpho\Web\View\Theme;
 
 class ServiceManager extends BaseServiceManager {
@@ -61,10 +59,6 @@ class ServiceManager extends BaseServiceManager {
         return new Request(null, new UriChecker($this));
     }
 
-    protected function newEnvironmentService() {
-        return new Environment();
-    }
-    
     protected function newDebugLoggerService() {
         $logger = new Logger('debug');
         $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
@@ -92,9 +86,9 @@ class ServiceManager extends BaseServiceManager {
         return $templateEngine;
     }
 
-    protected function newAutoloaderService() {
+/*    protected function newAutoloaderService() {
         return composerAutoloader();
-    }
+    }*/
 
     protected function newMessengerService() {
         return new Messenger();

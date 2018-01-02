@@ -22,6 +22,7 @@ abstract class Application implements IHasServiceManager {
 
     public function __construct(\ArrayObject $config = null) {
         $this->setConfig($config ?: $this->newConfig());
+        $this->init();
     }
 
     public static function main(\ArrayObject $config = null) {
@@ -38,10 +39,7 @@ abstract class Application implements IHasServiceManager {
      */
     public function run() {
         try {
-            $serviceManager = ErrorHandler::trackErrors(function () {
-                $this->init();
-                return $this->serviceManager();
-            });
+            $serviceManager = $this->serviceManager();
             /** @var Request $request */
             $request = $serviceManager->get('request');
             $serviceManager->get('router')->route($request);
@@ -53,9 +51,6 @@ abstract class Application implements IHasServiceManager {
             $this->handleError($e, $serviceManager ?? null);
             return false;
         }
-    }
-
-    public function init(): void {
     }
 
     public function setConfig(\ArrayObject $config): void {
@@ -72,6 +67,9 @@ abstract class Application implements IHasServiceManager {
             $this->serviceManager = $this->newServiceManager();
         }
         return $this->serviceManager;
+    }
+
+    protected function init(): void {
     }
 
     protected function handleError(\Throwable $e, ?IServiceManager $serviceManager): void {

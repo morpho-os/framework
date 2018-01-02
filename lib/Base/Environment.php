@@ -15,8 +15,6 @@ abstract class Environment {
     public const SUCCESS_CODE = 0;
     public const FAILURE_CODE = 1;
 
-    protected static $initialized = false;
-
     public static function isXdebugEnabled(): bool {
         return self::boolIniVal('xdebug.default_enable');
     }
@@ -83,17 +81,6 @@ abstract class Environment {
         return Path::normalize(sys_get_temp_dir());
     }
 
-    public function init(): void {
-        if (static::$initialized) {
-            return;
-        }
-
-        //if (PHP_VERSION_ID < 70000) {
-        $this->_init();
-
-        static::$initialized = true;
-    }
-
     public static function enableExpectations(): void {
         // http://php.net/assert#function.assert.expectations
         Must::beTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini option must be set to 1 for expectations");
@@ -101,7 +88,7 @@ abstract class Environment {
         ini_set('assert.exception', 1);
     }
 
-    protected function _init(): void {
+    public static function init(): void {
         error_reporting(E_ALL | E_STRICT);
         ini_set('display_errors', '0');
         ini_set('date.timezone', self::TIMEZONE);

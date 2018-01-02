@@ -60,8 +60,8 @@ class Environment extends BaseEnvironment {
         return $asBytes ? $maxSize : $maxSizeIni;
     }
 
-    protected function _init(): void {
-        parent::_init();
+    public static function init(): void {
+        parent::init();
         $_SERVER['HTTP_REFERER'] = self::httpReferrer();
         $_SERVER['SERVER_PROTOCOL'] = self::httpVersion();
         $_SERVER['HTTP_HOST'] = self::httpHost();
