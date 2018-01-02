@@ -22,6 +22,7 @@ mtest:
 utest:
 	bin/test test/unit/TestSuite.php
 
+clear:
 clean:
 	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/functional/*.log
 
