@@ -147,7 +147,7 @@ class Debugger {
     public function varToStr($var, bool $fixOutput = true): string {
         $output = trim(capture(function () use ($var) {
             if ($var instanceof \Generator) {
-                var_dump("\\Generator which yields the values: " . $this->describeGen($var), true);
+                var_dump("\\Generator which yields the values: " . $this->describeGen($var));
             } else {
                 var_dump($var);
             }
