@@ -7,7 +7,6 @@
 namespace Morpho\Web\View;
 
 use Morpho\Base\EmptyPropertyException;
-use Morpho\Base\ItemNotSetException;
 use Morpho\Base\Pipe;
 use Morpho\Fs\File;
 
@@ -80,7 +79,7 @@ class TemplateEngine extends Pipe {
 
     public function __get(string $varName) {
         if (!isset($this->vars[$varName])) {
-            throw new ItemNotSetException("The template variable '$varName' was not set.");
+            throw new \RuntimeException("The template variable '$varName' was not set.");
         }
         return $this->vars[$varName];
     }

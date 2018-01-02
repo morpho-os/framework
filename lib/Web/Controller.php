@@ -8,12 +8,13 @@ namespace Morpho\Web;
 
 use function Morpho\Base\dasherize;
 use Morpho\Base\IFn;
+use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Session\Session;
-use Morpho\Core\Node;
 use Morpho\Web\View\Page;
 
-class Controller extends Node implements IFn {
+class Controller implements IFn, IHasServiceManager {
     /**
      * @var \Morpho\Ioc\IServiceManager
      */
@@ -52,12 +53,8 @@ class Controller extends Node implements IFn {
         $request->params()['page'] = $page;
     }
 
-    public function setRequest(Request $request): void {
-        $this->request = $request;
-    }
-
-    public function request(): ?Request {
-        return $this->request;
+    public function setServiceManager(IServiceManager $serviceManager): void {
+        $this->serviceManager = $serviceManager;
     }
 
     /**
@@ -76,17 +73,15 @@ class Controller extends Node implements IFn {
         return $this->serviceManager->get('messenger');
     }
 
-    protected function forward(string $action, string $controller = null, string $module = null, array $routingParams = null): void {
+    protected function forward(string $actionName, string $controllerName = null, string $moduleName = null, array $routingParams = null): void {
         $request = $this->request;
-
-        if (null === $module) {
-            $module = $this->parent()->name();
+        if (null !== $moduleName) {
+            $request->setModuleName($moduleName);
         }
-        if (null === $controller) {
-            $controller = $this->name();
+        if (null !== $controllerName) {
+            $request->setControllerName($controllerName);
         }
-
-        $request->setHandler([$module, $controller, $action]);
+        $request->setActionName($actionName);
 
         if (null !== $routingParams) {
             $request->params()['routing'] = $routingParams;
@@ -124,7 +119,7 @@ class Controller extends Node implements IFn {
         return new Session(get_class($this) . ($key ?: ''));
     }
 
-    public function args($name = null, bool $trim = true) {
+    protected function args($name = null, bool $trim = true) {
         return $this->request->args($name, $trim);
     }
 

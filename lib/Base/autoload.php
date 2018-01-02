@@ -519,7 +519,10 @@ function compose(callable $f, callable $g): Closure {
 /**
  * @return mixed
  */
-function requireFile(string $__filePath) {
+function requireFile(string $__filePath, bool $__once = false) {
+    if ($__once) {
+        return require_once $__filePath;
+    }
     return require $__filePath;
 }
 

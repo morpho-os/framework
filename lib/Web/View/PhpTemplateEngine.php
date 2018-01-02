@@ -7,24 +7,32 @@
 namespace Morpho\Web\View;
 
 use function Morpho\Base\{
-    classify, dasherize, last
+    dasherize, last
 };
-use Morpho\Base\EmptyValueException;
 use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
-use Morpho\Web\Controller;
 use function Morpho\Web\prependBasePath;
+use Morpho\Web\Request;
 use Morpho\Web\Uri\Uri;
 
 class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
+    /**
+     * @var IServiceManager
+     */
     protected $serviceManager;
     
     private $uri;
 
+    /**
+     * @var Request
+     */
     private $request;
 
-    private $plugins;
+    /**
+     * @var array
+     */
+    private $plugins = [];
 
     private const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
 
@@ -42,34 +50,20 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
             . '-' . dasherize($this->actionName());
     }
 
-    public function controller(): Controller {
-        [$moduleName, $controllerName, ] = $this->request()->handler();
-        $module = $this->serviceManager->get('moduleProvider')->offsetGet($moduleName);
-        return $module->offsetGet($controllerName);
+    public function handler(): callable {
+        return $this->request()->params()['handlerFn'];
     }
 
-    public function moduleName(): string {
-        $moduleName = $this->request()->moduleName();
-        if (empty($moduleName)) {
-            throw new EmptyValueException();
-        }
-        return $moduleName;
+    public function moduleName(): ?string {
+        return $this->request()->moduleName();
     }
 
-    public function controllerName(): string {
-        $controllerName = $this->request()->controllerName();
-        if (empty($controllerName)) {
-            throw new EmptyValueException();
-        }
-        return $controllerName;
+    public function controllerName(): ?string {
+        return $this->request()->controllerName();
     }
 
-    public function actionName(): string {
-        $actionName = $this->request()->actionName();
-        if (empty($actionName)) {
-            throw new EmptyValueException();
-        }
-        return $actionName;
+    public function actionName(): ?string {
+        return $this->request()->actionName();
     }
 
 /*    public function isUserLoggedIn(): bool {
@@ -125,28 +119,29 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     }
 
     protected function newPlugin(string $name) {
+        $moduleName = $this->request()->moduleName();
+
         $serviceManager = $this->serviceManager;
-        $module = $serviceManager->get('moduleProvider')->offsetGet($this->moduleName());
-        $class = $module->namespace()
-            . '\\' . classify(self::controllerName())
-            . '\\View'
-            . '\\' . $name . self::PLUGIN_SUFFIX;
-        if (!class_exists($class)) {
-            $class1 = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
-            if (!class_exists($class1)) {
-                throw new \RuntimeException("Unable to find either '$class' or '$class1' plugin class");
+        $moduleMeta = $serviceManager->get('moduleIndex')->moduleMeta($moduleName);
+        $instanceProvider = $serviceManager->get('instanceProvider');
+        $classFilePath = $instanceProvider->classFilePath($moduleMeta, 'Web\\View\\' . $name . self::PLUGIN_SUFFIX);
+        if (false === $classFilePath) {
+            $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
+            if (!class_exists($class)) {
+                throw new \RuntimeException("Unable to find the plugin '$name'");
             }
-            $plugin = new $class1();
         } else {
-            $plugin = new $class();
+            require_once $classFilePath[1];
+            $class = $classFilePath[0];
         }
+        $plugin = new $class();
         if ($plugin instanceof IHasServiceManager) {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;
     }
 
-    protected function request() {
+    protected function request(): Request {
         if (null === $this->request) {
             $this->request = $this->serviceManager->get('request');
         }

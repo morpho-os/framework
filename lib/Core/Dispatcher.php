@@ -8,7 +8,6 @@ namespace Morpho\Core;
 
 use Morpho\Base\Event;
 use Morpho\Base\IEventManager;
-use Morpho\Base\IFn;
 
 abstract class Dispatcher {
     /**
@@ -19,15 +18,15 @@ abstract class Dispatcher {
     /**
      * @var \ArrayObject
      */
-    protected $moduleProvider;
+    protected $handlerProvider;
 
     /**
      * @var IEventManager
      */
     private $eventManager;
 
-    public function __construct(\ArrayObject $moduleProvider, IEventManager $eventManager) {
-        $this->moduleProvider = $moduleProvider;
+    public function __construct(callable $handlerProvider, IEventManager $eventManager) {
+        $this->handlerProvider = $handlerProvider;
         $this->eventManager = $eventManager;
     }
 
@@ -35,19 +34,18 @@ abstract class Dispatcher {
         $i = 0;
         do {
             if ($i >= $this->maxNoOfDispatchIterations) {
-                throw new \RuntimeException("Dispatch loop has occurred {$this->maxNoOfDispatchIterations} times");
+                throw new \RuntimeException("Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times");
             }
             try {
                 $request->isDispatched(true);
 
                 $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));
 
-                [$moduleName, $controllerName, $actionName] = $request->handler();
-                if (empty($moduleName) || empty($controllerName) || empty($actionName)) {
-                    $this->throwNotFoundError($moduleName, $controllerName, $actionName);
+                $handler = ($this->handlerProvider)($request);
+                if (false === $handler) {
+                    $this->throwNotFoundError($request);
                 }
-                $handler = $this->handler($moduleName, $controllerName, $actionName);
-                $handler->__invoke($request);
+                $handler($request);
 
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
             } catch (\Throwable $e) {
@@ -65,10 +63,8 @@ abstract class Dispatcher {
         return $this->maxNoOfDispatchIterations;
     }
 
-    protected function handler(?string $moduleName, ?string $controllerName, ?string $actionName): IFn {
-        $module = $this->moduleProvider->offsetGet($moduleName);
-        return $module->offsetGet($controllerName);
-    }
-
-    abstract protected function throwNotFoundError(?string $moduleName, ?string $controllerName, ?string $actionName): void;
+    /**
+     * @throws \RuntimeException
+     */
+    abstract protected function throwNotFoundError(Request $request): void;
 }

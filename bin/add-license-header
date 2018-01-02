@@ -13,8 +13,8 @@ if (posix_isatty(STDOUT)) {
     $process = !$res->isError();
 }
 
-function processNonPhpFile(string $filePath) {
-    //d('@TODO');
+function processNonPhpFile(string $filePath): void {
+    var_dump($filePath);
 }
 
 function processPhpFile(string $filePath): void {
@@ -24,6 +24,10 @@ function processPhpFile(string $filePath): void {
     $code = $declareStmtManager->removeDeclareStmt($code);
     $code = $declareStmtManager->addDeclareStmt($code, DeclareStmtManager::AT_FIRST_LINE);
     file_put_contents($filePath, $code);
+}
+
+function processPhtmlFile(string $filePath): void {
+    var_dump($filePath);
 }
 /*
 class AddLicenseCommand {
@@ -65,18 +69,16 @@ function process() {
     foreach (new FilesIter($baseDirPath) as $filePath) {
         if (endsWith($filePath, '.js') || endsWith($filePath, '.ts') || endsWith($filePath, '.css') || endsWith($filePath, '.styl')) {
             processNonPhpFile($filePath);
-        } else {
+        } elseif (endsWith($filePath, '.phtml')) {
+            processPhtmlFile($filePath);
+        } elseif (endsWith($filePath, '.php')) {
             processPhpFile($filePath);
+        } else {
+            throw new \UnexpectedValueException($filePath);
         }
-
     }
 }
 
 if ($process) {
     process();
 }
-
-/*if ($add) {
-    (new AddLicenseCommand())(__DIR__ . '/..');
-    (new AddDeclareStmtComand())(__DIR__ . '/..');
-}*/

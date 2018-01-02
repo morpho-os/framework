@@ -25,13 +25,13 @@ const VIEW_DIR_NAME = 'view';
 const AUTOLOAD_FILE_NAME = 'autoload.php';
 const CONFIG_FILE_NAME = 'config.php';
 const META_FILE_NAME = 'composer.json';
-const MODULE_CLASS_FILE_NAME = 'Module.php';
+//const MODULE_CLASS_FILE_NAME = 'Module.php';
 
 const DOMAIN_NS = 'Domain';
 
 const ACTION_SUFFIX = 'Action';
 const CONTROLLER_SUFFIX = 'Controller';
-const MODULE_SUFFIX = 'Module';
+//const MODULE_SUFFIX = 'Module';
 const PLUGIN_SUFFIX = 'Plugin';
 const REPO_SUFFIX = 'Repo';
 

@@ -6,28 +6,30 @@
  */
 namespace Morpho\DataProcessing\Pagination;
 
-use Morpho\Base\Node;
-use function Morpho\Base\uniqueName;
-
-class Pager extends Node {
+class Pager implements \Iterator, \Countable {
     protected $items = [];
 
+    /**
+     * @var int
+     */
     protected $pageSize = 20;
 
+    /**
+     * @var int
+     */
     protected $currentPageNumber = 1;
 
+    /**
+     * @var bool
+     */
     private $isValid = false;
 
+    /**
+     * @var ?int
+     */
     private $totalItemsCount;
 
-    public function name(): string {
-        if (null === $this->name) {
-            $this->name = uniqueName();
-        }
-        return $this->name;
-    }
-
-    public function setCurrentPageNumber($pageNumber) {
+    public function setCurrentPageNumber(int $pageNumber): void {
         $pageNumber = intval($pageNumber);
         $totalPagesCount = $this->totalPagesCount();
         if ($pageNumber > $totalPagesCount) {
@@ -36,43 +38,35 @@ class Pager extends Node {
             $pageNumber = 1;
         }
         $this->currentPageNumber = $pageNumber;
-        return $this;
     }
 
-    public function currentPageNumber() {
+    public function currentPageNumber(): int {
         return $this->currentPageNumber;
     }
 
-    public function setItems(array $items) {
+    public function setItems(array $items): void {
         $this->items = $items;
         $this->totalItemsCount = null;
-
-        return $this;
     }
 
-    public function totalPagesCount() {
+    public function totalPagesCount(): int {
         return (int)ceil($this->totalItemsCount() / $this->pageSize());
     }
 
-    public function setPageSize($pageSize) {
+    public function setPageSize(int $pageSize): void {
         $this->pageSize = max(intval($pageSize), 1);
         $this->totalItemsCount = null;
-
-        return $this;
     }
 
-    public function pageSize() {
+    public function pageSize(): int {
         return $this->pageSize;
     }
 
-    public function currentPage() {
+    public function currentPage(): iterable {
         return $this->page($this->currentPageNumber());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function page($pageNumber): iterable {
+    public function page(int $pageNumber): Page {
         $pageNumber = max(intval($pageNumber), 1);
         $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
@@ -84,11 +78,10 @@ class Pager extends Node {
         );
     }
 
-    public function totalItemsCount() {
+    public function totalItemsCount(): int {
         if (null === $this->totalItemsCount) {
             $this->totalItemsCount = $this->calculateTotalItemsCount();
         }
-
         return $this->totalItemsCount;
     }
 
@@ -97,10 +90,7 @@ class Pager extends Node {
         $this->setCurrentPageNumber(1);
     }
 
-    /**
-     * @return array
-     */
-    public function current() {
+    public function current(): Page {
         return $this->page($this->currentPageNumber());
     }
 
@@ -128,21 +118,18 @@ class Pager extends Node {
         return $this->totalPagesCount();
     }
 
-    protected function calculateTotalItemsCount() {
+    protected function calculateTotalItemsCount(): int {
         return count($this->items);
     }
 
     /**
      * Creates a new Page with $items.
      */
-    protected function newPage(array $items): iterable {
+    protected function newPage(array $items): Page {
         return new Page($items);
     }
 
-    /**
-     * @return array
-     */
-    protected function items($offset, $pageSize) {
+    protected function items(int $offset, int $pageSize): array {
         return array_slice($this->items, $offset, $pageSize);
     }
 }

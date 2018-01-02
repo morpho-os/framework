@@ -15,7 +15,7 @@ use Morpho\Web\Uri\Uri;
 
 class ControllerTest extends TestCase {
     public function testInterface() {
-        $this->assertInstanceOf(IFn::class, new Controller('foo'));
+        $this->assertInstanceOf(IFn::class, new Controller());
     }
 
     public function dataForRedirect_HasArgs() {
@@ -28,7 +28,7 @@ class ControllerTest extends TestCase {
      * @dataProvider dataForRedirect_HasArgs
      */
     public function testRedirect_HasArguments($statusCode) {
-        $controller = new MyController('foo');
+        $controller = new MyController();
         $controller->statusCode = $statusCode;
         $request = $this->newRequest();
         $uri = new Uri('http://localhost/base/path/some/module?foo=bar');
@@ -52,7 +52,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testRedirect_NoArgs() {
-        $controller = new MyController('foo');
+        $controller = new MyController();
         $request = $this->newRequest();
         $uriStr = 'http://localhost/base/path/some/module?foo=bar';
         $request->setUri(new Uri($uriStr));
@@ -73,9 +73,8 @@ class ControllerTest extends TestCase {
     }
 
     public function testForwardTo() {
-        $controller = new MyController('foo');
+        $controller = new MyController();
         $request = $this->newRequest();
-        $controller->setRequest($request);
 
         $actionName = 'forward-here';
         $controllerName = 'my-other';
@@ -94,7 +93,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testReturningResponseFromAction() {
-        $controller = new MyController('foo');
+        $controller = new MyController();
         $controller->returnResponse = $response = new Response();
         $response->setBody('foo');
         $request = $this->newRequest();
@@ -108,7 +107,7 @@ class ControllerTest extends TestCase {
     }
     
     public function testReturningArrayFromAction() {
-        $controller = new MyController('foo');
+        $controller = new MyController();
         $request = $this->newRequest();
         $request->setActionName('returnArray');
 
@@ -129,6 +128,7 @@ class ControllerTest extends TestCase {
 class MyController extends Controller {
     public $statusCode;
     public $forwardTo;
+    public $returnResponse;
 
     public function forwardAction() {
         $this->forward(...$this->forwardTo);

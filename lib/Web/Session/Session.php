@@ -6,8 +6,6 @@
  */
 namespace Morpho\Web\Session;
 
-use Morpho\Base\ItemNotSetException;
-
 class Session implements \Countable, \Iterator, \ArrayAccess {
     protected $storageKey;
 
@@ -40,7 +38,7 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         if (array_key_exists($name, $_SESSION[self::KEY][$this->storageKey])) {
             return $_SESSION[self::KEY][$this->storageKey][$name];
         }
-        throw new ItemNotSetException($name);
+        throw new \RuntimeException('The specified key has not been set');
     }
 
     public function __set($name, $value): void {

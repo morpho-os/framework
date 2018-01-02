@@ -42,7 +42,7 @@ class ModuleMetaProvider implements \IteratorAggregate {
     }
 
     protected function filter(array $moduleMeta): bool {
-        if (!isset($moduleMeta['name'])) {
+        if (!isset($moduleMeta['name']) || !isset($moduleMeta['autoload']['psr-4'])) {
             return false;
         }
         $autoloadFilePath = $moduleMeta['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
@@ -50,25 +50,17 @@ class ModuleMetaProvider implements \IteratorAggregate {
     }
 
     protected function map(array $moduleMeta): array {
-        $class = Module::class;
-        if (isset($moduleMeta['extra'])) {
-            foreach ($moduleMeta['extra'] as $key => $value) {
-                if ($key === VENDOR . '/module') {
-                    $class = $value;
-                    break;
-                }
-            }
+        $namespaces = [];
+        foreach ($moduleMeta['autoload']['psr-4'] as $key => $value) {
+            $namespaces[trim($key, '\\/')] = trim($value, '\\/');
         }
+
         $moduleName = $moduleMeta['name'];
         $moduleMeta = [
             'name' => $moduleName,
             'paths' => $moduleMeta['paths'],
-            'class' => $class,
+            'namespaces' => $namespaces,
         ];
-        //$moduleMeta['weight'] = $this->enabledModules[$moduleName] ?? 0;
-/*        if (isset($this->metaPatch[$moduleName])) {
-            $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
-        }*/
         return $moduleMeta;
     }
 

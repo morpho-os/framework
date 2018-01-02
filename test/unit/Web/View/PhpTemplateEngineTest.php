@@ -7,16 +7,16 @@
 namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Base\IFn;
-use Morpho\Base\ItemNotSetException;
-use Morpho\Core\Module;
-use Morpho\Core\ModuleProvider;
+use Morpho\Core\ModuleIndex;
+use Morpho\Core\ModuleMeta;
+use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Ioc\ServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Controller;
+use Morpho\Web\InstanceProvider;
 use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\ScriptProcessor;
 use Morpho\Web\View\UriProcessor;
-use Morpho\Web\View\MessengerPlugin;
 use Morpho\Web\View\PhpTemplateEngine;
 use Morpho\Web\View\Compiler;
 use Morpho\Web\Request;
@@ -68,7 +68,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testVar_ReadUndefinedVarThrowsException() {
-        $this->expectException(ItemNotSetException::class, "The template variable 'foo' was not set.");
+        $this->expectException(\RuntimeException::class, "The template variable 'foo' was not set");
         $this->templateEngine->foo;
     }
     
@@ -214,7 +214,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testRequire() {
-        $this->assertEquals("<h1>Hey! It is &quot;just quot&quot; works!</h1>", $this->templateEngine->renderFile($this->getTestDirPath() . '/require-test.phtml'));
+        $this->assertEquals("<h1>Hey! It is &quot;just quote&quot; works!</h1>", $this->templateEngine->renderFile($this->getTestDirPath() . '/require-test.phtml'));
     }
 
     public function testResolvesDirAndFileConstants() {
@@ -223,33 +223,53 @@ class PhpTemplateEngineTest extends TestCase {
     }
     
     public function testPlugin_ReturnsTheSamePluginInstance() {
-        $serviceManager = $this->newServiceManager();
-        $serviceManager->set('moduleProvider', new class (__CLASS__ . '\\Foo') {
-            private $ns;
+        $moduleName = 'foo/bar';
 
-            public function __construct($ns) {
-                $this->ns = $ns;
-            }
+        $request = $this->createMock(Request::class);
+        $request->expects($this->any())
+            ->method('moduleName')
+            ->willReturn($moduleName);
 
-            public function offsetGet() {
-                return new class ($this->ns) {
-                    private $ns;
+        $pluginName = 'Messenger';
 
-                    public function __construct($ns) {
-                        $this->ns = $ns;
-                    }
+        $moduleMeta = new ModuleMeta($moduleName, []);
 
-                    public function namespace(): string {
-                        return $this->ns;
-                    }
-                };
-            }
-        });
+        $pluginClass= __CLASS__ . '\\TestPlugin';
+        $classFilePath = [$pluginClass, $this->getTestDirPath() . '/TestPlugin.php'];
+
+        $instanceProvider = $this->createMock(InstanceProvider::class);
+        $instanceProvider->expects($this->any())
+            ->method('classFilePath')
+            ->with($this->identicalTo($moduleMeta), $this->identicalTo('Web\\View\\' . $pluginName . PLUGIN_SUFFIX))
+            ->willReturn($classFilePath);
+
+        $moduleIndex = $this->createMock(ModuleIndex::class);
+        $moduleIndex->expects($this->any())
+            ->method('moduleMeta')
+            ->with($moduleName)
+            ->willReturn($moduleMeta);
+
+        $serviceManager = $this->createMock(IServiceManager::class);
+        $serviceManager->expects($this->any())
+            ->method('get')
+            ->willReturnCallback(function ($id) use ($instanceProvider, $request, $moduleIndex) {
+                if ($id === 'request') {
+                    return $request;
+                }
+                if ($id === 'moduleIndex') {
+                    return $moduleIndex;
+                }
+                if ($id === 'instanceProvider') {
+                    return $instanceProvider;
+                }
+                throw new \UnexpectedValueException($id);
+            });
+
         $this->templateEngine->setServiceManager($serviceManager);
 
-        $pluginName = 'messenger';
         $plugin = $this->templateEngine->plugin($pluginName);
-        $this->assertInstanceOf(MessengerPlugin::class, $plugin);
+
+        $this->assertInstanceOf($pluginClass, $plugin);
         $this->assertSame($plugin, $this->templateEngine->plugin($pluginName));
     }
 
@@ -289,20 +309,25 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertSame($uri, $this->templateEngine->uri());
     }
 
-    public function testController() {
-        $request = $this->newRequest();
-        $moduleName = 'foo/bar';
-        $controllerName = 'News';
-        $request->setHandler([$moduleName, $controllerName, 'edit']);
-        $controller = $this->createMock(Controller::class);
-        $module = new \ArrayObject([$controllerName => $controller]);
-        $moduleProvider = new \ArrayObject([$moduleName => $module]);
-        $serviceManager = $this->newServiceManager([
-            'moduleProvider' => $moduleProvider,
-            'request' => $request,
-        ]);
+    public function testHandler() {
+        $handlerFn = function () {
+        };
+        $params = new \ArrayObject(['handlerFn' => $handlerFn]);
+
+        $request = $this->createMock(Request::class);
+        $request->expects($this->any())
+            ->method('params')
+            ->willReturn($params);
+
+        $serviceManager = $this->createMock(IServiceManager::class);
+        $serviceManager->expects($this->any())
+            ->method('get')
+            ->with('request')
+            ->willReturn($request);
+
         $this->templateEngine->setServiceManager($serviceManager);
-        $this->assertSame($controller, $this->templateEngine->controller());
+
+        $this->assertSame($handlerFn, $this->templateEngine->handler());
     }
 
     private function newServiceManager($services = null): ServiceManager {
@@ -340,3 +365,4 @@ class PhpTemplateEngineTest extends TestCase {
         );
     }
 }
+

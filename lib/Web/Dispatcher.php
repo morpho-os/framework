@@ -7,9 +7,11 @@
 namespace Morpho\Web;
 
 use Morpho\Core\Dispatcher as BaseDispatcher;
+use Morpho\Core\Request;
 
 class Dispatcher extends BaseDispatcher {
-    protected function throwNotFoundError(?string $moduleName, ?string $controllerName, ?string $actionName): void {
+    protected function throwNotFoundError(Request $request): void {
+        [$moduleName, $controllerName, $actionName] = $request->handler();
         $message = [];
         if (!$moduleName) {
             $message[] = 'module name is empty';

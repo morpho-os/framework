@@ -12,10 +12,13 @@ use Morpho\DataProcessing\Pagination\Pager;
 use Morpho\Test\TestCase;
 
 class PagerTest extends TestCase {
+    /**
+     * @var Pager
+     */
     private $pager;
 
     public function setUp() {
-        $this->pager = new Pager('foo');
+        $this->pager = new Pager();
     }
 
     public function testInterface() {
@@ -54,7 +57,7 @@ class PagerTest extends TestCase {
         $this->pager->setItems([]);
         $this->assertEquals(0, $this->pager->totalPagesCount());
 
-        $pager = new Pager('foo');
+        $pager = new Pager();
         $pager->setItems([]);
         $pager->setCurrentPageNumber(2);
         $this->assertEquals(0, $pager->totalPagesCount());
@@ -76,8 +79,8 @@ class PagerTest extends TestCase {
 
     public function testIterator() {
         $items = [1, 2, 3, 4, 5, 6, 7];
-        $this->pager->setItems($items)
-            ->setPageSize(2);
+        $this->pager->setItems($items);
+        $this->pager->setPageSize(2);
 
         $this->assertNull($this->pager->rewind());
 

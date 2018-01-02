@@ -18,7 +18,6 @@ use Morpho\Caching\VarExportFileCache;
 use Morpho\Core\IRouter;
 use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleIndexer;
-use Morpho\Core\ModuleProvider;
 use Morpho\Core\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
 use Morpho\Web\Logging\WebProcessor;
@@ -94,13 +93,13 @@ class ServiceManager extends BaseServiceManager {
         return new Messenger();
     }
 
-    protected function newModuleProviderService() {
-        return new ModuleProvider($this->get('moduleIndex'));
+    protected function newInstanceProviderService() {
+        return new InstanceProvider($this);
     }
 
     protected function newDispatcherService() {
         return new Dispatcher(
-            $this->get('moduleProvider'),
+            $this->get('instanceProvider'),
             $this->get('eventManager')
         );
     }

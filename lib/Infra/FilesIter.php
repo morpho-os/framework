@@ -6,8 +6,11 @@
  */
 namespace Morpho\Infra;
 
+use function Morpho\Base\filter;
 use Morpho\Fs\Directory;
-use const Morpho\Core\{MODULE_DIR_NAME, TEST_DIR_NAME, LIB_DIR_NAME};
+use const Morpho\Core\{
+    MODULE_DIR_NAME, TEST_DIR_NAME, LIB_DIR_NAME, VIEW_DIR_NAME
+};
 use const Morpho\Web\PUBLIC_DIR_NAME;
 use function Morpho\Base\chain;
 
@@ -20,23 +23,46 @@ class FilesIter implements \IteratorAggregate {
 
     public function getIterator() {
         $baseDirPath = realpath($this->baseDirPath);
-        // @TODO: Process modules
         yield from chain(
-            Directory::filePaths($baseDirPath . '/' . LIB_DIR_NAME, null, ['recursive' => true]),
-            $this->filesInTestDir($baseDirPath),
-            Directory::filePaths($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME, '~\.(ts|styl)$~', ['recursive' => true]),
-            $this->filesInTestDir($baseDirPath)
+            $this->filePaths($baseDirPath . '/' . LIB_DIR_NAME),
+            filter($this->filterTestsFn(), $this->phpFilePaths($baseDirPath . '/' . TEST_DIR_NAME)),
+            $this->filePathsInModuleDir($baseDirPath),
+            $this->filePathsInPublicDir($baseDirPath . '/' . PUBLIC_DIR_NAME . '/' . MODULE_DIR_NAME)
         );
     }
 
-    private function filesInTestDir(string $baseDirPath): iterable {
-        foreach (Directory::filePaths($baseDirPath . '/' . TEST_DIR_NAME, '~\.php$~s', ['recursive' => true]) as $filePath) {
-            if (preg_match('~/' . preg_quote(TEST_DIR_NAME, '~') . '/.*?/_files/~s', $filePath)) {
-                continue;
+    private function filePathsInModuleDir(string $baseDirPath): iterable {
+        foreach (Directory::dirPaths($baseDirPath . '/' . MODULE_DIR_NAME) as $dirPath) {
+            if (is_dir($dirPath . '/' . LIB_DIR_NAME)) {
+                yield from $this->filePaths($dirPath . '/' . LIB_DIR_NAME);
             }
-            yield $filePath;
+            if (is_dir($dirPath . '/' . VIEW_DIR_NAME)) {
+                yield from $this->filePaths($dirPath . '/' . VIEW_DIR_NAME);
+            }
+            if (is_dir($dirPath . '/' . TEST_DIR_NAME)) {
+                yield from filter($this->filterTestsFn(), $this->phpFilePaths($dirPath . '/' . TEST_DIR_NAME));
+            }
+            if (is_dir($dirPath . '/' . PUBLIC_DIR_NAME)) {
+                yield from $this->filePathsInPublicDir($dirPath . '/' . PUBLIC_DIR_NAME);
+            }
         }
-        //yield from Directory::filePaths($baseDirPath . '/' . TEST_DIR_NAME . '/visual', Directory::PHP_FILES_RE);
-        yield $baseDirPath . '/' . TEST_DIR_NAME . '/bootstrap.php';
+    }
+
+    private function filterTestsFn(): \Closure {
+        return function ($filePath) {
+            return !preg_match('~/' . preg_quote(TEST_DIR_NAME, '~') . '/.*?/_files/~s', $filePath);
+        };
+    }
+
+    private function phpFilePaths(string $dirPath): iterable {
+        return $this->filePaths($dirPath, '~\.php$~s');
+    }
+
+    private function filePathsInPublicDir(string $dirPath): iterable {
+        return $this->filePaths($dirPath, '~\.(ts|styl|js)$~');
+    }
+
+    private function filePaths(string $dirPath, $filter = null): iterable {
+        return Directory::filePaths($dirPath, $filter, ['recursive' => true]);
     }
 }

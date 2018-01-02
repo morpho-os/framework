@@ -11,7 +11,7 @@ class TestController extends Controller {
     public function indexAction() {
         $page = $this->newPage();
         $layout = $page->layout();
-        $layout->setDirPath(dasherize($this->name()));
+        $layout->setDirPath(dasherize($this->request->controllerName()));
         $layout->setName('test');
         return $page;
     }

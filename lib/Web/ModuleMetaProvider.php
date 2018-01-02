@@ -8,6 +8,7 @@ namespace Morpho\Web;
 
 use Morpho\Core\ModuleMetaProvider as BaseModuleMetaProvider;
 use Morpho\Ioc\IServiceManager;
+use Zend\Stdlib\ArrayUtils;
 
 class ModuleMetaProvider extends BaseModuleMetaProvider {
     /**
@@ -17,14 +18,19 @@ class ModuleMetaProvider extends BaseModuleMetaProvider {
     /**
      * @var array
      */
-    //protected $metaPatch;
+    protected $metaPatch;
 
     protected function init(IServiceManager $serviceManager): void {
         parent::init($serviceManager);
         $site = $serviceManager->get('site');
         $siteConfig = $site->config();
         $this->enabledModules = array_flip(array_keys($siteConfig['modules']));
-        //$this->metaPatch = [$site->moduleName() => $siteConfig->getArrayCopy()];
+        $siteModuleName = $site->moduleName();
+        $this->metaPatch = [
+            $siteModuleName  => [
+                'paths' => $siteConfig['paths'],
+            ],
+        ];
     }
 
     protected function filter(array $moduleMeta): bool {
@@ -32,7 +38,12 @@ class ModuleMetaProvider extends BaseModuleMetaProvider {
     }
 
     protected function map(array $moduleMeta): array {
+        $moduleName = $moduleMeta['name'];
         $moduleMeta = parent::map($moduleMeta);
+        if (isset($this->metaPatch[$moduleName])) {
+            $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
+        }
+        $moduleMeta['weight'] = $this->enabledModules[$moduleName] ?? 0;
         return $moduleMeta;
     }
 }
