@@ -32,7 +32,7 @@ class ClassTypeMapAutoloader extends Autoloader {
         $this->useCache = $useCache;
     }
 
-    public function findFilePath(string $class) {
+    public function filePath(string $class) {
         if (null === $this->map) {
             $this->map = $this->newTypeMap();
         }

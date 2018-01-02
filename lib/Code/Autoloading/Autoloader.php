@@ -4,14 +4,13 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
 namespace Morpho\Code\Autoloading;
 
 use function Morpho\Base\requireFile;
 
 abstract class Autoloader {
     public function autoload(string $class): bool {
-        $filePath = $this->findFilePath($class);
+        $filePath = $this->filePath($class);
         if ($filePath) {
             requireFile($filePath);
             return true;
@@ -19,19 +18,16 @@ abstract class Autoloader {
         return false;
     }
 
-    /**
-     * @return void
-     */
-    public function register(bool $prepend = false) {
+    public function register(bool $prepend = false): void {
         spl_autoload_register([$this, 'autoload'], true, $prepend);
     }
 
-    public function unregister() {
+    public function unregister(): void {
         spl_autoload_unregister([$this, 'autoload']);
     }
 
     /**
-     * @return string|false The path (string) if found, any value which can be converted to the false.
+     * @return string|false The path of class (string) or false otherwise.
      */
-    abstract public function findFilePath(string $class);
+    abstract public function filePath(string $class);
 }
