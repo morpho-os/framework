@@ -6,5 +6,5 @@
  */
 namespace Morpho\Web;
 
-class HttpException extends \RuntimeException {
+class HttpException extends Exception {
 }

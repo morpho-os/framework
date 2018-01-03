@@ -46,8 +46,8 @@ class ServiceManager extends BaseServiceManager {
         return new ModuleIndexer(new VarExportFileCache($this->get('site')->config()['paths']['cacheDirPath']));
     }
 
-    protected function newModuleMetaProviderService() {
-        return new ModuleMetaProvider($this);
+    protected function newModuleMetaIteratorService() {
+        return new ModuleMetaIterator($this);
     }
 
     protected function newSessionService() {

@@ -86,7 +86,6 @@ class InstanceProvider implements IFn {
             if ($instance instanceof IHasServiceManager) {
                 $instance->setServiceManager($this->serviceManager);
             }
-            /** @var callable $instance */
             return $instance;
         }
         return false;

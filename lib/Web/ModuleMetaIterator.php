@@ -6,11 +6,11 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Core\ModuleMetaProvider as BaseModuleMetaProvider;
+use Morpho\Core\ModuleMetaIterator as BaseModuleMetaIterator;
 use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
-class ModuleMetaProvider extends BaseModuleMetaProvider {
+class ModuleMetaIterator extends BaseModuleMetaIterator {
     /**
      * @var array
      */

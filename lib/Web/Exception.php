@@ -6,10 +6,5 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Core\Dispatcher as BaseDispatcher;
-
-class Dispatcher extends BaseDispatcher {
-    protected function newNotFoundException(string $message): \Exception {
-        throw new NotFoundException($message);
-    }
+class Exception extends \RuntimeException {
 }

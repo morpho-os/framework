@@ -10,7 +10,7 @@ use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\Directory;
 use Morpho\Fs\File;
 
-class ModuleMetaProvider implements \IteratorAggregate {
+class ModuleMetaIterator implements \IteratorAggregate {
     /**
      * @var string
      */

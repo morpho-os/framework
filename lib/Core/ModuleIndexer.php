@@ -31,7 +31,7 @@ class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
             return $index;
         }
         $index = [];
-        foreach ($this->serviceManager->get('moduleMetaProvider') as $moduleMeta) {
+        foreach ($this->serviceManager->get('moduleMetaIterator') as $moduleMeta) {
             $index[$moduleMeta['name']] = $moduleMeta;
         }
         uasort($index, function ($a, $b) {
