@@ -23,6 +23,7 @@ class ResponseTest extends TestCase {
     public function testStatusCodeAccessors() {
         $this->assertSame(Response::OK_STATUS_CODE, $this->response->statusCode());
         $newStatusCode = Response::FORBIDDEN_STATUS_CODE;
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->response->setStatusCode($newStatusCode));
         $this->assertSame($newStatusCode, $this->response->statusCode());
     }
@@ -46,6 +47,7 @@ class ResponseTest extends TestCase {
             $this->response->statusLine()
         );
         $newStatusLine = Environment::httpVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->response->setStatusLine($newStatusLine));
         $this->assertSame($newStatusLine, $this->response->statusLine());
     }

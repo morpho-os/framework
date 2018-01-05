@@ -66,23 +66,5 @@ abstract class Dispatcher {
     /**
      * @throws \RuntimeException
      */
-    protected function throwNotFoundException(Request $request): void {
-        [$moduleName, $controllerName, $actionName] = $request->handler();
-        $message = [];
-        if (!$moduleName) {
-            $message[] = 'module name is empty';
-        }
-        if (!$controllerName) {
-            $message[] = 'controller name is empty';
-        }
-        if (!$actionName) {
-            $message[] = 'action name is empty';
-        }
-        if (!count($message)) {
-            $message[] = 'unknown';
-        }
-        throw $this->newNotFoundException("Reason: " . implode(", ", $message));
-    }
-
-    abstract protected function newNotFoundException(string $message): \Exception;
+    abstract protected function throwNotFoundException(Request $request): void;
 }

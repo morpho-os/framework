@@ -12,6 +12,11 @@ class Response extends Message implements IResponse {
      */
     protected $body = '';
 
+    /**
+     * @var int
+     */
+    protected $statusCode = 0;
+
     public function setBody(string $body): void {
         $this->body = $body;
     }
@@ -26,6 +31,14 @@ class Response extends Message implements IResponse {
 
     public function send(): void {
         $this->sendBody();
+    }
+
+    public function setStatusCode(int $statusCode): void {
+        $this->statusCode = $statusCode;
+    }
+
+    public function statusCode(): int {
+        return $this->statusCode;
     }
 
     protected function sendBody(): void {

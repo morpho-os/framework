@@ -7,9 +7,10 @@
 namespace Morpho\Web;
 
 use Morpho\Core\Dispatcher as BaseDispatcher;
+use Morpho\Core\Request;
 
 class Dispatcher extends BaseDispatcher {
-    protected function newNotFoundException(string $message): \Exception {
-        throw new NotFoundException($message);
+    protected function throwNotFoundException(Request $request): void {
+        throw new NotFoundException();
     }
 }

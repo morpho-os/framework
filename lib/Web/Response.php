@@ -47,14 +47,6 @@ class Response extends BaseResponse {
         return $this;
     }
 
-    public function setStatusCode(int $statusCode): void {
-        $this->statusCode = $statusCode;
-    }
-
-    public function statusCode(): int {
-        return $this->statusCode;
-    }
-
     public function setStatusLine(string $statusLine): void {
         $this->statusLine = $statusLine;
     }

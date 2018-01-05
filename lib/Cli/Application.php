@@ -11,12 +11,11 @@ use Morpho\Core\Application as BaseApplication;
 abstract class Application extends BaseApplication {
     public static function main(\ArrayObject $config = null): int {
         $app = new static($config);
-        /** @var Response|false $res */
         $response = $app->run();
         if (false === $response) {
             return Environment::FAILURE_CODE;
         }
-        return $response->params()['exitCode'] ?? Environment::SUCCESS_CODE;
+        return $response->statusCode();
     }
 
     protected function init(): void {

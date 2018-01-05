@@ -14,4 +14,8 @@ interface IResponse extends IMessage {
     public function isBodyEmpty(): bool;
 
     public function send(): void;
+
+    public function setStatusCode(int $statusCode): void;
+
+    public function statusCode(): int;
 }
