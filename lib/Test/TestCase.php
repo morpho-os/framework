@@ -9,8 +9,6 @@ namespace Morpho\Test;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase {
-    // @TODO: Find exact value.
-    const EPS = 0.000000001;
     const TIMEZONE = 'UTC';
 
     private $tmpDirPaths = [];
