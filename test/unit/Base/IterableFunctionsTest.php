@@ -7,7 +7,7 @@
 namespace MorphoTest\Unit\Base;
 
 use function Morpho\Base\{
-    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray, id
+    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
 };
 use Morpho\Test\TestCase;
 
@@ -46,8 +46,9 @@ class IterableFunctionsTest extends TestCase {
     // --------------------------------------------------------------------------------
     // all
 
-    public function testAll_EmptyList() {
-        $this->markTestIncomplete();
+    /** @dataProvider dataForEmptyList */
+    public function testAll_EmptyList($list) {
+        $this->assertTrue(all($this->errFn(), $list));
     }
 
     public function testAll_String() {
@@ -766,14 +767,24 @@ class IterableFunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    /* * @dataProvider dataForArray_StringKeys */
     public function testToArray_Array_StringKeys() {
-        $this->markTestIncomplete();
+        $arr = [
+            'foo' => 'a',
+            'bar' => 'b',
+            'baz' => 'c'
+        ];
+        $iter = new \ArrayIterator($arr);
+        $this->assertSame($arr, toArray($iter));
     }
 
-    /* * @dataProvider dataForIterator_NumericKeys */
     public function testToArray_Iterator_NumericKeys() {
-        $this->markTestIncomplete();
+        $arr = [
+            'a',
+            'b',
+            'c'
+        ];
+        $iter = new \ArrayIterator($arr);
+        $this->assertSame($arr, toArray($iter));
     }
 
     /* * @dataProvider dataForIterator_StringKeys */

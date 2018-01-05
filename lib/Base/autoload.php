@@ -602,8 +602,17 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
 // Code below based on the https://github.com/nikic/iter (Copyright (c) 2013 by Nikita Popov)
 // Functions are ordered by name.
 
-function all(callable $predicate, iterable $list): bool {
-    foreach ($list as $key => $value) {
+/**
+ * @param string|iterable $iter
+ */
+function all(callable $predicate, $iter): bool {
+    if (is_string($iter)) {
+        if ($iter !== '') {
+            throw new NotImplementedException();
+        }
+        return true;
+    }
+    foreach ($iter as $key => $value) {
         if (!$predicate($value, $key)) {
             return false;
         }
@@ -968,14 +977,25 @@ function tail($list, string $separator = null) {
     }
 }
 
-function toArray($iter, bool $useKeys = false): array {
+/**
+ * @param string|iterable iter
+ */
+function toArray($iter): array {
     if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
         }
         return [];
     }
-    return is_array($iter)
-        ? $iter
-        : iterator_to_array($iter, $useKeys);
+    $arr = [];
+    $i = 0;
+    foreach ($iter as $key => $value) {
+        if (preg_match('~^\d+$~s', (string)$key)) {
+            $arr[$i] = $value;
+            $i++;
+        } else {
+            $arr[$key] = $value;
+        }
+    }
+    return $arr;
 }
