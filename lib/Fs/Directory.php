@@ -35,7 +35,7 @@ class Directory extends Entry {
             (array) $options,
             [
                 'overwrite'      => false,
-                'followSymlinks' => false,
+                'followLinks' => false,
                 'skipIfExists'   => false,
             ]
         );
@@ -58,7 +58,7 @@ class Directory extends Entry {
             [
                 'recursive' => false,
                 'type' => Stat::ENTRY,
-                'followSymlinks' => $options['followSymlinks'],
+                'followLinks' => $options['followLinks'],
             ]
         );
         foreach ($paths as $path) {
@@ -97,7 +97,7 @@ class Directory extends Entry {
             $options,
             [
                 'recursive'      => false,
-                'followSymlinks' => false,
+                'followLinks' => false,
                 'type'           => Stat::ENTRY,
             ]
         );
@@ -143,7 +143,7 @@ class Directory extends Entry {
                 }
 
                 if ($isDir && $recursive) {
-                    if ($item->isLink() && !$options['followSymlinks']) {
+                    if ($item->isLink() && !$options['followLinks']) {
                         continue;
                     }
 
@@ -246,7 +246,7 @@ class Directory extends Entry {
     }
 
     public static function brokenLinkPaths($dirPath): \Generator {
-        return Directory::linkPaths($dirPath, [Symlink::class, 'isBroken']);
+        return Directory::linkPaths($dirPath, [Link::class, 'isBroken']);
     }
 
     /**

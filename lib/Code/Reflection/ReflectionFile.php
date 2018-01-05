@@ -142,7 +142,11 @@ class ReflectionNamespace {
         return $this->name;
     }
 
+    /**
+     * @return iterable Iterable over \ReflectionClass
+     */
     public function classTypes(callable $filter = null): iterable {
+        /** @noinspection PhpIncludeInspection */
         require_once $this->filePath;
         foreach ($this->classTypes as $class) {
             $rClass = new ReflectionClass($class);
@@ -156,7 +160,11 @@ class ReflectionNamespace {
         }
     }
 
+    /**
+     * @return iterable Iterable over \ReflectionFunction
+     */
     public function functions(): iterable {
+        /** @noinspection PhpIncludeInspection */
         require_once $this->filePath;
         foreach ($this->functions as $function) {
             yield new ReflectionFunction($function);
