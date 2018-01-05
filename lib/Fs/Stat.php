@@ -18,7 +18,7 @@ class Stat {
     public const BLOCK_DEV = 0060000;                  // Block device
     public const FILE      = 0100000;                  // Regular file
     public const FIFO      = 0010000;                  // FIFO
-    public const SYMLINK   = 0120000;                  // Symbolic link
+    public const LINK      = 0120000;                  // Symbolic link
     public const SOCKET    = 0140000;                  // Socket
     public const NOT_DIR   = self::ENTRY ^ self::DIR;  // Anything except directory.
 
@@ -62,19 +62,10 @@ class Stat {
     */
 
     /* Use is_link()
-    public static function isSymlink(string $path): bool {
+    public static function isLink(string $path): bool {
     */
 
     public static function isSocket(string $path): bool {
         return filetype($path) === 'socket';
-    }
-
-    public static function isBrokenSymlink(string $path): bool {
-        throw new NotImplementedException(__METHOD__);
-/*
-if (is_link($destFilePath) && !file_exists($destFilePath)) {
-    unlink($destFilePath);
-}
-n*/
     }
 }

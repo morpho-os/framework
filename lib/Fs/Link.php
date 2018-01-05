@@ -6,7 +6,7 @@
  */
 namespace Morpho\Fs;
 
-class Symlink extends Entry {
+class Link extends Entry {
     public static function create($targetPath, $linkPath) {
         // @TODO: Handle the case when the dirname($linkPath) is symlink to some directory
         // it can be link to file, but in this case it is an error.
@@ -23,6 +23,9 @@ class Symlink extends Entry {
         if (!is_link($linkPath)) {
             throw new Exception('The passed path is not a symlink');
         }
+        return !file_exists($linkPath);
+        /*
+
         $targetPath = readlink($linkPath);
         if (false === $targetPath) {
             return false;
@@ -37,5 +40,6 @@ class Symlink extends Entry {
         } finally {
             chdir($curDirPath);
         }
+        */
     }
 }

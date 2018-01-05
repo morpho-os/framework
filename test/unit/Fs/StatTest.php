@@ -96,8 +96,4 @@ class StatTest extends TestCase {
     public function testIsEntry_NonExistingFile() {
         $this->assertFalse(Stat::isEntry(__FILE__ . '/non'));
     }
-
-    public function testIsBrokenSymlink() {
-        $this->markTestIncomplete();
-    }
 }

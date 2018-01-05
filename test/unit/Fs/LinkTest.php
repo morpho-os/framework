@@ -7,11 +7,11 @@
 namespace MorphoTest\Unit\Fs;
 
 use Morpho\Fs\Directory;
-use Morpho\Fs\Symlink;
+use Morpho\Fs\Link;
 use Morpho\Test\TestCase;
 use Morpho\Fs\Exception as FsException;
 
-class SymlinkTest extends TestCase {
+class LinkTest extends TestCase {
     private $tmpDirPath;
 
     public function setUp() {
@@ -26,21 +26,23 @@ class SymlinkTest extends TestCase {
         $linkDirPath = Directory::create($this->tmpDirPath . '/my-link');
         $expectedLinkPath = $linkDirPath . '/' . basename($targetFilePath);
         $this->assertFalse(is_file($expectedLinkPath));
-        Symlink::create($targetFilePath, $linkDirPath);
+        Link::create($targetFilePath, $linkDirPath);
         $this->assertTrue(is_file($expectedLinkPath));
     }
     
     public function testIsBroken() {
         $tmpDirPath = $this->createTmpDir();
-        symlink($tmpDirPath . '/foo', $tmpDirPath . '/bar');
-        touch($tmpDirPath . '/dest');
-        symlink($tmpDirPath . '/dest', $tmpDirPath . '/src');
-        $this->assertTrue(Symlink::isBroken($tmpDirPath . '/bar'));
-        $this->assertFalse(Symlink::isBroken($tmpDirPath . '/src'));
+        $targetFilePath = $tmpDirPath . '/foo';
+        $linkPath = $tmpDirPath . '/bar';
+        touch($targetFilePath);
+        symlink($targetFilePath, $linkPath);
+        $this->assertFalse(Link::isBroken($linkPath));
+        unlink($targetFilePath);
+        $this->assertTrue(Link::isBroken($linkPath));
     }
 
-    public function testIsBroken_ThrowsExceptionIfNotSymlinkPathPassed() {
+    public function testIsBroken_ThrowsExceptionIfNotPathPassed() {
         $this->expectException(FsException::class, "The passed path is not a symlink");
-        Symlink::isBroken(__FILE__);
+        Link::isBroken(__FILE__);
     }
 }
