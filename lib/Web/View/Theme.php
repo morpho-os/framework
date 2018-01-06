@@ -24,7 +24,7 @@ class Theme {
     }*/
 
     public function render(View $view): string {
-        return $this->renderFile($view->path(), $view->vars());
+        return $this->renderFile($view->path(), $view->getArrayCopy());
     }
 
     public function appendBaseDirPath(string $dirPath): void {

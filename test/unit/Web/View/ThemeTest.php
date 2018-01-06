@@ -41,14 +41,15 @@ class ThemeTest extends TestCase {
 
     public function testRender() {
         $baseViewDirPath = $this->createTmpDir();
-        $viewPath = 'foo/bar';
+        $viewDirPath = 'foo';
+        $viewName = 'bar';
 
-        $viewAbsFilePath = $baseViewDirPath . '/' . $viewPath . Theme::VIEW_FILE_EXT;
+        $viewAbsFilePath = $baseViewDirPath . '/' . $viewDirPath . '/' . $viewName . Theme::VIEW_FILE_EXT;
         mkdir(dirname($viewAbsFilePath), 0777, true);
         touch($viewAbsFilePath);
 
         $expected = 'abcdefg123';
-        $viewVars = new \ArrayObject(['k' => 'v']);
+        $viewVars = ['k' => 'v'];
 
         $templateEngine = $this->createMock(TemplateEngine::class);
         $templateEngine->method('renderFile')
@@ -60,10 +61,8 @@ class ThemeTest extends TestCase {
 
         $theme->appendBaseDirPath($baseViewDirPath);
 
-        $view = $this->createConfiguredMock(View::class, [
-            'vars' => $viewVars,
-            'path' => $viewPath
-        ]);
+        $view = new View($viewName, $viewVars);
+        $view->setDirPath($viewDirPath);
         /** @noinspection PhpParamsInspection */
         $actual = $theme->render($view);
 

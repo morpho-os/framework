@@ -51,7 +51,7 @@ class HtmlRendererTest extends TestCase {
             return 'hello';
         };
         $renderer->map[$layoutModuleName] = function (View $layoutArg) use ($layout): string {
-            $this->assertSame(['body' => 'hello'], $layoutArg->vars()->getArrayCopy());
+            $this->assertSame(['body' => 'hello'], $layoutArg->getArrayCopy());
             $this->assertSame($layout, $layoutArg);
             return 'cat';
         };

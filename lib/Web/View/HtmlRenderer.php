@@ -37,7 +37,7 @@ class HtmlRenderer implements IFn {
         // 2. Render Layout
         $moduleName = $serviceManager->config()['view']['layoutModule'];
         $layout = $page->layout();
-        $layout->vars()['body'] = $renderedView;
+        $layout['body'] = $renderedView;
         $renderedLayout = $this->render($moduleName, $layout);
 
         /** @var \Morpho\Web\Response $response */

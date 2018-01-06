@@ -19,6 +19,6 @@ class JsonRenderer implements IFn {
         $page = $request['page'];
 
         $response->headers()['Content-Type'] = 'application/json';
-        $response->setBody(toJson($page->vars()));
+        $response->setBody(toJson($page));
     }
 }

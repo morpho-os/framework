@@ -8,7 +8,7 @@ namespace Morpho\Web\View;
 
 use Morpho\Fs\Path;
 
-class View {
+class View extends \ArrayObject {
     /**
      * @var string
      */
@@ -30,11 +30,7 @@ class View {
         if (null === $vars) {
             $vars = [];
         }
-        if (is_array($vars)) {
-            $this->vars = new \ArrayObject($vars);
-        } else {
-            $this->vars = $vars;
-        }
+        parent::__construct($vars);
     }
 
     public function setName(string $name): void {
@@ -55,9 +51,5 @@ class View {
 
     public function path(): string {
         return Path::combine($this->dirPath, $this->name);
-    }
-
-    public function vars(): \ArrayObject {
-        return $this->vars;
     }
 }
