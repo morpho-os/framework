@@ -70,10 +70,7 @@ class EventManager extends BaseEventManager {
         if ($response->isRedirect()) {
             return false;
         }
-        if (!isset($request['page'])) {
-            return false;
-        }
-        return true;
+        return isset($request['page']);
     }
 
     protected function newRenderer(string $rendererType, IServiceManager $serviceManager): IFn {

@@ -4,7 +4,6 @@ use const Morpho\Core\CACHE_DIR_NAME;
 
 $moduleDirPath = dirname(__DIR__);
 return [
-    'serviceManager' => 'Morpho\Web\ServiceManager',
     'paths' => [
         'cacheDirPath' => $moduleDirPath . '/' . CACHE_DIR_NAME,
     ],
@@ -60,7 +59,7 @@ return [
         'eventManager' => [
             /*
             'handlers' => [
-                \Morpho\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyCError', 'accessDenied'],
+                \Morpho\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyError', 'accessDenied'],
                 \Morpho\Web\DispatchErrorHandler::BAD_REQUEST_ERROR => ['my-vendor/my-module', 'MyError', 'badRequest'],
                 \Morpho\Web\DispatchErrorHandler::NOT_FOUND_ERROR => ['my-vendor/my-module', 'MyError', 'notFound'],
                 \Morpho\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],

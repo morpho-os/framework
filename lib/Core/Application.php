@@ -98,5 +98,59 @@ abstract class Application implements IHasServiceManager {
 
     abstract protected function showError(\Throwable $e): void;
 
-    abstract protected function newServiceManager(): IServiceManager;
+    protected function newServiceManager(): IServiceManager {
+        $appConfig = $this->config;
+
+        // factory can have a type: string (class name) | \Closure | IBootstrapFactory (instance)
+        if (isset($appConfig['factory'])) {
+            if (is_object($appConfig['factory'])) {
+                if ($appConfig['factory'] instanceof \Closure) {
+                    $factory = $appConfig['factory']();
+                } else {
+                    // factory is IBootstrapFactory instance
+                    $factory = $appConfig['factory'];
+                }
+            } else {
+                // factory is a string containing a class name
+                $factory = new $appConfig['factory'];
+            }
+        } else {
+            $factory = $this->newBootstrapFactory();
+        }
+
+        $site = $factory->newSite($appConfig);
+
+        $siteConfig = $site->config();
+
+        if (isset($siteConfig['iniSettings'])) {
+            $this->applyIniSettings($siteConfig['iniSettings']);
+        }
+        if (isset($siteConfig['umask'])) {
+            umask($siteConfig['umask']);
+        }
+
+        $services = [
+            'app'  => $this,
+            'site' => $site,
+        ];
+        /** @var ServiceManager $serviceManager */
+        $serviceManager = $factory->newServiceManager($services);
+
+        $serviceManager->setConfig($siteConfig['services']);
+
+        return $serviceManager;
+    }
+
+    abstract protected function newBootstrapFactory(): IBootstrapFactory;
+
+    protected function applyIniSettings(array $iniSettings, $parentName = null): void {
+        foreach ($iniSettings as $name => $value) {
+            $settingName = $parentName ? $parentName . '.' . $name : $name;
+            if (is_array($value)) {
+                $this->applyIniSettings($value, $settingName);
+            } else {
+                ini_set($settingName, $value);
+            }
+        }
+    }
 }

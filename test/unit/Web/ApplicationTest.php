@@ -6,10 +6,10 @@
  */
 namespace MorphoTest\Unit\Web;
 
+use Morpho\Core\IBootstrapFactory;
 use Morpho\Web\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\Application;
-use Morpho\Web\IBootstrapFactory;
 use Morpho\Web\Site;
 
 class ApplicationTest extends TestCase {

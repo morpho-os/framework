@@ -25,11 +25,7 @@ use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Routing\FastRouter;
 use Morpho\Web\Session\Session;
 use Morpho\Web\Uri\UriChecker;
-use Morpho\Web\View\Compiler;
-use Morpho\Web\View\FormPersister;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Web\View\ScriptProcessor;
-use Morpho\Web\View\UriProcessor;
 use Morpho\Web\View\Theme;
 
 class ServiceManager extends BaseServiceManager {

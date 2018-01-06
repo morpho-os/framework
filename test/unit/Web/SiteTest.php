@@ -14,7 +14,7 @@ class SiteTest extends TestCase {
         $moduleName = 'foo/bar';
         $hostName = 'example.com';
         $config = new \ArrayObject(['test' => '123']);
-        $site = new Site($moduleName, $hostName, $config);
+        $site = new Site($moduleName, $config, $hostName);
         $this->assertSame($hostName, $site->hostName());
         $this->assertSame($moduleName, $site->moduleName());
         $this->assertSame($config, $site->config());

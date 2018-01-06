@@ -18,6 +18,7 @@ namespace MorphoTest\Unit\Core {
             $this->assertSame($newConfig, $app->config());
 
             $newConfig = new \ArrayObject(['color' => 'orange']);
+            /** @noinspection PhpVoidFunctionResultUsedInspection */
             $this->assertNull($app->setConfig($newConfig));
             $this->assertSame($newConfig, $app->config());
         }
@@ -27,6 +28,7 @@ namespace MorphoTest\Unit\Core {
 namespace MorphoTest\Unit\Core\ApplicationTest {
     use Morpho\Base\NotImplementedException;
     use Morpho\Core\Application;
+    use Morpho\Core\IBootstrapFactory;
     use Morpho\Ioc\IServiceManager;
     use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
@@ -37,6 +39,10 @@ namespace MorphoTest\Unit\Core\ApplicationTest {
 
         protected function newServiceManager(): IServiceManager {
             return new ServiceManager();
+        }
+
+        protected function newBootstrapFactory(): IBootstrapFactory {
+            throw new NotImplementedException();
         }
     }
 

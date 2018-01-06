@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Ioc\IServiceManager;
+use Morpho\Core\IBootstrapFactory;
 use Morpho\Core\Application as BaseApplication;
 use Morpho\Web\View\Html;
 
@@ -17,60 +17,12 @@ class Application extends BaseApplication {
         $serviceManager->get('errorHandler')->register();
     }
 
-    protected function newServiceManager(): IServiceManager {
-        $appConfig = $this->config;
-
-        // factory can have a type: string (class name) | \Closure | IBootstrapFactory (instance)
-        if (isset($appConfig['factory'])) {
-            if (is_object($appConfig['factory'])) {
-                if ($appConfig['factory'] instanceof \Closure) {
-                    $factory = $appConfig['factory']();
-                } else {
-                    // factory is IBootstrapFactory instance
-                    $factory = $appConfig['factory'];
-                }
-            } else {
-                // factory is a string containing a class name
-                $factory = new $appConfig['factory'];
-            }
-        } else {
-            $factory = new BootstrapFactory();
-        }
-
-        $site = $factory->newSite($appConfig);
-
-        $siteConfig = $site->config();
-
-        if (isset($siteConfig['iniSettings'])) {
-            $this->applyIniSettings($siteConfig['iniSettings']);
-        }
-        if (isset($siteConfig['umask'])) {
-            umask($siteConfig['umask']);
-        }
-
-        $services = [
-            'app'  => $this,
-            'site' => $site,
-        ];
-        /** @var ServiceManager $serviceManager */
-        $serviceManager = $factory->newServiceManager($services);
-
-        $serviceManager->setConfig($siteConfig['services']);
-
-        return $serviceManager;
-    }
-
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {
-        foreach ($iniSettings as $name => $value) {
-            $settingName = $parentName ? $parentName . '.' . $name : $name;
-            if (is_array($value)) {
-                $this->applyIniSettings($value, $settingName);
-            } else {
-                ini_set($settingName, $value);
+        parent::applyIniSettings($iniSettings, $parentName);
+        if (null === $parentName) {
+            if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
+                ini_set('cookie_secure', '1');
             }
-        }
-        if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
-            ini_set('cookie_secure', '1');
         }
     }
 
@@ -98,5 +50,9 @@ class Application extends BaseApplication {
             \ob_end_clean();
         }
         echo Html::encode($message) . '.';
+    }
+
+    protected function newBootstrapFactory(): IBootstrapFactory {
+        return new BootstrapFactory();
     }
 }

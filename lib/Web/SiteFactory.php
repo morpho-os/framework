@@ -19,7 +19,7 @@ class SiteFactory implements IFn {
         }
         $siteModuleName = $siteConfig['module'];
         unset($siteConfig['module']);
-        return new Site($siteModuleName, $hostName, $this->loadMergedConfig($siteModuleName, $siteConfig));
+        return new Site($siteModuleName, $this->loadMergedConfig($siteModuleName, $siteConfig), $hostName);
     }
 
     /**

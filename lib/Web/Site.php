@@ -6,36 +6,20 @@
  */
 namespace Morpho\Web;
 
-class Site {
-    /**
-     * @var string
-     */
-    protected $moduleName;
+use Morpho\Core\Site as BaseSite;
+
+class Site extends BaseSite {
     /**
      * @var null|string
      */
     protected $hostName;
 
-    /**
-     * @var array
-     */
-    protected $config;
-
-    public function __construct(string $moduleName, string $hostName, \ArrayObject $config) {
-        $this->moduleName = $moduleName;
+    public function __construct(string $moduleName, \ArrayObject $config, string $hostName) {
+        parent::__construct($moduleName, $config);
         $this->hostName = $hostName;
-        $this->config = $config;
-    }
-
-    public function moduleName(): string {
-        return $this->moduleName;
     }
 
     public function hostName(): string {
         return $this->hostName;
-    }
-
-    public function config(): \ArrayObject {
-        return $this->config;
     }
 }
