@@ -59,7 +59,7 @@ class SiteFactory implements IFn {
     protected function loadMergedConfig(string $siteModuleName, array $siteConfig): \ArrayObject {
         require $siteConfig['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
 
-        $configFilePath = $siteConfig['paths']['dirPath'] . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME;
+        $configFilePath = $siteConfig['paths']['configFilePath'];
         $loadedConfig = ArrayUtils::merge($siteConfig, $this->requireFile($configFilePath));
 
         if (!isset($loadedConfig['modules'])) {

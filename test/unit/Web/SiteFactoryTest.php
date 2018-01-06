@@ -135,9 +135,12 @@ class SiteFactoryTest extends TestCase {
      * @dataProvider dataForInvoke_ValidHost
      */
     public function testInvoke_ValidHost(string $hostName, string $moduleName, string $siteDirPath, array $siteConfig) {
+        $siteConfigFilePath = $siteDirPath . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME;
+
         $expectedSiteConfig = new \ArrayObject(array_merge($siteConfig, [
             'paths' => [
                 'dirPath' => $siteDirPath,
+                'configFilePath' => $siteConfigFilePath,
             ],
             'modules' => [
                 $moduleName => [],
@@ -147,13 +150,14 @@ class SiteFactoryTest extends TestCase {
         $_SERVER['HTTP_HOST'] = $hostName;
 
         $appConfig = [
-            'hostMapper' => function ($hostName1) use (&$called, $hostName, $moduleName, $siteDirPath) {
+            'hostMapper' => function ($hostName1) use ($siteConfigFilePath, &$called, $hostName, $moduleName, $siteDirPath) {
                 $called = true;
                 if ($hostName1 === $hostName) {
                     return [
                         'module' => $moduleName,
                         'paths' => [
                             'dirPath' => $siteDirPath,
+                            'configFilePath' => $siteConfigFilePath,
                         ],
                     ];
                 }
@@ -161,7 +165,7 @@ class SiteFactoryTest extends TestCase {
         ];
 
         $map = [
-            $siteDirPath . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME => $siteConfig,
+            $siteConfigFilePath => $siteConfig,
         ];
 
         $siteFactory = new class ($map) extends SiteFactory {
