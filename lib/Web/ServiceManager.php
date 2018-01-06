@@ -55,7 +55,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newRequestService() {
-        return new Request(null, new UriChecker($this));
+        return new Request(null, null, new UriChecker($this));
     }
 
     protected function newDebugLoggerService() {
