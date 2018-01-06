@@ -48,7 +48,7 @@ class ControllerTest extends TestCase {
             $response->headers()->getArrayCopy()
         );
         $this->assertSame($statusCode, $response->statusCode());
-        $this->assertTrue(!isset($request->params()['page']));
+        $this->assertTrue(!isset($request['page']));
     }
 
     public function testRedirect_NoArgs() {
@@ -69,7 +69,7 @@ class ControllerTest extends TestCase {
             $response->headers()->getArrayCopy()
         );
         $this->assertSame(302, $response->statusCode());
-        $this->assertTrue(!isset($request->params()['page']));
+        $this->assertTrue(!isset($request['page']));
     }
 
     public function testForwardTo() {
@@ -87,9 +87,9 @@ class ControllerTest extends TestCase {
         $this->assertEquals($actionName, $request->actionName());
         $this->assertEquals($controllerName, $request->controllerName());
         $this->assertEquals($moduleName, $request->moduleName());
-        $this->assertEquals(['p1' => 'v1'], $request->params()['routing']);
+        $this->assertEquals(['p1' => 'v1'], $request['routing']);
         $this->assertFalse($request->isDispatched());
-        $this->assertTrue(!isset($request->params()['page']));
+        $this->assertTrue(!isset($request['page']));
     }
 
     public function testReturningResponseFromAction() {
@@ -102,7 +102,7 @@ class ControllerTest extends TestCase {
         $controller->__invoke($request);
 
         $this->assertSame($response, $request->response());
-        $this->assertTrue(!isset($request->params()['page']));
+        $this->assertTrue(!isset($request['page']));
         $this->assertSame('foo', $response->body());
     }
     
@@ -113,13 +113,13 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $page = $request->params()['page'];
+        $page = $request['page'];
         $this->assertSame(['foo' => 'bar'], $page->vars()->getArrayCopy());
         $this->assertSame('', $request->response()->body());
     }
 
     private function newRequest(array $serverVars = null) {
-        $request = new Request($serverVars, new class implements IFn { public function __invoke($value) {} });
+        $request = new Request(null, $serverVars, new class implements IFn { public function __invoke($value) {} });
         $request->isDispatched(true);
         return $request;
     }

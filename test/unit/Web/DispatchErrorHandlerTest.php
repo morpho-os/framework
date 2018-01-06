@@ -103,7 +103,7 @@ class DispatchErrorHandlerTest extends TestCase {
 
         $this->assertFalse($request->isDispatched());
         $this->assertEquals($expectedHandler, $request->handler());
-        $this->assertEquals($exception, $request->params()['error']);
+        $this->assertEquals($exception, $request['error']);
         $this->assertEquals($expectedStatusCode, $request->response()->statusCode());
 
         try {
@@ -136,6 +136,7 @@ class DispatchErrorHandlerTest extends TestCase {
 
     private function newRequest(array $serverVars = null) {
         return new Request(
+            null,
             $serverVars,
             new class implements IFn { public function __invoke($value) {} }
         );

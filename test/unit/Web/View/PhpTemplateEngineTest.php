@@ -314,10 +314,7 @@ class PhpTemplateEngineTest extends TestCase {
         };
         $params = new \ArrayObject(['handlerFn' => $handlerFn]);
 
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('params')
-            ->willReturn($params);
+        $request = new Request($params);
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
@@ -360,6 +357,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     private function newRequest(array $serverVars = null) {
         return new Request(
+            null,
             $serverVars,
             new class implements IFn { public function __invoke($value) {} }
         );

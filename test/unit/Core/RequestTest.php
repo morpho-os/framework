@@ -9,7 +9,7 @@ namespace MorphoTest\Unit\Core;
 use Morpho\Base\NotImplementedException;
 use Morpho\Core\IResponse;
 use Morpho\Core\Request;
-use Morpho\Core\IMessage;
+use Morpho\Core\Message;
 
 class RequestTest extends MessageTest {
     private $request;
@@ -23,7 +23,7 @@ class RequestTest extends MessageTest {
         };
     }
 
-    protected function newMessage(): IMessage {
+    protected function newMessage(): Message {
         return clone $this->request;
     }
 }

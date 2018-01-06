@@ -6,7 +6,7 @@
  */
 namespace MorphoTest\Unit\Core;
 
-use Morpho\Core\IMessage;
+use Morpho\Core\Message;
 use Morpho\Core\Response;
 
 class ResponseTest extends MessageTest {
@@ -30,7 +30,7 @@ class ResponseTest extends MessageTest {
         $this->assertFalse($this->response->isBodyEmpty());
     }
 
-    protected function newMessage(): IMessage {
+    protected function newMessage(): Message {
         return clone $this->response;
     }
 }

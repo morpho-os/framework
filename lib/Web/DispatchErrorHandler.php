@@ -74,7 +74,7 @@ class DispatchErrorHandler implements IHasServiceManager {
 
         $request->setHandler($handler);
         $request->isDispatched(false);
-        $request->params()->offsetSet('error', $exception);
+        $request['error'] = $exception;
         $request->response()->setStatusCode($httpStatusCode);
     }
 

@@ -18,17 +18,12 @@ class JsonRendererTest extends TestCase {
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
 
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('response')
-            ->willReturn($response);
-
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
         $params = new \ArrayObject(['page' => $page]);
-        $request->expects($this->any())
-            ->method('params')
-            ->willReturn($params);
+
+        $request = new Request($params);
+        $request->setResponse($response);
 
         $renderer = new JsonRenderer();
 

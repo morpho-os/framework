@@ -6,12 +6,5 @@
  */
 namespace Morpho\Core;
 
-interface IMessage {
-    /**
-     * Sets internal params, should not contain user input.
-     * @param \ArrayObject|array $params
-     */
-    public function setParams($params): void;
-
-    public function params(): \ArrayObject;
+interface IMessage extends \ArrayAccess {
 }

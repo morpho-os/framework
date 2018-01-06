@@ -51,7 +51,7 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     }
 
     public function handler(): callable {
-        return $this->request()->params()['handlerFn'];
+        return $this->request()['handlerFn'];
     }
 
     public function moduleName(): ?string {

@@ -53,7 +53,7 @@ class InstanceProvider implements IFn {
         $isCli = PHP_SAPI == 'cli';
         $classSuffix = ($isCli ? 'Cli' : 'Web') . '\\' . $controllerName . CONTROLLER_SUFFIX;
         $handler = $this->newInstance($moduleMeta, $classSuffix);
-        $request->params()['handlerFn'] = $handler;
+        $request['handlerFn'] = $handler;
         return $handler;
     }
 

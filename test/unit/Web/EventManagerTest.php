@@ -128,23 +128,24 @@ class EventManagerTest extends TestCase {
     }
 
     private function newConfiguredRequest(bool $isDispatched, bool $isRedirect, ?Page $page) {
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('isDispatched')
-            ->willReturn($isDispatched);
-        $response = $this->createMock(Response::class);
-        $response->expects($this->any())
-            ->method('isRedirect')
-            ->willReturn($isRedirect);
-        $request->expects($this->any())
-            ->method('response')
-            ->willReturn($response);
+        $params = null;
         if ($page) {
-            $params = new \ArrayObject(['page' => $page]);
-            $request->expects($this->any())
-                ->method('params')
-                ->willReturn($params);
+            $params = ['page' => $page];
         }
+        $request = new Request($params);
+        $request->isDispatched($isDispatched);
+        $response = new class ($isRedirect) extends Response {
+            private $isRedirect;
+
+            public function __construct(bool $isRedirect) {
+                $this->isRedirect = $isRedirect;
+            }
+
+            public function isRedirect(): bool {
+                return $this->isRedirect;
+            }
+        };
+        $request->setResponse($response);
         return $request;
     }
 }

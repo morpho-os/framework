@@ -50,7 +50,7 @@ class Controller implements IFn, IHasServiceManager {
         if (null === $page || is_array($page)) {
             $page = $this->newPage($page);
         }
-        $request->params()['page'] = $page;
+        $request['page'] = $page;
     }
 
     public function setServiceManager(IServiceManager $serviceManager): void {
@@ -84,7 +84,7 @@ class Controller implements IFn, IHasServiceManager {
         $request->setActionName($actionName);
 
         if (null !== $routingParams) {
-            $request->params()['routing'] = $routingParams;
+            $request['routing'] = $routingParams;
         }
 
         $request->isDispatched(false);

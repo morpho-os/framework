@@ -100,15 +100,6 @@ class RequestTest extends TestCase {
         $this->assertSame(['foo' => 'bar'], $this->request->headers()->getArrayCopy());
     }
 
-    public function testParamAccessors() {
-        $this->assertEquals(new \ArrayObject(), $this->request->params());
-
-        $params = $this->request->params();
-        $params['foo'] = 'bar';
-
-        $this->assertSame('bar', $this->request->params()['foo']);
-    }
-
     public function testHandlerAccessors() {
         $handler = ['foo', 'bar', 'baz'];
         $this->request->setHandler($handler);
@@ -272,6 +263,7 @@ class RequestTest extends TestCase {
     
     public function testUriInitialization_ThrowsBadRequestOnNotAllowedHost() {
         $request = new Request(
+            null,
             ['HTTP_HOST' => 'malicious'],
             new class implements IFn {
                 public function __invoke($value) {
@@ -301,6 +293,7 @@ class RequestTest extends TestCase {
 
     private function newRequest(array $serverVars = null) {
         return new Request(
+            null,
             $serverVars,
             new class implements IFn {
                 public function __invoke($value) {

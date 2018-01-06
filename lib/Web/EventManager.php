@@ -70,7 +70,7 @@ class EventManager extends BaseEventManager {
         if ($response->isRedirect()) {
             return false;
         }
-        if (!isset($request->params()['page'])) {
+        if (!isset($request['page'])) {
             return false;
         }
         return true;

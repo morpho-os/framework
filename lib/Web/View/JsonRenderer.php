@@ -16,7 +16,7 @@ class JsonRenderer implements IFn {
     public function __invoke($request): void {
         $response = $request->response();
 
-        $page = $request->params()['page'];
+        $page = $request['page'];
 
         $response->headers()['Content-Type'] = 'application/json';
         $response->setBody(toJson($page->vars()));

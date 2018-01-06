@@ -48,11 +48,6 @@ class Request extends BaseRequest {
     protected $isAjax;
 
     /**
-     * @var \ArrayObject
-     */
-    protected $params;
-
-    /**
      * @var ?array
      */
     private $serverVars;
@@ -92,10 +87,10 @@ class Request extends BaseRequest {
      */
     private $mapPost;
 
-    public function __construct(?array $serverVars, IFn $uriChecker) {
+    public function __construct($params = null, ?array $serverVars = null, IFn $uriChecker = null) {
+        parent::__construct(null !== $params ? $params : []);
         $this->serverVars = $serverVars;
         $this->uriChecker = $uriChecker;
-        $this->params = new \ArrayObject();
     }
 
     /**

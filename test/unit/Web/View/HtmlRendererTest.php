@@ -28,21 +28,10 @@ class HtmlRendererTest extends TestCase {
         $viewModuleName = 'foo/bar';
         $layoutModuleName = 'abc/test';
 
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('response')
-            ->willReturn($response);
-        $params = new \ArrayObject(['page' => $page]);
-        $request->expects($this->any())
-            ->method('params')
-            ->willReturn($params);
-
-        $request->expects($this->any())
-            ->method('moduleName')
-            ->will($this->returnValue('foo/bar'));
-        $request->expects($this->any())
-            ->method('controllerName')
-            ->willReturn('News');
+        $request = new Request(['page' => $page]);
+        $request->setModuleName('foo/bar');
+        $request->setControllerName('News');
+        $request->setResponse($response);
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())

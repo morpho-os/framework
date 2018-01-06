@@ -6,28 +6,18 @@
  */
 namespace MorphoTest\Unit\Core;
 
-use Morpho\Core\IMessage;
+use Morpho\Core\Message;
 use Morpho\Test\TestCase;
 
 abstract class MessageTest extends TestCase {
-    public function testParams() {
+    public function testMessage() {
         $message = $this->newMessage();
+        $this->assertInstanceOf(\ArrayObject::class, $message, 'Message is \\ArrayObject');
 
-        $params = $message->params();
-        $this->assertInstanceOf(\ArrayObject::class, $params);
-        $params['foo'] = 'bar';
-        $this->assertSame(['foo' => 'bar'], $message->params()->getArrayCopy());
-
-        $newParams = new \ArrayObject(['test' => '123']);
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($message->setParams($newParams));
-        $this->assertSame($newParams, $message->params());
-
-        $newParams = ['hello' => 456];
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($message->setParams($newParams));
-        $this->assertSame($newParams, $message->params()->getArrayCopy());
+        $message->test = '123';
+        $message['foo'] = 'bar';
+        $this->assertSame(['foo' => 'bar'], $message->getArrayCopy(), 'Properties should be ignored');
     }
 
-    abstract protected function newMessage(): IMessage;
+    abstract protected function newMessage(): Message;
 }
