@@ -10,7 +10,7 @@ use Morpho\Test\TestCase;
 use Morpho\Web\View\TemplateEngine;
 
 class TemplateEngineTest extends TestCase {
-    public function testRenderFileWithoutCompilation_PreservingThis() {
+    public function testTpl_PreservingThis() {
         $code = '<?php echo "$this->a $b";';
         $filePath = $this->createTmpFile();
         file_put_contents($filePath, $code);
@@ -19,26 +19,25 @@ class TemplateEngineTest extends TestCase {
         };
         $this->assertSame(
             'Hello World!',
-            $templateEngine->renderFileWithoutCompilation($filePath, ['b' => 'World!'])
+            $templateEngine->tpl($filePath, ['b' => 'World!'])
         );
     }
 
-    public function testRender_WithoutElements() {
+    public function testRun_WithoutElements() {
         $engine = new TemplateEngine();
         $code = '<?php echo "Hello $world";';
-        $res = $engine->render($code, ['world' => 'World!']);
+        $res = $engine->run($code, ['world' => 'World!']);
         $this->assertSame('Hello World!', $res);
     }
 
-    public function testRender_WithElements() {
+    public function testRun_WithElements() {
         $engine = new TemplateEngine();
         $code = '<?php echo ??;';
         $engine->append(function ($context) {
             $context['code'] = str_replace('??', '"<span>$smile</span>"', $context['code']);
-            $context['vars']['smile'] = ':)';
             return $context;
         });
-        $res = $engine->render($code, ['smile' => ':(']);
+        $res = $engine->run($code, ['smile' => ':)']);
         $this->assertSame('<span>:)</span>', $res);
     }
 }

@@ -52,7 +52,7 @@ class ThemeTest extends TestCase {
         $viewVars = ['k' => 'v'];
 
         $templateEngine = $this->createMock(TemplateEngine::class);
-        $templateEngine->method('renderFile')
+        $templateEngine->method('runFile')
             ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
             ->willReturn($expected);
 

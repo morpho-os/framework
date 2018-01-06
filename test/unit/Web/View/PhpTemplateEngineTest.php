@@ -15,10 +15,7 @@ use Morpho\Ioc\IServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Web\InstanceProvider;
 use Morpho\Web\Uri\Uri;
-use Morpho\Web\View\ScriptProcessor;
-use Morpho\Web\View\UriProcessor;
 use Morpho\Web\View\PhpTemplateEngine;
-use Morpho\Web\View\Compiler;
 use Morpho\Web\Request;
 
 class PhpTemplateEngineTest extends TestCase {
@@ -148,15 +145,15 @@ class PhpTemplateEngineTest extends TestCase {
         $this->checkBoolAccessor([new PhpTemplateEngine(), 'useCache'], true);
     }
 
-    public function testRenderFileWithAbsPath() {
+    public function testRunFileWithAbsPath() {
         $dirPath = $this->getTestDirPath();
-        $this->assertEquals('<h1>Hello World!</h1>', $this->templateEngine->renderFile($dirPath . '/my-file.phtml', ['who' => 'World!']));
+        $this->assertEquals('<h1>Hello World!</h1>', $this->templateEngine->runFile($dirPath . '/my-file.phtml', ['who' => 'World!']));
     }
 
-    public function testRenderFileThrowsExceptionWhenNotExist() {
+    public function testRunFileThrowsExceptionWhenNotExist() {
         $path = $this->getTestDirPath() . '/non-existing.phtml';
         $this->expectException('\RuntimeException', 'The file \'' . $path . '\' does not exist');
-        $this->templateEngine->renderFile($path);
+        $this->templateEngine->runFile($path);
     }
 
     public function testLink_FullUriWithAttributes() {
@@ -174,52 +171,59 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testInvoke_NotClosedLink() {
-        $this->assertEquals('<a href="', $this->templateEngine->__invoke('<a href="'));
+        $this->assertEquals('<a href="', $this->invokeTemplateEngine('<a href="'));
     }
 
     public function testInvoke_AbsLink() {
         $this->assertEquals(
             '<a href="/base/path/my/link">Link text</a>',
-            $this->templateEngine->__invoke('<a href="/my/link">Link text</a>')
+            $this->invokeTemplateEngine('<a href="/my/link">Link text</a>')
         );
     }
 
     public function testInvoke_MultipleAbsLinks() {
         $this->assertEquals(
             '<a href="/base/path/my/link">Link text</a><a href="/base/path/my1/link1">Link text 1</a>',
-            $this->templateEngine->__invoke('<a href="/my/link">Link text</a><a href="/my1/link1">Link text 1</a>')
+            $this->invokeTemplateEngine('<a href="/my/link">Link text</a><a href="/my1/link1">Link text 1</a>')
         );
     }
 
     public function testInvoke_RelLink() {
         $html = '<a href="foo/bar">Link text</a>';
-        $this->assertEquals($html, $this->templateEngine->__invoke($html));
+        $this->assertEquals($html, $this->invokeTemplateEngine($html));
     }
 
     public function testInvoke_EscapesVars() {
-        $this->assertRegExp('~^<h1>\s*<\?php\s+echo htmlspecialchars\(\$var, ENT_QUOTES\);\s+\?>\s*</h1>$~si', $this->templateEngine->__invoke('<h1><?= $var ?></h1>'));
+        $this->assertRegExp(
+            '~^<h1>\s*<\?php\s+echo htmlspecialchars\(\$var, ENT_QUOTES\);\s+\?>\s*</h1>$~si',
+            $this->invokeTemplateEngine('<h1><?= $var ?></h1>')
+        );
     }
 
     public function testInvoke_PrintDoesNotEscapeVars() {
-        $expected = '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~s';
-        $this->assertRegexp($expected, $this->templateEngine->__invoke("<?php print '<div><span>Text</span></div>'; ?>"));
-        $expected = '~^<\?php\s+print\s+"<div><span>Text</span></div>";$~s';
-        $this->assertRegexp($expected, $this->templateEngine->__invoke('<?php print("<div><span>Text</span></div>");'));
+        $this->assertRegexp(
+            '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~s',
+            $this->invokeTemplateEngine("<?php print '<div><span>Text</span></div>'; ?>")
+        );
+        $this->assertRegexp(
+            '~^<\?php\s+print\s+"<div><span>Text</span></div>";$~s',
+            $this->invokeTemplateEngine('<?php print("<div><span>Text</span></div>");')
+        );
     }
 
     public function testInvoke_ThrowsSyntaxError() {
         $php = '<?php some invalid code; ?>';
         $this->expectException('\PhpParser\Error');
-        $this->templateEngine->__invoke($php);
+        $this->invokeTemplateEngine($php);
     }
 
     public function testRequire() {
-        $this->assertEquals("<h1>Hey! It is &quot;just quote&quot; works!</h1>", $this->templateEngine->renderFile($this->getTestDirPath() . '/require-test.phtml'));
+        $this->assertEquals("<h1>Hey! It is &quot;just quote&quot; works!</h1>", $this->templateEngine->runFile($this->getTestDirPath() . '/require-test.phtml'));
     }
 
     public function testResolvesDirAndFileConstants() {
         $expected = 'Dir path: ' . $this->getTestDirPath() . ', file path: ' . $this->getTestDirPath() . '/dir-file-test.phtml';
-        $this->assertEquals($expected, $this->templateEngine->renderFile($this->getTestDirPath() . '/dir-file-test.phtml'));
+        $this->assertEquals($expected, $this->templateEngine->runFile($this->getTestDirPath() . '/dir-file-test.phtml'));
     }
     
     public function testPlugin_ReturnsTheSamePluginInstance() {
@@ -341,18 +345,9 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     private function configureTemplateEngine(PhpTemplateEngine $templateEngine, $serviceManager) {
-        $compiler = new Compiler();
-        $compiler->appendSourceInfo(false);
-        $templateEngine
-            ->append(new UriProcessor($serviceManager))
-            ->append($compiler)
-            ->append(new ScriptProcessor($serviceManager));
-
         $templateEngine->setServiceManager($serviceManager);
-
         $templateEngine->setCacheDirPath($this->tmpDirPath());
         $templateEngine->useCache(false);
-        $this->setDefaultTimezone();
     }
 
     private function newRequest(array $serverVars = null) {
@@ -361,6 +356,16 @@ class PhpTemplateEngineTest extends TestCase {
             $serverVars,
             new class implements IFn { public function __invoke($value) {} }
         );
+    }
+
+    private function invokeTemplateEngine(string $code): string {
+        $context = new \ArrayObject([
+            'code' => $code,
+            'options' => [
+                'appendSourceInfo' => false,
+            ],
+        ]);
+        return $this->templateEngine->__invoke($context)['code'];
     }
 }
 

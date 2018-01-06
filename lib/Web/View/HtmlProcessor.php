@@ -6,27 +6,22 @@
  */
 namespace Morpho\Web\View;
 
-use Morpho\Ioc\ServiceManager;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Web\Request;
 
 abstract class HtmlProcessor extends HtmlSemiParser {
     protected const SKIP_ATTR = '_skip';
 
     protected $serviceManager;
 
-    protected $filePath;
-
     private $request;
 
-    public function __construct(ServiceManager $serviceManager) {
+    public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
         parent::__construct();
     }
 
-    public function setFilePath(string $filePath): void {
-        $this->filePath = $filePath;
-    }
-
-    protected function request() {
+    protected function request(): Request {
         if (null === $this->request) {
             $this->request = $this->serviceManager->get('request');
         }

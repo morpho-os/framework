@@ -75,13 +75,10 @@ class ServiceManager extends BaseServiceManager {
     protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine();
-        $cacheDirPath = $this->get('moduleIndex')->moduleMeta($this->get('site')->moduleName())->cacheDirPath();
+        $siteModuleName = $this->get('site')->moduleName();
+        $cacheDirPath = $this->get('moduleIndex')->moduleMeta($siteModuleName)->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConfig['useCache']);
-        $templateEngine->append(new Compiler())
-            ->append(new FormPersister($this))
-            ->append(new UriProcessor($this))
-            ->append(new ScriptProcessor($this/*, $templateEngineConfig['forceCompileTs'], $templateEngineConfig['nodeBinDirPath'], $templateEngineConfig['tsOptions']*/));
         return $templateEngine;
     }
 

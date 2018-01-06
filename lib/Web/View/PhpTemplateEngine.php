@@ -36,6 +36,13 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
 
     private const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
 
+    private $initialized = false;
+
+    public function __invoke($context) {
+        $this->init();
+        return parent::__invoke($context);
+    }
+
     public function plugin($name) {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
@@ -146,5 +153,26 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
             $this->request = $this->serviceManager->get('request');
         }
         return $this->request;
+    }
+
+    protected function init(): void {
+        if (!$this->initialized) {
+            $serviceManager = $this->serviceManager;
+            $phases = [
+                new FormPersister($serviceManager),
+                new UriProcessor($serviceManager),
+                new ScriptProcessor($serviceManager),
+            ];
+            $this->append(new Processor())
+                ->append(function ($context) use ($phases) {
+                    $code = $context['code'];
+                    foreach ($phases as $phase) {
+                        $code = $phase($code);
+                    }
+                    $context['code'] = $code;
+                    return $context;
+                });
+            $this->initialized = true;
+        }
     }
 }

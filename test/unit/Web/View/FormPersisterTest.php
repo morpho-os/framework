@@ -8,6 +8,8 @@ namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
+use Morpho\Web\Request;
+use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\FormPersister;
 
 class FormPersisterTest extends TestCase {
@@ -19,19 +21,15 @@ class FormPersisterTest extends TestCase {
     public function setUp() {
         parent::setUp();
         $serviceManager = new ServiceManager();
-        $serviceManager->set('request', new class {
-            public function path() {
-                return '/foo/bar<script?';
-            }
-
-            public function uri() {
-                return new class {
-                    public function toStr() {
-                        return '/foo/bar<script?one=ok&two=done';
-                    }
-                };
-            }
-        });
+        $request = $this->createMock(Request::class);
+        $uri = $this->createMock(Uri::class);
+        $uri->expects($this->any())
+            ->method('toStr')
+            ->willReturn('/foo/bar<script?one=ok&two=done');
+        $request->expects($this->any())
+            ->method('uri')
+            ->willReturn($uri);
+        $serviceManager->set('request', $request);
         $this->formPersister = new FormPersister($serviceManager);
     }
 

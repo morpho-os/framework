@@ -73,6 +73,6 @@ class Theme {
      * @param \ArrayObject|array $vars
      */
     protected function renderFile(string $relFilePath, $vars): string {
-        return $this->templateEngine->renderFile($this->absFilePath($relFilePath), $vars);
+        return $this->templateEngine->runFile($this->absFilePath($relFilePath), $vars);
     }
 }

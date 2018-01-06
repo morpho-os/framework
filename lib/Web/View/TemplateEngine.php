@@ -12,18 +12,15 @@ use Morpho\Fs\File;
 
 class TemplateEngine extends Pipe {
     protected $useCache = true;
-
     protected $vars = [];
-
     protected $cacheDirPath;
-
     protected $uniqueFileHash = '';
 
     public function setCacheDirPath(string $dirPath): void {
         $this->cacheDirPath = $dirPath;
     }
 
-    public function renderFileWithoutCompilation($__filePath, array $__vars): string {
+    public function tpl($__filePath, array $__vars): string {
         // NB: We can't use the Base\tpl() function as we need to preserve $this
         extract($__vars, EXTR_SKIP);
         unset($__vars);
@@ -39,12 +36,20 @@ class TemplateEngine extends Pipe {
     }
 
     /**
-     * Runs Pipe handlers.
+     * @param array|\ArrayObject
      */
-    public function render(string $code, array $vars = []): string {
-        $context = $this->__invoke(new \ArrayObject(['code' => $code, 'vars' => $vars]));
+    public function run($context, array $__vars): string {
+        if (is_array($context)) {
+            $context = new \ArrayObject($context);
+        } elseif (is_string($context)) {
+            $context = new \ArrayObject(['code' => $context]);
+        }
+        //$context['vars'] = $__vars;
+        // 1. Compile
+        $context = $this->__invoke($context);
+        // 2. tpl() without file inclusion.
         $__code = $context['code'];
-        $__vars = $context['vars'];
+        //$__vars = $context['vars'];
         unset($context);
         extract($__vars, EXTR_SKIP);
         ob_start();
@@ -61,16 +66,9 @@ class TemplateEngine extends Pipe {
      * Compiles and renders the $filePath.
      * @param array|\ArrayObject $vars
      */
-    public function renderFile(string $filePath, $vars = []): string {
+    public function runFile(string $filePath, $vars = []): string {
         $filePath = $this->compileFile($filePath);
-        return $this->renderFileWithoutCompilation($filePath, is_array($vars) ? $vars : $vars->getArrayCopy());
-    }
-
-    public function useCache(bool $flag = null): bool {
-        if (null !== $flag) {
-            $this->useCache = $flag;
-        }
-        return $this->useCache;
+        return $this->tpl($filePath, is_array($vars) ? $vars : $vars->getArrayCopy());
     }
 
     public function __set(string $varName, $value): void {
@@ -104,6 +102,16 @@ class TemplateEngine extends Pipe {
         return $this->vars;
     }
 
+    public function useCache(bool $flag = null): bool {
+        if (null !== $flag) {
+            $this->useCache = $flag;
+        }
+        return $this->useCache;
+    }
+
+    /**
+     * @return string Path to the compiled file.
+     */
     protected function compileFile(string $filePath): string {
         if (!$this->cacheDirPath) {
             throw new EmptyPropertyException($this, 'cacheFilePath');
@@ -111,12 +119,18 @@ class TemplateEngine extends Pipe {
         $this->uniqueFileHash = md5($this->uniqueFileHash . '|' . $filePath);
         $cacheFilePath = $this->cacheDirPath . '/' . $this->uniqueFileHash . '.php';
         if (!is_file($cacheFilePath) || !$this->useCache()) {
-            // @TODO: Replace the setFilePath with $context
-            foreach ($this as $fn) {
-                $fn->setFilePath($filePath);
-            }
-            $php = $this->__invoke(File::read($filePath));
-            $res = file_put_contents($cacheFilePath, $php, LOCK_EX);
+            $code = File::read($filePath);
+            $context = new \ArrayObject([
+                'code' => $code,
+                //'vars' => [],
+                'filePath' => $filePath,
+                'options' => [
+                    'appendSourceInfo' => true, // @TODO: Pass compiler options
+                ],
+            ]);
+            $context = $this->__invoke($context);
+            $code = $context['code'];
+            $res = file_put_contents($cacheFilePath, $code, LOCK_EX);
             if (false === $res) {
                 throw new \RuntimeException("Unable to write the compiled file '$cacheFilePath'");
             }

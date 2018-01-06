@@ -6,102 +6,42 @@
  */
 namespace Morpho\Web\View;
 
-use Morpho\Base\NotImplementedException;
-use PhpParser\{
-    Node\Expr, NodeVisitorAbstract, Node, Node\Arg as ArgNode, Node\Name as NameNode, Node\Scalar\MagicConst\Dir as DirMagicConst, Node\Scalar\MagicConst\File as FileMagicConst, Node\Scalar\String_ as StringScalar, Node\Stmt\Echo_ as EchoStatement, Node\Expr\FuncCall as FuncCallExpr, Node\Expr\ConstFetch as ConstFetchExpr, Node\Expr\Include_ as IncludeExpr, Comment\Doc as DocComment, PrettyPrinter\Standard as PrettyPrinter, Node\Stmt\Expression
-};
+use Morpho\Base\IFn;
+use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
+use PhpParser\Parser\Php7 as Parser;
+use PhpParser\Lexer;
+use PhpParser\NodeTraverser;
 
-class Processor extends NodeVisitorAbstract {
-    protected $filePath;
+class Processor implements IFn {
+    /**
+     * @param \ArrayAccess|array $context
+     */
+    public function __invoke($context) {
+        $code = $context['code'];
 
-    protected $compiler;
+        $ast = $this->parse($code);
 
-    protected $appendSourceInfo = true;
+        unset($context['code']);
 
-    public function __construct($filePath, $compiler, $appendSourceInfo = true) {
-        $this->filePath = $filePath;
-        $this->compiler = $compiler;
-        $this->appendSourceInfo = $appendSourceInfo;
+        $ast = $this->rewrite($ast, $context);
+
+        $context['code'] = $this->pp($ast);
+
+        return $context;
     }
 
-    public function enterNode(Node $node) {
-        if ($node instanceof DirMagicConst) {
-            return new StringScalar(dirname($this->filePath));
-        } elseif ($node instanceof FileMagicConst) {
-            return new StringScalar($this->filePath);
-        }
+    public function rewrite(array $ast, \ArrayAccess $context): array {
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new AstRewriter($this, $context));
+        return $traverser->traverse($ast);
     }
 
-    public function leaveNode(Node $node) {
-        if ($node instanceof EchoStatement) {
-            return new EchoStatement(
-                [
-                    new FuncCallExpr(
-                        new NameNode(
-                            ['htmlspecialchars']
-                        ),
-                        [
-                            new ArgNode(
-                                $node->exprs[0]
-                            ),
-                            new ArgNode(
-                                new ConstFetchExpr(
-                                    new NameNode(['ENT_QUOTES'])
-                                )
-                            ),
-                        ]
-                    ),
-                ]
-            );
-        } elseif ($node instanceof Expression) {
-            $expr = $node->expr;
-            if ($expr instanceof IncludeExpr) {
-                if ($expr->type !== IncludeExpr::TYPE_REQUIRE) {
-                    throw new NotImplementedException(
-                        "Only 'require' expression is supported, the support of include|include_once|require_once was not implemented yet"
-                    );
-                }
-                return $this->evalRequire($expr->expr);
-                /*
-                $oldComments = (array)$node->getAttribute('comments');
-                $nodes = $this->evalRequire($node->expr);
-                if (count($oldComments)) {
-                    $expr->setAttribute('comments', $oldComments);
-                }
-                return $node;
-
-                $nodes = $this->evalRequire($expr->expr);
-                return $nodes;
-                */
-            }
-        }
+    public function pp(array $ast): string {
+        return (new PrettyPrinter())->prettyPrintFile($ast);
     }
 
-    public function beforeTraverse(array $nodes) {
-        $this->prependCommentLine($nodes, "Source file: '{$this->filePath}'");
-    }
-
-    protected function evalRequire(Expr $expr) {
-        $filePath = $this->evalExpr($expr);
-        $code = file_get_contents($filePath);
-        return $this->compiler->__invoke($code, false);
-    }
-
-    protected function evalExpr(Expr $expr) {
-        $printer = new PrettyPrinter();
-        return eval('return ' . $printer->prettyPrintExpr($expr) . ';');
-    }
-
-    private function prependCommentLine(array $nodes, $commentLine) {
-        if ($this->appendSourceInfo && count($nodes)) {
-            $node = $nodes[0];
-            $node->setAttribute(
-                'comments',
-                array_merge(
-                    [new DocComment("/**\n * $commentLine\n */")],
-                    (array)$node->getAttribute('comments')
-                )
-            );
-        }
+    public function parse(string $code): array {
+        $parser = new Parser(new Lexer());
+        return $parser->parse($code);
     }
 }
