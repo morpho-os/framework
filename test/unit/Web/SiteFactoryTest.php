@@ -7,7 +7,6 @@
 namespace MorphoTest\Unit\Web;
 
 use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Core\CONFIG_FILE_NAME;
 use Morpho\Test\TestCase;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
@@ -135,7 +134,7 @@ class SiteFactoryTest extends TestCase {
      * @dataProvider dataForInvoke_ValidHost
      */
     public function testInvoke_ValidHost(string $hostName, string $moduleName, string $siteDirPath, array $siteConfig) {
-        $siteConfigFilePath = $siteDirPath . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME;
+        $siteConfigFilePath = $siteDirPath . '/' . CONFIG_DIR_NAME . '/config.php';
 
         $expectedSiteConfig = new \ArrayObject(array_merge($siteConfig, [
             'paths' => [

@@ -7,7 +7,6 @@
 namespace Morpho\Test;
 
 use Morpho\Base\TSingleton;
-use const Morpho\Core\CONFIG_FILE_NAME;
 use function Morpho\Core\baseDirPath;
 use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Web\PUBLIC_DIR_NAME;
@@ -50,7 +49,7 @@ class Sut {
     }
 
     public function configFilePath(): string {
-        return $this->baseModuleDirPath() . '/' . CONFIG_FILE_NAME;
+        return $this->baseModuleDirPath() . '/config.php';
     }
 
     public function publicDirPath(): string {

@@ -23,7 +23,6 @@ const VENDOR_DIR_NAME = 'vendor';
 const VIEW_DIR_NAME = 'view';
 
 const AUTOLOAD_FILE_NAME = 'autoload.php';
-const CONFIG_FILE_NAME = 'config.php';
 const META_FILE_NAME = 'composer.json';
 //const MODULE_CLASS_FILE_NAME = 'Module.php';
 

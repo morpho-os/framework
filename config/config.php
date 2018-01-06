@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 
@@ -15,7 +14,7 @@ return [
                 'paths' => [
                     'dirPath' => $siteDirPath,
                     'publicDirPath' => $baseDirPath . '/' . PUBLIC_DIR_NAME,
-                    'configFilePath' => $siteDirPath . '/' . CONFIG_DIR_NAME . '/' . CONFIG_FILE_NAME
+                    'configFilePath' => $siteDirPath . '/' . CONFIG_DIR_NAME . '/config.php',
                 ],
                 'hostNames' => $hostNames,
             ];

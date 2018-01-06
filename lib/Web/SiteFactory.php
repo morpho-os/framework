@@ -7,8 +7,6 @@
 namespace Morpho\Web;
 
 use Morpho\Base\IFn;
-use const Morpho\Core\CONFIG_DIR_NAME;
-use const Morpho\Core\CONFIG_FILE_NAME;
 use const Morpho\Core\VENDOR_DIR_NAME;
 use Zend\Stdlib\ArrayUtils;
 
