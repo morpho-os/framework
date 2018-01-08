@@ -49,14 +49,6 @@ return [
         ],
         'dispatchErrorHandler' => [
             'throwErrors' => false,
-        ],
-        'errorLogger' => [
-            'mailOnError' => false,
-            'mailFrom' => 'admin@localhost',
-            'mailTo' => 'admin@localhost',
-            'logToFile' => true,
-        ],
-        'eventManager' => [
             /*
             'handlers' => [
                 \Morpho\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyError', 'accessDenied'],
@@ -65,6 +57,12 @@ return [
                 \Morpho\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],
             ],
              */
+        ],
+        'errorLogger' => [
+            'mailOnError' => false,
+            'mailFrom' => 'admin@localhost',
+            'mailTo' => 'admin@localhost',
+            'logToFile' => true,
         ],
         'view' => [
             'layoutModule' => VENDOR . '/system',
