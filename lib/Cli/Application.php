@@ -20,6 +20,8 @@ abstract class Application extends BaseApplication {
 
     protected function init(): void {
         Environment::init();
+        $serviceManager = $this->serviceManager();
+        $serviceManager->get('errorHandler')->register();
     }
 
     protected function showError(\Throwable $e): void {
