@@ -70,7 +70,7 @@ class ServiceManager extends BaseServiceManager {
 
     protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
-        $templateEngine = new PhpTemplateEngine();
+        $templateEngine = new PhpTemplateEngine($this);
         $siteModuleName = $this->get('site')->moduleName();
         $cacheDirPath = $this->get('moduleIndex')->moduleMeta($siteModuleName)->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);

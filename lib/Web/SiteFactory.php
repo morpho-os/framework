@@ -7,13 +7,12 @@
 namespace Morpho\Web;
 
 use Morpho\Base\IFn;
-use const Morpho\Core\VENDOR_DIR_NAME;
-use Zend\Stdlib\ArrayUtils;
+use Morpho\Core\SiteFactory as BaseSiteFactory;
 
-class SiteFactory implements IFn {
-    public function __invoke($config): Site {
+class SiteFactory extends BaseSiteFactory implements IFn {
+    public function __invoke($appConfig): Site {
         $hostName = $this->detectHostName();
-        $siteConfig = $config['hostMapper']($hostName);
+        $siteConfig = $appConfig['hostMapper']($hostName);
         if (!$siteConfig) {
             throw new BadRequestException("Unable to detect the current site");
         }
@@ -52,31 +51,5 @@ class SiteFactory implements IFn {
             }
         }
         return $hostWithoutPort;
-    }
-
-    protected function loadMergedConfig(string $siteModuleName, array $siteConfig): \ArrayObject {
-        require $siteConfig['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
-
-        $configFilePath = $siteConfig['paths']['configFilePath'];
-        $loadedConfig = ArrayUtils::merge($siteConfig, $this->requireFile($configFilePath));
-
-        if (!isset($loadedConfig['modules'])) {
-            $loadedConfig['modules'] = [];
-        }
-        $newModules = [$siteModuleName => []]; // Store the site config as first item
-        foreach ($loadedConfig['modules'] as $name => $moduleConfig) {
-            if (is_numeric($name)) {
-                $newModules[$moduleConfig] = [];
-            } else {
-                $newModules[$name] = $moduleConfig;
-            }
-        }
-        $loadedConfig['modules'] = $newModules;
-
-        return new \ArrayObject($loadedConfig);
-    }
-
-    protected function requireFile(string $filePath) {
-        return require $filePath;
     }
 }
