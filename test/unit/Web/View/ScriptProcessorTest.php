@@ -6,6 +6,7 @@
  */
 namespace MorphoTest\Unit\Web\View;
 
+use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Test\TestCase;
 use Morpho\Core\ModuleIndex;
@@ -101,6 +102,15 @@ OUT;
 
         $html = '<' . $tag . ' _skip></' . $tag . '>';
         $this->assertSame($html, $processor->__invoke($html));
+    }
+
+    public function testSkipsScriptsWithUnknownType() {
+        $html = '<script type="text/template">foo</script>';
+        $serviceManager = $this->createMock(IServiceManager::class);
+        $processor = new ScriptProcessor($serviceManager);
+
+        $processed = $processor->__invoke($html);
+        $this->assertSame($html, $processed);
     }
 
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript() {

@@ -65,10 +65,11 @@ class ScriptProcessor extends HtmlProcessor {
         if (isset($tag[self::SKIP_ATTR])) {
             return null;
         }
-        if ((isset($tag['type']) && $tag['type'] == 'text/javascript') || !isset($tag['type'])) {
+        if (!isset($tag['type']) || (isset($tag['type']) && $tag['type'] == 'text/javascript')) {
             $this->scripts[] = $tag;
+            return false;  // remove the original tag, we will add it later.
         }
-        return false;  // remove the original tag, we will add it later.
+        return null;
     }
 
     protected function renderScripts(array $scripts): string {

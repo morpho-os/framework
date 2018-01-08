@@ -25,8 +25,8 @@ class PhpTemplateEngineTest extends TestCase {
     private $templateEngine;
 
     public function setUp() {
-        $this->templateEngine = new PhpTemplateEngine();
         $serviceManager = $this->newServiceManager();
+        $this->templateEngine = new PhpTemplateEngine($serviceManager);
         $this->configureTemplateEngine($this->templateEngine, $serviceManager);
     }
 
@@ -55,8 +55,8 @@ class PhpTemplateEngineTest extends TestCase {
             ->method('uri')
             ->willReturn($curUri);
         $serviceManager = $this->newServiceManager(['request' => $request]);
-        $templateEngine = new PhpTemplateEngine();
-        $this->configureTemplateEngine($templateEngine, $serviceManager);
+        $templateEngine = new PhpTemplateEngine($serviceManager);
+        $this->configureTemplateEngine($templateEngine);
         $uri = $templateEngine->uriWithRedirectToSelf($uriStr);
         $this->assertSame(
             $expectedUriStr,
@@ -142,7 +142,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testUseCache() {
-        $this->checkBoolAccessor([new PhpTemplateEngine(), 'useCache'], true);
+        $this->checkBoolAccessor([new PhpTemplateEngine($this->createMock(IServiceManager::class)), 'useCache'], true);
     }
 
     public function testRunFileWithAbsPath() {
@@ -162,8 +162,8 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testLink_PrependBasePath() {
         $serviceManager = $this->newServiceManager();
-        $templateEngine = new PhpTemplateEngine();
-        $this->configureTemplateEngine($templateEngine, $serviceManager);
+        $templateEngine = new PhpTemplateEngine($serviceManager);
+        $this->configureTemplateEngine($templateEngine);
 
         $uri = new Uri('/one/two');
         $html = $templateEngine->link($uri, 'News');
@@ -344,8 +344,7 @@ class PhpTemplateEngineTest extends TestCase {
         return new ServiceManager($services);
     }
 
-    private function configureTemplateEngine(PhpTemplateEngine $templateEngine, $serviceManager) {
-        $templateEngine->setServiceManager($serviceManager);
+    private function configureTemplateEngine(PhpTemplateEngine $templateEngine) {
         $templateEngine->setCacheDirPath($this->tmpDirPath());
         $templateEngine->useCache(false);
     }

@@ -10,13 +10,13 @@ use function Morpho\Base\{
     dasherize, last
 };
 use const Morpho\Core\PLUGIN_SUFFIX;
-use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
 use function Morpho\Web\prependBasePath;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Web\Request;
 use Morpho\Web\Uri\Uri;
 
-class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
+class PhpTemplateEngine extends TemplateEngine {
     /**
      * @var IServiceManager
      */
@@ -35,6 +35,17 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     private $plugins = [];
 
     private const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
+
+    private $phases = [];
+
+    public function __construct(IServiceManager $serviceManager) {
+        $this->serviceManager = $serviceManager;
+        $this->phases = [
+            new FormPersister($serviceManager),
+            new UriProcessor($serviceManager),
+            new ScriptProcessor($serviceManager),
+        ];
+    }
 
     public function plugin($name) {
         $name = ucfirst($name);
@@ -119,17 +130,11 @@ class PhpTemplateEngine extends TemplateEngine implements IHasServiceManager {
     }
 
     public function getIterator(): iterable {
-        $serviceManager = $this->serviceManager;
-        $phases = [
-            new FormPersister($serviceManager),
-            new UriProcessor($serviceManager),
-            new ScriptProcessor($serviceManager),
-        ];
         return new \ArrayIterator([
             new Processor(),
-            function ($context) use ($phases) {
+            function ($context) {
                 $code = $context['code'];
-                foreach ($phases as $phase) {
+                foreach ($this->phases as $phase) {
                     $code = $phase($code);
                 }
                 $context['code'] = $code;
