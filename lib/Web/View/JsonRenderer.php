@@ -14,11 +14,24 @@ class JsonRenderer implements IFn {
      * @param \Morpho\Web\Request $request
      */
     public function __invoke($request): void {
+        /** @var \Morpho\Web\Response $response */
         $response = $request->response();
 
         $page = $request['page'];
 
         $response->headers()['Content-Type'] = 'application/json';
-        $response->setBody(toJson($page));
+        if ($request->isAjax()) {
+            $body = [
+                'code' => $response->statusCode(),
+                'page' => $page
+            ];
+            if ($response->isRedirect()) {
+                $body['redirect'] = $response->headers()['Location'];
+                unset($response->headers()['Location']);
+            }
+            $response->setBody(toJson($body));
+        } else {
+            $response->setBody(toJson($page));
+        }
     }
 }

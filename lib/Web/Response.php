@@ -30,6 +30,7 @@ class Response extends BaseResponse {
      */
     private $statusLine;
 
+    // @TODO: Move to StatusCode::OK
     public const OK_STATUS_CODE = 200;
     public const FOUND_STATUS_CODE = 302;
     public const NOT_MODIFIED_STATUS_CODE = 304;
@@ -67,7 +68,8 @@ class Response extends BaseResponse {
 
     public function isRedirect(): bool {
         $statusCode = $this->statusCode;
-        return 300 <= $statusCode && $statusCode < 400;
+        return isset($this->headers()['Location'])
+            && 300 <= $statusCode && $statusCode < 400;
     }
 
     public function isSuccess(): bool {

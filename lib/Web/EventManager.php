@@ -52,11 +52,8 @@ class EventManager extends BaseEventManager {
             $serviceManager = $this->serviceManager;
 
             /** @var IFn $renderer */
-            $rendererType = $serviceManager->get('contentNegotiator')->__invoke($request);
-            if (false === $rendererType) {
-                $rendererType = 'html';
-            }
-            $renderer = $this->newRenderer($rendererType, $serviceManager);
+            $format = $serviceManager->get('contentNegotiator')->__invoke($request);
+            $renderer = $this->newRenderer($format, $serviceManager);
             $renderer->__invoke($request);
         });
     }
@@ -65,10 +62,12 @@ class EventManager extends BaseEventManager {
         if (!$request->isDispatched()) {
             return false;
         }
-        /** @var \Morpho\Web\Response $response */
-        $response = $request->response();
-        if ($response->isRedirect()) {
-            return false;
+        if (!$request->isAjax()) {
+            /** @var \Morpho\Web\Response $response */
+            $response = $request->response();
+            if ($response->isRedirect()) {
+                return false;
+            }
         }
         return isset($request['page']);
     }

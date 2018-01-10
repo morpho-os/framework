@@ -73,7 +73,7 @@ class EventManagerTest extends TestCase {
             ->with('contentNegotiator')
             ->willReturn(new class {
                 public function __invoke() {
-                    return false;
+                    return 'html';
                 }
             });
 
@@ -104,21 +104,24 @@ class EventManagerTest extends TestCase {
     }
 
     public function dataForShouldRender() {
-        yield [false, false, $this->createMock(Page::class), false];
-        yield [false, false, null, false];
-        yield [false, true, $this->createMock(Page::class), false];
-        yield [false, true, null, false];
-        yield [true, false, $this->createMock(Page::class), true];
-        yield [true, false, null, false];
-        yield [true, true, $this->createMock(Page::class), false];
-        yield [true, true, null, false];
+        foreach ([true, false] as $isAjax) {
+            yield [$isAjax, false, false, $this->createMock(Page::class), false];
+            yield [$isAjax, false, false, null, false];
+            yield [$isAjax, false, true, $this->createMock(Page::class), false];
+            yield [$isAjax, false, true, null, false];
+            yield [$isAjax, true, false, $this->createMock(Page::class), true];
+            yield [$isAjax, true, false, null, false];
+            yield [$isAjax, true, true, $this->createMock(Page::class), $isAjax];
+            yield [$isAjax, true, true, null, false];
+        }
     }
 
     /**
      * @dataProvider dataForShouldRender
      */
-    public function testShouldRender(bool $isDispatched, bool $isRedirect, ?Page $page, bool $expected) {
+    public function testShouldRender(bool $isAjax, bool $isDispatched, bool $isRedirect, ?Page $page, bool $expected) {
         $request = $this->newConfiguredRequest($isDispatched, $isRedirect, $page);
+        $request->isAjax($isAjax);
         $serviceManager = $this->createMock(IServiceManager::class);
         /** @noinspection PhpParamsInspection */
         $renderer = new EventManager($serviceManager);

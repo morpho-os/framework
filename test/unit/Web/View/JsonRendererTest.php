@@ -15,21 +15,64 @@ use Morpho\Web\View\Page;
 
 class JsonRendererTest extends TestCase {
     public function testInvoke() {
-        $response = new Response();
-        $response->setStatusCode(Response::OK_STATUS_CODE);
-
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
         $params = new \ArrayObject(['page' => $page]);
-
         $request = new Request($params);
+
+        $response = new Response();
+        $statusCode = Response::OK_STATUS_CODE;
+        $response->setStatusCode($statusCode);
         $request->setResponse($response);
 
         $renderer = new JsonRenderer();
 
         $renderer->__invoke($request);
 
-        $this->assertSame(toJson($data), $response->body());
+        $this->assertSame(toJson($page), $response->body());
+        $this->assertSame(['Content-Type' => 'application/json'], $response->headers()->getArrayCopy());
+    }
+
+    public function dataForInvoke_Ajax() {
+        yield [
+            '/foo/bar',
+        ];
+        yield [
+            null,
+        ];
+    }
+
+    /**
+     * @dataProvider dataForInvoke_Ajax
+     */
+    public function testInvoke_Ajax(?string $redirectUriStr) {
+        $statusCode = $redirectUriStr ? Response::FOUND_STATUS_CODE : Response::OK_STATUS_CODE;
+
+        $data = ['foo' => 'bar'];
+        $page = new Page('test', $data);
+        $params = new \ArrayObject(['page' => $page]);
+
+        $request = new Request($params);
+        $request->isAjax(true);
+
+        $response = new Response();
+        if ($redirectUriStr) {
+            $response->redirect($redirectUriStr, $statusCode);
+        }
+        $request->setResponse($response);
+
+        $renderer = new JsonRenderer();
+
+        $renderer->__invoke($request);
+
+        $expectedBody = [
+            'code' => $statusCode,
+            'page' => $page,
+        ];
+        if ($redirectUriStr) {
+            $expectedBody['redirect'] = $redirectUriStr;
+        }
+        $this->assertSame(toJson($expectedBody), $response->body());
         $this->assertSame(['Content-Type' => 'application/json'], $response->headers()->getArrayCopy());
     }
 }

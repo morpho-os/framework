@@ -10,28 +10,38 @@ use Morpho\Base\IFn;
 use Negotiation\Negotiator;
 
 class ContentNegotiator implements IFn {
+    public const HTML_FORMAT = 'html';
+    public const JSON_FORMAT = 'json';
+    public const XML_FORMAT  = 'xml';
+
+    protected $priorities = ['text/html; charset=UTF-8', 'application/json'/*, 'application/xml;q=0.5'*/];
+
+    protected $defaultFormat = self::HTML_FORMAT;
+
     /**
      * @param Request $request
-     * @return string|false
      */
-    public function __invoke($request) {
+    public function __invoke($request): string {
         if ($request->isAjax()) {
-            return new View\JsonRenderer();
+            return self::JSON_FORMAT;
         }
         $headers = $request->headers();
         if (!$headers->offsetExists('Accept')) {
-            return false;
+            return $this->defaultFormat;
         }
         $acceptHeaderStr = $headers->offsetGet('Accept');
 
         // @TODO: Replace with own implementation for speed.
         // Perform Media Type Negotiation
         $negotiator = new Negotiator();
-        $priorities = ['text/html; charset=UTF-8', 'application/json'];/* @TODO:, 'application/xml;q=0.5'];*/
-        /** @var \Negotiation\Accept $mediaType */
-        $mediaType = $negotiator->getBest($acceptHeaderStr, $priorities);
+        try {
+            /** @var \Negotiation\Accept $mediaType */
+            $mediaType = $negotiator->getBest($acceptHeaderStr, $this->priorities);
+        } catch (\Negotiation\Exception\InvalidArgument $e) {
+            return $this->defaultFormat;
+        }
         if (!$mediaType) {
-            return false;
+            return $this->defaultFormat;
         }
         return strtolower($mediaType->getSubPart());
     }
