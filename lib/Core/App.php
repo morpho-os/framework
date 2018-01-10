@@ -10,7 +10,7 @@ use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Error\ErrorHandler;
 
-abstract class Application implements IHasServiceManager {
+abstract class App implements IHasServiceManager {
     /**
      * @var \ArrayObject
      */

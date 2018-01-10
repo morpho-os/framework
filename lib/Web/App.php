@@ -7,10 +7,10 @@
 namespace Morpho\Web;
 
 use Morpho\Core\IBootstrapFactory;
-use Morpho\Core\Application as BaseApplication;
+use Morpho\Core\App as BaseApp;
 use Morpho\Web\View\Html;
 
-class Application extends BaseApplication {
+class App extends BaseApp {
     protected function init(): void {
         Environment::init();
         $serviceManager = $this->serviceManager();

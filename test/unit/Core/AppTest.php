@@ -8,7 +8,7 @@ namespace MorphoTest\Unit\Core {
     use Morpho\Test\TestCase;
     use MorphoTest\Unit\Core\ApplicationTest\App;
 
-    class ApplicationTest extends TestCase {
+    class AppTest extends TestCase {
         public function testConfigAccessors() {
             $app = new App();
             $this->assertEquals(new \ArrayObject([]), $app->config());
@@ -27,12 +27,12 @@ namespace MorphoTest\Unit\Core {
 
 namespace MorphoTest\Unit\Core\ApplicationTest {
     use Morpho\Base\NotImplementedException;
-    use Morpho\Core\Application;
+    use Morpho\Core\App as BaseApp;
     use Morpho\Core\IBootstrapFactory;
     use Morpho\Ioc\IServiceManager;
     use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
-    class App extends Application {
+    class App extends BaseApp {
         protected function showError(\Throwable $e): void {
             throw new NotImplementedException();
         }

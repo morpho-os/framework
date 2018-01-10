@@ -6,9 +6,9 @@
  */
 namespace Morpho\Cli;
 
-use Morpho\Core\Application as BaseApplication;
+use Morpho\Core\App as BaseApp;
 
-abstract class Application extends BaseApplication {
+abstract class App extends BaseApp {
     public static function main(\ArrayObject $config = null): int {
         $app = new static($config);
         $response = $app->run();

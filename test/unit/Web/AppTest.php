@@ -9,10 +9,10 @@ namespace MorphoTest\Unit\Web;
 use Morpho\Core\IBootstrapFactory;
 use Morpho\Web\ServiceManager;
 use Morpho\Test\TestCase;
-use Morpho\Web\Application;
+use Morpho\Web\App;
 use Morpho\Web\Site;
 
-class ApplicationTest extends TestCase {
+class AppTest extends TestCase {
     private $umask;
     private $timezone;
 
@@ -118,7 +118,7 @@ class ApplicationTest extends TestCase {
                 'newServiceManager' => $serviceManager,
             ]),
         ]);
-        $application = new Application($appConfig);
+        $application = new App($appConfig);
         return $application;
     }
 }
