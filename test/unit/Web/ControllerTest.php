@@ -18,14 +18,94 @@ class ControllerTest extends TestCase {
         $this->assertInstanceOf(IFn::class, new Controller());
     }
 
-    public function dataForRedirect_HasArgs() {
+    public function testInvoke_ThrowsLogicExceptionIfRequestIsNotDispatched() {
+        $controller = new MyController();
+        $request = new Request();
+        $request->isDispatched(false);
+        $request->setActionName('returnArray');
+
+        $this->expectException(\LogicException::class, 'Request must be dispatched');
+        $controller->__invoke($request);
+    }
+
+    public function testInvoke_UnsetsResponseParamsFromPreviousInvoke() {
+        $controller = new MyController();
+
+        $request = new Request();
+        $this->configureUri($request);
+        $request->isDispatched(true);
+
+        $request->setActionName('returnArray');
+        $request->response()['foo'] = 'test';
+        $controller->__invoke($request);
+        $this->assertFalse(isset($request->response()['foo']));
+        $this->assertTrue(isset($request->response()['page']));
+
+        $request->response()['bar'] = 'test';
+        $request->setActionName('redirectNoArgs');
+        $controller->__invoke($request);
+        $this->assertFalse(isset($request->response()['bar']));
+        $this->assertTrue(!isset($request->response()['page']));
+    }
+
+    public function dataForInvoke_Redirect_Ajax() {
+        $noopFn = function () {};
+        $returnResponseFn = function ($controller) {
+            $controller->returnResponse = new Response();
+        };
+        // {redirect/1, not-redirect/0} x {ajax/1, not-ajax/0}
+        yield [
+            'redirectNoArgs', // 0
+            false,            // 0
+            false,
+            $noopFn,
+        ];
+        yield [
+            'redirectNoArgs', // 0
+            true,             // 1
+            true,
+            $noopFn,
+        ];
+        yield [
+            'returnResponse', // 1
+            false,            // 0
+            false,
+            $returnResponseFn,
+        ];
+        yield [
+            'returnResponse', // 1
+            true,             // 1
+            true,
+            $returnResponseFn,
+        ];
+    }
+
+    /**
+     * @dataProvider dataForInvoke_Redirect_Ajax
+     */
+    public function testInvoke_Redirect_Ajax($actionName, bool $isAjax, bool $hasPage, callable $configureController) {
+        $controller = new MyController();
+        $configureController($controller);
+
+        $request = new Request();
+        $request->setActionName($actionName);
+        $request->isAjax($isAjax);
+        $request->isDispatched(true);
+        $this->configureUri($request);
+
+        $controller->__invoke($request);
+
+        $this->assertSame($hasPage, isset($request->response()['page']));
+    }
+
+    public function dataRedirect_HasArgs() {
         yield [300];
         yield [301];
         yield [302];
     }
 
     /**
-     * @dataProvider dataForRedirect_HasArgs
+     * @dataProvider dataRedirect_HasArgs
      */
     public function testRedirect_HasArguments($statusCode) {
         $controller = new MyController();
@@ -92,7 +172,7 @@ class ControllerTest extends TestCase {
         $this->assertTrue(!isset($request['page']));
     }
 
-    public function testReturningResponseFromAction() {
+    public function testInvoke_ReturningResponseFromAction() {
         $controller = new MyController();
         $controller->returnResponse = $response = new Response();
         $response->setBody('foo');
@@ -106,7 +186,7 @@ class ControllerTest extends TestCase {
         $this->assertSame('foo', $response->body());
     }
     
-    public function testReturningArrayFromAction() {
+    public function testInvoke_ReturningArrayFromAction() {
         $controller = new MyController();
         $request = $this->newRequest();
         $request->setActionName('returnArray');
@@ -122,6 +202,13 @@ class ControllerTest extends TestCase {
         $request = new Request(null, $serverVars, new class implements IFn { public function __invoke($value) {} });
         $request->isDispatched(true);
         return $request;
+    }
+
+    private function configureUri(Request $request): void {
+        $uri = new Uri('http://localhost/base/path/some/module?foo=bar');
+        $basePath = '/base/path';
+        $uri->path()->setBasePath($basePath);
+        $request->setUri($uri);
     }
 }
 

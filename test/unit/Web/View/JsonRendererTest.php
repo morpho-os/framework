@@ -14,7 +14,7 @@ use function Morpho\Base\toJson;
 use Morpho\Web\View\Page;
 
 class JsonRendererTest extends TestCase {
-    public function testInvoke() {
+    public function testInvoke_NonAjax() {
         $request = new Request();
 
         $data = ['foo' => 'bar'];
@@ -64,14 +64,11 @@ class JsonRendererTest extends TestCase {
 
         $renderer->__invoke($request);
 
-        $expectedBody = [
-            'code' => $statusCode,
-            'page' => $page,
-        ];
         if ($redirectUriStr) {
             $expectedBody['redirect'] = $redirectUriStr;
         }
-        $this->assertSame(toJson($expectedBody), $response->body());
+        $this->assertSame(toJson($page), $response->body());
         $this->assertSame(['Content-Type' => 'application/json'], $response->headers()->getArrayCopy());
+        $this->assertSame(Response::OK_STATUS_CODE, $response->statusCode());
     }
 }

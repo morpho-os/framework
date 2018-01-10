@@ -7,66 +7,60 @@
 namespace Morpho\Web;
 
 use function Morpho\Base\dasherize;
-use Morpho\Base\IFn;
+use function Morpho\Base\typeOf;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Session\Session;
 use Morpho\Web\View\Page;
+use Morpho\Core\Controller as BaseController;
+use MOrpho\Core\Request;
 
-class Controller implements IFn, IHasServiceManager {
+class Controller extends BaseController implements IHasServiceManager {
     /**
      * @var \Morpho\Ioc\IServiceManager
      */
     protected $serviceManager;
+
     /**
-     * @var null|Request
+     * @var \Morpho\Web\Request
      */
     protected $request;
 
     /**
-     * @param Request $request
+     * @param null|Page|Response $actionResult
      */
-    public function __invoke($request): void {
-        $this->request = $request;
-        $action = $request->actionName();
-        if (empty($action)) {
-            throw new \LogicException("Empty action name");
-        }
-        $this->beforeEach();
-        $page = null;
-        $method = $action . 'Action';
-        if (method_exists($this, $method)) {
-            $page = $this->$method();
-        }
-        $this->afterEach();
-        if ($page instanceof Response) {
-            $request->setResponse($page);
+    protected function handleActionResult(Request $request, $actionResult): void {
+        if (!$request->isDispatched()) {
             return;
         }
-        if (!$request->isDispatched() || $request->response()->isRedirect()) {
-            return;
+        /** @var Response $response */
+        $response = $request->response();
+        /** @var \Morpho\Web\Request $request */
+        if ($request->isAjax()) {
+            if ($actionResult instanceof Response) {
+                $response['page'] = $this->newPage();
+                return;
+            }
+        } else {
+            if ($actionResult instanceof Response) {
+                $request->setResponse($actionResult);
+                return;
+            }
+            if ($response->isRedirect()) {
+                return;
+            }
         }
-        if (null === $page || is_array($page)) {
-            $page = $this->newPage($page);
+        if (null === $actionResult || is_array($actionResult)) {
+            $actionResult = $this->newPage($actionResult);
+        } elseif (!$actionResult instanceof Page) {
+            throw new \UnexpectedValueException('Type: ' . typeOf($actionResult));
         }
-        $request->response()['page'] = $page;
+        $response['page'] = $actionResult;
     }
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
-    }
-
-    /**
-     * Called before calling of any action.
-     */
-    protected function beforeEach(): void {
-    }
-
-    /**
-     * Called after calling of any action.
-     */
-    protected function afterEach(): void {
     }
 
     protected function messenger(): Messenger {
