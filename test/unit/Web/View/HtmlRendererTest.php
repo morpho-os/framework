@@ -24,11 +24,12 @@ class HtmlRendererTest extends TestCase {
 
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
+        $response['page'] = $page;
 
         $viewModuleName = 'foo/bar';
         $layoutModuleName = 'abc/test';
 
-        $request = new Request(['page' => $page]);
+        $request = new Request();
         $request->setModuleName('foo/bar');
         $request->setControllerName('News');
         $request->setResponse($response);

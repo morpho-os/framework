@@ -62,14 +62,14 @@ class EventManager extends BaseEventManager {
         if (!$request->isDispatched()) {
             return false;
         }
+        /** @var \Morpho\Web\Response $response */
+        $response = $request->response();
         if (!$request->isAjax()) {
-            /** @var \Morpho\Web\Response $response */
-            $response = $request->response();
             if ($response->isRedirect()) {
                 return false;
             }
         }
-        return isset($request['page']);
+        return isset($response['page']);
     }
 
     protected function newRenderer(string $rendererType, IServiceManager $serviceManager): IFn {

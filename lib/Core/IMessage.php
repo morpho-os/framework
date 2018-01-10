@@ -6,5 +6,5 @@
  */
 namespace Morpho\Core;
 
-interface IMessage extends \ArrayAccess {
+interface IMessage extends \IteratorAggregate, \ArrayAccess, \Serializable, \Countable {
 }

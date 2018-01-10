@@ -15,12 +15,12 @@ use Morpho\Web\View\Page;
 
 class JsonRendererTest extends TestCase {
     public function testInvoke() {
+        $request = new Request();
+
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
         $params = new \ArrayObject(['page' => $page]);
-        $request = new Request($params);
-
-        $response = new Response();
+        $response = new Response($params);
         $statusCode = Response::OK_STATUS_CODE;
         $response->setStatusCode($statusCode);
         $request->setResponse($response);
@@ -46,16 +46,15 @@ class JsonRendererTest extends TestCase {
      * @dataProvider dataForInvoke_Ajax
      */
     public function testInvoke_Ajax(?string $redirectUriStr) {
+        $request = new Request();
+        $request->isAjax(true);
+
         $statusCode = $redirectUriStr ? Response::FOUND_STATUS_CODE : Response::OK_STATUS_CODE;
 
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
         $params = new \ArrayObject(['page' => $page]);
-
-        $request = new Request($params);
-        $request->isAjax(true);
-
-        $response = new Response();
+        $response = new Response($params);
         if ($redirectUriStr) {
             $response->redirect($redirectUriStr, $statusCode);
         }

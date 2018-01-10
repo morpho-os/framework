@@ -50,7 +50,7 @@ class Controller implements IFn, IHasServiceManager {
         if (null === $page || is_array($page)) {
             $page = $this->newPage($page);
         }
-        $request['page'] = $page;
+        $request->response()['page'] = $page;
     }
 
     public function setServiceManager(IServiceManager $serviceManager): void {

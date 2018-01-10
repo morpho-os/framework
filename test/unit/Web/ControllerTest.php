@@ -113,7 +113,7 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $page = $request['page'];
+        $page = $request->response()['page'];
         $this->assertSame(['foo' => 'bar'], $page->getArrayCopy());
         $this->assertSame('', $request->response()->body());
     }

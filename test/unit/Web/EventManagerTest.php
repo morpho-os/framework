@@ -131,11 +131,7 @@ class EventManagerTest extends TestCase {
     }
 
     private function newConfiguredRequest(bool $isDispatched, bool $isRedirect, ?Page $page) {
-        $params = null;
-        if ($page) {
-            $params = ['page' => $page];
-        }
-        $request = new Request($params);
+        $request = new Request();
         $request->isDispatched($isDispatched);
         $response = new class ($isRedirect) extends Response {
             private $isRedirect;
@@ -148,6 +144,9 @@ class EventManagerTest extends TestCase {
                 return $this->isRedirect;
             }
         };
+        if ($page) {
+            $response['page'] = $page;
+        }
         $request->setResponse($response);
         return $request;
     }

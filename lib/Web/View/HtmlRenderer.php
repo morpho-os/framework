@@ -24,10 +24,13 @@ class HtmlRenderer implements IFn {
     public function __invoke($request): void {
         $serviceManager = $this->serviceManager;
 
+        /** @var \Morpho\Web\Response $response */
+        $response = $request->response();
+
         // 1. Render view
         $moduleName = $request->moduleName();
         /** @var Page $page */
-        $page = $request['page'];
+        $page = $response['page'];
         $view = $page->view();
         if (!$view->dirPath()) {
             $view->setDirPath(dasherize($request->controllerName()));
@@ -40,8 +43,6 @@ class HtmlRenderer implements IFn {
         $layout['body'] = $renderedView;
         $renderedLayout = $this->render($moduleName, $layout);
 
-        /** @var \Morpho\Web\Response $response */
-        $response = $request->response();
         $response->setBody($renderedLayout);
         $response->headers()['Content-Type'] = 'text/html; charset=UTF-8';
     }

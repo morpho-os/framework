@@ -17,7 +17,7 @@ class JsonRenderer implements IFn {
         /** @var \Morpho\Web\Response $response */
         $response = $request->response();
 
-        $page = $request['page'];
+        $page = $response['page'];
 
         $response->headers()['Content-Type'] = 'application/json';
         if ($request->isAjax()) {
