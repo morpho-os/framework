@@ -1,5 +1,6 @@
 sudo: enabled
 dist: trusty
+group: deprecated-2017Q4
 
 language: php
 
