@@ -24,7 +24,7 @@ class HtmlRendererTest extends TestCase {
 
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
-        $response['page'] = $page;
+        $response['result'] = $page;
 
         $viewModuleName = 'foo/bar';
         $layoutModuleName = 'abc/test';
@@ -60,6 +60,6 @@ class HtmlRendererTest extends TestCase {
         $renderer->__invoke($request);
 
         $this->assertSame('cat', $response->body());
-        $this->assertSame(['Content-Type' => 'text/html; charset=UTF-8'], $response->headers()->getArrayCopy());
+        $this->assertSame(['Content-Type' => 'text/html;charset=utf-8'], $response->headers()->getArrayCopy());
     }
 }

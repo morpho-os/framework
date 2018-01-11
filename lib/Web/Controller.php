@@ -8,6 +8,7 @@ namespace Morpho\Web;
 
 use function Morpho\Base\dasherize;
 use function Morpho\Base\typeOf;
+use Morpho\Core\IActionResult;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Web\Messages\Messenger;
@@ -27,19 +28,27 @@ class Controller extends BaseController implements IHasServiceManager {
      */
     protected $request;
 
-    /**
-     * @param null|Page|Response $actionResult
-     */
     protected function handleActionResult(Request $request, $actionResult): void {
         if (!$request->isDispatched()) {
             return;
         }
+
         /** @var Response $response */
         $response = $request->response();
+
+        if ($actionResult instanceof IActionResult || $actionResult instanceof Page) {
+            $response['result'] = $actionResult;
+            return;
+        }
+        if (is_array($actionResult)) {
+            $response['result'] = $this->newPage($actionResult);
+            return;
+        }
+
         /** @var \Morpho\Web\Request $request */
         if ($request->isAjax()) {
             if ($actionResult instanceof Response) {
-                $response['page'] = $this->newPage();
+                $response['result'] = $this->newPage();
                 return;
             }
         } else {
@@ -51,12 +60,11 @@ class Controller extends BaseController implements IHasServiceManager {
                 return;
             }
         }
-        if (null === $actionResult || is_array($actionResult)) {
-            $actionResult = $this->newPage($actionResult);
-        } elseif (!$actionResult instanceof Page) {
+        if (null === $actionResult) {
+            $response['result'] = $this->newPage($actionResult);
+        } else {
             throw new \UnexpectedValueException('Type: ' . typeOf($actionResult));
         }
-        $response['page'] = $actionResult;
     }
 
     public function setServiceManager(IServiceManager $serviceManager): void {

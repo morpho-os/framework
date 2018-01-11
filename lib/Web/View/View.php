@@ -13,10 +13,7 @@ class View extends \ArrayObject {
      * @var string
      */
     protected $name;
-    /**
-     * @var array
-     */
-    protected $vars;
+
     /**
      * @var null|string
      */

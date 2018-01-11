@@ -24,40 +24,6 @@ class EventManager extends BaseEventManager {
         $this->attachHandlers();
     }
 
-    protected function attachHandlers() {
-        $this->on('dispatchError', function (Event $event) {
-            /** @var DispatchErrorHandler $dispatchErrorHandler */
-            $dispatchErrorHandler = $this->serviceManager->get('dispatchErrorHandler');
-            $config = $this->serviceManager->config()['dispatchErrorHandler'];
-            $dispatchErrorHandler->throwErrors($config['throwErrors']);
-            if (isset($config['handlers'])) {
-                foreach ($config['handlers'] as $errorType => $handler) {
-                    $dispatchErrorHandler->setHandler($errorType, $handler);
-                }
-            }
-            /** @var Request $request */
-            $request = $event->args['request'];
-            $dispatchErrorHandler->handleError($event->args['exception'], $request);
-            // $request->response()->isRendered(false);
-        });
-
-        $this->on('afterDispatch', function (Event $event) {
-            /** @var Request $request */
-            $request = $event->args['request'];
-
-            if (!$this->shouldRender($request)) {
-                return;
-            }
-
-            $serviceManager = $this->serviceManager;
-
-            /** @var IFn $renderer */
-            $format = $serviceManager->get('contentNegotiator')->__invoke($request);
-            $renderer = $this->newRenderer($format, $serviceManager);
-            $renderer->__invoke($request);
-        });
-    }
-
     public function shouldRender(Request $request): bool {
         if (!$request->isDispatched()) {
             return false;
@@ -69,7 +35,44 @@ class EventManager extends BaseEventManager {
                 return false;
             }
         }
-        return isset($response['page']);
+        return isset($response['result']);
+    }
+
+    protected function attachHandlers() {
+        $this->on('dispatchError', [$this, 'onDispatchError']);
+        $this->on('afterDispatch', [$this, 'onAfterDispatch']);
+    }
+
+    protected function onDispatchError(Event $event): void {
+        /** @var DispatchErrorHandler $dispatchErrorHandler */
+        $dispatchErrorHandler = $this->serviceManager->get('dispatchErrorHandler');
+        $config = $this->serviceManager->config()['dispatchErrorHandler'];
+        $dispatchErrorHandler->throwErrors($config['throwErrors']);
+        if (isset($config['handlers'])) {
+            foreach ($config['handlers'] as $errorType => $handler) {
+                $dispatchErrorHandler->setHandler($errorType, $handler);
+            }
+        }
+        /** @var Request $request */
+        $request = $event->args['request'];
+        $dispatchErrorHandler->handleError($event->args['exception'], $request);
+        // $request->response()->isRendered(false);
+    }
+
+    protected function onAfterDispatch(Event $event): void {
+        /** @var Request $request */
+        $request = $event->args['request'];
+
+        if (!$this->shouldRender($request)) {
+            return;
+        }
+
+        $serviceManager = $this->serviceManager;
+
+        /** @var IFn $renderer */
+        $format = $serviceManager->get('contentNegotiator')->__invoke($request);
+        $renderer = $this->newRenderer($format, $serviceManager);
+        $renderer->__invoke($request);
     }
 
     protected function newRenderer(string $rendererType, IServiceManager $serviceManager): IFn {

@@ -7,6 +7,7 @@
 namespace MorphoTest\Unit\Web\View;
 
 use Morpho\Test\TestCase;
+use Morpho\Web\JsonResult;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
 use Morpho\Web\View\JsonRenderer;
@@ -19,8 +20,7 @@ class JsonRendererTest extends TestCase {
 
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
-        $params = new \ArrayObject(['page' => $page]);
-        $response = new Response($params);
+        $response = new Response(['result' => $page]);
         $statusCode = Response::OK_STATUS_CODE;
         $response->setStatusCode($statusCode);
         $request->setResponse($response);
@@ -30,7 +30,7 @@ class JsonRendererTest extends TestCase {
         $renderer->__invoke($request);
 
         $this->assertSame(toJson($page), $response->body());
-        $this->assertSame(['Content-Type' => 'application/json'], $response->headers()->getArrayCopy());
+        $this->assertSame(['Content-Type' => 'application/json;charset=utf-8'], $response->headers()->getArrayCopy());
     }
 
     public function dataForInvoke_Ajax() {
@@ -53,8 +53,7 @@ class JsonRendererTest extends TestCase {
 
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
-        $params = new \ArrayObject(['page' => $page]);
-        $response = new Response($params);
+        $response = new Response(['result' => $page]);
         if ($redirectUriStr) {
             $response->redirect($redirectUriStr, $statusCode);
         }
@@ -64,11 +63,31 @@ class JsonRendererTest extends TestCase {
 
         $renderer->__invoke($request);
 
+        $expectedBody = $data;
+
         if ($redirectUriStr) {
             $expectedBody['redirect'] = $redirectUriStr;
         }
-        $this->assertSame(toJson($page), $response->body());
-        $this->assertSame(['Content-Type' => 'application/json'], $response->headers()->getArrayCopy());
+
+        $this->checkJsonResponse($response, $expectedBody);
+    }
+
+    public function testInvoke_RenderJsonActionResult() {
+        $renderer = new JsonRenderer();
+
+        $request = new Request();
+        $data = ['foo' => 'bar'];
+        $request->response()['result'] = new JsonResult($data);
+
+        $renderer->__invoke($request);
+
+        $this->checkJsonResponse($request->response(), $data);
+    }
+
+    private function checkJsonResponse($response, $data) {
+        /** @var Response $response */
+        $this->assertSame(toJson($data), $response->body());
+        $this->assertSame(['Content-Type' => 'application/json;charset=utf-8'], $response->headers()->getArrayCopy());
         $this->assertSame(Response::OK_STATUS_CODE, $response->statusCode());
     }
 }

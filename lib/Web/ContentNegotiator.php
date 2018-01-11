@@ -7,6 +7,7 @@
 namespace Morpho\Web;
 
 use Morpho\Base\IFn;
+use Morpho\Core\IActionResult;
 use Negotiation\Negotiator;
 
 class ContentNegotiator implements IFn {
@@ -14,7 +15,7 @@ class ContentNegotiator implements IFn {
     public const JSON_FORMAT = 'json';
     public const XML_FORMAT  = 'xml';
 
-    protected $priorities = ['text/html; charset=UTF-8', 'application/json'/*, 'application/xml;q=0.5'*/];
+    protected $priorities = ['text/html', 'application/json'/*, 'application/xml;q=0.5'*/];
 
     protected $defaultFormat = self::HTML_FORMAT;
 
@@ -22,6 +23,11 @@ class ContentNegotiator implements IFn {
      * @param Request $request
      */
     public function __invoke($request): string {
+        $response = $request->response();
+        if (isset($response['result']) && $response['result'] instanceof IActionResult) {
+            return $response['result']::FORMAT;
+        }
+
         if ($request->isAjax()) {
             return self::JSON_FORMAT;
         }

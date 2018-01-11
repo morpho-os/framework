@@ -18,17 +18,13 @@ class JsonRenderer implements IFn {
         /** @var \Morpho\Web\Response $response */
         $response = $request->response();
 
-        $page = $response['page'];
+        $page = $response['result'];
 
-        $response->headers()['Content-Type'] = 'application/json';
+        // https://tools.ietf.org/html/rfc7231#section-3.1.1
+        $response->headers()['Content-Type'] = 'application/json;charset=utf-8';
         if ($request->isAjax()) {
-            //$body = [
-                //'statusCode' => $response->statusCode(),
-                //'page' => $page
-            //];
-
             if ($response->isRedirect()) {
-                $body['redirect'] = $response->headers()['Location'];
+                $page['redirect'] = $response->headers()['Location'];
                 unset($response->headers()['Location']);
                 $response->setStatusCode(Response::OK_STATUS_CODE);
             }

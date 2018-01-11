@@ -8,6 +8,7 @@ namespace MorphoTest\Unit\Web;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\ContentNegotiator;
+use Morpho\Web\JsonResult;
 use Morpho\Web\Request;
 
 class ContentNegotiatorTest extends TestCase {
@@ -84,7 +85,6 @@ class ContentNegotiatorTest extends TestCase {
         $this->assertSame($expectedFormat, $format);
     }
 
-    // @TODO: Handle XML and ANY return from ContentNegotiator
     public function testEmptyAcceptHeader_ReturnsFalse() {
         $negotiator = new ContentNegotiator();
         $request = new Request();
@@ -92,5 +92,15 @@ class ContentNegotiatorTest extends TestCase {
         $format = $negotiator->__invoke($request);
 
         $this->assertSame(ContentNegotiator::HTML_FORMAT, $format);
+    }
+
+    public function testReturnsActionResultFormat() {
+        $negotiator = new ContentNegotiator();
+        $request = new Request();
+        $request->response()['result'] = new JsonResult();
+
+        $format = $negotiator->__invoke($request);
+
+        $this->assertSame(JsonResult::FORMAT, $format);
     }
 }

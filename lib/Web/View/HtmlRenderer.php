@@ -30,7 +30,7 @@ class HtmlRenderer implements IFn {
         // 1. Render view
         $moduleName = $request->moduleName();
         /** @var Page $page */
-        $page = $response['page'];
+        $page = $response['result'];
         $view = $page->view();
         if (!$view->dirPath()) {
             $view->setDirPath(dasherize($request->controllerName()));
@@ -44,7 +44,8 @@ class HtmlRenderer implements IFn {
         $renderedLayout = $this->render($moduleName, $layout);
 
         $response->setBody($renderedLayout);
-        $response->headers()['Content-Type'] = 'text/html; charset=UTF-8';
+        // https://tools.ietf.org/html/rfc7231#section-3.1.1
+        $response->headers()['Content-Type'] = 'text/html;charset=utf-8';
     }
 
     protected function render(string $moduleName, View $view): string {

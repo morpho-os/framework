@@ -18,7 +18,7 @@ use Morpho\Web\Response;
 use Morpho\Web\View\Page;
 
 class EventManagerTest extends TestCase {
-    public function testDispatchErrorEventHandling() {
+    public function testDispatchErrorHandler() {
         $serviceManager = $this->createMock(ServiceManager::class);
         $throwErrors = true;
         $handlers = [
@@ -64,7 +64,7 @@ class EventManagerTest extends TestCase {
         $eventManager->trigger($event);
     }
 
-    public function testAfterDispatch() {
+    public function testAfterDispatchHandler_CallsRenderer() {
         /** @noinspection PhpParamsInspection */
         $request = $this->newConfiguredRequest(true, false, $this->createMock(Page::class));
         $serviceManager = $this->createMock(ServiceManager::class);
@@ -98,6 +98,7 @@ class EventManagerTest extends TestCase {
         $event = new Event('afterDispatch', [
             'request' => $request,
         ]);
+
         $eventManager->trigger($event);
 
         $this->assertSame([$request], $renderer->args);
@@ -145,7 +146,7 @@ class EventManagerTest extends TestCase {
             }
         };
         if ($page) {
-            $response['page'] = $page;
+            $response['result'] = $page;
         }
         $request->setResponse($response);
         return $request;

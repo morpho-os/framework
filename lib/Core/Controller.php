@@ -47,6 +47,9 @@ abstract class Controller implements IFn {
     protected function afterEach(): void {
     }
 
+    /**
+     * @param null|Response|array|\ArrayObject $actionResult
+     */
     protected function handleActionResult(Request $request, $actionResult): void {
     }
 }
