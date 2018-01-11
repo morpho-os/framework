@@ -88,8 +88,10 @@ class Dir extends Entry {
     /**
      * @param string|iterable $dirPaths
      * @param string|\Closure $processor
+     * @param array|bool|null $options
      */
-    public static function paths($dirPaths, $processor = null, array $options = []): \Generator {
+    public static function paths($dirPaths, $processor = null, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception("Invalid processor");
         }
@@ -153,7 +155,13 @@ class Dir extends Entry {
         }
     }
 
-    public static function baseNames($dirPath, $processor, array $options = null): \Generator {
+    /**
+     * @param string|iterable $dirPath
+     * @param string|\Closure $processor
+     * @param array|bool|null $options
+     */
+    public static function baseNames($dirPath, $processor, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 $baseName = basename($path);
@@ -184,8 +192,10 @@ class Dir extends Entry {
      *
      * @param string|iterable $dirPath
      * @param string|\Closure $processor
+     * @param array|bool|null $options
      */
-    public static function dirPaths($dirPath, $processor = null, array $options = []): \Generator {
+    public static function dirPaths($dirPath, $processor = null, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         $options['type'] = Stat::DIR;
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
@@ -200,7 +210,13 @@ class Dir extends Entry {
         return self::paths($dirPath, $processor, $options);
     }
 
-    public static function dirNames($dirPath, $processor = null, array $options = null): \Generator {
+    /**
+     * @param iterable|string $dirPath
+     * @param string|\Closure $processor
+     * @param array|bool|null $options
+     */
+    public static function dirNames($dirPath, $processor = null, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         if (!empty($options['recursive'])) {
             throw new \LogicException("The 'recursive' option must be false");
         }
@@ -211,22 +227,35 @@ class Dir extends Entry {
     /**
      * Shortcut for the paths() with $options['type'] == Stat::FILE option.
      *
-     * @param string|array $dirPath
+     * @param iterable|string $dirPath
      * @param string|\Closure $processor
+     * @param array|bool|null $options
      */
-    public static function filePaths($dirPath, $processor = null, array $options = []): \Generator {
+    public static function filePaths($dirPath, $processor = null, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         $options['type'] = Stat::FILE;
         return self::paths($dirPath, $processor, $options);
     }
 
-    public static function filePathsWithExt($dirPath, array $extensions, array $options = []): \Generator {
+    /**
+     * @param iterable|string $dirPath
+     * @param array|bool|null $options
+     */
+    public static function filePathsWithExt($dirPath, array $extensions, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = preg_quote($extension, '/');
         }
         return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $options);
     }
 
-    public static function fileNames($dirPath, $processor = null, array $options = []): \Generator {
+    /**
+     * @param iterable|string $dirPath
+     * @param string|\Closure $processor
+     * @param array|bool|null $options
+     */
+    public static function fileNames($dirPath, $processor = null, $options = null): \Generator {
+        $options = self::normalizeOptions($options);
         $options['type'] = Stat::FILE;
         return self::baseNames($dirPath, $processor, $options);
     }
@@ -452,5 +481,22 @@ class Dir extends Entry {
         if (null === $predicate || (null !== $predicate && $predicate($absPath, true))) {
             ErrorHandler::checkError(@rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
         }
+    }
+
+    /**
+     * @param null|array|bool $options
+     * @return array
+     */
+    private static function normalizeOptions($options): array {
+        if (!is_array($options)) {
+            if (null === $options) {
+                $options = [];
+            } elseif (is_bool($options)) {
+                $options = ['recursive' => $options];
+            } else {
+                throw new \InvalidArgumentException();
+            }
+        }
+        return $options;
     }
 }

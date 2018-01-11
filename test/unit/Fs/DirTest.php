@@ -775,9 +775,21 @@ class DirTest extends TestCase {
         );
     }
 
-    public function testFilePaths_RegExpProcessor_Recursive() {
+    public function dataForFilePaths_RegExpProcessor_Recursive() {
+        yield [
+            ['recursive' => true],
+        ];
+        yield [
+            true,
+        ];
+    }
+
+    /**
+     * @dataProvider dataForFilePaths_RegExpProcessor_Recursive
+     */
+    public function testFilePaths_RegExpProcessor_Recursive($options) {
         $testDirPath = $this->getTestDirPath();
-        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', ['recursive' => true]);
+        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', $options);
         $filePaths = iterator_to_array($it, false);
         sort($filePaths);
         $this->assertEquals(
@@ -790,9 +802,24 @@ class DirTest extends TestCase {
         );
     }
 
-    public function testFilePaths_RegExpProcessor_NotRecursive() {
+    public function dataForFilePaths_RegExpProcessor_NotRecursive() {
+        yield [
+            'recursive' => false,
+        ];
+        [
+            false,
+        ];
+        [
+            null,
+        ];
+    }
+
+    /**
+     * @dataProvider dataForFilePaths_RegExpProcessor_NotRecursive
+     */
+    public function testFilePaths_RegExpProcessor_NotRecursive($options) {
         $testDirPath = $this->getTestDirPath();
-        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s');
+        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', $options);
         $filePaths = iterator_to_array($it, false);
         sort($filePaths);
         $this->assertEquals(
