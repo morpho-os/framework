@@ -11,7 +11,7 @@ use Morpho\Base\IFn;
 use const Morpho\Core\CONTROLLER_SUFFIX;
 use const Morpho\Core\LIB_DIR_NAME;
 use Morpho\Core\ModuleIndex;
-use Morpho\Fs\Directory;
+use Morpho\Fs\Dir;
 
 class ControllerFileMetaProvider implements IFn {
     private $moduleIndex;
@@ -37,7 +37,7 @@ class ControllerFileMetaProvider implements IFn {
             if (!is_dir($controllerDirPath)) {
                 continue;
             }
-            foreach (Directory::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~') as $filePath) {
+            foreach (Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~') as $filePath) {
                 yield [
                     'module' => $moduleName,
                     'filePath' => $filePath,

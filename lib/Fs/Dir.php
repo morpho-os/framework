@@ -12,7 +12,7 @@ use Morpho\Base\Environment;
 use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
 
-class Directory extends Entry {
+class Dir extends Entry {
     public const PHP_FILES_RE = '~\.php$~si';
 
     public static function move(string $sourceDirPath, string $targetDirPath): string {
@@ -232,7 +232,7 @@ class Directory extends Entry {
     }
 
     public static function linkPaths(string $dirPath, callable $filter): \Generator {
-        foreach (Directory::paths($dirPath) as $path) {
+        foreach (Dir::paths($dirPath) as $path) {
             if (is_link($path)) {
                 if ($filter) {
                     if ($filter($path)) {
@@ -246,7 +246,7 @@ class Directory extends Entry {
     }
 
     public static function brokenLinkPaths($dirPath): \Generator {
-        return Directory::linkPaths($dirPath, [Link::class, 'isBroken']);
+        return Dir::linkPaths($dirPath, [Link::class, 'isBroken']);
     }
 
     /**

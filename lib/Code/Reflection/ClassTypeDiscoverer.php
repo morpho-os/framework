@@ -6,7 +6,7 @@
  */
 namespace Morpho\Code\Reflection;
 
-use Morpho\Fs\Directory;
+use Morpho\Fs\Dir;
 use Morpho\Fs\File;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
@@ -33,7 +33,7 @@ class ClassTypeDiscoverer {
 
     public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $options = null): array {
         $options = (array) $options + ['recursive' => true];
-        $filePaths = Directory::filePaths($dirPaths, $regExp ?: Directory::PHP_FILES_RE, $options);
+        $filePaths = Dir::filePaths($dirPaths, $regExp ?: Dir::PHP_FILES_RE, $options);
         $map = [];
         $discoverStrategy = $this->discoverStrategy();
         foreach ($filePaths as $filePath) {

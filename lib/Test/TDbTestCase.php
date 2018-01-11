@@ -7,11 +7,11 @@
 namespace Morpho\Test;
 
 use Morpho\Db\Sql\Db;
-use Morpho\Fs\Directory;
+use Morpho\Fs\Dir;
 
 trait TDbTestCase {
     protected function createFixtures($db): void {
-        $paths = Directory::paths($this->getTestDirPath(), '~Fixture\.php$~');
+        $paths = Dir::paths($this->getTestDirPath(), '~Fixture\.php$~');
         foreach ($paths as $path) {
             require_once $path;
             $class = $this->namespace(true) . '\\'

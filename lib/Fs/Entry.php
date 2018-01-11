@@ -15,7 +15,7 @@ abstract class Entry {
 
     public static function copy(string $srcPath, string $destPath): string {
         return is_dir($srcPath)
-            ? Directory::copy($srcPath, $destPath)
+            ? Dir::copy($srcPath, $destPath)
             : File::copy($srcPath, $destPath);
     }
 
@@ -30,7 +30,7 @@ abstract class Entry {
             return;
         }
         if (is_dir($entryPath)) {
-            Directory::delete($entryPath);
+            Dir::delete($entryPath);
         } else {
             File::delete($entryPath);
         }

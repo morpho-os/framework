@@ -7,7 +7,7 @@
 namespace Morpho\Core;
 
 use Morpho\Ioc\IServiceManager;
-use Morpho\Fs\Directory;
+use Morpho\Fs\Dir;
 use Morpho\Fs\File;
 
 class ModuleMetaIterator implements \IteratorAggregate {
@@ -38,7 +38,7 @@ class ModuleMetaIterator implements \IteratorAggregate {
     }
 
     protected function dirIter(): iterable {
-        return Directory::dirPaths($this->baseDirPath . '/' . MODULE_DIR_NAME, null, ['recursive' => false]);
+        return Dir::dirPaths($this->baseDirPath . '/' . MODULE_DIR_NAME, null, ['recursive' => false]);
     }
 
     protected function filter(array $moduleMeta): bool {

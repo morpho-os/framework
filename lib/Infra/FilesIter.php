@@ -7,7 +7,7 @@
 namespace Morpho\Infra;
 
 use function Morpho\Base\filter;
-use Morpho\Fs\Directory;
+use Morpho\Fs\Dir;
 use const Morpho\Core\{
     MODULE_DIR_NAME, TEST_DIR_NAME, LIB_DIR_NAME, VIEW_DIR_NAME
 };
@@ -32,7 +32,7 @@ class FilesIter implements \IteratorAggregate {
     }
 
     private function filePathsInModuleDir(string $baseDirPath): iterable {
-        foreach (Directory::dirPaths($baseDirPath . '/' . MODULE_DIR_NAME) as $dirPath) {
+        foreach (Dir::dirPaths($baseDirPath . '/' . MODULE_DIR_NAME) as $dirPath) {
             if (is_dir($dirPath . '/' . LIB_DIR_NAME)) {
                 yield from $this->filePaths($dirPath . '/' . LIB_DIR_NAME);
             }
@@ -63,6 +63,6 @@ class FilesIter implements \IteratorAggregate {
     }
 
     private function filePaths(string $dirPath, $filter = null): iterable {
-        return Directory::filePaths($dirPath, $filter, ['recursive' => true]);
+        return Dir::filePaths($dirPath, $filter, ['recursive' => true]);
     }
 }

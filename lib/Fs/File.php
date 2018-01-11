@@ -176,7 +176,7 @@ class File extends Entry {
         if (empty($filePath)) {
             throw new Exception("The file path is empty");
         }
-        Directory::create(dirname($filePath));
+        Dir::create(dirname($filePath));
         $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array)$options), $options['context']);
         if (false === $result) {
             throw new Exception("Unable to write to the file '$filePath'");
@@ -194,7 +194,7 @@ class File extends Entry {
      * Has the same effect as truncate but should be used in different situation/context.
      */
     public static function createEmpty(string $filePath): string {
-        Directory::create(dirname($filePath));
+        Dir::create(dirname($filePath));
         // NB: touch() does not truncate the file, so we don't use it.
         self::truncate($filePath);
         return $filePath;
@@ -245,7 +245,7 @@ class File extends Entry {
             throw new Exception("Unable to copy: the source '$sourceFilePath' is not a file");
         }
         if (!is_dir(dirname($targetFilePath))) {
-            Directory::create(dirname($targetFilePath));
+            Dir::create(dirname($targetFilePath));
         }
         if (is_dir($targetFilePath)) {
             $targetFilePath = $targetFilePath . '/' . basename($sourceFilePath);
@@ -269,7 +269,7 @@ class File extends Entry {
      * Moves the source file to the target file and returns the target.
      */
     public static function move(string $sourceFilePath, string $targetFilePath): string {
-        Directory::create(dirname($targetFilePath));
+        Dir::create(dirname($targetFilePath));
         if (!@rename($sourceFilePath, $targetFilePath)) {
             throw new Exception("Unable to move the '$sourceFilePath' to the '$targetFilePath'");
         }

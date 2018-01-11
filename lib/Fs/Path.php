@@ -156,7 +156,7 @@ class Path {
      * Returns unique path for a file system entry.
      */
     public static function unique(string $path, ?bool $handleExtsForFiles = true, int $numberOfAttempts = 10000): string {
-        Directory::mustExist(dirname($path));
+        Dir::mustExist(dirname($path));
         $uniquePath = $path;
         $isFile = is_file($path);
         for ($i = 0; file_exists($uniquePath) && $i < $numberOfAttempts; $i++) {

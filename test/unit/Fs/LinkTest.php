@@ -6,7 +6,7 @@
  */
 namespace Morpho\Qa\Test\Unit\Fs;
 
-use Morpho\Fs\Directory;
+use Morpho\Fs\Dir;
 use Morpho\Fs\Link;
 use Morpho\Test\TestCase;
 use Morpho\Fs\Exception as FsException;
@@ -23,7 +23,7 @@ class LinkTest extends TestCase {
         $targetFilePath = $this->tmpDirPath . '/' . md5(uniqid(__FUNCTION__));
         copy(__FILE__, $targetFilePath);
         $this->assertTrue(is_file($targetFilePath));
-        $linkDirPath = Directory::create($this->tmpDirPath . '/my-link');
+        $linkDirPath = Dir::create($this->tmpDirPath . '/my-link');
         $expectedLinkPath = $linkDirPath . '/' . basename($targetFilePath);
         $this->assertFalse(is_file($expectedLinkPath));
         Link::create($targetFilePath, $linkDirPath);
