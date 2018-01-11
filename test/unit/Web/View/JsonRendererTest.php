@@ -76,7 +76,9 @@ class JsonRendererTest extends TestCase {
         $renderer = new JsonRenderer();
 
         $request = new Request();
-        $data = ['foo' => 'bar'];
+        $data = [
+            ['foo' => 'bar']
+        ];
         $request->response()['result'] = new JsonResult($data);
 
         $renderer->__invoke($request);

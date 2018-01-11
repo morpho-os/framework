@@ -97,7 +97,7 @@ class ContentNegotiatorTest extends TestCase {
     public function testReturnsActionResultFormat() {
         $negotiator = new ContentNegotiator();
         $request = new Request();
-        $request->response()['result'] = new JsonResult();
+        $request->response()['result'] = new JsonResult([]);
 
         $format = $negotiator->__invoke($request);
 

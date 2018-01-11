@@ -8,6 +8,21 @@ namespace Morpho\Web;
 
 use Morpho\Core\IActionResult;
 
-class JsonResult extends \ArrayObject implements IActionResult {
+class JsonResult implements IActionResult, \JsonSerializable {
     public const FORMAT = 'json';
+    /**
+     * @var mixed
+     */
+    private $value;
+
+    /**
+     * @param mixed $value
+     */
+    public function __construct($value) {
+        $this->value = $value;
+    }
+
+    public function jsonSerialize() {
+        return $this->value;
+    }
 }

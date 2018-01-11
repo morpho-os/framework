@@ -18,4 +18,6 @@ interface ICommandResult extends \IteratorAggregate {
     public function isError(): bool;
 
     public function lines(): iterable;
+
+    public function __toString();
 }
