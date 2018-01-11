@@ -1,4 +1,4 @@
 <?php
-namespace MorphoTest\Unit\Code\ClassTypeMapAutoloaderTest;
+namespace Morpho\Qa\Test\Unit\Code\ClassTypeMapAutoloaderTest;
 
 class Foo {}

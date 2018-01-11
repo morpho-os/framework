@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Unit\Code\Reflection\StrategyTest1;
+namespace Morpho\Qa\Test\Unit\Code\Reflection\StrategyTest1;
 
 trait FooTrait {
     public function test() {
@@ -18,7 +18,7 @@ class BarClass {
     }
 }
 
-namespace MorphoTest\Unit\Code\Reflection\StrategyTest2;
+namespace Morpho\Qa\Test\Unit\Code\Reflection\StrategyTest2;
 
 interface BazInterface {
 }

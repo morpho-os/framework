@@ -4,9 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Core {
+namespace Morpho\Qa\Test\Unit\Core {
     use Morpho\Test\TestCase;
-    use MorphoTest\Unit\Core\ApplicationTest\App;
+    use Morpho\Qa\Test\Unit\Core\AppTest\App;
 
     class AppTest extends TestCase {
         public function testConfigAccessors() {
@@ -25,7 +25,7 @@ namespace MorphoTest\Unit\Core {
     }
 }
 
-namespace MorphoTest\Unit\Core\ApplicationTest {
+namespace Morpho\Qa\Test\Unit\Core\AppTest {
     use Morpho\Base\NotImplementedException;
     use Morpho\Core\App as BaseApp;
     use Morpho\Core\IBootstrapFactory;

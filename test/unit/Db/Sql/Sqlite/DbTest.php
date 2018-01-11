@@ -4,10 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Db\Sql\Sqlite;
+namespace Morpho\Qa\Test\Unit\Db\Sql\Sqlite;
 
 use Morpho\Db\Sql\Sqlite;
-use MorphoTest\Unit\Db\Sql\DbTest as BaseDbTest;
+use Morpho\Qa\Test\Unit\Db\Sql\DbTest as BaseDbTest;
 
 class DbTest extends BaseDbTest {
     public function testConnect_PdoInstanceArgument() {

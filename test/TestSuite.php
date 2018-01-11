@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest;
+namespace Morpho\Qa\Test;
 
 use const Morpho\Core\TEST_DIR_NAME;
 use Morpho\Test\Sut;

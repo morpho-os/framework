@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Unit\Code\Reflection\ReflectionFileTest_Ns1Bracketed {
+namespace Morpho\Qa\Test\Unit\Code\Reflection\ReflectionFileTest_Ns1Bracketed {
     class First {
 
     }
@@ -17,7 +17,7 @@ namespace MorphoTest\Unit\Code\Reflection\ReflectionFileTest_Ns1Bracketed {
     }
 }
 
-namespace MorphoTest\Unit\Code\Reflection\ReflectionFileTest_Ns2Bracketed {
+namespace Morpho\Qa\Test\Unit\Code\Reflection\ReflectionFileTest_Ns2Bracketed {
     class Third {
 
     }

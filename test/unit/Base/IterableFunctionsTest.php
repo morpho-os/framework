@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Base;
+namespace Morpho\Qa\Test\Unit\Base;
 
 use function Morpho\Base\{
     all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
@@ -367,8 +367,8 @@ class IterableFunctionsTest extends TestCase {
     }
 
     public function testHead_String_WithSeparator() {
-        $this->assertEquals('MorphoTest', head('MorphoTest\Unit\\Base\\StringTest', '\\'));
-        $this->assertEquals('', head('\\MorphoTest\Unit\\Base\\StringTest', '\\'));
+        $this->assertEquals('Morpho', head('Morpho\\Qa\\Test\Unit\\Base\\StringTest', '\\'));
+        $this->assertEquals('', head('\\Morpho\\Qa\\Test\Unit\\Base\\StringTest', '\\'));
         $this->assertEquals('Foo', head('Foo', '\\'));
     }
 
@@ -489,8 +489,8 @@ class IterableFunctionsTest extends TestCase {
     }
 
     public function testLast_String_WithSeparator() {
-        $this->assertEquals('StringTest', last('MorphoTest\Unit\\Base\\StringTest', '\\'));
-        $this->assertEquals('', last('MorphoTest\Unit\\Base\\StringTest\\', '\\'));
+        $this->assertEquals('StringTest', last('Morpho\\Qa\\Unit\\Base\\StringTest', '\\'));
+        $this->assertEquals('', last('Morpho\\Qa\\Test\\Unit\\Base\\StringTest\\', '\\'));
         $this->assertEquals('Foo', last('Foo', '\\'));
     }
 

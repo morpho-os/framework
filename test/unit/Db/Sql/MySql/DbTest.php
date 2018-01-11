@@ -4,14 +4,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Db\Sql\MySql;
+namespace Morpho\Qa\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\IQuery;
 use Morpho\Db\Sql\MySql\Db;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\Query;
 use Morpho\Db\Sql\Result;
-use MorphoTest\Unit\Db\Sql\DbTest as BaseDbTest;
+use Morpho\Qa\Test\Unit\Db\Sql\DbTest as BaseDbTest;
 
 class DbTest extends BaseDbTest {
     /**

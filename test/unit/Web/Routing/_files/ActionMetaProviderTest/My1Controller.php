@@ -1,5 +1,5 @@
 <?php
-namespace MorphoTest\Unit\Web\Routing\ActionMetaProviderTest;
+namespace Morpho\Qa\Test\Unit\Web\Routing\ActionMetaProviderTest;
 
 use Morpho\Web\Controller;
 

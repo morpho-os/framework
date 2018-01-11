@@ -4,9 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Base {
+namespace Morpho\Qa\Test\Unit\Base {
     use Morpho\Test\TestCase;
-    use MorphoTest\Unit\Base\TSingletonTest\Singleton;
+    use Morpho\Qa\Test\Unit\Base\TSingletonTest\Singleton;
 
     class TSingletonTest extends TestCase {
         public function testSingleton() {
@@ -14,6 +14,7 @@ namespace MorphoTest\Unit\Base {
             $this->assertInstanceOf(Singleton::class, $instance);
             $this->assertSame($instance, Singleton::instance());
 
+            /** @noinspection PhpVoidFunctionResultUsedInspection */
             $this->assertNull(Singleton::resetInstance());
 
             $newInstance = Singleton::instance();
@@ -24,7 +25,7 @@ namespace MorphoTest\Unit\Base {
     }
 }
 
-namespace MorphoTest\Unit\Base\TSingletonTest {
+namespace Morpho\Qa\Test\Unit\Base\TSingletonTest {
     use Morpho\Base\TSingleton;
 
     class Singleton {

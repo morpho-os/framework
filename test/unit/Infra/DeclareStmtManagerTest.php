@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MorphoTest\Unit\Infra;
+namespace Morpho\Qa\Test\Unit\Infra;
 
 use Morpho\Infra\DeclareStmtManager;
 use Morpho\Test\TestCase;

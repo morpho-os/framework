@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace MorphoTest\Unit\Web;
+namespace Morpho\Qa\Test\Unit\Web;
 
 use const Morpho\Core\CONFIG_DIR_NAME;
 use Morpho\Test\TestCase;
@@ -182,7 +182,7 @@ class SiteFactoryTest extends TestCase {
         $site = $siteFactory->__invoke($appConfig);
 
         $this->assertTrue($called);
-        $this->assertTrue($GLOBALS[$this->classLoaderRegisteredKey]);
+        $this->assertTrue($GLOBALS[__CLASS__ . 'Registered']);
 
         $this->assertSame($hostName, $site->hostName());
         $this->assertSame($moduleName, $site->moduleName());
