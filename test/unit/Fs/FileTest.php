@@ -226,7 +226,7 @@ class FileTest extends TestCase {
     }
 
     public function testUsingFile_DefaultTmpDir() {
-        $this->assertSame('ok', File::usingTmp(function ($filePath) use (&$usedFilePath) {
+        $this->assertSame('ok', File::withTmp(function ($filePath) use (&$usedFilePath) {
             $this->assertSame(0, filesize($filePath));
             $usedFilePath = $filePath;
             return 'ok';
@@ -235,9 +235,9 @@ class FileTest extends TestCase {
         $this->assertFileNotExists($usedFilePath);
     }
 
-    public function testUsingTmp_NonDefaultTmpDir() {
+    public function testWithTmp_NonDefaultTmpDir() {
         $tmpDirPath = $this->createTmpDir(__FUNCTION__);
-        $this->assertSame('ok', File::usingTmp(function ($filePath) use (&$usedFilePath) {
+        $this->assertSame('ok', File::withTmp(function ($filePath) use (&$usedFilePath) {
             $this->assertSame(0, filesize($filePath));
             $usedFilePath = $filePath;
             return 'ok';

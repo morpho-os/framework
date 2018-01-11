@@ -297,7 +297,7 @@ class File extends Entry {
     /**
      * @return mixed
      */
-    public static function usingTmp(callable $fn, string $tmpDirPath = null) {
+    public static function withTmp(callable $fn, string $tmpDirPath = null) {
         $tmpFilePath = tempnam($tmpDirPath ?: Environment::tmpDirPath(), __FUNCTION__);
         try {
             $res = $fn($tmpFilePath);
