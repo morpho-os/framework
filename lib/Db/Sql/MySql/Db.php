@@ -59,7 +59,7 @@ class Db extends BaseDb {
     }
 
     protected function newPdo(array $options): \PDO {
-        $options = ArrayTool::handleOptions($options, [
+        $options = ArrayTool::handleConfig($options, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
             'user' => self::DEFAULT_USER,

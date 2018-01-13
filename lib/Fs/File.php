@@ -23,7 +23,7 @@ class File extends Entry {
             throw new FileNotFoundException($filePath);
         }
 
-        $options = ArrayTool::handleOptions(
+        $options = ArrayTool::handleConfig(
             (array)$options,
             [
                 'lock'           => false,
@@ -93,7 +93,7 @@ class File extends Entry {
         if ($filterOrOptions) { // If a filter was specified, don't ignore empty lines.
             $defaultOptions['skipEmptyLines'] = false;
         }
-        $options = ArrayTool::handleOptions((array) $options, $defaultOptions);
+        $options = ArrayTool::handleConfig((array) $options, $defaultOptions);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
@@ -166,7 +166,7 @@ class File extends Entry {
      * Appends content to the file and returns the file path.
      */
     public static function append(string $filePath, string $content, array $options = null): string {
-        return self::write($filePath, $content, ArrayTool::handleOptions((array)$options, ['append' => true]));
+        return self::write($filePath, $content, ArrayTool::handleConfig((array)$options, ['append' => true]));
     }
 
     /**
@@ -310,7 +310,7 @@ class File extends Entry {
     }
 
     private static function filePutContentsOptionsToFlags(array $options): int {
-        $options = ArrayTool::handleOptions(
+        $options = ArrayTool::handleConfig(
             $options,
             [
                 'useIncludePath' => false,

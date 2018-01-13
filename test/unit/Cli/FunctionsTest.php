@@ -7,7 +7,7 @@
 namespace Morpho\Qa\Test\Unit\Cli;
 
 use Morpho\Base\Environment;
-use Morpho\Base\InvalidOptionsException;
+use Morpho\Base\InvalidConfigException;
 use function Morpho\Cli\{
     argsStr, shell, escapeArgs, proc, showOk, stylize
 };
@@ -82,7 +82,7 @@ OUT
     }
 
     public function testShell_ThrowsExceptionOnInvalidOption() {
-        $this->expectException(InvalidOptionsException::class);
+        $this->expectException(InvalidConfigException::class);
         shell('ls', ['some invalid option' => 'value of invalid option']);
     }
 

@@ -7,7 +7,7 @@
 namespace Morpho\Qa\Test\Unit\Fs;
 
 use LogicException;
-use Morpho\Base\InvalidOptionsException;
+use Morpho\Base\InvalidConfigException;
 use Morpho\Fs\Dir;
 use Morpho\Fs\Stat;
 use Morpho\Test\TestCase;
@@ -422,7 +422,7 @@ class DirTest extends TestCase {
     }
 
     public function testPaths_ThrowsExceptionOnInvalidOption() {
-        $this->expectException(InvalidOptionsException::class, 'Invalid options: invalid');
+        $this->expectException(InvalidConfigException::class, 'Invalid config keys: invalid');
         iterator_to_array(Dir::paths($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 

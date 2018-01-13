@@ -8,7 +8,7 @@ namespace Morpho\Network\Http;
 
 use function Morpho\Base\filter;
 use function Morpho\Cli\shell;
-use Morpho\Xml\Document;
+use Morpho\Xml\Doc;
 
 // Based on https://github.com/jarib/selenium-travis/blob/master/selenium-webdriver/lib/selenium/server.rb
 class SeleniumServerDownloader {
@@ -39,7 +39,7 @@ class SeleniumServerDownloader {
         */
         $xml = file_get_contents('https://selenium-release.storage.googleapis.com');
         //}
-        $doc = Document::parse($xml);
+        $doc = Doc::parse($xml);
         $doc->xPath()->registerNamespace('s3', 'http://doc.s3.amazonaws.com/2006-03-01');
         // "//Key[contains(text(), 'selenium-server-standalone-')]"
         $versions = filter(function (&$v, $k) {

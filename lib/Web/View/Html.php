@@ -51,7 +51,7 @@ class Html {
     }
 
     public static function tag(string $tagName, array $attributes = null, string $text = null, array $options = null): string {
-        $options = ArrayTool::handleOptions(
+        $options = ArrayTool::handleConfig(
             (array)$options,
             [
                 'escapeText' => true,

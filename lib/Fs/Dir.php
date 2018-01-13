@@ -31,7 +31,7 @@ class Dir extends Entry {
             throw new Exception("Cannot copy the directory '$sourceDirPath' into itself");
         }
 
-        $options = ArrayTool::handleOptions(
+        $options = ArrayTool::handleConfig(
             (array) $options,
             [
                 'overwrite'      => false,
@@ -91,11 +91,11 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function paths($dirPaths, $processor = null, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception("Invalid processor");
         }
-        $options = ArrayTool::handleOptions(
+        $options = ArrayTool::handleConfig(
             $options,
             [
                 'recursive'      => false,
@@ -161,7 +161,7 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function baseNames($dirPath, $processor, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 $baseName = basename($path);
@@ -195,7 +195,7 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function dirPaths($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         $options['type'] = Stat::DIR;
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
@@ -216,7 +216,7 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function dirNames($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         if (!empty($options['recursive'])) {
             throw new \LogicException("The 'recursive' option must be false");
         }
@@ -232,7 +232,7 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function filePaths($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         $options['type'] = Stat::FILE;
         return self::paths($dirPath, $processor, $options);
     }
@@ -242,7 +242,7 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function filePathsWithExt($dirPath, array $extensions, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = preg_quote($extension, '/');
         }
@@ -255,7 +255,7 @@ class Dir extends Entry {
      * @param array|bool|null $options
      */
     public static function fileNames($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeOptions($options);
+        $options = self::normalizeConfig($options);
         $options['type'] = Stat::FILE;
         return self::baseNames($dirPath, $processor, $options);
     }
@@ -513,19 +513,19 @@ class Dir extends Entry {
     }
 
     /**
-     * @param null|array|bool $options
+     * @param null|array|bool $config
      * @return array
      */
-    private static function normalizeOptions($options): array {
-        if (!is_array($options)) {
-            if (null === $options) {
-                $options = [];
-            } elseif (is_bool($options)) {
-                $options = ['recursive' => $options];
+    private static function normalizeConfig($config): array {
+        if (!is_array($config)) {
+            if (null === $config) {
+                $config = [];
+            } elseif (is_bool($config)) {
+                $config = ['recursive' => $config];
             } else {
                 throw new \InvalidArgumentException();
             }
         }
-        return $options;
+        return $config;
     }
 }

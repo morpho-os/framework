@@ -8,14 +8,14 @@ namespace Morpho\Xml;
 
 use DOMDocument;
 
-use Morpho\Base\InvalidOptionsException;
+use Morpho\Base\InvalidConfigException;
 use Morpho\Fs\File;
 use Morpho\Web\View\Html;
 
 /**
  * @method XPathResult select(string $xPath, $contextNode = null)
  */
-class Document extends DOMDocument {
+class Doc extends DOMDocument {
     private $xPath;
 
     const ENCODING = 'utf-8';
@@ -37,7 +37,7 @@ class Document extends DOMDocument {
         'xmlVersion' => true,
     ];
 
-    public static function parseFile(string $filePath, array $options = null): Document {
+    public static function parseFile(string $filePath, array $options = null): Doc {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
@@ -45,7 +45,7 @@ class Document extends DOMDocument {
         return self::parse($source, $options);
     }
 
-    public static function parse(string $source, array $options = null): Document {
+    public static function parse(string $source, array $options = null): Doc {
         $source = trim($source);
 
         $options = (array) $options;
@@ -75,14 +75,14 @@ class Document extends DOMDocument {
         return $doc;
     }
 
-    public static function new(array $options = null): Document {
+    public static function new(array $options = null): Doc {
         $options = (array) $options;
         $invalidOptions = array_diff_key($options, self::CREATE_VALID_OPTIONS);
         if (count($invalidOptions)) {
-            throw new InvalidOptionsException($invalidOptions);
+            throw new InvalidConfigException($invalidOptions);
         }
 
-        $doc = new Document('1.0');
+        $doc = new Doc('1.0');
         $options += [
             'preserveWhiteSpace' => false,
             'formatOutput'       => true,

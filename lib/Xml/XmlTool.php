@@ -7,13 +7,13 @@
 namespace Morpho\Xml;
 
 class XmlTool {
-    public static function arrayToDomDoc(array $data, array $options = []): Document {
-        $doc = Document::new($options);
+    public static function arrayToDomDoc(array $data, array $options = []): Doc {
+        $doc = Doc::new($options);
         self::arrayToXml($data, $doc);
         return $doc;
     }
 
-    private static function arrayToXml(array $data, Document $doc, $currentNode = null) {
+    private static function arrayToXml(array $data, Doc $doc, $currentNode = null) {
         $currentNode = $currentNode ?: $doc;
         foreach ($data as $key => $value) {
             if (is_array($value) || is_object($value)) {

@@ -6,7 +6,7 @@
  */
 namespace Morpho\Qa\Test\Unit\Base;
 
-use Morpho\Base\InvalidOptionsException;
+use Morpho\Base\InvalidConfigException;
 use Morpho\Test\TestCase;
 use Morpho\Base\ArrayTool;
 
@@ -164,7 +164,7 @@ class ArrayToolTest extends TestCase {
         );
     }
 
-    public function testToKeyed_WithDropValueOption() {
+    public function testToKeyed_WithDropValue() {
         $this->assertEquals(
             [
                 ':-)' => [
@@ -189,7 +189,7 @@ class ArrayToolTest extends TestCase {
         );
     }
 
-    public function dataForHandleOptions() {
+    public function dataForHandleConfig() {
         return [
             [
                 [],
@@ -225,26 +225,26 @@ class ArrayToolTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHandleOptions
+     * @dataProvider dataForHandleConfig
      */
-    public function testHandleOptions($expected, $options, $defaultOptions) {
+    public function testHandleConfig($expected, $config, $defaultConfig) {
         $this->assertEquals(
             $expected,
-            ArrayTool::handleOptions(
-                $options,
-                $defaultOptions
+            ArrayTool::handleConfig(
+                $config,
+                $defaultConfig
             )
         );
     }
 
-    public function testHandleOptions_ThrowsExceptionWhenDefaultOptionsAreMissing() {
-        $this->expectException(InvalidOptionsException::class, "Invalid options: foo");
-        ArrayTool::handleOptions(['foo' => 'bar'], ['one' => 1]);
+    public function testHandleConfig_ThrowsExceptionWhenParamsWithDefaultKeysAreMissing() {
+        $this->expectException(InvalidConfigException::class, "Invalid config keys: foo");
+        ArrayTool::handleConfig(['foo' => 'bar'], ['one' => 1]);
     }
 
-    public function testHandleOptions_InvalidOptionsNumericKeys() {
-        $this->expectException(InvalidOptionsException::class, "Invalid options: 2, 5");
-        ArrayTool::handleOPtions([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
+    public function testHandleConfig_InvalidNumericKeys() {
+        $this->expectException(InvalidConfigException::class, "Invalid config keys: 2, 5");
+        ArrayTool::handleConfig([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
     }
 
     public function testUnsetRecursive() {

@@ -109,7 +109,7 @@ function argsStr($args): string {
 }
 
 function shell(string $command, array $options = null): ICommandResult {
-    $options = ArrayTool::handleOptions((array) $options, [
+    $options = ArrayTool::handleConfig((array) $options, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
@@ -133,7 +133,7 @@ function shell(string $command, array $options = null): ICommandResult {
 
 // @TODO: See \Composer\Util\ProcessExecutor
 function proc(string $command, array $options = null): ICommandResult {
-    $options = ArrayTool::handleOptions((array) $options, [
+    $options = ArrayTool::handleConfig((array) $options, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO

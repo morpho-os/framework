@@ -8,11 +8,11 @@ namespace Morpho\Qa\Test\Unit\Xml;
 
 use Countable;
 use Iterator;
-use Morpho\Base\InvalidOptionsException;
+use Morpho\Base\InvalidConfigException;
 use Morpho\Test\TestCase;
-use Morpho\Xml\Document;
+use Morpho\Xml\Doc;
 
-class DocumentTest extends TestCase {
+class DocTest extends TestCase {
     public function testSelect() {
         $html = <<<OUT
 <div>
@@ -23,7 +23,7 @@ class DocumentTest extends TestCase {
     </ol>
 </div>
 OUT;
-        $doc = Document::parse($html);
+        $doc = Doc::parse($html);
         $nodes = $doc->select('//li');
         $this->assertSame(3, count($nodes));
         $this->assertSame('One', $nodes->item(0)->nodeValue);
@@ -57,28 +57,28 @@ OUT;
     }
 
     public function testNew_ThrowsExceptionOnInvalidOptions() {
-        $this->expectException(InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
-        Document::new(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
+        $this->expectException(InvalidConfigException::class, "Invalid config keys: invalidOne, invalidTwo");
+        Doc::new(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
     public function testNew_DefaultOptions() {
-        $doc = Document::new();
-        $this->assertInstanceOf(Document::class, $doc);
-        $doc1 = Document::new();
-        $this->assertInstanceOf(Document::class, $doc1);
+        $doc = Doc::new();
+        $this->assertInstanceOf(Doc::class, $doc);
+        $doc1 = Doc::new();
+        $this->assertInstanceOf(Doc::class, $doc1);
         $this->assertNotSame($doc, $doc1);
     }
 
     public function testParse_ThrowsExceptionOnInvalidOptions() {
-        $this->expectException(InvalidOptionsException::class, "Invalid options: invalidOne, invalidTwo");
-        Document::parse("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
+        $this->expectException(InvalidConfigException::class, "Invalid options: invalidOne, invalidTwo");
+        Doc::parse("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
     public function testParse_FixEncodingOption() {
         $html = <<<OUT
 <!DOCTYPE html><html><body>µ</body></html>
 OUT;
-        $doc = Document::parse($html, ['fixEncoding' => true, 'formatOutput' => false]);
+        $doc = Doc::parse($html, ['fixEncoding' => true, 'formatOutput' => false]);
         $this->assertHtmlEquals(<<<OUT
 <!DOCTYPE html>
 <html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body>µ</body></html>
@@ -86,7 +86,7 @@ OUT
             , $doc->saveHTML()
         );
 
-        $doc = Document::parse($html, ['fixEncoding' => false, 'formatOutput' => false]);
+        $doc = Doc::parse($html, ['fixEncoding' => false, 'formatOutput' => false]);
         $this->assertHtmlEquals(<<<OUT
 <!DOCTYPE html>
 <html><body>&Acirc;&micro;</body></html>
