@@ -237,7 +237,28 @@ class DirTest extends TestCase {
     }
 
     public function testCreate_DoesNotCreateIfDirExists() {
-        $this->assertEquals(__DIR__, Dir::create(__DIR__));
+        $this->assertSame(__DIR__, Dir::create(__DIR__));
+    }
+
+    public function testCreateAndRecreate_AcceptsArray() {
+        $tmpDirPath = $this->createTmpDir();
+
+        $paths = [$tmpDirPath . '/foo', $tmpDirPath . '/bar'];
+        $checkExist = function () use ($paths) {
+            $this->assertDirectoryExists($paths[0]);
+            $this->assertDirectoryExists($paths[1]);
+        };
+
+        $this->assertSame($paths, Dir::create($paths));
+        $checkExist();
+
+        $this->assertTrue(touch($paths[0] . '/test'));
+        $this->assertTrue(touch($paths[1] . '/test'));
+
+        $this->assertSame($paths, Dir::recreate($paths));
+        $checkExist();
+        $this->assertFileNotExists($paths[0] . '/test');
+        $this->assertFileNotExists($paths[1] . '/test');
     }
 
     public function testPaths_WithoutProcessorAndWithDefaultOptions() {

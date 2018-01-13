@@ -355,7 +355,21 @@ class Dir extends Entry {
         return true;
     }
 
-    public static function recreate(string $dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true): string {
+    /**
+     * @param string|array $dirPath
+     *     @TODO: Accept iterable
+     * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
+     */
+    public static function recreate($dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true) {
+        if (is_array($dirPath)) {
+            $res = [];
+            foreach ($dirPath as $key => $path) {
+                $res[$key] = self::recreate($path, $mode, $recursive);
+            }
+            return $res;
+        } elseif (!is_string($dirPath)) {
+            throw new Exception('Invalid type of the argument');
+        }
         if (is_dir($dirPath)) {
             self::delete($dirPath);
         }
@@ -364,7 +378,22 @@ class Dir extends Entry {
         return $dirPath;
     }
 
-    public static function create(string $dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true): string {
+    /**
+     * @param string|array $dirPath
+     *     @TODO: Accept iterable
+     * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
+     */
+    public static function create($dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true) {
+        if (is_array($dirPath)) {
+            $res = [];
+            foreach ($dirPath as $key => $path) {
+                $res[$key] = self::create($path, $mode, $recursive);
+            }
+            return $res;
+        } elseif (!is_string($dirPath)) {
+            throw new Exception('Invalid type of the argument');
+        }
+
         if ('' === $dirPath) {
             throw new Exception("The directory path is empty");
         }
