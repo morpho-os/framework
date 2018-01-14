@@ -39,10 +39,10 @@ class MenuWidget {
         $this->requestUri = trim($requestUri, '/');
     }
 
-    public function renderSystemMenu(array $options = null, array $attributes = null) {
-        $options = array_merge(['button' => true], (array)$options);
+    public function renderSystemMenu(array $config = null, array $attributes = null) {
+        $config = array_merge(['button' => true], (array)$config);
         $html = '';
-        if ($options['button']) {
+        if ($config['button']) {
             $html = '<button class="btn btn-default btn-sm dropdown-toggle navbar-btn" type="button" data-toggle="dropdown" style="margin-left: 1em;"><span class="caret"></span></button>';
         }
         $html .= $this->render(Menu::SYSTEM_NAME, $attributes);

@@ -6,6 +6,9 @@
  */
 namespace Morpho\Code\Js;
 
+use Morpho\Base\ArrayTool;
+use Morpho\Base\Config;
+use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\Cli\ICommandResult;
@@ -13,7 +16,7 @@ use function Morpho\Cli\shell;
 use Morpho\Fs\File;
 use Zend\Stdlib\ArrayUtils;
 
-class TypeScriptCompiler extends Compiler {
+class TypeScriptCompiler implements IFn {
     public const NONE_MODULE_KIND = 'none';
     public const COMMONJS_MODULE_KIND = 'commonjs';
     public const AMD_MODULE_KIND = 'amd';
@@ -21,113 +24,94 @@ class TypeScriptCompiler extends Compiler {
     public const UMD_MODULE_KIND = 'umd';
     public const ES2015_MODULE_KIND = 'es2015';
     public const ESNEXT_MODULE_KIND = 'ESNext';
-    // Default module kind
-    public const MODULE_KIND = 'amd';
 
     private const TSCONFIG_FILE = 'tsconfig.json';
 
-    // See https://www.typescriptlang.org/docs/handbook/compiler-options.html
-    protected $options = [
-        'allowJs' => true,
-        // @TODO: "allowSyntheticDefaultImports": true,
-        'alwaysStrict' => true,
-        'experimentalDecorators' => true,
-        'forceConsistentCasingInFileNames' => true,
-        'jsx' => 'preserve',
-        'module' => self::MODULE_KIND,
-        'moduleResolution' => 'node',
-        'newLine' => 'lf',
-        'noEmitOnError' => true,
-        'noImplicitAny' => true,
-        'noImplicitReturns' => true,
-        'noImplicitThis' => true,
-        'noUnusedLocals' => false,
-        'preserveConstEnums' => true,
-        //'pretty' => true,
-        'removeComments' => true,
-        'sourceMap' => true,
-        'strictNullChecks' => false,
-        'target' => 'es5',
-        "lib" => ["dom", "es2015.promise", "es2015.iterable", "es5"],
-    ];
+    /**
+     * @var Config
+     */
+    protected $shellConfig = [];
+    /**
+     * @var TscConfig
+     */
+    private $compilerConfig;
 
-    private $pathEnvVar;
-
-    public function compile($input): CompilationResult {
-        $result = new CompilationResult();
-        /** @var TscCompileOptions $input */
-        $optionsStr = $this->optionsString($input->options());
-        $cmdOptions = $input->cmdOptions();
-        $result->append(
-            $this->tsc($optionsStr, $cmdOptions)
-        );
-        return $result;
+    public function __construct() {
+        $this->compilerConfig = new TscConfig();
+        $this->shellConfig = new Config();
     }
 
-    public function __invoke($input): CompilationResult {
-        return $this->compile($input);
+    /**
+     * @param array|Config $config
+     */
+    public function __invoke($config): ICommandResult {
+        $config = ArrayTool::handleConfig($config, [
+            'compilerConfig' => $this->compilerConfig(),
+            'shellConfig' => $this->shellConfig(),
+        ]);
+        return $this->tsc($config['compilerConfig'], $config['shellConfig']);
+    }
+
+    public function compilerConfig(): TscConfig {
+        return $this->compilerConfig;
+    }
+
+    public function shellConfig(): Config {
+        return $this->shellConfig;
     }
 
     /**
      * @param string|iterable $inFilePath
+     * @param null|array|Config $shellConfig
      */
-    public function compileToFile($inFilePath, string $outFilePath = null, array $cmdOptions = null): ICommandResult {
-        $options = [];
+    public function compileToFile($inFilePath, string $outFilePath = null, $shellConfig = null): ICommandResult {
+        $compilerConfig = $this->compilerConfig()->getArrayCopy();
         if ($inFilePath) {
-            $options = array_merge($options, (array)$inFilePath);
+            $compilerConfig = array_merge($compilerConfig, (array)$inFilePath);
         }
         if ($outFilePath) {
-            $options['outFile'] = $outFilePath;
+            $compilerConfig['outFile'] = $outFilePath;
         }
-        $optionsStr = $this->optionsString($options);
-        return $this->tsc($optionsStr, $cmdOptions);
+        return $this->tsc($compilerConfig, $shellConfig);
     }
 
-    public function compileToDir(string $inFilePath, string $outDirPath = null): ICommandResult {
-        $options = $this->escapeOptions(
-            array_merge(
-                $this->options(),
-                [
-                    'outDir' => $outDirPath,
-                    $inFilePath,
-                ]
-            )
-        );
-        return $this->tsc(implode(' ', $options));
+    /**
+     * @param null|array|Config $shellConfig
+     */
+    public function compileToDir(string $inFilePath, string $outDirPath = null, $shellConfig = null): ICommandResult {
+        $compilerConfig = $this->compilerConfig()->getArrayCopy();
+        $compilerConfig['outDir'] = $outDirPath;
+        $compilerConfig[] = $inFilePath;
+        return $this->tsc($compilerConfig, $shellConfig);
     }
 
-    public function writeTsconfig(string $dirPath, array $config = null): string {
+    /**
+     * @param string $dirPath
+     * @param Config|array|null $config
+     * @return string
+     */
+    public function writeTsconfigFile(string $dirPath, $config = null): string {
         // Schema: http://json.schemastore.org/tsconfig
         // Description: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
         return File::writeJson(
             $dirPath . '/' . self::TSCONFIG_FILE,
-            ArrayUtils::merge(
-                [
-                    'compilerOptions' => $this->options(),
-                    /*
-                    'exclude' => [
-                        '** /*.js',
-                    ],
-                    */
-                ],
-                (array)$config
-            )
+            $config ? (array) $config : ['compilerOptions' => (array)$this->compilerConfig()]
         );
     }
 
     public function version(): string {
-        return (string)$this->tsc('--version');
+        $versionStr = preg_replace('~^Version\s+~si', '', trim((string)$this->tsc(['--version'])));
+        return $versionStr;
     }
 
-    public function help(): string {
-        return (string)$this->tsc('--help');
-    }
-
-    public function possibleValuesOfOption(string $optionName): array {
+    public function valuesOfCompilerConfigParam(string $paramName): array {
         // @TODO: Use JSON schema file, http://json.schemastore.org/tsconfig
-        switch ($optionName) {
+        $help = function () {
+
+        };
+        switch ($paramName) {
             case 'module':
-                if (!preg_match('~^.*--module\s+KIND\s+(.*)$~m', $this->help(), $match) || !preg_match_all("~('[^']+')~s", $match[1], $match)) {
+                if (!preg_match('~^.*--module\s+KIND\s+(.*)$~m', $help(), $match) || !preg_match_all("~('[^']+')~s", $match[1], $match)) {
 
                     throw new \RuntimeException("Unable to parse help");
                 }
@@ -137,45 +121,48 @@ class TypeScriptCompiler extends Compiler {
         }
     }
 
-    public function unsetOption(string $name) {
-        unset($this->options[$name]);
+    /**
+     * @param null|array|Config $config
+     * @return string
+     */
+    public function compilerConfigStr($config = null): string {
+        if ($config) {
+            $compilerConfig = clone $this->compilerConfig();
+            $compilerConfig->merge($config);
+        } else {
+            $compilerConfig = $this->compilerConfig();
+        }
+        return $this->configToArgsStr($compilerConfig);
     }
 
-    public function setOption(string $name, $value): self {
-        $this->options[$name] = $value;
-        return $this;
+    /**
+     * @param Config|array $compilerConfig
+     * @param Config|array|null $shellConfig
+     * @return ICommandResult
+     */
+    public function tsc($compilerConfig, $shellConfig = null): ICommandResult {
+        return shell(
+            'tsc ' . $this->configToArgsStr($compilerConfig),
+            array_merge((array)$shellConfig, ['capture' => true])
+        );
     }
 
-    public function option(string $name) {
-        return $this->options[$name];
+    /**
+     * @param Config|array $config
+     * @return string
+     */
+    protected function configToArgsStr($config): string {
+        return implode(' ', $this->escapeConfig($config));
     }
 
-    public function setOptions(array $options): self {
-        $this->options = $options;
-        return $this;
-    }
-
-    public function options(): array {
-        return $this->options;
-    }
-
-    public function hasOption(string $name): bool {
-        return array_key_exists($name, $this->options);
-    }
-
-    public function optionsString(array $options = null): string {
-        return implode(' ', $this->escapeOptions(array_merge($this->options(), (array) $options)));
-    }
-
-    public function setPathEnvVar(string $value): self {
-        $this->pathEnvVar = $value;
-        return $this;
-    }
-
-    protected function escapeOptions(array $options): array {
+    /**
+     * @param Config|array $config
+     * @return array
+     */
+    protected function escapeConfig($config): array {
         $safe = [];
         $sep = ' ';
-        foreach ($options as $name => $value) {
+        foreach ($config as $name => $value) {
             if (is_numeric($name)) {
                 $safe[] = escapeshellarg($value);
             } elseif (is_bool($value)) {
@@ -189,16 +176,5 @@ class TypeScriptCompiler extends Compiler {
             }
         }
         return $safe;
-    }
-
-    protected function tsc(string $argsString, array $cmdOptions = null): ICommandResult {
-        return shell(
-            ($this->pathEnvVar ? 'PATH=' . escapeshellarg($this->pathEnvVar) . ' ' : '')
-            . 'tsc '
-            . $argsString,
-            array_merge(
-                (array)$cmdOptions, ['capture' => true]
-            )
-        );
     }
 }

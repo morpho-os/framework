@@ -18,13 +18,13 @@ class File extends Entry {
     /**
      * Reads file as string.
      */
-    public static function read(string $filePath, array $options = null): string {
+    public static function read(string $filePath, array $config = null): string {
         if (!is_file($filePath)) {
             throw new FileNotFoundException($filePath);
         }
 
-        $options = ArrayTool::handleConfig(
-            (array)$options,
+        $config = ArrayTool::handleConfig(
+            (array)$config,
             [
                 'lock'           => false,
                 'offset'         => -1,
@@ -36,18 +36,18 @@ class File extends Entry {
             ]
         );
 
-        $content = @file_get_contents($filePath, $options['useIncludePath']);
+        $content = @file_get_contents($filePath, $config['useIncludePath']);
 
         if (false === $content) {
             throw new Exception("Unable to read the '$filePath' file");
         }
 
-        if ($options['binary']) {
+        if ($config['binary']) {
             return $content;
         }
 
         // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
-        if ($options['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
+        if ($config['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
             return substr($content, 3);
         }
 
@@ -76,40 +76,40 @@ class File extends Entry {
     }
 
     /**
-     * @param null|\Closure|array $filterOrOptions
+     * @param null|\Closure|array $filterOrConfig
      */
-    public static function readLines(string $filePath, $filterOrOptions = null, array $options = null): \Generator {
-        if (is_array($filterOrOptions)) {
-            if (is_array($options)) {
+    public static function readLines(string $filePath, $filterOrConfig = null, array $config = null): \Generator {
+        if (is_array($filterOrConfig)) {
+            if (is_array($config)) {
                 throw new \InvalidArgumentException();
             }
-            $options = $filterOrOptions;
-            $filterOrOptions = null;
+            $config = $filterOrConfig;
+            $filterOrConfig = null;
         }
-        $defaultOptions = [
+        $defaultConfig = [
             'skipEmptyLines' => true,
             'rtrim' => true,
         ];
-        if ($filterOrOptions) { // If a filter was specified, don't ignore empty lines.
-            $defaultOptions['skipEmptyLines'] = false;
+        if ($filterOrConfig) { // If a filter was specified, don't ignore empty lines.
+            $defaultConfig['skipEmptyLines'] = false;
         }
-        $options = ArrayTool::handleConfig((array) $options, $defaultOptions);
+        $config = ArrayTool::handleConfig((array) $config, $defaultConfig);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
         }
         try {
             while (false !== ($line = fgets($handle))) {
-                if ($options['rtrim']) {
+                if ($config['rtrim']) {
                     $line = rtrim($line);
                 }
-                if ($options['skipEmptyLines']) {
+                if ($config['skipEmptyLines']) {
                     if (strlen($line) === 0) {
                         continue;
                     }
                 }
-                if (null !== $filterOrOptions) {
-                    if ($filterOrOptions($line)) {
+                if (null !== $filterOrConfig) {
+                    if ($filterOrConfig($line)) {
                         yield $line;
                     }
                 } else {
@@ -153,31 +153,31 @@ class File extends Entry {
         throw new NotImplementedException(__METHOD__);
     }
 
-    public static function prepend(string $filePath, string $content, array $readOptions = null, array $writeOptions = null): string {
-        $writeOptions['append'] = false;
+    public static function prepend(string $filePath, string $content, array $readConfig = null, array $writeConfig = null): string {
+        $writeConfig['append'] = false;
         return self::write(
             $filePath,
-            $content . self::read($filePath, $readOptions),
-            $writeOptions
+            $content . self::read($filePath, $readConfig),
+            $writeConfig
         );
     }
 
     /**
      * Appends content to the file and returns the file path.
      */
-    public static function append(string $filePath, string $content, array $options = null): string {
-        return self::write($filePath, $content, ArrayTool::handleConfig((array)$options, ['append' => true]));
+    public static function append(string $filePath, string $content, array $config = null): string {
+        return self::write($filePath, $content, ArrayTool::handleConfig((array)$config, ['append' => true]));
     }
 
     /**
      * Writes string to file.
      */
-    public static function write(string $filePath, string $content, array $options = null): string {
+    public static function write(string $filePath, string $content, array $config = null): string {
         if (empty($filePath)) {
             throw new Exception("The file path is empty");
         }
         Dir::create(dirname($filePath));
-        $result = @file_put_contents($filePath, $content, static::filePutContentsOptionsToFlags((array)$options), $options['context']);
+        $result = @file_put_contents($filePath, $content, static::filePutContentsConfigToFlags((array)$config), $config['context']);
         if (false === $result) {
             throw new Exception("Unable to write to the file '$filePath'");
         }
@@ -309,9 +309,9 @@ class File extends Entry {
         return $res;
     }
 
-    private static function filePutContentsOptionsToFlags(array $options): int {
-        $options = ArrayTool::handleConfig(
-            $options,
+    private static function filePutContentsConfigToFlags(array $config): int {
+        $config = ArrayTool::handleConfig(
+            $config,
             [
                 'useIncludePath' => false,
                 'lock'           => true,
@@ -321,13 +321,13 @@ class File extends Entry {
             ]
         );
         $flags = 0;
-        if ($options['append']) {
+        if ($config['append']) {
             $flags |= FILE_APPEND;
         }
-        if ($options['lock']) {
+        if ($config['lock']) {
             $flags |= LOCK_EX;
         }
-        if ($options['useIncludePath']) {
+        if ($config['useIncludePath']) {
             $flags |= FILE_USE_INCLUDE_PATH;
         }
         return $flags;

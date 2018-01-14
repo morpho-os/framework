@@ -22,7 +22,7 @@ class Dir extends Entry {
         return $targetDirPath;
     }
 
-    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $options = null): string {
+    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $config = null): string {
         // @TODO: Handle dots and relative paths: '..', '.'
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         self::mustExist($sourceDirPath);
@@ -31,8 +31,8 @@ class Dir extends Entry {
             throw new Exception("Cannot copy the directory '$sourceDirPath' into itself");
         }
 
-        $options = ArrayTool::handleConfig(
-            (array) $options,
+        $config = ArrayTool::handleConfig(
+            (array) $config,
             [
                 'overwrite'      => false,
                 'followLinks' => false,
@@ -58,15 +58,15 @@ class Dir extends Entry {
             [
                 'recursive' => false,
                 'type' => Stat::ENTRY,
-                'followLinks' => $options['followLinks'],
+                'followLinks' => $config['followLinks'],
             ]
         );
         foreach ($paths as $path) {
             $targetPath = $targetDirPath . '/' . basename($path);
             if (is_file($path) || is_link($path)) {
-                File::copy($path, $targetPath, $options['overwrite'], $options['skipIfExists']);
+                File::copy($path, $targetPath, $config['overwrite'], $config['skipIfExists']);
             } else {
-                self::copy($path, $targetPath, $processor, $options);
+                self::copy($path, $targetPath, $processor, $config);
             }
         }
 
@@ -88,15 +88,15 @@ class Dir extends Entry {
     /**
      * @param string|iterable $dirPaths
      * @param string|\Closure $processor
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function paths($dirPaths, $processor = null, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
+    public static function paths($dirPaths, $processor = null, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception("Invalid processor");
         }
-        $options = ArrayTool::handleConfig(
-            $options,
+        $config = ArrayTool::handleConfig(
+            $config,
             [
                 'recursive'      => false,
                 'followLinks' => false,
@@ -113,7 +113,7 @@ class Dir extends Entry {
         if (is_string($dirPaths)) {
             $dirPaths = (array) $dirPaths;
         }
-        $recursive = $options['recursive'];
+        $recursive = $config['recursive'];
         foreach ($dirPaths as $dirPath) {
             foreach (new DirectoryIterator($dirPath) as $item) {
                 if ($item->isDot()) {
@@ -124,9 +124,9 @@ class Dir extends Entry {
                 $isDir = $item->isDir();
 
                 if ($isDir) {
-                    $match = $options['type'] & Stat::DIR;
+                    $match = $config['type'] & Stat::DIR;
                 } else {
-                    $match = $options['type'] & Stat::FILE;
+                    $match = $config['type'] & Stat::FILE;
                 }
                 if (!$match) {
                     if (!$isDir || !$recursive) {
@@ -145,11 +145,11 @@ class Dir extends Entry {
                 }
 
                 if ($isDir && $recursive) {
-                    if ($item->isLink() && !$options['followLinks']) {
+                    if ($item->isLink() && !$config['followLinks']) {
                         continue;
                     }
 
-                    yield from self::paths($item->getPathname(), $processor, $options);
+                    yield from self::paths($item->getPathname(), $processor, $config);
                 }
             }
         }
@@ -158,10 +158,10 @@ class Dir extends Entry {
     /**
      * @param string|iterable $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function baseNames($dirPath, $processor, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
+    public static function baseNames($dirPath, $processor, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 $baseName = basename($path);
@@ -184,19 +184,19 @@ class Dir extends Entry {
                 return basename($path);
             };
         }
-        return self::paths($dirPath, $processor, $options);
+        return self::paths($dirPath, $processor, $config);
     }
 
     /**
-     * Shortcut for the paths() with $options['type'] == Stat::DIR option.
+     * Shortcut for the paths() with $config['type'] == Stat::DIR option.
      *
      * @param string|iterable $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function dirPaths($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
-        $options['type'] = Stat::DIR;
+    public static function dirPaths($dirPath, $processor = null, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
+        $config['type'] = Stat::DIR;
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 if (is_string($processor)) {
@@ -207,57 +207,57 @@ class Dir extends Entry {
                 return $processor($path, true);
             };
         }
-        return self::paths($dirPath, $processor, $options);
+        return self::paths($dirPath, $processor, $config);
     }
 
     /**
      * @param iterable|string $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function dirNames($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
-        if (!empty($options['recursive'])) {
-            throw new \LogicException("The 'recursive' option must be false");
+    public static function dirNames($dirPath, $processor = null, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
+        if (!empty($config['recursive'])) {
+            throw new \LogicException("The 'recursive' config param must be false");
         }
-        $options['type'] = Stat::DIR;
-        return self::baseNames($dirPath, $processor, $options);
+        $config['type'] = Stat::DIR;
+        return self::baseNames($dirPath, $processor, $config);
     }
 
     /**
-     * Shortcut for the paths() with $options['type'] == Stat::FILE option.
+     * Shortcut for the paths() with $config['type'] == Stat::FILE option.
      *
      * @param iterable|string $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function filePaths($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
-        $options['type'] = Stat::FILE;
-        return self::paths($dirPath, $processor, $options);
+    public static function filePaths($dirPath, $processor = null, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
+        $config['type'] = Stat::FILE;
+        return self::paths($dirPath, $processor, $config);
     }
 
     /**
      * @param iterable|string $dirPath
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function filePathsWithExt($dirPath, array $extensions, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
+    public static function filePathsWithExt($dirPath, array $extensions, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = preg_quote($extension, '/');
         }
-        return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $options);
+        return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $config);
     }
 
     /**
      * @param iterable|string $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $options
+     * @param array|bool|null $config
      */
-    public static function fileNames($dirPath, $processor = null, $options = null): \Generator {
-        $options = self::normalizeConfig($options);
-        $options['type'] = Stat::FILE;
-        return self::baseNames($dirPath, $processor, $options);
+    public static function fileNames($dirPath, $processor = null, $config = null): \Generator {
+        $config = self::normalizeConfig($config);
+        $config['type'] = Stat::FILE;
+        return self::baseNames($dirPath, $processor, $config);
     }
 
     public static function linkPaths(string $dirPath, callable $filter): \Generator {

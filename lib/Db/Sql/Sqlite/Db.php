@@ -7,7 +7,6 @@
 namespace Morpho\Db\Sql\Sqlite;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Base\OptionRequiredException;
 use Morpho\Db\Sql\Db as BaseDb;
 use Morpho\Db\Sql\GeneralQuery;
 use Morpho\Db\Sql\ReplaceQuery;
@@ -33,7 +32,7 @@ class Db extends BaseDb {
     protected function newPdo(array $config): \PDO {
         // @TODO: Support of the :memory:
         if (empty($config['filePath'])) {
-            throw new OptionRequiredException('filePath');
+            throw new \RuntimeException("The config param 'filePath' is required");
         }
         $db = new \PDO(self::SQLITE_DRIVER . ':' . $config['filePath']);
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);

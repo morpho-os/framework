@@ -6,12 +6,14 @@
  */
 namespace Morpho\Qa\Test\Unit\Code\Js;
 
-use Morpho\Code\Js\Compiler;
-use Morpho\Code\Js\TscCompileOptions;
+use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
 use Morpho\Code\Js\TypeScriptCompiler;
 
 class TypeScriptCompilerTest extends TestCase {
+    /**
+     * @var TypeScriptCompiler
+     */
     private $compiler;
 
     public function setUp() {
@@ -20,36 +22,36 @@ class TypeScriptCompilerTest extends TestCase {
     }
 
     public function testInheritance() {
-        $this->assertInstanceOf(Compiler::class, $this->compiler);
+        $this->assertInstanceOf(IFn::class, $this->compiler);
     }
 
     public function testInvoke_SingleInFileToSingleOutFile() {
         $inFilePath = $this->createTmpFile('ts');
         file_put_contents($inFilePath, 'export function main() {}');
         $outFilePath = dirname($inFilePath) . '/' . basename($inFilePath) . '-tsc/bar/test.js';
-        $options = new TscCompileOptions(['module' => 'system', 'outFile' => $outFilePath, $inFilePath]);
+        $compilerConfig = ['module' => 'system', 'outFile' => $outFilePath, $inFilePath];
 
-        $res = $this->compiler->__invoke($options);
+        $this->compiler->compilerConfig()->merge($compilerConfig);
+        $res = $this->compiler->__invoke([]);
 
-        $this->assertCount(1, $res);
-        $this->assertFalse($res[0]->isError());
+        $this->assertFalse($res->isError());
         $this->assertRegExp('~^System\.register\(.*\}\);\n//# sourceMappingURL=test.js.map$~si', trim(file_get_contents($outFilePath)));
     }
 
-    public function testWriteTsconfig_Default() {
+    public function testWriteTsconfigFile_Default() {
         $dirPath = $this->tmpDirPath();
 
-        $filePath = $this->compiler->writeTsconfig($dirPath);
+        $filePath = $this->compiler->writeTsconfigFile($dirPath);
 
         $this->assertEquals($dirPath . "/tsconfig.json", $filePath);
         $config = json_decode(file_get_contents($filePath), true);
         $this->assertTrue($config['compilerOptions']['removeComments']);
     }
 
-    public function testWriteTsConfig_OverwriteCompilerOption() {
+    public function testWriteTsConfigFile_OverwriteCompilerOption() {
         $tmpDirPath = $this->createTmpDir();
 
-        $tsConfigFilePath = $this->compiler->writeTsconfig($tmpDirPath, ['compilerOptions' => ['removeComments' => true]]);
+        $tsConfigFilePath = $this->compiler->writeTsconfigFile($tmpDirPath, ['compilerOptions' => ['removeComments' => true]]);
 
         $json = json_decode(file_get_contents($tsConfigFilePath), true);
         $this->assertTrue($json['compilerOptions']['removeComments']);
@@ -57,33 +59,26 @@ class TypeScriptCompilerTest extends TestCase {
 
     public function testOptionsString() {
         $option = 'strictNullChecks';
-        $this->assertNotContains('--' . $option, $this->compiler->optionsString([$option => false]));
-        $this->assertContains('--' . $option, $this->compiler->optionsString([$option => true]));
+        $this->assertNotContains('--' . $option, $this->compiler->compilerConfigStr([$option => false]));
+        $this->assertContains('--' . $option, $this->compiler->compilerConfigStr([$option => true]));
     }
 
     public function testVersion() {
-        $this->assertRegExp('~^Version\s+\d+\.\d+\.\d+~si', $this->compiler->version());
+        $this->assertRegExp('~^\d+\.\d+\.\d+~si', $this->compiler->version());
     }
 
-    public function testOptionsAccessors() {
-        $options = $this->compiler->options();
-        $this->assertTrue(count($options) > 0);
-        $this->assertEquals('lf', $options['newLine']);
-        $this->assertEquals(TypeScriptCompiler::MODULE_KIND, $this->compiler->option('module'));
-    }
-    
-    public function testHasOption() {
-        $this->assertTrue($this->compiler->hasOption('newLine'));
-        $this->assertFalse($this->compiler->hasOption('foo'));
-        $this->compiler->setOption('foo', null);
-        $this->assertTrue($this->compiler->hasOption('foo'));
+    public function testCompilerConfigAccessors() {
+        $compilerConfig = $this->compiler->compilerConfig();
+        $this->assertTrue(count($compilerConfig) > 0);
+        $this->assertEquals('lf', $compilerConfig['newLine']);
+        $this->assertEquals($compilerConfig::MODULE_KIND, $compilerConfig['module']);
     }
 
     public function testCompileToFile_SingleInFileToSingleOutFile() {
         $inFilePath = $this->createTmpFile('ts');
         file_put_contents($inFilePath, 'export function main() {}');
         $outFilePath = dirname($inFilePath) . '/' . basename($inFilePath) . '-tsc/bar/test.js';
-        $this->compiler->setOption('module', 'system');
+        $this->compiler->compilerConfig()['module'] = 'system';
 
         $res = $this->compiler->compileToFile($inFilePath, $outFilePath);
 
@@ -135,7 +130,7 @@ OUT
         $inFilePath = $this->createTmpFile('ts');
         file_put_contents($inFilePath, 'export function main() {}');
         $outDirPath = $this->createTmpDir();
-        $this->compiler->setOption('module', 'umd');
+        $this->compiler->compilerConfig()['module'] = 'umd';
 
         $res = $this->compiler->compileToDir($inFilePath, $outDirPath);
 
@@ -144,8 +139,8 @@ OUT
         $this->assertRegExp('~^\(function \((dependencies, )?factory\) \{.*\}\);\n//# sourceMappingURL=.*?\.js\.map$~si', trim(file_get_contents($outFilePath)));
     }
 
-    public function testHandlesArrayOptionsProperly() {
-        $this->compiler->setOptions(['types' => ['jquery', 'mocha']]);
-        $this->assertContains("'--types' 'jquery,mocha'", $this->compiler->optionsString());
+    public function testCompilerConfigStr_HandlesArraysProperly() {
+        $this->compiler->compilerConfig()['types'] = ['jquery', 'mocha'];
+        $this->assertContains("'--types' 'jquery,mocha'", $this->compiler->compilerConfigStr());
     }
 }

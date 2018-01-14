@@ -79,7 +79,7 @@ class AstRewriter extends NodeVisitorAbstract {
     }
 
     public function beforeTraverse(array $nodes): void {
-        if (!empty($this->context['options']['appendSourceInfo']) && count($nodes)) {
+        if (!empty($this->context['config']['appendSourceInfo']) && count($nodes)) {
             $node = $nodes[0];
             $commentText = "Source file: '{$this->context['filePath']}'";
             $node->setAttribute(

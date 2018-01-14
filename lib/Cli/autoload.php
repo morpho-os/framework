@@ -108,22 +108,22 @@ function argsStr($args): string {
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
-function shell(string $command, array $options = null): ICommandResult {
-    $options = ArrayTool::handleConfig((array) $options, [
+function shell(string $command, array $config = null): ICommandResult {
+    $config = ArrayTool::handleConfig((array) $config, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
     ]);
     $output = '';
     $exitCode = 1;
-    if (!$options['capture']) {
+    if (!$config['capture']) {
         passthru($command, $exitCode);
     } else {
         $output = capture(function () use ($command, &$exitCode) {
             passthru($command, $exitCode);
         });
     }
-    if ($options['checkExit']) {
+    if ($config['checkExit']) {
         checkExit($exitCode);
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
@@ -132,22 +132,22 @@ function shell(string $command, array $options = null): ICommandResult {
 }
 
 // @TODO: See \Composer\Util\ProcessExecutor
-function proc(string $command, array $options = null): ICommandResult {
-    $options = ArrayTool::handleConfig((array) $options, [
+function proc(string $command, array $config = null): ICommandResult {
+    $config = ArrayTool::handleConfig((array) $config, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
     ]);
     $process = new Process($command);
     $exitCode = $process->run();
-    if ($options['checkExit']) {
+    if ($config['checkExit']) {
         checkExit($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);
 }
 
-function shellSu(string $command, array $options = null): ICommandResult {
-    return shell('sudo bash -c "' . $command . '"', $options);
+function shellSu(string $command, array $config = null): ICommandResult {
+    return shell('sudo bash -c "' . $command . '"', $config);
 }
 
 function checkExit(int $exitCode): int {

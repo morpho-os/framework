@@ -31,9 +31,9 @@ class ClassTypeDiscoverer {
         });
     }
 
-    public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $options = null): array {
-        $options = (array) $options + ['recursive' => true];
-        $filePaths = Dir::filePaths($dirPaths, $regExp ?: Dir::PHP_FILES_RE, $options);
+    public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $config = null): array {
+        $config = (array) $config + ['recursive' => true];
+        $filePaths = Dir::filePaths($dirPaths, $regExp ?: Dir::PHP_FILES_RE, $config);
         $map = [];
         $discoverStrategy = $this->discoverStrategy();
         foreach ($filePaths as $filePath) {

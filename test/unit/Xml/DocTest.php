@@ -56,12 +56,12 @@ OUT;
         $this->assertSame([$nodes->item(0), $nodes->item(1)], $nodes->init());
     }
 
-    public function testNew_ThrowsExceptionOnInvalidOptions() {
+    public function testNew_ThrowsExceptionOnInvalidConfig() {
         $this->expectException(InvalidConfigException::class, "Invalid config keys: invalidOne, invalidTwo");
         Doc::new(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testNew_DefaultOptions() {
+    public function testNew_DefaultConfig() {
         $doc = Doc::new();
         $this->assertInstanceOf(Doc::class, $doc);
         $doc1 = Doc::new();
@@ -69,12 +69,12 @@ OUT;
         $this->assertNotSame($doc, $doc1);
     }
 
-    public function testParse_ThrowsExceptionOnInvalidOptions() {
-        $this->expectException(InvalidConfigException::class, "Invalid options: invalidOne, invalidTwo");
+    public function testParse_ThrowsExceptionOnInvalidConfig() {
+        $this->expectException(InvalidConfigException::class, "Invalid config keys: invalidOne, invalidTwo");
         Doc::parse("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testParse_FixEncodingOption() {
+    public function testParse_FixEncodingConfigParam() {
         $html = <<<OUT
 <!DOCTYPE html><html><body>µ</body></html>
 OUT;

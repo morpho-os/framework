@@ -12,7 +12,7 @@ namespace Morpho\Fs;
  * @see http://www.php.net/manual/class.streamwrapper.php
  */
 interface IStreamWrapper {
-    public function stream_open($uri, $mode, $options, &$openedUri);
+    public function stream_open($uri, $mode, $config, &$openedUri);
 
     public function stream_close();
 
@@ -40,13 +40,13 @@ interface IStreamWrapper {
 
     public function rename($fromUri, $toUri);
 
-    public function mkdir($uri, $mode, $options);
+    public function mkdir($uri, $mode, $config);
 
-    public function rmdir($uri, $options);
+    public function rmdir($uri, $config);
 
     public function url_stat($uri, $flags);
 
-    public function dir_opendir($uri, $options);
+    public function dir_opendir($uri, $config);
 
     public function dir_readdir();
 

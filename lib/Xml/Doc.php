@@ -23,7 +23,7 @@ class Doc extends DOMDocument {
     /**
      * NB: true values are not actual values of the options.
      */
-    private const CREATE_VALID_OPTIONS = [
+    private const CREATE_CONFIG_PARAMS = [
         'documentURI' => true,
         'encoding' => true,
         'formatOutput' => true,
@@ -37,22 +37,22 @@ class Doc extends DOMDocument {
         'xmlVersion' => true,
     ];
 
-    public static function parseFile(string $filePath, array $options = null): Doc {
+    public static function parseFile(string $filePath, array $config = null): Doc {
         if (!is_file($filePath) || !is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
         $source = File::read($filePath, ['binary' => false]);
-        return self::parse($source, $options);
+        return self::parse($source, $config);
     }
 
-    public static function parse(string $source, array $options = null): Doc {
+    public static function parse(string $source, array $config = null): Doc {
         $source = trim($source);
 
-        $options = (array) $options;
-        $fixEncoding = $options['fixEncoding'] ?? false;
-        unset($options['fixEncoding']);
+        $config = (array) $config;
+        $fixEncoding = $config['fixEncoding'] ?? false;
+        unset($config['fixEncoding']);
 
-        $doc = self::new($options);
+        $doc = self::new($config);
 
         libxml_use_internal_errors(true);
 
@@ -60,7 +60,7 @@ class Doc extends DOMDocument {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
-                $source = '<meta http-equiv="content-type" content="text/html; charset=' . Html::encode($options['encoding'] ?? self::ENCODING) . '">'
+                $source = '<meta http-equiv="content-type" content="text/html; charset=' . Html::encode($config['encoding'] ?? self::ENCODING) . '">'
                     . $source;
             }
             $result = $doc->loadHTML($source);
@@ -75,21 +75,21 @@ class Doc extends DOMDocument {
         return $doc;
     }
 
-    public static function new(array $options = null): Doc {
-        $options = (array) $options;
-        $invalidOptions = array_diff_key($options, self::CREATE_VALID_OPTIONS);
-        if (count($invalidOptions)) {
-            throw new InvalidConfigException($invalidOptions);
+    public static function new(array $config = null): Doc {
+        $config = (array) $config;
+        $invalidConfig = array_diff_key($config, self::CREATE_CONFIG_PARAMS);
+        if (count($invalidConfig)) {
+            throw new InvalidConfigException($invalidConfig);
         }
 
         $doc = new Doc('1.0');
-        $options += [
+        $config += [
             'preserveWhiteSpace' => false,
             'formatOutput'       => true,
             'substituteEntities' => true,
             'encoding'           => self::ENCODING,
         ];
-        foreach ($options as $name => $value) {
+        foreach ($config as $name => $value) {
             $doc->$name = $value;
         }
 

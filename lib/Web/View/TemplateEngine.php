@@ -124,8 +124,8 @@ class TemplateEngine extends Pipe {
                 'code' => $code,
                 //'vars' => [],
                 'filePath' => $filePath,
-                'options' => [
-                    'appendSourceInfo' => true, // @TODO: Pass compiler options
+                'config' => [
+                    'appendSourceInfo' => true, // @TODO: Pass compiler config
                 ],
             ]);
             $context = $this->__invoke($context);

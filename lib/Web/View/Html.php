@@ -45,14 +45,14 @@ class Html {
         return $attributes ? ' ' . implode(' ', $attributes) : '';
     }
 
-    public static function singleTag(string $tagName, array $attributes = null, array $options = []): string {
-        $options['isSingle'] = true;
-        return self::tag($tagName, $attributes, null, $options);
+    public static function singleTag(string $tagName, array $attributes = null, array $config = []): string {
+        $config['isSingle'] = true;
+        return self::tag($tagName, $attributes, null, $config);
     }
 
-    public static function tag(string $tagName, array $attributes = null, string $text = null, array $options = null): string {
-        $options = ArrayTool::handleConfig(
-            (array)$options,
+    public static function tag(string $tagName, array $attributes = null, string $text = null, array $config = null): string {
+        $config = ArrayTool::handleConfig(
+            (array)$config,
             [
                 'escapeText' => true,
                 'isSingle'   => false,
@@ -60,12 +60,12 @@ class Html {
                 'eol'        => false,
             ]
         );
-        $output = self::openTag($tagName, (array)$attributes, $options['isXml']);
-        if (!$options['isSingle']) {
-            $output .= $options['escapeText'] ? self::encode($text) : $text;
+        $output = self::openTag($tagName, (array)$attributes, $config['isXml']);
+        if (!$config['isSingle']) {
+            $output .= $config['escapeText'] ? self::encode($text) : $text;
             $output .= self::closeTag($tagName);
         }
-        if ($options['eol']) {
+        if ($config['eol']) {
             $output .= "\n";
         }
         return $output;

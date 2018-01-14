@@ -7,8 +7,8 @@
 namespace Morpho\Xml;
 
 class XmlTool {
-    public static function arrayToDomDoc(array $data, array $options = []): Doc {
-        $doc = Doc::new($options);
+    public static function arrayToDomDoc(array $data, array $config = []): Doc {
+        $doc = Doc::new($config);
         self::arrayToXml($data, $doc);
         return $doc;
     }

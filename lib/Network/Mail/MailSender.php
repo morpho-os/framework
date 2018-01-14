@@ -50,7 +50,7 @@ class MailSender {
     }
 
     /**
-     * @param string|array|\Traversable $spec If not string then the valid keys are: 'type', 'options'.
+     * @param string|array|\Traversable $spec If not string then the valid keys are: 'type'.
      */
     public function useTransport($spec = []): self {
         $this->setTransport(TransportFactory::create(

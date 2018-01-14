@@ -83,7 +83,7 @@ abstract class Environment {
 
     public static function enableExpectations(): void {
         // http://php.net/assert#function.assert.expectations
-        Must::beTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini option must be set to 1 for expectations");
+        Must::beTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini parameter must be set to 1 for expectations");
         ini_set('assert.active', 1);
         ini_set('assert.exception', 1);
     }

@@ -326,8 +326,8 @@ function normalizeEols(string $s): string {
 /**
  * @param mixed $data
  */
-function toJson($data, $options = null): string {
-    return json_encode($data, $options ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+function toJson($data, $config = null): string {
+    return json_encode($data, $config ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**

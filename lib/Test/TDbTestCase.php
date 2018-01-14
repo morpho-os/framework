@@ -43,6 +43,6 @@ trait TDbTestCase {
             $config = $this->dbConfig();
         }
         $dsn = $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';' . ($config['charset'] ?? 'utf8');
-        return new \PDO($dsn, $config['user'], $config['password'], $config['pdoOptions'] ?? []);
+        return new \PDO($dsn, $config['user'], $config['password'], $config['pdoConfig'] ?? []);
     }
 }

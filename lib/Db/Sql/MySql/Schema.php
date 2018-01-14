@@ -216,7 +216,7 @@ class Schema extends BaseSchema {
                  *     'name'   => ...
                  *     'columns => ...
                  *     'type'   => ...
-                 *     'option' => ...
+                 *     'options' => ...
                  * ]
                  */
                 $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql($tableDefinition['primaryKey']);
@@ -226,7 +226,7 @@ class Schema extends BaseSchema {
         $sql = "CREATE TABLE " . $query->quoteIdentifier($tableName)
             . " (\n"
             . implode(",\n", $columns)
-            . "\n) " . $this->createTableOptions();
+            . "\n) " . $this->optionsForCreateTableStmt();
 
         $args = [];
         if (isset($tableDefinition['description'])) {
@@ -237,7 +237,7 @@ class Schema extends BaseSchema {
         return [$sql, $args];
     }
 
-    public function createTableOptions(): string {
+    public function optionsForCreateTableStmt(): string {
         //CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB
         return "ENGINE=" . self::ENGINE . " DEFAULT CHARSET=" . self::CHARSET;
     }

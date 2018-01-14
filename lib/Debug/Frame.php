@@ -13,8 +13,8 @@ class Frame implements \ArrayAccess {
 
     protected $filePath;
 
-    public function __construct(array $options) {
-        foreach ($options as $name => $value) {
+    public function __construct(array $config) {
+        foreach ($config as $name => $value) {
             $this->$name = $value;
         }
     }

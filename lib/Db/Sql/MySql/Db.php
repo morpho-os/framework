@@ -39,7 +39,7 @@ class Db extends BaseDb {
     }
 
     // @TODO: Move to Query
-    public function insertRows(string $tableName, array $rows, array $options = null): void {
+    public function insertRows(string $tableName, array $rows, array $config = null): void {
         $args = [];
         $keys = null;
         foreach ($rows as $row) {
@@ -58,17 +58,17 @@ class Db extends BaseDb {
         return new ReplaceQuery($this);
     }
 
-    protected function newPdo(array $options): \PDO {
-        $options = ArrayTool::handleConfig($options, [
+    protected function newPdo(array $config): \PDO {
+        $config = ArrayTool::handleConfig($config, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
             'user' => self::DEFAULT_USER,
             'db' => self::DEFAULT_DB,
             'password' => self::DEFAULT_PASSWORD,
             'charset' => self::DEFAULT_CHARSET,
-            'pdoOptions' => [],
+            'pdoConfig' => [],
         ]);
-        $dsn = self::MYSQL_DRIVER . ':dbname=' . $options['db'] . ';' . $options['host'] . ';' . $options['charset'];
-        return new \PDO($dsn, $options['user'], $options['password'], $options['pdoOptions']);
+        $dsn = self::MYSQL_DRIVER . ':dbname=' . $config['db'] . ';' . $config['host'] . ';' . $config['charset'];
+        return new \PDO($dsn, $config['user'], $config['password'], $config['pdoConfig']);
     }
 }
