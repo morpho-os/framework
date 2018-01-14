@@ -707,7 +707,7 @@ class DirTest extends TestCase {
     }
 
     public function testDirNames_WithoutProcessor_RecursiveLogicThrowsException() {
-        $this->expectException(LogicException::class, "The 'recursive' option must be false");
+        $this->expectException(LogicException::class, "The 'recursive' config param must be false");
         Dir::dirNames($this->getTestDirPath(), null, ['recursive' => true]);
     }
 
