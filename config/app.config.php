@@ -14,7 +14,7 @@ return [
                 'paths' => [
                     'dirPath' => $siteDirPath,
                     'publicDirPath' => $baseDirPath . '/' . PUBLIC_DIR_NAME,
-                    'configFilePath' => $siteDirPath . '/' . CONFIG_DIR_NAME . '/config.php',
+                    'configFilePath' => $siteDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
                 ],
                 'hostNames' => $hostNames,
             ];

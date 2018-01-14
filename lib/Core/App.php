@@ -25,9 +25,12 @@ abstract class App implements IHasServiceManager {
         $this->init();
     }
 
+    /**
+     * @param \ArrayObject|null $config
+     * @return IResponse|false
+     */
     public static function main(\ArrayObject $config = null) {
-        $app = new static($config);
-        return $app->run();
+        return static::safeMain($config);
     }
 
     public function setServiceManager(IServiceManager $serviceManager): void {
@@ -35,22 +38,17 @@ abstract class App implements IHasServiceManager {
     }
 
     /**
-     * @return bool|IResponse
+     * @return IResponse
      */
     public function run() {
-        try {
-            $serviceManager = $this->serviceManager();
-            /** @var Request $request */
-            $request = $serviceManager->get('request');
-            $serviceManager->get('router')->route($request);
-            $serviceManager->get('dispatcher')->dispatch($request);
-            $response = $request->response();
-            $response->send();
-            return $response;
-        } catch (\Throwable $e) {
-            $this->handleError($e, $serviceManager ?? null);
-            return false;
-        }
+        $serviceManager = $this->serviceManager();
+        /** @var Request $request */
+        $request = $serviceManager->get('request');
+        $serviceManager->get('router')->route($request);
+        $serviceManager->get('dispatcher')->dispatch($request);
+        $response = $request->response();
+        $response->send();
+        return $response;
     }
 
     public function setConfig(\ArrayObject $config): void {
@@ -63,29 +61,48 @@ abstract class App implements IHasServiceManager {
 
     public function serviceManager(): IServiceManager {
         if (null === $this->serviceManager) {
-            // Already initialized
             $this->serviceManager = $this->newServiceManager();
         }
         return $this->serviceManager;
     }
 
-    protected function init(): void {
-    }
-
-    protected function handleError(\Throwable $e, ?IServiceManager $serviceManager): void {
+    public function handleError(\Throwable $e): void {
+        $serviceManager = $this->serviceManager;
         if ($serviceManager) {
             try {
                 $serviceManager->get('errorHandler')->handleException($e);
             } catch (\Throwable $e) {
-                $this->logErrorFallback($e);
+                static::logErrorFallback($e);
             }
         } else {
-            $this->logErrorFallback($e);
+            static::logErrorFallback($e);
         }
-        $this->showError($e);
+        static::showError($e);
     }
 
-    protected function logErrorFallback(\Throwable $e): void {
+    /**
+     * @param \ArrayObject $config
+     * @return IResponse|false
+     */
+    protected static function safeMain(\ArrayObject $config) {
+        try {
+            $app = new static($config);
+            return $app->run();
+        } catch (\Throwable $e) {
+            if (isset($app)) {
+                $app->handleError($e);
+            } else {
+                static::logErrorFallback($e);
+                static::showError($e);
+            }
+            return false;
+        }
+    }
+
+    protected function init(): void {
+    }
+
+    protected static function logErrorFallback(\Throwable $e): void {
         if (ErrorHandler::isErrorLogEnabled()) {
             // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
             error_log(addslashes((string)$e));
@@ -96,7 +113,7 @@ abstract class App implements IHasServiceManager {
         return new \ArrayObject([]);
     }
 
-    abstract protected function showError(\Throwable $e): void;
+    abstract protected static function showError(\Throwable $e): void;
 
     protected function newServiceManager(): IServiceManager {
         $appConfig = $this->config;

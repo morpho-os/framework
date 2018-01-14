@@ -173,7 +173,7 @@ class SiteFactoryTest extends TestCase {
                 $this->map = $map;
             }
 
-            protected function requireFile(string $filePath) {
+            protected function loadConfigFile(string $filePath) {
                 return $this->map[$filePath];
             }
         };

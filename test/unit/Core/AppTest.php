@@ -33,7 +33,7 @@ namespace Morpho\Qa\Test\Unit\Core\AppTest {
     use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
     class App extends BaseApp {
-        protected function showError(\Throwable $e): void {
+        protected static function showError(\Throwable $e): void {
             throw new NotImplementedException();
         }
 

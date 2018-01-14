@@ -26,7 +26,7 @@ class App extends BaseApp {
         }
     }
 
-    protected function showError(\Throwable $e): void {
+    protected static function showError(\Throwable $e): void {
         $statusLine = null;
         if ($e instanceof NotFoundException) {
             $statusLine = Environment::httpVersion() . ' 404 Not Found';

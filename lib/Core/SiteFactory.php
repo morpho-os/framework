@@ -12,7 +12,7 @@ class SiteFactory {
         require $siteConfig['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
 
         $configFilePath = $siteConfig['paths']['configFilePath'];
-        $loadedConfig = ArrayUtils::merge($siteConfig, $this->requireFile($configFilePath));
+        $loadedConfig = ArrayUtils::merge($siteConfig, $this->loadConfigFile($configFilePath));
 
         if (!isset($loadedConfig['modules'])) {
             $loadedConfig['modules'] = [];
@@ -30,7 +30,10 @@ class SiteFactory {
         return new \ArrayObject($loadedConfig);
     }
 
-    protected function requireFile(string $filePath) {
+    protected function loadConfigFile(string $filePath) {
+        if (!is_file($filePath)) {
+            throw new \RuntimeException("Config file does not exist");
+        }
         return require $filePath;
     }
 }

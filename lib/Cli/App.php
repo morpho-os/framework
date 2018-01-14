@@ -10,8 +10,8 @@ use Morpho\Core\App as BaseApp;
 
 abstract class App extends BaseApp {
     public static function main(\ArrayObject $config = null): int {
-        $app = new static($config);
-        $response = $app->run();
+        /** @var Response $response */
+        $response = self::safeMain($config);
         if (false === $response) {
             return Environment::FAILURE_CODE;
         }
@@ -24,7 +24,7 @@ abstract class App extends BaseApp {
         $serviceManager->get('errorHandler')->register();
     }
 
-    protected function showError(\Throwable $e): void {
+    protected static function showError(\Throwable $e): void {
         errorLn((string) $e);
     }
 }
