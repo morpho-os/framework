@@ -9,7 +9,7 @@ namespace Morpho\Qa\Test\Unit\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidConfigException;
 use function Morpho\Cli\{
-    argsToStr, shell, escapeArgs, proc, showOk, stylize
+    argsToStr, envVarsToStr, shell, escapeArgs, proc, showOk, stylize
 };
 use Morpho\Cli\ProcCommandResult;
 use Morpho\Test\TestCase;
@@ -104,6 +104,22 @@ OUT
             $this->markTestSkipped();
         }
         $this->markTestIncomplete();
+    }
+
+    public function testShell_EnvVarsConfigParam() {
+        $var = 'v' . md5(__METHOD__);
+        $val = 'hello';
+        $this->assertSame($val . "\n", shell('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true])->stdOut());
+    }
+
+    public function testEnvVarsToStr() {
+        $this->assertSame("PATH='foo' TEST='foo'\''bar'", envVarsToStr(['PATH' => 'foo', 'TEST' => "foo'bar"]));
+        $this->assertSame('', envVarsToStr([]));
+    }
+
+    public function testEnvVarsToStr_ThrowsExceptionForInvalidVarName() {
+        $this->expectException(\RuntimeException::class, 'Invalid variable name');
+        envVarsToStr(['&']);
     }
 
     public function testPipe() {

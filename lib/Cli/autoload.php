@@ -108,14 +108,33 @@ function argsToStr($args): string {
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
+function envVarsToStr(array $envVars): string {
+    if (!count($envVars)) {
+        return '';
+    }
+    $str = '';
+    foreach ($envVars as $name => $value) {
+        if (!preg_match('~^[a-z][a-z0-9_]*$~si', (string)$name)) {
+            throw new \RuntimeException('Invalid variable name');
+        }
+        $str .= ' ' . $name . '=' . escapeshellarg($value);
+    }
+    return substr($str, 1);
+}
+
 function shell(string $command, array $config = null): ICommandResult {
     $config = ArrayTool::handleConfig((array) $config, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
+        'envVars' => null,
     ]);
     $output = '';
     $exitCode = 1;
+    if ($config['envVars']) {
+        $command = envVarsToStr($config['envVars']) . ';' . $command;
+    }
+
     if (!$config['capture']) {
         passthru($command, $exitCode);
     } else {
