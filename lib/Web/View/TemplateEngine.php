@@ -6,7 +6,6 @@
  */
 namespace Morpho\Web\View;
 
-use Morpho\Base\EmptyPropertyException;
 use Morpho\Base\Pipe;
 use Morpho\Fs\File;
 
@@ -114,7 +113,7 @@ class TemplateEngine extends Pipe {
      */
     protected function compileFile(string $filePath): string {
         if (!$this->cacheDirPath) {
-            throw new EmptyPropertyException($this, 'cacheFilePath');
+            throw new \RuntimeException("The property '" . get_class($this) . "::cacheDirPath' is empty");
         }
         $this->uniqueFileHash = md5($this->uniqueFileHash . '|' . $filePath);
         $cacheFilePath = $this->cacheDirPath . '/' . $this->uniqueFileHash . '.php';

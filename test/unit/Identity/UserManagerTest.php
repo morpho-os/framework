@@ -6,7 +6,6 @@
  */
 namespace Morpho\Qa\Test\Unit\Identity;
 
-use Morpho\Base\EntityNotFoundException;
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
 use Morpho\Test\DbTestCase;
@@ -46,7 +45,7 @@ class UserManagerTest extends DbTestCase {
                         return $user;
                     }
                 }
-                throw new EntityNotFoundException();
+                throw new \LogicException();
             }
         };
         $_SESSION = [];
@@ -92,7 +91,7 @@ class UserManagerTest extends DbTestCase {
     public function testRegister_TwiceThrowsException() {
         $user = ['login' => 'foo', 'password' => 'bar'];
         $this->userManager->registerUser($user);
-        $this->expectException('\Morpho\Base\EntityExistsException', 'Such user already exists');
+        $this->expectException(\LogicException::class, 'Such user already exists');
         $this->userManager->registerUser($user);
     }
 

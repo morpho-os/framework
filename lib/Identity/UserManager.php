@@ -6,7 +6,6 @@
  */
 namespace Morpho\Identity;
 
-use Morpho\Base\EntityExistsException;
 use Morpho\Base\NotImplementedException;
 use Morpho\Web\Session\Session;
 
@@ -93,7 +92,7 @@ class UserManager {
      */
     public function registerUser(array $user) {
         if ($this->repo->findUserByLogin($user['login'])) {
-            throw new EntityExistsException("Such user already exists");
+            throw new \LogicException("Such user already exists");
         }
         $user['passwordHash'] = PasswordManager::passwordHash($user['password']);
         $userId = $this->repo->saveUser($user);
