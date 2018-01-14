@@ -124,7 +124,7 @@ class TsCompiler implements IFn {
      * @param null|array|Config $config
      * @return string
      */
-    public function compilerConfigStr($config = null): string {
+    public function compilerConfigToStr($config = null): string {
         if ($config) {
             $compilerConfig = clone $this->compilerConfig();
             $compilerConfig->merge($config);
@@ -148,14 +148,6 @@ class TsCompiler implements IFn {
 
     /**
      * @param Config|array $config
-     * @return string
-     */
-    protected function configToArgsStr($config): string {
-        return implode(' ', $this->escapeConfig($config));
-    }
-
-    /**
-     * @param Config|array $config
      * @return array
      */
     protected function escapeConfig($config): array {
@@ -175,5 +167,13 @@ class TsCompiler implements IFn {
             }
         }
         return $safe;
+    }
+
+    /**
+     * @param Config|array $config
+     * @return string
+     */
+    private function configToArgsStr($config): string {
+        return implode(' ', $this->escapeConfig($config));
     }
 }

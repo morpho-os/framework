@@ -57,10 +57,10 @@ class TsCompilerTest extends TestCase {
         $this->assertTrue($json['compilerOptions']['removeComments']);
     }
 
-    public function testOptionsString() {
+    public function testCompilerConfigToStr() {
         $option = 'strictNullChecks';
-        $this->assertNotContains('--' . $option, $this->compiler->compilerConfigStr([$option => false]));
-        $this->assertContains('--' . $option, $this->compiler->compilerConfigStr([$option => true]));
+        $this->assertNotContains('--' . $option, $this->compiler->compilerConfigToStr([$option => false]));
+        $this->assertContains('--' . $option, $this->compiler->compilerConfigToStr([$option => true]));
     }
 
     public function testVersion() {
@@ -139,8 +139,8 @@ OUT
         $this->assertRegExp('~^\(function \((dependencies, )?factory\) \{.*\}\);\n//# sourceMappingURL=.*?\.js\.map$~si', trim(file_get_contents($outFilePath)));
     }
 
-    public function testCompilerConfigStr_HandlesArraysProperly() {
+    public function testCompilerConfigToStr_HandlesArraysProperly() {
         $this->compiler->compilerConfig()['types'] = ['jquery', 'mocha'];
-        $this->assertContains("'--types' 'jquery,mocha'", $this->compiler->compilerConfigStr());
+        $this->assertContains("'--types' 'jquery,mocha'", $this->compiler->compilerConfigToStr());
     }
 }

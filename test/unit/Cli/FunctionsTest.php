@@ -9,7 +9,7 @@ namespace Morpho\Qa\Test\Unit\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidConfigException;
 use function Morpho\Cli\{
-    argsStr, shell, escapeArgs, proc, showOk, stylize
+    argsToStr, shell, escapeArgs, proc, showOk, stylize
 };
 use Morpho\Cli\ProcCommandResult;
 use Morpho\Test\TestCase;
@@ -71,14 +71,14 @@ OUT
         );
     }
 
-    public function testArgsStr() {
-        $this->assertEquals(" 'foo'", argsStr('foo'));
-        $this->assertEquals(" 'foo' 'bar'", argsStr(['foo', 'bar']));
+    public function testArgsToStr() {
+        $this->assertEquals(" 'foo'", argsToStr('foo'));
+        $this->assertEquals(" 'foo' 'bar'", argsToStr(['foo', 'bar']));
         $gen = function () {
             yield 'foo';
             yield 'bar';
         };
-        $this->assertEquals(" 'foo' 'bar'", argsStr($gen()));
+        $this->assertEquals(" 'foo' 'bar'", argsToStr($gen()));
     }
 
     public function testShell_ThrowsExceptionOnInvalidConfigParam() {
