@@ -57,7 +57,7 @@ class HtmlTest extends TestCase {
         );
     }
 
-    public function testSingleTag_XmlOption() {
+    public function testSingleTag_IsXmlConfigParam() {
         $attributes = ['bar' => 'test'];
         $expected = '<foo bar="test" />';
         $this->assertEquals(
@@ -72,16 +72,16 @@ class HtmlTest extends TestCase {
 
     public function testTag() {
         $attributes = ['href' => 'foo/bar'];
-        $options = ['eol' => false];
-        $this->assertEquals('<a href="foo/bar">Hello</a>', Html::tag('a', $attributes, 'Hello', $options));
+        $config = ['eol' => false];
+        $this->assertEquals('<a href="foo/bar">Hello</a>', Html::tag('a', $attributes, 'Hello', $config));
     }
 
-    public function testTag_EolOption() {
+    public function testTag_EolConfigParam() {
         $this->assertEquals("<foo></foo>", Html::tag('foo', [], null));
         $this->assertEquals("<foo></foo>\n", Html::tag('foo', [], null, ['eol' => true]));
     }
 
-    public function testTag_EscapeTextOption() {
+    public function testTag_EscapeTextConfigParam() {
         $this->assertEquals('<foo>&quot;</foo>', Html::tag('foo', [], '"', ['eol' => false, 'escapeText' => true]));
         $this->assertEquals('<foo>&quot;</foo>', Html::tag('foo', [], '"', ['eol' => false]));
         $this->assertEquals('<foo>"</foo>', Html::tag('foo', [], '"', ['eol' => false, 'escapeText' => false]));

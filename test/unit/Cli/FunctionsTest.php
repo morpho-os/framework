@@ -81,7 +81,7 @@ OUT
         $this->assertEquals(" 'foo' 'bar'", argsStr($gen()));
     }
 
-    public function testShell_ThrowsExceptionOnInvalidOption() {
+    public function testShell_ThrowsExceptionOnInvalidConfigParam() {
         $this->expectException(InvalidConfigException::class);
         shell('ls', ['some invalid option' => 'value of invalid option']);
     }
@@ -93,7 +93,7 @@ OUT
         $this->assertContains(basename(__FILE__), (string)$result);
     }
 
-    public function testShell_CheckExitOption() {
+    public function testShell_CheckExitConfigParam() {
         $exitCode = 134;
         $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
         shell('php -r "exit(' . $exitCode . ');"');

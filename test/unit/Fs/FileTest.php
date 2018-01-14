@@ -209,10 +209,10 @@ class FileTest extends TestCase {
     }
 
     public function testReadTextFileWithBom() {
-        $options = [
+        $config = [
             'binary' => false,
         ];
-        $this->assertEquals("123", File::read($this->getTestDirPath() . '/bom.txt', $options));
+        $this->assertEquals("123", File::read($this->getTestDirPath() . '/bom.txt', $config));
     }
 
     public function testReadBinary() {
@@ -279,7 +279,7 @@ class FileTest extends TestCase {
         $this->assertEquals($lines, file($tmpFilePath, FILE_IGNORE_NEW_LINES));
     }
 
-    public function testReadLines_DefaultOptions() {
+    public function testReadLines_DefaultConfig() {
         $tmpFilePath = $this->createTmpFile();
         file_put_contents($tmpFilePath, <<<OUT
     First
