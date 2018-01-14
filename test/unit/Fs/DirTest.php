@@ -261,7 +261,7 @@ class DirTest extends TestCase {
         $this->assertFileNotExists($paths[1] . '/test');
     }
 
-    public function testPaths_WithoutProcessorAndWithDefaultConfig() {
+    public function testPaths_WithoutProcessor_WithDefaultConfig() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
@@ -311,12 +311,12 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithoutProcessorAndWithoutBothFileAndDirConfigParams() {
+    public function testPaths_WithoutProcessor_WithoutBothFileAndDirConfigParams() {
         $it = Dir::paths($this->getTestDirPath(), null, ['type' => 0, 'recursive' => true]);
         $this->assertEquals([], iterator_to_array($it, false));
     }
 
-    public function testPaths_WithClosureProcessorAndWithDefaultConfig() {
+    public function testPaths_WithClosureProcessor_WithDefaultConfig() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -340,7 +340,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithRegExpProcessorAndWithDefaultConfig() {
+    public function testPaths_WithRegExpProcessor_WithDefaultConfig() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -370,7 +370,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithRegExpProcessorAndWithBothFileAndDirConfigParams() {
+    public function testPaths_WithRegExpProcessor_WithBothFileAndDirConfigParams() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -751,7 +751,7 @@ class DirTest extends TestCase {
         $this->assertEquals(['2', '4'], $dirNames);
     }
 
-    public function testFileNames_NotRecursiveWithoutProcessor() {
+    public function testFileNames_NotRecursive_WithoutProcessor() {
         $this->assertEquals(
             ['1.txt'],
             iterator_to_array(
@@ -761,7 +761,7 @@ class DirTest extends TestCase {
         );
     }
 
-    public function testFileNames_RecursiveWithoutProcessor() {
+    public function testFileNames_Recursive_WithoutProcessor() {
         $fileNames = Dir::fileNames($this->getTestDirPath(), null, ['recursive' => true]);
         $fileNames = iterator_to_array($fileNames, false);
         sort($fileNames);
@@ -775,7 +775,7 @@ class DirTest extends TestCase {
         );
     }
 
-    public function testFileNames_RecursiveWithProcessor() {
+    public function testFileNames_Recursive_WithProcessor() {
         $processor = function (...$args) use (&$calledTimes) {
             $this->assertNotContains('/', $args[0]);
             $this->assertContains('/', $args[1]);
