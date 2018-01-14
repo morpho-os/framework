@@ -14,9 +14,8 @@ use function Morpho\Base\trimMore;
 use Morpho\Cli\ICommandResult;
 use function Morpho\Cli\shell;
 use Morpho\Fs\File;
-use Zend\Stdlib\ArrayUtils;
 
-class TypeScriptCompiler implements IFn {
+class TsCompiler implements IFn {
     public const NONE_MODULE_KIND = 'none';
     public const COMMONJS_MODULE_KIND = 'commonjs';
     public const AMD_MODULE_KIND = 'amd';

@@ -8,17 +8,17 @@ namespace Morpho\Qa\Test\Unit\Code\Js;
 
 use Morpho\Base\IFn;
 use Morpho\Test\TestCase;
-use Morpho\Code\Js\TypeScriptCompiler;
+use Morpho\Code\Js\TsCompiler;
 
-class TypeScriptCompilerTest extends TestCase {
+class TsCompilerTest extends TestCase {
     /**
-     * @var TypeScriptCompiler
+     * @var TsCompiler
      */
     private $compiler;
 
     public function setUp() {
         parent::setUp();
-        $this->compiler = new TypeScriptCompiler();
+        $this->compiler = new TsCompiler();
     }
 
     public function testInheritance() {
