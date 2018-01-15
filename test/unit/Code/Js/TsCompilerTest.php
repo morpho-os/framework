@@ -143,4 +143,10 @@ OUT
         $this->compiler->compilerConfig()['types'] = ['jquery', 'mocha'];
         $this->assertContains("'--types' 'jquery,mocha'", $this->compiler->compilerConfigToStr());
     }
+
+    public function testValueOfCompilerConfigParam() {
+        $val = $this->compiler->valueOfCompilerConfigParam('module');
+        $this->assertContains('commonjs', $val);
+        $this->assertContains('none', $val);
+    }
 }

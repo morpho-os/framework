@@ -103,10 +103,10 @@ class TsCompiler implements IFn {
         return $versionStr;
     }
 
-    public function valuesOfCompilerConfigParam(string $paramName): array {
+    public function valueOfCompilerConfigParam(string $paramName): array {
         // @TODO: Use JSON schema file, http://json.schemastore.org/tsconfig
         $help = function () {
-
+            return trim($this->tsc(['help' => true])->stdOut());
         };
         switch ($paramName) {
             case 'module':
