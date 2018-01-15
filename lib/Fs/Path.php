@@ -9,9 +9,9 @@ namespace Morpho\Fs;
 use Morpho\Base\Environment;
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
-use Morpho\Web\Uri\Path as UriPath;
+use Morpho\Core\Path as BasePath;
 
-class Path {
+class Path extends BasePath {
     public static function isAbs(string $path): bool {
         return $path !== ''
             && ($path[0] === '/' || $path[0] === '\\')
@@ -35,22 +35,6 @@ class Path {
         return $last !== '/'
             && (!$isWindows && $last !== '\\')
             && false === strpos($path, '..');
-    }
-
-    public static function normalize(string $path): string {
-        if ($path === '') {
-            return $path;
-        }
-        if (Environment::isWindows()) {
-            $path = str_replace('\\', '/', $path);
-        }
-        if ($path === '/') {
-            return $path;
-        }
-        if (false !== strpos($path, '/..')) {
-            $path = UriPath::removeDotSegments($path);
-        }
-        return rtrim($path, '/\\');
     }
 
     public static function combine(...$paths): string {
@@ -93,24 +77,6 @@ class Path {
             throw new Exception("Unable to detect absolute path for the '$path' path.");
         }
         return $normalize ? self::normalize($absPath) : $absPath;
-    }
-
-    public static function toRel(string $path, string $basePath): string {
-        $path = static::normalize($path);
-        $basePath = static::normalize($basePath);
-
-        if ($path === '') {
-            return $basePath;
-        }
-        if ($basePath === '') {
-            return $path;
-        }
-        $pos = strpos($path, $basePath);
-        if ($pos !== 0) {
-            throw new Exception("The path '$path' does not contain the base path '$basePath'");
-        }
-
-        return (string)substr($path, strlen($basePath) + 1);
     }
 
     public static function ext(string $path): string {

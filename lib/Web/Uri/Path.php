@@ -9,9 +9,9 @@ namespace Morpho\Web\Uri;
 use function Morpho\Base\endsWith;
 use function Morpho\Base\startsWith;
 use function Morpho\Base\contains;
-use Morpho\Fs\Path as FsPath;
+use Morpho\Core\Path as BasePath;
 
-class Path implements IUriComponent {
+class Path extends BasePath implements IUriComponent {
     /**
      * @var ?string
      */
@@ -54,81 +54,6 @@ class Path implements IUriComponent {
     }
 
     /**
-     * This method taken from https://github.com/zendframework/zend-uri/blob/master/src/Uri.php and changed to match our requirements.
-     *
-     * @link      http://github.com/zendframework/zf2 for the canonical source repository
-     * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
-     * @license   http://framework.zend.com/license/new-bsd New BSD License
-     *
-     * Remove any extra dot segments (/../, /./) from a path
-     *
-     * Algorithm is adapted from RFC-3986 section 5.2.4
-     * (@link http://tools.ietf.org/html/rfc3986#section-5.2.4)
-     *
-     * @TODO   consider optimizing
-     *
-     * @param string|Path
-     */
-    public static function removeDotSegments($path): string {
-        if (!is_string($path)) {
-            /** @var Path $path */
-            $path = $path->toStr(false);
-        }
-
-        $output = '';
-
-        while ($path) {
-            if ($path == '..' || $path == '.') {
-                break;
-            }
-
-            switch (true) {
-                case ($path == '/.'):
-                    $path = '/';
-                    break;
-                case ($path == '/..'):
-                    $path   = '/';
-                    $lastSlashPos = mb_strrpos($output, '/', -1);
-                    if (false === $lastSlashPos) {
-                        break;
-                    }
-                    $output = mb_substr($output, 0, $lastSlashPos);
-                    break;
-                case (mb_substr($path, 0, 4) == '/../'):
-                    $path   = '/' . mb_substr($path, 4);
-                    $lastSlashPos = mb_strrpos($output, '/', -1);
-                    if (false === $lastSlashPos) {
-                        break;
-                    }
-                    $output = mb_substr($output, 0, $lastSlashPos);
-                    break;
-                case (mb_substr($path, 0, 3) == '/./'):
-                    $path = mb_substr($path, 2);
-                    break;
-                case (mb_substr($path, 0, 2) == './'):
-                    $path = mb_substr($path, 2);
-                    break;
-                case (mb_substr($path, 0, 3) == '../'):
-                    $path = mb_substr($path, 3);
-                    break;
-                default:
-                    $slash = mb_strpos($path, '/', 1);
-                    if ($slash === false) {
-                        $seg = $path;
-                    } else {
-                        $seg = mb_substr($path, 0, $slash);
-                    }
-
-                    $output .= $seg;
-                    $path = mb_substr($path, mb_strlen($seg));
-                    break;
-            }
-        }
-
-        return $output;
-    }
-
-    /**
      * @param string $basePath
      */
     public function setBasePath(string $basePath): void {
@@ -145,7 +70,7 @@ class Path implements IUriComponent {
     public function relPath(): ?string {
         if (null === $this->relPath) {
             if (null !== $this->basePath) {
-                $this->relPath = FsPath::toRel($this->path, $this->basePath);
+                $this->relPath = static::toRel($this->path, $this->basePath);
             }
         }
         return $this->relPath;

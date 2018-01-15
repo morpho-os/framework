@@ -167,13 +167,13 @@ class Uri {
         if ($scheme !== '') {
             $targetUri->setScheme($scheme);
             $targetUri->setAuthority($relUri->authority());
-            $targetUri->setPath(Path::removeDotSegments($relUri->path()));
+            $targetUri->setPath(Path::removeDotSegments($relUri->path()->toStr(false)));
             $targetUri->setQuery($relUri->query());
         } else {
             $authority = $relUri->authority();
             if (!$authority->isNull()) {
                 $targetUri->setAuthority($authority);
-                $targetUri->setPath(Path::removeDotSegments($relUri->path()));
+                $targetUri->setPath(Path::removeDotSegments($relUri->path()->toStr(false)));
                 $targetUri->setQuery($relUri->query());
             } else {
                 $path = $relUri->path()->toStr(false);

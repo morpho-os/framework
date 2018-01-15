@@ -305,16 +305,6 @@ class PathTest extends TestCase {
         $this->assertSame(Path::toRel($baseDirPath . '/index.php', $baseDirPath), 'index.php');
     }
 
-    public function testToRel_ThrowsExceptionWhenBasePathNotContainedWithinPath() {
-        $baseDirPath = '/foo/bar/baz/';
-        $path = __DIR__;
-        $this->expectException(
-            FsException::class,
-            "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
-        );
-        Path::toRel($path, $baseDirPath);
-    }
-
     public function testNameWithoutExt() {
         $this->assertEquals('', Path::nameWithoutExt(''));
         $this->assertEquals('', Path::nameWithoutExt('.jpg'));
