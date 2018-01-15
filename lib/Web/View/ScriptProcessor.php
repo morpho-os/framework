@@ -39,14 +39,14 @@ class ScriptProcessor extends HtmlProcessor {
         $childPageScripts = $splitScripts($childScripts);
         $actionScripts = $this->actionScripts();
 
-        // script = included | inline
-        // main-page-script | child-page-script | action-script
+        // script = (included | inline)
+        // script = (main-page-script | child-page-script | action-script)
         // order:
         //     1. main-page-script included
         //     2. child-page-script included
         //     3. action-script included
         //     4. main-page-script inline
-        //     5. child-page-script inline | action-script inline
+        //     5. child-page-script inline (has higher priority) | action-script inline
         $scripts = array_merge(
             $mainPageScripts[1],
             $childPageScripts[1],
@@ -54,6 +54,10 @@ class ScriptProcessor extends HtmlProcessor {
             $mainPageScripts[0],
             count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
         );
+        $changed = $this->changeBodyScripts($scripts);
+        if ($changed) {
+            $scripts = $changed;
+        }
         $html .= $this->renderScripts($scripts);
 
         $tag['_text'] = $html;
@@ -113,13 +117,14 @@ class ScriptProcessor extends HtmlProcessor {
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => '$(function () {
-    define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) {
-        module.main();
-    });
-});',
+                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(); });',
             ];
         }
         return [$inline, $included];
+    }
+
+    private function changeBodyScripts(array $scripts): ?array {
+        // Do nothing
+        return null;
     }
 }
