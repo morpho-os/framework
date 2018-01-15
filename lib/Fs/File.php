@@ -6,7 +6,7 @@
  */
 namespace Morpho\Fs;
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Config;
 use Morpho\Base\Environment;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\{
@@ -23,7 +23,7 @@ class File extends Entry {
             throw new FileNotFoundException($filePath);
         }
 
-        $config = ArrayTool::handleConfig(
+        $config = Config::check(
             (array)$config,
             [
                 'lock'           => false,
@@ -93,7 +93,7 @@ class File extends Entry {
         if ($filterOrConfig) { // If a filter was specified, don't ignore empty lines.
             $defaultConfig['skipEmptyLines'] = false;
         }
-        $config = ArrayTool::handleConfig((array) $config, $defaultConfig);
+        $config = Config::check((array) $config, $defaultConfig);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
@@ -166,7 +166,7 @@ class File extends Entry {
      * Appends content to the file and returns the file path.
      */
     public static function append(string $filePath, string $content, array $config = null): string {
-        return self::write($filePath, $content, ArrayTool::handleConfig((array)$config, ['append' => true]));
+        return self::write($filePath, $content, Config::check((array)$config, ['append' => true]));
     }
 
     /**
@@ -310,7 +310,7 @@ class File extends Entry {
     }
 
     private static function filePutContentsConfigToFlags(array $config): int {
-        $config = ArrayTool::handleConfig(
+        $config = Config::check(
             $config,
             [
                 'useIncludePath' => false,

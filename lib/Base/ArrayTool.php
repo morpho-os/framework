@@ -141,17 +141,6 @@ class ArrayTool {
         return $result;
     }
 
-    public static function handleConfig(?array $config, array $defaultConfig): array {
-        if (null === $config || count($config) === 0) {
-            return $defaultConfig;
-        }
-        $diff = array_diff_key($config, array_flip(array_keys($defaultConfig)));
-        if (count($diff)) {
-            throw new InvalidConfigException($diff);
-        }
-        return array_merge($defaultConfig, $config);
-    }
-
     /**
      * Unsets all items of array with $key recursively.
      */

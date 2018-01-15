@@ -55,7 +55,7 @@ class ScriptProcessor extends HtmlProcessor {
             count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
         );
         $changed = $this->changeBodyScripts($scripts);
-        if ($changed) {
+        if (null !== $changed) {
             $scripts = $changed;
         }
         $html .= $this->renderScripts($scripts);

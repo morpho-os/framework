@@ -6,7 +6,7 @@
  */
 namespace Morpho\Web\View;
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Config;
 
 class Html {
     public static function encode($text): string {
@@ -51,7 +51,7 @@ class Html {
     }
 
     public static function tag(string $tagName, array $attributes = null, string $text = null, array $config = null): string {
-        $config = ArrayTool::handleConfig(
+        $config = Config::check(
             (array)$config,
             [
                 'escapeText' => true,

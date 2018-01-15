@@ -6,8 +6,8 @@
  */
 namespace Morpho\Fs;
 
-use Morpho\Base\ArrayTool;
 use DirectoryIterator;
+use Morpho\Base\Config;
 use Morpho\Base\Environment;
 use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
@@ -31,7 +31,7 @@ class Dir extends Entry {
             throw new Exception("Cannot copy the directory '$sourceDirPath' into itself");
         }
 
-        $config = ArrayTool::handleConfig(
+        $config = Config::check(
             (array) $config,
             [
                 'overwrite'      => false,
@@ -95,7 +95,7 @@ class Dir extends Entry {
         if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception("Invalid processor");
         }
-        $config = ArrayTool::handleConfig(
+        $config = Config::check(
             $config,
             [
                 'recursive'      => false,

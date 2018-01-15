@@ -6,7 +6,6 @@
  */
 namespace Morpho\Code\Js;
 
-use Morpho\Base\ArrayTool;
 use Morpho\Base\Config;
 use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
@@ -44,7 +43,7 @@ class TsCompiler implements IFn {
      * @param array|Config $config
      */
     public function __invoke($config): ICommandResult {
-        $config = ArrayTool::handleConfig($config, [
+        $config = Config::check($config, [
             'compilerConfig' => $this->compilerConfig(),
             'shellConfig' => $this->shellConfig(),
         ]);

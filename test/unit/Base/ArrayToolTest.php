@@ -189,64 +189,6 @@ class ArrayToolTest extends TestCase {
         );
     }
 
-    public function dataForHandleConfig() {
-        return [
-            [
-                [],
-                [],
-                [],
-            ],
-            [
-                [],
-                null,
-                [],
-            ],
-            [
-                ['foo' => 'my-default'],
-                [],
-                ['foo' => 'my-default'],
-            ],
-            [
-                ['foo' => 'my-option'],
-                ['foo' => 'my-option'],
-                ['foo' => 'my-default'],
-            ],
-            [
-                ['foo' => 'my-option'],
-                ['foo' => 'my-option'],
-                ['foo' => 'my-default'],
-            ],
-            [
-                ['foo' => 'bar'],
-                null,
-                ['foo' => 'bar']
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForHandleConfig
-     */
-    public function testHandleConfig($expected, $config, $defaultConfig) {
-        $this->assertEquals(
-            $expected,
-            ArrayTool::handleConfig(
-                $config,
-                $defaultConfig
-            )
-        );
-    }
-
-    public function testHandleConfig_ThrowsExceptionWhenParamsWithDefaultKeysAreMissing() {
-        $this->expectException(InvalidConfigException::class, "Invalid config keys: foo");
-        ArrayTool::handleConfig(['foo' => 'bar'], ['one' => 1]);
-    }
-
-    public function testHandleConfig_InvalidNumericKeys() {
-        $this->expectException(InvalidConfigException::class, "Invalid config keys: 2, 5");
-        ArrayTool::handleConfig([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
-    }
-
     public function testUnsetRecursive() {
         $array = $this->_testArray();
         $expected = [

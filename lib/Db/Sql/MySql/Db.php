@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Config;
 use Morpho\Db\Sql\Db as BaseDb;
 use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\Schema as BaseSchema;
@@ -59,7 +59,7 @@ class Db extends BaseDb {
     }
 
     protected function newPdo(array $config): \PDO {
-        $config = ArrayTool::handleConfig($config, [
+        $config = Config::check($config, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
             'user' => self::DEFAULT_USER,

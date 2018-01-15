@@ -7,6 +7,7 @@
 namespace Morpho\Qa\Test\Unit\Base;
 
 use Morpho\Base\Config;
+use Morpho\Base\InvalidConfigException;
 use Morpho\Test\TestCase;
 
 class ConfigTest extends TestCase {
@@ -59,5 +60,63 @@ class ConfigTest extends TestCase {
     public function testMerge(bool $recursive, $expected) {
         $config = new Config(['foo' => ['bar']]);
         $this->assertSame($expected, $config->merge(['foo' => ['abc']], $recursive)->getArrayCopy());
+    }
+
+    public function dataForCheck_Array() {
+        return [
+            [
+                [],
+                [],
+                [],
+            ],
+            [
+                [],
+                null,
+                [],
+            ],
+            [
+                ['foo' => 'my-default'],
+                [],
+                ['foo' => 'my-default'],
+            ],
+            [
+                ['foo' => 'my-option'],
+                ['foo' => 'my-option'],
+                ['foo' => 'my-default'],
+            ],
+            [
+                ['foo' => 'my-option'],
+                ['foo' => 'my-option'],
+                ['foo' => 'my-default'],
+            ],
+            [
+                ['foo' => 'bar'],
+                null,
+                ['foo' => 'bar']
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForCheck_Array
+     */
+    public function testCheck_Array($expected, $config, $defaultConfig) {
+        $this->assertEquals(
+            $expected,
+            Config::check(
+                $config,
+                $defaultConfig
+            )
+        );
+    }
+
+    public function testCheck_Array_ThrowsExceptionWhenParamsWithDefaultKeysAreMissing() {
+        $this->expectException(InvalidConfigException::class, "Invalid config keys: foo");
+        Config::check(['foo' => 'bar'], ['one' => 1]);
+    }
+
+    public function testCheck_Array_InvalidNumericKeys() {
+        $this->expectException(InvalidConfigException::class, "Invalid config keys: 2, 5");
+        Config::check([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
     }
 }

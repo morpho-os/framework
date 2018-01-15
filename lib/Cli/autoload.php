@@ -15,7 +15,7 @@ const STD_PIPES = [
     STDERR_FD => ['pipe', 'w'],  // child process will write to STDERR
 ];
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Config;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
 use Morpho\Error\DumpListener;
@@ -123,7 +123,7 @@ function envVarsToStr(array $envVars): string {
 }
 
 function shell(string $command, array $config = null): ICommandResult {
-    $config = ArrayTool::handleConfig((array) $config, [
+    $config = Config::check((array) $config, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
@@ -152,7 +152,7 @@ function shell(string $command, array $config = null): ICommandResult {
 
 // @TODO: See \Composer\Util\ProcessExecutor
 function proc(string $command, array $config = null): ICommandResult {
-    $config = ArrayTool::handleConfig((array) $config, [
+    $config = Config::check((array) $config, [
         'checkExit' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
