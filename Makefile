@@ -20,7 +20,10 @@ mtest:
 	bin/test module
 
 utest:
-	bin/test test/unit/TestSuite.php
+	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/unit/TestSuite.php
+
+utest-strict:
+	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/unit/TestSuite.php
 
 clear:
 clean:
@@ -32,4 +35,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test ftest mtest utest clean update reset
+.PHONY: js css test ftest mtest utest utest-strict clear clean update
