@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace Morpho\User\Domain;
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Arr;
 use Morpho\Db\Sql\Repo;
 use Morpho\Identity\IUserRepo;
 
@@ -23,7 +23,7 @@ class UserRepo extends Repo implements IUserRepo {
      * @return mixed
      */
     public function saveUser(array $user) {
-        $this->insertRow(ArrayTool::itemsWithKeys($user, ['login', 'passwordHash']));
+        $this->insertRow(Arr::itemsWithKeys($user, ['login', 'passwordHash']));
         return $this->lastInsertId('id');
     }
 

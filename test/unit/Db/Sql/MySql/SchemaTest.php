@@ -6,7 +6,7 @@
  */
 namespace Morpho\Qa\Test\Unit\Db\Sql\MySql;
 
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Arr;
 use Morpho\Db\Sql\Db;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Test\DbTestCase;
@@ -403,7 +403,7 @@ OUT
 
     private function assertArrayHasOnlyItemsWithKeys(array $expectedKeys, array $arr) {
         $this->assertTrue(
-            ArrayTool::setsEqual($expectedKeys, array_keys($arr)),
+            Arr::setsEqual($expectedKeys, array_keys($arr)),
             print_r($expectedKeys, true) . print_r(array_keys($arr), true)
         );
     }

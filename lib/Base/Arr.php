@@ -9,7 +9,7 @@ namespace Morpho\Base;
 use OutOfBoundsException;
 use RuntimeException;
 
-class ArrayTool {
+class Arr {
     /**
      * Union for sets, for difference use array_diff(), for intersection use array_intersect().
      */
@@ -123,18 +123,18 @@ class ArrayTool {
         return $result;
     }
 
-    public static function camelizeKeys(array $array): array {
+    public static function camelizeKeys(array $arr): array {
         $result = [];
-        foreach ($array as $key => $value) {
+        foreach ($arr as $key => $value) {
             $result[camelize($key)] = $value;
         }
 
         return $result;
     }
 
-    public static function underscoreKeys(array $array): array {
+    public static function underscoreKeys(array $arr): array {
         $result = [];
-        foreach ($array as $key => $value) {
+        foreach ($arr as $key => $value) {
             $result[underscore($key)] = $value;
         }
 

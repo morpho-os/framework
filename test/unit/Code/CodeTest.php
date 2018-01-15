@@ -7,12 +7,12 @@
 namespace Morpho\Qa\Test\Unit\Code;
 
 use Morpho\Test\TestCase;
-use Morpho\Code\CodeTool;
+use Morpho\Code\Code;
 
-class CodeToolTest extends TestCase {
+class CodeTest extends TestCase {
     public function testVarToStr_ClosuresToFile() {
         $this->markTestIncomplete();
-        $php = CodeTool::varToStr(function () {
+        $php = Code::varToStr(function () {
             echo "OK";
         });
         $this->assertEquals(<<<OUT

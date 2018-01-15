@@ -8,7 +8,7 @@ namespace Morpho\Code;
 
 use Morpho\Base\NotImplementedException;
 
-class CodeTool {
+class Code {
     public static function format(string $php): string {
         throw new NotImplementedException();
     }

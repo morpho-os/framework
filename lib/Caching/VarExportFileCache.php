@@ -7,7 +7,7 @@
 namespace Morpho\Caching;
 
 use function Morpho\Base\typeOf;
-use Morpho\Code\CodeTool;
+use Morpho\Code\Code;
 
 class VarExportFileCache extends PhpFileCache {
     protected function save(string $key, $data, $lifeTime = 0): bool {
@@ -25,7 +25,7 @@ class VarExportFileCache extends PhpFileCache {
             'lifetime' => $lifeTime,
             'data'     => $data,
         ];
-        $code = '<?php return ' . CodeTool::varToStr($value);
+        $code = '<?php return ' . Code::varToStr($value);
         return $this->writeFile($cacheFilePath, $code);
     }
 }

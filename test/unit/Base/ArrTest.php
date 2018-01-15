@@ -6,11 +6,10 @@
  */
 namespace Morpho\Qa\Test\Unit\Base;
 
-use Morpho\Base\InvalidConfigException;
 use Morpho\Test\TestCase;
-use Morpho\Base\ArrayTool;
+use Morpho\Base\Arr;
 
-class ArrayToolTest extends TestCase {
+class ArrTest extends TestCase {
     public function dataForIsSubset() {
         return [
             [
@@ -62,12 +61,12 @@ class ArrayToolTest extends TestCase {
      * @dataProvider dataForIsSubset
      */
     public function testIsSubset($expected, $a, $b) {
-        $this->assertSame($expected, ArrayTool::isSubset($a, $b));
+        $this->assertSame($expected, Arr::isSubset($a, $b));
     }
 
     public function testSubsets() {
-        $this->assertEquals([[]], ArrayTool::subsets([]));
-        $this->assertEquals([[], [1]], ArrayTool::subsets([1]));
+        $this->assertEquals([[]], Arr::subsets([]));
+        $this->assertEquals([[], [1]], Arr::subsets([1]));
         $check = function ($expected, $actual) {
             $this->assertCount(count($expected), $actual);
             foreach ($expected as $val) {
@@ -85,7 +84,7 @@ class ArrayToolTest extends TestCase {
                 ['a', 'c'],
                 ['a', 'b', 'c']
             ],
-            ArrayTool::subsets(['a', 'b', 'c'])
+            Arr::subsets(['a', 'b', 'c'])
         );
     }
 
@@ -118,26 +117,26 @@ class ArrayToolTest extends TestCase {
      * @dataProvider dataForSetsEqual
      */
     public function testSetsEqual($a, $b, $expected) {
-        $this->assertEquals($expected, ArrayTool::setsEqual($a, $b));
+        $this->assertEquals($expected, Arr::setsEqual($a, $b));
     }
     
     public function testUnset_Cases() {
-        $this->assertEquals([], ArrayTool::unset([], 'some'));
-        $this->assertEquals([], ArrayTool::unset([], null));
+        $this->assertEquals([], Arr::unset([], 'some'));
+        $this->assertEquals([], Arr::unset([], null));
     }
 
     public function testUnset_StringKeys() {
-        $this->assertEquals(['one' => 'first-val'], ArrayTool::unset(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
+        $this->assertEquals(['one' => 'first-val'], Arr::unset(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
     }
 
     public function testUnset_IntKeys() {
         $obj1 = new \stdClass();
         $obj2 = new \stdClass();
-        $this->assertEquals([$obj2], array_values(ArrayTool::unset([$obj1, $obj2], $obj1)));
+        $this->assertEquals([$obj2], array_values(Arr::unset([$obj1, $obj2], $obj1)));
 
-        $this->assertEquals(['one', 'two'], array_values(ArrayTool::unset(['one', 'two'], 'some')));
+        $this->assertEquals(['one', 'two'], array_values(Arr::unset(['one', 'two'], 'some')));
 
-        $this->assertEquals(['one'], array_values(ArrayTool::unset(['one', 'two'], 'two')));
+        $this->assertEquals(['one'], array_values(Arr::unset(['one', 'two'], 'two')));
     }
 
     public function testToKeyed() {
@@ -150,7 +149,7 @@ class ArrayToolTest extends TestCase {
                     'one' => ':]', 'two' => ':-]', 'three' => ':+]',
                 ],
             ],
-            ArrayTool::toKeyed(
+            Arr::toKeyed(
                 [
                     [
                         'one' => ':)', 'two' => ':-)', 'three' => ':+)',
@@ -174,7 +173,7 @@ class ArrayToolTest extends TestCase {
                     'one' => ':]', 'three' => ':+]',
                 ],
             ],
-            ArrayTool::toKeyed(
+            Arr::toKeyed(
                 [
                     [
                         'one' => ':)', 'two' => ':-)', 'three' => ':+)',
@@ -200,7 +199,7 @@ class ArrayToolTest extends TestCase {
                 'test' => [],
             ],
         ];
-        $this->assertEquals($expected, ArrayTool::unsetRecursive($array, 'unsetMe'));
+        $this->assertEquals($expected, Arr::unsetRecursive($array, 'unsetMe'));
         $this->assertEquals($expected, $array);
     }
 
@@ -213,7 +212,7 @@ class ArrayToolTest extends TestCase {
             'fooBar' => 'one',
             'barBaz' => 'two',
         ];
-        $this->assertEquals($expected, ArrayTool::camelizeKeys($array));
+        $this->assertEquals($expected, Arr::camelizeKeys($array));
     }
 
     public function testUnderscoreKeys() {
@@ -225,25 +224,25 @@ class ArrayToolTest extends TestCase {
             'foo_bar' => 'one',
             'bar_baz' => 'two',
         ];
-        $this->assertEquals($expected, ArrayTool::underscoreKeys($array));
+        $this->assertEquals($expected, Arr::underscoreKeys($array));
     }
 
     public function testHash() {
         $array = $this->_testArray();
-        $hash1 = ArrayTool::hash($array);
-        $hash2 = ArrayTool::hash($array);
+        $hash1 = Arr::hash($array);
+        $hash2 = Arr::hash($array);
         $this->assertTrue(!empty($hash1) && !empty($hash2));
         $this->assertEquals($hash1, $hash2);
 
         $array['other'] = 'item';
-        $hash3 = ArrayTool::hash($array);
+        $hash3 = Arr::hash($array);
         $this->assertTrue(!empty($hash3));
         $this->assertNotEquals($hash1, $hash3);
     }
 
     public function testUnion() {
         // {numeric keys, string keys, mixed keys}
-        $this->assertEquals(['foo' => 'kiwi'], ArrayTool::union(['foo' => 'apple'], ['foo' => 'kiwi']));
+        $this->assertEquals(['foo' => 'kiwi'], Arr::union(['foo' => 'apple'], ['foo' => 'kiwi']));
         $this->markTestIncomplete();
     }
 
@@ -324,7 +323,7 @@ class ArrayToolTest extends TestCase {
      * @dataProvider dataForSymmetricDiff
      */
     public function testSymmetricDiff(array $expected, array $a, array $b) {
-        $this->assertSame($expected, ArrayTool::symmetricDiff($a, $b));
+        $this->assertSame($expected, Arr::symmetricDiff($a, $b));
     }
 
     public function testCartesianProduct() {
@@ -339,7 +338,7 @@ class ArrayToolTest extends TestCase {
                 ['baz', 'blue'],
                 ['baz', 'red'],
             ],
-            ArrayTool::cartesianProduct($a, $b)
+            Arr::cartesianProduct($a, $b)
         );
     }
 

@@ -6,7 +6,7 @@
  */
 namespace Morpho\Xml;
 
-class XmlTool {
+class Xml {
     public static function arrayToDomDoc(array $data, array $config = []): Doc {
         $doc = Doc::new($config);
         self::arrayToXml($data, $doc);
@@ -35,7 +35,7 @@ class XmlTool {
         $innerHTML = "";
         $children = $element->childNodes;
         foreach ($children as $child) {
-            $tmpDom = XmlTool::newDomDoc();
+            $tmpDom = Xml::newDomDoc();
             $tmpDom->appendChild($tmp_dom->importNode($child, true));
             $innerHTML.=trim($tmp_dom->saveHTML());
         }
