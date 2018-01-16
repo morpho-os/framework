@@ -7,6 +7,7 @@ language: php
 php:
 # - hhvm
   - 7.2
+  # https://docs.travis-ci.com/user/languages/php/#Nightly-builds
   - nightly
 
 matrix:
