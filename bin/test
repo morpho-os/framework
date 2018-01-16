@@ -11,14 +11,13 @@ phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
 testDirPath="$baseDirPath/test"
 phpUnitConfigFilePath="$testDirPath/phpunit.xml"
-
 seleniumLogFilePath="$testDirPath/functional/selenium.log"
 
 #$phpUnitBinFilePath --version
 
 export SELENIUM_VERSION=latest
 
-php -f $phpUnitBinFilePath -- $([[ -n "${TRAVIS-}" ]] && echo '--debug') -c "$phpUnitConfigFilePath" "$@" || {
+php -f $phpUnitBinFilePath -- --fail-on-warning --fail-on-risky $([[ -n "${TRAVIS-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfigFilePath" "$@" || {
     if [[ -n ${TRAVIS:-} ]]; then
         echo ---------------------------------------------------------------
         echo Selenium log:
