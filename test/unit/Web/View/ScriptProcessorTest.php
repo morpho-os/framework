@@ -113,8 +113,23 @@ OUT;
         $this->assertSame($html, $processed);
     }
 
-    public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript() {
+    public function dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript() {
+        yield [
+            ['foo' => 'bar'],
+        ];
+        yield [
+            new \ArrayObject(['foo' => 'bar']),
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript
+     */
+    public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConfig) {
         $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
+        $request = $serviceManager->get('request');
+        $request['jsConfig'] = $jsConfig;
+
         $processor = new ScriptProcessor($serviceManager);
 
         $childPageHtml = <<<OUT
@@ -127,8 +142,9 @@ OUT;
 
         $processedBody = $processor->__invoke('<body></body>');
 
+        $jsConfigStr = json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
         $this->assertRegExp(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
     }
@@ -154,10 +170,8 @@ OUT;
     }
 
     private function newConfiguredServiceManager($handler) {
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('handler')
-            ->willReturn($handler);
+        $request = new Request();
+        $request->setHandler($handler);
 
         $siteModuleName = 'random/example';
         $site = $this->createConfiguredMock(Site::class, [

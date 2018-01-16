@@ -117,13 +117,21 @@ class ScriptProcessor extends HtmlProcessor {
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(); });',
+                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(' . json_encode($this->jsConfig(), JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return [$inline, $included];
     }
 
-    private function changeBodyScripts(array $scripts): ?array {
+    protected function jsConfig(): array {
+        $request = $this->request();
+        if (isset($request['jsConfig'])) {
+            return (array) $request['jsConfig'];
+        }
+        return [];
+    }
+
+    protected function changeBodyScripts(array $scripts): ?array {
         // Do nothing
         return null;
     }

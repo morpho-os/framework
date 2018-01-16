@@ -144,4 +144,11 @@ class Controller extends BaseController implements IHasServiceManager {
     protected function newPage(array $vars = null): Page {
         return new Page(dasherize($this->request->actionName()), $vars);
     }
+
+    protected function jsConfig(): \ArrayObject {
+        if (!isset($this->request['jsConfig'])) {
+            $this->request['jsConfig'] = new \ArrayObject();
+        }
+        return $this->request['jsConfig'];
+    }
 }
