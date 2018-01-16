@@ -7,10 +7,12 @@ language: php
 php:
 # - hhvm
   - 7.2
+  - nightly
 
 matrix:
 #  allow_failures:
 #    - php: hhvm
+#    - php: nightly
   fast_finish: true
 
 addons:
