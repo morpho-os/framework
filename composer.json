@@ -44,7 +44,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master",
-        "facebook/webdriver": "dev-community"
+        "facebook/webdriver": "dev-community",
+        "mikey179/vfsStream": "dev-master"
     },
     "repositories": [
         {
