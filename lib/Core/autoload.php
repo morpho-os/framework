@@ -35,10 +35,12 @@ const PLUGIN_SUFFIX = 'Plugin';
 const REPO_SUFFIX = 'Repo';
 
 /**
+ * Detects and returns base directory path of the module.
+ * @param string $dirPath Any directory path within the module.
  * @return false|string
  */
 function baseDirPath(string $dirPath, bool $throwEx = true) {
-    $baseDirPath = null;
+    $baseDirPath = false;
     do {
         $path = $dirPath . '/vendor/composer/ClassLoader.php';
         if (is_file($path)) {
@@ -49,11 +51,11 @@ function baseDirPath(string $dirPath, bool $throwEx = true) {
             $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
         }
     } while ($chunks);
-    if (null === $baseDirPath) {
+    if (false === $baseDirPath) {
         if ($throwEx) {
-            throw new \RuntimeException("Unable to find a path of the root directory");
+            throw new \RuntimeException("Unable to detect the base directory of a module");
         }
-        return null;
+        return false;
     }
     return Path::normalize($baseDirPath);
 }
