@@ -68,17 +68,19 @@ script:
   - bin/test
 
 # https://docs.travis-ci.com/user/deployment/pages/
-deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  # Directory to push to GitHub Pages, relative to the current directory, defaults to the current directory (example: your_build_folder)
-  local-dir: test/result
-  # Optional, be verbose about internal steps, defaults to false.
-  verbose: false
-  on:
-    branch: master
+# deploy nightly builds
+#deploy:
+#  provider: pages
+#  skip-cleanup: true
+#  github-token: $GITHUB_TOKEN
+#  keep-history: true
+#  # Directory to push to GitHub Pages, relative to the current directory, defaults to the current directory (example: your_build_folder)
+#  local-dir: test/result
+#  # Optional, be verbose about internal steps, defaults to false.
+#  verbose: false
+#  on:
+#    repo: morpho-os/morpho-os.github.io
+#    branch: master
 
 
 
