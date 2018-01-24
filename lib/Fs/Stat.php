@@ -7,8 +7,6 @@
 
 namespace Morpho\Fs;
 
-use Morpho\Base\NotImplementedException;
-
 class Stat {
     // Changed file types from /usr/include/bits/stat.h
     // ENTRY = DIR | CHAR_DEV | BLOCK_DEV | REG_FILE | FIFO | SYMLINK | SOCKET
@@ -22,15 +20,20 @@ class Stat {
     public const SOCKET    = 0140000;                  // Socket
     public const NOT_DIR   = self::ENTRY ^ self::DIR;  // Anything except directory.
 
-    public const DIR_MODE  = 0755;
-    public const FILE_MODE = 0644;
+    public const DIR_BASE_MODE = 0777;
+    public const FILE_BASE_MODE = 0666;
 
-    public static function modeString(string $path): string {
+    public const UMASK = 0022;
+
+    public const DIR_MODE  = 0755; // DIR_BASE_MODE (0777)  - UMASK (0022) ~> DIR_MODE
+    public const FILE_MODE = 0644; // FILE_BASE_MODE (0666) - UMASK (0022) ~> FILE_MODE
+
+    public static function modeToStr(string $path): string {
         return sprintf('%o', self::mode($path));
     }
 
     public static function mode(string $path): int {
-        clearstatcache();
+        clearstatcache(true, $path);
         return fileperms($path) & 07777;
     }
 

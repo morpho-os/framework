@@ -9,6 +9,9 @@ namespace Morpho\Test;
 use Morpho\Network\Http\SeleniumServer;
 
 abstract class BrowserTestSuite extends TestSuite {
+    /**
+     * @var SeleniumServer
+     */
     private $server;
 
     public function setUp(): void {

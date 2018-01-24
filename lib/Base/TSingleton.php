@@ -16,7 +16,7 @@ trait TSingleton {
         return self::$instance;
     }
 
-    public static function resetInstance(): void {
+    public static function resetState(): void {
         self::$instance = null;
     }
 }

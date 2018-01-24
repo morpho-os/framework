@@ -15,7 +15,7 @@ namespace Morpho\Qa\Test\Unit\Base {
             $this->assertSame($instance, Singleton::instance());
 
             /** @noinspection PhpVoidFunctionResultUsedInspection */
-            $this->assertNull(Singleton::resetInstance());
+            $this->assertNull(Singleton::resetState());
 
             $newInstance = Singleton::instance();
             $this->assertNotSame($instance, $newInstance);

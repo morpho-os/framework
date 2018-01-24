@@ -1,0 +1,271 @@
+<?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+namespace Morpho\Qa\Test\Unit\Fs;
+
+use function Morpho\Base\startsWith;
+use Morpho\Fs\IFs;
+use Morpho\Fs\Stat;
+use Morpho\Test\Vfs;
+use Morpho\Test\TestCase;
+
+class VfsTest extends TestCase {
+    private $umask;
+
+    public function setUp() {
+        parent::setUp();
+        $this->umask = umask();
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        umask($this->umask);
+        Vfs::resetState();
+        if (in_array(Vfs::SCHEME, stream_get_wrappers())) {
+            stream_wrapper_unregister(Vfs::SCHEME);
+        }
+    }
+
+    public function testInterface() {
+        $this->assertInstanceOf(IFs::class, new Vfs());
+    }
+
+    public function testRegisterApi() {
+        $this->assertFalse(Vfs::isRegistered());
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertNull(Vfs::register());
+        $this->assertTrue(Vfs::isRegistered());
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertNull(Vfs::unregister());
+        $this->assertFalse(Vfs::isRegistered());
+    }
+
+    public function testFileApi() {
+        Vfs::register();
+        $prefix = Vfs::URI_PREFIX;
+
+        $uri1 = $prefix . '/foo';
+        $uri2 = $prefix . '/bar';
+
+        $handle1 = fopen($uri1, 'w');
+        $handle2 = fopen($uri2, 'w');
+        $this->assertSame([
+            $uri1,
+            $uri2,
+        ], $this->paths($prefix . '/'));
+
+        $this->assertSame(0, ftell($handle1));
+        $contents = 'Foo bar';
+        $this->assertSame(strlen($contents), fwrite($handle1, $contents));
+        $this->assertSame(strlen($contents), ftell($handle1));
+
+        $this->assertSame(0, ftell($handle2));
+
+        $this->assertSame(0, fseek($handle1, 2));
+
+        $this->assertSame(2, ftell($handle1));
+
+        $this->assertTrue(unlink($uri2));
+
+        $this->assertSame([$uri1], $this->paths($prefix . '/'));
+
+        $this->assertTrue(fclose($handle2));
+        $this->assertTrue(fclose($handle1));
+
+        $handle1 = fopen($uri1, 'r');
+        $this->assertSame('Foo ', fread($handle1, 4));
+
+        $this->assertTrue(fclose($handle1));
+    }
+
+    public function testRename() {
+
+
+
+        $this->markTestIncomplete();
+    }
+    
+    public function testTruncation_WithFtruncate() {
+        Vfs::register();
+        $uri = Vfs::prefixUri('/foo/bar');
+        mkdir(dirname($uri));
+        $handle = fopen($uri, 'a');
+        $contents = 'Hello World';
+        $this->assertSame(strlen($contents), fwrite($handle, $contents));
+
+        $this->assertTrue(file_exists($uri));
+        $this->assertTrue(is_file($uri));
+        $offset = ftell($handle);
+        $this->assertSame(strlen($contents), $offset);
+        $this->assertSame(strlen($contents), filesize($uri));
+
+        $truncateAndCheck = function ($newSize) use ($offset, $handle, $uri) {
+            $this->assertTrue(ftruncate($handle, $newSize));
+
+            $this->assertSame($newSize, filesize($uri));
+            // The file pointer should not change.
+            $this->assertSame($offset, ftell($handle));
+        };
+
+        $truncateAndCheck(3);
+        $truncateAndCheck(0);
+    }
+    
+    public function testDirApi() {
+        Vfs::register();
+        $uri = Vfs::prefixUri('/upload/blog/123');
+        $this->assertFalse(is_dir($uri));
+        $this->assertTrue(mkdir($uri, 0755, true));
+        $this->assertTrue(is_dir($uri));
+        $this->assertTrue(rmdir($uri));
+        $this->assertFalse(is_dir($uri));
+    }
+
+    public function dataForEntryName() {
+        $prefix = Vfs::URI_PREFIX;
+        yield [
+            '',
+            new \UnexpectedValueException('Empty URI'),
+        ];
+        yield [
+            $prefix . '/',
+            new \UnexpectedValueException("Unable to get name for the root"),
+        ];
+        yield [
+            $prefix,
+            new \UnexpectedValueException('Invalid path'),
+        ];
+        yield [
+            $prefix . 'foo',
+            new \UnexpectedValueException('Invalid path'),
+        ];
+        yield [
+            $prefix . '/foo',
+            'foo',
+        ];
+        yield [
+            $prefix . '/foo/bar',
+            'bar',
+        ];
+    }
+
+    /**
+     * @dataProvider dataForEntryName
+     */
+    public function testEntryName(string $uri, $expectedNameOrException) {
+        if ($expectedNameOrException instanceof \Exception) {
+            $this->expectException(get_class($expectedNameOrException), $expectedNameOrException->getMessage());
+            Vfs::entryName($uri);
+        } else {
+            $this->assertSame($expectedNameOrException, Vfs::entryName($uri));
+        }
+    }
+
+    public function testOpenFileWithTheSameUriAsDir() {
+        Vfs::register();
+        $entryUri = Vfs::URI_PREFIX . '/foo/bar';
+        mkdir($entryUri, 0755, true);
+        $this->expectException(\RuntimeException::class, 'Unable to open file, entry is a directory');
+        file_put_contents($entryUri, 'test');
+    }
+
+    public function testMakeExistingDir() {
+        Vfs::register();
+        $entryUri = Vfs::URI_PREFIX . '/foo/bar';
+        mkdir($entryUri, 0755, true);
+        $this->expectException(\RuntimeException::class, 'Unable to create directory, such directory already exists');
+        mkdir($entryUri, 0755, true);
+    }
+
+    public function testStat() {
+        Vfs::register();
+
+        $fileUri = Vfs::URI_PREFIX . '/foo';
+
+        $contents = 'foo';
+
+        $handle = fopen($fileUri, 'w');
+        fwrite($handle, 'foo');
+        // http://php.net/manual/en/function.stat.php
+        $stat = fstat($handle);
+        fclose($handle);
+
+        $this->assertSame((Stat::FILE_BASE_MODE & ~umask()) | Stat::FILE, $stat['mode']);
+        $this->assertSame(strlen($contents), $stat['size']);
+        $this->assertCount(13 * 2, $stat);
+    }
+
+    public function testUmask_File() {
+        Vfs::register();
+        umask(0266);
+        $fileUri = Vfs::URI_PREFIX . '/test';
+        file_put_contents($fileUri, 'hello');
+        $stat = stat($fileUri);
+        $this->assertSame(0400 | Stat::FILE, $stat['mode']);
+    }
+
+    public function testUmask_Dir() {
+        Vfs::register();
+        umask(0377);
+        $dirUri = Vfs::URI_PREFIX . '/test';
+        mkdir($dirUri);
+        $stat = stat($dirUri);
+        $this->assertSame(0400 | Stat::DIR, $stat['mode']);
+    }
+
+    public function dataForReadingAfterWriting() {
+        yield [
+            ''
+        ];
+        yield [
+            'test',
+        ];
+    }
+
+    /**
+     * @dataProvider dataForReadingAfterWriting
+     */
+    public function testReadingAfterWriting(string $contents) {
+        Vfs::register();
+        $fileUri = Vfs::URI_PREFIX . '/foo';
+        file_put_contents($fileUri, $contents);
+        $this->assertSame($contents, file_get_contents($fileUri));
+    }
+
+    public function testRename_File() {
+        Vfs::register();
+
+        $oldDirUri = Vfs::URI_PREFIX . '/old';
+        $oldFileUri = $oldDirUri . '/foo';
+        mkdir($oldDirUri);
+
+        $newDirUri = Vfs::URI_PREFIX . '/new';
+        $newFileUri = $newDirUri . '/bar';
+        mkdir($newDirUri);
+
+        $this->assertTrue(touch($oldFileUri));
+        $this->assertFileExists($oldFileUri);
+        $this->assertFileNotExists($newFileUri);
+
+        $this->assertTrue(rename($oldFileUri, $newFileUri));
+        $this->assertFileNotExists($oldFileUri);
+        $this->assertFileExists($newFileUri);
+    }
+
+    private function paths(string $dirPath): array {
+        $handle = opendir($dirPath);
+        $paths = [];
+        $prefix = Vfs::URI_PREFIX;
+        if (startsWith($dirPath, $prefix)) {
+            $dirPath = substr($dirPath, strlen($prefix));
+        }
+        while (false !== ($entry = readdir($handle))) {
+            $paths[] = $prefix . rtrim($dirPath, '\\/') . '/' . $entry;
+        }
+        closedir($handle);
+        return $paths;
+    }
+}
