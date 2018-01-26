@@ -15,7 +15,10 @@ abstract class DbClient {
     public const MYSQL_DRIVER  = 'mysql';
     public const SQLITE_DRIVER = 'sqlite';
 
-    public function __construct($configOrPdo) {
+    /**
+     * @param \Morpho\Base\Config|array|\PDO $configOrPdo
+     */
+    protected function __construct($configOrPdo) {
         if ($configOrPdo instanceof \PDO) {
             self::configurePdo($configOrPdo);
             $this->connection = $configOrPdo;
@@ -26,7 +29,13 @@ abstract class DbClient {
         }
     }
 
-    public static function connect($configOrPdo): self {
+    /**
+     * @param \Morpho\Base\Config|array|\PDO|null $configOrPdo
+     */
+    public static function connect($configOrPdo = null): self {
+        if (null === $configOrPdo) {
+            $configOrPdo = static::defaultConfig();
+        }
         if ($configOrPdo instanceof \PDO) {
             $driverName = $configOrPdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         } else {
@@ -181,5 +190,14 @@ abstract class DbClient {
         return \PDO::getAvailableDrivers();
     }
 
-    abstract protected function newPdo(array $config): \PDO;
+    abstract protected function newPdo($config): \PDO;
+
+    /**
+     * @return array|\Morpho\Base\Config
+     */
+    protected static function defaultConfig() {
+        return [
+            'driver' => self::MYSQL_DRIVER,
+        ];
+    }
 }

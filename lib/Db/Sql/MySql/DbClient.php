@@ -58,7 +58,7 @@ class DbClient extends BaseDbClient {
         return new ReplaceQuery($this);
     }
 
-    protected function newPdo(array $config): \PDO {
+    protected function newPdo($config): \PDO {
         $config = Config::check($config, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,

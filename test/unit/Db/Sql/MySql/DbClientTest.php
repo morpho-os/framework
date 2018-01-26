@@ -32,6 +32,10 @@ class DbClientTest extends BaseDbClientTest {
         $this->assertSame($dbConfig['db'], $this->db->dbName());
     }
 
+    public function testConnection_UsesMySqlWhenIfNoArgsPassed() {
+        $this->assertInstanceOf(DbClient::class, DbClient::connect());
+    }
+
     public function testConnection() {
         $connection = $this->db->pdo();
         $this->assertInstanceOf(\PDO::class, $connection);
