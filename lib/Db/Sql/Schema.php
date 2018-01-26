@@ -9,7 +9,7 @@ namespace Morpho\Db\Sql;
 abstract class Schema {
     protected $db;
 
-    public function __construct(Db $db) {
+    public function __construct(DbClient $db) {
         $this->db = $db;
     }
 

@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test;
 
-use Morpho\Db\Sql\Db;
+use Morpho\Db\Sql\DbClient;
 use Morpho\Fs\Dir;
 
 trait TDbTestCase {
@@ -31,11 +31,11 @@ trait TDbTestCase {
         ];
     }
 
-    protected function newDbConnection(array $config = null): Db {
+    protected function newDbConnection(array $config = null): DbClient {
         if (!$config) {
             $config = $this->dbConfig();
         }
-        return Db::connect($config);
+        return DbClient::connect($config);
     }
 
     protected function newPdo(array $config = null): \PDO {

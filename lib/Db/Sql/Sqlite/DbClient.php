@@ -7,12 +7,12 @@
 namespace Morpho\Db\Sql\Sqlite;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Db\Sql\Db as BaseDb;
+use Morpho\Db\Sql\DbClient as BaseDbClient;
 use Morpho\Db\Sql\GeneralQuery;
 use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\Schema as BaseSchema;
 
-class Db extends BaseDb {
+class DbClient extends BaseDbClient {
     public function query(): GeneralQuery {
         throw new NotImplementedException();
     }

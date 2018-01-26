@@ -7,7 +7,7 @@
 namespace Morpho\Qa\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Base\Arr;
-use Morpho\Db\Sql\Db;
+use Morpho\Db\Sql\DbClient;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Test\DbTestCase;
 
@@ -19,7 +19,7 @@ class SchemaTest extends DbTestCase {
 
     private $dbs = [];
     /**
-     * @var Db
+     * @var DbClient
      */
     private $db;
 

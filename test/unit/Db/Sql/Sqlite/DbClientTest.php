@@ -7,12 +7,12 @@
 namespace Morpho\Qa\Test\Unit\Db\Sql\Sqlite;
 
 use Morpho\Db\Sql\Sqlite;
-use Morpho\Qa\Test\Unit\Db\Sql\DbTest as BaseDbTest;
+use Morpho\Qa\Test\Unit\Db\Sql\DbClientTest as BaseDbClientTest;
 
-class DbTest extends BaseDbTest {
+class DbClientTest extends BaseDbClientTest {
     public function testConnect_PdoInstanceArgument() {
         $pdo = new \PDO('sqlite::memory:');
-        $connection = \Morpho\Db\Sql\Db::connect($pdo);
-        $this->assertInstanceOf(Sqlite\Db::class, $connection);
+        $connection = \Morpho\Db\Sql\DbClient::connect($pdo);
+        $this->assertInstanceOf(Sqlite\DbClient::class, $connection);
     }
 }

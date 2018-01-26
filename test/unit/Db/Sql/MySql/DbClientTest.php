@@ -7,15 +7,15 @@
 namespace Morpho\Qa\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\IQuery;
-use Morpho\Db\Sql\MySql\Db;
+use Morpho\Db\Sql\MySql\DbClient;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\Query;
 use Morpho\Db\Sql\Result;
-use Morpho\Qa\Test\Unit\Db\Sql\DbTest as BaseDbTest;
+use Morpho\Qa\Test\Unit\Db\Sql\DbClientTest as BaseDbClientTest;
 
-class DbTest extends BaseDbTest {
+class DbClientTest extends BaseDbClientTest {
     /**
-     * @var \Morpho\Db\Sql\MySql\Db
+     * @var \Morpho\Db\Sql\MySql\DbClient
      */
     private $db;
 
@@ -88,7 +88,7 @@ class DbTest extends BaseDbTest {
     }
 
     public function testDriverName() {
-        $this->assertEquals(Db::MYSQL_DRIVER, $this->db->driverName());
+        $this->assertEquals(DbClient::MYSQL_DRIVER, $this->db->driverName());
     }
 
     public function testInsertRows() {
@@ -164,8 +164,8 @@ class DbTest extends BaseDbTest {
         $dbConfig = $this->dbConfig();
         $dsn = 'mysql:dbname=;' . $dbConfig['host'];
         $pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
-        $connection = \Morpho\Db\Sql\Db::connect($pdo);
-        $this->assertInstanceOf(Db::class, $connection);
+        $connection = \Morpho\Db\Sql\DbClient::connect($pdo);
+        $this->assertInstanceOf(DbClient::class, $connection);
     }
 
     private function setTestDataForUpdateRows() {

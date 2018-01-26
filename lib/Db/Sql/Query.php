@@ -8,11 +8,11 @@ namespace Morpho\Db\Sql;
 
 abstract class Query implements IQuery {
     /**
-     * @var Db
+     * @var DbClient
      */
     protected $db;
 
-    public function __construct(Db $db) {
+    public function __construct(DbClient $db) {
         $this->db = $db;
     }
 

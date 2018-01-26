@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
-use Morpho\Db\Sql\Db;
+use Morpho\Db\Sql\DbClient;
 
 class Tree {
     protected $db;
@@ -20,7 +20,7 @@ class Tree {
         'column' => 'id'
     ];
 
-    public function __construct(Db $db) {
+    public function __construct(DbClient $db) {
         $this->db = $db;
     }
 

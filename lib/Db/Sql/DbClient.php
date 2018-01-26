@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql;
 
-abstract class Db {
+abstract class DbClient {
     /**
      * @var \PDO
      */
@@ -35,10 +35,10 @@ abstract class Db {
         }
         switch ($driverName) {
             case self::MYSQL_DRIVER:
-                $db = new MySql\Db($configOrPdo);
+                $db = new MySql\DbClient($configOrPdo);
                 break;
             case self::SQLITE_DRIVER:
-                $db = new Sqlite\Db($configOrPdo);
+                $db = new Sqlite\DbClient($configOrPdo);
                 break;
             default:
                 throw new \UnexpectedValueException();

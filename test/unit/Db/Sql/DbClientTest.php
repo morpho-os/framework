@@ -8,6 +8,6 @@ namespace Morpho\Qa\Test\Unit\Db\Sql;
 
 use Morpho\Test\DbTestCase;
 
-abstract class DbTest extends DbTestCase {
+abstract class DbClientTest extends DbTestCase {
     abstract public function testConnect_PdoInstanceArgument();
 }

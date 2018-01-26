@@ -7,12 +7,12 @@
 namespace Morpho\Db\Sql\MySql;
 
 use Morpho\Base\Config;
-use Morpho\Db\Sql\Db as BaseDb;
+use Morpho\Db\Sql\DbClient as BaseDbClient;
 use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\Schema as BaseSchema;
 use Morpho\Db\Sql\GeneralQuery as BaseGeneralQuery;
 
-class Db extends BaseDb {
+class DbClient extends BaseDbClient {
     const DEFAULT_HOST = '127.0.0.1';
     const DEFAULT_PORT = 3306;
     const DEFAULT_USER = 'root';
