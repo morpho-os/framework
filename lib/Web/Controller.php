@@ -8,7 +8,7 @@ namespace Morpho\Web;
 
 use function Morpho\Base\dasherize;
 use function Morpho\Base\typeOf;
-use Morpho\Core\IActionResult;
+use Morpho\Core\IRestResource;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Web\Messages\Messenger;
@@ -36,19 +36,19 @@ class Controller extends BaseController implements IHasServiceManager {
         /** @var Response $response */
         $response = $request->response();
 
-        if ($actionResult instanceof IActionResult || $actionResult instanceof Page) {
-            $response['result'] = $actionResult;
+        if ($actionResult instanceof IRestResource || $actionResult instanceof Page) {
+            $response['resource'] = $actionResult;
             return;
         }
         if (is_array($actionResult)) {
-            $response['result'] = $this->newPage($actionResult);
+            $response['resource'] = $this->newPage($actionResult);
             return;
         }
 
         /** @var \Morpho\Web\Request $request */
         if ($request->isAjax()) {
             if ($actionResult instanceof Response) {
-                $response['result'] = $this->newPage();
+                $response['resource'] = $this->newPage();
                 return;
             }
         } else {
@@ -61,7 +61,7 @@ class Controller extends BaseController implements IHasServiceManager {
             }
         }
         if (null === $actionResult) {
-            $response['result'] = $this->newPage($actionResult);
+            $response['resource'] = $this->newPage($actionResult);
         } else {
             throw new \UnexpectedValueException('Type: ' . typeOf($actionResult));
         }

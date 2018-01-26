@@ -6,5 +6,5 @@
  */
 namespace Morpho\Core;
 
-interface IActionResult {
+interface IRestResource {
 }

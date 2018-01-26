@@ -7,7 +7,7 @@
 namespace Morpho\Web;
 
 use Morpho\Base\IFn;
-use Morpho\Core\IActionResult;
+use Morpho\Core\IRestResource;
 use Negotiation\Negotiator;
 
 class ContentNegotiator implements IFn {
@@ -24,8 +24,8 @@ class ContentNegotiator implements IFn {
      */
     public function __invoke($request): string {
         $response = $request->response();
-        if (isset($response['result']) && $response['result'] instanceof IActionResult) {
-            return $response['result']::FORMAT;
+        if (isset($response['resource']) && $response['resource'] instanceof IRestResource) {
+            return $response['resource']::FORMAT;
         }
 
         if ($request->isAjax()) {

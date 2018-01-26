@@ -6,9 +6,9 @@
  */
 namespace Morpho\Web;
 
-use Morpho\Core\IActionResult;
+use Morpho\Core\IRestResource;
 
-class JsonResult implements IActionResult, \JsonSerializable {
+class JsonResource implements IRestResource, \JsonSerializable {
     public const FORMAT = 'json';
     /**
      * @var mixed

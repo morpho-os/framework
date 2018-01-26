@@ -18,7 +18,7 @@ class JsonRenderer implements IFn {
         /** @var \Morpho\Web\Response $response */
         $response = $request->response();
 
-        $page = $response['result'];
+        $page = $response['resource'];
 
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'application/json;charset=utf-8';

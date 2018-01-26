@@ -35,7 +35,7 @@ class EventManager extends BaseEventManager {
                 return false;
             }
         }
-        return isset($response['result']);
+        return isset($response['resource']);
     }
 
     protected function attachHandlers() {

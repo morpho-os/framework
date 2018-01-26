@@ -8,7 +8,7 @@ namespace Morpho\Qa\Test\Unit\Web;
 
 use Morpho\Test\TestCase;
 use Morpho\Web\ContentNegotiator;
-use Morpho\Web\JsonResult;
+use Morpho\Web\JsonResource;
 use Morpho\Web\Request;
 
 class ContentNegotiatorTest extends TestCase {
@@ -97,10 +97,10 @@ class ContentNegotiatorTest extends TestCase {
     public function testReturnsActionResultFormat() {
         $negotiator = new ContentNegotiator();
         $request = new Request();
-        $request->response()['result'] = new JsonResult([]);
+        $request->response()['resource'] = new JsonResource([]);
 
         $format = $negotiator->__invoke($request);
 
-        $this->assertSame(JsonResult::FORMAT, $format);
+        $this->assertSame(JsonResource::FORMAT, $format);
     }
 }

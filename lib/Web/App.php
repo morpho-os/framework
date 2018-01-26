@@ -30,7 +30,7 @@ class App extends BaseApp {
         $statusLine = null;
         if ($e instanceof NotFoundException) {
             $statusLine = Environment::httpVersion() . ' 404 Not Found';
-            $message = "The requested page was not found";
+            $message = "The requested resource was not found";
         } elseif ($e instanceof AccessDeniedException) {
             $statusLine = Environment::httpVersion() . ' 403 Forbidden';
             $message = "You don't have access to the requested resource";
