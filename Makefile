@@ -20,9 +20,9 @@ mtest:
 	bin/test module
 
 utest:
-	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/unit/TestSuite.php
+	bin/test test/unit/TestSuite.php
 
-utest-strict:
+utest-stop:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/unit/TestSuite.php
 
 clear:
