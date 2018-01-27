@@ -30,7 +30,7 @@ class HtmlRenderer implements IFn {
         // 1. Render view
         $moduleName = $request->moduleName();
         /** @var Page $page */
-        $page = $response['resource'];
+        $page = $response['result'];
         $view = $page->view();
         if (!$view->dirPath()) {
             $view->setDirPath(dasherize($request->controllerName()));

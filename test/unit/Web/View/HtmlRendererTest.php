@@ -24,7 +24,7 @@ class HtmlRendererTest extends TestCase {
 
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
-        $response['resource'] = $page;
+        $response['result'] = $page;
 
         $viewModuleName = 'foo/bar';
         $layoutModuleName = 'abc/test';

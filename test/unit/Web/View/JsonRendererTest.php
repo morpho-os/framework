@@ -7,7 +7,7 @@
 namespace Morpho\Qa\Test\Unit\Web\View;
 
 use Morpho\Test\TestCase;
-use Morpho\Web\JsonResource;
+use Morpho\Web\JsonResult;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
 use Morpho\Web\View\JsonRenderer;
@@ -20,7 +20,7 @@ class JsonRendererTest extends TestCase {
 
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
-        $response = new Response(['resource' => $page]);
+        $response = new Response(['result' => $page]);
         $statusCode = Response::OK_STATUS_CODE;
         $response->setStatusCode($statusCode);
         $request->setResponse($response);
@@ -53,7 +53,7 @@ class JsonRendererTest extends TestCase {
 
         $data = ['foo' => 'bar'];
         $page = new Page('test', $data);
-        $response = new Response(['resource' => $page]);
+        $response = new Response(['result' => $page]);
         if ($redirectUriStr) {
             $response->redirect($redirectUriStr, $statusCode);
         }
@@ -79,7 +79,7 @@ class JsonRendererTest extends TestCase {
         $data = [
             ['foo' => 'bar']
         ];
-        $request->response()['resource'] = new JsonResource($data);
+        $request->response()['result'] = new JsonResult($data);
 
         $renderer->__invoke($request);
 

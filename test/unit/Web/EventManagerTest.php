@@ -146,7 +146,7 @@ class EventManagerTest extends TestCase {
             }
         };
         if ($page) {
-            $response['resource'] = $page;
+            $response['result'] = $page;
         }
         $request->setResponse($response);
         return $request;

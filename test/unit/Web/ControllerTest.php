@@ -7,10 +7,10 @@
 namespace Morpho\Qa\Test\Unit\Web;
 
 use Morpho\Base\IFn;
-use Morpho\Core\IRestResource;
 use Morpho\Test\TestCase;
 use Morpho\Web\Controller;
-use Morpho\Web\JsonResource;
+use Morpho\Web\IRestResource;
+use Morpho\Web\JsonResult;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
 use Morpho\Web\Uri\Uri;
@@ -30,7 +30,7 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $this->assertInstanceOf(IRestResource::class, $request->response()['resource']);
+        $this->assertInstanceOf(IRestResource::class, $request->response()['result']);
     }
 
     public function testInvoke_ThrowsLogicExceptionIfRequestIsNotDispatched() {
@@ -54,13 +54,13 @@ class ControllerTest extends TestCase {
         $request->response()['foo'] = 'test';
         $controller->__invoke($request);
         $this->assertFalse(isset($request->response()['foo']));
-        $this->assertTrue(isset($request->response()['resource']));
+        $this->assertTrue(isset($request->response()['result']));
 
         $request->response()['bar'] = 'test';
         $request->setActionName('redirectNoArgs');
         $controller->__invoke($request);
         $this->assertFalse(isset($request->response()['bar']));
-        $this->assertFalse(isset($request->response()['resource']));
+        $this->assertFalse(isset($request->response()['result']));
     }
 
     public function dataForInvoke_Redirect_Ajax() {
@@ -110,7 +110,7 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $this->assertSame($hasPage, isset($request->response()['resource']));
+        $this->assertSame($hasPage, isset($request->response()['result']));
     }
 
     public function dataRedirect_HasArgs() {
@@ -143,7 +143,7 @@ class ControllerTest extends TestCase {
             $response->headers()->getArrayCopy()
         );
         $this->assertSame($statusCode, $response->statusCode());
-        $this->assertTrue(!isset($request['resource']));
+        $this->assertTrue(!isset($request['result']));
     }
 
     public function testRedirect_NoArgs() {
@@ -164,7 +164,7 @@ class ControllerTest extends TestCase {
             $response->headers()->getArrayCopy()
         );
         $this->assertSame(302, $response->statusCode());
-        $this->assertTrue(!isset($request['resource']));
+        $this->assertTrue(!isset($request['result']));
     }
 
     public function testForwardTo() {
@@ -184,7 +184,7 @@ class ControllerTest extends TestCase {
         $this->assertEquals($moduleName, $request->moduleName());
         $this->assertEquals(['p1' => 'v1'], $request['routing']);
         $this->assertFalse($request->isDispatched());
-        $this->assertTrue(!isset($request['resource']));
+        $this->assertTrue(!isset($request['result']));
     }
 
     public function testInvoke_ReturningResponseFromAction() {
@@ -197,7 +197,7 @@ class ControllerTest extends TestCase {
         $controller->__invoke($request);
 
         $this->assertSame($response, $request->response());
-        $this->assertTrue(!isset($request['resource']));
+        $this->assertTrue(!isset($request['result']));
         $this->assertSame('foo', $response->body());
     }
     
@@ -208,7 +208,7 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $page = $request->response()['resource'];
+        $page = $request->response()['result'];
         $this->assertSame(['foo' => 'bar'], $page->getArrayCopy());
         $this->assertSame('', $request->response()->body());
     }
@@ -253,6 +253,6 @@ class MyController extends Controller {
     }
 
     public function returnActionResultAction() {
-        return new JsonResource(['foo' => 'bar']);
+        return new JsonResult(['foo' => 'bar']);
     }
 }
