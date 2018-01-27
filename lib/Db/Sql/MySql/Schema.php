@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
-use Morpho\Base\Must;
+use function Morpho\Base\head;
 use Morpho\Base\NotImplementedException;
 use Morpho\Db\Sql\Schema as BaseSchema;
 
@@ -34,7 +34,7 @@ class Schema extends BaseSchema {
         return in_array($dbName, $this->databaseNames(), true);
     }
 
-    public function renameDatabase(string $oldName, string $newName) {
+    public function renameDatabase(string $oldName, string $newName): void {
         throw new NotImplementedException();
     }
     
@@ -46,7 +46,7 @@ class Schema extends BaseSchema {
         $this->db->eval("DROP DATABASE " . $this->db->query()->quoteIdentifier($dbName));
     }
 
-    public function sizeOfDatabases() {
+    public function sizeOfDatabases(): int {
         throw new NotImplementedException();
     }
 
@@ -55,8 +55,8 @@ class Schema extends BaseSchema {
      * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
      * of the caller to provide safe arguments.
      */
-    public function sizeOfDatabase(string $dbName) {
-        return $this->db->select(
+    public function sizeOfDatabase(string $dbName): int {
+        return (int) $this->db->select(
             'SUM(DATA_LENGTH + INDEX_LENGTH)
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = ?',
@@ -80,6 +80,7 @@ class Schema extends BaseSchema {
 
     public function deleteTable(string $tableName): void {
         $this->db->transaction(function ($db) use ($tableName) {
+            /** @var \Morpho\Db\Sql\MySql\DbClient $db */
             /*
             $isMySql = $this->connection->getDriver() instanceof MySqlDriver;
             if ($isMySql) {
@@ -141,102 +142,6 @@ class Schema extends BaseSchema {
             ->row()['Create Table'];
     }
 
-    /**
-     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
-     * of the caller to provide safe arguments.
-     */
-    public function tableDefinitionToSql(string $tableName, array $tableDefinition): array {
-        Must::haveOnlyKeys($tableDefinition, ['columns', 'foreignKeys', 'indexes', 'primaryKey', 'description', 'uniqueKeys']);
-
-        list($pkColumns, $columns) = $this->columnsDefinitionToSqlArray($tableDefinition['columns']);
-        
-        $query = $this->db->query();
-
-        if (isset($tableDefinition['foreignKeys'])) {
-            foreach ($tableDefinition['foreignKeys'] as $fkDefinition) {
-                $columns[] = 'FOREIGN KEY (' . $query->quoteIdentifier($fkDefinition['childColumn']) . ')'
-                    . ' REFERENCES ' . $query->quoteIdentifier($fkDefinition['parentTable'])
-                    . '(' . $query->quoteIdentifier($fkDefinition['parentColumn']) . ')';
-            }
-        }
-
-        if (isset($tableDefinition['indexes'])) {
-            // 'indexes' => 'indexedCol1',
-            // or 'indexes' => ['indexedCol1', 'indexedCol2', ...]
-            // or 'indexes' => [
-            //     [
-            //         'name' => ...
-            //         'columns' => ...
-            //         'type' => ...
-            //         'option' => ...
-            //     ],
-            // ]
-            foreach ((array)$tableDefinition['indexes'] as $indexName => $indexDefinition) {
-                // @TODO: Merge common logic with 'uniqueKeys' and 'primaryKey'.
-                $columns[] = 'KEY'
-                    . (is_numeric($indexName)
-                        ? ' (' . $query->quoteIdentifier($indexDefinition) . ')'
-                        : ' ' . $this->indexDefinitionToSql($indexDefinition));
-            }
-        }
-
-        if (isset($tableDefinition['uniqueKeys'])) {
-            // 'foreignKeys' => 'colName1'
-            // or 'foreignKeys' => ['colName1', 'colName2', ...]]
-            // or 'foreignKeys' => [
-            //     [
-            //         'name' => ...
-            //         'columns' => ...
-            //         'type' => ...
-            //         'option' => ...
-            //     ],
-            // ]
-            foreach ((array)$tableDefinition['uniqueKeys'] as $uniqueKeyDefinition) {
-                if (is_string($uniqueKeyDefinition)) {
-                    $columns[] = 'UNIQUE ' . $this->indexDefinitionToSql(['columns' => $uniqueKeyDefinition]);
-                } else {
-                    $columns[] = 'UNIQUE ' . $this->indexDefinitionToSql($uniqueKeyDefinition);
-                }
-            }
-        }
-
-        if (count($pkColumns)) {
-            if (isset($tableDefinition['primaryKey'])) {
-                throw new \RuntimeException("Only one PK can be present");
-            }
-            $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql(['columns' => $pkColumns]);
-        } elseif (isset($tableDefinition['primaryKey'])) {
-            if (isset($tableDefinition['primaryKey'][0])) {
-                // 'primaryKey' => 'colName',
-                // or 'primaryKey' => ['pkCol1', 'pkCol2'],
-                $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql(['columns' => (array)$tableDefinition['primaryKey']]);
-            } else {
-                /**
-                 * 'primaryKey' => [
-                 *     'name'   => ...
-                 *     'columns => ...
-                 *     'type'   => ...
-                 *     'options' => ...
-                 * ]
-                 */
-                $columns[] = 'PRIMARY KEY ' . $this->indexDefinitionToSql($tableDefinition['primaryKey']);
-            }
-        }
-
-        $sql = "CREATE TABLE " . $query->quoteIdentifier($tableName)
-            . " (\n"
-            . implode(",\n", $columns)
-            . "\n) " . $this->optionsForCreateTableStmt();
-
-        $args = [];
-        if (isset($tableDefinition['description'])) {
-            $sql .= "\n, COMMENT=?";
-            $args[] = $tableDefinition['description'];
-        }
-
-        return [$sql, $args];
-    }
-
     public function optionsForCreateTableStmt(): string {
         //CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB
         return "ENGINE=" . self::ENGINE . " DEFAULT CHARSET=" . self::CHARSET;
@@ -267,146 +172,111 @@ class Schema extends BaseSchema {
      * Returns a size of the $tableName in bytes.
      * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
      */
-    public function sizeOfTable(string $tableName) {
+    public function sizeOfTable(string $tableName): int {
         throw new NotImplementedException();
     }
 
-    public function renameColumn()/*: void*/ {
+    public function renameColumn(): void {
         throw new NotImplementedException();
     }
 
     /**
-     * Note: the all arguments will not be escaped and therefore SQL-injection is possible. It is responsibility
-     * of the caller to provide safe arguments.
+     * @param string $constraint, e.g:
+     *     "LIKE 'latin%'"
+     *     or
+     *     "SHOW CHARACTER SET WHERE CHARSET IN ('koi8r', 'latin1', 'utf8', 'binary')";
+     * @return iterable of Charset.
      */
-    public function columnDefinitionToSql(string $columnName, array $columnDefinition): string {
-        Must::haveOnlyKeys($columnDefinition, ['type', 'nullable', 'scale', 'precision', 'default', 'unsigned', 'length']);
-
-        $columnDefinitionSql = '';
-        $columnType = $columnDefinition['type'];
-
-        if ($columnType === 'primaryKey') {
-            $columnDefinitionSql .= 'int unsigned NOT NULL AUTO_INCREMENT';
-            $pkColumns[] = $columnName;
-        } elseif ($columnType === 'serial') {
-            $columnDefinitionSql .= TypeInfoProvider::expandMacroType('serial');
-        } else {
-            $columnDefinitionSql .= $columnType;
-
-            if (TypeInfoProvider::isIntegerType($columnType)) {
-                $columnDefinitionSql .= isset($columnDefinition['unsigned']) ? ' unsigned' : '';
-            } elseif (TypeInfoProvider::isFloatingPointType($columnType)) {
-                // Precision is the total number of digits in a number.
-                // Scale is the number of digits to the right of the decimal point in a number.
-                // For the number -999.9999, precision == 7 and scale == 4.
-                $columnDefinitionSql .= '(' . $columnDefinition['precision'] . ',' . $columnDefinition['scale'] . ')';
-            } elseif (TypeInfoProvider::isOneOfTypes($columnType, ['char', 'varchar'])) {
-                $columnDefinitionSql .= '(' . ($columnDefinition['length'] ?? 255) . ')';
-            }
-
-            if (!isset($columnDefinition['nullable'])) {
-                // By default a column can't contain NULL.
-                $columnDefinition['nullable'] = false;
-            }
-            if (false === $columnDefinition['nullable']) {
-                $columnDefinitionSql .= ' NOT NULL';
-            }
-            if (isset($columnDefinition['default'])) {
-                $columnDefinitionSql .= ' DEFAULT ' . $columnDefinition['default'];
-            }
-        }
-
-        return $this->db->query()->quoteIdentifier($columnName) . ' ' . $columnDefinitionSql;
-    }
-
-    /**
-     * Returns the all available charsets, each result row will contain the default collation for the respective charset.
-     */
-    public function availableCharsetsWithDefaultCollation(array $charsets = null): array {
+    public function availableCharsetsOfServer(string $constraint = null): iterable {
         $sql = 'SHOW CHARACTER SET';
-        $where = '';
-        if ($charsets) {
-            $where .= ' WHERE CHARSET IN (' . GeneralQuery::positionalPlaceholdersString($charsets) . ')';
+        if ($constraint) {
+            $sql .= ' ' . $constraint;
         }
-        return $this->db->eval($sql . $where, $charsets)->rows();
+        foreach ($this->db->eval($sql) as $row) {
+            yield new ServerCharset(
+                $row['Charset'],
+                $row['Default collation'],
+                (int)$row['Maxlen'],
+                $row['Description']
+            );
+        }
     }
 
     /**
-     * Returns list of available collations for the given charset.
+     * @param string $constraint E.g: "WHERE CHARSET = 'utf8'"
+     * @return iterable of available collations for the given charset or all available collations (if $charset is null), which were set on the server level.
      */
-    public function availableCollationsForCharset(string $charset): array {
-        return $this->db->eval('SHOW COLLATION WHERE CHARSET = ?', [$charset])->rows();
+    public function availableCollationsOfServer(string $constraint = null): iterable {
+        $sql = 'SHOW COLLATION';
+        if ($constraint) {
+            $sql .= ' ' . $constraint;
+        }
+        $res = $this->db->eval($sql);
+        foreach ($res as $row) {
+            yield new ServerCollation(
+                $row['Collation'],
+                $row['Charset'],
+                strtolower($row['Default']) === 'yes'
+            );
+        }
     }
 
     /**
-     * Returns a map where key is variable name and value is its value. The list of the returned variables:
-     *     - character_set_client
-     *     - character_set_connection
-     *     - character_set_database
-     *     - character_set_filesystem
-     *     - character_set_results
-     *     - character_set_server
-     *     - character_set_system
-     *     - character_sets_dir
-     *     - collation_connection
-     *     - collation_database
-     *     - collation_server
-     * The following variables in the list depend from the current database:
-     *     - character_set_database
-     *     - collation_database
+     * The server character set and collation are used as default values if the database character set and collation are not specified in CREATE DATABASE statements (https://dev.mysql.com/doc/refman/5.7/en/charset-server.html).
+     * NB: collation starts with charset, so to get server charset use the $collation->name() and check prefix or use $collation->charsetName().
      */
-    public function charsetAndCollationVars(): array {
-        return array_merge(
-            $this->charsetVars(),
-            $this->collationVars()
-        );
+    public function collationOfServer(): ServerCollation {
+        $vars = $this->varsLike('collation_server', true);
+        $collation = reset($vars);
+        return head($this->availableCollationsOfServer('LIKE ' . $this->db->quote($collation)));
     }
 
-    public function collationVars(): array {
-        return $this->db->eval('SHOW VARIABLES LIKE "collation%"')->map();
-    }
-
-    public function charsetVars(): array {
-        return $this->db->eval('SHOW VARIABLES LIKE "character_set%"')->map();
-    }
-
-    /**
-     * Returns an array in format ['charset' => $charset, 'collation' => $collation].
-     * @return array|false
-     */
-    public function charsetAndCollationOfDatabase(string $dbName): array {
-        return $this->db->select(
-            'DEFAULT_CHARACTER_SET_NAME AS charset,
+    public function collationOfDatabase(string $dbName): DbCollation {
+        $row = $this->db->select('DEFAULT_CHARACTER_SET_NAME AS charset,
             DEFAULT_COLLATION_NAME AS collation
             FROM information_schema.SCHEMATA
             WHERE SCHEMA_NAME = ?',
             [$dbName]
         )->row();
-    }
-    
-    public function setCharsetAndCollationOfDatabase(string $dbName) {
-        throw new NotImplementedException();
-        // ALTER DATABASE $dbName CHARACTER SET $charset COLLATE $collation;
+        return new DbCollation($row['collation'], $row['charset'], $dbName);
     }
 
-    /**
-     * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
-     */
-    public function charsetAndCollationOfTables(string $dbName): array {
-        return $this->db->select(
-            'TABLE_SCHEMA AS dbName,
+    /*
+      public function setCharsetAndCollationOfDatabase(string $dbName) {
+          throw new NotImplementedException();
+          // ALTER DATABASE $dbName CHARACTER SET $charset COLLATE $collation;
+      }
+    */
+
+    public function collationOfTables(string $dbName, array $tableNames = null): iterable {
+        $whereClause = ' WHERE TABLE_SCHEMA = ?';
+        $whereArgs = [$dbName];
+        if ($tableNames) {
+            $whereClause .= ' AND TABLE_NAME IN (' . $this->db->query()->positionalPlaceholdersStr($tableNames) . ')';
+            $whereArgs = array_merge($whereArgs, $tableNames);
+        }
+        $res = $this->db->select('TABLE_SCHEMA AS dbName,
             TABLE_NAME AS tableName,
             TABLE_TYPE AS tableType,
             SUBSTRING(TABLE_COLLATION, 1, LOCATE("_", TABLE_COLLATION) - 1) AS charset,
             TABLE_COLLATION AS collation
-            FROM information_schema.TABLES
-            WHERE TABLE_SCHEMA = ?',
-            [$dbName]
-        )->rows();
+            FROM information_schema.TABLES' . $whereClause,
+            $whereArgs
+        );
+        foreach ($res as $row) {
+            yield new TableCollation($row['collation'], $row['charset'], $row['tableName'], $row['dbName']);
+        }
     }
 
-    public function charsetAndCollationOfTable(string $tableName): array {
-        throw new NotImplementedException();
+    /**
+     * @param string $dbName It can be either a database name or the table name.
+     * @param string $tableName
+     */
+    public function collationOfTable(string $dbName, string $tableName = null): TableCollation {
+        if (null === $tableName) {
+            [$dbName, $tableName] = explode('.', $dbName);
+        }
+        return head($this->collationOfTables($dbName, [$tableName]));
     }
 
     public function setCharsetAndCollationOfTable(string $tableName): array {
@@ -414,78 +284,73 @@ class Schema extends BaseSchema {
         // ALTER TABLE $tableName CHARACTER SET utf8, COLLATE utf8_general_ci;
         throw new NotImplementedException();
     }
-    
+
     /**
      * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
      */
-    public function charsetAndCollationOfColumns(string $tableName): array {
+    public function collationOfColumns(string $dbName, string $tableName, string $columnName): array {
         throw new NotImplementedException();
         // SHOW FULL COLUMNS FROM table_name;
-/*
-SELECT TABLE_SCHEMA,
-  TABLE_NAME,
-  CCSA.CHARACTER_SET_NAME AS DEFAULT_CHAR_SET,
-  COLUMN_NAME,
-  COLUMN_TYPE,
-  C.CHARACTER_SET_NAME
-FROM information_schema.TABLES AS T
-  JOIN information_schema.COLUMNS AS C USING (TABLE_SCHEMA, TABLE_NAME)
-  JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA
-    ON (T.TABLE_COLLATION = CCSA.COLLATION_NAME)
-WHERE TABLE_SCHEMA='$dbName'
-      AND C.DATA_TYPE IN ('enum', 'varchar', 'char', 'text', 'mediumtext', 'longtext')
-ORDER BY TABLE_SCHEMA,
-  TABLE_NAME,
-  COLUMN_NAME
-;
- */
+        /*
+        SELECT TABLE_SCHEMA,
+          TABLE_NAME,
+          CCSA.CHARACTER_SET_NAME AS DEFAULT_CHAR_SET,
+          COLUMN_NAME,
+          COLUMN_TYPE,
+          C.CHARACTER_SET_NAME
+        FROM information_schema.TABLES AS T
+          JOIN information_schema.COLUMNS AS C USING (TABLE_SCHEMA, TABLE_NAME)
+          JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA
+            ON (T.TABLE_COLLATION = CCSA.COLLATION_NAME)
+        WHERE TABLE_SCHEMA='$dbName'
+              AND C.DATA_TYPE IN ('enum', 'varchar', 'char', 'text', 'mediumtext', 'longtext')
+        ORDER BY TABLE_SCHEMA,
+          TABLE_NAME,
+          COLUMN_NAME
+        ;
+         */
     }
-    
-    public function setCharsetAndCollationOfColumn() {
+
+    public function setCharsetAndCollationOfColumn(): void {
         //ALTER TABLE $tableName CHANGE COLUMN $columnName $columnName TEXT CHARACTER SET utf8 COLLATE utf8_general_ci;
         // SHOW FULL COLUMNS FROM $tableName;
         throw new NotImplementedException();
     }
-    
-    public function createUser($name, $password, $host) {
+
+    public function charsetAndCollationVars(): array {
+        return array_merge($this->charsetVars(), $this->collationVars());
+    }
+
+    public function charsetVars(): array {
+        return $this->varsStartingWith('character_set');
+    }
+
+    public function collationVars(): array {
+        return $this->varsStartingWith('collation');
+    }
+
+    public function varsStartingWith(string $prefix): array {
+        return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $prefix) . '%'])->map();
+    }
+
+    public function varsEndingWith(string $suffix): array {
+        return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $suffix)])->map();
+    }
+
+    public function varsLike(string $infix, bool $exactMatch = false): array {
+        if ($exactMatch) {
+            return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $infix)])->map();
+        }
+        return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $infix) . '%'])->map();
+    }
+
+    public function createUser($name, $password, $host): void {
         throw new NotImplementedException();
  //       GRANT CREATE, DROP, LOCK TABLES, REFERENCES, ALTER, DELETE, INDEX, INSERT, SELECT, UPDATE, CREATE TEMPORARY TABLES, TRIGGER, CREATE VIEW, SHOW VIEW, ALTER ROUTINE, CREATE ROUTINE, EXECUTE ON $dbName.* to $userName@$hostName IDENTIFIED BY '$password';
 //FLUSH PRIVILEGES;
     }
 
-    public function deleteUser() {
+    public function deleteUser(): void {
         throw new NotImplementedException();
-    }
-
-    protected function columnsDefinitionToSqlArray(array $columnsDefinition) {
-        $sql = [];
-        $pkColumns = [];
-        foreach ($columnsDefinition as $columnName => $columnDefinition) {
-            $sql[] = $this->columnDefinitionToSql($columnName, $columnDefinition);
-            if ($columnDefinition['type'] === 'primaryKey') {
-                $pkColumns[] = $columnName;
-            }
-        }
-        return [$pkColumns, $sql];
-    }
-
-    protected function indexDefinitionToSql(array $indexDefinition): string {
-        $sql = [];
-        if (isset($indexDefinition['name'])) {
-            $sql[] = $indexDefinition['name'];
-        }
-        if (isset($indexDefinition['type'])) {
-            $sql[] = $indexDefinition['type'];
-        }
-        $query = $this->db->query();
-        $sql[] = '('
-            . (is_array($indexDefinition['columns'])
-                ? implode(', ', array_map([$query, 'quoteIdentifier'], $indexDefinition['columns']))
-                : $query->quoteIdentifier($indexDefinition['columns']))
-            . ')';
-        if (isset($indexDefinition['option'])) {
-            $sql[] = $indexDefinition['option'];
-        }
-        return implode(' ', $sql);
     }
 }

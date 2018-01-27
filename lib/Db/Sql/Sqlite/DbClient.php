@@ -29,7 +29,7 @@ class DbClient extends BaseDbClient {
         throw new NotImplementedException();
     }
 
-    protected function newPdo(array $config): \PDO {
+    protected function newPdo($config): \PDO {
         // @TODO: Support of the :memory:
         if (empty($config['filePath'])) {
             throw new \RuntimeException("The config param 'filePath' is required");

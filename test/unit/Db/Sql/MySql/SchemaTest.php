@@ -8,7 +8,11 @@ namespace Morpho\Qa\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Base\Arr;
 use Morpho\Db\Sql\DbClient;
+use Morpho\Db\Sql\MySql\DbCollation;
+use Morpho\Db\Sql\MySql\ServerCharset;
+use Morpho\Db\Sql\MySql\ServerCollation;
 use Morpho\Db\Sql\MySql\Schema;
+use Morpho\Db\Sql\MySql\TableCollation;
 use Morpho\Test\DbTestCase;
 
 class SchemaTest extends DbTestCase {
@@ -54,68 +58,6 @@ class SchemaTest extends DbTestCase {
         $this->schema->tableDefinition('foo');
     }
 
-    public function testCreateTablesWithFksOnOneColumn() {
-        $this->schema->createTables([
-            'product'      => [
-                'columns'     => [
-                    'id'          => [
-                        'type' => 'primaryKey',
-                    ],
-                    'title'       => [
-                        'type'   => 'varchar',
-                        'length' => 100,
-                    ],
-                    'description' => [
-                        'type' => 'text',
-                    ],
-                ],
-                'description' => 'Stores products',
-            ],
-            'order'        => [
-                'columns' => [
-                    'id' => [
-                        'type' => 'primaryKey',
-                    ],
-                ],
-            ],
-            'productOrder' => [
-                'columns' => [
-                    'productId' => [
-                        'type'     => 'int',
-                        'unsigned' => true,
-                    ],
-                    'orderId'   => [
-                        'type'     => 'int',
-                        'unsigned' => true,
-                    ],
-                ],
-                'foreignKeys'     => [
-                    [
-                        'childColumn'  => 'productId',
-                        // @TODO: add support of the product.id notation.
-                        'parentTable'  => 'product',
-                        'parentColumn' => 'id',
-                    ],
-                    [
-                        'childColumn'  => 'orderId',
-                        'parentTable'  => 'order',
-                        'parentColumn' => 'id',
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->assertCreateTableSql();
-    }
-
-    public function testForeignKeyOnMultipleColumns() {
-        $this->markTestIncomplete();
-    }
-
-    public function testCreateTableSqlFromDefinition() {
-        $this->markTestIncomplete();
-    }
-
     public function testRenameColumn() {
         $this->markTestIncomplete();
     }
@@ -123,150 +65,6 @@ class SchemaTest extends DbTestCase {
     public function testRenameTable() {
         $this->markTestIncomplete();
     }
-
-    public function testCreateTablesWithIndexes() {
-        $tableDefinition = [
-            'columns' => [
-                'id'   => [
-                    'type' => 'primaryKey',
-                ],
-                'path' => [
-                    'type' => 'varchar',
-                ],
-                'type' => [
-                    'type'   => 'varchar',
-                    'length' => 10,
-                ],
-            ],
-            'indexes' => [
-                'path',
-                'type',
-            ],
-        ];
-        $this->schema->createTable('file', $tableDefinition);
-
-        $this->assertEquals(['file'], $this->schema->tableNames());
-
-        $this->assertEquals(<<<OUT
-CREATE TABLE `file` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `path` varchar(255) NOT NULL,
-  `type` varchar(10) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `path` (`path`),
-  KEY `type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-OUT
-            ,
-            $this->schema->createTableSql('file')
-        );
-    }
-
-    public function testColumnDefinitionToSql_Nullable() {
-        $columnName = 'foo';
-
-        $columnDefinition = [
-            'type' => 'tinyint(1)',
-            'nullable' => false,
-        ];
-        $this->assertEquals(<<<OUT
-`$columnName` tinyint(1) NOT NULL
-OUT
-            ,
-            $this->schema->columnDefinitionToSql($columnName, $columnDefinition)
-        );
-
-        $columnDefinition = [
-            'type' => 'tinyint(1)',
-            'nullable' => true,
-        ];
-        $this->assertEquals(<<<OUT
-`$columnName` tinyint(1)
-OUT
-            ,
-            $this->schema->columnDefinitionToSql($columnName, $columnDefinition)
-        );
-    }
-
-    public function testTableDefinitionToSql_UniqueKeys() {
-        $tableName = 'test';
-        $tableDefinition = [
-            'columns' => [
-                'login' => [
-                    'type' => 'varchar',
-                ],
-                'email' => [
-                    'type'   => 'varchar',
-                    'length' => 10,
-                ],
-            ],
-            'uniqueKeys' => [
-                [
-                    'columns' => ['login', 'email']
-                    /* @TODO:
-                    'indexName' => 'myUniqueIdx',
-                    'indexType' =>
-                    'indexOption' =>
-                     */
-                ],
-            ],
-        ];
-        list($sql, $args) = $this->schema->tableDefinitionToSql($tableName, $tableDefinition);
-        $this->assertEquals(<<<OUT
-CREATE TABLE `$tableName` (
-`login` varchar(255) NOT NULL,
-`email` varchar(10) NOT NULL,
-UNIQUE (`login`, `email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-OUT
-            ,
-            $sql
-        );
-        $this->assertEquals([], $args);
-    }
-
-    private function assertCreateTableSql() {
-        $actualTableNames = $this->schema->tableNames();
-        sort($actualTableNames);
-        $this->assertEquals(['order', 'product', 'productOrder'], $actualTableNames);
-
-        $this->assertEquals(<<<OUT
-CREATE TABLE `product` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores products'
-OUT
-            ,
-            $this->schema->createTableSql('product')
-        );
-        $this->assertEquals(<<<OUT
-CREATE TABLE `order` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-OUT
-            ,
-            $this->schema->createTableSql('order')
-        );
-
-        $this->assertEquals(<<<OUT
-CREATE TABLE `productOrder` (
-  `productId` int(10) unsigned NOT NULL,
-  `orderId` int(10) unsigned NOT NULL,
-  KEY `productId` (`productId`),
-  KEY `orderId` (`orderId`),
-  CONSTRAINT `productOrder_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `product` (`id`),
-  CONSTRAINT `productOrder_ibfk_2` FOREIGN KEY (`orderId`) REFERENCES `order` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-OUT
-            ,
-            $this->schema->createTableSql('productOrder')
-        );
-    }
-    
-    // ------------------------------------------------------------------------
 
     public function testSizeOfDatabases() {
         $this->markTestIncomplete();
@@ -279,7 +77,7 @@ OUT
         foreach ($this->db->eval("SELECT DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'mysql'") as $row) {
             $sum += $row['DATA_LENGTH'] + $row['INDEX_LENGTH'];
         }
-        $this->assertEquals($sum, $size);
+        $this->assertSame($sum, $size);
     }
 
     public function testSizeOfTables() {
@@ -295,105 +93,170 @@ OUT
     public function testSizeOfTable() {
         $this->markTestIncomplete();
     }
-    
-    // ------------------------------------------------------------------------
-    
-    public function testAvailableCharsetsWithDefaultCollation() {
-        $expected = [
-            [
-                'Charset' => 'latin1',
-                'Description' => 'cp1252 West European',
-                'Default collation' => 'latin1_swedish_ci',
-                'Maxlen' => 1,
-            ],
-            [
-                'Charset' => 'utf8',
-                'Description' => 'UTF-8 Unicode',
-                'Default collation' => 'utf8_general_ci',
-                'Maxlen' => 3,
-            ],
-        ];
-        $this->assertEquals(
-            $expected,
-            $this->schema->availableCharsetsWithDefaultCollation(['utf8', 'latin1'])
-        );
-        $rows = $this->schema->availableCharsetsWithDefaultCollation();
-        $this->assertTrue(count($rows) > count($expected));
-        $expectedKeys = array_keys($expected[0]);
-        foreach ($rows as $row) {
-            $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $row);
+
+    public function testAvailableCharsetsOfServer() {
+        $checkVal = function ($val, $expectedType) {
+            $this->assertNotEmpty($val);
+            $this->assertInternalType($expectedType, $val);
+        };
+        $i = 0;
+        foreach ($this->schema->availableCharsetsOfServer() as $charset) {
+            /** @var ServerCharset $charset */
+            $this->assertInstanceOf(ServerCharset::class, $charset);
+            $checkVal($charset->name(), 'string');
+            $checkVal($charset->description(), 'string');
+            $checkVal($charset->charSize(), 'int');
+            $collation = $charset->defaultCollation();
+            $this->assertInstanceOf(ServerCollation::class, $collation);
+            $this->assertNotEmpty($collation->name());
+            $this->assertSame($charset->name(), $collation->charsetName());
+            $this->assertTrue($collation->isDefault());
+            $i++;
         }
+        $this->assertTrue($i > 0);
     }
 
-    public function testAvailableCollationsForCharset() {
-        $charset = 'utf8';
-        $rows = $this->schema->availableCollationsForCharset($charset);
-        $this->assertNotEmpty($rows);
-        $expectedKeys = [
-            'Collation',
-            'Charset',
-            'Id',
-            'Default',
-            'Compiled',
-            'Sortlen',
-        ];
-        foreach ($rows as $row) {
-            $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $row);
-            $this->assertEquals($charset, $row['Charset']);
-            $this->assertStringStartsWith($charset, $row['Collation']);
+    public function dataForAvailableCollationsOfServer() {
+        yield [null, function ($defaultEncountered) {
+            $this->assertTrue($defaultEncountered > 0);
+        }];
+        yield ["WHERE Charset = 'utf8'", function ($defaultEncountered) {
+            $this->assertSame(1, $defaultEncountered);
+        }];
+    }
+
+    /**
+     * @dataProvider dataForAvailableCollationsOfServer
+     */
+    public function testAvailableCollationsOfServer(?string $constraint, callable $checkDefaultEncountered) {
+        $collations = $this->schema->availableCollationsOfServer($constraint);
+        $i = $defaultEncountered = 0;
+        foreach ($collations as $collation) {
+            /** @var ServerCollation $collation */
+            if ($collation->isDefault()) {
+                $defaultEncountered++;
+            }
+            $i++;
+            $this->assertNotEmpty($collation->name());
+            $this->assertNotEmpty($collation->charsetName());
         }
+        $checkDefaultEncountered($defaultEncountered);
+        $this->assertTrue($i > 0);
+    }
+
+    public function testVarsStartingWith_NormalCase() {
+        $prefix = 'character_set';
+        $vars = $this->schema->varsStartingWith($prefix);
+        foreach ($vars as $key => $value) {
+            $this->assertStringStartsWith($prefix, $key);
+        }
+        $this->assertTrue(count($vars) > 0);
+    }
+
+    public function testVarsStaringWith_HandlesPercent() {
+        $this->assertSame([], $this->schema->varsStartingWith('%'));
+    }
+
+    public function testVarsEndingWith_NormalCase() {
+        $suffix = '_size';
+        $vars = $this->schema->varsEndingWith($suffix);
+        foreach ($vars as $key => $value) {
+            $this->assertStringEndsWith($suffix, $key);
+        }
+        $this->assertTrue(count($vars) > 0);
+    }
+
+    public function testVarsEndingWith_HandlesPercent() {
+        $this->assertSame([], $this->schema->varsEndingWith($this->db->quote('%')));
+    }
+
+    public function testVarsLike_NormalCase() {
+        $infix = 'character';
+        $vars = $this->schema->varsLike($infix);
+        foreach ($vars as $key => $value) {
+            $this->assertContains($infix, $key);
+        }
+        $this->assertTrue(count($vars) > 0);
+    }
+
+    public function testVarsLike_HandlesPercent() {
+        $this->assertSame([], $this->schema->varsLike('%'));
     }
     
     public function testCharsetAndCollationVars() {
         $vars = $this->schema->charsetAndCollationVars();
-        $expectedKeys = [
-            'character_set_client',
-            'character_set_connection',
-            'character_set_database',
-            'character_set_filesystem',
-            'character_set_results',
-            'character_set_server',
-            'character_set_system',
-            'character_sets_dir',
-            'collation_connection',
-            'collation_database',
-            'collation_server',
-        ];
-        $this->assertArrayHasOnlyItemsWithKeys($expectedKeys, $vars);
+        $this->assertTrue(count($vars) > 0);
+        foreach ($vars as $key => $value) {
+            $this->assertTrue(0 === strpos($key, 'collation') || 0 === strpos($key, 'character_set'));
+        }
     }
 
-    public function testCharsetAndCollationOfDatabase() {
-        $charset = 'gb2312';
-        $collation = $charset . '_bin';
-        $dbName = $this->callCreateDatabase('t' . md5(__FUNCTION__), $charset, $collation);
-        $this->assertEquals(['charset' => $charset, 'collation' => $collation], $this->schema->charsetAndCollationOfDatabase($dbName));
+    public function testCollationOfServer() {
+        $collation = $this->schema->collationOfServer();
+        $this->assertInstanceOf(ServerCollation::class, $collation);
+        $this->assertNotEmpty($collation->name());
+        $this->assertNotEmpty($collation->charsetName());
     }
-    
-    public function testCharsetAndCollationOfTables() {
-        $this->db->eval("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
-        $this->db->eval("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
-        $rows = $this->schema->charsetAndCollationOfTables(self::DB);
-        $this->assertNotEmpty($rows);
-        foreach ($rows as $row) {
-            $this->assertCount(5, $row);
-            $this->assertEquals(self::DB, $row['dbName']);
-            $this->assertEquals('BASE TABLE', $row['tableType']);
-            switch ($row['tableName']) {
+
+    public function testCollationOfDatabase() {
+        $charset = 'gb2312';
+        $collationName = $charset . '_bin';
+        $dbName = $this->callCreateDatabase('t' . md5(__FUNCTION__), $charset, $collationName);
+
+        $collation = $this->schema->collationOfDatabase($dbName);
+        $this->assertInstanceOf(DbCollation::class, $collation);
+        $this->assertSame($dbName, $collation->dbName());
+        $this->assertSame($collationName, $collation->name());
+        $this->assertSame($charset, $collation->charsetName());
+    }
+
+    public function testCollationOfTables() {
+        $this->createTestTables();
+        $dbName = self::DB;
+        $collations = $this->schema->collationOfTables($dbName);
+        $i = 0;
+        foreach ($collations as $collation) {
+            $i++;
+            /** @var TableCollation $collation */
+            $this->assertInstanceOf(TableCollation::class, $collation);
+            $this->assertSame($dbName, $collation->dbName());
+            switch ($collation->tableName()) {
                 case'cherry':
-                    $this->assertEquals('gb2312', $row['charset']);
-                    $this->assertEquals('gb2312_bin', $row['collation']);
+                    $this->assertSame('gb2312', $collation->charsetName());
+                    $this->assertSame('gb2312_bin', $collation->name());
                     break;
                 case 'kiwi';
-                    $this->assertEquals('cp1250', $row['charset']);
-                    $this->assertEquals('cp1250_croatian_ci', $row['collation']);
+                    $this->assertSame('cp1250', $collation->charsetName());
+                    $this->assertSame('cp1250_croatian_ci', $collation->name());
                     break;
                 default:
                     $this->fail();
             }
         }
+        $this->assertTrue($i > 0);
     }
-    
-    public function testCharsetAndCollationOfColumns() {
+
+    public function dataForCollationOfTable() {
+        yield [self::DB . '.kiwi', null];
+        yield [self::DB, 'kiwi'];
+    }
+
+    /**
+     * @dataProvider dataForCollationOfTable
+     */
+    public function testCollationOfTable(string $dbName, ?string $tableName) {
+        $this->createTestTables();
+
+        $collation = $this->schema->collationOfTable($dbName, $tableName);
+
+        $this->assertInstanceOf(TableCollation::class, $collation);
+        $this->assertSame('kiwi', $collation->tableName());
+        $this->assertSame(self::DB, $collation->dbName());
+        $this->assertSame('cp1250', $collation->charsetName());
+        $this->assertSame('cp1250_croatian_ci', $collation->name());
+    }
+
+    public function testCollationOfColumns() {
         $this->markTestIncomplete();
     }
 
@@ -412,5 +275,10 @@ OUT
         $this->dbs[] = $dbName;
         $this->db->eval("CREATE DATABASE $dbName CHARACTER SET $charset COLLATE $collation");
         return $dbName;
+    }
+
+    private function createTestTables(): void {
+        $this->db->eval("CREATE TABLE cherry (id int) CHARACTER SET gb2312 COLLATE gb2312_bin");
+        $this->db->eval("CREATE TABLE kiwi (id int) CHARACTER SET cp1250 COLLATE cp1250_croatian_ci");
     }
 }

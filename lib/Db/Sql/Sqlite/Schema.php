@@ -33,10 +33,6 @@ class Schema extends BaseSchema {
         throw new NotImplementedException();
     }
 
-    public function tableDefinitionToSql(string $tableName, array $tableDefinition): array {
-        throw new NotImplementedException();
-    }
-
     public function deleteTableIfExists(string $tableName): void {
         throw new NotImplementedException();
     }

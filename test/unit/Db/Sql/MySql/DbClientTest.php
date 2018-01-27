@@ -43,26 +43,24 @@ class DbClientTest extends BaseDbClientTest {
     }
 
     public function testLastInsertId_ForNonAutoincrementCol() {
-        $this->schema->createTable('foo', [
-            'columns' => [
-                'some' => [
-                    'type' => 'varchar',
-                ],
-            ],
-        ]);
+        $this->db->eval(<<<SQL
+CREATE TABLE foo (
+    some varchar(255)
+)
+SQL
+        );
         $this->db->insertRow('foo', ['some' => 'test']);
         $this->assertEquals('0', $this->db->lastInsertId());
         $this->assertEquals('0', $this->db->lastInsertId('some'));
     }
 
     public function testLastInsertId_ForAutoincrementCol() {
-        $this->schema->createTable('foo', [
-            'columns' => [
-                'some' => [
-                    'type' => 'primaryKey',
-                ],
-            ],
-        ]);
+        $this->db->eval(<<<SQL
+CREATE TABLE foo (
+    some int PRIMARY KEY AUTO_INCREMENT
+)
+SQL
+        );
         $this->db->insertRow('foo', ['some' => '']);
         $this->assertEquals('1', $this->db->lastInsertId());
         $this->assertEquals('1', $this->db->lastInsertId('some'));
@@ -196,18 +194,12 @@ class DbClientTest extends BaseDbClientTest {
     }
 
     private function createTestTable() {
-        $this->schema->createTable(
-            'test',
-            [
-                'columns' => [
-                    'id'  => [
-                        'type' => 'primaryKey',
-                    ],
-                    'foo' => [
-                        'type' => 'varchar',
-                    ],
-                ],
-            ]
+        $this->db->eval(<<<SQL
+CREATE TABLE test (
+    id int PRIMARY KEY AUTO_INCREMENT,
+    foo varchar(255)
+)
+SQL
         );
     }
 }

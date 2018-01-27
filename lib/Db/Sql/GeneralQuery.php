@@ -56,7 +56,7 @@ abstract class GeneralQuery {
         return array_fill(0, count($row), '?');
     }
     
-    public static function positionalPlaceholdersString(array $row): string {
+    public static function positionalPlaceholdersStr(array $row): string {
         return implode(', ', self::positionalPlaceholders($row));
     }
 

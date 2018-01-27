@@ -15,22 +15,6 @@ abstract class Schema {
 
     abstract public function createDatabase(string $dbName): void;
 
-    public function createTables(iterable $tableDefinitions): void {
-        foreach ($tableDefinitions as $tableName => $tableDefinition) {
-            $this->createTable($tableName, $tableDefinition);
-        }
-    }
-
-    public function createTable(string $tableName, array $tableDefinition): void {
-        list($sql, $args) = $this->tableDefinitionToSql($tableName, $tableDefinition);
-        $this->db->eval($sql, $args);
-    }
-
-    public function recreateTable(string $tableName, array $tableDefinition): void {
-        $this->deleteTableIfExists($tableName);
-        $this->createTable($tableName, $tableDefinition);
-    }
-
     public function deleteTables(iterable $tableNames): void {
         foreach ($tableNames as $tableName) {
             $this->deleteTable($tableName);
@@ -46,8 +30,6 @@ abstract class Schema {
     abstract public function deleteTable(string $tableName): void;
 
     abstract public function createTableSql(string $tableName): string;
-
-    abstract public function tableDefinitionToSql(string $tableName, array $tableDefinition): array;
 
     abstract public function deleteTableIfExists(string $tableName): void;
 
