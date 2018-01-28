@@ -9,6 +9,7 @@ namespace Morpho\Code\Linting;
 use function Morpho\Base\init;
 use function Morpho\Base\last;
 use function Morpho\Base\startsWith;
+use Morpho\Code\Reflection\ClassTypeDiscoverer;
 use Morpho\Code\Reflection\ReflectionFile;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
@@ -20,23 +21,19 @@ class FileChecker {
     public const INVALID_CLASS = 'invalidClass';
     public const INVALID_NS = 'invalidNs';
 
-    public function checkFile(SourceFile $sourceFile): array {
 /*
+    public function checkFile(SourceFile $sourceFile): array {
 @TODO
 Add an option to fix the class name (if not match and fix only first)
 Add an option to fix namespace, (if not match and fix only first)
-*/
-        $errors = $this->checkMetaFile($sourceFile);
-        if (!$errors) {
-            $errors = $this->checkNamespaces($sourceFile);
-            $errors = array_merge($errors, $this->checkClassTypes($sourceFile));
-        }
+
+        $errors = $this->checkNamespaces($sourceFile);
+        $errors = array_merge($errors, $this->checkClassTypes($sourceFile));
         return $errors;
     }
+*/
 
-    public function checkMetaFile(SourceFile $sourceFile): array {
-        $moduleDirPath = $sourceFile->moduleDirPath();
-        $metaFilePath = $moduleDirPath . '/composer.json';
+    public static function checkMetaFile(string $metaFilePath): array {
         $errors = [];
         if (!is_file($metaFilePath)) {
             $errors[] = 'metaFileNotFound';
@@ -45,8 +42,6 @@ Add an option to fix namespace, (if not match and fix only first)
                 $moduleMeta = File::readJson($metaFilePath);
                 if (!isset($moduleMeta['autoload']['psr-4'])) {
                     $errors[] = self::INVALID_META_FILE_FORMAT;
-                } else {
-                    $sourceFile['nsToDirPathMap'] = $moduleMeta['autoload']['psr-4'];
                 }
             } catch (\RuntimeException $e) {
                 $errors[] = self::INVALID_META_FILE_FORMAT;
@@ -55,11 +50,20 @@ Add an option to fix namespace, (if not match and fix only first)
         return $errors;
     }
 
-    public function checkNamespaces(SourceFile $sourceFile): array {
+    public static function checkNamespaces(SourceFile $sourceFile): array {
         $expectedNss = [];
-        $moduleDirPath = $sourceFile->moduleDirPath();
-        foreach ($sourceFile['nsToDirPathMap'] as $nsPrefix => $relLibDirPath) {
-            $libDirPath = Path::combine($moduleDirPath, $relLibDirPath);
+        foreach ($sourceFile->nsToLibDirPathMap() as $nsPrefix => $libDirPath) {
+            if (!Path::isAbs($libDirPath)) {
+                $pos = strpos($libDirPath, '://'); // URI like vfs:///foo
+                if (false !== $pos) {
+                    $isAbs = isset($libDirPath[$pos + 3]) && $libDirPath[$pos + 3] === '/';
+                } else {
+                    $isAbs = false;
+                }
+                if (!$isAbs) {
+                    throw new \UnexpectedValueException('The library directory path must be absolute');
+                }
+            }
             if (startsWith($sourceFile->filePath(), $libDirPath)) {
                 $nsPrefix = rtrim($nsPrefix, '\\');
                 $nsSuffix = str_replace('/', '\\', substr($sourceFile->filePath(), strlen($libDirPath) + 1));
@@ -74,10 +78,7 @@ Add an option to fix namespace, (if not match and fix only first)
         }
 
         // Check namespaces (if > 1, then first)
-        $rFile = new ReflectionFile($sourceFile->filePath());
-        foreach ($rFile->namespaces() as $rNamespace) {
-            $nsName = $rNamespace->name();
-
+        foreach (self::namespaces($sourceFile->filePath()) as $nsName) {
             if (null === $nsName) {
                 // null means global
                 continue;
@@ -94,23 +95,40 @@ Add an option to fix namespace, (if not match and fix only first)
         return $errors;
     }
 
-    public function checkClassTypes(SourceFile $sourceFile): array {
+    public static function checkClassTypes(SourceFile $sourceFile): array {
         $errors = [];
         $filePath = $sourceFile->filePath();
-        $rFile = new ReflectionFile($filePath);
         $expectedClassName = Path::dropExt(basename($filePath));
-        foreach ($rFile->namespaces() as $rNamespace) {
-            foreach ($rNamespace->classTypes() as $rClass) {
-                $className = $rClass->getName();
-                /** @var \Morpho\Code\Reflection\ReflectionClass $rClass */
-                $shortClassName = last($className, '\\');
-                if ($shortClassName !== $expectedClassName) {
-                    $errors[self::INVALID_CLASS] = $className;
-                }
-                // We are checking only first class.
-                return $errors;
+        foreach (self::classes($sourceFile->filePath()) as $className) {
+            $shortClassName = last($className, '\\');
+            if ($shortClassName !== $expectedClassName) {
+                $errors[self::INVALID_CLASS] = $className;
             }
+            // We are checking only first class.
+            return $errors;
         }
         return $errors;
+    }
+
+    protected static function namespaces(string $filePath): iterable {
+        $rFile = new ReflectionFile($filePath);
+        foreach ($rFile->namespaces() as $rNamespace) {
+            yield $rNamespace->name();
+        }
+    }
+
+    protected static function classes(string $filePath): iterable {
+        $classTypeDiscoverer = new ClassTypeDiscoverer();
+        $classes = $classTypeDiscoverer->classTypesDefinedInFile($filePath);
+        return array_keys($classes);
+        /*
+        $rFile = new ReflectionFile($filePath);
+        foreach ($rFile->namespaces() as $rNamespace) {
+            foreach ($rNamespace->classTypes() as $rClass) {
+                /** @var \Morpho\Code\Reflection\ReflectionClass $rClass * /
+                yield $rClass->getName();
+            }
+        }
+        */
     }
 }

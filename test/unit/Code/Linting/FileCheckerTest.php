@@ -12,15 +12,9 @@ use Morpho\Test\TestCase;
 use Morpho\Test\Vfs;
 
 class FileCheckerTest extends TestCase {
-    /**
-     * @var FileChecker
-     */
-    private $checker;
-
     public function setUp() {
         parent::setUp();
         Vfs::register();
-        $this->checker = new FileChecker();
     }
 
     public function tearDown() {
@@ -30,10 +24,9 @@ class FileCheckerTest extends TestCase {
 
     public function testCheckMetaFile_MetaFileNotExists() {
         $moduleDirPath = $this->getTestDirPath() . '/non-existing';
-        $sourceFile = new SourceFile($moduleDirPath . '/Foo/Bar.php');
-        $sourceFile->setModuleDirPath($moduleDirPath);
 
-        $errors = $this->checker->checkMetaFile($sourceFile);
+        $metaFilePath = $moduleDirPath . '/composer.json';
+        $errors = FileChecker::checkMetaFile($metaFilePath);
 
         $this->assertSame([FileChecker::META_FILE_NOT_FOUND], $errors);
     }
@@ -48,76 +41,76 @@ class FileCheckerTest extends TestCase {
      */
     public function testCheckMetaFile_InvalidMetaFileFormat(string $metaFileContents) {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-        $classFileUri = $moduleDirUri . '/Foo/Bar.php';
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, $metaFileContents, '<?php');
 
-        $errors = $this->checker->checkMetaFile($sourceFile);
+        $metaFileUri = $moduleDirUri . '/composer.json';
+        $this->createTestMetaFile($metaFileUri, $metaFileContents);
+
+        $errors = FileChecker::checkMetaFile($metaFileUri);
 
         $this->assertSame([FileChecker::INVALID_META_FILE_FORMAT], $errors);
     }
     
     public function testCheckMetaFile_ValidFormat() {
-        $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
         $ns = 'Morpho\\';
-        $libDirPath = 'lib/';
+        $relLibDirPath = 'lib/';
         $metaFileContents = <<<OUT
 {
     "name": "foo/bar",
     "autoload": {
         "psr-4": {
-            "$ns\\": "$libDirPath"
+            "$ns\\": "$relLibDirPath"
         }
     }
 }
 OUT;
+        $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
 
-        $classFileUri = $moduleDirUri . '/Foo/Bar.php';
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, $metaFileContents, '<?php ');
+        $metaFileUri = $moduleDirUri . '/composer.json';
+        $this->createTestMetaFile($metaFileUri, $metaFileContents);
 
-        $errors = $this->checker->checkMetaFile($sourceFile);
+        $errors = FileChecker::checkMetaFile($metaFileUri);
 
         $this->assertSame([], $errors);
-        $this->assertSame([$ns => $libDirPath], $sourceFile['nsToDirPathMap']);
     }
 
     public function testCheckNamespaces_NsNotFound() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
         $classFileUri = $moduleDirUri . '/test/bar';
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, '', '<?php ');
-        $sourceFile['nsToDirPathMap'] = [
-            __NAMESPACE__ . '\\Foo\\Bar\\' => 'shelf/book/',
-        ];
+        $sourceFile = $this->createTestSourceFile($classFileUri, '<?php ');
+        $sourceFile->setNsToLibDirPathMap([
+            __NAMESPACE__ . '\\Foo\\Bar' => $moduleDirUri . '/shelf/book/',
+        ]);
 
-        $errors = $this->checker->checkNamespaces($sourceFile);
+        $errors = FileChecker::checkNamespaces($sourceFile);
 
         $this->assertSame([FileChecker::NS_NOT_FOUND], $errors);
     }
 
     public function testCheckNamespaces_FileDoesNotMatchNs() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-        $libDirPath = 'shelf/book';
+        $libDirPath = $moduleDirUri . '/shelf/book';
         $nsPrefix = __NAMESPACE__;
         $sourceFileContents = <<<OUT
 <?php
 namespace $nsPrefix\Some {}
 OUT;
 
-        $classFileUri = $moduleDirUri . '/' . $libDirPath . '/Red/Green/Test.php';
+        $classFileUri = $libDirPath . '/Red/Green/Test.php';
 
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, '', $sourceFileContents);
+        $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile['nsToDirPathMap'] = [
-            $nsPrefix . '\\' => $libDirPath . '/',
-        ];
+        $sourceFile->setNsToLibDirPathMap([
+            $nsPrefix => $libDirPath,
+        ]);
 
-        $errors = $this->checker->checkNamespaces($sourceFile);
+        $errors = FileChecker::checkNamespaces($sourceFile);
 
         $this->assertSame(['invalidNs' => $nsPrefix . '\\Some'], $errors);
     }
 
     public function testCheckNamespaces_MultipleValidNss() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-        $libDirPath = 'shelf/book';
+        $libDirPath = $moduleDirUri . '/shelf/book';
         $nsPrefix = __NAMESPACE__;
         $sourceFileContents = <<<OUT
 <?php
@@ -126,22 +119,22 @@ namespace $nsPrefix\Red\Green {}
 namespace $nsPrefix\Red\Green\Blue {}
 OUT;
 
-        $classFileUri = $moduleDirUri . '/' . $libDirPath . '/Red/Green/Test.php';
+        $classFileUri = $libDirPath . '/Red/Green/Test.php';
 
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, '', $sourceFileContents);
+        $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile['nsToDirPathMap'] = [
-            $nsPrefix . '\\' => $libDirPath . '/',
-        ];
+        $sourceFile->setNsToLibDirPathMap([
+            $nsPrefix . '\\' => $libDirPath,
+        ]);
 
-        $errors = $this->checker->checkNamespaces($sourceFile);
+        $errors = FileChecker::checkNamespaces($sourceFile);
 
         $this->assertSame([], $errors);
     }
 
     public function testCheckClassTypes_InvalidClass() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-        $libDirPath = 'shelf/book';
+        $libDirPath = $moduleDirUri . '/shelf/book';
         $nsPrefix = __NAMESPACE__;
         $sourceFileContents = <<<OUT
 <?php
@@ -151,22 +144,22 @@ class Blue {
 }
 OUT;
 
-        $classFileUri = $moduleDirUri . '/' . $libDirPath . '/Red/Green/Test.php';
+        $classFileUri = $libDirPath . '/Red/Green/Test.php';
 
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, '', $sourceFileContents);
+        $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile['nsToDirPathMap'] = [
-            $nsPrefix . '\\' => $libDirPath . '/',
-        ];
+        $sourceFile->setNsToLibDirPathMap([
+            $nsPrefix . '\\' => $libDirPath,
+        ]);
 
-        $errors = $this->checker->checkClassTypes($sourceFile);
+        $errors = FileChecker::checkClassTypes($sourceFile);
 
         $this->assertSame($nsPrefix . '\\Red\\Green\\Blue', $errors[FileChecker::INVALID_CLASS]);
     }
 
     public function testCheckClassTypes_ValidClass() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-        $libDirPath = 'shelf/book';
+        $libDirPath = $moduleDirUri . '/shelf/book';
         $nsPrefix = __NAMESPACE__;
         $sourceFileContents = <<<OUT
 <?php
@@ -176,26 +169,28 @@ class Test {
 }
 OUT;
 
-        $classFileUri = $moduleDirUri . '/' . $libDirPath . '/Red/Green/Test.php';
+        $classFileUri = $libDirPath . '/Red/Green/Test.php';
 
-        $sourceFile = $this->createTestSourceFile($moduleDirUri, $classFileUri, '', $sourceFileContents);
+        $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile['nsToDirPathMap'] = [
-            $nsPrefix . '\\' => $libDirPath . '/',
-        ];
+        $sourceFile->setNsToLibDirPathMap([
+            $nsPrefix . '\\' => $libDirPath,
+        ]);
 
-        $errors = $this->checker->checkClassTypes($sourceFile);
+        $errors = FileChecker::checkClassTypes($sourceFile);
 
         $this->assertSame([], $errors);
     }
-
-    private function createTestSourceFile(string $moduleDirUri, string $classFileUri, string $metaFileContents, string $sourceFileContents): SourceFile {
-        $parentDirUri = Vfs::parentDirUri($classFileUri);
-        mkdir($parentDirUri, 0755, true);
-        file_put_contents($moduleDirUri . '/composer.json', $metaFileContents);
+    
+    private function createTestSourceFile(string $classFileUri, string $sourceFileContents): SourceFile {
+        mkdir(Vfs::parentDirUri($classFileUri), 0755, true);
         file_put_contents($classFileUri, $sourceFileContents);
         $sourceFile = new SourceFile($classFileUri);
-        $sourceFile->setModuleDirPath($moduleDirUri);
         return $sourceFile;
+    }
+
+    private function createTestMetaFile(string $metaFileUri, string $metaFileContents): void {
+        mkdir(Vfs::parentDirUri($metaFileUri), 0755, true);
+        file_put_contents($metaFileUri, $metaFileContents);
     }
 }

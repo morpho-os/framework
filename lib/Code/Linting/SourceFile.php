@@ -6,15 +6,13 @@
  */
 namespace Morpho\Code\Linting;
 
-use function Morpho\Core\baseDirPath;
-
 class SourceFile extends \ArrayObject {
     /**
      * @var string
      */
     private $filePath;
 
-    private $moduleDirPath;
+    private $nsToDirPathMap;
 
     public function __construct(string $filePath) {
         $this->filePath = $filePath;
@@ -24,14 +22,11 @@ class SourceFile extends \ArrayObject {
         return $this->filePath;
     }
 
-    public function setModuleDirPath(string $dirPath): void {
-        $this->moduleDirPath = $dirPath;
+    public function setNsToLibDirPathMap(array $nsToDirPathMap): void {
+        $this->nsToDirPathMap = $nsToDirPathMap;
     }
 
-    public function moduleDirPath(): string {
-        if (NULL === $this->moduleDirPath) {
-            $this->moduleDirPath = baseDirPath($this->filePath);
-        }
-        return $this->moduleDirPath;
+    public function nsToLibDirPathMap(): array {
+        return $this->nsToDirPathMap;
     }
 }

@@ -7,7 +7,7 @@
 namespace Morpho\Test;
 
 use Morpho\Base\TSingleton;
-use function Morpho\Core\baseDirPath;
+use function Morpho\Core\moduleDirPath;
 use const Morpho\Core\MODULE_DIR_NAME;
 use const Morpho\Web\PUBLIC_DIR_NAME;
 
@@ -36,7 +36,7 @@ class Sut {
 
     public function baseDirPath() {
         if (null === $this->baseDirPath) {
-            $this->baseDirPath = baseDirPath(__DIR__);
+            $this->baseDirPath = moduleDirPath(__DIR__);
         }
         return $this->baseDirPath;
     }

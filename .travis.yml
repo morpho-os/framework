@@ -66,6 +66,7 @@ before_script:
 
 script:
   - bin/test
+  - php test/lint.php
 
 # https://docs.travis-ci.com/user/deployment/pages/
 # deploy nightly builds

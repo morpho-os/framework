@@ -39,7 +39,7 @@ const REPO_SUFFIX = 'Repo';
  * @param string $dirPath Any directory path within the module.
  * @return false|string
  */
-function baseDirPath(string $dirPath, bool $throwEx = true) {
+function moduleDirPath(string $dirPath, bool $throwEx = true) {
     $baseDirPath = false;
     do {
         $path = $dirPath . '/vendor/composer/ClassLoader.php';

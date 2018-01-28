@@ -147,12 +147,7 @@ class ReflectionNamespace {
      * @return iterable Iterable over \ReflectionClass
      */
     public function classTypes(callable $filter = null): iterable {
-        if (contains($this->filePath, '://')) { // for streams use another approach.
-            $this->requireFile($this->filePath);
-        } else {
-            /** @noinspection PhpIncludeInspection */
-            require_once $this->filePath;
-        }
+        $this->requireFile($this->filePath);
         foreach ($this->classTypes as $class) {
             $rClass = new ReflectionClass($class);
             if ($filter) {
@@ -176,8 +171,13 @@ class ReflectionNamespace {
         }
     }
 
-    private function requireFile(string $filePath): void {
-        $php = file_get_contents($filePath);
-        eval('?>' . $php);
+    protected function requireFile(string $filePath): void {
+        if (contains($filePath, '://')) { // for streams use another approach.
+            $php = file_get_contents($filePath);
+            eval('?>' . $php);
+        } else {
+            /** @noinspection PhpIncludeInspection */
+            require_once $filePath;
+        }
     }
 }
