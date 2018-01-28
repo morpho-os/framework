@@ -56,8 +56,12 @@ class VfsFile extends VfsEntry {
 
     public function read(int $n): string {
         $this->checkIsOpen();
-        $n = min($n, strlen($this->contents));
-        $contents = substr($this->contents, $this->offset, $n);
+        $n = min($n, strlen($this->contents) - $this->offset);
+        if (!$n) {
+            $contents = '';
+        } else {
+            $contents = substr($this->contents, $this->offset, $n);
+        }
         $this->offset += $n;
         return $contents;
     }

@@ -66,8 +66,15 @@ class Vfs implements IFs {
      * @return bool
      */
     public function stream_open(string $uri, string $mode, int $flags, ?string &$openedUri): bool {
-        if (null !== $openedUri || 0 !== $flags) {
+        if (null !== $openedUri) {
             throw new NotImplementedException();
+        }
+        if (0 !== $flags) {
+            // @TODO
+/*            if ($flags | STREAM_REPORT_ERRORS) {
+                d($flags);
+                trigger_error(), see http://php.net/manual/en/streamwrapper.stream-open.php
+            }*/
         }
         $this->checkUri($uri);
         $parentDir = $this->parentDir($uri);

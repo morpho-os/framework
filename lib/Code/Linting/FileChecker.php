@@ -6,119 +6,111 @@
  */
 namespace Morpho\Code\Linting;
 
-use function Morpho\Core\baseDirPath;
+use function Morpho\Base\init;
+use function Morpho\Base\last;
+use function Morpho\Base\startsWith;
+use Morpho\Code\Reflection\ReflectionFile;
 use Morpho\Fs\File;
-
-class SourceFile {
-    /**
-     * @var string
-     */
-    private $filePath;
-
-    private $moduleDirPath;
-
-    public function __construct(string $filePath) {
-        $this->filePath = $filePath;
-    }
-
-    public function filePath(): string {
-        return $this->filePath;
-    }
-
-    public function setModuleDirPath(string $dirPath): void {
-        $this->moduleDirPath = $dirPath;
-    }
-
-    public function moduleDirPath(): string {
-        if (null === $this->moduleDirPath) {
-            $this->moduleDirPath = baseDirPath($this->filePath);
-        }
-        return $this->moduleDirPath;
-    }
-}
+use Morpho\Fs\Path;
 
 class FileChecker {
     public const META_FILE_NOT_FOUND = 'metaFileNotFound';
     public const INVALID_META_FILE_FORMAT = 'invalidMetaFileFormat';
+    public const NS_NOT_FOUND = 'nsNotFound';
+    public const INVALID_CLASS = 'invalidClass';
+    public const INVALID_NS = 'invalidNs';
 
     public function checkFile(SourceFile $sourceFile): array {
 /*
 @TODO
-Check namespaces (if > 1, then first)
-Check that class name corresponds to file (if > 1, then first)
 Add an option to fix the class name (if not match and fix only first)
 Add an option to fix namespace, (if not match and fix only first)
 */
-/*        $moduleMeta['dirPath'] = $moduleDirPath;
-        //$moduleMeta['paths'][
-        //'metaFilePath' => $metaFilePath,
-        //'moduleMeta' => $moduleMeta,*/
-
-        $result = $this->checkMetaFile($sourceFile);
-        if (!$result) {
-            $result = $this->checkNamespaces($sourceFile);
-            $result = array_merge($result, $this->checkClassTypes($sourceFile));
+        $errors = $this->checkMetaFile($sourceFile);
+        if (!$errors) {
+            $errors = $this->checkNamespaces($sourceFile);
+            $errors = array_merge($errors, $this->checkClassTypes($sourceFile));
         }
-        return $result;
+        return $errors;
     }
 
     public function checkMetaFile(SourceFile $sourceFile): array {
         $moduleDirPath = $sourceFile->moduleDirPath();
         $metaFilePath = $moduleDirPath . '/composer.json';
+        $errors = [];
         if (!is_file($metaFilePath)) {
-            $result[] = 'metaFileNotFound';
-            return $result;
-        }
-        try {
-            $moduleMeta = File::readJson($metaFilePath);
-            $result = [];
-            if (!isset($moduleMeta['autoload']['psr-4'])) {
-                $result[] = self::INVALID_META_FILE_FORMAT;
-                return $result;
+            $errors[] = 'metaFileNotFound';
+        } else {
+            try {
+                $moduleMeta = File::readJson($metaFilePath);
+                if (!isset($moduleMeta['autoload']['psr-4'])) {
+                    $errors[] = self::INVALID_META_FILE_FORMAT;
+                } else {
+                    $sourceFile['nsToDirPathMap'] = $moduleMeta['autoload']['psr-4'];
+                }
+            } catch (\RuntimeException $e) {
+                $errors[] = self::INVALID_META_FILE_FORMAT;
             }
-        } catch (\RuntimeException $e) {
-            $result[] = self::INVALID_META_FILE_FORMAT;
         }
-        return $result;
+        return $errors;
     }
 
     public function checkNamespaces(SourceFile $sourceFile): array {
-        /*
-        d($context);
-
-        $nss = $moduleMeta['autoload']['psr-4'];
-
         $expectedNss = [];
-        foreach ($nss as $ns => $relLibDirPath) {
+        $moduleDirPath = $sourceFile->moduleDirPath();
+        foreach ($sourceFile['nsToDirPathMap'] as $nsPrefix => $relLibDirPath) {
             $libDirPath = Path::combine($moduleDirPath, $relLibDirPath);
             if (startsWith($sourceFile->filePath(), $libDirPath)) {
-                $ns = rtrim($ns, '\\');
-                $expectedNss[] = init($ns . '\\' . str_replace('/', '\\', substr($sourceFile->filePath(), strlen($libDirPath) + 1)), '\\');
+                $nsPrefix = rtrim($nsPrefix, '\\');
+                $nsSuffix = str_replace('/', '\\', substr($sourceFile->filePath(), strlen($libDirPath) + 1));
+                $ns = $nsPrefix . '\\' . $nsSuffix;
+                $expectedNss[] = init($ns, '\\');
             }
         }
+        $errors = [];
         if (!count($expectedNss)) {
-            $result[] = ['invalidMetaFile' => $metaFilePath];
-            return $result;
+            $errors[] = self::NS_NOT_FOUND;
+            return $errors;
         }
 
+        // Check namespaces (if > 1, then first)
         $rFile = new ReflectionFile($sourceFile->filePath());
-
         foreach ($rFile->namespaces() as $rNamespace) {
             $nsName = $rNamespace->name();
 
-            // null means global
-            if (null === $nsName || in_array($nsName, $expectedNss)) {
-                $result['validNs'][] = $nsName;
-            } else {
-                $result['invalidNs'][] = $nsName;
+            if (null === $nsName) {
+                // null means global
+                continue;
             }
+
+            if (!in_array($nsName, $expectedNss, true)) {
+                $errors[self::INVALID_NS] = $nsName;
+            }
+
+            // We are checking only a first namespace.
+            break;
         }
 
-        return $result;
-        */
+        return $errors;
     }
 
     public function checkClassTypes(SourceFile $sourceFile): array {
-
+        $errors = [];
+        $filePath = $sourceFile->filePath();
+        $rFile = new ReflectionFile($filePath);
+        $expectedClassName = Path::dropExt(basename($filePath));
+        foreach ($rFile->namespaces() as $rNamespace) {
+            foreach ($rNamespace->classTypes() as $rClass) {
+                $className = $rClass->getName();
+                /** @var \Morpho\Code\Reflection\ReflectionClass $rClass */
+                $shortClassName = last($className, '\\');
+                if ($shortClassName !== $expectedClassName) {
+                    $errors[self::INVALID_CLASS] = $className;
+                }
+                // We are checking only first class.
+                return $errors;
+            }
+        }
+        return $errors;
     }
 }

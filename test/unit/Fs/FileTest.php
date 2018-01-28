@@ -209,10 +209,7 @@ class FileTest extends TestCase {
     }
 
     public function testReadTextFileWithBom() {
-        $config = [
-            'binary' => false,
-        ];
-        $this->assertEquals("123", File::read($this->getTestDirPath() . '/bom.txt', $config));
+        $this->assertEquals("123", File::read($this->getTestDirPath() . '/bom.txt'));
     }
 
     public function testReadBinary() {

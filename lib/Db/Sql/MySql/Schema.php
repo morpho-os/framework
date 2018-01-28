@@ -232,6 +232,7 @@ class Schema extends BaseSchema {
     }
 
     public function collationOfDatabase(string $dbName): DbCollation {
+        // https://dev.mysql.com/doc/refman/5.7/en/charset-database.html
         $row = $this->db->select('DEFAULT_CHARACTER_SET_NAME AS charset,
             DEFAULT_COLLATION_NAME AS collation
             FROM information_schema.SCHEMATA
@@ -240,9 +241,9 @@ class Schema extends BaseSchema {
         )->row();
         return new DbCollation($row['collation'], $row['charset'], $dbName);
     }
-
+    
     /*
-      public function setCharsetAndCollationOfDatabase(string $dbName) {
+      public function setCharsetAndCollationOfDatabase(string $dbName, string charsetName, string $collationName): void {
           throw new NotImplementedException();
           // ALTER DATABASE $dbName CHARACTER SET $charset COLLATE $collation;
       }
@@ -280,6 +281,7 @@ class Schema extends BaseSchema {
     }
 
     public function setCharsetAndCollationOfTable(string $tableName): array {
+        // https://dev.mysql.com/doc/refman/5.7/en/charset-table.html
         // ALTER TABLE $tableName CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
         // ALTER TABLE $tableName CHARACTER SET utf8, COLLATE utf8_general_ci;
         throw new NotImplementedException();
@@ -289,6 +291,7 @@ class Schema extends BaseSchema {
      * The $tableName can contain dot (.) to refer to any table, e.g.: 'mysql.user'.
      */
     public function collationOfColumns(string $dbName, string $tableName, string $columnName): array {
+        // https://dev.mysql.com/doc/refman/5.7/en/charset-column.html
         throw new NotImplementedException();
         // SHOW FULL COLUMNS FROM table_name;
         /*

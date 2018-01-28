@@ -7,6 +7,7 @@
 namespace Morpho\Code\Reflection;
 
 use function Morpho\Code\Parsing\parseFile;
+use function Morpho\Base\contains;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
@@ -146,8 +147,12 @@ class ReflectionNamespace {
      * @return iterable Iterable over \ReflectionClass
      */
     public function classTypes(callable $filter = null): iterable {
-        /** @noinspection PhpIncludeInspection */
-        require_once $this->filePath;
+        if (contains($this->filePath, '://')) { // for streams use another approach.
+            $this->requireFile($this->filePath);
+        } else {
+            /** @noinspection PhpIncludeInspection */
+            require_once $this->filePath;
+        }
         foreach ($this->classTypes as $class) {
             $rClass = new ReflectionClass($class);
             if ($filter) {
@@ -169,5 +174,10 @@ class ReflectionNamespace {
         foreach ($this->functions as $function) {
             yield new ReflectionFunction($function);
         }
+    }
+
+    private function requireFile(string $filePath): void {
+        $php = file_get_contents($filePath);
+        eval('?>' . $php);
     }
 }

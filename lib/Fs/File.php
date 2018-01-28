@@ -31,7 +31,6 @@ class File extends Entry {
                 'length'         => null,
                 'useIncludePath' => false,
                 'context'        => null,
-                'binary'         => true,
                 'removeBom'      => true,
             ]
         );
@@ -40,10 +39,6 @@ class File extends Entry {
 
         if (false === $content) {
             throw new Exception("Unable to read the '$filePath' file");
-        }
-
-        if ($config['binary']) {
-            return $content;
         }
 
         // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
