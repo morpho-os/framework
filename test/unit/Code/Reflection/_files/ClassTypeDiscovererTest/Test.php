@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Qa\Test\Unit\Code\Reflection\ClassTypeDiscovererTest;
+namespace Morpho\Test\Unit\Code\Reflection\ClassTypeDiscovererTest;
 
 class MyClass {}
 

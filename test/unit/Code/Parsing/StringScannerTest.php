@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 
-namespace Morpho\Qa\Test\Unit\Code\Parsing;
+namespace Morpho\Test\Unit\Code\Parsing;
 
 use Morpho\Code\Parsing\StringScanner;
 use Morpho\Test\TestCase;

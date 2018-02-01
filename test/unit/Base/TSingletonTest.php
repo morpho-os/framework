@@ -4,9 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Qa\Test\Unit\Base {
+namespace Morpho\Test\Unit\Base {
     use Morpho\Test\TestCase;
-    use Morpho\Qa\Test\Unit\Base\TSingletonTest\Singleton;
+    use Morpho\Test\Unit\Base\TSingletonTest\Singleton;
 
     class TSingletonTest extends TestCase {
         public function testSingleton() {
@@ -25,7 +25,7 @@ namespace Morpho\Qa\Test\Unit\Base {
     }
 }
 
-namespace Morpho\Qa\Test\Unit\Base\TSingletonTest {
+namespace Morpho\Test\Unit\Base\TSingletonTest {
     use Morpho\Base\TSingleton;
 
     class Singleton {

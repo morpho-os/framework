@@ -1,5 +1,5 @@
 <?php
-namespace Morpho\Qa\Test\Unit\Web\Routing\ActionMetaProviderTest;
+namespace Morpho\Test\Unit\Web\Routing\ActionMetaProviderTest;
 
 class SecondParentController {
     public function secondParentAction() {

@@ -6,7 +6,7 @@ declare(strict_types=1);
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text
  */
 //declare(strict_types=1);
-namespace Morpho\Qa\Test\Unit\Infra;
+namespace Morpho\Test\Unit\Infra;
 
 use const Morpho\Base\EOL_FULL_RE;
 use function Morpho\Base\contains;

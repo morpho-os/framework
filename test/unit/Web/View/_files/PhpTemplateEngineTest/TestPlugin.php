@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Qa\Test\Unit\Web\View\PhpTemplateEngineTest;
+namespace Morpho\Test\Unit\Web\View\PhpTemplateEngineTest;
 
 class TestPlugin {
 

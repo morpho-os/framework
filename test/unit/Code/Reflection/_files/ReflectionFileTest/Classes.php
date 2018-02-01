@@ -1,7 +1,7 @@
 <?php
 //declare(strict_types=1);
 
-namespace Morpho\Qa\Test\Unit\Code\Reflection\ReflectionFileTest;
+namespace Morpho\Test\Unit\Code\Reflection\ReflectionFileTest;
 
 
 /**

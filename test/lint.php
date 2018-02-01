@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Qa\Test;
+namespace Morpho\Test;
 
 use function Morpho\Base\endsWith;
 use function Morpho\Base\startsWith;
@@ -31,9 +31,9 @@ function main(): void {
         $testDirPath = $moduleDirPath . '/' . TEST_DIR_NAME;
         if (startsWith($sourceFile->filePath(), $testDirPath)) {
             $sourceFile->setNsToLibDirPathMap([
-                'Morpho\\Qa\\Test' => $testDirPath,
-                'Morpho\\Qa\\Test\\Unit' => $testDirPath . '/unit',
-                'Morpho\\Qa\\Test\\Functional' => $testDirPath . '/functional',
+                'Morpho\\Test' => $testDirPath,
+                'Morpho\\Test\\Unit' => $testDirPath . '/unit',
+                'Morpho\\Test\\Functional' => $testDirPath . '/functional',
             ]);
         } else {
             static $nsToLibDirPathMap;

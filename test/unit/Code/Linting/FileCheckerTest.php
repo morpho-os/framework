@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Qa\Test\Unit\Code\Linting;
+namespace Morpho\Test\Unit\Code\Linting;
 
 use Morpho\Code\Linting\FileChecker;
 use Morpho\Code\Linting\SourceFile;

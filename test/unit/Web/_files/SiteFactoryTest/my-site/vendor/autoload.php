@@ -1,2 +1,2 @@
 <?php
-$GLOBALS[Morpho\Qa\Test\Unit\Web\SiteFactoryTest::class . 'Registered'] = true;
+$GLOBALS[Morpho\Test\Unit\Web\SiteFactoryTest::class . 'Registered'] = true;

@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Qa\Test\Unit\Ioc;
+namespace Morpho\Test\Unit\Ioc;
 
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;

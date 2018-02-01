@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 //declare(strict_types=1);
-namespace Morpho\Qa\Test\Unit\Infra;
+namespace Morpho\Test\Unit\Infra;
 
 /**
  * Foo bar
