@@ -25,6 +25,9 @@ utest:
 utest-stop:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/unit/TestSuite.php
 
+lint:
+	php test/lint.php
+
 clear:
 clean:
 	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/functional/*.log
