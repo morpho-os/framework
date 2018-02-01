@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\Result;
 use Morpho\Db\Sql\SelectQuery;
-use Morpho\Test\DbTestCase;
+use Morpho\Testing\DbTestCase;
 
 class SelectQueryTest extends DbTestCase {
     public function testQueryWithWhere() {

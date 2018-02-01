@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Cli;
 
 use Morpho\Cli\ICommandResult;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Cli\ShellCommandResult;
 
 class ShellCommandResultTest extends TestCase {

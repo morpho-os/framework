@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\DateTime;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class DateTimeTest extends TestCase {
     public function testIsImmutable() {

@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web\View;
 
 use Morpho\Web\View\HtmlSemiParser;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class HtmlSemiParserTest extends TestCase {
     private $parser;

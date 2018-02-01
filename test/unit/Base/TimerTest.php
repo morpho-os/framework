@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\Timer;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class TimerTest extends TestCase {
     public function testTime() {

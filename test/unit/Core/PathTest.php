@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Core;
 
 use Morpho\Core\Path;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class PathTest extends TestCase {
     public function testToRel_ThrowsExceptionWhenBasePathNotContainedWithinPath() {

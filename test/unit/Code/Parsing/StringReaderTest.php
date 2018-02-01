@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Code\Parsing;
 
 use Morpho\Code\Parsing\StringReader;
 use Morpho\Code\Parsing\SyntaxError;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class StringReaderTest extends TestCase {
     public function dataForPeekN_ValidNumberOfBytes() {

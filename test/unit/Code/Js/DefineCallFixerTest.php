@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Code\Js;
 
 use Morpho\Code\Js\DefineCallFixer;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class DefineCallFixerTest extends TestCase {
     public function testFixDefineCall_AddsModuleIdIfItIsMissing() {

@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Cli;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class ArgsParserTest extends TestCase {
     public function testFirst() {

@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\IFn;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use function Morpho\Base\{
     endsWith, formatFloat, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
 };

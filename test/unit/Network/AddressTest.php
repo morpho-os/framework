@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Network;
 
 use Morpho\Network\Address;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class AddressTest extends TestCase {
     public function dataForToString() {

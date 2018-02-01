@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Debug;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Debug\Debugger;
 use Morpho\Base\Environment;
 

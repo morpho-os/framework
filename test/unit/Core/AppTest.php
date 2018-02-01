@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Test\Unit\Core {
-    use Morpho\Test\TestCase;
+    use Morpho\Testing\TestCase;
     use Morpho\Test\Unit\Core\AppTest\App;
 
     class AppTest extends TestCase {

@@ -10,7 +10,7 @@ use LogicException;
 use Morpho\Base\InvalidConfigException;
 use Morpho\Fs\Dir;
 use Morpho\Fs\Stat;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Fs\Exception as FsException;
 
 class DirTest extends TestCase {

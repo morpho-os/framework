@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web\Routing;
 
 use Morpho\Base\IFn;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Routing\ActionMetaProvider;
 
 class ActionMetaProviderTest extends TestCase {

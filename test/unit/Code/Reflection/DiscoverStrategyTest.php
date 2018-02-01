@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Code\Reflection;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 abstract class DiscoverStrategyTest extends TestCase {
     private $strategy;

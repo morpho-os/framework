@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Error;
 
 use Morpho\Base\IFn;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Error\NoDupsListener;
 
 class NoDupsListenerTest extends TestCase {

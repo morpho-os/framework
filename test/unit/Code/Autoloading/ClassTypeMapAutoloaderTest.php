@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Code\Autoloading;
 
 use Morpho\Code\Autoloading\ClassTypeMapAutoloader;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class ClassTypeMapAutoloaderTest extends TestCase {
     public function tearDown() {

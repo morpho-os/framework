@@ -8,7 +8,7 @@
 namespace Morpho\Test\Unit\Code\Parsing;
 
 use Morpho\Code\Parsing\StringScanner;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 /**
  * Based on the following examples and tests:

@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Error;
 
 use Morpho\Base\IFn;
 use Morpho\Error\ExceptionHandler;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class ExceptionHandlerTest extends TestCase {
     public function testListeners() {

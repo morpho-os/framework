@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Error;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Error\WarningException;
 
 class PhpErrorExceptionTest extends TestCase {

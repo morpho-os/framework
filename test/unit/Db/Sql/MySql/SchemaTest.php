@@ -13,7 +13,7 @@ use Morpho\Db\Sql\MySql\ServerCharset;
 use Morpho\Db\Sql\MySql\ServerCollation;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\MySql\TableCollation;
-use Morpho\Test\DbTestCase;
+use Morpho\Testing\DbTestCase;
 
 class SchemaTest extends DbTestCase {
     /**

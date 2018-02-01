@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\DataProcessing\Pagination;
 use Countable;
 use Morpho\DataProcessing\Pagination\Page;
 use Morpho\DataProcessing\Pagination\Pager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class PagerTest extends TestCase {
     /**

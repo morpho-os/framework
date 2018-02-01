@@ -12,7 +12,7 @@ use Morpho\Core\ModuleMeta;
 use const Morpho\Core\PLUGIN_SUFFIX;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Ioc\IServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\InstanceProvider;
 use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\PhpTemplateEngine;

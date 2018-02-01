@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Xml;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Xml\Xml;
 
 class XmlTest extends TestCase {

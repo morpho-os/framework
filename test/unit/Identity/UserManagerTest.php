@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Identity;
 
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
-use Morpho\Test\DbTestCase;
+use Morpho\Testing\DbTestCase;
 use Morpho\Web\Session\Session;
 
 class UserManagerTest extends DbTestCase {

@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Network\Http;
 
 use Morpho\Network\Http\SeleniumServer;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class SeleniumServerTest extends TestCase {
     private $seleniumServer;

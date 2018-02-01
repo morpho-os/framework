@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Code\Reflection;
 
 use Morpho\Code\Reflection\IDiscoverStrategy;
 use Morpho\Code\Reflection\TokenStrategy;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Code\Reflection\ClassTypeDiscoverer;
 
 class ClassTypeDiscovererTest extends TestCase {

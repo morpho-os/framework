@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Network\Http;
 
 use InvalidArgumentException;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Network\Http\HttpClient;
 
 class HttpClientTest extends TestCase {

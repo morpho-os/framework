@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Fs;
 
 use Morpho\Fs\Dir;
 use Morpho\Fs\Link;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Fs\Exception as FsException;
 
 class LinkTest extends TestCase {

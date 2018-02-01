@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Core;
 
 use Morpho\Core\Message;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 abstract class MessageTest extends TestCase {
     public function testMessage() {

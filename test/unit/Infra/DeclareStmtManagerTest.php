@@ -2,7 +2,7 @@
 namespace Morpho\Test\Unit\Infra;
 
 use Morpho\Infra\DeclareStmtManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class DeclareStmtManagerTest extends TestCase {
     public function dataForRemoveCommentedOutDeclareStmt() {

@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\Config;
 use Morpho\Base\InvalidConfigException;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class ConfigTest extends TestCase {
     public function testInterface() {

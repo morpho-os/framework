@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web\View;
 
 use Morpho\Ioc\ServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Messages\IMessageStorage;
 use Morpho\Web\View\MessengerPlugin;

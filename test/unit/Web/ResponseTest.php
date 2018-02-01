@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Environment;
 use Morpho\Web\Response;
 

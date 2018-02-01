@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Caching;
 
 use Morpho\Caching\ICache;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 abstract class CacheTest extends TestCase {
     public function dataForCaching() {

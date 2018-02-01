@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Web\View;
 
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\ServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleMeta;
 use Morpho\Web\Request;

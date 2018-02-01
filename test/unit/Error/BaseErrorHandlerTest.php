@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Error;
 
 use function Morpho\Base\op;
 use Morpho\Error\HandlerManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 abstract class BaseErrorHandlerTest extends TestCase {
     protected $prevErrorHandler, $prevExceptionHandler, $handlerArgs;

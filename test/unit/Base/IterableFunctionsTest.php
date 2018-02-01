@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Base;
 use function Morpho\Base\{
     all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
 };
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class IterableFunctionsTest extends TestCase {
     public function dataForEmptyList() {

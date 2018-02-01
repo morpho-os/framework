@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Test;
 
-use Morpho\Test\TestCase;
-use Morpho\Test\VfsFileOpenMode;
+use Morpho\Testing\TestCase;
+use Morpho\Testing\VfsFileOpenMode;
 
 class VfsFileOpenModeTest extends TestCase {
     public function testModes() {

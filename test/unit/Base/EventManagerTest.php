@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class EventManagerTest extends TestCase {
     public function testApi() {

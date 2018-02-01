@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\Uri;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Uri\UriValidator;
 
 class UriValidatorTest extends TestCase {

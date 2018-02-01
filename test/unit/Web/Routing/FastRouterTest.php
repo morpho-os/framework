@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\Routing;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class FastRouterTest extends TestCase {
     public function testBasePath() {

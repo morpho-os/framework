@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\IFn;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class InterfacesTest extends TestCase {
     public function testIFn() {

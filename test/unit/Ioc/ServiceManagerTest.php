@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Ioc;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\ServiceNotFoundException;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Ioc\ServiceManager;
 
 class ServiceManagerTest extends TestCase {

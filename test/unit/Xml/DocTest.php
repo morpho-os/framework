@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Xml;
 use Countable;
 use Iterator;
 use Morpho\Base\InvalidConfigException;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Xml\Doc;
 
 class DocTest extends TestCase {

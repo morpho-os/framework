@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Base;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Base\Converter;
 
 class ConverterTest extends TestCase {

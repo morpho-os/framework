@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\DataProcessing\Filtering;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\DataProcessing\Filtering\PriceFilter;
 
 class PriceFilterTest extends TestCase {

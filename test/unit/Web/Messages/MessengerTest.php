@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\Messages;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Base\ArrayIterator;
 use Morpho\Web\Messages\Messenger;
 use Morpho\Web\Messages\IMessageStorage;

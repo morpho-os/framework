@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Fs;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Fs\Path;
 use Morpho\Fs\Exception as FsException;
 

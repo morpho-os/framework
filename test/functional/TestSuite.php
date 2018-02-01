@@ -11,8 +11,8 @@ use Morpho\Network\Address;
 use Morpho\Network\Http\GeckoDriverDownloader;
 use Morpho\Network\Http\SeleniumServerDownloader;
 use Morpho\Network\Http\SeleniumServer;
-use Morpho\Test\BrowserTestSuite;
-use Morpho\Test\Sut;
+use Morpho\Testing\BrowserTestSuite;
+use Morpho\Testing\Sut;
 
 class TestSuite extends BrowserTestSuite {
     /**

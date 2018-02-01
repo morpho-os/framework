@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\Session;
 
-use Morpho\Test\DbTestCase;
+use Morpho\Testing\DbTestCase;
 use Morpho\Web\Session\DbSessionHandler;
 
 class DbSessionHandlerTest extends DbTestCase {

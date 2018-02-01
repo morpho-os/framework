@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Caching;
 
 use function Morpho\Base\typeOf;
 use Morpho\Caching\VarExportFileCache;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class VarExportFileCacheTest extends TestCase {
     public function dataForCaching() {

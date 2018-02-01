@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\View;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\View\TemplateEngine;
 use Morpho\Web\View\Theme;
 use Morpho\Web\View\View;

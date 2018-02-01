@@ -10,7 +10,7 @@ use Morpho\Base\Event;
 use Morpho\Base\IFn;
 use Morpho\Core\ServiceManager;
 use Morpho\Ioc\IServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\DispatchErrorHandler;
 use Morpho\Web\EventManager;
 use Morpho\Web\Request;

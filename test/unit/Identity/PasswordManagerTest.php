@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Identity;
 
 use Morpho\Identity\PasswordManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class PasswordManagerTest extends TestCase {
     public function testGeneratePassword() {

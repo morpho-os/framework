@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Base;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Base\Must;
 
 class MustTest extends TestCase {

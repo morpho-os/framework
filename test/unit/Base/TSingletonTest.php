@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Test\Unit\Base {
-    use Morpho\Test\TestCase;
+    use Morpho\Testing\TestCase;
     use Morpho\Test\Unit\Base\TSingletonTest\Singleton;
 
     class TSingletonTest extends TestCase {

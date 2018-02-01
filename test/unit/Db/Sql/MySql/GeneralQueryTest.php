@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\MySql\GeneralQuery;
-use Morpho\Test\DbTestCase;
+use Morpho\Testing\DbTestCase;
 
 class GeneralQueryTest extends DbTestCase {
     public function dataForWhereClause() {

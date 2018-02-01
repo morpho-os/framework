@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web;
 
 use Morpho\Base\IFn;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\Request;
 

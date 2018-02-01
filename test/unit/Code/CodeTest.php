@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Code;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Code\Code;
 
 class CodeTest extends TestCase {

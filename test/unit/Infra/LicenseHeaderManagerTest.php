@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Infra;
 
 use Morpho\Infra\LicenseHeaderManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class LicenseHeaderManagerTest extends TestCase {
     public function testUpdateLicenseHeader_ThrowsExceptionForInvalidLicenseText() {

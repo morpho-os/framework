@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Core;
 use Morpho\Core\ModuleIndex;
 use Morpho\Core\IModuleIndexer;
 use Morpho\Core\ModuleMeta;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class ModuleIndexTest extends TestCase {
     public function testRebuild() {

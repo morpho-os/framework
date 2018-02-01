@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\Session;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Session\Session;
 
 class SessionTest extends TestCase {

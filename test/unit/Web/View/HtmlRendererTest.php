@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web\View;
 
 use Morpho\Ioc\IServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Request;
 use Morpho\Web\Response;
 use Morpho\Web\View\HtmlRenderer;

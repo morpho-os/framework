@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\ContentNegotiator;
 use Morpho\Web\JsonResult;
 use Morpho\Web\Request;

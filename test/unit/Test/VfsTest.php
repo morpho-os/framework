@@ -9,8 +9,8 @@ namespace Morpho\Test\Unit\Test;
 use function Morpho\Base\startsWith;
 use Morpho\Fs\IFs;
 use Morpho\Fs\Stat;
-use Morpho\Test\Vfs;
-use Morpho\Test\TestCase;
+use Morpho\Testing\Vfs;
+use Morpho\Testing\TestCase;
 
 class VfsTest extends TestCase {
     private $umask;

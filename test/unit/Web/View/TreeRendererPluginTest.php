@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Web\View;
 
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\View\TreeRendererPlugin;
 
 class TreeRendererPluginTest extends TestCase {

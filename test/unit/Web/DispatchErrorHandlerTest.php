@@ -10,7 +10,7 @@ use Monolog\Logger;
 use Morpho\Base\IFn;
 use const Morpho\Core\VENDOR;
 use Morpho\Ioc\ServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\AccessDeniedException;
 use Morpho\Web\BadRequestException;
 use Morpho\Web\DispatchErrorHandler;

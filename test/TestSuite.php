@@ -7,9 +7,9 @@
 namespace Morpho\Test;
 
 use const Morpho\Core\TEST_DIR_NAME;
-use Morpho\Test\Sut;
+use Morpho\Testing\Sut;
 
-class TestSuite extends \Morpho\Test\TestSuite {
+class TestSuite extends \Morpho\Testing\TestSuite {
     public function testFilePaths(): iterable {
         $sut = Sut::instance();
 

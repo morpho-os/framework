@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web;
 
 use const Morpho\Core\CONFIG_DIR_NAME;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\SiteFactory;
 use Morpho\Web\BadRequestException;
 

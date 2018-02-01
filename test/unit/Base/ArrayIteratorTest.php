@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\ArrayIterator;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class ArrayIteratorTest extends TestCase {
     private $it;

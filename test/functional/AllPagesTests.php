@@ -7,7 +7,7 @@
 namespace Morpho\Test\Functional;
 
 use Facebook\WebDriver\WebDriverBy as By;
-use Morpho\Test\BrowserTestCase;
+use Morpho\Testing\BrowserTestCase;
 
 class AllPagesTests extends BrowserTestCase {
     private $homePageTitle = 'Hello World!';

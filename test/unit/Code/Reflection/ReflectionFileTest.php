@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Code\Reflection;
 
 use Morpho\Code\Reflection\ReflectionFile;
 use Morpho\Code\Reflection\ReflectionNamespace;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Code\Reflection\ReflectionClass;
 use ReflectionFunction;
 

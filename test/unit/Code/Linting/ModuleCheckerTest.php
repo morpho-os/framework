@@ -8,8 +8,8 @@ namespace Morpho\Test\Unit\Code\Linting;
 
 use Morpho\Code\Linting\FileChecker;
 use Morpho\Code\Linting\ModuleChecker;
-use Morpho\Test\TestCase;
-use Morpho\Test\Vfs;
+use Morpho\Testing\TestCase;
+use Morpho\Testing\Vfs;
 
 class ModuleCheckerTest extends TestCase {
     public function setUp() {

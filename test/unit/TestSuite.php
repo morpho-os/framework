@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit;
 
-class TestSuite extends \Morpho\Test\TestSuite {
+class TestSuite extends \Morpho\Testing\TestSuite {
     public function testFilePaths(): iterable {
         return $this->testFilesInDir(__DIR__);
     }

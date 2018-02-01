@@ -10,7 +10,7 @@ use Morpho\Fs\Entry;
 use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\File;
 use Morpho\Fs\FileNotFoundException;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class FileTest extends TestCase {
     public function testInheritance() {

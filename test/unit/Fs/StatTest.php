@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Fs;
 
 use Morpho\Base\Environment;
 use Morpho\Fs\Stat;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class StatTest extends TestCase {
     public function setUp() {

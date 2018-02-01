@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\Stack;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class StackTest extends TestCase {
     public function testInterface() {

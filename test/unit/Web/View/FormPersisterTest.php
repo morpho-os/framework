@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Web\View;
 
 use Morpho\Ioc\ServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\Request;
 use Morpho\Web\Uri\Uri;
 use Morpho\Web\View\FormPersister;

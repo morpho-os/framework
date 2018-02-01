@@ -10,7 +10,7 @@ use const Morpho\Core\CONTROLLER_SUFFIX;
 use Morpho\Core\ModuleIndex;
 use Morpho\Core\ModuleMeta;
 use Morpho\Ioc\IServiceManager;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Web\InstanceProvider;
 use Morpho\Web\NotFoundException;
 use Morpho\Web\Request;

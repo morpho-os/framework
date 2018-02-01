@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Fs;
 
 use Morpho\Fs\Entry;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class EntryTest extends TestCase {
     public function testCopy_File() {

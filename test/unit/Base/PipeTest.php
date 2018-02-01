@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\IFn;
 use Morpho\Base\Pipe;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class PipeTest extends TestCase {
     public function testInterface() {

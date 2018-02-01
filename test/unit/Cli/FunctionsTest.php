@@ -12,7 +12,7 @@ use function Morpho\Cli\{
     argsToStr, envVarsToStr, shell, escapeArgs, proc, showOk, stylize
 };
 use Morpho\Cli\ProcCommandResult;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 
 class FunctionsTest extends TestCase {
     public function testShowOk() {

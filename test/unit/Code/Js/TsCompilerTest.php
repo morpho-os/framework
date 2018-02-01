@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Code\Js;
 
 use Morpho\Base\IFn;
-use Morpho\Test\TestCase;
+use Morpho\Testing\TestCase;
 use Morpho\Code\Js\TsCompiler;
 
 class TsCompilerTest extends TestCase {
