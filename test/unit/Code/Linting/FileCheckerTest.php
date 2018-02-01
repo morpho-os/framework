@@ -22,57 +22,6 @@ class FileCheckerTest extends TestCase {
         Vfs::unregister();
     }
 
-    public function testCheckMetaFile_MetaFileNotExists() {
-        $moduleDirPath = $this->getTestDirPath() . '/non-existing';
-
-        $metaFilePath = $moduleDirPath . '/composer.json';
-        $errors = FileChecker::checkMetaFile($metaFilePath);
-
-        $this->assertSame([FileChecker::META_FILE_NOT_FOUND], $errors);
-    }
-
-    public function dataForCheckMetaFile_InvalidMetaFileFormat() {
-        yield ['test'];
-        yield [json_encode(['foo' => 'bar'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)];
-    }
-
-    /**
-     * @dataProvider dataForCheckMetaFile_InvalidMetaFileFormat
-     */
-    public function testCheckMetaFile_InvalidMetaFileFormat(string $metaFileContents) {
-        $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-
-        $metaFileUri = $moduleDirUri . '/composer.json';
-        $this->createTestMetaFile($metaFileUri, $metaFileContents);
-
-        $errors = FileChecker::checkMetaFile($metaFileUri);
-
-        $this->assertSame([FileChecker::INVALID_META_FILE_FORMAT], $errors);
-    }
-    
-    public function testCheckMetaFile_ValidFormat() {
-        $ns = 'Morpho\\';
-        $relLibDirPath = 'lib/';
-        $metaFileContents = <<<OUT
-{
-    "name": "foo/bar",
-    "autoload": {
-        "psr-4": {
-            "$ns\\": "$relLibDirPath"
-        }
-    }
-}
-OUT;
-        $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
-
-        $metaFileUri = $moduleDirUri . '/composer.json';
-        $this->createTestMetaFile($metaFileUri, $metaFileContents);
-
-        $errors = FileChecker::checkMetaFile($metaFileUri);
-
-        $this->assertSame([], $errors);
-    }
-
     public function testCheckNamespaces_NsNotFound() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
         $classFileUri = $moduleDirUri . '/test/bar';
@@ -187,10 +136,5 @@ OUT;
         file_put_contents($classFileUri, $sourceFileContents);
         $sourceFile = new SourceFile($classFileUri);
         return $sourceFile;
-    }
-
-    private function createTestMetaFile(string $metaFileUri, string $metaFileContents): void {
-        mkdir(Vfs::parentDirUri($metaFileUri), 0755, true);
-        file_put_contents($metaFileUri, $metaFileContents);
     }
 }

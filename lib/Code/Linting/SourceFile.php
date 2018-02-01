@@ -14,12 +14,22 @@ class SourceFile extends \ArrayObject {
 
     private $nsToDirPathMap;
 
+    private $moduleDirPath;
+
     public function __construct(string $filePath) {
         $this->filePath = $filePath;
     }
 
     public function filePath(): string {
         return $this->filePath;
+    }
+
+    public function setModuleDirPath(string $moduleDirPath): void {
+        $this->moduleDirPath = $moduleDirPath;
+    }
+
+    public function moduleDirPath(): string {
+        return $this->moduleDirPath;
     }
 
     public function setNsToLibDirPathMap(array $nsToDirPathMap): void {

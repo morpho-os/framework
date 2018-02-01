@@ -14,6 +14,11 @@ use Morpho\Code\Reflection\ReflectionFile;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
+/*
+@TODO
+Add an option to fix the class name (if does not match and fix only first)
+Add an option to fix namespace, (if does not match and fix only first)
+*/
 class FileChecker {
     public const META_FILE_NOT_FOUND = 'metaFileNotFound';
     public const INVALID_META_FILE_FORMAT = 'invalidMetaFileFormat';
@@ -21,33 +26,11 @@ class FileChecker {
     public const INVALID_CLASS = 'invalidClass';
     public const INVALID_NS = 'invalidNs';
 
-/*
-    public function checkFile(SourceFile $sourceFile): array {
-@TODO
-Add an option to fix the class name (if not match and fix only first)
-Add an option to fix namespace, (if not match and fix only first)
-
-        $errors = $this->checkNamespaces($sourceFile);
-        $errors = array_merge($errors, $this->checkClassTypes($sourceFile));
-        return $errors;
-    }
-*/
-
-    public static function checkMetaFile(string $metaFilePath): array {
+    public static function checkFile(SourceFile $sourceFile): array {
         $errors = [];
-        if (!is_file($metaFilePath)) {
-            $errors[] = 'metaFileNotFound';
-        } else {
-            try {
-                $moduleMeta = File::readJson($metaFilePath);
-                if (!isset($moduleMeta['autoload']['psr-4'])) {
-                    $errors[] = self::INVALID_META_FILE_FORMAT;
-                }
-            } catch (\RuntimeException $e) {
-                $errors[] = self::INVALID_META_FILE_FORMAT;
-            }
-        }
-        return $errors;
+        $errors = array_merge($errors, FileChecker::checkNamespaces($sourceFile));
+        $errors = array_merge($errors, FileChecker::checkClassTypes($sourceFile));
+        return count($errors) ? [$sourceFile->filePath() => $errors] : [];
     }
 
     public static function checkNamespaces(SourceFile $sourceFile): array {
