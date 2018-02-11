@@ -11,7 +11,6 @@ use function Morpho\Base\last;
 use function Morpho\Base\startsWith;
 use Morpho\Code\Reflection\ClassTypeDiscoverer;
 use Morpho\Code\Reflection\ReflectionFile;
-use Morpho\Fs\File;
 use Morpho\Fs\Path;
 
 /*
@@ -35,7 +34,7 @@ class FileChecker {
 
     public static function checkNamespaces(SourceFile $sourceFile): array {
         $expectedNss = [];
-        foreach ($sourceFile->nsToLibDirPathMap() as $nsPrefix => $libDirPath) {
+        foreach ($sourceFile->nsToDirPathMap() as $nsPrefix => $libDirPath) {
             if (!Path::isAbs($libDirPath)) {
                 $pos = strpos($libDirPath, '://'); // URI like vfs:///foo
                 if (false !== $pos) {

@@ -7,40 +7,46 @@
 namespace Morpho\Infra;
 
 use function Morpho\Base\showLn;
-use function Morpho\Cli\errorLn;
+use function Morpho\Base\wrapQ;
+use function Morpho\Cli\showErrorLn;
+use function Morpho\Cli\showOk;
 use Morpho\Code\Linting\FileChecker;
 use Morpho\Code\Linting\ModuleChecker;
 use Morpho\Code\Linting\SourceFile;
-use const Morpho\Core\LIB_DIR_NAME;
-use Morpho\Fs\Dir;
 
 class Linter {
-    public static function checkModule(string $moduleDirPath, iterable $filesIter, callable $initSourceFile): array {
+    /**
+     * @param string $moduleDirPath
+     * @param iterable Iterable yielding \Morpho\Infra\IPsr4MappingProvider
+     * @return array
+     */
+    public static function checkModule(string $moduleDirPath, iterable $mappers): array {
         showLn('Checking composer.json...');
         $errors = ModuleChecker::checkMetaFile($moduleDirPath . '/composer.json');
         if (!$errors) {
-            showLn("Checking the files...");
-            foreach ($filesIter as $filePath) {
-                //showLn('Checking the file ' . $filePath . '...');
-                $sourceFile = new SourceFile($filePath);
-                $sourceFile->setModuleDirPath($moduleDirPath);
-                $initSourceFile($sourceFile);
-                $errors = array_merge($errors, FileChecker::checkFile($sourceFile));
+            showOk();
+            foreach ($mappers as $mapper) {
+                $mappingErrors = [];
+                /** @var \Morpho\Infra\IPsr4MappingProvider $mapper */
+                showLn('Checking ' . wrapQ($mapper->nsPrefix()) . ' -> ' . wrapQ($mapper->baseDirPath()));
+                foreach ($mapper->filePaths() as $filePath) {
+                    $sourceFile = new SourceFile($filePath);
+                    $sourceFile->setNsToDirPathMap([
+                        $mapper->nsPrefix() => $mapper->baseDirPath(),
+                    ]);
+                    $checkFileErrors = FileChecker::checkFile($sourceFile);
+                    $mappingErrors = array_merge($mappingErrors, $checkFileErrors);
+                }
+                if (!$mappingErrors) {
+                    showOk();
+                } else {
+                    $errors = array_merge($errors, $mappingErrors);
+                    showErrorLn('Some errors found');
+                }
             }
+        } else {
+            showErrorLn('Some errors found');
         }
         return $errors;
-    }
-
-    public static function showResult(array $errors): void {
-        if ($errors) {
-            var_dump($errors);
-            errorLn('Errors found');
-        } else {
-            showLn('All files are OK');
-        }
-    }
-
-    public static function libDirIter(string $baseDirPath): iterable {
-        return Dir::filePaths($baseDirPath . '/' . LIB_DIR_NAME, '~\.php$~s', true);
     }
 }

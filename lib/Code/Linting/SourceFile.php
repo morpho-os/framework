@@ -14,8 +14,6 @@ class SourceFile extends \ArrayObject {
 
     private $nsToDirPathMap;
 
-    private $moduleDirPath;
-
     public function __construct(string $filePath) {
         $this->filePath = $filePath;
     }
@@ -24,19 +22,11 @@ class SourceFile extends \ArrayObject {
         return $this->filePath;
     }
 
-    public function setModuleDirPath(string $moduleDirPath): void {
-        $this->moduleDirPath = $moduleDirPath;
-    }
-
-    public function moduleDirPath(): string {
-        return $this->moduleDirPath;
-    }
-
-    public function setNsToLibDirPathMap(array $nsToDirPathMap): void {
+    public function setNsToDirPathMap(array $nsToDirPathMap): void {
         $this->nsToDirPathMap = $nsToDirPathMap;
     }
 
-    public function nsToLibDirPathMap(): array {
+    public function nsToDirPathMap(): array {
         return $this->nsToDirPathMap;
     }
 }

@@ -1,54 +1,52 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Test;
 
-use function Morpho\Base\endsWith;
-use function Morpho\Base\startsWith;
-use Morpho\Code\Linting\SourceFile;
-use const Morpho\Core\LIB_DIR_NAME;
-use const Morpho\Core\TEST_DIR_NAME;
-use Morpho\Fs\File;
+use Morpho\Fs\Dir;
 use Morpho\Fs\Path;
-use Morpho\Infra\FilesIter;
 use Morpho\Infra\Linter;
+use Morpho\Infra\Psr4MappingProvider;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+class TestClassesMappingProvider extends Psr4MappingProvider {
+    public function filePaths(): iterable {
+        return Dir::filePaths($this->baseDirPath, function ($filePath) {
+            return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
+        }, true);
+    }
+}
+
 function main(): void {
     $moduleDirPath = realpath(__DIR__ . '/..');
-
-    $filesIter = function (string $baseModuleDirPath): iterable {
-        foreach (new FilesIter($baseModuleDirPath) as $filePath) {
-            if (startsWith($filePath, $baseModuleDirPath . '/' . LIB_DIR_NAME)) {
-                yield $filePath;
-            } elseif (startsWith($filePath, $baseModuleDirPath . '/' . TEST_DIR_NAME) && (endsWith($filePath, 'Test.php') || endsWith($filePath, 'Suite.php'))) {
-                yield $filePath;
-            }
-        }
+    $mappers = [];
+    $absDirPath = function (string $relDirPath) use ($moduleDirPath) {
+        return Path::combine($moduleDirPath, $relDirPath);
+    };
+    $fqNs = function ($ns) {
+        return 'Morpho\\' . trim($ns, '\\') . '\\';
     };
 
-    $initSourceFile = function (SourceFile $sourceFile) {
-        $moduleDirPath = $sourceFile->moduleDirPath();
-        $testDirPath = $moduleDirPath . '/' . TEST_DIR_NAME;
-        if (startsWith($sourceFile->filePath(), $testDirPath)) {
-            $sourceFile->setNsToLibDirPathMap([
-                'Morpho\\Test' => $testDirPath,
-                'Morpho\\Test\\Unit' => $testDirPath . '/unit',
-                'Morpho\\Test\\Functional' => $testDirPath . '/functional',
-            ]);
-        } else {
-            static $nsToLibDirPathMap;
-            if (!$nsToLibDirPathMap) {
-                foreach (File::readJson($moduleDirPath . '/composer.json')['autoload']['psr-4'] as $ns => $relLibDirPath) {
-                    $nsToLibDirPathMap[$ns] = Path::combine($moduleDirPath, $relLibDirPath);
-                }
-            }
-            $sourceFile->setNsToLibDirPathMap($nsToLibDirPathMap);
+    $mappers[] = new class ('Morpho\\', $absDirPath('lib')) extends Psr4MappingProvider {
+        public function filePaths(): iterable {
+            return Dir::filePaths($this->baseDirPath, '~\.php$~', true);
         }
     };
-
-    Linter::showResult(
-        Linter::checkModule($moduleDirPath, $filesIter($moduleDirPath), $initSourceFile)
-    );
+    $mappers[] = new class ($fqNs('Test'), $absDirPath('test')) extends Psr4MappingProvider {
+        public function filePaths(): iterable {
+            return Dir::filePaths($this->baseDirPath, function ($filePath) {
+                return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
+            }, false);
+        }
+    };
+    $mappers[] = new class ($fqNs('Test\\Unit'), $absDirPath('test/unit')) extends TestClassesMappingProvider {};
+    $mappers[] = new class ($fqNs('Test\\Functional'), $absDirPath('test/functional')) extends TestClassesMappingProvider {};
+    // @TODO: Add modules
+    Linter::checkModule($moduleDirPath, $mappers);
 }
 
 main();

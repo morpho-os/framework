@@ -26,7 +26,7 @@ class FileCheckerTest extends TestCase {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
         $classFileUri = $moduleDirUri . '/test/bar';
         $sourceFile = $this->createTestSourceFile($classFileUri, '<?php ');
-        $sourceFile->setNsToLibDirPathMap([
+        $sourceFile->setNsToDirPathMap([
             __NAMESPACE__ . '\\Foo\\Bar' => $moduleDirUri . '/shelf/book/',
         ]);
 
@@ -48,7 +48,7 @@ OUT;
 
         $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile->setNsToLibDirPathMap([
+        $sourceFile->setNsToDirPathMap([
             $nsPrefix => $libDirPath,
         ]);
 
@@ -72,7 +72,7 @@ OUT;
 
         $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile->setNsToLibDirPathMap([
+        $sourceFile->setNsToDirPathMap([
             $nsPrefix . '\\' => $libDirPath,
         ]);
 
@@ -97,7 +97,7 @@ OUT;
 
         $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile->setNsToLibDirPathMap([
+        $sourceFile->setNsToDirPathMap([
             $nsPrefix . '\\' => $libDirPath,
         ]);
 
@@ -122,7 +122,7 @@ OUT;
 
         $sourceFile = $this->createTestSourceFile($classFileUri, $sourceFileContents);
 
-        $sourceFile->setNsToLibDirPathMap([
+        $sourceFile->setNsToDirPathMap([
             $nsPrefix . '\\' => $libDirPath,
         ]);
 
