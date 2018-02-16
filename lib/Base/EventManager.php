@@ -40,14 +40,14 @@ class EventManager implements IEventManager {
      */
     public function trigger(Event $event) {
         $name = $event->name;
-        if (!isset($this->handlers[$name])) {
-            return null;
-        }
-        foreach ($this->handlers[$name] as $handler) {
-            $result = $handler($event);
-            if (null !== $result) {
-                return $result;
+        if (isset($this->handlers[$name])) {
+            foreach ($this->handlers[$name] as $handler) {
+                $result = $handler($event);
+                if (null !== $result) {
+                    return $result;
+                }
             }
         }
+        return null;
     }
 }

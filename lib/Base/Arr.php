@@ -15,11 +15,11 @@ class Arr {
      */
     public static function union(...$arr): array {
         // @TODO: make it work for array of arrays and other cases.
-        return array_unique(array_merge(...$arr));
+        return \array_unique(\array_merge(...$arr));
     }
 
     public static function intersect(...$arr): array {
-        return array_intersect_key(...$arr);
+        return \array_intersect_key(...$arr);
     }
 
     /**
@@ -27,8 +27,8 @@ class Arr {
      * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
      */
     public static function symmetricDiff(array $a, array $b): array {
-        $diffA = array_diff($a, $b);
-        $diffB = array_diff($b, $a);
+        $diffA = \array_diff($a, $b);
+        $diffB = \array_diff($b, $a);
         return self::union($diffA, $diffB);
     }
 
@@ -59,7 +59,7 @@ class Arr {
      * The $arr must be either empty or non-empty and have numeric keys.
      */
     public static function subsets(array $arr): array {
-        if (count($arr) > (8 * PHP_INT_SIZE)) {
+        if (\count($arr) > (8 * PHP_INT_SIZE)) {
             throw new OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
         }
         $subsets = [];
