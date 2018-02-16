@@ -737,8 +737,8 @@ function filter(callable $predicate, $iter) {
  *     flatMap(function($v) { return [-$v, $v]; }, [1, 2, 3, 4, 5]);
  *     => iterable(-1, 1, -2, 2, -3, 3, -4, 4, -5, 5)
  *
- * @param callable $function Mapping function: iterable function(mixed $value)
- * @param iterable|string $iterable Iterable to be mapped over
+ * @param callable $fn Mapping function: iterable function(mixed $value)
+ * @param iterable|string $iter Iterable to be mapped over
  *
  * @return string|\Generator|array
  */
@@ -829,7 +829,7 @@ function init($list, string $separator = null) {
             : \substr($list, 0, $pos);
     } else {
         $empty = true;
-        foreach ($list as $v) {
+        foreach ($list as $_) {
             $empty = false;
         }
         if ($empty) {
@@ -917,7 +917,7 @@ function prepend(array $it, string $prefix): array {
  *      reduce(op('*'), range(1, 5), 1)
  *      => 120
  *
- * @param callable $function Reduction function: (mixed $acc, mixed $curValue, mixed $curKey)
+ * @param callable $fn Reduction function: (mixed $acc, mixed $curValue, mixed $curKey)
  *     where $acc is the accumulator
  *           $curValue is the current element
  *           $curKey is a key of the current element
