@@ -6,7 +6,7 @@
  */
 namespace Morpho\Infra;
 
-abstract class Psr4MappingProvider implements IPsr4MappingProvider {
+class Psr4Mapper implements IPsr4Mapper {
     /**
      * @var string
      */
@@ -17,9 +17,12 @@ abstract class Psr4MappingProvider implements IPsr4MappingProvider {
      */
     protected $baseDirPath;
 
-    public function __construct(string $ns, string $baseDirPath) {
+    private $provideFilePaths;
+
+    public function __construct(string $ns, string $baseDirPath, callable $provideFilePaths) {
         $this->nsPrefix = $ns;
         $this->baseDirPath = $baseDirPath;
+        $this->provideFilePaths = $provideFilePaths;
     }
 
     public function nsPrefix(): string {
@@ -28,5 +31,9 @@ abstract class Psr4MappingProvider implements IPsr4MappingProvider {
 
     public function baseDirPath(): string {
         return $this->baseDirPath;
+    }
+
+    public function filePaths(): iterable {
+        return ($this->provideFilePaths)($this->nsPrefix, $this->baseDirPath);
     }
 }

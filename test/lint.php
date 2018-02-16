@@ -6,20 +6,11 @@
  */
 namespace Morpho\Test;
 
-use Morpho\Fs\Dir;
+use Morpho\Code\Linting\Linter;
 use Morpho\Fs\Path;
-use Morpho\Infra\Linter;
-use Morpho\Infra\Psr4MappingProvider;
+use Morpho\Infra\Psr4Mapper;
 
 require __DIR__ . '/../vendor/autoload.php';
-
-class TestClassesMappingProvider extends Psr4MappingProvider {
-    public function filePaths(): iterable {
-        return Dir::filePaths($this->baseDirPath, function ($filePath) {
-            return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
-        }, true);
-    }
-}
 
 function main(): void {
     $moduleDirPath = realpath(__DIR__ . '/..');
@@ -30,23 +21,12 @@ function main(): void {
     $fqNs = function ($ns) {
         return 'Morpho\\' . trim($ns, '\\') . '\\';
     };
-
-    $mappers[] = new class ('Morpho\\', $absDirPath('lib')) extends Psr4MappingProvider {
-        public function filePaths(): iterable {
-            return Dir::filePaths($this->baseDirPath, '~\.php$~', true);
-        }
-    };
-    $mappers[] = new class ($fqNs('Test'), $absDirPath('test')) extends Psr4MappingProvider {
-        public function filePaths(): iterable {
-            return Dir::filePaths($this->baseDirPath, function ($filePath) {
-                return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
-            }, false);
-        }
-    };
-    $mappers[] = new class ($fqNs('Test\\Unit'), $absDirPath('test/unit')) extends TestClassesMappingProvider {};
-    $mappers[] = new class ($fqNs('Test\\Functional'), $absDirPath('test/functional')) extends TestClassesMappingProvider {};
+    $mappers[] = new Psr4Mapper('Morpho\\', $absDirPath('lib'), Linter::phpFilePaths());
+    $mappers[] = new Psr4Mapper($fqNs('Test'), $absDirPath('test'), Linter::testFilePaths(false));
+    $mappers[] = new Psr4Mapper($fqNs('Test\\Unit'), $absDirPath('test/unit'), Linter::testFilePaths(true));
+    $mappers[] = new Psr4Mapper($fqNs('Test\\Functional'), $absDirPath('test/functional'), Linter::testFilePaths(true));
     // @TODO: Add modules
-    Linter::checkModule($moduleDirPath, $mappers);
+    exit((int)!Linter::checkModule($moduleDirPath, $mappers));
 }
 
 main();

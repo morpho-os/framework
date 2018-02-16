@@ -6,7 +6,7 @@
  */
 namespace Morpho\Infra;
 
-interface IPsr4MappingProvider {
+interface IPsr4Mapper {
     /**
      * Returns namespace prefix
      */
