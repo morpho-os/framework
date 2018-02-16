@@ -28,7 +28,7 @@ abstract class InstanceProvider implements IFn {
     private $serviceManager;
 
     public function __construct(IServiceManager $serviceManager) {
-        $this->moduleIndex = $serviceManager->get('moduleIndex');
+        $this->moduleIndex = $serviceManager['moduleIndex'];
         $this->serviceManager = $serviceManager;
     }
 

@@ -29,7 +29,7 @@ class FormPersisterTest extends TestCase {
         $request->expects($this->any())
             ->method('uri')
             ->willReturn($uri);
-        $serviceManager->set('request', $request);
+        $serviceManager['request'] = $request;
         $this->formPersister = new FormPersister($serviceManager);
     }
 

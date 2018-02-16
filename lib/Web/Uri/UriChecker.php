@@ -20,7 +20,7 @@ class UriChecker implements IFn {
      * @param Uri $uri
      */
     public function __invoke($uri): bool {
-        $site = $this->serviceManager->get('site');
+        $site = $this->serviceManager['site'];
         return in_array($uri->authority()->host(), $site->config()['hostNames']);
     }
 }

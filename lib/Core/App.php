@@ -43,9 +43,9 @@ abstract class App implements IHasServiceManager {
     public function run() {
         $serviceManager = $this->serviceManager();
         /** @var Request $request */
-        $request = $serviceManager->get('request');
-        $serviceManager->get('router')->route($request);
-        $serviceManager->get('dispatcher')->dispatch($request);
+        $request = $serviceManager['request'];
+        $serviceManager['router']->route($request);
+        $serviceManager['dispatcher']->dispatch($request);
         $response = $request->response();
         $response->send();
         return $response;
@@ -70,7 +70,7 @@ abstract class App implements IHasServiceManager {
         $serviceManager = $this->serviceManager;
         if ($serviceManager) {
             try {
-                $serviceManager->get('errorHandler')->handleException($e);
+                $serviceManager['errorHandler']->handleException($e);
             } catch (\Throwable $e) {
                 static::logErrorFallback($e);
             }

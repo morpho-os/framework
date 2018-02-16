@@ -73,6 +73,6 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     }
 
     protected function messenger() {
-        return $this->serviceManager->get('messenger');
+        return $this->serviceManager['messenger'];
     }
 }

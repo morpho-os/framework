@@ -6,15 +6,15 @@
  */
 namespace Morpho\Ioc;
 
-interface IServiceManager {
+interface IServiceManager extends \ArrayAccess {
     public function setConfig($config): void;
 
     public function config();
 
     /**
      * @return mixed
-     */
+
     public function get(string $id);
 
-    public function set(string $id, $service): void;
+    public function set(string $id, $service): void;     */
 }

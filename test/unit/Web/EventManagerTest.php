@@ -54,7 +54,7 @@ class EventManagerTest extends TestCase {
             ->method('config')
             ->willReturn($config);
         $serviceManager->expects($this->once())
-            ->method('get')
+            ->method('offsetGet')
             ->with($this->identicalTo('dispatchErrorHandler'))
             ->will($this->returnValue($dispatchErrorHandler));
         /** @noinspection PhpParamsInspection */
@@ -69,7 +69,7 @@ class EventManagerTest extends TestCase {
         $request = $this->newConfiguredRequest(true, false, $this->createMock(Page::class));
         $serviceManager = $this->createMock(ServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->with('contentNegotiator')
             ->willReturn(new class {
                 public function __invoke() {

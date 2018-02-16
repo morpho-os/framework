@@ -71,7 +71,7 @@ class Controller extends BaseController implements IHasServiceManager {
     }
 
     protected function messenger(): Messenger {
-        return $this->serviceManager->get('messenger');
+        return $this->serviceManager['messenger'];
     }
 
     protected function forward(string $actionName, string $controllerName = null, string $moduleName = null, array $routingParams = null): void {

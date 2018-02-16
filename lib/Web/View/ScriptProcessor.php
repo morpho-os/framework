@@ -102,8 +102,8 @@ class ScriptProcessor extends HtmlProcessor {
     private function actionScripts(): array {
         [$module, $controller, $action] = $this->request()->handler();
         $serviceManager = $this->serviceManager;
-        $siteModuleName = $serviceManager->get('site')->moduleName();
-        $publicDirPath = $serviceManager->get('moduleIndex')->moduleMeta($siteModuleName)->publicDirPath();
+        $siteModuleName = $serviceManager['site']->moduleName();
+        $publicDirPath = $serviceManager['moduleIndex']->moduleMeta($siteModuleName)->publicDirPath();
         // @TODO: Add automatic compilation of ts
         $jsModuleId = dasherize(last($module, '/')) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
         $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';

@@ -45,7 +45,7 @@ class EventManager extends BaseEventManager {
 
     protected function onDispatchError(Event $event): void {
         /** @var DispatchErrorHandler $dispatchErrorHandler */
-        $dispatchErrorHandler = $this->serviceManager->get('dispatchErrorHandler');
+        $dispatchErrorHandler = $this->serviceManager['dispatchErrorHandler'];
         $config = $this->serviceManager->config()['dispatchErrorHandler'];
         $dispatchErrorHandler->throwErrors($config['throwErrors']);
         if (isset($config['handlers'])) {
@@ -70,7 +70,7 @@ class EventManager extends BaseEventManager {
         $serviceManager = $this->serviceManager;
 
         /** @var IFn $renderer */
-        $format = $serviceManager->get('contentNegotiator')->__invoke($request);
+        $format = $serviceManager['contentNegotiator']->__invoke($request);
         $renderer = $this->newRenderer($format, $serviceManager);
         $renderer->__invoke($request);
     }

@@ -78,11 +78,11 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
 /*    public function isUserLoggedIn(): bool {
-        return $this->serviceManager->get('userManager')->isUserLoggedIn();
+        return $this->serviceManager['userManager']->isUserLoggedIn();
     }
 
     public function loggedInUser() {
-        return $this->serviceManager->get('userManager')->loggedInUser();
+        return $this->serviceManager['userManager']->loggedInUser();
     }*/
 
     public function uri(): Uri {
@@ -147,8 +147,8 @@ class PhpTemplateEngine extends TemplateEngine {
         $moduleName = $this->request()->moduleName();
 
         $serviceManager = $this->serviceManager;
-        $moduleMeta = $serviceManager->get('moduleIndex')->moduleMeta($moduleName);
-        $instanceProvider = $serviceManager->get('instanceProvider');
+        $moduleMeta = $serviceManager['moduleIndex']->moduleMeta($moduleName);
+        $instanceProvider = $serviceManager['instanceProvider'];
         $classFilePath = $instanceProvider->classFilePath($moduleMeta, 'Web\\View\\' . $name . self::PLUGIN_SUFFIX);
         if (false === $classFilePath) {
             $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
@@ -168,7 +168,7 @@ class PhpTemplateEngine extends TemplateEngine {
 
     protected function request(): Request {
         if (null === $this->request) {
-            $this->request = $this->serviceManager->get('request');
+            $this->request = $this->serviceManager['request'];
         }
         return $this->request;
     }

@@ -45,7 +45,7 @@ class InstanceProviderTest extends TestCase {
             'moduleIndex' => $moduleIndex,
         ];
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->willReturnCallback(function ($id) use ($services) {
                 return $services[$id];
             });

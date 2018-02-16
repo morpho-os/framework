@@ -22,7 +22,7 @@ class ModuleMetaIterator extends BaseModuleMetaIterator {
 
     protected function init(IServiceManager $serviceManager): void {
         parent::init($serviceManager);
-        $site = $serviceManager->get('site');
+        $site = $serviceManager['site'];
         $siteConfig = $site->config();
         $this->enabledModules = array_flip(array_keys($siteConfig['modules']));
         $siteModuleName = $site->moduleName();

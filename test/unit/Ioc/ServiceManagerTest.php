@@ -19,6 +19,23 @@ class ServiceManagerTest extends TestCase {
         $this->serviceManager = new MyServiceManager;
     }
 
+    public function testArrayAccess() {
+        $this->assertInstanceOf(\ArrayObject::class, $this->serviceManager);
+        $id = __FUNCTION__;
+        $value = 'bar';
+        $this->assertFalse(isset($this->serviceManager[$id]));
+        $this->serviceManager[$id] = $value;
+        $this->assertSame($value, $this->serviceManager[$id]);
+        $this->assertTrue(isset($this->serviceManager[$id]));
+        unset($this->serviceManager[$id]);
+        $this->assertFalse(isset($this->serviceManager[$id]));
+    }
+
+    public function testArrayAccess_OffsetExists_ReturnsTrueIfContainerCanReturnEntryForId() {
+        // See [PHP docs for the ContainerInterface::has()](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md#31-psrcontainercontainerinterface)
+        $this->assertTrue(isset($this->serviceManager['foo']));
+    }
+
     public function testConstructor_SetsServiceManagerIfServiceImplementsServiceManagerInterface() {
         $service = new class implements IHasServiceManager {
             private $serviceManager;
@@ -38,25 +55,25 @@ class ServiceManagerTest extends TestCase {
 
     public function testCanDetectCircularReference() {
         $this->expectException('\RuntimeException', "Circular reference detected for the service 'foo', path: 'foo -> bar'");
-        $this->serviceManager->get('foo');
+        $this->serviceManager['foo'];
     }
 
     public function testReturnsTheSameInstance() {
-        $obj1 = $this->serviceManager->get('obj');
-        $obj2 = $this->serviceManager->get('obj');
+        $obj1 = $this->serviceManager['obj'];
+        $obj2 = $this->serviceManager['obj'];
         $this->assertSame($obj1, $obj2);
         $this->assertInstanceOf('\stdClass', $obj1);
     }
 
     public function testThrowsExceptionWhenServiceNotFound() {
         $this->expectException(ServiceNotFoundException::class);
-        $this->serviceManager->get('nonexistent');
+        $this->serviceManager['nonexistent'];
     }
 
     public function testCreateServiceMethodCanReturnClosure() {
-        $closure = $this->serviceManager->get('myClosure');
+        $closure = $this->serviceManager['myClosure'];
         $this->assertInstanceOf('\Closure', $closure);
-        $this->assertSame($closure, $this->serviceManager->get('myClosure'));
+        $this->assertSame($closure, $this->serviceManager['myClosure']);
 
         $this->assertNull($this->serviceManager->closureCalledWith);
         $closure('my arg');
@@ -72,11 +89,11 @@ class MyServiceManager extends ServiceManager {
     }
 
     protected function newFooService() {
-        return $this->get('bar');
+        return $this['bar'];
     }
 
     protected function newBarService() {
-        return $this->get('foo');
+        return $this['foo'];
     }
 
     protected function newMyClosureService() {

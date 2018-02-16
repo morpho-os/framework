@@ -127,7 +127,7 @@ OUT;
      */
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConfig) {
         $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
-        $request = $serviceManager->get('request');
+        $request = $serviceManager['request'];
         $request['jsConfig'] = $jsConfig;
 
         $processor = new ScriptProcessor($serviceManager);

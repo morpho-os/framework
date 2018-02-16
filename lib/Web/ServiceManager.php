@@ -30,7 +30,7 @@ use Morpho\Web\View\Theme;
 
 class ServiceManager extends BaseServiceManager {
     public function newRouterService(): IRouter {
-        //return new Router($this->get('db'));
+        //return new Router($this['db']);
         return new FastRouter();
     }
 
@@ -39,7 +39,7 @@ class ServiceManager extends BaseServiceManager {
     }*/
 
     protected function newModuleIndexerService() {
-        return new ModuleIndexer(new VarExportFileCache($this->get('site')->config()['paths']['cacheDirPath']));
+        return new ModuleIndexer(new VarExportFileCache($this['site']->config()['paths']['cacheDirPath']));
     }
 
     protected function newModuleMetaIteratorService() {
@@ -61,18 +61,18 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function newModuleIndexService() {
-        return new ModuleIndex($this->get('moduleIndexer'));
+        return new ModuleIndex($this['moduleIndexer']);
     }
 
     protected function newThemeService() {
-        return new Theme($this->get('templateEngine'));
+        return new Theme($this['templateEngine']);
     }
 
     protected function newTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
-        $siteModuleName = $this->get('site')->moduleName();
-        $cacheDirPath = $this->get('moduleIndex')->moduleMeta($siteModuleName)->cacheDirPath();
+        $siteModuleName = $this['site']->moduleName();
+        $cacheDirPath = $this['moduleIndex']->moduleMeta($siteModuleName)->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConfig['useCache']);
         return $templateEngine;
@@ -92,8 +92,8 @@ class ServiceManager extends BaseServiceManager {
 
     protected function newDispatcherService() {
         return new Dispatcher(
-            $this->get('instanceProvider'),
-            $this->get('eventManager')
+            $this['instanceProvider'],
+            $this['eventManager']
         );
     }
 
@@ -135,8 +135,8 @@ class ServiceManager extends BaseServiceManager {
     }
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {
-        $moduleIndex = $this->get('moduleIndex');
-        $filePath = $moduleIndex->moduleMeta($this->get('site')->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
+        $moduleIndex = $this['moduleIndex'];
+        $filePath = $moduleIndex->moduleMeta($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)

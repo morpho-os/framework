@@ -128,7 +128,7 @@ class DispatchErrorHandlerTest extends TestCase {
 
         $serviceManager = $this->createMock(ServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->with('errorLogger')
             ->willReturn($errorLogger);
         return $serviceManager;

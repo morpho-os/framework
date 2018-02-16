@@ -15,7 +15,7 @@ use Morpho\Ioc\ServiceManager as BaseServiceManager;
 abstract class ServiceManager extends BaseServiceManager {
     protected function newErrorHandlerService() {
         $listeners = [];
-        $logListener = new LogListener($this->get('errorLogger'));
+        $logListener = new LogListener($this['errorLogger']);
         $listeners[] = $this->config['errorHandler']['noDupsListener']
             ? new NoDupsListener($logListener)
             : $logListener;

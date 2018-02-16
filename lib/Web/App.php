@@ -14,7 +14,7 @@ class App extends BaseApp {
     protected function init(): void {
         Environment::init();
         $serviceManager = $this->serviceManager();
-        $serviceManager->get('errorHandler')->register();
+        $serviceManager['errorHandler']->register();
     }
 
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {

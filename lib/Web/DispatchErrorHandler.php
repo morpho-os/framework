@@ -83,7 +83,7 @@ class DispatchErrorHandler implements IHasServiceManager {
     }
 
     protected function logError($exception): void {
-        $errorLogger = $this->serviceManager->get('errorLogger');
+        $errorLogger = $this->serviceManager['errorLogger'];
         $errorLogger->emergency($exception, ['exception' => $exception]);
     }
 }

@@ -31,7 +31,7 @@ abstract class DbPager extends Pager implements IHasServiceManager {
 
     protected function db() {
         if (null === $this->db) {
-            return $this->serviceManager->get('db');
+            return $this->serviceManager['db'];
         }
         return $this->db;
     }

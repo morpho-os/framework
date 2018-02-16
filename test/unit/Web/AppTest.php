@@ -99,7 +99,7 @@ class AppTest extends TestCase {
     private function newConfiguredApplication($siteConfig) {
         $serviceManager = $this->createMock(ServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->will($this->returnCallback(function ($id) {
                 if ($id === 'errorHandler') {
                     return new class {

@@ -21,7 +21,7 @@ abstract class App extends BaseApp {
     protected function init(): void {
         Environment::init();
         $serviceManager = $this->serviceManager();
-        $serviceManager->get('errorHandler')->register();
+        $serviceManager['errorHandler']->register();
     }
 
     protected static function showError(\Throwable $e): void {

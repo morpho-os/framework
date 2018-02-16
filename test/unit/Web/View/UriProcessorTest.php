@@ -65,7 +65,7 @@ OUT;
 
         $serviceManager = $this->createMock(ServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->with('request')
             ->willReturn($request);
         $processor = new UriProcessor($serviceManager);

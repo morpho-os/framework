@@ -6,7 +6,7 @@ use Morpho\Web\Controller;
 
 class CacheController extends Controller {
     public function clearAllAction() {
-        $cacheDirPath = $this->serviceManager->get('moduleIndex')->moduleMeta($this->serviceManager->get('site')->moduleName())->cacheDirPath();
+        $cacheDirPath = $this->serviceManager['moduleIndex']->moduleMeta($this->serviceManager['site']->moduleName())->cacheDirPath();
         $gitignoreFileExists = is_file($cacheDirPath . '/.gitignore');
         Dir::delete($cacheDirPath, function (string $path, $isDir) use ($cacheDirPath, $gitignoreFileExists) {
             if ($isDir) {
@@ -27,7 +27,7 @@ class CacheController extends Controller {
      * @Title Rebuild routes
      */
     public function rebuildRoutesAction() {
-        $this->serviceManager->get('router')->rebuildRoutes();
+        $this->serviceManager['router']->rebuildRoutes();
         $this->messenger()->addSuccessMessage("Routes have been rebuilt successfully");
         // @TODO: CSRF
         $this->redirect($this->query('redirect') ?: '/');
@@ -35,7 +35,7 @@ class CacheController extends Controller {
     /**
      * @Title Rebuild events
     public function rebuildEventsAction() {
-        $this->serviceManager->get('moduleManager')->rebuildEvents();
+        $this->serviceManager['moduleManager']->rebuildEvents();
         $this->redirectToHome("Events were rebuilt successfully");
     }
     */

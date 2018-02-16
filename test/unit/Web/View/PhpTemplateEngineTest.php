@@ -255,7 +255,7 @@ class PhpTemplateEngineTest extends TestCase {
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->willReturnCallback(function ($id) use ($instanceProvider, $request, $moduleIndex) {
                 if ($id === 'request') {
                     return $request;
@@ -322,7 +322,7 @@ class PhpTemplateEngineTest extends TestCase {
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('get')
+            ->method('offsetGet')
             ->with('request')
             ->willReturn($request);
 

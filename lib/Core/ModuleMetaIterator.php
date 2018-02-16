@@ -65,6 +65,6 @@ class ModuleMetaIterator implements \IteratorAggregate {
     }
 
     protected function init(IServiceManager $serviceManager): void {
-        $this->baseDirPath = $serviceManager->get('app')->config()['baseDirPath'];
+        $this->baseDirPath = $serviceManager['app']->config()['baseDirPath'];
     }
 }

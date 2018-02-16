@@ -92,7 +92,8 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function routesMeta(): iterable {
-        $moduleIndex = $this->serviceManager->get('moduleIndex');
+        /** @var \Morpho\Core\ModuleIndex $moduleIndex */
+        $moduleIndex = $this->serviceManager['moduleIndex'];
         $modules = $moduleIndex->moduleNames();
         return compose(
             new RouteMetaProvider(),
@@ -113,8 +114,8 @@ class FastRouter implements IHasServiceManager, IRouter {
 
     private function cacheFilePath(): string {
         $serviceManager = $this->serviceManager;
-        $siteModuleName = $serviceManager->get('site')->moduleName();
-        $cacheDirPath = $serviceManager->get('moduleIndex')->moduleMeta($siteModuleName)->cacheDirPath();
+        $siteModuleName = $serviceManager['site']->moduleName();
+        $cacheDirPath = $serviceManager['moduleIndex']->moduleMeta($siteModuleName)->cacheDirPath();
         return $cacheDirPath . '/route.php';
     }
 }

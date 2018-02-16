@@ -18,9 +18,9 @@ class WidgetPlugin extends Plugin implements IHasServiceManager {
         $name = $args[0];
         if ($name !== 'Menu') {
         }
-        $request = $this->serviceManager->get('request');
+        $request = $this->serviceManager['request'];
         return new MenuWidget(
-            $this->serviceManager->get('db'),
+            $this->serviceManager['db'],
             $request->baseRelUri(),
             $request->requestUri()
         );

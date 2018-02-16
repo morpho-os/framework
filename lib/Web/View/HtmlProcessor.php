@@ -23,7 +23,7 @@ abstract class HtmlProcessor extends HtmlSemiParser {
 
     protected function request(): Request {
         if (null === $this->request) {
-            $this->request = $this->serviceManager->get('request');
+            $this->request = $this->serviceManager['request'];
         }
         return $this->request;
     }
