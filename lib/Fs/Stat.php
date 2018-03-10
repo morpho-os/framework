@@ -28,6 +28,10 @@ class Stat {
     public const DIR_MODE  = 0755; // DIR_BASE_MODE (0777)  - UMASK (0022) ~> DIR_MODE
     public const FILE_MODE = 0644; // FILE_BASE_MODE (0666) - UMASK (0022) ~> FILE_MODE
 
+    public static function intModeToStr(int $mode): string {
+        return sprintf('%o', $mode & 07777);
+    }
+
     public static function modeToStr(string $path): string {
         return sprintf('%o', self::mode($path));
     }
