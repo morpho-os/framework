@@ -6,16 +6,7 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
-/**
- * Character set, [(char, encoding)], where char is some character from finite alphabet of the charset, and encoding is usually integer number for this character. E.g. (taken from the MySQL manual):
-    A = 0
-    B = 1
-    a = 2
-    b = 3
-        A, B, C, D - symbols/characters taken from some finite set (alphabet)
-        0, 1, 2, 3 - encoding/codes of characters for the A,B,a,b respectively, i.e. 0 for A, 1 for B etc.
- */
-class ServerCharset {
+class ServerCharset extends Charset {
     /**
      * E.g utf8 | utf8mb4 | ...
      * @var string
