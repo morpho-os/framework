@@ -143,7 +143,7 @@ function shell(string $command, array $config = null): ICommandResult {
         });
     }
     if ($config['checkExit']) {
-        checkExit($exitCode);
+        checkExitCode($exitCode);
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
     // @TODO: How to get stdErr?
@@ -160,7 +160,7 @@ function proc(string $command, array $config = null): ICommandResult {
     $process = new Process($command);
     $exitCode = $process->run();
     if ($config['checkExit']) {
-        checkExit($exitCode);
+        checkExitCode($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);
 }
@@ -169,9 +169,9 @@ function shellSu(string $command, array $config = null): ICommandResult {
     return shell('sudo bash -c "' . $command . '"', $config);
 }
 
-function checkExit(int $exitCode): int {
+function checkExitCode(int $exitCode, string $errMessage = null): int {
     if ($exitCode !== 0) {
-        throw new \RuntimeException("Command returned non-zero exit code: " . (int)$exitCode);
+        throw new \RuntimeException("Command returned non-zero exit code: " . (int) $exitCode . (null !== $errMessage ? '. ' . $errMessage : ''));
     }
     return $exitCode;
 }
