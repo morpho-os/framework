@@ -18,6 +18,7 @@ class ClassTypeDiscovererTest extends TestCase {
     private $classTypeDiscoverer;
 
     public function setUp() {
+        parent::setUp();
         $this->classTypeDiscoverer = new ClassTypeDiscoverer();
     }
 

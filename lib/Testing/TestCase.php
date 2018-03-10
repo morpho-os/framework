@@ -26,6 +26,7 @@ abstract class TestCase extends BaseTestCase {
     }
 
     protected function tearDown() {
+        parent::tearDown();
         if (null !== $this->prevTimezone) {
             date_default_timezone_set($this->prevTimezone);
             $this->prevTimezone = null;

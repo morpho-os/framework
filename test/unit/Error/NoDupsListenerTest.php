@@ -14,6 +14,7 @@ class NoDupsListenerTest extends TestCase {
     private $lockFileDirPath;
 
     public function setUp() {
+        parent::setUp();
         $this->lockFileDirPath = $this->createTmpDir();
     }
 

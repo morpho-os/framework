@@ -16,6 +16,7 @@ class ServiceManagerTest extends TestCase {
     private $serviceManager;
 
     public function setUp() {
+        parent::setUp();
         $this->serviceManager = new MyServiceManager;
     }
 

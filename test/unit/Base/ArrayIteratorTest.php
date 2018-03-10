@@ -13,6 +13,7 @@ class ArrayIteratorTest extends TestCase {
     private $it;
 
     public function setUp() {
+        parent::setUp();
         $this->it = new ArrayIterator();
     }
 

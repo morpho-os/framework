@@ -16,6 +16,7 @@ class PriceFilterTest extends TestCase {
     private $filter;
 
     public function setUp() {
+        parent::setUp();
         $this->filter = new PriceFilter();
     }
 

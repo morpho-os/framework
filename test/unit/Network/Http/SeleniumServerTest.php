@@ -13,6 +13,7 @@ class SeleniumServerTest extends TestCase {
     private $seleniumServer;
 
     public function setUp() {
+        parent::setUp();
         $this->seleniumServer = new SeleniumServer('/tmp/foo/bar');
     }
 

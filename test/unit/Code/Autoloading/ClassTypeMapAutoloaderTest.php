@@ -11,6 +11,7 @@ use Morpho\Testing\TestCase;
 
 class ClassTypeMapAutoloaderTest extends TestCase {
     public function tearDown() {
+        parent::tearDown();
         $mapFilePath = $this->mapFilePath();
         if (is_file($mapFilePath)) {
             unlink($mapFilePath);

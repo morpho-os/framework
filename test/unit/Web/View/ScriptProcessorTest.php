@@ -16,9 +16,13 @@ use Morpho\Web\Site;
 use Morpho\Web\View\ScriptProcessor;
 
 class ScriptProcessorTest extends TestCase {
+    /**
+     * @var ScriptProcessor
+     */
     private $processor;
 
     public function setUp() {
+        parent::setUp();
         $serviceManager = $this->newConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
         $this->processor = new ScriptProcessor($serviceManager);
     }

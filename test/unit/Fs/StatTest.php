@@ -12,6 +12,7 @@ use Morpho\Testing\TestCase;
 
 class StatTest extends TestCase {
     public function setUp() {
+        parent::setUp();
         if (Environment::isWindows()) {
             // @TODO: Check on windows.
             $this->markTestIncomplete();

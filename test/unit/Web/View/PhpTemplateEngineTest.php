@@ -25,9 +25,10 @@ class PhpTemplateEngineTest extends TestCase {
     private $templateEngine;
 
     public function setUp() {
+        parent::setUp();
         $serviceManager = $this->newServiceManager();
         $this->templateEngine = new PhpTemplateEngine($serviceManager);
-        $this->configureTemplateEngine($this->templateEngine, $serviceManager);
+        $this->configureTemplateEngine($this->templateEngine);
     }
 
     public function dataForUriWithRedirectToSelf() {

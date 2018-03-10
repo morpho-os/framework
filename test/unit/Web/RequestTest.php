@@ -18,6 +18,7 @@ class RequestTest extends TestCase {
     private $request;
 
     public function setUp() {
+        parent::setUp();
         $this->request = $this->newRequest();
     }
 

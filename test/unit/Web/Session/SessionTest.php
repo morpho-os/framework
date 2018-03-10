@@ -10,7 +10,13 @@ use Morpho\Testing\TestCase;
 use Morpho\Web\Session\Session;
 
 class SessionTest extends TestCase {
+    /**
+     * @var Session
+     */
+    private $session;
+
     public function setUp() {
+        parent::setUp();
         $_SESSION = [];
         $this->session = new Session(__CLASS__, false);
     }

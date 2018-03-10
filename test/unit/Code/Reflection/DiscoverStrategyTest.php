@@ -9,9 +9,13 @@ namespace Morpho\Test\Unit\Code\Reflection;
 use Morpho\Testing\TestCase;
 
 abstract class DiscoverStrategyTest extends TestCase {
+    /**
+     * @var \Morpho\Code\Reflection\IDiscoverStrategy
+     */
     private $strategy;
 
     public function setUp() {
+        parent::setUp();
         $this->strategy = $this->newDiscoverStrategy();
     }
 

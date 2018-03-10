@@ -63,10 +63,10 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function currentPage(): iterable {
-        return $this->page($this->currentPageNumber());
+        return $this->newPageByNumber($this->currentPageNumber());
     }
 
-    public function page(int $pageNumber): Page {
+    public function newPageByNumber(int $pageNumber): Page {
         $pageNumber = max(intval($pageNumber), 1);
         $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
@@ -91,7 +91,7 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function current(): Page {
-        return $this->page($this->currentPageNumber());
+        return $this->newPageByNumber($this->currentPageNumber());
     }
 
     public function valid(): bool {

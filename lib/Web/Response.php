@@ -73,9 +73,8 @@ class Response extends BaseResponse {
     }
 
     public function isSuccess(): bool {
-        // Use condition from jQuery.
         $statusCode = $this->statusCode;
-        return (200 <= $statusCode && 300 > $statusCode) || $statusCode=== self::NOT_MODIFIED_STATUS_CODE;
+        return 200 <= $statusCode && $statusCode < 400;
     }
 
     public function send(): void {

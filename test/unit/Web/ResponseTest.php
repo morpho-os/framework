@@ -17,6 +17,7 @@ class ResponseTest extends TestCase {
     private $response;
 
     public function setUp() {
+        parent::setUp();
         $this->response = new Response();
     }
 

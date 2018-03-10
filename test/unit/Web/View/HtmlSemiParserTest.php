@@ -13,6 +13,7 @@ class HtmlSemiParserTest extends TestCase {
     private $parser;
 
     public function setUp() {
+        parent::setUp();
         $this->parser = new HtmlSemiParser();
     }
 

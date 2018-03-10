@@ -22,6 +22,7 @@ class DbClientTest extends BaseDbClientTest {
     private $schema;
 
     public function setUp() {
+        parent::setUp();
         $this->db = $this->newDbConnection();
         $this->schema = new Schema($this->db);
         $this->schema->deleteAllTables();
