@@ -10,9 +10,9 @@ use function Morpho\Base\startsWith;
 use Morpho\Fs\IFs;
 use Morpho\Fs\Stat;
 use Morpho\Testing\Vfs;
-use Morpho\Testing\TestCase;
 
-class VfsTest extends TestCase {
+// NB: We extend the PHPUnit's TestCase intentionally, to allow to test the Vfs::register() and similar methods.
+class VfsTest extends \PHPUnit\Framework\TestCase {
     private $umask;
 
     public function setUp() {
@@ -82,9 +82,6 @@ class VfsTest extends TestCase {
     }
 
     public function testRename() {
-
-
-
         $this->markTestIncomplete();
     }
     

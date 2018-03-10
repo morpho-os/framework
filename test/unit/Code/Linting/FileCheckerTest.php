@@ -12,16 +12,6 @@ use Morpho\Testing\TestCase;
 use Morpho\Testing\Vfs;
 
 class FileCheckerTest extends TestCase {
-    public function setUp() {
-        parent::setUp();
-        Vfs::register();
-    }
-
-    public function tearDown() {
-        parent::tearDown();
-        Vfs::unregister();
-    }
-
     public function testCheckNamespaces_NsNotFound() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
         $classFileUri = $moduleDirUri . '/test/bar';

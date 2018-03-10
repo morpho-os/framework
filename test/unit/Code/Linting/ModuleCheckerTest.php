@@ -12,16 +12,6 @@ use Morpho\Testing\TestCase;
 use Morpho\Testing\Vfs;
 
 class ModuleCheckerTest extends TestCase {
-    public function setUp() {
-        parent::setUp();
-        Vfs::register();
-    }
-
-    public function tearDown() {
-        parent::tearDown();
-        Vfs::unregister();
-    }
-
     public function testCheckMetaFile_MetaFileNotExists() {
         $moduleDirPath = $this->getTestDirPath() . '/non-existing';
 

@@ -20,6 +20,11 @@ abstract class TestCase extends BaseTestCase {
 
     protected $backupGlobals = true;
 
+    public function setUp() {
+        parent::setUp();
+        Vfs::register();
+    }
+
     protected function tearDown() {
         if (null !== $this->prevTimezone) {
             date_default_timezone_set($this->prevTimezone);
@@ -27,6 +32,7 @@ abstract class TestCase extends BaseTestCase {
         }
         $this->deleteTmpFiles();
         $this->deleteTmpDirs();
+        Vfs::unregister();
     }
 
     protected function createTmpFile(string $ext = null, string $prefix = null, bool $deleteOnTearDown = true): string {
