@@ -25,6 +25,9 @@ utest:
 utest-stop:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/unit/TestSuite.php
 
+utest-stop-on-error:
+	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/unit/TestSuite.php
+
 lint:
 	php test/lint.php
 
@@ -38,4 +41,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test ftest mtest utest utest-strict clear clean update
+.PHONY: js css test ftest mtest utest utest-stop utest-stop-on-error lint clear clean update
