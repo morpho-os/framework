@@ -115,7 +115,7 @@ class Debugger {
      * Improved version of the var_export
      */
     public function varExport($var, bool $return = false, bool $stripNumericKeys = true) {
-        $out = $this->describeVar($var, $stripNumericKeys);
+        $out = $this->describeVal($var, $stripNumericKeys);
 
         $output = $this->formatLine($out)
             . $this->calledAt();
