@@ -6,10 +6,14 @@
  */
 namespace Morpho\Base;
 
+/**
+ * Pipe/Pipeline is sequence of stages/phases, where each phase is callable with the type:
+ *     (mixed $value): mixed
+ */
 class Pipe extends \ArrayObject implements IFn {
     public function __invoke($value) {
-        foreach ($this as $fn) {
-            $value = $fn($value);
+        foreach ($this as $stage) {
+            $value = $stage($value);
         }
         return $value;
     }
