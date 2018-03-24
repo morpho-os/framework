@@ -33,7 +33,7 @@ class Result extends \PDOStatement implements \Countable {
         return $this->fetchColumn(0);
     }
 
-    public function bool() {
+    public function boolVal() {
         return (bool) $this->cell();
     }
 

@@ -29,14 +29,12 @@ class DbClient extends BaseDbClient {
         throw new NotImplementedException();
     }
 
-    protected function newPdo($config): \PDO {
-        // @TODO: Support of the :memory:
+    protected function newPdo($config, $pdoConfig): \PDO {
+        // @TODO: Support the `:memory`:
         if (empty($config['filePath'])) {
             throw new \RuntimeException("The config param 'filePath' is required");
         }
-        $db = new \PDO(self::SQLITE_DRIVER . ':' . $config['filePath']);
-        $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $db = new \PDO(self::SQLITE_DRIVER . ':' . $config['filePath'], null, null, $pdoConfig);
         if (empty($config['noWal'])) {
             $db->exec('PRAGMA journal_mode=WAL');
         }

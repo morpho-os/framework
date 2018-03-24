@@ -6,6 +6,17 @@
  */
 namespace Morpho\Db\Sql;
 
+/**
+ * @method \PDOStatement prepare($statement, array $driver_options = array())
+ * @method bool beginTransaction()
+ * @method bool commit()
+ * @method bool rollBack()
+ * @method bool setAttribute($attribute, $value)
+ * @method int exec($statement)
+ * @method string errorCode()
+ * @method array errorInfo()
+ * @method mixed getAttribute($attribute) {}
+ */
 abstract class DbClient {
     /**
      * @var \PDO
@@ -15,17 +26,23 @@ abstract class DbClient {
     public const MYSQL_DRIVER  = 'mysql';
     public const SQLITE_DRIVER = 'sqlite';
 
+    protected static $pdoConfig = [
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+        \PDO::ATTR_STATEMENT_CLASS => [__NAMESPACE__ . '\\Result', []],
+        \PDO::ATTR_EMULATE_PREPARES => false,
+        \PDO::ATTR_STRINGIFY_FETCHES => false,
+    ];
+
     /**
      * @param \Morpho\Base\Config|array|\PDO $configOrPdo
      */
     protected function __construct($configOrPdo) {
         if ($configOrPdo instanceof \PDO) {
-            self::configurePdo($configOrPdo);
+            self::setPdoAttributes($configOrPdo, static::$pdoConfig);
             $this->connection = $configOrPdo;
         } else {
-            $connection = $this->newPdo($configOrPdo);
-            self::configurePdo($connection);
-            $this->connection = $connection;
+            $this->connection = $this->newPdo($configOrPdo, $configOrPdo['pdoConfig'] ?? static::$pdoConfig);
         }
     }
 
@@ -59,10 +76,10 @@ abstract class DbClient {
         return $this->connection;
     }
 
-    public static function configurePdo(\PDO $connection): void {
-        $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-        $connection->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Result', []]);
+    public static function setPdoAttributes(\PDO $connection, array $pdoConfig): void {
+        foreach ($pdoConfig as $name => $value) {
+            $connection->setAttribute($name, $value);
+        }
     }
 
     /**
@@ -186,11 +203,32 @@ abstract class DbClient {
         return $this->connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
     }
 
+    public function __call(string $method, array $args) {
+        return $this->connection->$method(...$args);
+    }
+
     public static function availableDrivers(): array {
         return \PDO::getAvailableDrivers();
     }
 
-    abstract protected function newPdo($config): \PDO;
+    /**
+     * See [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512)
+     * @param callable $fn
+     * @return mixed
+     */
+    public function doWithEmulatedPrepares(callable $fn) {
+        $emulatePrepares = $this->getAttribute(\PDO::ATTR_EMULATE_PREPARES);
+        if (!$emulatePrepares) {
+            $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+            $result = $fn($this);
+            $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, $emulatePrepares);
+        } else {
+            $result = $fn($this);
+        }
+        return $result;
+    }
+
+    abstract protected function newPdo($config, $pdoConfig): \PDO;
 
     /**
      * @return array|\Morpho\Base\Config

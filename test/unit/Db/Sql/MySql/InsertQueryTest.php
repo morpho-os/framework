@@ -14,7 +14,7 @@ class InsertQueryTest extends DbTestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->db = $this->newDbConnection();
+        $this->db = $this->newDbClient();
         $this->db->eval('DROP TABLE IF EXISTS insertTest');
         $this->db->eval('CREATE TABLE insertTest (foo varchar(255), created int, i int unsigned NOT NULL AUTO_INCREMENT, PRIMARY KEY (`i`));');
     }
@@ -26,7 +26,7 @@ class InsertQueryTest extends DbTestCase {
 
     public function testInsert_SingleRow() {
         $now = time();
-        $query = (new InsertQuery($this->newDbConnection()))
+        $query = (new InsertQuery($this->newDbClient()))
             ->table('test')
             ->row(['foo' => 'bar', 'created' => $now]);
         $this->assertSame("INSERT INTO `test` (`foo`, `created`) VALUES ('bar', $now)", $query->dump());

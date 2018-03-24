@@ -23,7 +23,7 @@ class DbClientTest extends BaseDbClientTest {
 
     public function setUp() {
         parent::setUp();
-        $this->db = $this->newDbConnection();
+        $this->db = $this->newDbClient();
         $this->schema = new Schema($this->db);
         $this->schema->deleteAllTables();
     }
@@ -33,7 +33,7 @@ class DbClientTest extends BaseDbClientTest {
         $this->assertSame($dbConfig['db'], $this->db->dbName());
     }
 
-    public function testConnection_UsesMySqlWhenIfNoArgsPassed() {
+    public function testConnect_UsesMySqlWhenIfNoArgsPassed() {
         $this->assertInstanceOf(DbClient::class, DbClient::connect());
     }
 
@@ -94,14 +94,20 @@ SQL
         $this->assertEquals(DbClient::MYSQL_DRIVER, $this->db->driverName());
     }
 
-    public function testInsertRows() {
-        $this->db->eval('CREATE TABLE cars (name varchar(20), color varchar(20), country varchar(20))');
+    public function testInsertRows_PreservesTypes() {
+        $this->db->eval("CREATE TABLE cars (
+            name varchar(20),
+            color varchar(20),
+            country varchar(20),
+            type1 int,
+            type2 enum('US', 'Japan')
+        )");
         $rows = [
-            ['name' => "Comaro", 'color' => 'red', 'country' => 'US'],
-            ['name' => 'Mazda RX4', 'color' => 'yellow', 'country' => 'JP'],
+            ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
+            ['name' => 'Mazda RX4', 'color' => 'yellow', 'country' => 'JP', 'type1' => 2, 'type2' => 'Japan'],
         ];
         $this->db->insertRows('cars', $rows);
-        $this->assertEquals($rows, $this->db->select('* FROM cars')->rows());
+        $this->assertSame($rows, $this->db->select('* FROM cars ORDER BY name')->rows());
     }
 
     public function dataForNewQueryOperations() {
@@ -145,6 +151,11 @@ SQL
         $this->assertInstanceOf(Schema::class, $schema);
     }
 
+    public function testEval_ThrowsExceptionOnInvalidSql() {
+        $this->expectException(\PDOException::class, 'SQLSTATE[42000]: Syntax error or access violation');
+        $this->db->eval('invalid sql');
+    }
+
     public function testEval_Result() {
         $res = $this->db->eval('SELECT 1');
         $this->assertInstanceOf(Result::class, $res);
@@ -161,6 +172,14 @@ SQL
         $this->db->insertRow('test', ['foo' => 'second row']);
         $res = $this->db->eval('SELECT * FROM test');
         $checkRes($res, 2);
+    }
+
+    public function testEval_WhereClauseWithLike() {
+        $this->markTestIncomplete();
+    }
+
+    public function testEval_HandlingArgsWithQuotes() {
+        $this->markTestIncomplete();
     }
 
     public function testConnect_PdoInstanceArgument() {

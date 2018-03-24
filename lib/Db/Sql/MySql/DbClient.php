@@ -58,7 +58,7 @@ class DbClient extends BaseDbClient {
         return new ReplaceQuery($this);
     }
 
-    protected function newPdo($config): \PDO {
+    protected function newPdo($config, $pdoConfig): \PDO {
         $config = Config::check($config, [
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
@@ -66,9 +66,8 @@ class DbClient extends BaseDbClient {
             'db' => self::DEFAULT_DB,
             'password' => self::DEFAULT_PASSWORD,
             'charset' => self::DEFAULT_CHARSET,
-            'pdoConfig' => [],
         ]);
         $dsn = self::MYSQL_DRIVER . ':dbname=' . $config['db'] . ';' . $config['host'] . ';' . $config['charset'];
-        return new \PDO($dsn, $config['user'], $config['password'], $config['pdoConfig']);
+        return new \PDO($dsn, $config['user'], $config['password'], $pdoConfig);
     }
 }

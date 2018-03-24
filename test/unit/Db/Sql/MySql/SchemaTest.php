@@ -31,7 +31,7 @@ class SchemaTest extends DbTestCase {
 
     public function setUp() {
         parent::setUp();
-        $db = $this->newDbConnection();
+        $db = $this->newDbClient();
         $this->schema = new Schema($db);
         $this->schema->deleteAllTables();
         $this->db = $db;
@@ -144,30 +144,30 @@ class SchemaTest extends DbTestCase {
         $this->assertTrue($i > 0);
     }
 
-    public function testVarsStartingWith_NormalCase() {
+    public function testVarsWithPrefix_NormalCase() {
         $prefix = 'character_set';
-        $vars = $this->schema->varsStartingWith($prefix);
+        $vars = $this->schema->varsWithPrefix($prefix);
         foreach ($vars as $key => $value) {
             $this->assertStringStartsWith($prefix, $key);
         }
         $this->assertTrue(count($vars) > 0);
     }
 
-    public function testVarsStaringWith_HandlesPercent() {
-        $this->assertSame([], $this->schema->varsStartingWith('%'));
+    public function testVarsWithPrefix_HandlesPercent() {
+        $this->assertSame([], $this->schema->varsWithPrefix('%'));
     }
 
-    public function testVarsEndingWith_NormalCase() {
+    public function testVarsWithSuffix_NormalCase() {
         $suffix = '_size';
-        $vars = $this->schema->varsEndingWith($suffix);
+        $vars = $this->schema->varsWithSuffix($suffix);
         foreach ($vars as $key => $value) {
             $this->assertStringEndsWith($suffix, $key);
         }
         $this->assertTrue(count($vars) > 0);
     }
 
-    public function testVarsEndingWith_HandlesPercent() {
-        $this->assertSame([], $this->schema->varsEndingWith($this->db->quote('%')));
+    public function testVarsWithSuffix_HandlesPercent() {
+        $this->assertSame([], $this->schema->varsWithSuffix($this->db->quote('%')));
     }
 
     public function testVarsLike_NormalCase() {

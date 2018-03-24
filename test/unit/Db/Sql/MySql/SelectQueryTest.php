@@ -12,7 +12,7 @@ use Morpho\Testing\DbTestCase;
 
 class SelectQueryTest extends DbTestCase {
     public function testQueryWithWhere() {
-        $query = new SelectQuery($this->newDbConnection());
+        $query = new SelectQuery($this->newDbClient());
         $this->assertSame(
             'SELECT * FROM `test` WHERE `ab` = \'cd\' AND `foo` = -123',
             $query->from('test')->where(['ab' => 'cd', 'foo' => -123])->dump()
@@ -20,15 +20,15 @@ class SelectQueryTest extends DbTestCase {
     }
 
     public function testQueryWithoutWhere() {
-        $query = new SelectQuery($this->newDbConnection());
+        $query = new SelectQuery($this->newDbClient());
         $this->assertSame('SELECT * FROM `foo`', $query->from('foo')->dump());
     }
 
     public function testEval() {
-        $res = (new SelectQuery($this->newDbConnection()))
+        $res = (new SelectQuery($this->newDbClient()))
             ->columns('123')
             ->eval();
         $this->assertInstanceOf(Result::class, $res);
-        $this->assertSame('123', $res->cell());
+        $this->assertSame(123, $res->cell());
     }
 }

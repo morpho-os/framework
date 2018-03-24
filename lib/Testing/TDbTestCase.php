@@ -31,7 +31,7 @@ trait TDbTestCase {
         ];
     }
 
-    protected function newDbConnection(array $config = null): DbClient {
+    protected function newDbClient(array $config = null): DbClient {
         if (!$config) {
             $config = $this->dbConfig();
         }

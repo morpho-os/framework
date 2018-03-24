@@ -325,26 +325,34 @@ class Schema extends BaseSchema {
     }
 
     public function charsetVars(): array {
-        return $this->varsStartingWith('character_set');
+        return $this->varsWithPrefix('character_set');
     }
 
     public function collationVars(): array {
-        return $this->varsStartingWith('collation');
+        return $this->varsWithPrefix('collation');
     }
 
-    public function varsStartingWith(string $prefix): array {
-        return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $prefix) . '%'])->map();
+    public function varsWithPrefix(string $prefix): array {
+        return $this->db->doWithEmulatedPrepares(function () use ($prefix) {
+            // The `SHOW VARIABLES` is not in [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512) so we need to emulate prepared statements.
+            return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $prefix) . '%'])->map();
+        });
     }
 
-    public function varsEndingWith(string $suffix): array {
-        return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $suffix)])->map();
+    public function varsWithSuffix(string $suffix): array {
+        // The `SHOW VARIABLES` is not in [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512) so we need to emulate prepared statements.
+        return $this->db->doWithEmulatedPrepares(function () use ($suffix) {
+            return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $suffix)])->map();
+        });
     }
 
     public function varsLike(string $infix, bool $exactMatch = false): array {
-        if ($exactMatch) {
-            return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $infix)])->map();
-        }
-        return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $infix) . '%'])->map();
+        return $this->db->doWithEmulatedPrepares(function () use ($infix, $exactMatch) {
+            if ($exactMatch) {
+                return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $infix)])->map();
+            }
+            return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $infix) . '%'])->map();
+        });
     }
 
     public function createUser($name, $password, $host): void {
