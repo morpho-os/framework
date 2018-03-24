@@ -317,7 +317,7 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
 function normalizeEols(string $s): string {
     $res = \preg_replace(EOL_FULL_RE, "\n", $s);
     if (null === $res) {
-        throw new RuntimeException("Unable to replace EOL");
+        throw new RuntimeException("Unable to replace EOLs");
     }
     return $res;
 }
