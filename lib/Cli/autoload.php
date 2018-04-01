@@ -176,6 +176,12 @@ function checkExitCode(int $exitCode, string $errMessage = null): int {
     return $exitCode;
 }
 
+function checkResult(ICommandResult $result) {
+    if ($result->isError()) {
+        errorLn($result->stdErr() . ' Exit code: ' . $result->exitCode());
+    }
+}
+
 function askYesNo(string $question): bool {
     echo $question . "? (y/n): ";
     do {
