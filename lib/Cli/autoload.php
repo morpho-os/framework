@@ -124,7 +124,7 @@ function envVarsToStr(array $envVars): string {
 
 function shell(string $command, array $config = null): ICommandResult {
     $config = Config::check((array) $config, [
-        'checkExit' => true,
+        'checkCode' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
         'envVars' => null,
@@ -142,7 +142,7 @@ function shell(string $command, array $config = null): ICommandResult {
             passthru($command, $exitCode);
         });
     }
-    if ($config['checkExit']) {
+    if ($config['checkCode']) {
         checkExitCode($exitCode);
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
@@ -153,13 +153,13 @@ function shell(string $command, array $config = null): ICommandResult {
 // @TODO: See \Composer\Util\ProcessExecutor
 function proc(string $command, array $config = null): ICommandResult {
     $config = Config::check((array) $config, [
-        'checkExit' => true,
+        'checkCode' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
     ]);
     $process = new Process($command);
     $exitCode = $process->run();
-    if ($config['checkExit']) {
+    if ($config['checkCode']) {
         checkExitCode($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);
