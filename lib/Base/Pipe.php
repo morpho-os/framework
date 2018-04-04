@@ -11,9 +11,12 @@ namespace Morpho\Base;
  *     (mixed $value): mixed
  */
 class Pipe extends \ArrayObject implements IFn {
+    private $beforeEachAction;
+    private $afterEachAction;
+
     public function __invoke($value) {
         foreach ($this as $stage) {
-            $value = $stage($value);
+            $value = $this->runStage($stage, $value);
         }
         return $value;
     }
@@ -21,5 +24,24 @@ class Pipe extends \ArrayObject implements IFn {
     public function append($value): self {
         parent::append($value);
         return $this;
+    }
+
+    public function setBeforeEachAction(callable $action) {
+        $this->beforeEachAction = $action;
+    }
+
+    public function setAfterEachAction(callable $action) {
+        $this->afterEachAction = $action;
+    }
+
+    protected function runStage(callable $stage, $value) {
+        if ($this->beforeEachAction) {
+            $value = ($this->beforeEachAction)($value);
+        }
+        $value = $stage($value);
+        if ($this->afterEachAction) {
+            $value = ($this->afterEachAction)($value);
+        }
+        return $value;
     }
 }
