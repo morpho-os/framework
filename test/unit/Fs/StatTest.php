@@ -19,12 +19,12 @@ class StatTest extends TestCase {
         }
     }
 
-    public function testModeAndModeToStr() {
+    public function testModeAndModeStr() {
         $tmpFilePath = $this->createTmpFile();
         $mode = 0644;
         $this->assertTrue(chmod($tmpFilePath, $mode));
         $this->assertSame($mode, Stat::mode($tmpFilePath));
-        $this->assertSame('644', Stat::modeToStr($tmpFilePath));
+        $this->assertSame('0644', Stat::modeStr($tmpFilePath));
     }
 
     public function testIsBlockDev() {
