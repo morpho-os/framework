@@ -71,7 +71,7 @@ class DbClient extends BaseDbClient {
         $transportStr = null !== $config['sockFilePath']
             ? 'unix_socket=' . $config['sockFilePath']
             : "host={$config['host']};port={$config['port']}";
-        $dsn = self::MYSQL_DRIVER . ":$transportStr;dbname={$config['db']} . ';charset={$config['charset']}";
+        $dsn = self::MYSQL_DRIVER . ":$transportStr;dbname={$config['db']};charset={$config['charset']}";
         return new \PDO($dsn, $config['user'], $config['password'], $pdoConfig);
     }
 }
