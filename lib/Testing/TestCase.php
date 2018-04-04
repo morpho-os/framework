@@ -124,6 +124,10 @@ abstract class TestCase extends BaseTestCase {
         self::assertSame($expected, $actual, $message);
     }
 
+    protected function assertVoid($value): void {
+        $this->assertNull($value);
+    }
+
     protected function normalizeHtml(string $html) {
         return preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($html));
     }
