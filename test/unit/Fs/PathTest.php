@@ -152,22 +152,15 @@ class PathTest extends TestCase {
         $this->assertTrue(Path::isNormalized('C:/foo/bar/baz'));
     }
 
-    public function testToAbsShouldThrowExceptionForInvalidPath() {
-        $invalidPath = __DIR__ . '/ttttt';
-        $this->expectException(FsException::class, "Unable to detect absolute path for the '$invalidPath' path.");
-        Path::toAbs($invalidPath);
-    }
-
     public function dataForToAbs() {
         return [
-            [
-                '/', '/',
-            ],
+            ['/', '/',],
             [__DIR__, __DIR__],
             [__FILE__, __FILE__],
-            [getcwd(), ''],
+            ['', ''],
             [__DIR__, __DIR__ . '/_files/..'],
             [__FILE__, __DIR__ . '/_files/../' . basename(__FILE__)],
+            [__DIR__ . '/non-existing', __DIR__ . '/non-existing'],
         ];
     }
 
@@ -176,7 +169,15 @@ class PathTest extends TestCase {
      */
     public function testToAbs($expected, $path) {
         $actual = Path::toAbs($path);
-        $this->assertSame(str_replace('\\', '/', $expected), $actual);
+        if (!$this->isWindows()) {
+            $expected = str_replace('\\', '/', $expected);
+        }
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testToAbs_VfsPath() {
+        $dirPath = 'vfs://some/path';
+        $this->assertSame($dirPath, Path::toAbs($dirPath));
     }
 
     public function testCombine_UnixPaths() {

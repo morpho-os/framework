@@ -278,8 +278,10 @@ class Vfs implements IFs {
     }
 
     public function dir_rewinddir(): bool {
-        throw new NotImplementedException();
-        // d(func_get_args());
+        if ($this->dir) {
+            $this->dir->rewind();
+        }
+        return true;
     }
 
     public function dir_closedir(): bool {
@@ -315,7 +317,7 @@ class Vfs implements IFs {
         }
         $uriNoPrefix = self::stripUriPrefix($uri);
         if ($uriNoPrefix === '' || $uriNoPrefix[0] !== '/') {
-            throw new \UnexpectedValueException('Invalid path');
+            throw new \UnexpectedValueException("Path must be not empty and must start with the '/'");
         }
         if ($uriNoPrefix === '/') {
             throw new \UnexpectedValueException('Unable to get name for the root');

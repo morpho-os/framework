@@ -72,10 +72,7 @@ class Path extends BasePath {
     }
 
     public static function toAbs(string $path, bool $normalize = true): string {
-        $absPath = realpath($path);
-        if (false === $absPath) {
-            throw new Exception("Unable to detect absolute path for the '$path' path.");
-        }
+        $absPath = self::removeDotSegments($path);
         return $normalize ? self::normalize($absPath) : $absPath;
     }
 

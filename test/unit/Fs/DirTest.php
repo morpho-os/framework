@@ -165,6 +165,31 @@ class DirTest extends TestCase {
         $this->assertFalse(is_dir($tmpDirPath));
     }
 
+    public function testDelete_VfsDir() {
+        $dirPath = 'vfs:///some/dir/path';
+        mkdir($dirPath, 0755, true);
+        $filePath = $dirPath . '/foo';
+        touch($filePath);
+        $this->assertFileExists($dirPath);
+
+        $dirPathToDelete = 'vfs:///some/dir';
+
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertVoid(Dir::delete($dirPathToDelete));
+
+        $this->assertDirectoryExists('vfs:///some');
+        $this->assertDirectoryNotExists($dirPathToDelete);
+    }
+
+    public function testDeleteEmptyDirs() {
+        $tmpDirPath = $this->createTmpDir();
+        mkdir($tmpDirPath . '/foo/bar/baz', 0777, true);
+        mkdir($tmpDirPath . '/foo/test');
+        touch($tmpDirPath . '/foo/pig.txt');
+        Dir::deleteEmptyDirs($tmpDirPath);
+        $this->assertEquals(['foo', 'foo/pig.txt'], $this->pathsInDir($tmpDirPath));
+    }
+
     public function testBrokenLinkPaths() {
         $tmpDirPath = $this->createTmpDir();
         symlink($tmpDirPath . '/foo', $tmpDirPath . '/bar');
@@ -182,15 +207,6 @@ class DirTest extends TestCase {
         $emptyDirPaths = iterator_to_array(Dir::emptyDirPaths($tmpDirPath), false);
         sort($emptyDirPaths);
         $this->assertEquals([$tmpDirPath . '/foo/bar/baz', $tmpDirPath . '/foo/test'], $emptyDirPaths);
-    }
-
-    public function testDeleteEmptyDirs() {
-        $tmpDirPath = $this->createTmpDir();
-        mkdir($tmpDirPath . '/foo/bar/baz', 0777, true);
-        mkdir($tmpDirPath . '/foo/test');
-        touch($tmpDirPath . '/foo/pig.txt');
-        Dir::deleteEmptyDirs($tmpDirPath);
-        $this->assertEquals(['foo', 'foo/pig.txt'], $this->pathsInDir($tmpDirPath));
     }
 
     public function testMustExist_RelPath_0AsArg() {

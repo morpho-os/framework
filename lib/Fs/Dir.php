@@ -383,7 +383,10 @@ class Dir extends Entry {
      *     @TODO: Accept iterable
      * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
      */
-    public static function create($dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true) {
+    public static function create($dirPath, ?int $mode = Stat::DIR_MODE, bool $recursive = true) {
+        if (null === $mode) {
+            $mode = Stat::DIR_MODE;
+        }
         if (is_array($dirPath)) {
             $res = [];
             foreach ($dirPath as $key => $path) {
@@ -451,43 +454,18 @@ class Dir extends Entry {
     }
 
     /**
-     * This method uses code which was found in eZ Components (ezcBaseFile::removeRecursive() method).
      * @param callable|null $predicate Predicate selects entries which will be deleted.
      */
     private static function delete__(string $dirPath, ?callable $predicate): void {
         self::mustExist($dirPath);
-        $absPath = realpath($dirPath);
-        if (defined('PHP_WINDOWS_VERSION_BUILD')) {
-            $absPath = str_replace('\\', '/', $absPath);
-        }
-        if (!$absPath) {
-            throw new Exception("The directory '$dirPath' could not be found");
-        }
-        $dir = @dir($absPath);
-        if (!$dir) {
-            throw new Exception("The directory '$dirPath' can not be opened for reading");
-        }
-
-        $parentDirPath = realpath($dirPath . '/..');
-        if (!is_writable($parentDirPath)) {
-            if (null !== $predicate) {
-                // This directory must be deleted if $predicate returns true
-                if ($predicate($dirPath, true)) {
-                    throw new Exception("The directory '$dirPath' can not be opened for writing");
-                }
-            } else {
-                throw new Exception("The directory '$dirPath' can not be opened for writing");
-            }
-        }
-
-        while (false !== ($entryName = $dir->read())) {
-            if ($entryName == '.' || $entryName == '..') {
+        $absPath = Path::toAbs($dirPath, true);
+        $it = new \DirectoryIterator($absPath);
+        foreach ($it as $entry) {
+            if ($entry->isDot()) {
                 continue;
             }
-            $entryPath = $absPath . '/' . $entryName;
-
-            $isDir = is_dir($entryPath);
-            if ($isDir) {
+            $entryPath = $entry->getPathname();
+            if ($entry->isDir()) {
                 if (null !== $predicate) {
                     if ($predicate($entryPath, true)) {
                         // If it is a directory and we need to delete this directory, delete contents regardless of the $predicate, so pass the `null` as the second argument.
@@ -505,8 +483,6 @@ class Dir extends Entry {
                 }
             }
         }
-
-        $dir->close();
         if (null === $predicate || (null !== $predicate && $predicate($absPath, true))) {
             ErrorHandler::checkError(@rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
         }
