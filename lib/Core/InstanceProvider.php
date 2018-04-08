@@ -70,7 +70,7 @@ abstract class InstanceProvider implements IFn {
 
     /**
      * @param string $classSuffix Class suffix like Web\IndexController, which will added to module's namespaces.
-     * @return object|false
+     * @return \object|false
      */
     public function newInstance(ModuleMeta $moduleMeta, string $classSuffix) {
         $classPath = $this->classFilePath($moduleMeta, $classSuffix);

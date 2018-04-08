@@ -42,16 +42,12 @@ class ModuleMetaIterator implements \IteratorAggregate {
     }
 
     protected function filter(array $moduleMeta): bool {
-        if (!isset($moduleMeta['name']) || !isset($moduleMeta['autoload']['psr-4'])) {
-            return false;
-        }
-        $autoloadFilePath = $moduleMeta['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
-        return is_file($autoloadFilePath);
+        return isset($moduleMeta['name']);
     }
 
     protected function map(array $moduleMeta): array {
         $namespaces = [];
-        foreach ($moduleMeta['autoload']['psr-4'] as $key => $value) {
+        foreach ($moduleMeta['autoload']['psr-4'] ?? [] as $key => $value) {
             $namespaces[trim($key, '\\/')] = trim($value, '\\/');
         }
 
