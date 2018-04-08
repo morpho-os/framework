@@ -10,7 +10,7 @@ namespace Morpho\Fs;
 class Stat {
     // Changed file types from /usr/include/bits/stat.h
     // ENTRY = DIR | CHAR_DEV | BLOCK_DEV | REG_FILE | FIFO | SYMLINK | SOCKET
-    public const ENTRY     = 0170000;                  // Any file system entry
+    public const ENTRY     = 0170000;                  // Any file system entry (mask to extract file type, S_IFMT)
     public const DIR       = 0040000;                  // Directory
     public const CHAR_DEV  = 0020000;                  // Character device
     public const BLOCK_DEV = 0060000;                  // Block device
@@ -28,10 +28,13 @@ class Stat {
     public const DIR_MODE  = 0755; // DIR_BASE_MODE (0777)  - UMASK (0022) ~> DIR_MODE
     public const FILE_MODE = 0644; // FILE_BASE_MODE (0666) - UMASK (0022) ~> FILE_MODE
 
-    public static function intModeToStr(int $mode): string {
+    public static function modeToStr(int $mode): string {
         return sprintf('%04o', $mode & 07777);
     }
 
+    /**
+     * Returns value of bits [11..0] of the stat.st_mode as string.
+     */
     public static function modeStr(string $path): string {
         return sprintf('%04o', self::mode($path));
     }

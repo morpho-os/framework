@@ -16,4 +16,6 @@ interface IVfsEntry extends \Countable {
     public function setUri(string $uri): void;
 
     public function stat(): VfsEntryStat;
+
+    public function chmod(int $newMode): void;
 }

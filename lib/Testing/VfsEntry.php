@@ -55,6 +55,12 @@ abstract class VfsEntry implements IVfsEntry {
         return $this->stat;
     }
 
+    public function chmod(int $newMode): void {
+        // Preserve type of entry which is stored in bits [17..12].
+        $oldMode = $this->stat['mode'] & 0770000;
+        $this->stat['mode'] = $oldMode | $newMode;
+    }
+
     protected function checkIsOpen(): void {
         if (!$this->isOpen) {
             throw new \LogicException('Entry has not been opened');

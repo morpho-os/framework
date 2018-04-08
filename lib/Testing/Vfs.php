@@ -176,7 +176,9 @@ class Vfs implements IFs {
                 throw new NotImplementedException();
                 break;
             case STREAM_META_ACCESS: // (The method was called in response to chmod())
-                throw new NotImplementedException();
+                $entry = $this->root()->entryByUri($uri);
+                // @TODO: Check how `chmod(2)` is implemented and do the same. Check mode and owner.
+                $entry->chmod($args);
                 break;
             default:
                 throw new \UnexpectedValueException();

@@ -25,6 +25,9 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     }
 
     public function entry(string $name): IVfsEntry {
+        if (!isset($this->entries[$name])) {
+            throw new \RuntimeException('Entry not found');
+        }
         return $this->entries[$name];
     }
 
