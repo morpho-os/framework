@@ -15,7 +15,7 @@ class Request extends BaseRequest {
      */
     protected $args;
 
-    public function setArgs(array $args) {
+    public function setArgs(array $args): void {
         $this->args = $args;
     }
 

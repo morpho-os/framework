@@ -133,11 +133,9 @@ class RequestTest extends TestCase {
     }
 
     public function dataForIsHttpMethod() {
-        $data = [];
-        foreach (Request::methods() as $httpMethod) {
-            $data[] = [$httpMethod];
+        foreach (Request::knownMethods() as $httpMethod) {
+            yield [$httpMethod];
         }
-        return $data;
     }
 
     /**
@@ -202,8 +200,9 @@ class RequestTest extends TestCase {
      */
     public function testArgs($httpMethod) {
         // @TODO: Test patch, put
-        $_SERVER['REQUEST_METHOD'] = $httpMethod;
+        $this->request->setMethod($httpMethod);
 
+        // Write to $_GET | $_POST
         $GLOBALS['_' . $httpMethod]['foo']['bar'] = 'baz';
 
         $this->assertEquals(
@@ -285,11 +284,18 @@ class RequestTest extends TestCase {
     }
     
     public function testMappingPostToPatch() {
-        $request = $this->newRequest();
         $data = ['foo' => 'bar', 'baz' => 'abc'];
         $_POST = array_merge($data, ['_method' => Request::PATCH_METHOD]);
+        $request = $this->newRequest();
         $this->assertTrue($request->isPatchMethod());
         $this->assertSame($data, $request->patch());
+    }
+
+    public function testIsKnownMethod() {
+        foreach ($this->request->knownMethods() as $method) {
+            $this->assertTrue($this->request->isKnownMethod($method));
+        }
+        $this->assertFalse($this->request->isKnownMethod('unknown'));
     }
 
     private function newRequest(array $serverVars = null) {

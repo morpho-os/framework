@@ -84,5 +84,7 @@ abstract class Request extends Message {
         return $this->response;
     }
 
+    abstract public function args();
+
     abstract protected function newResponse(): IResponse;
 }

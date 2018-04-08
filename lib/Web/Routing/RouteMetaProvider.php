@@ -34,7 +34,7 @@ class RouteMetaProvider implements IFn {
     public static function parseDocComment(string $docComment): array {
         $httpMethods = $title = $uri = null;
         if (false !== strpos($docComment, '@')) {
-            $httpMethodsRegexpPart = '(?:' . implode('|', Request::methods()) . ')';
+            $httpMethodsRegexpPart = '(?:' . implode('|', Request::knownMethods()) . ')';
             $routeRegExp = '~'
                 . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (\s+(?<uri>([^*\s]+)))?                                                                   # uri    (optional)

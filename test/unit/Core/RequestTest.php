@@ -20,6 +20,10 @@ class RequestTest extends MessageTest {
             protected function newResponse(): IResponse {
                 throw new NotImplementedException(__METHOD__);
             }
+
+            public function args() {
+                throw new NotImplementedException(__METHOD__);
+            }
         };
     }
 

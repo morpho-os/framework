@@ -43,6 +43,11 @@ class Request extends BaseRequest {
     protected $method;
 
     /**
+     * @var string|false
+     */
+    private $overwrittenMethod;
+
+    /**
      * @var ?bool
      */
     protected $isAjax;
@@ -82,15 +87,13 @@ class Request extends BaseRequest {
      */
     private $uriChecker;
 
-    /**
-     * @var ?bool
-     */
-    private $mapPost;
-
     public function __construct($params = null, ?array $serverVars = null, IFn $uriChecker = null) {
         parent::__construct(null !== $params ? $params : []);
         $this->serverVars = $serverVars;
         $this->uriChecker = $uriChecker;
+        $method = $this->detectOriginalMethod();
+        $this->method = null !== $method ? $method : self::GET_METHOD;
+        $this->overwrittenMethod = $this->detectOverwrittenMethod();
     }
 
     /**
@@ -117,12 +120,12 @@ class Request extends BaseRequest {
             case self::PATCH_METHOD:
                 return $this->patch($name, $trim);
             default:
-                new BadRequestException();
+                throw new BadRequestException();
         }
     }
 
     public function data(array $source, $name = null, bool $trim = true) {
-        // NB: On change sync with query() and post()
+        // NB: On change sync code with query() and post()
         if (null === $name) {
             return $trim ? trimMore($source) : $source;
         }
@@ -145,8 +148,7 @@ class Request extends BaseRequest {
      * @return mixed @TODO Specify concrete types.
      */
     public function patch($name = null, bool $trim = true) {
-        $this->method();
-        if ($this->mapPost) {
+        if ($this->overwrittenMethod === self::PATCH_METHOD) {
             return $this->post($name, $trim);
         }
         // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
@@ -154,7 +156,7 @@ class Request extends BaseRequest {
         throw new HttpException('Method not allowed');
     }
 
-    public function hasPost(string $name) {
+    public function hasPost(string $name): bool {
         return isset($_POST[$name]);
     }
 
@@ -224,15 +226,17 @@ class Request extends BaseRequest {
         $this->uri = $uri;
     }
 
+    /**
+     * NB: $method must not be taken from user input.
+     * @param string $method
+     */
     public function setMethod(string $method): void {
-        $this->method = $this->normalizeMethod($method);
+        $this->method = strtoupper($method);
+        $this->overwrittenMethod = null;
     }
 
     public function method(): string {
-        if (null === $this->method) {
-            [$this->method, $this->mapPost] = $this->detectMethod();
-        }
-        return $this->method;
+        return null !== $this->overwrittenMethod ? $this->overwrittenMethod : $this->method;
     }
 
 /*    public function isConnectMethod(): bool {
@@ -271,11 +275,11 @@ class Request extends BaseRequest {
         return $this->method() === self::TRACE_METHOD;
     }*/
 
-    public static function isValidMethod(string $httpMethod): bool {
-        return in_array($httpMethod, self::$methods, true);
+    public function isKnownMethod($method): bool {
+        return is_string($method) && in_array($method, self::$methods, true);
     }
 
-    public static function methods(): array {
+    public static function knownMethods(): array {
         return self::$methods;
     }
 
@@ -311,7 +315,7 @@ class Request extends BaseRequest {
         return new Response();
     }
 
-    protected function initHeaders(): void{
+    protected function initHeaders(): void {
         $headers = [];
         foreach ($this->serverVars ?: $_SERVER as $key => $value) {
             if (strpos($key, 'HTTP_') === 0) {
@@ -511,20 +515,35 @@ class Request extends BaseRequest {
         }
     }
 
-    protected function detectMethod(): array {
-        if (isset($_POST['_method'])) {
-            $httpMethod = $_POST['_method'];
-            unset($_POST['_method']);
-            $mapPost = true;
-        } else {
-            $httpMethod = $this->serverVar('REQUEST_METHOD');
-            $mapPost = false;
+    protected function detectOriginalMethod(): ?string {
+        if (!empty($_SERVER['REQUEST_METHOD'])) {
+            $httpMethod = \strtoupper((string)$_SERVER['REQUEST_METHOD']);
+            if ($this->isKnownMethod($httpMethod)) {
+                return $httpMethod;
+            }
         }
-        return [$this->normalizeMethod($httpMethod), $mapPost];
+        return null;
     }
 
-    private function normalizeMethod(string $httpMethod): string {
-        $method = strtoupper($httpMethod);
-        return self::isValidMethod($method) ? $method : self::GET_METHOD;
+    protected function detectOverwrittenMethod(): ?string {
+        $overwrittenMethod = null;
+        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+            // Allow to overwrite the HTTP method with the `X-HTTP-Method-Override` HTTP header.
+            $overwrittenMethod = (string)$_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        } elseif (isset($_GET['_method'])) {
+            // Allow to pass a method through the special '_method' item.
+            $overwrittenMethod = (string)$_GET['_method'];
+            unset($_GET['_method']);
+        } elseif (isset($_POST['_method'])) {
+            $overwrittenMethod = (string)$_POST['_method'];
+            unset($_POST['_method']);
+        }
+        if (null !== $overwrittenMethod) {
+            $overwrittenMethod = \strtoupper($overwrittenMethod);
+            if ($this->isKnownMethod($overwrittenMethod)) {
+                return $overwrittenMethod;
+            }
+        }
+        return null;
     }
 }
