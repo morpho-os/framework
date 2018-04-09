@@ -9,7 +9,7 @@ namespace Morpho\Core;
 use Morpho\Base\Environment;
 
 abstract class Path {
-    public static function toRel(string $path, string $basePath): string {
+    public static function rel(string $path, string $basePath): string {
         $path = static::normalize($path);
         $basePath = static::normalize($basePath);
 

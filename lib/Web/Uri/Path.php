@@ -70,7 +70,7 @@ class Path extends BasePath implements IUriComponent {
     public function relPath(): ?string {
         if (null === $this->relPath) {
             if (null !== $this->basePath) {
-                $this->relPath = static::toRel($this->path, $this->basePath);
+                $this->relPath = static::rel($this->path, $this->basePath);
             }
         }
         return $this->relPath;

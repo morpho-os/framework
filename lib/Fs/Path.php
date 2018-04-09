@@ -71,7 +71,7 @@ class Path extends BasePath {
             : implode('/', $result);
     }
 
-    public static function toAbs(string $path, bool $normalize = true): string {
+    public static function abs(string $path, bool $normalize = true): string {
         $absPath = self::removeDotSegments($path);
         return $normalize ? self::normalize($absPath) : $absPath;
     }

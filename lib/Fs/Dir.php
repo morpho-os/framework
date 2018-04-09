@@ -79,7 +79,7 @@ class Dir extends Entry {
                 continue;
             }
             $entryPath = $item->getPathname();
-            $relPath = Path::toRel($entryPath, $sourceDirPath);
+            $relPath = Path::rel($entryPath, $sourceDirPath);
             Entry::copy($entryPath, $targetDirPath . '/' . $relPath);
         }
         return $targetDirPath;
@@ -458,7 +458,7 @@ class Dir extends Entry {
      */
     private static function delete__(string $dirPath, ?callable $predicate): void {
         self::mustExist($dirPath);
-        $absPath = Path::toAbs($dirPath, true);
+        $absPath = Path::abs($dirPath, true);
         $it = new \DirectoryIterator($absPath);
         foreach ($it as $entry) {
             if ($entry->isDot()) {

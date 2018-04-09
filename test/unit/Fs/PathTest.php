@@ -152,7 +152,7 @@ class PathTest extends TestCase {
         $this->assertTrue(Path::isNormalized('C:/foo/bar/baz'));
     }
 
-    public function dataForToAbs() {
+    public function dataForAbs() {
         return [
             ['/', '/',],
             [__DIR__, __DIR__],
@@ -165,10 +165,10 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForToAbs
+     * @dataProvider dataForAbs
      */
-    public function testToAbs($expected, $path) {
-        $actual = Path::toAbs($path);
+    public function testAbs($expected, $path) {
+        $actual = Path::abs($path);
         if (!$this->isWindows()) {
             $expected = str_replace('\\', '/', $expected);
         }
@@ -177,7 +177,7 @@ class PathTest extends TestCase {
 
     public function testToAbs_VfsPath() {
         $dirPath = 'vfs://some/path';
-        $this->assertSame($dirPath, Path::toAbs($dirPath));
+        $this->assertSame($dirPath, Path::abs($dirPath));
     }
 
     public function testCombine_UnixPaths() {
@@ -298,12 +298,12 @@ class PathTest extends TestCase {
         $this->assertEquals('/foo/bar/setosa/versicolor', Path::normalize('/foo/bar/baz/../setosa/versicolor'));
     }
 
-    public function testToRel() {
+    public function testRel() {
         $baseDirPath = __DIR__ . '/../../..';
-        $this->assertEquals(Path::toRel($baseDirPath . '/module/foo/bar', $baseDirPath), 'module/foo/bar');
-        $this->assertSame(Path::toRel($baseDirPath, $baseDirPath), '');
-        $this->assertSame(Path::toRel($baseDirPath . '/', $baseDirPath), '');
-        $this->assertSame(Path::toRel($baseDirPath . '/index.php', $baseDirPath), 'index.php');
+        $this->assertEquals(Path::rel($baseDirPath . '/module/foo/bar', $baseDirPath), 'module/foo/bar');
+        $this->assertSame(Path::rel($baseDirPath, $baseDirPath), '');
+        $this->assertSame(Path::rel($baseDirPath . '/', $baseDirPath), '');
+        $this->assertSame(Path::rel($baseDirPath . '/index.php', $baseDirPath), 'index.php');
     }
 
     public function testNameWithoutExt() {
