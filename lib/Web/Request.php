@@ -40,12 +40,12 @@ class Request extends BaseRequest {
     /**
      * @var ?string
      */
-    protected $method;
+    protected $originalMethod;
 
     /**
      * @var string|false
      */
-    private $overwrittenMethod;
+    protected $overwrittenMethod;
 
     /**
      * @var ?bool
@@ -92,7 +92,7 @@ class Request extends BaseRequest {
         $this->serverVars = $serverVars;
         $this->uriChecker = $uriChecker;
         $method = $this->detectOriginalMethod();
-        $this->method = null !== $method ? $method : self::GET_METHOD;
+        $this->originalMethod = null !== $method ? $method : self::GET_METHOD;
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
     }
 
@@ -231,12 +231,14 @@ class Request extends BaseRequest {
      * @param string $method
      */
     public function setMethod(string $method): void {
-        $this->method = strtoupper($method);
+        $this->originalMethod = strtoupper($method);
         $this->overwrittenMethod = null;
     }
 
     public function method(): string {
-        return null !== $this->overwrittenMethod ? $this->overwrittenMethod : $this->method;
+        return null !== $this->overwrittenMethod
+            ? $this->overwrittenMethod
+            : $this->originalMethod;
     }
 
 /*    public function isConnectMethod(): bool {
@@ -516,8 +518,9 @@ class Request extends BaseRequest {
     }
 
     protected function detectOriginalMethod(): ?string {
-        if (!empty($_SERVER['REQUEST_METHOD'])) {
-            $httpMethod = \strtoupper((string)$_SERVER['REQUEST_METHOD']);
+        $httpMethod = $this->serverVar('REQUEST_METHOD');
+        if (null !== $httpMethod) {
+            $httpMethod = \strtoupper((string)$httpMethod);
             if ($this->isKnownMethod($httpMethod)) {
                 return $httpMethod;
             }
@@ -527,9 +530,9 @@ class Request extends BaseRequest {
 
     protected function detectOverwrittenMethod(): ?string {
         $overwrittenMethod = null;
-        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
-            // Allow to overwrite the HTTP method with the `X-HTTP-Method-Override` HTTP header.
-            $overwrittenMethod = (string)$_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        $httpMethod = $this->serverVar('HTTP_X_HTTP_METHOD_OVERRIDE');
+        if (null !== $httpMethod) {
+            $overwrittenMethod = (string) $httpMethod;
         } elseif (isset($_GET['_method'])) {
             // Allow to pass a method through the special '_method' item.
             $overwrittenMethod = (string)$_GET['_method'];

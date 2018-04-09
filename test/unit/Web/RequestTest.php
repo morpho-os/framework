@@ -298,6 +298,43 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->request->isKnownMethod('unknown'));
     }
 
+    public function dataForMethod() {
+        foreach (Request::knownMethods() as $httpMethod) {
+            yield [$httpMethod];
+        }
+    }
+
+    /**
+     * @dataProvider dataForMethod
+     */
+    public function testMethod_OverwritingHttpMethod_ThroughMethodArg($httpMethod) {
+        $_GET['_method'] = $httpMethod;
+        $this->checkHttpMethod(['REQUEST_METHOD' => 'POST'], $httpMethod);
+    }
+
+    /**
+     * @dataProvider dataForMethod
+     */
+    public function testMethod_OverwritingHttpMethod_ThroughHeader($httpMethod) {
+        $this->checkHttpMethod([
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => $httpMethod,
+        ], $httpMethod);
+    }
+
+    /**
+     * @dataProvider dataForMethod
+     */
+    public function testMethod_Default($httpMethod) {
+        $this->checkHttpMethod(['REQUEST_METHOD' => $httpMethod], $httpMethod);
+    }
+
+    private function checkHttpMethod(array $serverVars, string $httpMethod): void {
+        $request = $this->newRequest($serverVars);
+        $this->assertSame($httpMethod, $request->method());
+        $this->assertTrue($request->{'is' . $httpMethod . 'Method'}());
+    }
+
     private function newRequest(array $serverVars = null) {
         return new Request(
             null,
