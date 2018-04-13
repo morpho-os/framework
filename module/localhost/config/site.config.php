@@ -1,6 +1,6 @@
 <?php
-use const Morpho\Core\VENDOR;
-use const Morpho\Core\CACHE_DIR_NAME;
+use const Morpho\App\Core\VENDOR;
+use const Morpho\App\Core\CACHE_DIR_NAME;
 
 $moduleDirPath = dirname(__DIR__);
 return [
@@ -51,10 +51,10 @@ return [
             'throwErrors' => false,
             /*
             'handlers' => [
-                \Morpho\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyError', 'accessDenied'],
-                \Morpho\Web\DispatchErrorHandler::BAD_REQUEST_ERROR => ['my-vendor/my-module', 'MyError', 'badRequest'],
-                \Morpho\Web\DispatchErrorHandler::NOT_FOUND_ERROR => ['my-vendor/my-module', 'MyError', 'notFound'],
-                \Morpho\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],
+                \Morpho\App\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyError', 'accessDenied'],
+                \Morpho\App\Web\DispatchErrorHandler::BAD_REQUEST_ERROR => ['my-vendor/my-module', 'MyError', 'badRequest'],
+                \Morpho\App\Web\DispatchErrorHandler::NOT_FOUND_ERROR => ['my-vendor/my-module', 'MyError', 'notFound'],
+                \Morpho\App\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],
             ],
              */
         ],

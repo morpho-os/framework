@@ -7,7 +7,7 @@
 namespace Morpho\Network\Http;
 
 use function Morpho\Base\fromJson;
-use function Morpho\Cli\shell;
+use function Morpho\App\Cli\shell;
 
 class GeckoDriverDownloader {
     public const FILE_NAME = 'geckodriver';

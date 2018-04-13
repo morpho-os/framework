@@ -8,10 +8,10 @@ namespace Morpho\Infra;
 
 use function Morpho\Base\filter;
 use Morpho\Fs\Dir;
-use const Morpho\Core\{
+use const Morpho\App\Core\{
     MODULE_DIR_NAME, TEST_DIR_NAME, LIB_DIR_NAME, VIEW_DIR_NAME
 };
-use const Morpho\Web\PUBLIC_DIR_NAME;
+use const Morpho\App\Web\PUBLIC_DIR_NAME;
 use function Morpho\Base\chain;
 
 class FilesIter implements \IteratorAggregate {

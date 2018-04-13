@@ -6,7 +6,7 @@
  */
 namespace Morpho\Network\Http;
 
-use function Morpho\Cli\shell;
+use function Morpho\App\Cli\shell;
 use Zend\Http\Client;
 use Zend\Stdlib\Parameters;
 

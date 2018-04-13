@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Identity;
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
 use Morpho\Testing\DbTestCase;
-use Morpho\Web\Session\Session;
+use Morpho\App\Web\Session\Session;
 
 class UserManagerTest extends DbTestCase {
     private $userManager;

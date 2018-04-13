@@ -7,9 +7,9 @@
 namespace Morpho\Testing;
 
 use Morpho\Base\TSingleton;
-use function Morpho\Core\moduleDirPath;
-use const Morpho\Core\MODULE_DIR_NAME;
-use const Morpho\Web\PUBLIC_DIR_NAME;
+use function Morpho\App\Core\moduleDirPath;
+use const Morpho\App\Core\MODULE_DIR_NAME;
+use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
 class Sut {

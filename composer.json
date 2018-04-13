@@ -60,9 +60,7 @@
             "lib/Base/autoload.php",
             "lib/Debug/autoload.php",
             "lib/Error/autoload.php",
-            "lib/Core/autoload.php",
-            "lib/Web/autoload.php",
-            "lib/Cli/autoload.php",
+            "lib/App/autoload.php",
             "lib/Code/autoload.php"
         ]
     },

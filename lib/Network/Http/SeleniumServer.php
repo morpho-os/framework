@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Network\Http;
-use function Morpho\Cli\shell;
+use function Morpho\App\Cli\shell;
 use Morpho\Fs\FileNotFoundException;
 
 // Uses external tools: lsof, nc, kill, killall, geckodriver, selenium-server-standalone.jar, java, printf, bash.

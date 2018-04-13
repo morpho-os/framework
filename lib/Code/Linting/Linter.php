@@ -8,8 +8,8 @@ namespace Morpho\Code\Linting;
 
 use function Morpho\Base\showLn;
 use function Morpho\Base\wrapQ;
-use function Morpho\Cli\showErrorLn;
-use function Morpho\Cli\showOk;
+use function Morpho\App\Cli\showErrorLn;
+use function Morpho\App\Cli\showOk;
 use Morpho\Fs\Dir;
 
 class Linter {

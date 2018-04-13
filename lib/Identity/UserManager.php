@@ -7,7 +7,7 @@
 namespace Morpho\Identity;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Web\Session\Session;
+use Morpho\App\Web\Session\Session;
 
 class UserManager {
     public const LOGIN_NOT_FOUND_ERROR      = 'loginNotFound';

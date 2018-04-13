@@ -7,7 +7,7 @@
 namespace Morpho\Network\Http;
 
 use function Morpho\Base\filter;
-use function Morpho\Cli\shell;
+use function Morpho\App\Cli\shell;
 use Morpho\Xml\Doc;
 
 // Based on https://github.com/jarib/selenium-travis/blob/master/selenium-webdriver/lib/selenium/server.rb

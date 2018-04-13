@@ -3,7 +3,7 @@
 namespace Morpho\Infra;
 
 use function Morpho\Base\endsWith;
-use function Morpho\Cli\shell;
+use function Morpho\App\Cli\shell;
 
 require __DIR__ . '/../vendor/autoload.php';
 

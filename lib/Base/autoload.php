@@ -7,7 +7,7 @@
 namespace Morpho\Base;
 
 use Closure;
-use Morpho\Web\View\Html;
+use Morpho\App\Web\View\Html;
 use RuntimeException;
 use Throwable;
 use UnexpectedValueException;

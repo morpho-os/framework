@@ -10,7 +10,7 @@ use DOMDocument;
 
 use Morpho\Base\InvalidConfigException;
 use Morpho\Fs\File;
-use Morpho\Web\View\Html;
+use Morpho\App\Web\View\Html;
 
 /**
  * @method XPathResult select(string $xPath, $contextNode = null)

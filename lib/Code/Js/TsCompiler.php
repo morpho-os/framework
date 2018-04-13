@@ -10,8 +10,8 @@ use Morpho\Base\Config;
 use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
-use Morpho\Cli\ICommandResult;
-use function Morpho\Cli\shell;
+use Morpho\App\Cli\ICommandResult;
+use function Morpho\App\Cli\shell;
 use Morpho\Fs\File;
 
 class TsCompiler implements IFn {

@@ -9,7 +9,7 @@ namespace Morpho\Fs;
 use Morpho\Base\Environment;
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
-use Morpho\Core\Path as BasePath;
+use Morpho\App\Core\Path as BasePath;
 
 class Path extends BasePath {
     public static function isAbs(string $path): bool {
