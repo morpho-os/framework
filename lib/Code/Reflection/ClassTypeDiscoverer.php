@@ -48,11 +48,7 @@ class ClassTypeDiscoverer {
     }
 
     public function classTypesDefinedInFile(string $filePath): array {
-        $map = [];
-        foreach ($this->discoverStrategy()->classTypesDefinedInFile($filePath) as $classType) {
-            $map[$classType] = $filePath;
-        }
-        return $map;
+        return $this->discoverStrategy()->classTypesDefinedInFile($filePath);
     }
 
     public function setDiscoverStrategy(IDiscoverStrategy $strategy): self {

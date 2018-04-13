@@ -102,7 +102,7 @@ class FileChecker {
     protected static function classes(string $filePath): iterable {
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         $classes = $classTypeDiscoverer->classTypesDefinedInFile($filePath);
-        return array_keys($classes);
+        return $classes;
         /*
         $rFile = new ReflectionFile($filePath);
         foreach ($rFile->namespaces() as $rNamespace) {
