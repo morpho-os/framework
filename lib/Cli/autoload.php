@@ -182,6 +182,11 @@ function checkResult(ICommandResult $result) {
     }
 }
 
+function ask(string $question): string {
+    echo $question;
+    return fgets(STDIN);
+}
+
 function askYesNo(string $question): bool {
     echo $question . "? (y/n): ";
     do {
