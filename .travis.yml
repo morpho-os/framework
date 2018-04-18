@@ -58,6 +58,7 @@ install:
   - "cd public && npm install && cd .."
 
   - "travis_retry composer selfupdate && composer --version"
+  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN}
   # Use `--prefer-dist` to download an archive instead of downloading sources.
   - travis_retry composer install --prefer-dist --no-interaction
 
