@@ -86,7 +86,7 @@ abstract class DbClient {
      * @return mixed|false
      */
     public function dbName() {
-        return $this->eval($this->query()->dbName())->cell();
+        return $this->eval($this->query()->dbName())->field();
     }
 
     abstract public function query(): GeneralQuery;
@@ -133,7 +133,7 @@ abstract class DbClient {
         $query = $this->query();
         $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . '(';
         $sql .= implode(', ', $query->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
-        $this->eval($sql, array_values($row));
+        $this->eval($sql, $row);
     }
 
     abstract public function insertRows(string $tableName, array $rows): void;
@@ -176,7 +176,7 @@ abstract class DbClient {
         /** @var $stmt Result */
         if ($args) {
             $stmt = $this->connection->prepare($sql);
-            $stmt->execute($args);
+            $stmt->execute(array_values($args));
         } else {
             $stmt = $this->connection->query($sql);
         }

@@ -29,6 +29,6 @@ class SelectQueryTest extends DbTestCase {
             ->columns('123')
             ->eval();
         $this->assertInstanceOf(Result::class, $res);
-        $this->assertSame(123, $res->cell());
+        $this->assertSame(123, $res->field());
     }
 }

@@ -67,9 +67,9 @@ SQL
         $this->assertEquals('1', $this->db->lastInsertId('some'));
     }
 
-    public function testSelectCell() {
+    public function testSelectField() {
         $this->createTestTableWithData();
-        $this->assertEquals('some value', $this->db->select("foo FROM test")->cell());
+        $this->assertEquals('some value', $this->db->select("foo FROM test")->field());
     }
 
     public function testUpdateRows_WhereConditionArray() {
@@ -188,6 +188,13 @@ SQL
         $pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
         $connection = \Morpho\Db\Sql\DbClient::connect($pdo);
         $this->assertInstanceOf(DbClient::class, $connection);
+    }
+
+    public function testUpdateRows_ArgsIsMap() {
+        $this->createTestTable();
+        $this->db->insertRow('test', ['foo' => 'bar']);
+        $this->db->updateRows('test', ['foo' => '123'], ['foo' => 'bar']);
+        $this->assertSame([['foo' => '123']], $this->db->select('foo FROM test')->rows());
     }
 
     private function setTestDataForUpdateRows() {

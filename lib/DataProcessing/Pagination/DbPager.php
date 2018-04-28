@@ -26,7 +26,7 @@ abstract class DbPager extends Pager implements IHasServiceManager {
     }
 
     protected function calculateTotalItemsCount(): int {
-        return $this->db()->select('COUNT(*) FROM (' . $this->sqlQuery() . ') AS t')->cell();
+        return $this->db()->select('COUNT(*) FROM (' . $this->sqlQuery() . ') AS t')->field();
     }
 
     protected function db() {

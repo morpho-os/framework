@@ -61,7 +61,7 @@ class Schema extends BaseSchema {
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = ?',
             [$dbName]
-        )->cell();
+        )->field();
     }
 
     public function userExists(string $userName): bool {

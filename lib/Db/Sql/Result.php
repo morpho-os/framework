@@ -6,6 +6,8 @@
  */
 namespace Morpho\Db\Sql;
 
+use function Morpho\Base\toArray;
+
 class Result extends \PDOStatement implements \Countable {
     // Override the constructor to fix the "PDOException: SQLSTATE[HY000]: General error: user-supplied statement does not accept constructor arguments in ..."
     protected function __construct() {
@@ -29,12 +31,12 @@ class Result extends \PDOStatement implements \Countable {
     /**
      * @return mixed|false Returns false if the value is not found, and other non-false value otherwise.
      */
-    public function cell() {
+    public function field() {
         return $this->fetchColumn(0);
     }
 
     public function boolVal() {
-        return (bool) $this->cell();
+        return (bool) $this->field();
     }
 
     public function map(): array {
