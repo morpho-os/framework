@@ -182,9 +182,17 @@ function checkResult(ICommandResult $result) {
     }
 }
 
-function ask(string $question): string {
+/**
+ * @param string $question
+ */
+function ask(string $question) {
     echo $question;
-    return fgets(STDIN);
+    $result = fgets(STDIN);
+    // fgets() returns false on Ctrl-D
+    if (false === $result) {
+        $result = '';
+    }
+    return rtrim($result);
 }
 
 function askYesNo(string $question): bool {
