@@ -86,11 +86,24 @@ OUT
         shell('ls', ['some invalid option' => 'value of invalid option']);
     }
 
-    public function testShell_CommandAsString() {
-        $result = shell('ls '  . escapeshellarg(__DIR__), ['capture' => true]);
+    public function dataForShell_CaptureAndShowConfigOptions() {
+        yield [false, false];
+        yield [false, true];
+        yield [true, false];
+        yield [true, true];
+    }
+
+    /**
+     * @dataProvider dataForShell_CaptureAndShowConfigOptions
+     */
+    public function testShell_CaptureAndShowConfigOptions(bool $capture, bool $show) {
+        $cmd = 'ls '  . escapeshellarg(__DIR__);
+        ob_start();
+        $result = shell($cmd, ['capture' => $capture, 'show' => $show]);
+        $this->assertContains($show ? basename(__FILE__) : '', ob_get_clean());
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
-        $this->assertContains(basename(__FILE__), (string)$result);
+        $this->assertContains($capture ? basename(__FILE__) : '', (string)$result);
     }
 
     public function testShell_CheckExitConfigParam() {

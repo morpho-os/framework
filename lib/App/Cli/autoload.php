@@ -127,6 +127,7 @@ function shell(string $command, array $config = null): ICommandResult {
         'checkCode' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
+        'show' => true,
         'envVars' => null,
     ]);
     $output = '';
@@ -135,18 +136,31 @@ function shell(string $command, array $config = null): ICommandResult {
         $command = envVarsToStr($config['envVars']) . ';' . $command;
     }
 
-    if (!$config['capture']) {
-        passthru($command, $exitCode);
-    } else {
+    if ($config['capture']) {
         $output = capture(function () use ($command, &$exitCode) {
-            passthru($command, $exitCode);
+            \passthru($command, $exitCode);
         });
+        if ($config['show']) {
+            // Capture and show
+            echo $output;
+        }
+    } else {
+        if ($config['show']) {
+            // Don't capture, but show
+            \passthru($command, $exitCode);
+        } else {
+            // Don't capture, don't show => we are capturing to avoid displaying the result, but don't save the output.
+            capture(function () use ($command, &$exitCode) {
+                \passthru($command, $exitCode);
+            });
+        }
     }
+
     if ($config['checkCode']) {
         checkExitCode($exitCode);
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
-    // @TODO: How to get stdErr?
+    // @TODO: To get stderr use 2>&1 at the end.
     return new ShellCommandResult($command, $exitCode, $output, $output);
 }
 
