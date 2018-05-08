@@ -30,7 +30,7 @@ OUT
                 'Second line',
                 'Third line'
             ],
-            iterator_to_array($res->lines())
+            \iterator_to_array($res->lines())
         );
     }
 

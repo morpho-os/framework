@@ -26,19 +26,19 @@ class MessengerTest extends TestCase {
     public function testCount() {
         $this->assertInstanceOf('\Countable', $this->messenger);
 
-        $this->assertEquals(0, count($this->messenger));
+        $this->assertCount(0, $this->messenger);
 
         $this->messenger->addErrorMessage("Unknown error has been occurred, please power-off of your machine");
 
-        $this->assertEquals(1, count($this->messenger));
+        $this->assertCount(1, $this->messenger);
 
         $this->messenger->addWarningMessage("A new warning has been occurred again.");
 
-        $this->assertEquals(2, count($this->messenger));
+        $this->assertCount(2, $this->messenger);
 
         $this->messenger->clearMessages();
 
-        $this->assertEquals(0, count($this->messenger));
+        $this->assertCount(0, $this->messenger);
     }
 
     public function testHasMessages() {

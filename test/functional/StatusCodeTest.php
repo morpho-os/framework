@@ -37,17 +37,17 @@ class StatusCodeTest extends BrowserTestCase {
         $response = (new HttpClient())
             ->setMaxNumberOfRedirects(0)
             ->get($this->uri($relUri), null);
-        $this->assertEquals($expectedCode, $response->statusCode(), 'Response: ' . substr($response->body(), 0, 1000));
+        $this->assertEquals($expectedCode, $response->statusCode(), 'Response: ' . \substr($response->body(), 0, 1000));
 
         if (null !== $expectedTitle || null !== $expectedText) {
             $html = $response->body();
 
             if (null !== $expectedTitle) {
-                $this->assertContains('<title>' . htmlspecialchars($expectedTitle, ENT_QUOTES) . '</title>', $html);
-                $this->assertRegExp('~<h1[^>]*>' . preg_quote(htmlspecialchars($expectedTitle, ENT_QUOTES), '~') . '</h1>~s', $html);
+                $this->assertContains('<title>' . \htmlspecialchars($expectedTitle, ENT_QUOTES) . '</title>', $html);
+                $this->assertRegExp('~<h1[^>]*>' . \preg_quote(\htmlspecialchars($expectedTitle, ENT_QUOTES), '~') . '</h1>~s', $html);
             }
             if (null !== $expectedText) {
-                $this->assertContains(htmlspecialchars($expectedText, ENT_QUOTES), $html);
+                $this->assertContains(\htmlspecialchars($expectedText, ENT_QUOTES), $html);
             }
         }
     }

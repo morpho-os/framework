@@ -39,7 +39,7 @@ class EventManagerTest extends TestCase {
         $dispatchErrorHandler->expects($this->once())
             ->method('throwErrors')
             ->with($this->identicalTo($throwErrors));
-        $dispatchErrorHandler->expects($this->exactly(count($handlers)))
+        $dispatchErrorHandler->expects($this->exactly(\count($handlers)))
             ->method('setHandler')
             ->withConsecutive(
                 [$this->identicalTo(DispatchErrorHandler::ACCESS_DENIED_ERROR), $this->identicalTo($handlers[DispatchErrorHandler::ACCESS_DENIED_ERROR])],
@@ -90,7 +90,7 @@ class EventManagerTest extends TestCase {
         $renderer = new class implements IFn {
             public $args;
             public function __invoke($value) {
-                $this->args = func_get_args();
+                $this->args = \func_get_args();
             }
         };
         $eventManager->renderer = $renderer;

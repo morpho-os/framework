@@ -14,7 +14,7 @@ use Morpho\Testing\TestCase;
 
 class FileTest extends TestCase {
     public function testInheritance() {
-        $this->assertEquals(Entry::class, get_parent_class(File::class));
+        $this->assertEquals(Entry::class, \get_parent_class(File::class));
     }
 
     public function testMustExist_EmptyFilePath() {
@@ -29,18 +29,18 @@ class FileTest extends TestCase {
 
     public function testIsEmpty() {
         $tmpFilePath = $this->createTmpDir() . '/123';
-        touch($tmpFilePath);
+        \touch($tmpFilePath);
         $this->assertTrue(File::isEmpty($tmpFilePath));
-        file_put_contents($tmpFilePath, 'ok');
+        \file_put_contents($tmpFilePath, 'ok');
         $this->assertFalse(File::isEmpty($tmpFilePath));
-        file_put_contents($tmpFilePath, '');
+        \file_put_contents($tmpFilePath, '');
         $this->assertTrue(File::isEmpty($tmpFilePath));
     }
 
     public function testReadJson() {
         $tmpDirPath = $this->createTmpDir();
         $targetFilePath = $tmpDirPath . '/composer.json';
-        copy($this->getTestDirPath() . '/composer.json', $targetFilePath);
+        \copy($this->getTestDirPath() . '/composer.json', $targetFilePath);
 
         $this->assertEquals([
             'require'     => [
@@ -55,14 +55,14 @@ class FileTest extends TestCase {
 
     public function testWriteJson() {
         $targetFilePath = $this->createTmpDir() . '/composer.json';
-        $this->assertTrue(!is_file($targetFilePath));
+        $this->assertTrue(!\is_file($targetFilePath));
         $dataToWrite = ['ping' => 'pong'];
         $this->assertEquals($targetFilePath, File::writeJson($targetFilePath, $dataToWrite));
         $this->assertEquals($dataToWrite, File::readJson($targetFilePath));
     }
 
     public function testDelete() {
-        $targetFilePath = $this->tmpDirPath() . '/' . basename(__FILE__);
+        $targetFilePath = $this->tmpDirPath() . '/' . \basename(__FILE__);
         File::copy(__FILE__, $targetFilePath);
         $this->assertFileExists($targetFilePath);
 
@@ -73,24 +73,24 @@ class FileTest extends TestCase {
 
     public function testDeleteNonExistentFileThrowsException() {
         $this->expectException(FileNotFoundException::class);
-        File::delete($this->tmpDirPath() . '/' . md5(uniqid()) . '.php');
+        File::delete($this->tmpDirPath() . '/' . \md5(\uniqid()) . '.php');
     }
 
     public function testTruncate() {
-        $filePath = $this->createTmpDir() . '/' . basename(md5(__METHOD__));
+        $filePath = $this->createTmpDir() . '/' . \basename(\md5(__METHOD__));
         $this->assertFileNotExists($filePath);
         $someString = '123';
-        file_put_contents($filePath, $someString);
-        $this->assertEquals($someString, file_get_contents($filePath));
+        \file_put_contents($filePath, $someString);
+        $this->assertEquals($someString, \file_get_contents($filePath));
         File::truncate($filePath);
-        $this->assertEquals('', file_get_contents($filePath));
-        $this->assertEquals(0, filesize($filePath));
+        $this->assertEquals('', \file_get_contents($filePath));
+        $this->assertEquals(0, \filesize($filePath));
     }
 
     public function testMove_ToNonExistentDirAndFile() {
-        $sourceFilePath = $this->createTmpDir() . '/' . basename(md5(__METHOD__));
+        $sourceFilePath = $this->createTmpDir() . '/' . \basename(\md5(__METHOD__));
         $this->assertFileNotExists($sourceFilePath);
-        copy(__FILE__, $sourceFilePath);
+        \copy(__FILE__, $sourceFilePath);
         $this->assertFileExists($sourceFilePath);
         $targetFilePath = $this->createTmpDir() . '/some/new/name.php';
         $this->assertFileNotExists($targetFilePath);
@@ -98,7 +98,7 @@ class FileTest extends TestCase {
         $this->assertEquals($targetFilePath, File::move($sourceFilePath, $targetFilePath));
 
         $this->assertFileExists($targetFilePath);
-        $this->assertEquals(filesize(__FILE__), filesize($targetFilePath));
+        $this->assertEquals(\filesize(__FILE__), \filesize($targetFilePath));
     }
 
     public function testMove_NonExistentSourceFileThrowsException() {
@@ -118,13 +118,13 @@ class FileTest extends TestCase {
 
     public function testCopy() {
         $tmpDirPath = $this->createTmpDir();
-        $outFilePath = $tmpDirPath . '/foo/bar/baz/' . basename(__FILE__);
+        $outFilePath = $tmpDirPath . '/foo/bar/baz/' . \basename(__FILE__);
         $this->assertFileNotExists($outFilePath);
 
         $this->assertEquals($outFilePath, File::copy(__FILE__, $outFilePath));
 
         $this->assertFileExists($outFilePath);
-        $this->assertEquals(filesize(__FILE__), filesize($outFilePath));
+        $this->assertEquals(\filesize(__FILE__), \filesize($outFilePath));
     }
 
     public function testCopy_IfSourceIsDirThrowsException() {
@@ -136,10 +136,10 @@ class FileTest extends TestCase {
     public function testWrite() {
         $tmpDirPath = $this->createTmpDir();
         $filePath = $tmpDirPath . '/foo.txt';
-        $this->assertFalse(is_file($filePath));
+        $this->assertFalse(\is_file($filePath));
         $this->assertEquals($filePath, File::write($filePath, 'test'));
-        $this->assertTrue(is_file($filePath));
-        $this->assertEquals('test', file_get_contents($filePath));
+        $this->assertTrue(\is_file($filePath));
+        $this->assertEquals('test', \file_get_contents($filePath));
     }
 
     public function testWrite_IntFlags() {
@@ -160,10 +160,10 @@ class FileTest extends TestCase {
     public function testCopyWithoutOverwrite() {
         $tmpDirPath = $this->createTmpDir('foo/bar/baz');
         $sourceFilePath = __FILE__;
-        $targetFilePath = $tmpDirPath . '/' . basename($sourceFilePath);
-        $this->assertFalse(is_file($targetFilePath));
-        touch($targetFilePath);
-        $this->assertTrue(is_file($targetFilePath));
+        $targetFilePath = $tmpDirPath . '/' . \basename($sourceFilePath);
+        $this->assertFalse(\is_file($targetFilePath));
+        \touch($targetFilePath);
+        $this->assertTrue(\is_file($targetFilePath));
 
         try {
             File::copy($sourceFilePath, $targetFilePath, false);
@@ -171,41 +171,41 @@ class FileTest extends TestCase {
         } catch (FsException $e) {
         }
 
-        $this->assertEquals(0, filesize($targetFilePath));
+        $this->assertEquals(0, \filesize($targetFilePath));
     }
 
     public function testCopyWithoutOverwriteAndWithSkipIfExists() {
         $tmpDirPath = $this->createTmpDir('foo/bar/baz');
         $sourceFilePath = __FILE__;
-        $targetFilePath = $tmpDirPath . '/' . basename($sourceFilePath);
-        $this->assertFalse(is_file($targetFilePath));
-        touch($targetFilePath);
-        $this->assertTrue(is_file($targetFilePath));
+        $targetFilePath = $tmpDirPath . '/' . \basename($sourceFilePath);
+        $this->assertFalse(\is_file($targetFilePath));
+        \touch($targetFilePath);
+        $this->assertTrue(\is_file($targetFilePath));
 
         $this->assertEquals($targetFilePath, File::copy($sourceFilePath, $targetFilePath, false, true));
-        $this->assertEquals(0, filesize($targetFilePath));
+        $this->assertEquals(0, \filesize($targetFilePath));
     }
 
     public function testCopyWithOverwrite() {
         $tmpDirPath = $this->createTmpDir('foo/bar/baz');
-        $outFilePath = $tmpDirPath . '/' . basename(__FILE__);
-        $this->assertFalse(is_file($outFilePath));
-        touch($outFilePath);
-        $this->assertTrue(is_file($outFilePath));
+        $outFilePath = $tmpDirPath . '/' . \basename(__FILE__);
+        $this->assertFalse(\is_file($outFilePath));
+        \touch($outFilePath);
+        $this->assertTrue(\is_file($outFilePath));
 
         $this->assertEquals($outFilePath, File::copy(__FILE__, $outFilePath, true));
 
-        $this->assertTrue(is_file($outFilePath));
-        $this->assertEquals(filesize(__FILE__), filesize($outFilePath));
+        $this->assertTrue(\is_file($outFilePath));
+        $this->assertEquals(\filesize(__FILE__), \filesize($outFilePath));
     }
 
     public function testCopyToDirWithoutFileName() {
         $tmpDir = $this->createTmpDir();
         $sourceFilePath = __FILE__;
-        $copiedFilePath = $tmpDir . '/' . basename($sourceFilePath);
-        $this->assertFalse(file_exists($copiedFilePath));
+        $copiedFilePath = $tmpDir . '/' . \basename($sourceFilePath);
+        $this->assertFalse(\file_exists($copiedFilePath));
         File::copy($sourceFilePath, $tmpDir);
-        $this->assertTrue(file_exists($copiedFilePath));
+        $this->assertTrue(\file_exists($copiedFilePath));
     }
 
     public function testReadTextFileWithBom() {
@@ -214,7 +214,7 @@ class FileTest extends TestCase {
 
     public function testReadBinary() {
         $content = File::read($this->getTestDirPath() . '/binary.jpg');
-        $this->assertEquals("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01", substr($content, 0, 16));
+        $this->assertEquals("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01", \substr($content, 0, 16));
     }
 
     public function testReadFileAsArray_NonExistingFile() {
@@ -224,7 +224,7 @@ class FileTest extends TestCase {
 
     public function testUsingFile_DefaultTmpDir() {
         $this->assertSame('ok', File::withTmp(function ($filePath) use (&$usedFilePath) {
-            $this->assertSame(0, filesize($filePath));
+            $this->assertSame(0, \filesize($filePath));
             $usedFilePath = $filePath;
             return 'ok';
         }));
@@ -235,7 +235,7 @@ class FileTest extends TestCase {
     public function testWithTmp_NonDefaultTmpDir() {
         $tmpDirPath = $this->createTmpDir(__FUNCTION__);
         $this->assertSame('ok', File::withTmp(function ($filePath) use (&$usedFilePath) {
-            $this->assertSame(0, filesize($filePath));
+            $this->assertSame(0, \filesize($filePath));
             $usedFilePath = $filePath;
             return 'ok';
         }, $tmpDirPath));
@@ -251,7 +251,7 @@ class FileTest extends TestCase {
             yield 'Third';
         };
         File::writeLines($tmpFilePath, $gen());
-        $this->assertEquals(['First', 'Second', 'Third'], file($tmpFilePath, FILE_IGNORE_NEW_LINES));
+        $this->assertEquals(['First', 'Second', 'Third'], \file($tmpFilePath, FILE_IGNORE_NEW_LINES));
     }
 
     public function testWriteLines_Array() {
@@ -262,7 +262,7 @@ class FileTest extends TestCase {
             'Third',
         ];
         File::writeLines($tmpFilePath, $lines);
-        $this->assertEquals($lines, file($tmpFilePath, FILE_IGNORE_NEW_LINES));
+        $this->assertEquals($lines, \file($tmpFilePath, FILE_IGNORE_NEW_LINES));
     }
 
     public function testWriteLines_Iterator() {
@@ -273,12 +273,12 @@ class FileTest extends TestCase {
             'Third',
         ];
         File::writeLines($tmpFilePath, new \ArrayIterator($lines));
-        $this->assertEquals($lines, file($tmpFilePath, FILE_IGNORE_NEW_LINES));
+        $this->assertEquals($lines, \file($tmpFilePath, FILE_IGNORE_NEW_LINES));
     }
 
     public function testReadLines_DefaultConfig() {
         $tmpFilePath = $this->createTmpFile();
-        file_put_contents($tmpFilePath, <<<OUT
+        \file_put_contents($tmpFilePath, <<<OUT
     First
        
    Second	
@@ -291,7 +291,7 @@ OUT
             '   Second',
             '     Third',
         ];
-        $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath), false));
+        $this->assertEquals($expected, \iterator_to_array(File::readLines($tmpFilePath), false));
     }
 
     public function testReadLines_ThrowsExceptionIfBothLastArgumentsAreArrays() {
@@ -302,7 +302,7 @@ OUT
 
     public function testReadLines_DoesNotSkipEmptyLinesIfFilterProvided() {
         $tmpFilePath = $this->createTmpFile();
-        file_put_contents($tmpFilePath, <<<OUT
+        \file_put_contents($tmpFilePath, <<<OUT
     First
        
    Second	
@@ -317,6 +317,6 @@ OUT
             '     Third',
             '',
         ];
-        $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath, function () { return true; }), false));
+        $this->assertEquals($expected, \iterator_to_array(File::readLines($tmpFilePath, function () { return true; }), false));
     }
 }

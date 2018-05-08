@@ -9,19 +9,19 @@ namespace Morpho\Test;
 use const Morpho\App\Core\{AUTOLOAD_FILE_NAME, VENDOR_DIR_NAME};
 use Morpho\Testing\Sut;
 
-date_default_timezone_set('UTC');
+\date_default_timezone_set('UTC');
 
 (function () {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
     $classLoader->addPsr4(__NAMESPACE__ . '\\Unit\\', __DIR__ . '/unit');
     $classLoader->addPsr4(__NAMESPACE__ . '\\Functional\\', __DIR__ . '/functional');
 
-    foreach (glob(Sut::instance()->baseModuleDirPath() . '/*') as $path) {
-        if (!is_dir($path)) {
+    foreach (\glob(Sut::instance()->baseModuleDirPath() . '/*') as $path) {
+        if (!\is_dir($path)) {
             continue;
         }
         $autoloadFilePath = $path . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
-        if (is_file($autoloadFilePath)) {
+        if (\is_file($autoloadFilePath)) {
             require $autoloadFilePath;
         }
     }

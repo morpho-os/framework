@@ -76,7 +76,7 @@ class SiteFactoryTest extends TestCase {
      */
     public function testDetectHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
-        $this->assertSame(strtolower($expected), SiteFactory::detectHostName());
+        $this->assertSame(\strtolower($expected), SiteFactory::detectHostName());
     }
 
     public function dataForDetectHostName_InvalidIps() {
@@ -136,7 +136,7 @@ class SiteFactoryTest extends TestCase {
     public function testInvoke_ValidHost(string $hostName, string $moduleName, string $siteDirPath, array $siteConfig) {
         $siteConfigFilePath = $siteDirPath . '/' . CONFIG_DIR_NAME . '/config.php';
 
-        $expectedSiteConfig = new \ArrayObject(array_merge($siteConfig, [
+        $expectedSiteConfig = new \ArrayObject(\array_merge($siteConfig, [
             'paths' => [
                 'dirPath' => $siteDirPath,
                 'configFilePath' => $siteConfigFilePath,

@@ -117,9 +117,9 @@ class UriValidatorTest extends TestCase {
 
     private function validatePath(string $path, bool $isValid, bool $hasAuthority): void {
         if ($isValid) {
-            $this->assertTrue(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . print_r($path, true));
+            $this->assertTrue(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
         } else {
-            $this->assertFalse(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . print_r($path, true));
+            $this->assertFalse(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
         }
     }
 

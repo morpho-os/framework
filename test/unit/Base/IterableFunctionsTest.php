@@ -33,7 +33,7 @@ class IterableFunctionsTest extends TestCase {
         foreach (['filter', 'flatMap', 'map'] as $fn) {
             $fn = '\\Morpho\\Base\\' . $fn;
             foreach ($this->dataForEmptyList() as $row) {
-                yield array_merge([$fn], $row);
+                yield \array_merge([$fn], $row);
             }
         }
     }
@@ -282,11 +282,11 @@ class IterableFunctionsTest extends TestCase {
             'd'
         ]);
         $res = filter(function ($v, $k) {
-            $this->assertTrue(is_numeric($k));
+            $this->assertTrue(\is_numeric($k));
             return $v !== 'c';
         }, $it);
         $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['a', 'b', 'd'], iterator_to_array($res, false));
+        $this->assertEquals(['a', 'b', 'd'], \iterator_to_array($res, false));
     }
 
     public function testFilter_Iterator_StringKeys() {
@@ -297,7 +297,7 @@ class IterableFunctionsTest extends TestCase {
             'd' => 'Neptune',
         ]);
         $res = filter(function ($v, $k) {
-            $this->assertTrue(is_string($k));
+            $this->assertTrue(\is_string($k));
             return $v !== 'Uranus';
         }, $it);
         $this->assertInstanceOf(\Generator::class, $res);
@@ -305,7 +305,7 @@ class IterableFunctionsTest extends TestCase {
             'a' => 'Mercury',
             'b'  => 'Jupiter',
             'd' => 'Neptune',
-        ], iterator_to_array($res));
+        ], \iterator_to_array($res));
     }
 
     public function testFilter_Generator_NumericKeys() {
@@ -556,7 +556,7 @@ class IterableFunctionsTest extends TestCase {
             'd'
         ]);
         $res = map(function ($v, $k) {
-            $this->assertTrue(is_numeric($k));
+            $this->assertTrue(\is_numeric($k));
             $map = [
                 'a' => 'foo',
                 'b' => 'bar',
@@ -566,7 +566,7 @@ class IterableFunctionsTest extends TestCase {
             return $map[$v];
         }, $it);
         $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['foo', 'bar', 'baz', 'pizza'], iterator_to_array($res, false));
+        $this->assertEquals(['foo', 'bar', 'baz', 'pizza'], \iterator_to_array($res, false));
     }
 
     public function testMap_Iterator_StringKeys() {
@@ -643,7 +643,7 @@ class IterableFunctionsTest extends TestCase {
      * @dataProvider dataForEmptyList
      */
     public function testReduce_EmptyList($iter) {
-        if (is_string($iter)) {
+        if (\is_string($iter)) {
             $this->markTestIncomplete();
         }
         $fn = $this->errFn();
@@ -692,7 +692,7 @@ class IterableFunctionsTest extends TestCase {
      */
     public function testTail_EmptyList($v, $sep) {
         $this->expectEmptyListException();
-        iterator_to_array(tail($v, $sep));
+        \iterator_to_array(tail($v, $sep));
     }
 
     public function testTail_String_WithSeparator() {
@@ -729,7 +729,7 @@ class IterableFunctionsTest extends TestCase {
         ]);
         $res = tail($it);
         $this->assertInstanceOf(\Generator::class, $res);
-        $this->assertEquals(['b', 'c', 'd'], iterator_to_array($res, false));
+        $this->assertEquals(['b', 'c', 'd'], \iterator_to_array($res, false));
     }
 
     public function testTail_Iterator_StringKeys() {
@@ -809,7 +809,7 @@ class IterableFunctionsTest extends TestCase {
      * @Copyright (c) 2013 by Nikita Popov.
      */
     public function testChain() {
-        $chained = chain(range(1, 3), range(4, 6), range(7, 9));
+        $chained = chain(\range(1, 3), \range(4, 6), \range(7, 9));
         $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8, 9], toArray($chained));
         $this->assertSame([], toArray(chain()));
     }
@@ -902,9 +902,9 @@ class IterableFunctionsTest extends TestCase {
     }
 
     private function checkResForEmptyList($res, $iter) {
-        if (is_string($iter)) {
+        if (\is_string($iter)) {
             $this->assertSame('', $res);
-        } elseif (is_array($iter)) {
+        } elseif (\is_array($iter)) {
             $this->assertSame([], $res);
         } else {
             $this->assertInstanceOf(\Generator::class, $res);

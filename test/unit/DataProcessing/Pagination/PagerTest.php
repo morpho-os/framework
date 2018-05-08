@@ -37,23 +37,23 @@ class PagerTest extends TestCase {
     }
 
     public function testPagesCount() {
-        $this->assertEquals(0, count($this->pager));
+        $this->assertCount(0, $this->pager);
         $this->assertEquals(0, $this->pager->count());
         $this->assertEquals(0, $this->pager->totalPagesCount());
 
         $this->pager->setItems([1, 2, 3, 4, 5, 6, 7]);
         $this->pager->setPageSize(2);
 
-        $this->assertEquals(4, count($this->pager));
+        $this->assertCount(4, $this->pager);
         $this->assertEquals(4, $this->pager->count());
         $this->assertEquals(4, $this->pager->totalPagesCount());
 
         $this->pager->setPageSize(20);
-        $this->assertEquals(1, count($this->pager));
+        $this->assertCount(1, $this->pager);
         $this->assertEquals(1, $this->pager->count());
         $this->assertEquals(1, $this->pager->totalPagesCount());
 
-        $this->assertTrue(gettype($this->pager->count()) == 'integer');
+        $this->assertTrue(\gettype($this->pager->count()) == 'integer');
 
         $this->pager->setItems([]);
         $this->assertEquals(0, $this->pager->totalPagesCount());
@@ -67,7 +67,7 @@ class PagerTest extends TestCase {
     public function testNewPageByNumber() {
         $totalItemsCount = 7;
         $this->pager->setPageSize(2);
-        $items = range(0, $totalItemsCount - 1);
+        $items = \range(0, $totalItemsCount - 1);
         $this->pager->setItems($items);
         $this->assertEquals([6], $this->pager->newPageByNumber(4)->toArray());
         $this->assertEquals([4, 5], $this->pager->newPageByNumber(3)->toArray());

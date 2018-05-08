@@ -13,13 +13,13 @@ use Morpho\Infra\Psr4Mapper;
 require __DIR__ . '/../vendor/autoload.php';
 
 function main(): void {
-    $moduleDirPath = realpath(__DIR__ . '/..');
+    $moduleDirPath = \realpath(__DIR__ . '/..');
     $mappers = [];
     $absDirPath = function (string $relDirPath) use ($moduleDirPath) {
         return Path::combine($moduleDirPath, $relDirPath);
     };
     $fqNs = function ($ns) {
-        return 'Morpho\\' . trim($ns, '\\') . '\\';
+        return 'Morpho\\' . \trim($ns, '\\') . '\\';
     };
     $mappers[] = new Psr4Mapper('Morpho\\', $absDirPath('lib'), Linter::phpFilePaths());
     $mappers[] = new Psr4Mapper($fqNs('Test'), $absDirPath('test'), Linter::testFilePaths(false));

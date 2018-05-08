@@ -25,7 +25,7 @@ class InsertQueryTest extends DbTestCase {
     }
 
     public function testInsert_SingleRow() {
-        $now = time();
+        $now = \time();
         $query = (new InsertQuery($this->newDbClient()))
             ->table('test')
             ->row(['foo' => 'bar', 'created' => $now]);

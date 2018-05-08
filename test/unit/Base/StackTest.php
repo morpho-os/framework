@@ -16,16 +16,16 @@ class StackTest extends TestCase {
 
     public function testClear() {
         $stack = new Stack();
-        $this->assertEquals(0, count($stack));
+        $this->assertEquals(0, \count($stack));
 
         $stack->push(1);
         $stack->push(2);
 
-        $this->assertEquals(2, count($stack));
+        $this->assertEquals(2, \count($stack));
 
         $stack->clear();
 
-        $this->assertEquals(0, count($stack));
+        $this->assertEquals(0, \count($stack));
     }
 
     public function testReplace() {

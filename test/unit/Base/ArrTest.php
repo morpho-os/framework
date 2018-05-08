@@ -68,7 +68,7 @@ class ArrTest extends TestCase {
         $this->assertEquals([[]], Arr::subsets([]));
         $this->assertEquals([[], [1]], Arr::subsets([1]));
         $check = function ($expected, $actual) {
-            $this->assertCount(count($expected), $actual);
+            $this->assertCount(\count($expected), $actual);
             foreach ($expected as $val) {
                 $this->assertContains($val, $actual);
             }
@@ -132,11 +132,11 @@ class ArrTest extends TestCase {
     public function testUnset_IntKeys() {
         $obj1 = new \stdClass();
         $obj2 = new \stdClass();
-        $this->assertEquals([$obj2], array_values(Arr::unset([$obj1, $obj2], $obj1)));
+        $this->assertEquals([$obj2], \array_values(Arr::unset([$obj1, $obj2], $obj1)));
 
-        $this->assertEquals(['one', 'two'], array_values(Arr::unset(['one', 'two'], 'some')));
+        $this->assertEquals(['one', 'two'], \array_values(Arr::unset(['one', 'two'], 'some')));
 
-        $this->assertEquals(['one'], array_values(Arr::unset(['one', 'two'], 'two')));
+        $this->assertEquals(['one'], \array_values(Arr::unset(['one', 'two'], 'two')));
     }
 
     public function testToKeyed() {

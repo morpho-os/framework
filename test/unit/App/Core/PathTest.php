@@ -15,7 +15,7 @@ class PathTest extends TestCase {
         $path = __DIR__;
         $this->expectException(
             \RuntimeException::class,
-            "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
+            "The path '" . \str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
         );
         Path::rel($path, $baseDirPath);
     }

@@ -13,26 +13,26 @@ class PasswordManagerTest extends TestCase {
     public function testGeneratePassword() {
         $this->checkPassword(
             function ($password) {
-                return (bool) preg_match('~^[A-Z0-9]+$~', $password);
+                return (bool) \preg_match('~^[A-Z0-9]+$~', $password);
             },
             31,
             PasswordManager::USE_UPPER_CHARS | PasswordManager::USE_DIGIT_CHARS
         );
         $this->checkPassword(
             function ($password) {
-                return (bool) preg_match('~^[[:punct:]]+$~', $password);
+                return (bool) \preg_match('~^[[:punct:]]+$~', $password);
             },
             20,
             PasswordManager::USE_CONFUSED_CHARS
         );
         $this->checkPassword(
             function ($password) {
-                $chars = array_diff(
-                    str_split(PasswordManager::PUNCT_CHARS),
-                    str_split(PasswordManager::CONFUSED_CHARS)
+                $chars = \array_diff(
+                    \str_split(PasswordManager::PUNCT_CHARS),
+                    \str_split(PasswordManager::CONFUSED_CHARS)
                 );
                 /*
-                $re = array_reduce($chars, function ($acc, $char) {
+                $re = \array_reduce($chars, function ($acc, $char) {
                     if ($acc === '') {
                         return preg_quote($char, '~');
                     }
@@ -40,8 +40,8 @@ class PasswordManagerTest extends TestCase {
                     return $acc;
                 }, '');
                 */
-                $re = '[' . preg_quote(implode('', $chars), '~') . ']';
-                return (bool) preg_match('~^(' . $re . ')+$~', $password);
+                $re = '[' . \preg_quote(\implode('', $chars), '~') . ']';
+                return (bool) \preg_match('~^(' . $re . ')+$~', $password);
             },
             25,
             PasswordManager::USE_PUNCT_CHARS ^ PasswordManager::USE_CONFUSED_CHARS
@@ -52,7 +52,7 @@ class PasswordManagerTest extends TestCase {
         for ($i = 0; $i < 5; $i++) { // 5 attempts should be enough to ensure that the generated strings are matching the regular expression $re
             $passwordManager = new PasswordManager();
             $password = $passwordManager->generatePassword($length, $flags);
-            $this->assertEquals($length, strlen($password));
+            $this->assertEquals($length, \strlen($password));
             $this->assertTrue($predicate($password));
         }
     }

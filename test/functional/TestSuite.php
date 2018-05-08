@@ -53,7 +53,7 @@ class TestSuite extends BrowserTestSuite {
         $geckoBinFilePath = (new GeckoDriverDownloader)($toolsDirPath . '/' . GeckoDriverDownloader::FILE_NAME);
 
         //$seleniumStandaloneFilePath = $toolsDirPath . '/selenium-server-standalone-3.4.0.jar';
-        $seleniumStandaloneFilePath = (new SeleniumServerDownloader())($toolsDirPath, getenv('SELENIUM_VERSION') ?: null);
+        $seleniumStandaloneFilePath = (new SeleniumServerDownloader())($toolsDirPath, \getenv('SELENIUM_VERSION') ?: null);
 
         $seleniumServer->setServerJarFilePath($seleniumStandaloneFilePath);
         $seleniumServer->setGeckoBinFilePath($geckoBinFilePath);

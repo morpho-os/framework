@@ -19,16 +19,16 @@ class UriTest extends TestCase {
         // We use schema in not the RFC 3986 format (ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )) intentionally
         $uriStr = "схема://юзер:пароль@хост:1234/базовый/путь/тест?один=единица&два=двойка#фрагмент";
         $this->assertSame(
-            rawurlencode('схема')
+            \rawurlencode('схема')
                 . '://'
-                . rawurlencode('юзер') . ':' . rawurlencode('пароль')
+                . \rawurlencode('юзер') . ':' . \rawurlencode('пароль')
                 . '@'
-                . rawurlencode('хост')
+                . \rawurlencode('хост')
                 . ':1234'
-                . str_replace('%2F', '/', rawurlencode('/базовый/путь/тест'))
+                . \str_replace('%2F', '/', \rawurlencode('/базовый/путь/тест'))
                 . '?'
-                . rawurlencode('один') . '=' . rawurlencode('единица') . '&' . rawurlencode('два') . '=' . rawurlencode('двойка')
-                . '#' . rawurlencode('фрагмент'),
+                . \rawurlencode('один') . '=' . \rawurlencode('единица') . '&' . \rawurlencode('два') . '=' . \rawurlencode('двойка')
+                . '#' . \rawurlencode('фрагмент'),
             (new Uri($uriStr))->toStr(true)
         );
     }

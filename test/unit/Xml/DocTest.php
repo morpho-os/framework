@@ -25,7 +25,7 @@ class DocTest extends TestCase {
 OUT;
         $doc = Doc::parse($html);
         $nodes = $doc->select('//li');
-        $this->assertSame(3, count($nodes));
+        $this->assertCount(3, $nodes);
         $this->assertSame('One', $nodes->item(0)->nodeValue);
         $this->assertSame('Two', $nodes->item(1)->nodeValue);
         $this->assertSame('Three', $nodes->item(2)->nodeValue);

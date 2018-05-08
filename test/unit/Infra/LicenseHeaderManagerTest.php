@@ -37,7 +37,7 @@ OUT;
  * see license
  */
 OUT;
-        file_put_contents($filePath, <<<OUT
+        \file_put_contents($filePath, <<<OUT
 foo
 bar
 baz
@@ -65,7 +65,7 @@ OUT;
  * see license
  */
 OUT;
-        file_put_contents($filePath, <<<OUT
+        \file_put_contents($filePath, <<<OUT
 #!/usr/bin/php
 <?php
 echo "Hello World";
@@ -93,7 +93,7 @@ OUT;
  * see license
  */
 OUT;
-        file_put_contents($filePath, <<<OUT
+        \file_put_contents($filePath, <<<OUT
 <?php
 echo "Hello World";
 OUT
@@ -119,7 +119,7 @@ OUT;
  * see license
  */
 OUT;
-        file_put_contents($filePath, <<<OUT
+        \file_put_contents($filePath, <<<OUT
 <?php
 echo "Hello World";
 OUT
@@ -152,7 +152,7 @@ OUT;
      */
     public function testUpdateLicenseHeader_DifferentLicenseHeader($newLicenseText) {
         $filePath = $this->createTmpFile();
-        file_put_contents($filePath, <<<OUT
+        \file_put_contents($filePath, <<<OUT
 <?php
 /**
  * This file is part of
@@ -165,7 +165,7 @@ OUT
 
         (new LicenseHeaderManager())->updateLicenseHeader($filePath, $newLicenseText);
 
-        $newFileText = file_get_contents($filePath);
+        $newFileText = \file_get_contents($filePath);
         $this->assertSame(<<<OUT
 <?php
 /**
@@ -179,7 +179,7 @@ OUT
 
     public function testRemoveLicenseHeader() {
         $filePath = $this->createTmpFile();
-        file_put_contents($filePath, <<<OUT
+        \file_put_contents($filePath, <<<OUT
 <?php
 /**
  * This file is part of
@@ -194,7 +194,7 @@ OUT
 <?php
 echo "Hello World";
 OUT
-            , file_get_contents($filePath)
+            , \file_get_contents($filePath)
         );
     }
 
@@ -239,7 +239,7 @@ OUT;
         $licenseHeaderManager->updateLicenseHeader($filePath, $licenseText);
 
         $checkFileText = function () use ($filePath, $expectedText) {
-            $actualText = file_get_contents($filePath);
+            $actualText = \file_get_contents($filePath);
             $this->assertSame($expectedText, $actualText);
         };
         $checkFileText();

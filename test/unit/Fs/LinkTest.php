@@ -20,24 +20,24 @@ class LinkTest extends TestCase {
     }
 
     public function testCreate_CreatesLinkWhenLinkIsDirAndTargetIsFile() {
-        $targetFilePath = $this->tmpDirPath . '/' . md5(uniqid(__FUNCTION__));
-        copy(__FILE__, $targetFilePath);
-        $this->assertTrue(is_file($targetFilePath));
+        $targetFilePath = $this->tmpDirPath . '/' . \md5(\uniqid(__FUNCTION__));
+        \copy(__FILE__, $targetFilePath);
+        $this->assertTrue(\is_file($targetFilePath));
         $linkDirPath = Dir::create($this->tmpDirPath . '/my-link');
-        $expectedLinkPath = $linkDirPath . '/' . basename($targetFilePath);
-        $this->assertFalse(is_file($expectedLinkPath));
+        $expectedLinkPath = $linkDirPath . '/' . \basename($targetFilePath);
+        $this->assertFalse(\is_file($expectedLinkPath));
         Link::create($targetFilePath, $linkDirPath);
-        $this->assertTrue(is_file($expectedLinkPath));
+        $this->assertTrue(\is_file($expectedLinkPath));
     }
     
     public function testIsBroken() {
         $tmpDirPath = $this->createTmpDir();
         $targetFilePath = $tmpDirPath . '/foo';
         $linkPath = $tmpDirPath . '/bar';
-        touch($targetFilePath);
-        symlink($targetFilePath, $linkPath);
+        \touch($targetFilePath);
+        \symlink($targetFilePath, $linkPath);
         $this->assertFalse(Link::isBroken($linkPath));
-        unlink($targetFilePath);
+        \unlink($targetFilePath);
         $this->assertTrue(Link::isBroken($linkPath));
     }
 

@@ -74,7 +74,7 @@ class RouteMetaProviderTest extends TestCase {
             ],
         ];
         $routeMetaProvider = new RouteMetaProvider();
-        $actual = iterator_to_array($routeMetaProvider->__invoke($actionMetas));
+        $actual = \iterator_to_array($routeMetaProvider->__invoke($actionMetas));
         $this->assertEquals(
             [
                 [
@@ -106,7 +106,7 @@ class RouteMetaProviderTest extends TestCase {
             ],
         ];
         $routeMetaProvider = new RouteMetaProvider();
-        $actual = iterator_to_array($routeMetaProvider->__invoke($actionMetas));
+        $actual = \iterator_to_array($routeMetaProvider->__invoke($actionMetas));
         $this->assertEquals(
             [
                 [

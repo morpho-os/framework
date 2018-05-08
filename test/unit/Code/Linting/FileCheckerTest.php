@@ -122,8 +122,8 @@ OUT;
     }
     
     private function createTestSourceFile(string $classFileUri, string $sourceFileContents): SourceFile {
-        mkdir(Vfs::parentDirUri($classFileUri), 0755, true);
-        file_put_contents($classFileUri, $sourceFileContents);
+        \mkdir(Vfs::parentDirUri($classFileUri), 0755, true);
+        \file_put_contents($classFileUri, $sourceFileContents);
         $sourceFile = new SourceFile($classFileUri);
         return $sourceFile;
     }

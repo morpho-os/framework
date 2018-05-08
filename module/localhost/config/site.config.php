@@ -2,7 +2,7 @@
 use const Morpho\App\Core\VENDOR;
 use const Morpho\App\Core\CACHE_DIR_NAME;
 
-$moduleDirPath = dirname(__DIR__);
+$moduleDirPath = \dirname(__DIR__);
 return [
     'paths' => [
         'cacheDirPath' => $moduleDirPath . '/' . CACHE_DIR_NAME,

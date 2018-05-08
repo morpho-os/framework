@@ -23,14 +23,14 @@ class PipeTest extends TestCase {
                 return new \ArrayIterator(['foo', 'bar', 'baz']);
             }
         };
-        $this->assertEquals(['foo', 'bar', 'baz'], iterator_to_array($pipe));
+        $this->assertEquals(['foo', 'bar', 'baz'], \iterator_to_array($pipe));
     }
 
     public function testAppendFluentInterface() {
         $pipe = new Pipe();
         $pipe->append('foo')
             ->append('bar');
-        $this->assertEquals(['foo', 'bar'], iterator_to_array($pipe));
+        $this->assertEquals(['foo', 'bar'], \iterator_to_array($pipe));
     }
 
     public function testClosureAndIFnAsStages() {

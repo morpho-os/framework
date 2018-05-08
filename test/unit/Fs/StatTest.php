@@ -22,7 +22,7 @@ class StatTest extends TestCase {
     public function testModeAndModeStr() {
         $tmpFilePath = $this->createTmpFile();
         $mode = 0644;
-        $this->assertTrue(chmod($tmpFilePath, $mode));
+        $this->assertTrue(\chmod($tmpFilePath, $mode));
         $this->assertSame($mode, Stat::mode($tmpFilePath));
         $this->assertSame('0644', Stat::modeStr($tmpFilePath));
     }
@@ -52,7 +52,7 @@ class StatTest extends TestCase {
         $mode = 0777;
         //$this->assertTrue(posix_mknod($tmpDirPath . '/reg-file', POSIX_S_IFREG | $mode));
         $path = $tmpDirPath . '/fifo';
-        $this->assertTrue(posix_mknod($path, POSIX_S_IFIFO | $mode));
+        $this->assertTrue(\posix_mknod($path, POSIX_S_IFIFO | $mode));
 
         $this->assertTrue(Stat::isEntry($path));
         $this->assertFalse(Stat::isBlockDev($path));
@@ -66,7 +66,7 @@ class StatTest extends TestCase {
         $dev = [125, 1];
         $mode = 0777;
         $path = $tmpDirPath . '/sock';
-        $this->assertTrue(posix_mknod($path, POSIX_S_IFSOCK | $mode, $dev[0], $dev[1]));
+        $this->assertTrue(\posix_mknod($path, POSIX_S_IFSOCK | $mode, $dev[0], $dev[1]));
 
         $this->assertTrue(Stat::isEntry($path));
         $this->assertFalse(Stat::isBlockDev($path));
@@ -80,9 +80,9 @@ class StatTest extends TestCase {
         $linkPath = $tmpDirPath . '/link';
 
         $targetPath = $tmpDirPath . '/foo';
-        $this->assertTrue(touch($targetPath));
+        $this->assertTrue(\touch($targetPath));
 
-        $this->assertTrue(link($targetPath, $linkPath));
+        $this->assertTrue(\link($targetPath, $linkPath));
         $this->assertTrue(Stat::isEntry($linkPath));
     }
 

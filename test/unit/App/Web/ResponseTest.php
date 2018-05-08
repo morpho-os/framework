@@ -63,7 +63,7 @@ class ResponseTest extends TestCase {
         $headers->exchangeArray($headersToSet);
         $headers['Location'] = 'http://example.com';
         $this->assertSame(
-            array_merge($headersToSet, ['Location' => 'http://example.com']),
+            \array_merge($headersToSet, ['Location' => 'http://example.com']),
             $this->response->headers()->getArrayCopy()
         );
     }
@@ -113,7 +113,7 @@ class ResponseTest extends TestCase {
         $response = new class extends Response {
             public $called = [];
             protected function sendHeader(string $value): void {
-                $this->called[] = [__FUNCTION__, func_get_args()];
+                $this->called[] = [__FUNCTION__, \func_get_args()];
             }
         };
         $body = 'Such page does not exist';
@@ -122,9 +122,9 @@ class ResponseTest extends TestCase {
         $response->headers()->exchangeArray([
             'Location' => 'http://example.com',
         ]);
-        ob_start();
+        \ob_start();
         $response->send();
-        $this->assertSame($body, ob_get_clean());
+        $this->assertSame($body, \ob_get_clean());
         $this->assertSame(
             [
                 ['sendHeader', [Environment::httpVersion() . ' 404 Not Found']],

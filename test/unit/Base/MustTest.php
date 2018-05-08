@@ -225,7 +225,7 @@ class MustTest extends TestCase {
      * @dataProvider dataForHasOnlyKeys_Invalid
      */
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
-        $this->expectException('\RuntimeException', 'Not allowed items are present: ' . implode(', ', $notAllowedItems));
+        $this->expectException('\RuntimeException', 'Not allowed items are present: ' . \implode(', ', $notAllowedItems));
         Must::haveOnlyKeys($actual, $allowedKeys);
     }
 

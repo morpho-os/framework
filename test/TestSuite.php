@@ -20,7 +20,7 @@ class TestSuite extends \Morpho\Testing\TestSuite {
                 continue;
             }
             $testDirPath = $path->getPathname() . '/' . TEST_DIR_NAME;
-            if (is_dir($testDirPath)) {
+            if (\is_dir($testDirPath)) {
                 foreach ($this->testFilesInDir($testDirPath) as $file) {
                     yield $file->getPathname();
                 }

@@ -44,7 +44,7 @@ class ServiceManager implements IServiceManager {
     }
 
     public function set(string $id, $service) {
-        $this->services[strtolower($id)] = $service;
+        $this->services[\strtolower($id)] = $service;
         if ($service instanceof IHasServiceManager) {
             $service->setServiceManager($this);
         }
@@ -55,7 +55,7 @@ class ServiceManager implements IServiceManager {
      */
     public function get(string $id) {
         // Resolve alias:
-        $id = strtolower($id);
+        $id = \strtolower($id);
         while (isset($this->aliases[$id])) {
             $id = $this->aliases[$id];
         }
@@ -66,10 +66,10 @@ class ServiceManager implements IServiceManager {
 
         if (isset($this->loading[$id])) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     "Circular reference detected for the service '%s', path: '%s'",
                     $id,
-                    implode(' -> ', array_keys($this->loading))
+                    \implode(' -> ', \array_keys($this->loading))
                 )
             );
         }
@@ -105,7 +105,7 @@ class ServiceManager implements IServiceManager {
 
     protected function newService($id) {
         $method = 'new' . $id . 'Service';
-        if (method_exists($this, $method)) {
+        if (\method_exists($this, $method)) {
             $this->beforeCreate($id);
             $service = $this->$method();
             $this->afterCreate($id, $service);

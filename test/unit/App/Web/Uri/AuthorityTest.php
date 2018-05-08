@@ -32,7 +32,7 @@ class AuthorityTest extends TestCase {
         $host = 'емаил.com';
         $authority = new Authority("$userInfo@$host:80");
         $this->assertSame(
-            rawurlencode($login) . ':' . rawurlencode($password) . '@' . rawurlencode($host) . ':80',
+            \rawurlencode($login) . ':' . \rawurlencode($password) . '@' . \rawurlencode($host) . ':80',
             $authority->toStr(true));
     }
 

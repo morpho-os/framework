@@ -33,10 +33,10 @@ class ContentNegotiatorTest extends TestCase {
         ];
         $mkStr = function (array $mediaRanges): string {
             foreach ($mediaRanges as &$mediaRange) {
-                $mediaRange = implode(', ', $mediaRange);
+                $mediaRange = \implode(', ', $mediaRange);
             }
             unset($mediaRange);
-            return implode(', ', $mediaRanges);
+            return \implode(', ', $mediaRanges);
         };
         yield [
             $mkStr([

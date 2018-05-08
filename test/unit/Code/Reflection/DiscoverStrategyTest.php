@@ -26,8 +26,8 @@ abstract class DiscoverStrategyTest extends TestCase {
             __NAMESPACE__ . '\\StrategyTest2\\BazInterface',
         ];
         $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/MyFile.php');
-        sort($expected);
-        sort($actual);
+        \sort($expected);
+        \sort($actual);
         $this->assertEquals($expected, $actual);
     }
 

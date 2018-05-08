@@ -285,7 +285,7 @@ class RequestTest extends TestCase {
     
     public function testMappingPostToPatch() {
         $data = ['foo' => 'bar', 'baz' => 'abc'];
-        $_POST = array_merge($data, ['_method' => Request::PATCH_METHOD]);
+        $_POST = \array_merge($data, ['_method' => Request::PATCH_METHOD]);
         $request = $this->newRequest();
         $this->assertTrue($request->isPatchMethod());
         $this->assertSame($data, $request->patch());

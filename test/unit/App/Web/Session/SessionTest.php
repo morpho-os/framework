@@ -22,7 +22,7 @@ class SessionTest extends TestCase {
     }
 
     public function testStorageOfClosure() {
-        $uniqId = uniqid();
+        $uniqId = \uniqid();
         $closure = function () use ($uniqId) {
             return $uniqId;
         };
@@ -50,21 +50,21 @@ class SessionTest extends TestCase {
 
     public function testMagicMethods() {
         $this->assertTrue(empty($_SESSION[Session::KEY][__CLASS__]));
-        $this->assertEquals(0, count($this->session));
+        $this->assertCount(0, $this->session);
         $this->assertFalse(isset($this->session->foo));
         $this->assertTrue(empty($this->session->foo));
 
         $this->session->foo = 'bar';
 
         $this->assertEquals('bar', $this->session->foo);
-        $this->assertEquals(1, count($this->session));
+        $this->assertCount(1, $this->session);
         $this->assertTrue(isset($this->session->foo));
         $this->assertFalse(empty($this->session->foo));
         $this->assertFalse(empty($_SESSION[Session::KEY][__CLASS__]));
 
         unset($this->session->foo);
 
-        $this->assertEquals(0, count($this->session));
+        $this->assertCount(0, $this->session);
         $this->assertFalse(isset($this->session->foo));
         $this->assertTrue(empty($this->session->foo));
         $this->assertTrue(empty($_SESSION[Session::KEY][__CLASS__]));

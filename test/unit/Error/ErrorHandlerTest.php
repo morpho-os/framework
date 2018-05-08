@@ -20,12 +20,12 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function setUp() {
         parent::setUp();
-        $this->oldErrorLevel = ini_get('display_errors');
+        $this->oldErrorLevel = \ini_get('display_errors');
     }
 
     public function tearDown() {
         parent::tearDown();
-        ini_set('display_errors', $this->oldErrorLevel);
+        \ini_set('display_errors', $this->oldErrorLevel);
     }
 
     public function testInterface() {
@@ -85,21 +85,21 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function testRegisterAndUnregister() {
         $errorHandler = $this->newErrorHandler();
-        $oldDisplayErrors = ini_get('display_errors');
-        $oldDisplayStartupErrors = ini_get('display_startup_errors');
+        $oldDisplayErrors = \ini_get('display_errors');
+        $oldDisplayStartupErrors = \ini_get('display_startup_errors');
         $this->assertNull($errorHandler->register());
         $expected = [$errorHandler, 'handleError'];
         $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::ERROR));
         $expected = [$errorHandler, 'handleException'];
         $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
-        $this->assertEquals(0, ini_get('display_errors'));
-        $this->assertEquals(0, ini_get('display_startup_errors'));
+        $this->assertEquals(0, \ini_get('display_errors'));
+        $this->assertEquals(0, \ini_get('display_startup_errors'));
 
         $errorHandler->unregister();
         $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
         $this->assertEquals($this->prevExceptionHandler, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
-        $this->assertEquals($oldDisplayErrors, ini_get('display_errors'));
-        $this->assertEquals($oldDisplayStartupErrors, ini_get('display_startup_errors'));
+        $this->assertEquals($oldDisplayErrors, \ini_get('display_errors'));
+        $this->assertEquals($oldDisplayStartupErrors, \ini_get('display_startup_errors'));
     }
 
     public function testRegisterAsFatalErrorHandler() {
@@ -139,7 +139,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $errorHandler->register();
 
         try {
-            trigger_error("My message", $severity);
+            \trigger_error("My message", $severity);
             $this->fail();
         } catch (\ErrorException $ex) {
             $this->assertInstanceOf('Morpho\\Error\\' . $expectedErrorClass, $ex);

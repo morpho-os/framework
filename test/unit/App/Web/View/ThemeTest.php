@@ -45,8 +45,8 @@ class ThemeTest extends TestCase {
         $viewName = 'bar';
 
         $viewAbsFilePath = $baseViewDirPath . '/' . $viewDirPath . '/' . $viewName . Theme::VIEW_FILE_EXT;
-        mkdir(dirname($viewAbsFilePath), 0777, true);
-        touch($viewAbsFilePath);
+        \mkdir(\dirname($viewAbsFilePath), 0777, true);
+        \touch($viewAbsFilePath);
 
         $expected = 'abcdefg123';
         $viewVars = ['k' => 'v'];

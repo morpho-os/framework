@@ -23,7 +23,7 @@ class ClassTypeDiscovererTest extends TestCase {
     }
 
     public function testClassTypesDefinedInDir_UsingDefaultStrategy() {
-        $this->assertEquals(str_replace('\\', '/', __FILE__), $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__)[__CLASS__]);
+        $this->assertEquals(\str_replace('\\', '/', __FILE__), $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__)[__CLASS__]);
     }
 
     public function testDefaultStrategy() {
@@ -35,7 +35,7 @@ class ClassTypeDiscovererTest extends TestCase {
         $discoverStrategy->expects($this->atLeastOnce())
             ->method('classTypesDefinedInFile')
             ->will($this->returnValue([]));
-        $this->assertInstanceOf(get_class($this->classTypeDiscoverer), $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy));
+        $this->assertInstanceOf(\get_class($this->classTypeDiscoverer), $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy));
         $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__);
     }
 

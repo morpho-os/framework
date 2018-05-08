@@ -18,14 +18,14 @@ class AppTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->umask = umask();
-        $this->timezone = ini_get('date.timezone');
+        $this->umask = \umask();
+        $this->timezone = \ini_get('date.timezone');
     }
 
     public function tearDown() {
         parent::tearDown();
-        umask($this->umask);
-        ini_set('date.timezone', $this->timezone);
+        \umask($this->umask);
+        \ini_set('date.timezone', $this->timezone);
     }
 
     public function dataForUmaskCanBeSetThroughSiteConfig() {
@@ -46,7 +46,7 @@ class AppTest extends TestCase {
      * @dataProvider dataForUmaskCanBeSetThroughSiteConfig
      */
     public function testUmaskCanBeSetThroughSiteConfig(int $newUmask) {
-        $siteConfig = array_merge(
+        $siteConfig = \array_merge(
             $this->defaultSiteConfig($this->getTestDirPath()),
             [
                 'umask' => $newUmask,
@@ -54,7 +54,7 @@ class AppTest extends TestCase {
         );
         $this->newConfiguredApplication($siteConfig);
 
-        $this->assertSame($newUmask, umask());
+        $this->assertSame($newUmask, \umask());
     }
 
     public function dataForTimezoneCanBeSetThroughSiteConfig() {
@@ -72,7 +72,7 @@ class AppTest extends TestCase {
      * @dataProvider dataForTimezoneCanBeSetThroughSiteConfig
      */
     public function testTimezoneCanBeSetThroughSiteConfig(string $timeZone) {
-        $siteConfig = array_merge(
+        $siteConfig = \array_merge(
             $this->defaultSiteConfig($this->getTestDirPath()),
             [
                 'iniSettings' => [
@@ -83,7 +83,7 @@ class AppTest extends TestCase {
 
         $this->newConfiguredApplication($siteConfig);
 
-        $this->assertSame($timeZone, ini_get('date.timezone'));
+        $this->assertSame($timeZone, \ini_get('date.timezone'));
     }
 
     private function defaultSiteConfig($cacheDirPath) {

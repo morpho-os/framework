@@ -14,7 +14,7 @@ class InterfacesTest extends TestCase {
         $obj = new class implements IFn {
             public $calledWith;
             public function __invoke($value) {
-                $this->calledWith = func_get_args();
+                $this->calledWith = \func_get_args();
             }
         };
         $obj(['foo', 'bar', 'baz']);

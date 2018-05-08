@@ -135,7 +135,7 @@ class MyContainerHandler extends TagHandler {
     }
 
     public function text() {
-        return trim($this->tag['_text']);
+        return \trim($this->tag['_text']);
     }
 }
 

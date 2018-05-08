@@ -14,12 +14,12 @@ abstract class BaseErrorHandlerTest extends TestCase {
     protected $prevErrorHandler, $prevExceptionHandler, $handlerArgs;
 
     public function setUp() {
-        $handler = set_error_handler([$this, __FUNCTION__]);
-        restore_error_handler();
+        $handler = \set_error_handler([$this, __FUNCTION__]);
+        \restore_error_handler();
         $this->prevErrorHandler = $handler;
 
-        $handler = set_exception_handler([$this, __FUNCTION__]);
-        restore_exception_handler();
+        $handler = \set_exception_handler([$this, __FUNCTION__]);
+        \restore_exception_handler();
         $this->prevExceptionHandler = $handler;
 
         unset($this->handlerArgs);
@@ -31,6 +31,6 @@ abstract class BaseErrorHandlerTest extends TestCase {
     }
 
     public function myHandler() {
-        $this->handlerArgs = func_get_args();
+        $this->handlerArgs = \func_get_args();
     }
 }

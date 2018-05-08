@@ -20,7 +20,7 @@ class FunctionsTest extends TestCase {
     public function tearDown() {
         parent::tearDown();
         if (isset($this->tmpHandle)) {
-            fclose($this->tmpHandle);
+            \fclose($this->tmpHandle);
         }
     }
 
@@ -174,8 +174,8 @@ class FunctionsTest extends TestCase {
     }
 
     public function dataForTypeOf() {
-        $filePath = tempnam($this->tmpDirPath(), __FUNCTION__);
-        $this->tmpHandle = $fp = fopen($filePath, 'r');
+        $filePath = \tempnam($this->tmpDirPath(), __FUNCTION__);
+        $this->tmpHandle = $fp = \fopen($filePath, 'r');
         return [
             [
                 INT_TYPE,
@@ -239,7 +239,7 @@ class FunctionsTest extends TestCase {
         $this->assertInternalType('string', $json);
         $this->assertNotEmpty($json);
         $v1 = fromJson($json);
-        $this->assertCount(count($v), $v1);
+        $this->assertCount(\count($v), $v1);
         $this->assertEquals($v['foo'], $v1['foo']);
         $this->assertEquals((array) $v[1], $v1[1]);
     }
@@ -255,21 +255,21 @@ class FunctionsTest extends TestCase {
     }
 
     public function testShowLn_NoArgsWritesSingleLine() {
-        ob_start();
+        \ob_start();
         showLn();
-        $this->assertEquals("\n", ob_get_clean());
+        $this->assertEquals("\n", \ob_get_clean());
     }
 
     public function testShowLn_SingleArg() {
-        ob_start();
+        \ob_start();
         showLn("Printed");
-        $this->assertEquals("Printed\n", ob_get_clean());
+        $this->assertEquals("Printed\n", \ob_get_clean());
     }
 
     public function testShowLn_MultipleArgs() {
-        ob_start();
+        \ob_start();
         showLn("bee", "ant");
-        $this->assertEquals("bee\nant\n", ob_get_clean());
+        $this->assertEquals("bee\nant\n", \ob_get_clean());
     }
 
     public function testShowLn_ClosureGeneratorArg() {
@@ -278,16 +278,16 @@ class FunctionsTest extends TestCase {
                 yield $v;
             }
         };
-        ob_start();
+        \ob_start();
         showLn($gen);
-        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
+        $this->assertEquals("foo\nbar\nbaz\n", \ob_get_clean());
     }
 
     public function testShowLn_IterableArg() {
         $val = new \ArrayIterator(['foo', 'bar', 'baz']);
-        ob_start();
+        \ob_start();
         showLn($val);
-        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
+        $this->assertEquals("foo\nbar\nbaz\n", \ob_get_clean());
     }
 
     public function testShorten() {
@@ -419,11 +419,11 @@ class FunctionsTest extends TestCase {
     }
 
     public function testPrefix() {
-        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], array_map(prefix('prefix'), ['foo', 'bar', 'baz']));
+        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], \array_map(prefix('prefix'), ['foo', 'bar', 'baz']));
     }
 
     public function testSuffix() {
-        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], array_map(suffix('suffix'), ['foo', 'bar', 'baz']));
+        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], \array_map(suffix('suffix'), ['foo', 'bar', 'baz']));
     }
 
     public function testPartial() {
@@ -607,7 +607,7 @@ class FunctionsTest extends TestCase {
     public function testTpl() {
         $code = '<?php echo "Hello $world";';
         $filePath = $this->createTmpFile();
-        file_put_contents($filePath, $code);
+        \file_put_contents($filePath, $code);
         $this->assertSame(
             'Hello World!',
             tpl($filePath, ['world' => 'World!'])
@@ -665,7 +665,7 @@ class FunctionsTest extends TestCase {
 
     private function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
-        $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
-        $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
+        $this->assertEquals('foobar', \call_user_func($fn, 'foobar'));
+        $this->assertEquals('foobar', \call_user_func($fn, "&\tf\no<>o\x00`bar"));
     }
 }

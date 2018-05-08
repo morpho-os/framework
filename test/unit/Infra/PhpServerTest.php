@@ -16,7 +16,7 @@ class PhpServerTest extends TestCase {
         $address = new Address($host, null); // use numeric address to avoid binding with IPv6.
 
         $docRootDirPath = $this->createTmpDir();
-        file_put_contents($docRootDirPath . '/index.php', "<?php die('hello');");
+        \file_put_contents($docRootDirPath . '/index.php', "<?php die('hello');");
 
         $server = new PhpServer($address, $docRootDirPath);
 
@@ -31,14 +31,14 @@ class PhpServerTest extends TestCase {
         $this->assertRegExp('~^[1-9]\d*$~', (string)$server->pid());
         $this->assertTrue($server->isStarted());
 
-        $handle = fsockopen('tcp://' . $address->host() . ':' . $address->port());
+        $handle = \fsockopen('tcp://' . $address->host() . ':' . $address->port());
 
-        fwrite($handle, "GET / HTTP/1.1\r\n\r\n");
+        \fwrite($handle, "GET / HTTP/1.1\r\n\r\n");
         $response = '';
-        while (!feof($handle)) {
-            $response .= fgets($handle, 1024);
+        while (!\feof($handle)) {
+            $response .= \fgets($handle, 1024);
         }
-        fclose($handle);
+        \fclose($handle);
         $this->assertRegExp('~^HTTP/\d+.\d+ 200 OK\r\n.*hello~s', $response);
 
         $server->stop();

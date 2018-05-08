@@ -58,6 +58,6 @@ class XmlTest extends TestCase {
   </student>
 </student_info>
 XML;
-        $this->assertEquals(trim($expected), trim(Xml::arrayToDomDoc($data)->saveXml()));
+        $this->assertEquals(\trim($expected), \trim(Xml::arrayToDomDoc($data)->saveXml()));
     }
 }

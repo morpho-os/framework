@@ -27,7 +27,7 @@ class PathTest extends TestCase {
         $pathComp2 = 'тест';
         $path = new Path($pathComp1 . '/' . $pathComp2);
         $this->assertSame(
-            rawurlencode($pathComp1) . '/' . rawurlencode($pathComp2),
+            \rawurlencode($pathComp1) . '/' . \rawurlencode($pathComp2),
             $path->toStr(true)
         );
     }

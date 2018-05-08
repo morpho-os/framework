@@ -51,9 +51,9 @@ class ControllerFileMetaProviderTest extends TestCase {
                 'filePath' => $testDirPath . '/foo/BlueController.php',
             ],
         ];
-        $actual = iterator_to_array($controllerFileMetaProvider->__invoke($modules));
-        usort($actual, function ($a, $b) {
-            return strcmp($a['filePath'], $b['filePath']);
+        $actual = \iterator_to_array($controllerFileMetaProvider->__invoke($modules));
+        \usort($actual, function ($a, $b) {
+            return \strcmp($a['filePath'], $b['filePath']);
         });
         $this->assertEquals($expected, $actual);
     }

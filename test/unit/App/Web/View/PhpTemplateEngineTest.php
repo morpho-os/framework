@@ -36,12 +36,12 @@ class PhpTemplateEngineTest extends TestCase {
         yield [
             '/foo/bar?one=1&two=2',
             $curUriStr,
-            '/some/base/path/foo/bar?one=1&two=2&redirect=' . rawurlencode($curUriStr),
+            '/some/base/path/foo/bar?one=1&two=2&redirect=' . \rawurlencode($curUriStr),
         ];
         yield [
             'http://example.com',
             $curUriStr,
-            'http://example.com?redirect=' . rawurlencode($curUriStr),
+            'http://example.com?redirect=' . \rawurlencode($curUriStr),
         ];
     }
 
@@ -80,22 +80,22 @@ class PhpTemplateEngineTest extends TestCase {
             }
             
             public function __set($name, $value) {
-                $this->called = [__FUNCTION__, func_get_args()];
+                $this->called = [__FUNCTION__, \func_get_args()];
                 $this->templateEngine->__set($name, $value);
             }
             
             public function __get($name) {
-                $this->called = [__FUNCTION__, func_get_args()];
+                $this->called = [__FUNCTION__, \func_get_args()];
                 return $this->templateEngine->__get($name);
             }
             
             public function __isset($name) {
-                $this->called = [__FUNCTION__, func_get_args()];
+                $this->called = [__FUNCTION__, \func_get_args()];
                 return $this->templateEngine->__isset($name);
             }
             
             public function __unset($name) {
-                $this->called = [__FUNCTION__, func_get_args()];
+                $this->called = [__FUNCTION__, \func_get_args()];
                 $this->templateEngine->__unset($name);
             }
         };

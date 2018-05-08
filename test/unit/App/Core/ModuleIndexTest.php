@@ -51,7 +51,7 @@ class ModuleIndexTest extends TestCase {
         $this->assertInstanceOf(\Traversable::class, $moduleIndex);
         $i = 0;
         foreach ($moduleIndex as $moduleName) {
-            $this->assertTrue(in_array($moduleName, ['galaxy/neptune', 'galaxy/mars'], true));
+            $this->assertTrue(\in_array($moduleName, ['galaxy/neptune', 'galaxy/mars'], true));
             $i++;
         }
         $this->assertSame(2, $i);

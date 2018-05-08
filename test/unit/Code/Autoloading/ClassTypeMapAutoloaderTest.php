@@ -13,8 +13,8 @@ class ClassTypeMapAutoloaderTest extends TestCase {
     public function tearDown() {
         parent::tearDown();
         $mapFilePath = $this->mapFilePath();
-        if (is_file($mapFilePath)) {
-            unlink($mapFilePath);
+        if (\is_file($mapFilePath)) {
+            \unlink($mapFilePath);
         }
     }
 
@@ -24,16 +24,16 @@ class ClassTypeMapAutoloaderTest extends TestCase {
         $mapFilePath = $this->mapFilePath();
         $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath, $regexp);
 
-        $this->assertFalse(file_exists($mapFilePath));
+        $this->assertFalse(\file_exists($mapFilePath));
 
         $class = __CLASS__ . '\\Foo';
         $this->assertFalse($autoloader->autoload($class . 'Invalid'));
         $this->assertTrue($autoloader->autoload($class));
-        $this->assertTrue(file_exists($mapFilePath));
+        $this->assertTrue(\file_exists($mapFilePath));
 
         $autoloader->clearMap();
 
-        $this->assertFalse(file_exists($mapFilePath));
+        $this->assertFalse(\file_exists($mapFilePath));
     }
 
     public function testClearMap_ClearEmptyMapDoesNotThrowException() {
@@ -47,13 +47,13 @@ class ClassTypeMapAutoloaderTest extends TestCase {
         $dirPath = $this->getTestDirPath();
         $class = __CLASS__ . '\\Foo1';
 
-        $this->assertFalse(file_exists($mapFilePath));
+        $this->assertFalse(\file_exists($mapFilePath));
 
         $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath);
         $autoloader->useCache(false);
         $this->assertTrue($autoloader->autoload($class));
 
-        $this->assertFalse(file_exists($mapFilePath));
+        $this->assertFalse(\file_exists($mapFilePath));
     }
 
     public function testUseCache() {
@@ -61,6 +61,6 @@ class ClassTypeMapAutoloaderTest extends TestCase {
     }
 
     protected function mapFilePath() {
-        return $this->tmpDirPath() . '/' . md5(__METHOD__) . '.php';
+        return $this->tmpDirPath() . '/' . \md5(__METHOD__) . '.php';
     }
 }

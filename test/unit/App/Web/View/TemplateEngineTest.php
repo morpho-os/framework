@@ -13,7 +13,7 @@ class TemplateEngineTest extends TestCase {
     public function testTpl_PreservingThis() {
         $code = '<?php echo "$this->a $b";';
         $filePath = $this->createTmpFile();
-        file_put_contents($filePath, $code);
+        \file_put_contents($filePath, $code);
         $templateEngine = new class extends TemplateEngine {
             protected $a = 'Hello';
         };
@@ -34,7 +34,7 @@ class TemplateEngineTest extends TestCase {
         $engine = new TemplateEngine();
         $code = '<?php echo ??;';
         $engine->append(function ($context) {
-            $context['code'] = str_replace('??', '"<span>$smile</span>"', $context['code']);
+            $context['code'] = \str_replace('??', '"<span>$smile</span>"', $context['code']);
             return $context;
         });
         $res = $engine->run($code, ['smile' => ':)']);

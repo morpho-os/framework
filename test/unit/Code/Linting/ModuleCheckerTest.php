@@ -23,7 +23,7 @@ class ModuleCheckerTest extends TestCase {
 
     public function dataForCheckMetaFile_InvalidMetaFileFormat() {
         yield ['test'];
-        yield [json_encode(['foo' => 'bar'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)];
+        yield [\json_encode(['foo' => 'bar'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)];
     }
 
     /**
@@ -64,7 +64,7 @@ OUT;
     }
 
     private function createTestMetaFile(string $metaFileUri, string $metaFileContents): void {
-        mkdir(Vfs::parentDirUri($metaFileUri), 0755, true);
-        file_put_contents($metaFileUri, $metaFileContents);
+        \mkdir(Vfs::parentDirUri($metaFileUri), 0755, true);
+        \file_put_contents($metaFileUri, $metaFileContents);
     }
 }

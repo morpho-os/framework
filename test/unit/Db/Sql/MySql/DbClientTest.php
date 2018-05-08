@@ -162,7 +162,7 @@ SQL
 
         $checkRes = function ($res, $expectedCount) {
             $this->assertInstanceOf(\Countable::class, $res);
-            $this->assertSame($expectedCount, count($res));
+            $this->assertSame($expectedCount, \count($res));
         };
 
         $checkRes($res, 1);

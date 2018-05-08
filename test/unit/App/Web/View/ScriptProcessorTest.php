@@ -146,9 +146,9 @@ OUT;
 
         $processedBody = $processor->__invoke('<body></body>');
 
-        $jsConfigStr = json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
+        $jsConfigStr = \json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
         $this->assertRegExp(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
     }

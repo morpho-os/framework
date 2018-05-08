@@ -14,12 +14,12 @@ class EnvironmentTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->oldZendEnableGc = ini_set('zend.enable_gc', '1'); // we change this setting below.
+        $this->oldZendEnableGc = \ini_set('zend.enable_gc', '1'); // we change this setting below.
     }
 
     public function tearDown() {
         parent::tearDown();
-        ini_set('zend.enable_gc', $this->oldZendEnableGc);
+        \ini_set('zend.enable_gc', $this->oldZendEnableGc);
     }
 
     public function testIsCli() {
@@ -32,14 +32,14 @@ class EnvironmentTest extends TestCase {
         $setting = 'zend.enable_gc';
         $this->assertTrue(Environment::boolIniVal($setting));
 
-        ini_set($setting, '0');
+        \ini_set($setting, '0');
         $this->assertFalse(Environment::boolIniVal($setting));
 
-        ini_set($setting, '1');
+        \ini_set($setting, '1');
         $this->assertTrue(Environment::boolIniVal($setting));
 
         // Names are case sensitive, so such setting should not exist.
-        $this->assertFalse(Environment::boolIniVal(strtoupper($setting)));
+        $this->assertFalse(Environment::boolIniVal(\strtoupper($setting)));
 
         $this->assertFalse(Environment::boolIniVal(__FUNCTION__));
     }
@@ -148,6 +148,6 @@ class EnvironmentTest extends TestCase {
 
     public function testTmpDirPath() {
         $tmpDirPath = Environment::tmpDirPath();
-        $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
+        $this->assertNotEmpty($tmpDirPath && (false === \strpos($tmpDirPath, '\\')));
     }
 }

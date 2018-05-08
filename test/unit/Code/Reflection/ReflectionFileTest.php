@@ -131,7 +131,7 @@ class ReflectionFileTest extends TestCase {
     }
 
     private function assertGenYields($expected, \Generator $gen) {
-        $this->assertEquals($expected, iterator_to_array($gen, false));
+        $this->assertEquals($expected, \iterator_to_array($gen, false));
     }
 
     private function checkClassTypes(array $expectedClasses, string $filePath, ReflectionNamespace $rNamespace) {
@@ -140,7 +140,7 @@ class ReflectionFileTest extends TestCase {
             $this->checkReflectionClass($expectedClasses[$j], $filePath, $rClass);
             $j++;
         }
-        $this->assertEquals(count($expectedClasses), $j);
+        $this->assertEquals(\count($expectedClasses), $j);
     }
 
     private function checkFunctions(array $expectedFns, string $filePath, ReflectionNamespace $rNamespace) {
@@ -149,7 +149,7 @@ class ReflectionFileTest extends TestCase {
             $this->checkReflectionFunction($expectedFns[$j], $filePath, $rFunction);
             $j++;
         }
-        $this->assertEquals(count($expectedFns), $j);
+        $this->assertEquals(\count($expectedFns), $j);
     }
 
     private function checkReflectionClass(string $expectedClass, string $expectedFilePath, ReflectionClass $rClass) {

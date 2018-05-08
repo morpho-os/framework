@@ -88,7 +88,7 @@ class HtmlTest extends TestCase {
     }
 
     public function testCopyright() {
-        $curYear = date('Y');
+        $curYear = \date('Y');
         $brand = 'Mices\'s';
 
         $startYear = $curYear - 2;

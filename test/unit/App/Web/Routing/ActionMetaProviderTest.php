@@ -168,7 +168,7 @@ class ActionMetaProviderTest extends TestCase {
         ];
         $this->assertEquals(
             $expected,
-            iterator_to_array($actionMetaProvider($controllerFileMetas), false)
+            \iterator_to_array($actionMetaProvider($controllerFileMetas), false)
         );
     }
 }

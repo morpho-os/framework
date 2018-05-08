@@ -31,7 +31,7 @@ abstract class CacheTest extends TestCase {
         $this->assertNull($cache->get($key));
         $this->assertSame('abc', $cache->get($key, 'abc'));
         $this->assertTrue($cache->set('my-val', $data));
-        if (is_object($data)) {
+        if (\is_object($data)) {
             $this->assertEquals($data, $cache->get($key));
         } else {
             $this->assertSame($data, $cache->get($key));

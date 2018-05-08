@@ -46,7 +46,7 @@ class SchemaTest extends DbTestCase {
     }
 
     public function testDatabaseOperations() {
-        $dbSuffix = md5(__FUNCTION__);
+        $dbSuffix = \md5(__FUNCTION__);
         $dbName = 't' . $dbSuffix;
         $this->assertFalse($this->schema->databaseExists($dbName));
         $this->callCreateDatabase($dbName, Schema::CHARSET, Schema::COLLATION);
@@ -150,7 +150,7 @@ class SchemaTest extends DbTestCase {
         foreach ($vars as $key => $value) {
             $this->assertStringStartsWith($prefix, $key);
         }
-        $this->assertTrue(count($vars) > 0);
+        $this->assertTrue(\count($vars) > 0);
     }
 
     public function testVarsWithPrefix_HandlesPercent() {
@@ -163,7 +163,7 @@ class SchemaTest extends DbTestCase {
         foreach ($vars as $key => $value) {
             $this->assertStringEndsWith($suffix, $key);
         }
-        $this->assertTrue(count($vars) > 0);
+        $this->assertTrue(\count($vars) > 0);
     }
 
     public function testVarsWithSuffix_HandlesPercent() {
@@ -176,7 +176,7 @@ class SchemaTest extends DbTestCase {
         foreach ($vars as $key => $value) {
             $this->assertContains($infix, $key);
         }
-        $this->assertTrue(count($vars) > 0);
+        $this->assertTrue(\count($vars) > 0);
     }
 
     public function testVarsLike_HandlesPercent() {
@@ -185,9 +185,9 @@ class SchemaTest extends DbTestCase {
     
     public function testCharsetAndCollationVars() {
         $vars = $this->schema->charsetAndCollationVars();
-        $this->assertTrue(count($vars) > 0);
+        $this->assertTrue(\count($vars) > 0);
         foreach ($vars as $key => $value) {
-            $this->assertTrue(0 === strpos($key, 'collation') || 0 === strpos($key, 'character_set'));
+            $this->assertTrue(0 === \strpos($key, 'collation') || 0 === strpos($key, 'character_set'));
         }
     }
 
@@ -201,7 +201,7 @@ class SchemaTest extends DbTestCase {
     public function testCollationOfDatabase() {
         $charset = 'gb2312';
         $collationName = $charset . '_bin';
-        $dbName = $this->callCreateDatabase('t' . md5(__FUNCTION__), $charset, $collationName);
+        $dbName = $this->callCreateDatabase('t' . \md5(__FUNCTION__), $charset, $collationName);
 
         $collation = $this->schema->collationOfDatabase($dbName);
         $this->assertInstanceOf(DbCollation::class, $collation);
@@ -266,8 +266,8 @@ class SchemaTest extends DbTestCase {
 
     private function assertArrayHasOnlyItemsWithKeys(array $expectedKeys, array $arr) {
         $this->assertTrue(
-            Arr::setsEqual($expectedKeys, array_keys($arr)),
-            print_r($expectedKeys, true) . print_r(array_keys($arr), true)
+            Arr::setsEqual($expectedKeys, \array_keys($arr)),
+            \print_r($expectedKeys, true) . \print_r(\array_keys($arr), true)
         );
     }
 

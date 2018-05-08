@@ -43,8 +43,8 @@ class FunctionsTest extends TestCase {
         ];
         yield [
             '/base/path',
-            '/foo/bar?redirect=' . rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza'),
-            '/base/path/foo/bar?redirect=' . rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza')
+            '/foo/bar?redirect=' . \rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza'),
+            '/base/path/foo/bar?redirect=' . \rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza')
         ];
     }
 

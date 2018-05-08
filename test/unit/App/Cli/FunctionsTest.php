@@ -16,9 +16,9 @@ use Morpho\Testing\TestCase;
 
 class FunctionsTest extends TestCase {
     public function testShowOk() {
-        ob_start();
+        \ob_start();
         showOk();
-        $this->assertEquals("OK\n", ob_get_clean());
+        $this->assertEquals("OK\n", \ob_get_clean());
     }
 
     public function dataForWriteErrorAndWriteErrorLn() {
@@ -38,7 +38,7 @@ class FunctionsTest extends TestCase {
 
         $tmpFilePath = $this->createTmpFile();
         $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
-        file_put_contents($tmpFilePath, <<<OUT
+        \file_put_contents($tmpFilePath, <<<OUT
 <?php
 require "$autoloadFilePath";
 echo \\Morpho\\App\\Cli\\$fn("$error");
@@ -48,12 +48,12 @@ OUT
         $fdSpec = [
             2 => ["pipe", "w"],  // stdout is a pipe that the child will write to
         ];
-        $process = proc_open('php ' . escapeshellarg($tmpFilePath), $fdSpec, $pipes);
+        $process = \proc_open('php ' . \escapeshellarg($tmpFilePath), $fdSpec, $pipes);
 
-        $out = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
+        $out = \stream_get_contents($pipes[2]);
+        \fclose($pipes[2]);
 
-        proc_close($process);
+        \proc_close($process);
 
         $this->assertEquals($expectedMessage, $out);
     }
@@ -97,13 +97,13 @@ OUT
      * @dataProvider dataForShell_CaptureAndShowConfigOptions
      */
     public function testShell_CaptureAndShowConfigOptions(bool $capture, bool $show) {
-        $cmd = 'ls '  . escapeshellarg(__DIR__);
-        ob_start();
+        $cmd = 'ls '  . \escapeshellarg(__DIR__);
+        \ob_start();
         $result = shell($cmd, ['capture' => $capture, 'show' => $show]);
-        $this->assertContains($show ? basename(__FILE__) : '', ob_get_clean());
+        $this->assertContains($show ? \basename(__FILE__) : '', \ob_get_clean());
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
-        $this->assertContains($capture ? basename(__FILE__) : '', (string)$result);
+        $this->assertContains($capture ? \basename(__FILE__) : '', (string)$result);
     }
 
     public function testShell_CheckExitConfigParam() {
@@ -120,7 +120,7 @@ OUT
     }
 
     public function testShell_EnvVarsConfigParam() {
-        $var = 'v' . md5(__METHOD__);
+        $var = 'v' . \md5(__METHOD__);
         $val = 'hello';
         $this->assertSame($val . "\n", shell('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true])->stdOut());
     }
@@ -147,7 +147,7 @@ OUT
         $tmpFilePath = $this->createTmpFile();
         $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         $question = "Do you want to play";
-        file_put_contents($tmpFilePath, <<<OUT
+        \file_put_contents($tmpFilePath, <<<OUT
 <?php
 require "$autoloadFilePath";
 echo json_encode(\\Morpho\\App\\Cli\\askYesNo("$question"));
@@ -158,37 +158,37 @@ OUT
             0 => ["pipe", "r"],  // stdin is a pipe that the child will read from
             1 => ["pipe", "w"],  // stdout is a pipe that the child will write to
         ];
-        $process = proc_open('php ' . escapeshellarg($tmpFilePath), $fdSpec, $pipes);
+        $process = \proc_open('php ' . \escapeshellarg($tmpFilePath), $fdSpec, $pipes);
 
-        fwrite($pipes[0], "what\ny\n");
+        \fwrite($pipes[0], "what\ny\n");
 
-        $out = stream_get_contents($pipes[1]);
+        $out = \stream_get_contents($pipes[1]);
 
         foreach ($pipes as $pipe) {
-            fclose($pipe);
+            \fclose($pipe);
         }
 
-        proc_close($process);
+        \proc_close($process);
 
         $this->assertEquals("$question? (y/n): Invalid choice, please type y or n\ntrue", $out);
     }
 
     public function testProc() {
-        $cmd = 'ls -al ' . escapeshellarg(__DIR__);
+        $cmd = 'ls -al ' . \escapeshellarg(__DIR__);
         $result = proc($cmd);
         $this->assertInstanceOf(ProcCommandResult::class, $result);
         $this->assertSame($cmd, $result->command());
         $checkStdOut = function ($stdOut) {
             $this->assertContains(".\n", $stdOut);
             $this->assertContains("..\n", $stdOut);
-            $this->assertContains(basename(__FILE__), $stdOut);
+            $this->assertContains(\basename(__FILE__), $stdOut);
         };
         $checkStdOut($result->stdOut());
         $this->assertSame(0, $result->exitCode());
         $this->assertFalse($result->isError());
-        $lines = iterator_to_array($result->lines());
-        $this->assertTrue(count($lines) > 0);
-        $checkStdOut(implode("\n", $lines));
+        $lines = \iterator_to_array($result->lines());
+        $this->assertTrue(\count($lines) > 0);
+        $checkStdOut(\implode("\n", $lines));
     }
 
     public function testProc_CheckExit() {
