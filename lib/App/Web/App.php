@@ -21,7 +21,7 @@ class App extends BaseApp {
         parent::applyIniSettings($iniSettings, $parentName);
         if (null === $parentName) {
             if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
-                ini_set('cookie_secure', '1');
+                \ini_set('cookie_secure', '1');
             }
         }
     }
@@ -41,11 +41,11 @@ class App extends BaseApp {
             $statusLine = Environment::httpVersion() . ' 500 Internal Server Error';
             $message = "Unable to handle the request. Please contact site's support and try to return to this page again later";
         }
-        if (!headers_sent()) {
+        if (!\headers_sent()) {
             // @TODO: Use http_response_code()?
-            header($statusLine);
+            \header($statusLine);
         }
-        for ($i = 0, $n = ob_get_level(); $i < $n; $i++) {
+        for ($i = 0, $n = \ob_get_level(); $i < $n; $i++) {
             //ob_end_flush();
             \ob_end_clean();
         }

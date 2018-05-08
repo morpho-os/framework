@@ -15,8 +15,8 @@ trait TDbTestCase {
         foreach ($paths as $path) {
             require_once $path;
             $class = $this->namespace(true) . '\\'
-                . basename(dirname($path)) . '\\'
-                . pathinfo($path, PATHINFO_FILENAME);
+                . \basename(\dirname($path)) . '\\'
+                . \pathinfo($path, PATHINFO_FILENAME);
             (new $class())->load($db);
         }
     }

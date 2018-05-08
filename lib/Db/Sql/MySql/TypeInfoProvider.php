@@ -171,7 +171,7 @@ class TypeInfoProvider {
     }
 
     public static function resolveSynonymOfType(string $type): string {
-        $type = strtoupper($type);
+        $type = \strtoupper($type);
         if ($type === 'INTEGER') {
             return 'INT';
         }
@@ -185,15 +185,15 @@ class TypeInfoProvider {
     }
 
     public static function isSynonym(string $type): bool {
-        return in_array(strtoupper($type), ['INTEGER', 'DOUBLE PRECISION', 'REAL', 'DEC', 'FIXED', 'NUMERIC']);
+        return \in_array(\strtoupper($type), ['INTEGER', 'DOUBLE PRECISION', 'REAL', 'DEC', 'FIXED', 'NUMERIC']);
     }
 
     public static function isMacroType(string $type): bool {
-        return in_array(strtoupper($type), ['SERIAL', 'BOOL', 'BOOLEAN', 'SERIAL DEFAULT VALUE'], true);
+        return \in_array(\strtoupper($type), ['SERIAL', 'BOOL', 'BOOLEAN', 'SERIAL DEFAULT VALUE'], true);
     }
 
     public static function expandMacroType(string $type): string {
-        $type = strtoupper($type);
+        $type = \strtoupper($type);
         if ($type === 'SERIAL') {
             return 'BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE';
         }
@@ -207,7 +207,7 @@ class TypeInfoProvider {
     }
 
     public static function isBitFieldType(string $type): bool {
-        return strtoupper($type) === 'BIT';
+        return \strtoupper($type) === 'BIT';
     }
 
     public static function isNumericType(string $type): bool {
@@ -245,6 +245,6 @@ class TypeInfoProvider {
 
     public static function typesEqual(string $type1, string $type2) {
         // @TODO: split by '(', and check type with ===
-        return 0 === stripos($type1, $type2);
+        return 0 === \stripos($type1, $type2);
     }
 }

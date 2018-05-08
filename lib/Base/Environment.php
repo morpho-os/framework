@@ -32,7 +32,7 @@ abstract class Environment {
     }
 
     public static function isWindows(): bool {
-        return defined('PHP_WINDOWS_VERSION_BUILD');//DIRECTORY_SEPARATOR == '\\';
+        return \defined('PHP_WINDOWS_VERSION_BUILD');//DIRECTORY_SEPARATOR == '\\';
     }
 
     public static function isUnix(): bool {
@@ -44,7 +44,7 @@ abstract class Environment {
     }
 
     public static function isMac(): bool {
-        return false !== strpos(php_uname('s'), 'Darwin');
+        return false !== \strpos(\php_uname('s'), 'Darwin');
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class Environment {
      */
     public static function boolIniVal(string $name): bool {
         // @TODO: can we use just (bool) ini_get()?
-        return self::iniValToBool(ini_get($name));
+        return self::iniValToBool(\ini_get($name));
     }
 
     /**
@@ -66,7 +66,7 @@ abstract class Environment {
             // false values:
             'off' => false, 'false' => false, 'no' => false, 'none' => false, '' => false, '0' => false,
         ];
-        return $map[strtolower((string)$value)] ?? (bool)$value;
+        return $map[\strtolower((string)$value)] ?? (bool)$value;
     }
 
     /**
@@ -74,24 +74,24 @@ abstract class Environment {
      * Returns true if the ini-value looks like bool.
      */
     public static function isBoolLikeIniVal($value): bool {
-        return in_array(strtolower((string)$value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
+        return \in_array(\strtolower((string)$value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
     public static function tmpDirPath(): string {
-        return Path::normalize(sys_get_temp_dir());
+        return Path::normalize(\sys_get_temp_dir());
     }
 
     public static function enableExpectations(): void {
         // http://php.net/assert#function.assert.expectations
-        Must::beTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini parameter must be set to 1 for expectations");
-        ini_set('assert.active', 1);
-        ini_set('assert.exception', 1);
+        Must::beTrue(\ini_get('zend.assertions') === '1', "The 'zend.assertions' ini parameter must be set to 1 for expectations");
+        \ini_set('assert.active', 1);
+        \ini_set('assert.exception', 1);
     }
 
     public static function init(): void {
-        error_reporting(E_ALL | E_STRICT);
-        ini_set('display_errors', '0');
-        ini_set('date.timezone', self::TIMEZONE);
-        ini_set('default_charset', self::ENCODING);
+        \error_reporting(E_ALL | E_STRICT);
+        \ini_set('display_errors', '0');
+        \ini_set('date.timezone', self::TIMEZONE);
+        \ini_set('default_charset', self::ENCODING);
     }
 }

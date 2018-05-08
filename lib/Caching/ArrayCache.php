@@ -38,7 +38,7 @@ class ArrayCache extends Cache {
     private $upTime;
 
     public function __construct() {
-        $this->upTime = time();
+        $this->upTime = \time();
     }
 
     public function delete($key) {
@@ -66,7 +66,7 @@ class ArrayCache extends Cache {
             return false;
         }
         $expiration = $this->data[$key][1];
-        if ($expiration && $expiration < time()) {
+        if ($expiration && $expiration < \time()) {
             $this->delete($key);
             return false;
         }
@@ -83,7 +83,7 @@ class ArrayCache extends Cache {
     }
 
     protected function save(string $key, $data, $lifeTime = 0): bool {
-        $this->data[$key] = [$data, $lifeTime ? time() + $lifeTime : false];
+        $this->data[$key] = [$data, $lifeTime ? \time() + $lifeTime : false];
         return true;
     }
 }

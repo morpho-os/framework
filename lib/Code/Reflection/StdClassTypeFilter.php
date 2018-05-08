@@ -179,8 +179,8 @@ class StdClassTypeFilter implements IFn {
     ];
     
     public function __invoke($classTypes) {
-        return array_values(
-            array_diff(
+        return \array_values(
+            \array_diff(
                 $classTypes,
                 self::$stdClasses
             )

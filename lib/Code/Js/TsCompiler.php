@@ -65,7 +65,7 @@ class TsCompiler implements IFn {
     public function compileToFile($inFilePath, string $outFilePath = null, $shellConfig = null): ICommandResult {
         $compilerConfig = $this->compilerConfig()->getArrayCopy();
         if ($inFilePath) {
-            $compilerConfig = array_merge($compilerConfig, (array)$inFilePath);
+            $compilerConfig = \array_merge($compilerConfig, (array)$inFilePath);
         }
         if ($outFilePath) {
             $compilerConfig['outFile'] = $outFilePath;
@@ -98,18 +98,18 @@ class TsCompiler implements IFn {
     }
 
     public function version(): string {
-        $versionStr = preg_replace('~^Version\s+~si', '', trim((string)$this->tsc(['--version'])));
+        $versionStr = \preg_replace('~^Version\s+~si', '', \trim((string)$this->tsc(['--version'])));
         return $versionStr;
     }
 
     public function valueOfCompilerConfigParam(string $paramName): array {
         // @TODO: Use JSON schema file, http://json.schemastore.org/tsconfig
         $help = function () {
-            return trim($this->tsc(['help' => true])->stdOut());
+            return \trim($this->tsc(['help' => true])->stdOut());
         };
         switch ($paramName) {
             case 'module':
-                if (!preg_match('~^.*--module\s+KIND\s+(.*)$~m', $help(), $match) || !preg_match_all("~('[^']+')~s", $match[1], $match)) {
+                if (!\preg_match('~^.*--module\s+KIND\s+(.*)$~m', $help(), $match) || !\preg_match_all("~('[^']+')~s", $match[1], $match)) {
 
                     throw new \RuntimeException("Unable to parse help");
                 }
@@ -141,7 +141,7 @@ class TsCompiler implements IFn {
     public function tsc($compilerConfig, $shellConfig = null): ICommandResult {
         return shell(
             'tsc ' . $this->configToArgsStr($compilerConfig),
-            array_merge((array)$shellConfig, ['capture' => true])
+            \array_merge((array)$shellConfig, ['capture' => true])
         );
     }
 
@@ -153,16 +153,16 @@ class TsCompiler implements IFn {
         $safe = [];
         $sep = ' ';
         foreach ($config as $name => $value) {
-            if (is_numeric($name)) {
-                $safe[] = escapeshellarg($value);
-            } elseif (is_bool($value)) {
+            if (\is_numeric($name)) {
+                $safe[] = \escapeshellarg($value);
+            } elseif (\is_bool($value)) {
                 if ($value) {
-                    $safe[] = escapeshellarg('--' . $name);
+                    $safe[] = \escapeshellarg('--' . $name);
                 }
-            } elseif (is_array($value)) {
-                $safe[] = escapeshellarg('--' . $name) . $sep . escapeshellarg(implode(',', $value));
+            } elseif (\is_array($value)) {
+                $safe[] = \escapeshellarg('--' . $name) . $sep . \escapeshellarg(\implode(',', $value));
             } else {
-                $safe[] = escapeshellarg('--' . $name) . $sep . escapeshellarg($value);
+                $safe[] = \escapeshellarg('--' . $name) . $sep . \escapeshellarg($value);
             }
         }
         return $safe;
@@ -173,6 +173,6 @@ class TsCompiler implements IFn {
      * @return string
      */
     private function configToArgsStr($config): string {
-        return implode(' ', $this->escapeConfig($config));
+        return \implode(' ', $this->escapeConfig($config));
     }
 }

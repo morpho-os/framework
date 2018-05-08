@@ -10,8 +10,8 @@ use RuntimeException;
 
 class InvalidConfigException extends RuntimeException {
     public function __construct($message = null) {
-        if (is_array($message)) {
-            $message = 'Invalid config keys: ' . shorten(implode(', ', array_keys($message)), 80);
+        if (\is_array($message)) {
+            $message = 'Invalid config keys: ' . shorten(\implode(', ', \array_keys($message)), 80);
         } elseif (null === $message) {
             $message = "Invalid config has been provided";
         }

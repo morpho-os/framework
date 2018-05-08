@@ -46,7 +46,7 @@ function errorLn(string $errMessage = null, int $exitCode = null): void {
 }
 
 function showError(string $errMessage): void {
-    fwrite(STDERR, $errMessage);
+    \fwrite(STDERR, $errMessage);
 }
 
 function showErrorLn(string $errMessage = null): void {
@@ -81,7 +81,7 @@ function stylize(string $text, $codes): string {
     static $colorOn = "\033[";
     static $colorOff = "\033[0m";
     return $colorOn
-        . implode(';', (array) $codes) . 'm'
+        . \implode(';', (array) $codes) . 'm'
         . $text
         . $colorOff;
 }
@@ -89,37 +89,37 @@ function stylize(string $text, $codes): string {
 function escapeArgs(iterable $args): array {
     $res = [];
     foreach ($args as $arg) {
-        $res[] = escapeshellarg($arg);
+        $res[] = \escapeshellarg($arg);
     }
     return $res;
 }
 
 function argsToStr($args): string {
-    if (!is_array($args)) {
+    if (!\is_array($args)) {
         if (!$args instanceof \Traversable) {
             $args = (array)$args;
         }
     } else {
-        if (!count($args)) {
+        if (!\count($args)) {
             return '';
         }
     }
-    $suffix = implode(' ', escapeArgs($args));
+    $suffix = \implode(' ', escapeArgs($args));
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
 function envVarsToStr(array $envVars): string {
-    if (!count($envVars)) {
+    if (!\count($envVars)) {
         return '';
     }
     $str = '';
     foreach ($envVars as $name => $value) {
-        if (!preg_match('~^[a-z][a-z0-9_]*$~si', (string)$name)) {
+        if (!\preg_match('~^[a-z][a-z0-9_]*$~si', (string)$name)) {
             throw new \RuntimeException('Invalid variable name');
         }
-        $str .= ' ' . $name . '=' . escapeshellarg($value);
+        $str .= ' ' . $name . '=' . \escapeshellarg($value);
     }
-    return substr($str, 1);
+    return \substr($str, 1);
 }
 
 function shell(string $command, array $config = null): ICommandResult {
@@ -201,18 +201,18 @@ function checkResult(ICommandResult $result) {
  */
 function ask(string $question) {
     echo $question;
-    $result = fgets(STDIN);
+    $result = \fgets(STDIN);
     // fgets() returns false on Ctrl-D
     if (false === $result) {
         $result = '';
     }
-    return rtrim($result);
+    return \rtrim($result);
 }
 
 function askYesNo(string $question): bool {
     echo $question . "? (y/n): ";
     do {
-        $answer = strtolower(trim(fgets(STDIN)));
+        $answer = \strtolower(\trim(\fgets(STDIN)));
         if ($answer === 'y') {
             return true;
         } elseif ($answer === 'n') {

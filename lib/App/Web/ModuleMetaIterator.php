@@ -24,7 +24,7 @@ class ModuleMetaIterator extends BaseModuleMetaIterator {
         parent::init($serviceManager);
         $site = $serviceManager['site'];
         $siteConfig = $site->config();
-        $this->enabledModules = array_flip(array_keys($siteConfig['modules']));
+        $this->enabledModules = \array_flip(\array_keys($siteConfig['modules']));
         $siteModuleName = $site->moduleName();
         $this->metaPatch = [
             $siteModuleName  => [

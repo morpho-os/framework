@@ -13,6 +13,6 @@ class DiffStrategy implements IDiscoverStrategy {
         $pre = ClassTypeDiscoverer::definedClassTypes();
         requireFile($filePath);
         $post = ClassTypeDiscoverer::definedClassTypes();
-        return array_values(array_diff($post, $pre));
+        return \array_values(\array_diff($post, $pre));
     }
 }

@@ -52,31 +52,31 @@ abstract class FileCache extends Cache {
         $this->umask = $umask;
 
         if (!$this->createDirIfNeeded($dirPath)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(\sprintf(
                 'The directory "%s" does not exist and could not be created.',
                 $dirPath
             ));
         }
 
-        if (!is_writable($dirPath)) {
-            throw new \InvalidArgumentException(sprintf(
+        if (!\is_writable($dirPath)) {
+            throw new \InvalidArgumentException(\sprintf(
                 'The directory "%s" is not writable.',
                 $dirPath
             ));
         }
 
         // YES, this needs to be *after* createPathIfNeeded()
-        $this->dirPath = realpath($dirPath);
+        $this->dirPath = \realpath($dirPath);
         $this->extension = $extension;
 
-        $this->dirPathStrLength = strlen($this->dirPath);
-        $this->extensionStrLength = strlen($this->extension);
-        $this->isRunningOnWindows = defined('PHP_WINDOWS_VERSION_BUILD');
+        $this->dirPathStrLength = \strlen($this->dirPath);
+        $this->extensionStrLength = \strlen($this->extension);
+        $this->isRunningOnWindows = \defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
     public function delete($key) {
         $filePath = $this->cacheFilePath($key);
-        return @unlink($filePath) || !file_exists($filePath);
+        return @\unlink($filePath) || !\file_exists($filePath);
     }
 
     public function clear(): bool {
@@ -85,11 +85,11 @@ abstract class FileCache extends Cache {
                 // Remove the intermediate directories which have been created to balance the tree. It only takes effect
                 // if the directory is empty. If several caches share the same directory but with different file extensions,
                 // the other ones are not removed.
-                @rmdir($name);
+                @\rmdir($name);
             } elseif ($this->isFilenameEndingWithExtension($name)) {
                 // If an extension is set, only remove files which end with the given extension.
                 // If no extension is set, we have no other choice than removing everything.
-                @unlink($name);
+                @\unlink($name);
             }
         }
 
@@ -104,7 +104,7 @@ abstract class FileCache extends Cache {
             }
         }
 
-        $free = disk_free_space($this->dirPath);
+        $free = \disk_free_space($this->dirPath);
 
         return [
             Cache::STATS_HITS             => null,
@@ -124,33 +124,33 @@ abstract class FileCache extends Cache {
      * @return bool true on success, false if path cannot be created, if path is not writable or an any other error.
      */
     protected function writeFile(string $cacheFilePath, string $content): bool {
-        $dirPath = pathinfo($cacheFilePath, PATHINFO_DIRNAME);
+        $dirPath = \pathinfo($cacheFilePath, PATHINFO_DIRNAME);
         if (!$this->createDirIfNeeded($dirPath)) {
             return false;
         }
-        if (!is_writable($dirPath)) {
+        if (!\is_writable($dirPath)) {
             return false;
         }
-        $tmpFilePath = tempnam($dirPath, 'swap');
-        @chmod($tmpFilePath, 0666 & (~$this->umask));
+        $tmpFilePath = \tempnam($dirPath, 'swap');
+        @\chmod($tmpFilePath, 0666 & (~$this->umask));
 
-        if (file_put_contents($tmpFilePath, $content) !== false) {
-            @chmod($tmpFilePath, 0666 & (~$this->umask));
-            if (@rename($tmpFilePath, $cacheFilePath)) {
+        if (\file_put_contents($tmpFilePath, $content) !== false) {
+            @\chmod($tmpFilePath, 0666 & (~$this->umask));
+            if (@\rename($tmpFilePath, $cacheFilePath)) {
                 return true;
             }
-            @unlink($tmpFilePath);
+            @\unlink($tmpFilePath);
         }
         return false;
     }
 
     protected function cacheFilePath(string $key): string {
-        $hash = hash('sha256', $key);
+        $hash = \hash('sha256', $key);
 
         // This ensures that the filename is unique and that there are no invalid chars in it.
         if ('' === $key
-            || ((strlen($key) * 2 + $this->extensionStrLength) > 255)
-            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + strlen($key) * 2 + $this->extensionStrLength) > 258)
+            || ((\strlen($key) * 2 + $this->extensionStrLength) > 255)
+            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + \strlen($key) * 2 + $this->extensionStrLength) > 258)
         ) {
             // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
             // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.
@@ -159,12 +159,12 @@ abstract class FileCache extends Cache {
             // collisions between the hash and bin2hex.
             $filename = '_' . $hash;
         } else {
-            $filename = bin2hex($key);
+            $filename = \bin2hex($key);
         }
 
         return $this->dirPath
             . DIRECTORY_SEPARATOR
-            . substr($hash, 0, 2)
+            . \substr($hash, 0, 2)
             . DIRECTORY_SEPARATOR
             . $filename
             . $this->extension;
@@ -187,7 +187,7 @@ abstract class FileCache extends Cache {
      */
     private function isFilenameEndingWithExtension(string $name): bool {
         return '' === $this->extension
-            || strrpos($name, $this->extension) === (strlen($name) - $this->extensionStrLength);
+            || \strrpos($name, $this->extension) === (\strlen($name) - $this->extensionStrLength);
     }
 
     /**
@@ -197,8 +197,8 @@ abstract class FileCache extends Cache {
      * @return bool true on success or if path already exists, false if path cannot be created.
      */
     private function createDirIfNeeded(string $path): bool {
-        if (!is_dir($path)) {
-            if (false === @mkdir($path, 0777 & (~$this->umask), true) && !is_dir($path)) {
+        if (!\is_dir($path)) {
+            if (false === @\mkdir($path, 0777 & (~$this->umask), true) && !\is_dir($path)) {
                 return false;
             }
         }

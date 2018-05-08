@@ -28,7 +28,7 @@ class SelectQuery extends Query {
 
     public function where(array $where): self {
         if (isset($this->parts[self::WHERE])) {
-            $this->parts[self::WHERE] = array_merge($this->parts[self::WHERE], $where);
+            $this->parts[self::WHERE] = \array_merge($this->parts[self::WHERE], $where);
         } else {
             $this->parts[self::WHERE] = $where;
         }
@@ -37,8 +37,8 @@ class SelectQuery extends Query {
 
     public function build(): array {
         if (isset($this->parts[self::COLUMNS])) {
-            if (is_array($this->parts[self::COLUMNS])) {
-                $columnsStr = implode(', ', $this->parts[self::COLUMNS]);
+            if (\is_array($this->parts[self::COLUMNS])) {
+                $columnsStr = \implode(', ', $this->parts[self::COLUMNS]);
             } else {
                 $columnsStr = $this->parts[self::COLUMNS];
             }

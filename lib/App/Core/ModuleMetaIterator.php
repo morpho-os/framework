@@ -23,7 +23,7 @@ class ModuleMetaIterator implements \IteratorAggregate {
     public function getIterator() {
         foreach ($this->dirIter() as $moduleDirPath) {
             $metaFilePath = $moduleDirPath . '/' . META_FILE_NAME;
-            if (!is_file($metaFilePath)) {
+            if (!\is_file($metaFilePath)) {
                 continue;
             }
             $moduleMeta = File::readJson($metaFilePath);
@@ -48,7 +48,7 @@ class ModuleMetaIterator implements \IteratorAggregate {
     protected function map(array $moduleMeta): array {
         $namespaces = [];
         foreach ($moduleMeta['autoload']['psr-4'] ?? [] as $key => $value) {
-            $namespaces[trim($key, '\\/')] = trim($value, '\\/');
+            $namespaces[\trim($key, '\\/')] = \trim($value, '\\/');
         }
 
         $moduleName = $moduleMeta['name'];

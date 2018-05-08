@@ -12,7 +12,7 @@ require_once __DIR__ . '/Debugger.php';
 
 function d(...$args) {
     $debugger = Debugger::instance();
-    return count($args)
+    return \count($args)
         ? $debugger->ignoreCaller(__FILE__, __LINE__)->dump(...$args)
         : $debugger;
 }

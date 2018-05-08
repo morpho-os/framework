@@ -45,7 +45,7 @@ class PhpServer {
         $this->process = $process;
         waitUntilNoOfAttempts(function () {
           if (!$this->process->isRunning()) {
-              throw new \RuntimeException("Process has exited with the error: " . rtrim($this->process->getErrorOutput()) . " (exit code: {$this->process->getExitCode()})");
+              throw new \RuntimeException("Process has exited with the error: " . \rtrim($this->process->getErrorOutput()) . " (exit code: {$this->process->getExitCode()})");
           }
           return $this->isListening();
         }, 500000, 20);
@@ -97,8 +97,8 @@ class PhpServer {
      * NB: This method can return invalid result in an environment when other processes can start listening during running of this method.
      */
     protected function findFreePort(Address $address): Address {
-        return Address::parse(stream_socket_get_name(
-            stream_socket_server("tcp://{$address->host()}:0"),
+        return Address::parse(\stream_socket_get_name(
+            \stream_socket_server("tcp://{$address->host()}:0"),
             false
         ));
     }

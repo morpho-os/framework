@@ -14,7 +14,7 @@ class HandlerManager {
     public const EXCEPTION = 'exception';
 
     public static function isHandlerRegistered(string $handlerType, callable $callback): bool {
-        return in_array($callback, self::handlersOfType($handlerType));
+        return \in_array($callback, self::handlersOfType($handlerType));
     }
 
     /**
@@ -22,9 +22,9 @@ class HandlerManager {
      */
     public static function registerHandler(string $handlerType, callable $callback) {
         if ($handlerType === self::ERROR) {
-            return set_error_handler($callback);
+            return \set_error_handler($callback);
         } elseif ($handlerType === self::EXCEPTION) {
-            return set_exception_handler($callback);
+            return \set_exception_handler($callback);
         }
         self::invalidHandlerTypeException($handlerType);
     }
@@ -55,7 +55,7 @@ class HandlerManager {
                 }
             }
             $pushHandler = 'set_' . $handlerType . '_handler';
-            foreach (array_reverse($handlers) as $handler) {
+            foreach (\array_reverse($handlers) as $handler) {
                 $pushHandler($handler);
             }
             if (!$found) {
@@ -108,7 +108,7 @@ class HandlerManager {
             $handlers[] = $handler;
         } while ($handler);
 
-        $handlers = array_reverse($handlers);
+        $handlers = \array_reverse($handlers);
 
         // Restore handlers back.
         foreach ($handlers as $handler) {
@@ -125,14 +125,14 @@ class HandlerManager {
     public static function handlerOfType(string $handlerType) {
         self::checkHandlerType($handlerType);
 
-        $currentHandler = call_user_func('set_' . $handlerType . '_handler', [__CLASS__, __FUNCTION__]);
-        call_user_func('restore_' . $handlerType . '_handler');
+        $currentHandler = \call_user_func('set_' . $handlerType . '_handler', [__CLASS__, __FUNCTION__]);
+        \call_user_func('restore_' . $handlerType . '_handler');
 
         return $currentHandler;
     }
 
     private static function checkHandlerType(string $handlerType) {
-        if (!in_array($handlerType, [self::ERROR, self::EXCEPTION], true)) {
+        if (!\in_array($handlerType, [self::ERROR, self::EXCEPTION], true)) {
             self::invalidHandlerTypeException($handlerType);
         }
     }

@@ -23,7 +23,7 @@ class UriValidator implements IFn {
     }
 
     public static function validateScheme(string $scheme): bool {
-        return (bool)preg_match('~^([a-z][-a-z0-9+.]*)$~si', $scheme);
+        return (bool)\preg_match('~^([a-z][-a-z0-9+.]*)$~si', $scheme);
     }
 
     public static function validateAuthority(string $authority): bool {
@@ -37,7 +37,7 @@ class UriValidator implements IFn {
         $userInfoRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe | : )*";
         $userInfo = $authority->userInfo();
         if (null !== $userInfo) {
-            if (!preg_match('{^' . $userInfoRe . '$}six', $userInfo)) {
+            if (!\preg_match('{^' . $userInfoRe . '$}six', $userInfo)) {
                 return false;
             }
         }
@@ -68,13 +68,13 @@ class UriValidator implements IFn {
         $regNameRe = "( $unreservedRe | $pctEncodedRe | $subDelimsRe )*";
         $hostRe = "( $ipLiteralRe | $ipV4AddressRe | $regNameRe)";
 
-        if (!preg_match('{^' . $hostRe . '$}six', $authority->host())) {
+        if (!\preg_match('{^' . $hostRe . '$}six', $authority->host())) {
             return false;
         }
 
         $port = $authority->port();
         if (null !== $port) {
-            return (bool) preg_match('~^\d*$~s', (string)$port);
+            return (bool) \preg_match('~^\d*$~s', (string)$port);
         }
 
         return true;
@@ -94,13 +94,13 @@ class UriValidator implements IFn {
         if ($hasAuthority) {
             // If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character.
             // path-abempty  = *( "/" segment )
-            return (bool) preg_match("{^( / $segmentRe )*$}six", $path);
+            return (bool) \preg_match("{^( / $segmentRe )*$}six", $path);
         } else {
             // If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//").
             // path-absolute = "/" [ segment-nz *( "/" segment ) ]   ; begins with "/" but not "//"
             // segment-nz    = 1*pchar
             $segmentNzRe = "$pCharRe+";
-            return (bool) preg_match("{^ / ( $segmentNzRe ( / $segmentRe )* )? $}six", $path);
+            return (bool) \preg_match("{^ / ( $segmentNzRe ( / $segmentRe )* )? $}six", $path);
         }
         /*
            The path segments "." and "..", also known as dot-segments, are

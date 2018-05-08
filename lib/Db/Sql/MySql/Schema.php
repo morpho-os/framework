@@ -31,7 +31,7 @@ class Schema extends BaseSchema {
     }
     
     public function databaseExists(string $dbName): bool {
-        return in_array($dbName, $this->databaseNames(), true);
+        return \in_array($dbName, $this->databaseNames(), true);
     }
 
     public function renameDatabase(string $oldName, string $newName): void {
@@ -75,7 +75,7 @@ class Schema extends BaseSchema {
     public function tableExists(string $tableName): bool {
         // @TODO: Use `mysql` table?
         // or SHOW TABLES like `$tableName`.
-        return in_array($tableName, $this->tableNames(), true);
+        return \in_array($tableName, $this->tableNames(), true);
     }
 
     public function deleteTable(string $tableName): void {
@@ -216,7 +216,7 @@ class Schema extends BaseSchema {
             yield new ServerCollation(
                 $row['Collation'],
                 $row['Charset'],
-                strtolower($row['Default']) === 'yes'
+                \strtolower($row['Default']) === 'yes'
             );
         }
     }
@@ -227,7 +227,7 @@ class Schema extends BaseSchema {
      */
     public function collationOfServer(): ServerCollation {
         $vars = $this->varsLike('collation_server', true);
-        $collation = reset($vars);
+        $collation = \reset($vars);
         return head($this->availableCollationsOfServer('LIKE ' . $this->db->quote($collation)));
     }
 
@@ -254,7 +254,7 @@ class Schema extends BaseSchema {
         $whereArgs = [$dbName];
         if ($tableNames) {
             $whereClause .= ' AND TABLE_NAME IN (' . $this->db->query()->positionalPlaceholdersStr($tableNames) . ')';
-            $whereArgs = array_merge($whereArgs, $tableNames);
+            $whereArgs = \array_merge($whereArgs, $tableNames);
         }
         $res = $this->db->select('TABLE_SCHEMA AS dbName,
             TABLE_NAME AS tableName,
@@ -275,7 +275,7 @@ class Schema extends BaseSchema {
      */
     public function collationOfTable(string $dbName, string $tableName = null): TableCollation {
         if (null === $tableName) {
-            [$dbName, $tableName] = explode('.', $dbName);
+            [$dbName, $tableName] = \explode('.', $dbName);
         }
         return head($this->collationOfTables($dbName, [$tableName]));
     }
@@ -321,7 +321,7 @@ class Schema extends BaseSchema {
     }
 
     public function charsetAndCollationVars(): array {
-        return array_merge($this->charsetVars(), $this->collationVars());
+        return \array_merge($this->charsetVars(), $this->collationVars());
     }
 
     public function charsetVars(): array {
@@ -335,23 +335,23 @@ class Schema extends BaseSchema {
     public function varsWithPrefix(string $prefix): array {
         return $this->db->doWithEmulatedPrepares(function () use ($prefix) {
             // The `SHOW VARIABLES` is not in [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512) so we need to emulate prepared statements.
-            return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $prefix) . '%'])->map();
+            return $this->db->eval('SHOW VARIABLES LIKE ?', [\str_replace('%', '\%', $prefix) . '%'])->map();
         });
     }
 
     public function varsWithSuffix(string $suffix): array {
         // The `SHOW VARIABLES` is not in [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512) so we need to emulate prepared statements.
         return $this->db->doWithEmulatedPrepares(function () use ($suffix) {
-            return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $suffix)])->map();
+            return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . \str_replace('%', '\%', $suffix)])->map();
         });
     }
 
     public function varsLike(string $infix, bool $exactMatch = false): array {
         return $this->db->doWithEmulatedPrepares(function () use ($infix, $exactMatch) {
             if ($exactMatch) {
-                return $this->db->eval('SHOW VARIABLES LIKE ?', [str_replace('%', '\%', $infix)])->map();
+                return $this->db->eval('SHOW VARIABLES LIKE ?', [\str_replace('%', '\%', $infix)])->map();
             }
-            return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . str_replace('%', '\%', $infix) . '%'])->map();
+            return $this->db->eval('SHOW VARIABLES LIKE ?', ['%' . \str_replace('%', '\%', $infix) . '%'])->map();
         });
     }
 

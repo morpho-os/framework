@@ -41,7 +41,7 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     public function clearMap() {
         $this->map = null;
-        if (is_file($this->mapFilePath)) {
+        if (\is_file($this->mapFilePath)) {
             File::delete($this->mapFilePath);
         }
     }
@@ -55,13 +55,13 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     protected function newTypeMap(): array {
         $useCache = $this->useCache;
-        if ($useCache && is_file($this->mapFilePath)) {
+        if ($useCache && \is_file($this->mapFilePath)) {
             return requireFile($this->mapFilePath);
         }
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         $map = $classTypeDiscoverer->classTypesDefinedInDir($this->searchDirPaths, $this->processor, ['followLinks' => true]);
         if ($useCache) {
-            File::write($this->mapFilePath, '<?php return ' . var_export($map, true) . ';');
+            File::write($this->mapFilePath, '<?php return ' . \var_export($map, true) . ';');
         }
 
         return $map;

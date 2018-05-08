@@ -8,9 +8,9 @@ namespace Morpho\Network;
 
 class TcpServer {
     public static function isListening(Address $address): bool {
-        $handle = @fsockopen('tcp://' . $address->host(), $address->port(), $errNo, $errStr, 1);
+        $handle = @\fsockopen('tcp://' . $address->host(), $address->port(), $errNo, $errStr, 1);
         if ($handle) {
-            fclose($handle);
+            \fclose($handle);
             return true;
         }
         return false;

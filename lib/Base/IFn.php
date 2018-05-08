@@ -8,7 +8,7 @@ namespace Morpho\Base;
 
 /**
  * NB: IFn is callable, the following code returns true:
- *     is_callable(new class implements IFn { public function __invoke($value) {} });
+ *     \is_callable(new class implements IFn { public function __invoke($value) {} });
  */
 interface IFn {
     /**

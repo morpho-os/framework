@@ -57,12 +57,12 @@ class StringReader {
     public function readN(int $n): string {
         $s = $this->peekN($n);
         $this->offset += $n;
-        $this->lineNo += preg_match_all(EOL_FULL_RE, $s);
+        $this->lineNo += \preg_match_all(EOL_FULL_RE, $s);
         return $s;
     }
 
     public function peek1(): ?string {
-        $ch = substr($this->input, $this->offset, 1);
+        $ch = \substr($this->input, $this->offset, 1);
         if ($ch === '' || $ch === false) {
             return null;
         }
@@ -74,10 +74,10 @@ class StringReader {
         if ($n === 0) {
             return '';
         }
-        if (($this->offset + $n) > strlen($this->input)) {
+        if (($this->offset + $n) > \strlen($this->input)) {
             throw new \OutOfBoundsException();
         }
-        $s = substr($this->input, $this->offset, $n);
+        $s = \substr($this->input, $this->offset, $n);
         if ($s === '' || false === $s) {
             throw new \OutOfBoundsException();
         }
@@ -88,7 +88,7 @@ class StringReader {
         if ($this->offset === 0) {
             throw new \OutOfBoundsException();
         }
-        $ch = substr($this->input, $this->offset - 1, 1);
+        $ch = \substr($this->input, $this->offset - 1, 1);
         if ($ch === "\n") {
             $this->lineNo--;
         }
@@ -97,7 +97,7 @@ class StringReader {
     }
 
     public function read(string $expected): string {
-        $s = $this->readN(strlen($expected));
+        $s = $this->readN(\strlen($expected));
         if ($s !== $expected) {
             throw new SyntaxError("Read input doesn't match expected input: expected: '$expected', got: '$s'");
         }
@@ -105,7 +105,7 @@ class StringReader {
     }
 
     public function matches(string $re): bool {
-        return (bool) preg_match($re, $this->input, $m, 0, $this->offset);
+        return (bool) \preg_match($re, $this->input, $m, 0, $this->offset);
     }
 
     public function scan(string $re): ?string {
@@ -115,40 +115,40 @@ class StringReader {
          *     preg_match('~ab~', $s);  // evaluates to 1
          *     preg_match('~ab~A', $s); // evaluates to 0
          */
-        if (preg_match($re, $this->input, $m, 0, $this->offset)) {
-            $s = array_shift($m);
-            $this->offset += strlen($s);
+        if (\preg_match($re, $this->input, $m, 0, $this->offset)) {
+            $s = \array_shift($m);
+            $this->offset += \strlen($s);
             return $s;
         }
         return null;
     }
 
     public function readMatching(string $re): string {
-        if (!preg_match($re, $this->input, $m, 0, $this->offset)) {
+        if (!\preg_match($re, $this->input, $m, 0, $this->offset)) {
             throw new SyntaxError();
         }
-        $s = array_shift($m);
-        $this->offset += strlen($s);
+        $s = \array_shift($m);
+        $this->offset += \strlen($s);
         return $s;
     }
 
     public function readDoubleQuotedString(): string {
         // The regular expression taken from nikic/php-parser package, grammar/rebuildParsers.php file.
-        if (!preg_match('~(?<doubleQuotedString>"[^\\\\"]*+(?:\\\\.[^\\\\"]*+)*+")~si', $this->input, $match, 0, $this->offset)) {
+        if (!\preg_match('~(?<doubleQuotedString>"[^\\\\"]*+(?:\\\\.[^\\\\"]*+)*+")~si', $this->input, $match, 0, $this->offset)) {
             throw new SyntaxError();
         }
         $str = $match['doubleQuotedString'];
-        $this->offset += strlen($str);
+        $this->offset += \strlen($str);
         return $str;
     }
 
     public function readSingleQuotedString(): string {
         // The regular expression taken from nikic/php-parser package, grammar/rebuildParsers.php file.
-        if (!preg_match('~(?<singleQuotedString>\'[^\\\\\']*+(?:\\\\.[^\\\\\']*+)*+\')~si', $this->input, $match, 0, $this->offset)) {
+        if (!\preg_match('~(?<singleQuotedString>\'[^\\\\\']*+(?:\\\\.[^\\\\\']*+)*+\')~si', $this->input, $match, 0, $this->offset)) {
             throw new SyntaxError();
         }
         $str = $match['singleQuotedString'];
-        $this->offset += strlen($str);
+        $this->offset += \strlen($str);
         return $str;
     }
 
@@ -157,6 +157,6 @@ class StringReader {
     }
 
     public function eos(): bool {
-        return $this->offset >= strlen($this->input);
+        return $this->offset >= \strlen($this->input);
     }
 }

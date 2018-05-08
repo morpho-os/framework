@@ -79,7 +79,7 @@ class DispatchErrorHandler implements IHasServiceManager {
     }
 
     private function defaultErrorHandler(string $errorType): array {
-        return [VENDOR . '/system', 'Error', str_replace('Handler', '', $errorType)];
+        return [VENDOR . '/system', 'Error', \str_replace('Handler', '', $errorType)];
     }
 
     protected function logError($exception): void {

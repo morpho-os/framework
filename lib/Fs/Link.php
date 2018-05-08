@@ -8,22 +8,22 @@ namespace Morpho\Fs;
 
 class Link extends Entry {
     public static function create($targetPath, $linkPath) {
-        // @TODO: Handle the case when the dirname($linkPath) is symlink to some directory
+        // @TODO: Handle the case when the \dirname($linkPath) is symlink to some directory
         // it can be link to file, but in this case it is an error.
-        Dir::create(dirname($linkPath));
-        if (is_file($targetPath) && is_dir($linkPath)) {
-            $linkPath = $linkPath . '/' . basename($targetPath);
+        Dir::create(\dirname($linkPath));
+        if (\is_file($targetPath) && \is_dir($linkPath)) {
+            $linkPath = $linkPath . '/' . \basename($targetPath);
         }
-        if (!@symlink($targetPath, $linkPath)) {
+        if (!@\symlink($targetPath, $linkPath)) {
             throw new Exception("Unable to create symlink '$linkPath' for target '$targetPath'");
         }
     }
     
     public static function isBroken(string $linkPath): bool {
-        if (!is_link($linkPath)) {
+        if (!\is_link($linkPath)) {
             throw new Exception('The passed path is not a symlink');
         }
-        return !file_exists($linkPath);
+        return !\file_exists($linkPath);
         /*
 
         $targetPath = readlink($linkPath);
@@ -34,7 +34,7 @@ class Link extends Entry {
             return !Stat::isEntry($targetPath);
         }
         $curDirPath = getcwd();
-        chdir(dirname($linkPath));
+        chdir(\dirname($linkPath));
         try {
             return !Stat::isEntry($targetPath);
         } finally {

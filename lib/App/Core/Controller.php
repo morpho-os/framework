@@ -29,7 +29,7 @@ abstract class Controller implements IFn {
         $this->request = $request;
         $this->beforeEach();
         $method = $action . 'Action';
-        if (method_exists($this, $method)) {
+        if (\method_exists($this, $method)) {
             $this->handleActionResult($request, $this->$method());
         }
         $this->afterEach();

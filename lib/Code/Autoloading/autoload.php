@@ -12,8 +12,8 @@ use Composer\Autoload\ClassLoader;
  * Returns the first found Composer's autoloader - an instance of the \Composer\Autoloader\ClassLoader.
  */
 function composerAutoloader(): ClassLoader {
-    foreach (spl_autoload_functions() as $callback) {
-        if (is_array($callback) && $callback[0] instanceof ClassLoader && $callback[1] === 'loadClass') {
+    foreach (\spl_autoload_functions() as $callback) {
+        if (\is_array($callback) && $callback[0] instanceof ClassLoader && $callback[1] === 'loadClass') {
             return $callback[0];
         }
     }

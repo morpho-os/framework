@@ -68,7 +68,7 @@ abstract class VfsEntry implements IVfsEntry {
     }
 
     protected function normalizeStat(VfsEntryStat $stat): void {
-        $now = time();
+        $now = \time();
         if (!isset($stat['mtime'])) {
             $stat['mtime'] = $now;
         }

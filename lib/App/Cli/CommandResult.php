@@ -32,9 +32,9 @@ abstract class CommandResult implements ICommandResult {
 
     // @TODO: Unify with #152.
     public function lines(bool $noEmptyLines = true, bool $trimLines = true, int $offset = 0, int $length = null): iterable {
-        foreach (preg_split(EOL_FULL_RE, $this->stdOut(), -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
+        foreach (\preg_split(EOL_FULL_RE, $this->stdOut(), -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
             if ($trimLines) {
-                $line = trim($line);
+                $line = \trim($line);
             }
             if ($noEmptyLines && $line === '') {
                 continue;

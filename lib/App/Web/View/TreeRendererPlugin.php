@@ -16,7 +16,7 @@ class TreeRendererPlugin extends Plugin {
     }
 
     public function render(array $nodes): string {
-        if (!count($nodes)) {
+        if (!\count($nodes)) {
             return '';
         }
         $output = '';
@@ -74,9 +74,9 @@ class TreeRendererPlugin extends Plugin {
         $render = $this->internalNodeRenderer();
         $renderedChildren = '';
         if (!empty($node['nodes'])) {
-            array_push($this->parents, $node);
+            \array_push($this->parents, $node);
             $renderedChildren = $this->render($node['nodes']);
-            array_pop($this->parents);
+            \array_pop($this->parents);
         }
         return $render($node, $renderedChildren);
     }
@@ -85,7 +85,7 @@ class TreeRendererPlugin extends Plugin {
         $renderInputName = function (string $name): string {
             $parents = $this->parents;
             $parents[] = $name;
-            return implode('___', array_map([$this, 'escapeHtml'], $parents));
+            return \implode('___', \array_map([$this, 'escapeHtml'], $parents));
         };
         return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . Html::encode($name);
     }

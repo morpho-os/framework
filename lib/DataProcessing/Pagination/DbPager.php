@@ -20,8 +20,8 @@ abstract class DbPager extends Pager implements IHasServiceManager {
     }
 
     protected function itemList($offset, $pageSize): iterable {
-        $offset = intval($offset);
-        $pageSize = intval($pageSize);
+        $offset = \intval($offset);
+        $pageSize = \intval($pageSize);
         return $this->db()->select('* FROM (' . $this->sqlQuery() . ") AS t LIMIT $offset, $pageSize");
     }
 

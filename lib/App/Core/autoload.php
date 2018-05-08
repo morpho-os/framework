@@ -43,12 +43,12 @@ function moduleDirPath(string $dirPath, bool $throwEx = true) {
     $baseDirPath = false;
     do {
         $path = $dirPath . '/vendor/composer/ClassLoader.php';
-        if (is_file($path)) {
+        if (\is_file($path)) {
             $baseDirPath = $dirPath;
             break;
         } else {
-            $chunks = explode(DIRECTORY_SEPARATOR, $dirPath, -1);
-            $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
+            $chunks = \explode(DIRECTORY_SEPARATOR, $dirPath, -1);
+            $dirPath = \implode(DIRECTORY_SEPARATOR, $chunks);
         }
     } while ($chunks);
     if (false === $baseDirPath) {

@@ -132,7 +132,7 @@ abstract class DbClient {
         // @TODO: Use InsertQuery
         $query = $this->query();
         $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . '(';
-        $sql .= implode(', ', $query->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
+        $sql .= \implode(', ', $query->quoteIdentifiers(\array_keys($row))) . ') VALUES (' . \implode(', ', $query->positionalPlaceholders($row)) . ')';
         $this->eval($sql, $row);
     }
 
@@ -160,13 +160,13 @@ abstract class DbClient {
         // @TODO: Use UpdateQuery
         $query = $this->query();
         $sql = 'UPDATE ' . $query->quoteIdentifier($tableName)
-            . ' SET ' . implode(', ', $query->namedPlaceholders($row));
-        $args = array_values($row);
+            . ' SET ' . \implode(', ', $query->namedPlaceholders($row));
+        $args = \array_values($row);
         if (null !== $whereCondition) {
             [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
             if ($whereSql !== '') {
                 $sql .= $whereSql;
-                $args = array_merge($args, $whereArgs);
+                $args = \array_merge($args, $whereArgs);
             }
         }
         $this->eval($sql, $args);
@@ -176,7 +176,7 @@ abstract class DbClient {
         /** @var $stmt Result */
         if ($args) {
             $stmt = $this->connection->prepare($sql);
-            $stmt->execute(array_values($args));
+            $stmt->execute(\array_values($args));
         } else {
             $stmt = $this->connection->query($sql);
         }

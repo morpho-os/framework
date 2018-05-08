@@ -55,9 +55,9 @@ class FastRouter implements IHasServiceManager, IRouter {
         $cacheFilePath = $this->cacheFilePath();
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
         foreach ($this->routesMeta() as $routeMeta) {
-            $routeMeta['uri'] = preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
-                $var = array_pop($matches);
-                return '{' . str_replace('$', '', $var) . ':[^/]+}';
+            $routeMeta['uri'] = \preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
+                $var = \array_pop($matches);
+                return '{' . \str_replace('$', '', $var) . ':[^/]+}';
             }, $routeMeta['uri']);
             $handler = [
                 'module'     => $routeMeta['module'],
@@ -105,7 +105,7 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function cacheExists(): bool {
-        return is_file($this->cacheFilePath());
+        return \is_file($this->cacheFilePath());
     }
 
     protected function loadDispatchData() {

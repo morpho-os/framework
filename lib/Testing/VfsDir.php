@@ -123,11 +123,11 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     }
 
     public function current() {
-        return current($this->entries);
+        return \current($this->entries);
     }
 
     public function next(): void {
-        next($this->entries);
+        \next($this->entries);
     }
 
     public function key() {
@@ -135,26 +135,26 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     }
 
     public function valid(): bool {
-        next($this->entries);
-        $key = key($this->entries);
+        \next($this->entries);
+        $key = \key($this->entries);
         $valid = $key !== null;
-        prev($this->entries);
+        \prev($this->entries);
         return $valid;
     }
 
     public function rewind(): void {
-        reset($this->entries);
+        \reset($this->entries);
     }
 
     public function count(): int {
-        return count($this->entries);
+        return \count($this->entries);
     }
 
     protected function normalizeStat(VfsEntryStat $stat): void {
         parent::normalizeStat($stat);
         if (!isset($stat['mode'])) {
             $typeBits = Stat::DIR;
-            $permissionBits = Stat::DIR_BASE_MODE & ~umask();
+            $permissionBits = Stat::DIR_BASE_MODE & ~\umask();
             $stat['mode'] = $typeBits | $permissionBits;
         }
     }

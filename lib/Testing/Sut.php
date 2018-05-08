@@ -75,11 +75,11 @@ class TestSettings implements \ArrayAccess {
     ];
 
     public function offsetExists($name): bool {
-        return array_key_exists($name, $this->values) || array_key_exists($name, $this->default);
+        return \array_key_exists($name, $this->values) || \array_key_exists($name, $this->default);
     }
 
     public function offsetGet($name) {
-        if (!array_key_exists($name, $this->values)) {
+        if (!\array_key_exists($name, $this->values)) {
             return $this->default[$name];
         }
         return $this->values[$name];

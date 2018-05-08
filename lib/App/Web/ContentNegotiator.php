@@ -48,6 +48,6 @@ class ContentNegotiator implements IFn {
         if (!$mediaType) {
             return $this->defaultFormat;
         }
-        return strtolower($mediaType->getSubPart());
+        return \strtolower($mediaType->getSubPart());
     }
 }

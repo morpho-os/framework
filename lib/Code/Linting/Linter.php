@@ -27,7 +27,7 @@ class Linter {
         $valid = true;
         if ($metaFileErrors) {
             showErrorLn('Errors found:');
-            showErrorLn(print_r($metaFileErrors, TRUE));
+            showErrorLn(\print_r($metaFileErrors, TRUE));
             $valid = false;
         } else {
             showOk();
@@ -41,7 +41,7 @@ class Linter {
                         $mapper->nsPrefix() => $mapper->baseDirPath(),
                     ]);
                     $checkFileErrors = $lint($sourceFile);
-                    $mappingErrors = array_merge($mappingErrors, $checkFileErrors);
+                    $mappingErrors = \array_merge($mappingErrors, $checkFileErrors);
                 }
                 if (!$mappingErrors) {
                     showOk();
@@ -63,13 +63,13 @@ class Linter {
     public static function testFilePaths(bool $recursive): \Closure {
         return function (string $ns, string $baseDirPath) use ($recursive): iterable {
             return Dir::filePaths($baseDirPath, function ($filePath) {
-                return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
+                return (bool) \preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
             }, $recursive);
         };
     }
 
     private static function showErrors(array $mappingErrors): void {
         showLn('Errors found:');
-        showLn(print_r($mappingErrors, true));
+        showLn(\print_r($mappingErrors, true));
     }
 }

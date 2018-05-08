@@ -49,7 +49,7 @@ class StringScanner {
         }
         $ch = mb_substr($this->input, $this->charOffset, 1, $this->encoding());
         $this->charOffset++;
-        $this->offset += strlen($ch);
+        $this->offset += \strlen($ch);
         return $ch;
         */
     }
@@ -59,7 +59,7 @@ class StringScanner {
         if ($this->eos()) {
             return null;
         }
-        $ch = substr($this->input, $this->offset, 1);
+        $ch = \substr($this->input, $this->offset, 1);
         if (false === $ch) {
             throw new \RuntimeException();
         }
@@ -69,7 +69,7 @@ class StringScanner {
         $this->charOffset++;
 
         /*
-        $s = substr($this->input, 0, $this->offset);
+        $s = \substr($this->input, 0, $this->offset);
         $this->charOffset = mb_strlen($s, $this->encoding());
         */
 
@@ -85,9 +85,9 @@ class StringScanner {
          *     preg_match('~ab~A', $s); // evaluates to 0
          */
         /*
-        if (preg_match($re, $this->input, $m, 0, $this->charOffset)) {
-            $s = array_shift($m);
-            //$this->offset += strlen($s);
+        if (\preg_match($re, $this->input, $m, 0, $this->charOffset)) {
+            $s = \array_shift($m);
+            //$this->offset += \strlen($s);
             $this->charOffset += mb_strlen($s);
             return $s;
         }
@@ -101,7 +101,7 @@ class StringScanner {
     public function scanUntil(string $re): ?string {
         throw new NotImplementedException();
         /*
-        if (preg_match($re, $this->input, $m, PREG_OFFSET_CAPTURE, $this->charOffset)) {
+        if (\preg_match($re, $this->input, $m, PREG_OFFSET_CAPTURE, $this->charOffset)) {
             list($s, $offset) = $m[0];
         }
         */
@@ -113,7 +113,7 @@ class StringScanner {
             /*
             $n = $offset - $this->offset + mb_strlen($match, $encoding);
             $s = mb_substr($this->input, $this->offset, $n, $encoding); * /
-            $this->offset += strlen($s);
+            $this->offset += \strlen($s);
             return $s;
         }
         return null;
@@ -173,7 +173,7 @@ class StringScanner {
     }
 
     public function eos(): bool {
-        return $this->offset >= strlen($this->input);
+        return $this->offset >= \strlen($this->input);
     }
 
     public function rest() {

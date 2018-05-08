@@ -60,8 +60,8 @@ abstract class InstanceProvider implements IFn {
     public function classFilePath(ModuleMeta $moduleMeta, string $classSuffix) {
         foreach ($moduleMeta['namespaces'] as $namespace => $nsDirPath) {
             $class = $namespace . '\\' . $classSuffix;
-            $classFilePath = $moduleMeta['paths']['dirPath'] . '/' . $nsDirPath . '/' . str_replace('\\', '/', $classSuffix) . '.php';
-            if (is_file($classFilePath)) {
+            $classFilePath = $moduleMeta['paths']['dirPath'] . '/' . $nsDirPath . '/' . \str_replace('\\', '/', $classSuffix) . '.php';
+            if (\is_file($classFilePath)) {
                 return [$class, $classFilePath];
             }
         }
@@ -76,7 +76,7 @@ abstract class InstanceProvider implements IFn {
         $classPath = $this->classFilePath($moduleMeta, $classSuffix);
         if (false !== $classPath) {
             [$class, $filePath] = $classPath;
-            if (!class_exists($class, false)) {
+            if (!\class_exists($class, false)) {
                 requireFile($filePath, true);
             }
             $instance = new $class();

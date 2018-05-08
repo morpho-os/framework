@@ -38,7 +38,7 @@ class UriProcessor extends HtmlProcessor {
                     return $tag;
                 }
                 $basePath = $this->request()->uri()->path()->basePath();
-                $tag[$attrName] = Path::combine($basePath, substr($uriStr, 1));
+                $tag[$attrName] = Path::combine($basePath, \substr($uriStr, 1));
             }
         }
         return $tag;

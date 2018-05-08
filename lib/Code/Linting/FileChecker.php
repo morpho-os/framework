@@ -27,16 +27,16 @@ class FileChecker {
 
     public static function checkFile(SourceFile $sourceFile): array {
         $errors = [];
-        $errors = array_merge($errors, FileChecker::checkNamespaces($sourceFile));
-        $errors = array_merge($errors, FileChecker::checkClassTypes($sourceFile));
-        return count($errors) ? [$sourceFile->filePath() => $errors] : [];
+        $errors = \array_merge($errors, FileChecker::checkNamespaces($sourceFile));
+        $errors = \array_merge($errors, FileChecker::checkClassTypes($sourceFile));
+        return \count($errors) ? [$sourceFile->filePath() => $errors] : [];
     }
 
     public static function checkNamespaces(SourceFile $sourceFile): array {
         $expectedNss = [];
         foreach ($sourceFile->nsToDirPathMap() as $nsPrefix => $libDirPath) {
             if (!Path::isAbs($libDirPath)) {
-                $pos = strpos($libDirPath, '://'); // URI like vfs:///foo
+                $pos = \strpos($libDirPath, '://'); // URI like vfs:///foo
                 if (false !== $pos) {
                     $isAbs = isset($libDirPath[$pos + 3]) && $libDirPath[$pos + 3] === '/';
                 } else {
@@ -47,14 +47,14 @@ class FileChecker {
                 }
             }
             if (startsWith($sourceFile->filePath(), $libDirPath)) {
-                $nsPrefix = rtrim($nsPrefix, '\\');
-                $nsSuffix = str_replace('/', '\\', substr($sourceFile->filePath(), strlen($libDirPath) + 1));
+                $nsPrefix = \rtrim($nsPrefix, '\\');
+                $nsSuffix = \str_replace('/', '\\', \substr($sourceFile->filePath(), \strlen($libDirPath) + 1));
                 $ns = $nsPrefix . '\\' . $nsSuffix;
                 $expectedNss[] = init($ns, '\\');
             }
         }
         $errors = [];
-        if (!count($expectedNss)) {
+        if (!\count($expectedNss)) {
             $errors[] = self::NS_NOT_FOUND;
             return $errors;
         }
@@ -66,7 +66,7 @@ class FileChecker {
                 continue;
             }
 
-            if (!in_array($nsName, $expectedNss, true)) {
+            if (!\in_array($nsName, $expectedNss, true)) {
                 $errors[self::INVALID_NS] = $nsName;
             }
 
@@ -80,7 +80,7 @@ class FileChecker {
     public static function checkClassTypes(SourceFile $sourceFile): array {
         $errors = [];
         $filePath = $sourceFile->filePath();
-        $expectedClassName = Path::dropExt(basename($filePath));
+        $expectedClassName = Path::dropExt(\basename($filePath));
         foreach (self::classes($sourceFile->filePath()) as $className) {
             $shortClassName = last($className, '\\');
             if ($shortClassName !== $expectedClassName) {

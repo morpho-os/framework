@@ -10,10 +10,10 @@ class Trace {
     protected $frames = [];
 
     public function __construct() {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $this->frames = [];
         foreach ($trace as $frame) {
-            if (isset($frame['file']) && dirname($frame['file']) == __DIR__) {
+            if (isset($frame['file']) && \dirname($frame['file']) == __DIR__) {
                 continue;
             }
             $this->frames[] = $this->normalizeFrame($frame);
@@ -26,7 +26,7 @@ class Trace {
             $lines[] = '#' . $index . ' ' . $frame;
         }
 
-        return implode("\n", $lines);
+        return \implode("\n", $lines);
     }
 
     public function toArray() {

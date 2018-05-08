@@ -105,7 +105,7 @@ abstract class App implements IHasServiceManager {
     protected static function logErrorFallback(\Throwable $e): void {
         if (ErrorHandler::isErrorLogEnabled()) {
             // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
-            error_log(addslashes((string)$e));
+            \error_log(\addslashes((string)$e));
         }
     }
 
@@ -120,7 +120,7 @@ abstract class App implements IHasServiceManager {
 
         // factory can have a type: string (class name) | \Closure | IBootstrapFactory (instance)
         if (isset($appConfig['factory'])) {
-            if (is_object($appConfig['factory'])) {
+            if (\is_object($appConfig['factory'])) {
                 if ($appConfig['factory'] instanceof \Closure) {
                     $factory = $appConfig['factory']();
                 } else {
@@ -143,7 +143,7 @@ abstract class App implements IHasServiceManager {
             $this->applyIniSettings($siteConfig['iniSettings']);
         }
         if (isset($siteConfig['umask'])) {
-            umask($siteConfig['umask']);
+            \umask($siteConfig['umask']);
         }
 
         $services = [
@@ -163,10 +163,10 @@ abstract class App implements IHasServiceManager {
     protected function applyIniSettings(array $iniSettings, $parentName = null): void {
         foreach ($iniSettings as $name => $value) {
             $settingName = $parentName ? $parentName . '.' . $name : $name;
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $this->applyIniSettings($value, $settingName);
             } else {
-                ini_set($settingName, $value);
+                \ini_set($settingName, $value);
             }
         }
     }

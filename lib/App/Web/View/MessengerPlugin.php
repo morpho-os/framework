@@ -28,7 +28,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
             foreach ($messenger->toArray() as $type => $messages) {
                 $renderedMessages[] = $this->renderMessages($messages, $type);
             }
-            $html = $this->wrapPageMessages(implode("\n", $renderedMessages));
+            $html = $this->wrapPageMessages(\implode("\n", $renderedMessages));
         }
         $messenger->clearMessages();
         return $html;
@@ -47,7 +47,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         foreach ($messages as $message) {
             $renderedMessages[] = $this->renderMessage($message, $type);
         }
-        return $this->wrapMessages(implode("\n", $renderedMessages), $type);
+        return $this->wrapMessages(\implode("\n", $renderedMessages), $type);
     }
 
     protected function wrapMessages($messages, $type) {
@@ -58,7 +58,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
 
     protected function renderMessage(array $message, $type) {
         $text = filterStringArgs(
-            nl2br(Html::encode($message['text'])),
+            \nl2br(Html::encode($message['text'])),
             $message['args'],
             function ($arg) { return $arg; }
         );

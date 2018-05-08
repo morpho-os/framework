@@ -38,7 +38,7 @@ class Doc extends DOMDocument {
     ];
 
     public static function parseFile(string $filePath, array $config = null): Doc {
-        if (!is_file($filePath) || !is_readable($filePath)) {
+        if (!\is_file($filePath) || !\is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
         $source = File::read($filePath, ['binary' => false]);
@@ -46,7 +46,7 @@ class Doc extends DOMDocument {
     }
 
     public static function parse(string $source, array $config = null): Doc {
-        $source = trim($source);
+        $source = \trim($source);
 
         $config = (array) $config;
         $fixEncoding = $config['fixEncoding'] ?? false;
@@ -54,9 +54,9 @@ class Doc extends DOMDocument {
 
         $doc = self::new($config);
 
-        libxml_use_internal_errors(true);
+        \libxml_use_internal_errors(true);
 
-        if (substr($source, 0, 5) == '<?xml') {
+        if (\substr($source, 0, 5) == '<?xml') {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
@@ -66,7 +66,7 @@ class Doc extends DOMDocument {
             $result = $doc->loadHTML($source);
         }
 
-        libxml_use_internal_errors(false);
+        \libxml_use_internal_errors(false);
 
         if (!$result) {
             throw new \RuntimeException('Unable to load document.');
@@ -77,8 +77,8 @@ class Doc extends DOMDocument {
 
     public static function new(array $config = null): Doc {
         $config = (array) $config;
-        $invalidConfig = array_diff_key($config, self::CREATE_CONFIG_PARAMS);
-        if (count($invalidConfig)) {
+        $invalidConfig = \array_diff_key($config, self::CREATE_CONFIG_PARAMS);
+        if (\count($invalidConfig)) {
             throw new InvalidConfigException($invalidConfig);
         }
 
@@ -97,7 +97,7 @@ class Doc extends DOMDocument {
     }
 
     public function __call($method, $args) {
-        return call_user_func_array([$this->xPath(), $method], $args);
+        return \call_user_func_array([$this->xPath(), $method], $args);
     }
 
     public function xPath(): XPathQuery {

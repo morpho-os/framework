@@ -11,12 +11,12 @@ use Morpho\Code\Code;
 
 class VarExportFileCache extends PhpFileCache {
     protected function save(string $key, $data, $lifeTime = 0): bool {
-        if (!is_array($data) && !is_scalar($data) && $data !== null) {
+        if (!\is_array($data) && !\is_scalar($data) && $data !== null) {
             throw new \RuntimeException('Only arrays and scalars are supported by this class, but $data has type ' . typeOf($data));
         }
 
         if ($lifeTime > 0) {
-            $lifeTime = time() + $lifeTime;
+            $lifeTime = \time() + $lifeTime;
         }
 
         $cacheFilePath = $this->cacheFilePath($key);

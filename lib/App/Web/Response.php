@@ -43,7 +43,7 @@ class Response extends BaseResponse {
      * @param string|Uri\Uri $uri
      */
     public function redirect($uri, int $httpStatusCode = null): self {
-        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toStr(true));
+        $this->headers()->offsetSet('Location', \is_string($uri) ? $uri : $uri->toStr(true));
         $this->setStatusCode($httpStatusCode ?: self::FOUND_STATUS_CODE);
         return $this;
     }
@@ -84,7 +84,7 @@ class Response extends BaseResponse {
     }
 
     public function statusCodeToStatusLine(int $statusCode): string {
-        return Environment::httpVersion() . ' ' . intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
+        return Environment::httpVersion() . ' ' . \intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
     }
 
     public function statusCodeToReason(int $statusCode): string {
@@ -321,6 +321,6 @@ class Response extends BaseResponse {
     }
 
     protected function sendHeader(string $value): void {
-        header($value);
+        \header($value);
     }
 }

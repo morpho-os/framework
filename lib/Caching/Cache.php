@@ -41,7 +41,7 @@ abstract class Cache implements ICache {
             if ($ttl instanceof \DateInterval) {
                 $ttl = $this->dateIntervalToInt($ttl);
             }
-            if (!is_int($ttl)) {
+            if (!\is_int($ttl)) {
                 throw new \InvalidArgumentException('Invalid ttl');
             }
             if ($ttl <= 0) {
@@ -57,7 +57,7 @@ abstract class Cache implements ICache {
      * @return array
      */
     public function getMultiple($keys, $default = null): array {
-        return array_merge(array_fill_keys($keys, $default), $this->fetchMultiple($keys));
+        return \array_merge(\array_fill_keys($keys, $default), $this->fetchMultiple($keys));
     }
 
     /**
@@ -72,11 +72,11 @@ abstract class Cache implements ICache {
             if ($ttl instanceof \DateInterval) {
                 $ttl = $this->dateIntervalToInt($ttl);
             }
-            if (!is_int($ttl)) {
+            if (!\is_int($ttl)) {
                 throw new \InvalidArgumentException('Invalid ttl');
             }
             if ($ttl <= 0) {
-                return $this->deleteMultiple(array_keys($values));
+                return $this->deleteMultiple(\array_keys($values));
             }
         }
         return $this->saveMultiple($values, $ttl);

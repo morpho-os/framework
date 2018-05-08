@@ -33,14 +33,14 @@ class RouteMetaProvider implements IFn {
 
     public static function parseDocComment(string $docComment): array {
         $httpMethods = $title = $uri = null;
-        if (false !== strpos($docComment, '@')) {
-            $httpMethodsRegexpPart = '(?:' . implode('|', Request::knownMethods()) . ')';
+        if (false !== \strpos($docComment, '@')) {
+            $httpMethodsRegexpPart = '(?:' . \implode('|', Request::knownMethods()) . ')';
             $routeRegExp = '~'
                 . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (\s+(?<uri>([^*\s]+)))?                                                                   # uri    (optional)
                 ~xm';
-            if (preg_match($routeRegExp, $docComment, $match)) {
-                $httpMethods = explode('|', $match['httpMethod']);
+            if (\preg_match($routeRegExp, $docComment, $match)) {
+                $httpMethods = \explode('|', $match['httpMethod']);
                 if (!empty($match['uri'])) {
                     $uri = $match['uri'];
                     if ($uri[0] !== '/') {
@@ -49,8 +49,8 @@ class RouteMetaProvider implements IFn {
                 }
             }
 
-            if (preg_match('~^\s*\*\s*@Title\s+(.+)\s*$~m', $docComment, $match)) {
-                $title = array_pop($match);
+            if (\preg_match('~^\s*\*\s*@Title\s+(.+)\s*$~m', $docComment, $match)) {
+                $title = \array_pop($match);
             }
         }
         return [
@@ -70,7 +70,7 @@ class RouteMetaProvider implements IFn {
         $uri = '/' . dasherize(last($actionMeta['module'], '/'))
             . '/' . dasherize($actionMeta['controller']);
         if (isset($this->restActions[$action])) {
-            $uri .= rtrim('/' . $this->restActions[$action][1], '/');
+            $uri .= \rtrim('/' . $this->restActions[$action][1], '/');
             $httpMethod = $this->restActions[$action][0];
         } else {
             $httpMethod = Request::GET_METHOD;

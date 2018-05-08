@@ -26,7 +26,7 @@ class UriParser implements IFn {
         $this->uri = new Uri();
 
         # We use modified [regular expression from the RFC 3986](https://tools.ietf.org/html/rfc3986#appendix-B)
-        if (!preg_match('~^
+        if (!\preg_match('~^
             ((?P<scheme>[^:/?\#]+):)?                      # scheme
             (?P<authority_>//(?P<authority>[^/?\#]*))?     # authority
             (?P<path>[^?\#]*)                              # path
@@ -54,7 +54,7 @@ class UriParser implements IFn {
             $authority->setHost('');
             return $authority;
         }
-        if (!preg_match('~^
+        if (!\preg_match('~^
             (?P<userInfo_>(?P<userInfo>[^@]*)@)?
             (?P<host>(?:\[[^\]]+\]|[^:]+)?)
             (:(?P<port>\d+))?
@@ -73,14 +73,14 @@ class UriParser implements IFn {
             return new Query();
         }
         // NB: The parse_str() for the 'foo' string returns ['foo' => ''], but we need to return ['foo' => null], so we can't use it
-        $parts = explode('&', $query);
+        $parts = \explode('&', $query);
         $queryArgs = [];
         $setValue = function ($key, $value) use (&$queryArgs) {
             $stack = [];
             $state = null;
             $k = null;
-            for ($i = 0, $n = mb_strlen($key); $i < $n; $i++) {
-                $ch = mb_substr($key, $i, 1);
+            for ($i = 0, $n = \mb_strlen($key); $i < $n; $i++) {
+                $ch = \mb_substr($key, $i, 1);
                 switch ($state) {
                     case null:
                         // expect the arg name.
@@ -129,7 +129,7 @@ class UriParser implements IFn {
             foreach ($stack as $key) {
                 if (null === $key) { // null means [], e.g. arr[]
                     $q[] = null;
-                    $key = count($q) - 1;
+                    $key = \count($q) - 1;
                     $q = &$q[$key];
                 } else {
                     $q = &$q[$key];
@@ -139,8 +139,8 @@ class UriParser implements IFn {
             unset($q);
         };
         foreach ($parts as $part) {
-            $keyValue = explode('=', $part, 2);
-            if (count($keyValue) == 1) {
+            $keyValue = \explode('=', $part, 2);
+            if (\count($keyValue) == 1) {
                 $key = $keyValue[0];
                 $value = null;
             } else {
@@ -150,7 +150,7 @@ class UriParser implements IFn {
             if (!$key) {
                 continue;
             }
-            if (false !== strpos($key, '[') || false !== strpos($key, ']')) {
+            if (false !== \strpos($key, '[') || false !== \strpos($key, ']')) {
                 $res = $setValue($key, $value);
                 if (false === $res) {
                     continue;

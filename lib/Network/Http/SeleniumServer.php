@@ -63,27 +63,27 @@ class SeleniumServer {
         $pid = $this->findPid();
         if (!$pid) {
             $geckoBinFilePath = $this->geckoBinFilePath();
-            if (!is_file($geckoBinFilePath)) {
+            if (!\is_file($geckoBinFilePath)) {
                 throw new FileNotFoundException($geckoBinFilePath);
             }
             $serverJarFilePath = $this->serverJarFilePath();
-            if (!is_file($serverJarFilePath)) {
+            if (!\is_file($serverJarFilePath)) {
                 throw new FileNotFoundException($serverJarFilePath);
             }
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
             $cmd = 'java'
-                . (' -Dwebdriver.gecko.driver=' . escapeshellarg($geckoBinFilePath))
+                . (' -Dwebdriver.gecko.driver=' . \escapeshellarg($geckoBinFilePath))
                 //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
-                . ' -jar ' . escapeshellarg($serverJarFilePath)
-                . ($this->logFilePath ? ' -log ' . escapeshellarg($this->logFilePath()) : '')
+                . ' -jar ' . \escapeshellarg($serverJarFilePath)
+                . ($this->logFilePath ? ' -log ' . \escapeshellarg($this->logFilePath()) : '')
                 . ' &> /dev/null &';
             //showLn("Starting server: " . $cmd);
-            proc_close(proc_open($cmd, [], $pipes));
+            \proc_close(\proc_open($cmd, [], $pipes));
             //shell($cmd);
             $i = 0;
             do {
                 //showLn("Server started, i == " . $i);
-                usleep(200000);
+                \usleep(200000);
                 $i++;
             } while (!$this->listening() && $i < 25);
             if ($i == 25) {
@@ -102,13 +102,13 @@ class SeleniumServer {
     public function stop(): void {
         $pid = $this->findPid();
         if ($pid) {
-            shell('kill ' . intval($pid) . ' > /dev/null');
+            shell('kill ' . \intval($pid) . ' > /dev/null');
         }
         shell('killall geckodriver &> /dev/null || true');
     }
 
     private function findPid(): ?int {
-        $pid = (int) trim((string) shell("lsof -t -c java -a -i ':" . escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false]));
+        $pid = (int) \trim((string) shell("lsof -t -c java -a -i ':" . \escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false]));
         // ss -t -a -n -p state all '( sport = 4444 )'
         return $pid > 0 ? $pid : null;
     }

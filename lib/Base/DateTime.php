@@ -17,7 +17,7 @@ class DateTime extends DateTimeImmutable {
      * @return DateTime
      */
     public static function now($timezone = null): self {
-        if (is_string($timezone)) {
+        if (\is_string($timezone)) {
             $timezone = new DateTimeZone($timezone);
         }
         return new static('now', $timezone);
@@ -97,8 +97,8 @@ class DateTime extends DateTimeImmutable {
      * @return string
      */
     protected function stripLeadingZero($val) {
-        if (strlen($val) > 1 && $val[0] == 0) {
-            $val = substr($val, 1);
+        if (\strlen($val) > 1 && $val[0] == 0) {
+            $val = \substr($val, 1);
         }
         return $val;
     }
@@ -108,8 +108,8 @@ class DateTime extends DateTimeImmutable {
      */
     public function numberOfDaysInMonth() {
         $month = $this->month();
-        if (substr($month, 0, 1) == '0' && strlen($month) == 2) {
-            $month = substr($month, 1);
+        if (\substr($month, 0, 1) == '0' && \strlen($month) == 2) {
+            $month = \substr($month, 1);
         }
         $lastDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
         if ($this->isLeapYear()) {
@@ -142,7 +142,7 @@ class DateTime extends DateTimeImmutable {
      */
     public static function isTimestamp($value) {
         $value = (string)$value;
-        return is_numeric($value) && preg_match('~^\d+$~s', $value) && strlen($value) === 10;
+        return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
     }
 
     public static function newFromTimestamp($timestamp) {

@@ -19,7 +19,7 @@ class ModuleChecker {
 
     public static function checkMetaFile(string $metaFilePath): array {
         $errors = [];
-        if (!is_file($metaFilePath)) {
+        if (!\is_file($metaFilePath)) {
             $errors[] = 'metaFileNotFound';
         } else {
             try {

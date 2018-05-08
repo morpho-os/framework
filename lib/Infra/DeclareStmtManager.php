@@ -52,9 +52,9 @@ class DeclareStmtManager {
                     $code .= $node['value'];
                     break;
                 case self::SINGLE_COMMENT_NODE:
-                    if (preg_match('~//\s*declare\s*\(strict[^\n\r]*~siA', $node['value'])) {
-                        if (preg_match('~^<\?php\s+~', $code)) {
-                            $code = rtrim($code);
+                    if (\preg_match('~//\s*declare\s*\(strict[^\n\r]*~siA', $node['value'])) {
+                        if (\preg_match('~^<\?php\s+~', $code)) {
+                            $code = \rtrim($code);
                         }
                         break;
                     }
@@ -73,8 +73,8 @@ class DeclareStmtManager {
         foreach ($this->ast as $node) {
             switch ($node['type']) {
                 case self::DECLARE_STMT_NODE:
-                    if (preg_match('~^<\?php\s+~', $code)) {
-                        $code = rtrim($code);
+                    if (\preg_match('~^<\?php\s+~', $code)) {
+                        $code = \rtrim($code);
                     }
                     break;
                 case self::OPEN_TAG_NODE:
@@ -94,7 +94,7 @@ class DeclareStmtManager {
     public function addDeclareStmt(string $code, int $position): string {
         $this->parse($code);
 
-        if (!count($this->ast)) {
+        if (!\count($this->ast)) {
             return '';
         }
         foreach ($this->ast as $node) {
@@ -111,16 +111,16 @@ class DeclareStmtManager {
             switch ($node['type']) {
                 case self::OPEN_TAG_NODE:
                     if ($position === self::AT_FIRST_LINE) {
-                        $code .= rtrim($node['value']) . " $declareStmt" . (isset($this->ast[$index + 1]) ? "\n" : '');
+                        $code .= \rtrim($node['value']) . " $declareStmt" . (isset($this->ast[$index + 1]) ? "\n" : '');
                     } elseif ($position === self::AT_SECOND_LINE) {
-                        $code .= rtrim($node['value']) . "\n$declareStmt" . (isset($this->ast[$index + 1]) ? "\n" : '');
+                        $code .= \rtrim($node['value']) . "\n$declareStmt" . (isset($this->ast[$index + 1]) ? "\n" : '');
                     } else {
                         $code .= $node['value'];
                     }
                     break;
                 case self::MULTI_COMMENT_NODE:
                     if (!$added && $position === self::AFTER_FIRST_MULTI_COMMENT) {
-                         $code .= rtrim($node['value']) . "\n$declareStmt";
+                         $code .= \rtrim($node['value']) . "\n$declareStmt";
                          $added = true;
                     } else {
                         $code .= $node['value'];
@@ -142,7 +142,7 @@ class DeclareStmtManager {
         $this->ast = new \ArrayObject();
         $this->code = $code;
         $this->offset = 0;
-        $n = strlen($code);
+        $n = \strlen($code);
 
         $node = $this->laNextNode(self::OPEN_TAG_NODE);
         if (!$node) {
@@ -175,8 +175,8 @@ class DeclareStmtManager {
                     continue;
                 }
             }
-            if (preg_match('~\S~siA', $this->code, $match, 0, $this->offset)) {
-                $value = substr($this->code, $this->offset);
+            if (\preg_match('~\S~siA', $this->code, $match, 0, $this->offset)) {
+                $value = \substr($this->code, $this->offset);
                 $this->emit($this->newNode($value, self::OTHER_CODE_NODE));
                 break;
             }
@@ -188,10 +188,10 @@ class DeclareStmtManager {
      */
     private function laNextNode(string $nodeType) {
         $re = self::TOKENS[$nodeType];
-        if (!preg_match($re, $this->code, $match, 0, $this->offset)) {
+        if (!\preg_match($re, $this->code, $match, 0, $this->offset)) {
             return false;
         }
-        $value = array_pop($match);
+        $value = \array_pop($match);
         return $this->newNode($value, $nodeType);
     }
 
@@ -204,7 +204,7 @@ class DeclareStmtManager {
     }
 
     private function emit(\ArrayObject $node): void {
-        $this->offset += strlen($node['value']);
+        $this->offset += \strlen($node['value']);
         $this->ast[] = $node;
     }
 }

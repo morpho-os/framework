@@ -19,7 +19,7 @@ class File extends Entry {
      * Reads file as string.
      */
     public static function read(string $filePath, array $config = null): string {
-        if (!is_file($filePath)) {
+        if (!\is_file($filePath)) {
             throw new FileNotFoundException($filePath);
         }
 
@@ -35,15 +35,15 @@ class File extends Entry {
             ]
         );
 
-        $content = @file_get_contents($filePath, $config['useIncludePath']);
+        $content = @\file_get_contents($filePath, $config['useIncludePath']);
 
         if (false === $content) {
             throw new Exception("Unable to read the '$filePath' file");
         }
 
         // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
-        if ($config['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
-            return substr($content, 3);
+        if ($config['removeBom'] && \substr($content, 0, 3) === "\xEF\xBB\xBF") {
+            return \substr($content, 3);
         }
 
         return $content;
@@ -53,19 +53,19 @@ class File extends Entry {
      * NB: To read a file and then write to it use the construct: File::writeLines($filePath, toArray(File::readLines($filePath))
      */
     public static function writeLines(string $filePath, iterable $lines): string {
-        if (is_array($lines)) {
-            return self::write($filePath, implode("\n", $lines));
+        if (\is_array($lines)) {
+            return self::write($filePath, \implode("\n", $lines));
         }
-        $handle = fopen($filePath, 'w');
+        $handle = \fopen($filePath, 'w');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for writing");
         }
         try {
             foreach ($lines as $line) {
-                fwrite($handle, $line . "\n");
+                \fwrite($handle, $line . "\n");
             }
         } finally {
-            fclose($handle);
+            \fclose($handle);
         }
         return $filePath;
     }
@@ -74,8 +74,8 @@ class File extends Entry {
      * @param null|\Closure|array $filterOrConfig
      */
     public static function readLines(string $filePath, $filterOrConfig = null, array $config = null): \Generator {
-        if (is_array($filterOrConfig)) {
-            if (is_array($config)) {
+        if (\is_array($filterOrConfig)) {
+            if (\is_array($config)) {
                 throw new \InvalidArgumentException();
             }
             $config = $filterOrConfig;
@@ -89,17 +89,17 @@ class File extends Entry {
             $defaultConfig['skipEmptyLines'] = false;
         }
         $config = Config::check((array) $config, $defaultConfig);
-        $handle = fopen($filePath, 'r');
+        $handle = \fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
         }
         try {
-            while (false !== ($line = fgets($handle))) {
+            while (false !== ($line = \fgets($handle))) {
                 if ($config['rtrim']) {
-                    $line = rtrim($line);
+                    $line = \rtrim($line);
                 }
                 if ($config['skipEmptyLines']) {
-                    if (strlen($line) === 0) {
+                    if (\strlen($line) === 0) {
                         continue;
                     }
                 }
@@ -112,7 +112,7 @@ class File extends Entry {
                 }
             }
         } finally {
-            fclose($handle);
+            \fclose($handle);
         }
     }
 
@@ -131,16 +131,16 @@ class File extends Entry {
     }
 
     public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): \Generator {
-        $handle = fopen($filePath, 'r');
+        $handle = \fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
         }
         try {
-            while (false !== ($line = fgetcsv($handle, 0, $delimiter, $enclosure, $escape))) {
+            while (false !== ($line = \fgetcsv($handle, 0, $delimiter, $enclosure, $escape))) {
                 yield $line;
             }
         } finally {
-            fclose($handle);
+            \fclose($handle);
         }
     }
 
@@ -171,8 +171,8 @@ class File extends Entry {
         if (empty($filePath)) {
             throw new Exception("The file path is empty");
         }
-        Dir::create(dirname($filePath));
-        $result = @file_put_contents($filePath, $content, static::filePutContentsConfigToFlags((array)$config), $config['context']);
+        Dir::create(\dirname($filePath));
+        $result = @\file_put_contents($filePath, $content, static::filePutContentsConfigToFlags((array)$config), $config['context']);
         if (false === $result) {
             throw new Exception("Unable to write to the file '$filePath'");
         }
@@ -189,7 +189,7 @@ class File extends Entry {
      * Has the same effect as truncate but should be used in different situation/context.
      */
     public static function createEmpty(string $filePath): string {
-        Dir::create(dirname($filePath));
+        Dir::create(\dirname($filePath));
         // NB: touch() does not truncate the file, so we don't use it.
         self::truncate($filePath);
         return $filePath;
@@ -199,35 +199,35 @@ class File extends Entry {
      * Truncates the file to zero length.
      */
     public static function truncate(string $filePath): void {
-        $handle = fopen($filePath, 'w');
+        $handle = \fopen($filePath, 'w');
         if (false === $handle) {
             throw new Exception("Unable to open the file '$filePath' for writing");
         }
-        fclose($handle);
+        \fclose($handle);
     }
     
     public static function isEmpty(string $filePath): bool {
-        clearstatcache();
-        return filesize($filePath) === 0;
+        \clearstatcache();
+        return \filesize($filePath) === 0;
     }
 
     /**
      * Deletes the file.
      */
     public static function delete($filePath): void {
-        if (is_iterable($filePath)) {
+        if (\is_iterable($filePath)) {
             foreach ($filePath as $path) {
                 static::delete($path);
             }
             return;
         }
-        if (!@unlink($filePath)) {
+        if (!@\unlink($filePath)) {
             throw new FileNotFoundException($filePath);
         }
     }
     
     public static function deleteIfExists(string $filePath): void {
-        if (is_file($filePath)) {
+        if (\is_file($filePath)) {
             self::delete($filePath);
         }
     }
@@ -236,23 +236,23 @@ class File extends Entry {
      * Copies the source file to target directory of file and returns target.
      */
     public static function copy(string $sourceFilePath, string $targetFilePath, bool $overwrite = false, bool $skipIfExists = false): string {
-        if (!is_file($sourceFilePath)) {
+        if (!\is_file($sourceFilePath)) {
             throw new Exception("Unable to copy: the source '$sourceFilePath' is not a file");
         }
-        if (!is_dir(dirname($targetFilePath))) {
-            Dir::create(dirname($targetFilePath));
+        if (!\is_dir(\dirname($targetFilePath))) {
+            Dir::create(\dirname($targetFilePath));
         }
-        if (is_dir($targetFilePath)) {
-            $targetFilePath = $targetFilePath . '/' . basename($sourceFilePath);
+        if (\is_dir($targetFilePath)) {
+            $targetFilePath = $targetFilePath . '/' . \basename($sourceFilePath);
         }
-        if (is_file($targetFilePath) && !$overwrite) {
+        if (\is_file($targetFilePath) && !$overwrite) {
             if ($skipIfExists) {
                 return $targetFilePath;
             } else {
                 throw new Exception("The target file '$targetFilePath' already exists");
             }
         }
-        if (!@copy($sourceFilePath, $targetFilePath)) {
+        if (!@\copy($sourceFilePath, $targetFilePath)) {
             throw new Exception("Unable to copy the file '$sourceFilePath' to the '$targetFilePath'");
         }
 
@@ -264,17 +264,17 @@ class File extends Entry {
      * Moves the source file to the target file and returns the target.
      */
     public static function move(string $sourceFilePath, string $targetFilePath): string {
-        Dir::create(dirname($targetFilePath));
-        if (!@rename($sourceFilePath, $targetFilePath)) {
+        Dir::create(\dirname($targetFilePath));
+        if (!@\rename($sourceFilePath, $targetFilePath)) {
             throw new Exception("Unable to move the '$sourceFilePath' to the '$targetFilePath'");
         }
-        clearstatcache();
+        \clearstatcache();
 
         return $targetFilePath;
     }
 
     public static function mustBeReadable(string $filePath): void {
-        if (!is_file($filePath) || !is_readable($filePath)) {
+        if (!\is_file($filePath) || !\is_readable($filePath)) {
             throw new Exception("The file '$filePath' is not readable");
         }
     }
@@ -283,7 +283,7 @@ class File extends Entry {
         if (empty($filePath)) {
             throw new Exception("The file path is empty");
         }
-        if (!is_file($filePath)) {
+        if (!\is_file($filePath)) {
             throw new Exception("The file does not exist");
         }
         return $filePath;
@@ -293,12 +293,12 @@ class File extends Entry {
      * @return mixed
      */
     public static function withTmp(callable $fn, string $tmpDirPath = null) {
-        $tmpFilePath = tempnam($tmpDirPath ?: Environment::tmpDirPath(), __FUNCTION__);
+        $tmpFilePath = \tempnam($tmpDirPath ?: Environment::tmpDirPath(), __FUNCTION__);
         try {
             $res = $fn($tmpFilePath);
         } finally {
-            if (is_file($tmpFilePath)) {
-                unlink($tmpFilePath);
+            if (\is_file($tmpFilePath)) {
+                \unlink($tmpFilePath);
             }
         }
         return $res;

@@ -19,7 +19,7 @@ class Path extends BasePath {
     }
 
     public static function assertSafe(string $path) {
-        if (false !== strpos($path, "\x00") || false !== strpos($path, '..')) {
+        if (false !== \strpos($path, "\x00") || false !== \strpos($path, '..')) {
             throw new SecurityException("Invalid file path was detected.");
         }
     }
@@ -27,14 +27,14 @@ class Path extends BasePath {
     public static function isNormalized(string $path): bool {
         $isWindows = Environment::isWindows();
         if ($isWindows) {
-            if (false !== strpos($path, '\\')) {
+            if (false !== \strpos($path, '\\')) {
                 return false;
             }
         }
-        $last = substr($path, -1, 1);
+        $last = \substr($path, -1, 1);
         return $last !== '/'
             && (!$isWindows && $last !== '\\')
-            && false === strpos($path, '..');
+            && false === \strpos($path, '..');
     }
 
     public static function combine(...$paths): string {
@@ -50,7 +50,7 @@ class Path extends BasePath {
             }
 
             if ($isWindows) {
-                $path = str_replace('\\', '/', $path);
+                $path = \str_replace('\\', '/', $path);
             }
 
             if (!$i) {
@@ -59,16 +59,16 @@ class Path extends BasePath {
                 }
             }
             $i++;
-            $path = trim($path, '/');
+            $path = \trim($path, '/');
             if (empty($path)) {
                 continue;
             }
             $result[] = $path;
         }
 
-        return (count($result) === 1 && $result[0] === '')
+        return (\count($result) === 1 && $result[0] === '')
             ? '/'
-            : implode('/', $result);
+            : \implode('/', $result);
     }
 
     public static function abs(string $path, bool $normalize = true): string {
@@ -77,19 +77,19 @@ class Path extends BasePath {
     }
 
     public static function ext(string $path): string {
-        return pathinfo($path, PATHINFO_EXTENSION);
+        return \pathinfo($path, PATHINFO_EXTENSION);
     }
 
     public static function nameWithoutExt(string $path): string {
-        return pathinfo($path, PATHINFO_FILENAME);
+        return \pathinfo($path, PATHINFO_FILENAME);
     }
 
     public static function fileName(string $path): string {
-        return pathinfo($path, PATHINFO_BASENAME);
+        return \pathinfo($path, PATHINFO_BASENAME);
     }
 
     public static function normalizeExt(string $ext): string {
-        return ltrim($ext, '.');
+        return \ltrim($ext, '.');
     }
 
     public static function dropExt(string $path): string {
@@ -97,21 +97,21 @@ class Path extends BasePath {
     }
 
     public static function changeExt(string $path, string $newExt): string {
-        $parts = explode('/', self::normalize($path));
-        $fileName = array_pop($parts);
+        $parts = \explode('/', self::normalize($path));
+        $fileName = \array_pop($parts);
         if (!empty($newExt)) {
             $newExt = '.' . self::normalizeExt($newExt);
-            $extLength = strlen($newExt);
-            if (substr($path, -$extLength) === $newExt) {
-                $baseName = substr($fileName, 0, -$extLength);
+            $extLength = \strlen($newExt);
+            if (\substr($path, -$extLength) === $newExt) {
+                $baseName = \substr($fileName, 0, -$extLength);
             } else {
                 $baseName = self::nameWithoutExt($fileName);
             }
         } else {
             $baseName = self::nameWithoutExt($fileName);
         }
-        return count($parts)
-            ? implode('/', $parts) . '/' . $baseName . $newExt
+        return \count($parts)
+            ? \implode('/', $parts) . '/' . $baseName . $newExt
             : $baseName . $newExt;
     }
 
@@ -119,18 +119,18 @@ class Path extends BasePath {
      * Returns unique path for a file system entry.
      */
     public static function unique(string $path, ?bool $handleExtsForFiles = true, int $numberOfAttempts = 10000): string {
-        Dir::mustExist(dirname($path));
+        Dir::mustExist(\dirname($path));
         $uniquePath = $path;
-        $isFile = is_file($path);
-        for ($i = 0; file_exists($uniquePath) && $i < $numberOfAttempts; $i++) {
+        $isFile = \is_file($path);
+        for ($i = 0; \file_exists($uniquePath) && $i < $numberOfAttempts; $i++) {
             if ($isFile && $handleExtsForFiles) {
-                $pathInfo = pathinfo($path);
+                $pathInfo = \pathinfo($path);
                 $uniquePath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-' . $i . (isset($pathInfo['extension']) ? '.' . $pathInfo['extension'] : '');
             } else {
                 $uniquePath = $path . '-' . $i;
             }
         }
-        if ($i == $numberOfAttempts && file_exists($uniquePath)) {
+        if ($i == $numberOfAttempts && \file_exists($uniquePath)) {
             throw new Exception("Unable to generate an unique path for the '$path' (tried $i times)");
         }
         return $uniquePath;

@@ -25,7 +25,7 @@ class ScriptProcessor extends HtmlProcessor {
         $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
 
         $splitScripts = function ($scripts) {
-            return array_reduce($scripts, function ($acc, $tag) {
+            return \array_reduce($scripts, function ($acc, $tag) {
                 if (isset($tag['src'])) {
                     $acc[1][] = $tag;
                 } else {
@@ -47,12 +47,12 @@ class ScriptProcessor extends HtmlProcessor {
         //     3. action-script included
         //     4. main-page-script inline
         //     5. child-page-script inline (has higher priority) | action-script inline
-        $scripts = array_merge(
+        $scripts = \array_merge(
             $mainPageScripts[1],
             $childPageScripts[1],
             $actionScripts[1],
             $mainPageScripts[0],
-            count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
+            \count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
         );
         $changed = $this->changeBodyScripts($scripts);
         if (null !== $changed) {
@@ -79,7 +79,7 @@ class ScriptProcessor extends HtmlProcessor {
     protected function renderScripts(array $scripts): string {
         $html = [];
         $index = 0;
-        usort($scripts, function ($prev, $next) use (&$index) {
+        \usort($scripts, function ($prev, $next) use (&$index) {
             $a = isset($prev[self::INDEX_ATTR]) ? $prev[self::INDEX_ATTR] : $index++;
             $b = isset($next[self::INDEX_ATTR]) ? $next[self::INDEX_ATTR] : $index++;
             if ($a === $b && isset($prev['src']) && isset($next['src'])) {
@@ -93,7 +93,7 @@ class ScriptProcessor extends HtmlProcessor {
             unset($tag[self::INDEX_ATTR]);
             $html[] = $this->renderTag($tag);
         }
-        return implode("\n", $html);
+        return \implode("\n", $html);
     }
 
     /**
@@ -109,7 +109,7 @@ class ScriptProcessor extends HtmlProcessor {
         $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';
         $jsFilePath = $publicDirPath . '/' . $relJsFilePath;
         $inline = $included = [];
-        if (is_file($jsFilePath)) {
+        if (\is_file($jsFilePath)) {
             $included[] = [
                 'src' => $relJsFilePath,
                 '_tagName' => 'script',
@@ -117,7 +117,7 @@ class ScriptProcessor extends HtmlProcessor {
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(' . json_encode($this->jsConfig(), JSON_UNESCAPED_SLASHES) . '); });',
+                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(' . \json_encode($this->jsConfig(), JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return [$inline, $included];

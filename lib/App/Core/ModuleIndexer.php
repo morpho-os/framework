@@ -17,7 +17,7 @@ class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
 
     public function __construct(ICache $cache, string $cacheKey = null) {
         $this->cache = $cache;
-        $this->cacheKey = $cacheKey ?? get_class($this) . '::' . __FUNCTION__;
+        $this->cacheKey = $cacheKey ?? \get_class($this) . '::' . __FUNCTION__;
     }
 
     /**
@@ -34,7 +34,7 @@ class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
         foreach ($this->serviceManager['moduleMetaIterator'] as $moduleMeta) {
             $index[$moduleMeta['name']] = $moduleMeta;
         }
-        uasort($index, function ($a, $b) {
+        \uasort($index, function ($a, $b) {
             return $a['weight'] - $b['weight'];
         });
         $this->cache->set($cacheKey, $index);

@@ -71,6 +71,6 @@ class XPathQuery {
     }
 
     public function __call($method, $args) {
-        return call_user_func_array([$this->xPath, $method], $args);
+        return \call_user_func_array([$this->xPath, $method], $args);
     }
 }

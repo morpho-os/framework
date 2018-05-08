@@ -561,11 +561,11 @@ function memoize(callable $fn): \Closure {
     return function (...$args) use ($fn) {
         static $memo = [];
 /*
-        $hash = array_reduce($args, function ($acc, $var) {
+        $hash = \array_reduce($args, function ($acc, $var) {
             $hash = '';
             if (\is_object($var)) {
                 $hash .= spl_object_hash($var);
-            } elseif (is_scalar($var)) { //  int, float, string and bool
+            } elseif (\is_scalar($var)) { //  int, float, string and bool
             return $hash;
         });
 */
@@ -820,7 +820,7 @@ function init($list, string $separator = null) {
         /*
         $parts = explode($separator, $list);
         \array_pop($parts);
-        return implode('\\', $parts);
+        return \implode('\\', $parts);
         */
         // @TODO, mb_substr()
         $pos = \strrpos($list, $separator);

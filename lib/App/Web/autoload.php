@@ -24,7 +24,7 @@ const UPLOAD_DIR_NAME = 'upload';
  * @param string|Uri $uri
  */
 function prependBasePath($provideBasePath, $uri): Uri {
-    if (is_string($uri)) {
+    if (\is_string($uri)) {
         $uri = new Uri($uri);
     }
     if ($uri->authority()->isNull() && $uri->scheme() === '') {

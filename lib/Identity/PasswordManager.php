@@ -45,8 +45,8 @@ class PasswordManager {
             $chars .= self::DIGIT_CHARS;
         }
         if (!($flags & self::USE_CONFUSED_CHARS)) {
-            $chars = str_replace(
-                str_split(self::CONFUSED_CHARS),
+            $chars = \str_replace(
+                \str_split(self::CONFUSED_CHARS),
                 '',
                 $chars
             );
@@ -55,17 +55,17 @@ class PasswordManager {
     }
 
     public static function isOutdatedHash(string $passwordHash): bool {
-        return password_needs_rehash($passwordHash, static::algo(), static::config());
+        return \password_needs_rehash($passwordHash, static::algo(), static::config());
     }
 
     /**
      * @return string Password hash, 60 characters.
      */
     public static function passwordHash(string $plainPassword): string {
-        if (strlen($plainPassword) > self::MAX_PASSWORD_LENGTH) {
+        if (\strlen($plainPassword) > self::MAX_PASSWORD_LENGTH) {
             throw new \UnexpectedValueException("Password too long");
         }
-        $passwordHash = password_hash($plainPassword, static::algo(), self::config());
+        $passwordHash = \password_hash($plainPassword, static::algo(), self::config());
         if (false === $passwordHash) {
             throw new \RuntimeException("Unable to generate password hash");
         }
@@ -73,7 +73,7 @@ class PasswordManager {
     }
 
     public static function isValidPassword(string $plainPassword, string $passwordHash): bool {
-        return password_verify($plainPassword, $passwordHash);
+        return \password_verify($plainPassword, $passwordHash);
     }
 
     private static function config(): array {

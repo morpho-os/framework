@@ -30,7 +30,7 @@ class Pager implements \Iterator, \Countable {
     private $totalItemsCount;
 
     public function setCurrentPageNumber(int $pageNumber): void {
-        $pageNumber = intval($pageNumber);
+        $pageNumber = \intval($pageNumber);
         $totalPagesCount = $this->totalPagesCount();
         if ($pageNumber > $totalPagesCount) {
             $pageNumber = $totalPagesCount;
@@ -50,11 +50,11 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function totalPagesCount(): int {
-        return (int)ceil($this->totalItemsCount() / $this->pageSize());
+        return (int)\ceil($this->totalItemsCount() / $this->pageSize());
     }
 
     public function setPageSize(int $pageSize): void {
-        $this->pageSize = max(intval($pageSize), 1);
+        $this->pageSize = \max(\intval($pageSize), 1);
         $this->totalItemsCount = null;
     }
 
@@ -67,7 +67,7 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function newPageByNumber(int $pageNumber): Page {
-        $pageNumber = max(intval($pageNumber), 1);
+        $pageNumber = \max(\intval($pageNumber), 1);
         $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
         return $this->newPage(
@@ -119,7 +119,7 @@ class Pager implements \Iterator, \Countable {
     }
 
     protected function calculateTotalItemsCount(): int {
-        return count($this->items);
+        return \count($this->items);
     }
 
     /**
@@ -130,6 +130,6 @@ class Pager implements \Iterator, \Countable {
     }
 
     protected function items(int $offset, int $pageSize): array {
-        return array_slice($this->items, $offset, $pageSize);
+        return \array_slice($this->items, $offset, $pageSize);
     }
 }

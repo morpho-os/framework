@@ -18,12 +18,12 @@ abstract class GeneralQuery {
     public function whereClause($whereCondition, array $whereConditionArgs = null): array {
         $whereSql = '';
         $whereArgs = [];
-        if (is_array($whereCondition) && count($whereCondition)) {
+        if (\is_array($whereCondition) && \count($whereCondition)) {
             if (null !== $whereConditionArgs) {
                 throw new \LogicException('The $whereConditionArgs argument must be empty when the $whereCondition is an array');
             }
-            $whereSql .= ' WHERE ' . implode(' AND ', $this->namedPlaceholders($whereCondition));
-            $whereArgs = array_values($whereCondition);
+            $whereSql .= ' WHERE ' . \implode(' AND ', $this->namedPlaceholders($whereCondition));
+            $whereArgs = \array_values($whereCondition);
         } elseif ($whereCondition !== '') {
             // string
             $whereSql .= ' WHERE ' . $whereCondition;
@@ -53,18 +53,18 @@ abstract class GeneralQuery {
     }
 
     public static function positionalPlaceholders(array $row): array {
-        return array_fill(0, count($row), '?');
+        return \array_fill(0, \count($row), '?');
     }
     
     public static function positionalPlaceholdersStr(array $row): string {
-        return implode(', ', self::positionalPlaceholders($row));
+        return \implode(', ', self::positionalPlaceholders($row));
     }
 
     /*    public static function logicalAnd(array $expr, bool $wrapWithBraces = false): string {
-        return implode(' AND ', $expr);
+        return \implode(' AND ', $expr);
     }
 
     public static function logicalOr(array $expr): string {
-        return implode(' OR ', $expr);
+        return \implode(' OR ', $expr);
     }*/
 }

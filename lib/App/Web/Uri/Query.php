@@ -19,7 +19,7 @@ class Query extends \ArrayObject implements IUriComponent {
         if (null === $queryStrOrQueryArgs) {
             return;
         }
-        if (is_string($queryStrOrQueryArgs)) {
+        if (\is_string($queryStrOrQueryArgs)) {
             $this->initialized = true;
             $query = UriParser::parseOnlyQuery($queryStrOrQueryArgs);
             $this->exchangeArray($query);
@@ -41,11 +41,11 @@ class Query extends \ArrayObject implements IUriComponent {
     public function toStr(bool $encode): string {
         $queryStr = '';
         foreach ($this as $name => $value) {
-            $queryStr .= '&' . ($encode ? rawurlencode($name) : $name);
+            $queryStr .= '&' . ($encode ? \rawurlencode($name) : $name);
             if (null !== $value) {
-                $queryStr .= '=' . ($encode ? rawurlencode($value) : $value);
+                $queryStr .= '=' . ($encode ? \rawurlencode($value) : $value);
             }
         }
-        return ltrim($queryStr, '&');
+        return \ltrim($queryStr, '&');
     }
 }

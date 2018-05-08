@@ -53,11 +53,11 @@ class ActionMetaProvider implements IFn {
         $ignoredMethods = $this->ignoredMethods();
         foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
             $method = $rMethod->getName();
-            if (in_array($method, $ignoredMethods)) {
+            if (\in_array($method, $ignoredMethods)) {
                 continue;
             }
-            if (endsWith(strtolower($method), strtolower(ACTION_SUFFIX))) {
-                $action = substr($method, 0, -strlen(ACTION_SUFFIX));
+            if (endsWith(\strtolower($method), \strtolower(ACTION_SUFFIX))) {
+                $action = \substr($method, 0, -\strlen(ACTION_SUFFIX));
                 $actionsMeta[$action] = [
                     'module' => $controllerMeta['module'],
                     'controller' => $controllerMeta['controller'],
@@ -71,7 +71,7 @@ class ActionMetaProvider implements IFn {
                 }
             }
         }
-        return array_values($actionsMeta);
+        return \array_values($actionsMeta);
     }
 
     private function ignoredMethods(): array {
@@ -81,7 +81,7 @@ class ActionMetaProvider implements IFn {
                 $rClass = new \ReflectionClass($class);
                 foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
                     $method = $rMethod->getName();
-                    if (endsWith(strtolower($method), strtolower(ACTION_SUFFIX))) {
+                    if (endsWith(\strtolower($method), \strtolower(ACTION_SUFFIX))) {
                         $ignoredMethods[] = $method;
                     }
                 }
@@ -93,7 +93,7 @@ class ActionMetaProvider implements IFn {
 
     private function classToControllerName(string $class): string {
         $controllerName = last($class, '\\');
-        $suffixLength = strlen(CONTROLLER_SUFFIX);
-        return substr($controllerName, 0, -$suffixLength);
+        $suffixLength = \strlen(CONTROLLER_SUFFIX);
+        return \substr($controllerName, 0, -$suffixLength);
     }
 }

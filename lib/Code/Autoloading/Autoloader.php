@@ -19,11 +19,11 @@ abstract class Autoloader {
     }
 
     public function register(bool $prepend = false): void {
-        spl_autoload_register([$this, 'autoload'], true, $prepend);
+        \spl_autoload_register([$this, 'autoload'], true, $prepend);
     }
 
     public function unregister(): void {
-        spl_autoload_unregister([$this, 'autoload']);
+        \spl_autoload_unregister([$this, 'autoload']);
     }
 
     /**

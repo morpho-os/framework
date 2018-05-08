@@ -16,12 +16,12 @@ class Address {
     }
 
     public static function parse(string $address): self {
-        $pos = strrpos($address, ':');
+        $pos = \strrpos($address, ':');
         if (false === $pos) {
             return new static($address, null);
         }
-        $host = substr($address, 0, $pos);
-        $port = substr($address, $pos + 1);
+        $host = \substr($address, 0, $pos);
+        $port = \substr($address, $pos + 1);
         return new static($host, (int)$port);
     }
 

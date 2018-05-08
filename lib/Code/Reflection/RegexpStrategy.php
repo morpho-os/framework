@@ -14,7 +14,7 @@ class RegexpStrategy implements IDiscoverStrategy {
     private $currentNs;
 
     public function classTypesDefinedInFile(string $filePath): array {
-        $lines = file($filePath);
+        $lines = \file($filePath);
         $type = $ns = null;
         $classes = [];
         $this->currentNs = null;
@@ -34,9 +34,9 @@ class RegexpStrategy implements IDiscoverStrategy {
     }
 
     private function isNs($line, &$ns): bool {
-        $isNs = false !== strpos($line, 'namespace') && preg_match($this->nsRegexp, $line, $m);
+        $isNs = false !== \strpos($line, 'namespace') && \preg_match($this->nsRegexp, $line, $m);
         if ($isNs) {
-            $ns = array_pop($m);
+            $ns = \array_pop($m);
         }
 
         return $isNs;
@@ -44,13 +44,13 @@ class RegexpStrategy implements IDiscoverStrategy {
 
     private function isType($line, &$type): bool {
         $isType = (
-                false !== strpos($line, 'class')
-                || false !== strpos($line, 'interface')
-                || false !== strpos($line, 'trait')
+                false !== \strpos($line, 'class')
+                || false !== \strpos($line, 'interface')
+                || false !== \strpos($line, 'trait')
             )
-            && preg_match($this->typeRegexp, $line, $m);
+            && \preg_match($this->typeRegexp, $line, $m);
         if ($isType) {
-            $type = array_pop($m);
+            $type = \array_pop($m);
         }
 
         return $isType;

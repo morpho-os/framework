@@ -11,7 +11,7 @@ use RuntimeException;
 
 class Arr {
     /**
-     * Union for sets, for difference use array_diff(), for intersection use array_intersect().
+     * Union for sets, for difference use \array_diff(), for intersection use \array_intersect().
      */
     public static function union(...$arr): array {
         // @TODO: make it work for array of arrays and other cases.
@@ -63,9 +63,9 @@ class Arr {
             throw new OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
         }
         $subsets = [];
-        $n = count($arr);
+        $n = \count($arr);
         // Original algo is written by Brahmananda (https://www.quora.com/How-do-I-generate-all-subsets-of-a-set-in-Java-iteratively)
-        // 1 << count($arr) is 2^n - the number of all subsets.
+        // 1 << \count($arr) is 2^n - the number of all subsets.
         for ($i = 0; $i < (1 << $n); $i++) {
             $subsetBits = $i;
             $subset = [];
@@ -89,18 +89,18 @@ class Arr {
      * @return bool
      */
     public static function setsEqual(array $a, array $b): bool {
-        return count($a) === count($b) && count(array_diff($a, $b)) === 0;
+        return \count($a) === \count($b) && \count(\array_diff($a, $b)) === 0;
     }
 
     public static function itemsWithKeys(array $arr, array $keys): array {
-        return self::intersect($arr, array_flip(array_values($keys)));
+        return self::intersect($arr, \array_flip(\array_values($keys)));
     }
 
     public static function flatten(array $arr): array {
         $result = [];
         foreach ($arr as $val) {
-            if (is_array($val)) {
-                $result = array_merge($result, self::flatten($val));
+            if (\is_array($val)) {
+                $result = \array_merge($result, self::flatten($val));
             } else {
                 $result[] = $val;
             }
@@ -146,8 +146,8 @@ class Arr {
      */
     public static function unsetRecursive(array &$arr, $key): array {
         unset($arr[$key]);
-        foreach (array_keys($arr) as $k) {
-            if (is_array($arr[$k])) {
+        foreach (\array_keys($arr) as $k) {
+            if (\is_array($arr[$k])) {
                 self::unsetRecursive($arr[$k], $key);
             }
         }
@@ -156,7 +156,7 @@ class Arr {
     }
 
     public static function unset(array $arr, $val, bool $strict = true): array {
-        $key = array_search($val, $arr, $strict);
+        $key = \array_search($val, $arr, $strict);
         if (false !== $key) {
             unset($arr[$key]);
         }
@@ -164,6 +164,6 @@ class Arr {
     }
 
     public static function hash(array $arr): string {
-        return md5(json_encode($arr));
+        return \md5(\json_encode($arr));
     }
 }

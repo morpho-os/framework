@@ -44,13 +44,13 @@ class DbClient extends BaseDbClient {
         $keys = null;
         foreach ($rows as $row) {
             if (null === $keys) {
-                $keys = array_keys($row);
+                $keys = \array_keys($row);
             }
-            $args = array_merge($args, array_values($row));
+            $args = \array_merge($args, \array_values($row));
         }
         $query = $this->query();
-        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
-        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
+        $valuesClause = ', (' . \implode(', ', $query->positionalPlaceholders($keys)) . ')';
+        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . \implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . \ltrim(\str_repeat($valuesClause, \count($rows)), ', ');
         $this->eval($sql, $args);
     }
 

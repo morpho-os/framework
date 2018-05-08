@@ -22,56 +22,56 @@ class TextFileCache extends FileCache {
     public function has($key): bool {
         $lifetime = -1;
         $filename = $this->cacheFilePath($key);
-        if (!is_file($filename)) {
+        if (!\is_file($filename)) {
             return false;
         }
-        $handle = fopen($filename, 'r');
+        $handle = \fopen($filename, 'r');
         if (!$handle) {
             throw new \RuntimeException('Unable to open file for reading');
         }
         try {
-            if (false !== ($line = fgets($handle))) {
+            if (false !== ($line = \fgets($handle))) {
                 $lifetime = (int)$line;
             }
         } finally {
-            fclose($handle);
+            \fclose($handle);
         }
-        return $lifetime === 0 || $lifetime > time();
+        return $lifetime === 0 || $lifetime > \time();
     }
 
     protected function fetch(string $key): array {
         $data = '';
         $lifetime = -1;
         $filename = $this->cacheFilePath($key);
-        if (!is_file($filename)) {
+        if (!\is_file($filename)) {
             return [false, null];
         }
-        $handle = fopen($filename, 'r');
+        $handle = \fopen($filename, 'r');
         if (!$handle) {
             throw new \RuntimeException('Unable to open file for reading');
         }
         try {
-            if (false !== ($line = fgets($handle))) {
+            if (false !== ($line = \fgets($handle))) {
                 $lifetime = (int)$line;
             }
-            if ($lifetime !== 0 && $lifetime < time()) {
-                fclose($handle);
+            if ($lifetime !== 0 && $lifetime < \time()) {
+                \fclose($handle);
                 return [false, null];
             }
-            while (false !== ($line = fgets($handle))) {
+            while (false !== ($line = \fgets($handle))) {
                 $data .= $line;
             }
         } finally {
-            fclose($handle);
+            \fclose($handle);
         }
-        return [true, unserialize($data)];
+        return [true, \unserialize($data)];
     }
 
     protected function save(string $key, $data, $lifeTime = 0): bool {
         if ($lifeTime > 0) {
-            $lifeTime = time() + $lifeTime;
+            $lifeTime = \time() + $lifeTime;
         }
-        $data = serialize($data);
+        $data = \serialize($data);
         $cacheFilePath = $this->cacheFilePath($key);
         return $this->writeFile($cacheFilePath, $lifeTime . PHP_EOL . $data);
     }

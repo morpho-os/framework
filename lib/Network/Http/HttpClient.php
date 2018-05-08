@@ -69,13 +69,13 @@ class HttpClient {
      */
     public static function download(string $uri, string $destPath = null): string {
         if (null === $destPath) {
-            $destPath = getcwd() . '/' . basename($uri);
-        } elseif (is_dir($destPath)) {
-            $destPath .= '/' . basename($uri);
+            $destPath = \getcwd() . '/' . \basename($uri);
+        } elseif (\is_dir($destPath)) {
+            $destPath .= '/' . \basename($uri);
         }
         // @TODO: Implement without call of the external tool.
         // @TODO: use curl, wget or fetch, see the `man parallel`
-        shell('curl -L -o ' . escapeshellarg($destPath) . ' ' . escapeshellarg($uri));
+        shell('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri));
         return $destPath;
     }
 }

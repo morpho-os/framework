@@ -54,7 +54,7 @@ class MailSender {
      */
     public function useTransport($spec = []): self {
         $this->setTransport(TransportFactory::create(
-            is_string($spec) ? ['type' => $spec] : $spec
+            \is_string($spec) ? ['type' => $spec] : $spec
         ));
         return $this;
     }
@@ -69,8 +69,8 @@ class MailSender {
             $diagnostics = ['log' => $transport->getConnection()->getLog()];
         } elseif ($transport instanceof FileTransport) {
             $filePath = $transport->getLastFile();
-            if (is_file($filePath)) {
-                $diagnostics = ['log' => file_get_contents($filePath), 'filePath' => $filePath];
+            if (\is_file($filePath)) {
+                $diagnostics = ['log' => \file_get_contents($filePath), 'filePath' => $filePath];
             }
         } elseif ($transport instanceof InMemoryTransport) {
             $diagnostics = ['log' => $transport->getLastMessage()->toString()];
@@ -78,7 +78,7 @@ class MailSender {
             // @TODO: Can be null?
             $diagnostics = ['log' => $this->lastMessage->toString()];
         }
-        return array_merge($diagnostics, ['transport' => get_class($transport)]);
+        return \array_merge($diagnostics, ['transport' => \get_class($transport)]);
     }
 
     public function setTransport(ITransport $transport) {

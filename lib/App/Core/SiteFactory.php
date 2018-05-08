@@ -19,7 +19,7 @@ class SiteFactory {
         }
         $newModules = [$siteModuleName => []]; // Store the site config as first item
         foreach ($loadedConfig['modules'] as $name => $moduleConfig) {
-            if (is_numeric($name)) {
+            if (\is_numeric($name)) {
                 $newModules[$moduleConfig] = [];
             } else {
                 $newModules[$name] = $moduleConfig;
@@ -31,7 +31,7 @@ class SiteFactory {
     }
 
     protected function loadConfigFile(string $filePath) {
-        if (!is_file($filePath)) {
+        if (!\is_file($filePath)) {
             throw new \RuntimeException("Config file does not exist");
         }
         return require $filePath;

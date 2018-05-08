@@ -39,7 +39,7 @@ class VfsRoot extends VfsDir {
      */
     public function fileByUriOrNone(string $uri) {
         return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts) {
-            if (!count($parts)) { // last item?
+            if (!\count($parts)) { // last item?
                 $file = $dir->fileOrNone($name);
                 return [$file, true];
             }
@@ -55,7 +55,7 @@ class VfsRoot extends VfsDir {
         return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts) {
             $childEntry = $dir->entry($name);
             if ($childEntry instanceof VfsFile) {
-                if (count($parts)) {
+                if (\count($parts)) {
                     throw new \LogicException();
                 }
                 return [$childEntry, true];
@@ -74,7 +74,7 @@ class VfsRoot extends VfsDir {
                 return [false, true];
             }
             if ($childEntry instanceof VfsFile) {
-                if (count($parts)) { // file in the middle of path
+                if (\count($parts)) { // file in the middle of path
                     throw new \LogicException();
                 }
                 return [$childEntry, true];
@@ -90,11 +90,11 @@ class VfsRoot extends VfsDir {
             return $this;
         }
         $entry = $this;
-        $parts = explode('/', trim($uriNoPrefix, '/'));
+        $parts = \explode('/', \trim($uriNoPrefix, '/'));
         $curUri = Vfs::prefixUri('');
         $i = 0;
-        while (count($parts)) {
-            $name = array_shift($parts);
+        while (\count($parts)) {
+            $name = \array_shift($parts);
             $curUri .= '/' . $name;
             [$entry, $stop] = $current($entry, $name, $parts, $curUri);
             if ($stop) {

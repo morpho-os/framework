@@ -25,7 +25,7 @@ class PhpFileCache extends FileCache {
         if ($value === null) {
             return false;
         }
-        return $value['lifetime'] === 0 || $value['lifetime'] > time();
+        return $value['lifetime'] === 0 || $value['lifetime'] > \time();
     }
 
     protected function fetch(string $key): array {
@@ -35,7 +35,7 @@ class PhpFileCache extends FileCache {
             return [false, null];
         }
 
-        if ($value['lifetime'] !== 0 && $value['lifetime'] < time()) {
+        if ($value['lifetime'] !== 0 && $value['lifetime'] < \time()) {
             return [false, null];
         }
 
@@ -44,7 +44,7 @@ class PhpFileCache extends FileCache {
 
     protected function save(string $key, $data, $lifeTime = 0): bool {
         if ($lifeTime > 0) {
-            $lifeTime = time() + $lifeTime;
+            $lifeTime = \time() + $lifeTime;
         }
 
         $cacheFilePath = $this->cacheFilePath($key);
@@ -54,12 +54,12 @@ class PhpFileCache extends FileCache {
             'data'     => $data,
         ];
 
-        if (is_object($data) && method_exists($data, '__set_state')) {
-            $value = var_export($value, true);
-            $code = sprintf('<?php return %s;', $value);
+        if (\is_object($data) && \method_exists($data, '__set_state')) {
+            $value = \var_export($value, true);
+            $code = \sprintf('<?php return %s;', $value);
         } else {
-            $value = var_export(serialize($value), true);
-            $code = sprintf('<?php return unserialize(%s);', $value);
+            $value = \var_export(\serialize($value), true);
+            $code = \sprintf('<?php return unserialize(%s);', $value);
         }
 
         return $this->writeFile($cacheFilePath, $code);
@@ -67,7 +67,7 @@ class PhpFileCache extends FileCache {
 
     private function includeFile(string $key): ?array {
         $filePath = $this->cacheFilePath($key);
-        if (!is_file($filePath)) {
+        if (!\is_file($filePath)) {
             return null;
         }
         $value = requireFile($filePath);

@@ -51,19 +51,19 @@ class NoDupsListener implements IFn {
 
     protected function touch($id, $errFilePath, $errLine) {
         $filePath = $this->lockFilePath($id);
-        file_put_contents($filePath, "$errFilePath:$errLine");
-        @chmod($filePath, 0666);
+        \file_put_contents($filePath, "$errFilePath:$errLine");
+        @\chmod($filePath, 0666);
         $this->gc();
     }
 
     protected function lockId(\Throwable $e): string {
         $file = $e->getFile();
         $line = $e->getLine();
-        $id = md5(
-            join(
+        $id = \md5(
+            \join(
                 ':',
                 [
-                    get_class($e),
+                    \get_class($e),
                     $file,
                     $line,
                 ]
@@ -73,15 +73,15 @@ class NoDupsListener implements IFn {
     }
 
     protected function defaultLockFileDirPath() {
-        return sys_get_temp_dir();
+        return \sys_get_temp_dir();
     }
 
     protected function initLockFileDir(string $dirPath): string {
-        $dirPath = rtrim($dirPath, '\\/') . "/" . strtolower(str_replace('\\', '-', get_class($this)));
-        if (!@is_dir($dirPath)) {
-            if (!@mkdir($dirPath, 0777, true)) {
-                $error = error_get_last();
-                error_clear_last();
+        $dirPath = \rtrim($dirPath, '\\/') . "/" . \strtolower(\str_replace('\\', '-', \get_class($this)));
+        if (!@\is_dir($dirPath)) {
+            if (!@\mkdir($dirPath, 0777, true)) {
+                $error = \error_get_last();
+                \error_clear_last();
                 throw new \Exception("Unable to create directory '{$dirPath}': {$error['message']}");
             }
         }
@@ -90,7 +90,7 @@ class NoDupsListener implements IFn {
 
     protected function isLockExpired($id, \Throwable $exception) {
         $filePath = $this->lockFilePath($id);
-        return !file_exists($filePath) || (filemtime($filePath) < time() - $this->period);
+        return !\file_exists($filePath) || (\filemtime($filePath) < \time() - $this->period);
     }
 
     protected function lockFilePath($id) {
@@ -98,12 +98,12 @@ class NoDupsListener implements IFn {
     }
 
     protected function gc() {
-        if ($this->gcExecuted || mt_rand(0, 10000) >= $this->gcProbability() * 10000) {
+        if ($this->gcExecuted || \mt_rand(0, 10000) >= $this->gcProbability() * 10000) {
             return;
         }
-        foreach (glob("{$this->lockFileDirPath}/*" . self::ERROR_FILE_EXT) as $filePath) {
-            if (filemtime($filePath) <= time() - $this->period * 2) {
-                @unlink($filePath);
+        foreach (\glob("{$this->lockFileDirPath}/*" . self::ERROR_FILE_EXT) as $filePath) {
+            if (\filemtime($filePath) <= \time() - $this->period * 2) {
+                @\unlink($filePath);
             }
         }
         $this->gcExecuted = true;

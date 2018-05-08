@@ -49,7 +49,7 @@ class ReflectionFile {
                 $globalFunctions[] = $this->nodeName($stmt);
             }
         }
-        if (count($globalClassTypes) || count($globalFunctions)) {
+        if (\count($globalClassTypes) || \count($globalFunctions)) {
             yield new ReflectionNamespace($this->filePath(), null, $globalClassTypes, $globalFunctions, true);
         }
     }
@@ -173,7 +173,7 @@ class ReflectionNamespace {
 
     protected function requireFile(string $filePath): void {
         if (contains($filePath, '://')) { // for streams use another approach.
-            $php = file_get_contents($filePath);
+            $php = \file_get_contents($filePath);
             eval('?>' . $php);
         } else {
             /** @noinspection PhpIncludeInspection */

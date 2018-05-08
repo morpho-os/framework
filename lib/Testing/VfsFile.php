@@ -30,7 +30,7 @@ class VfsFile extends VfsEntry {
             $this->contents = '';
             $this->offset = 0;
         } elseif ($openMode->append()) {
-            $this->offset = strlen($this->contents);
+            $this->offset = \strlen($this->contents);
         } else {
             $this->offset = 0;
         }
@@ -51,16 +51,16 @@ class VfsFile extends VfsEntry {
         } else {
             $this->contents = $contents;
         }
-        return strlen($contents);
+        return \strlen($contents);
     }
 
     public function read(int $n): string {
         $this->checkIsOpen();
-        $n = min($n, strlen($this->contents) - $this->offset);
+        $n = \min($n, \strlen($this->contents) - $this->offset);
         if (!$n) {
             $contents = '';
         } else {
-            $contents = substr($this->contents, $this->offset, $n);
+            $contents = \substr($this->contents, $this->offset, $n);
         }
         $this->offset += $n;
         return $contents;
@@ -71,9 +71,9 @@ class VfsFile extends VfsEntry {
         if ($whence === SEEK_CUR) {
             $offset += $this->offset;
         } elseif ($whence === SEEK_END) {
-            $offset = strlen($this->contents) + $offset;
+            $offset = \strlen($this->contents) + $offset;
         }
-        if ($offset <= strlen($this->contents)) {
+        if ($offset <= \strlen($this->contents)) {
             $this->offset = $offset;
             return true;
         }
@@ -86,16 +86,16 @@ class VfsFile extends VfsEntry {
     }
 
     public function truncate(int $newSize): void {
-        $this->contents = substr($this->contents, 0, $newSize);
+        $this->contents = \substr($this->contents, 0, $newSize);
     }
 
     public function eof(): bool {
         $this->checkIsOpen();
-        return $this->offset >= strlen($this->contents);
+        return $this->offset >= \strlen($this->contents);
     }
 
     public function count(): int {
-        return strlen($this->contents);
+        return \strlen($this->contents);
     }
 
     public function stat(): VfsEntryStat {
@@ -108,7 +108,7 @@ class VfsFile extends VfsEntry {
         parent::normalizeStat($stat);
         if (!isset($stat['mode'])) {
             $typeBits = Stat::FILE;
-            $permissionBits = Stat::FILE_BASE_MODE & ~umask();
+            $permissionBits = Stat::FILE_BASE_MODE & ~\umask();
             $stat['mode'] = $typeBits | $permissionBits;
         }
     }

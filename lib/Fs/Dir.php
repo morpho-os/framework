@@ -40,17 +40,17 @@ class Dir extends Entry {
             ]
         );
 
-        if (is_dir($targetDirPath)) {
-            $sourceDirName = basename($sourceDirPath);
-            if ($sourceDirName !== basename($targetDirPath)) {
+        if (\is_dir($targetDirPath)) {
+            $sourceDirName = \basename($sourceDirPath);
+            if ($sourceDirName !== \basename($targetDirPath)) {
                 $targetDirPath .= '/' . $sourceDirName;
             }
             if ($sourceDirPath === $targetDirPath) {
-                throw new Exception("The '" . dirname($targetDirPath) . "' directory already contains the '$sourceDirName'");
+                throw new Exception("The '" . \dirname($targetDirPath) . "' directory already contains the '$sourceDirName'");
             }
         }
 
-        $targetDirPath = self::create($targetDirPath, fileperms($sourceDirPath));
+        $targetDirPath = self::create($targetDirPath, \fileperms($sourceDirPath));
 
         $paths = self::paths(
             $sourceDirPath,
@@ -62,8 +62,8 @@ class Dir extends Entry {
             ]
         );
         foreach ($paths as $path) {
-            $targetPath = $targetDirPath . '/' . basename($path);
-            if (is_file($path) || is_link($path)) {
+            $targetPath = $targetDirPath . '/' . \basename($path);
+            if (\is_file($path) || \is_link($path)) {
                 File::copy($path, $targetPath, $config['overwrite'], $config['skipIfExists']);
             } else {
                 self::copy($path, $targetPath, $processor, $config);
@@ -92,7 +92,7 @@ class Dir extends Entry {
      */
     public static function paths($dirPaths, $processor = null, $config = null): \Generator {
         $config = self::normalizeConfig($config);
-        if (null !== $processor && !is_string($processor) && !$processor instanceof \Closure) {
+        if (null !== $processor && !\is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception("Invalid processor");
         }
         $config = Config::check(
@@ -104,13 +104,13 @@ class Dir extends Entry {
             ]
         );
 
-        if (is_string($processor)) {
+        if (\is_string($processor)) {
             $regexp = $processor;
             $processor = function ($path, $isDir) use ($regexp) {
-                return $isDir || preg_match($regexp, $path);
+                return $isDir || \preg_match($regexp, $path);
             };
         }
-        if (is_string($dirPaths)) {
+        if (\is_string($dirPaths)) {
             $dirPaths = (array) $dirPaths;
         }
         $recursive = $config['recursive'];
@@ -164,9 +164,9 @@ class Dir extends Entry {
         $config = self::normalizeConfig($config);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
-                $baseName = basename($path);
-                if (is_string($processor)) {
-                    if (preg_match($processor, $baseName)) {
+                $baseName = \basename($path);
+                if (\is_string($processor)) {
+                    if (\preg_match($processor, $baseName)) {
                         return $baseName;
                     }
                     return false;
@@ -181,7 +181,7 @@ class Dir extends Entry {
             };
         } else {
             $processor = function ($path) {
-                return basename($path);
+                return \basename($path);
             };
         }
         return self::paths($dirPath, $processor, $config);
@@ -199,8 +199,8 @@ class Dir extends Entry {
         $config['type'] = Stat::DIR;
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
-                if (is_string($processor)) {
-                    return (bool) preg_match($processor, $path);
+                if (\is_string($processor)) {
+                    return (bool) \preg_match($processor, $path);
                 } elseif (!$processor instanceof \Closure) {
                     throw new Exception("Invalid processor");
                 }
@@ -244,9 +244,9 @@ class Dir extends Entry {
     public static function filePathsWithExt($dirPath, array $extensions, $config = null): \Generator {
         $config = self::normalizeConfig($config);
         foreach ($extensions as $k => $extension) {
-            $extensions[$k] = preg_quote($extension, '/');
+            $extensions[$k] = \preg_quote($extension, '/');
         }
-        return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $config);
+        return self::filePaths($dirPath, '/\.(' . \implode('|', $extensions) . ')$/si', $config);
     }
 
     /**
@@ -262,7 +262,7 @@ class Dir extends Entry {
 
     public static function linkPaths(string $dirPath, callable $filter): \Generator {
         foreach (Dir::paths($dirPath) as $path) {
-            if (is_link($path)) {
+            if (\is_link($path)) {
                 if ($filter) {
                     if ($filter($path)) {
                         yield $path;
@@ -297,7 +297,7 @@ class Dir extends Entry {
      * @param bool|callable $predicateFnOrFlag If callable then it must return true for the all entries which will be deleted and false otherwise. If boolean it must return true if the directory $dirPath must be deleted and false otherwise.
      */
     public static function delete($dirPath, $predicateFnOrFlag = true): void {
-        if (is_iterable($dirPath)) {
+        if (\is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
                 static::delete_($path, $predicateFnOrFlag);
             }
@@ -311,14 +311,14 @@ class Dir extends Entry {
      * @param bool|callable $predicate
      */
     public static function deleteIfExists($dirPath, $predicate = true): void {
-        if (is_iterable($dirPath)) {
+        if (\is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
-                if (is_dir($path)) {
+                if (\is_dir($path)) {
                     self::delete_($path, $predicate);
                 }
             }
         } else {
-            if (is_dir($dirPath)) {
+            if (\is_dir($dirPath)) {
                 self::delete_($dirPath, $predicate);
             }
         }
@@ -332,7 +332,7 @@ class Dir extends Entry {
             );
             foreach ($it as $fileInfo) {
                 $path = $fileInfo->getPathname();
-                if (is_dir($path) && self::isEmpty($path)) {
+                if (\is_dir($path) && self::isEmpty($path)) {
                     if ($predicate && !$predicate($path)) {
                         continue;
                     }
@@ -361,16 +361,16 @@ class Dir extends Entry {
      * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
      */
     public static function recreate($dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true) {
-        if (is_array($dirPath)) {
+        if (\is_array($dirPath)) {
             $res = [];
             foreach ($dirPath as $key => $path) {
                 $res[$key] = self::recreate($path, $mode, $recursive);
             }
             return $res;
-        } elseif (!is_string($dirPath)) {
+        } elseif (!\is_string($dirPath)) {
             throw new Exception('Invalid type of the argument');
         }
-        if (is_dir($dirPath)) {
+        if (\is_dir($dirPath)) {
             self::delete($dirPath);
         }
         self::create($dirPath, $mode, $recursive);
@@ -387,13 +387,13 @@ class Dir extends Entry {
         if (null === $mode) {
             $mode = Stat::DIR_MODE;
         }
-        if (is_array($dirPath)) {
+        if (\is_array($dirPath)) {
             $res = [];
             foreach ($dirPath as $key => $path) {
                 $res[$key] = self::create($path, $mode, $recursive);
             }
             return $res;
-        } elseif (!is_string($dirPath)) {
+        } elseif (!\is_string($dirPath)) {
             throw new Exception('Invalid type of the argument');
         }
 
@@ -401,11 +401,11 @@ class Dir extends Entry {
             throw new Exception("The directory path is empty");
         }
 
-        if (is_dir($dirPath)) {
+        if (\is_dir($dirPath)) {
             return $dirPath;
         }
 
-        ErrorHandler::checkError(@mkdir($dirPath, $mode, $recursive), "Unable to create the directory '$dirPath' with mode: $mode");
+        ErrorHandler::checkError(@\mkdir($dirPath, $mode, $recursive), "Unable to create the directory '$dirPath' with mode: $mode");
 
         return $dirPath;
     }
@@ -414,7 +414,7 @@ class Dir extends Entry {
         if ('' === $dirPath) {
             throw new Exception("The directory path is empty");
         }
-        if (!is_dir($dirPath)) {
+        if (!\is_dir($dirPath)) {
             throw new Exception("The '$dirPath' directory does not exist");
         }
         return $dirPath;
@@ -424,20 +424,20 @@ class Dir extends Entry {
      * @return mixed
      */
     public static function doIn(string $otherDirPath, callable $fn) {
-        $curDirPath = getcwd();
+        $curDirPath = \getcwd();
         try {
-            chdir($otherDirPath);
+            \chdir($otherDirPath);
             $res = $fn($otherDirPath);
         } finally {
-            chdir($curDirPath);
+            \chdir($curDirPath);
         }
         return $res;
     }
 
     private static function delete_(string $dirPath, $predicateOrDeleteSelf) {
-        if (is_callable($predicateOrDeleteSelf)) {
+        if (\is_callable($predicateOrDeleteSelf)) {
             self::delete__($dirPath, $predicateOrDeleteSelf);
-        } elseif (is_bool($predicateOrDeleteSelf)) {
+        } elseif (\is_bool($predicateOrDeleteSelf)) {
             if ($predicateOrDeleteSelf) {
                 // Delete self
                 $predicate = null;
@@ -479,12 +479,12 @@ class Dir extends Entry {
                 }
             } else {
                 if (null === $predicate || (null !== $predicate && $predicate($entryPath, false))) {
-                    ErrorHandler::checkError(@unlink($entryPath), "The file '$entryPath' can not be deleted, check permissions");
+                    ErrorHandler::checkError(@\unlink($entryPath), "The file '$entryPath' can not be deleted, check permissions");
                 }
             }
         }
         if (null === $predicate || (null !== $predicate && $predicate($absPath, true))) {
-            ErrorHandler::checkError(@rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
+            ErrorHandler::checkError(@\rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
         }
     }
 
@@ -493,10 +493,10 @@ class Dir extends Entry {
      * @return array
      */
     private static function normalizeConfig($config): array {
-        if (!is_array($config)) {
+        if (!\is_array($config)) {
             if (null === $config) {
                 $config = [];
-            } elseif (is_bool($config)) {
+            } elseif (\is_bool($config)) {
                 $config = ['recursive' => $config];
             } else {
                 throw new \InvalidArgumentException();

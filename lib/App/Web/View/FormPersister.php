@@ -81,7 +81,7 @@ class FormPersister extends HtmlProcessor {
             $right = 1;
             if ($text[strlen($text) - 1] == '^') {
                 $right = 0;
-                $text = substr($text, 0, -1);
+                $text = \substr($text, 0, -1);
             }
             unSet($attr['label']);
             $attr[$right ? '_right' : '_left'] = '<label for="' . $this->quoteHandler($attr['id']) . '">' . $text . '</label>';
@@ -112,7 +112,7 @@ class FormPersister extends HtmlProcessor {
         if (!isset($attr['name'])) return;
 
         // Multiple lists MUST contain [] in the name.
-        if (isset($attr['multiple']) && strpos($attr['name'], '[]') === false) {
+        if (isset($attr['multiple']) && \strpos($attr['name'], '[]') === false) {
             $attr['name'] .= '[]';
         }
 
@@ -151,7 +151,7 @@ class FormPersister extends HtmlProcessor {
             } else {
                 // Option without value: spaces are shrinked (experimented on IE).
                 $text = preg_replace('{</?(option|optgroup)[^>]*>.*}si', '', $parts[$i + 1]);
-                $value = trim($text);
+                $value = \trim($text);
                 $value = preg_replace('/\s\s+/', ' ', $value);
                 if (strpos($value, '&') !== false) {
                     $value = $this->_unhtmlspecialchars($value);
@@ -165,7 +165,7 @@ class FormPersister extends HtmlProcessor {
         // if we do not already have selected options!
         if (!$hasSelected) {
             foreach ($parts as $i => $parsed) {
-                if (!is_array($parsed)) continue;
+                if (!\is_array($parsed)) continue;
                 list ($opt, $value) = $parsed;
                 if (isset($attr['multiple'])) {
                     // Inherit some <select> attributes.
@@ -194,7 +194,7 @@ class FormPersister extends HtmlProcessor {
     protected function makeOptions($options, $curId = false) {
         $body = '';
         foreach ($options as $k => $text) {
-            if (is_array($text)) {
+            if (\is_array($text)) {
                 // option group
                 $options = '';
                 foreach ($text as $ko => $v) {
@@ -235,9 +235,9 @@ class FormPersister extends HtmlProcessor {
         if ($name === null) return null;
         $isArrayLike = false; // boolean AND contain [] in the name
         // Handle boolean fields.
-        if ($isBoolean && false !== ($p = strpos($name, '[]'))) {
+        if ($isBoolean && false !== ($p = \strpos($name, '[]'))) {
             $isArrayLike = true;
-            $name = substr($name, 0, $p) . substr($name, $p + 2);
+            $name = \substr($name, 0, $p) . \substr($name, $p + 2);
         }
         // Search for value in ALL arrays,
         // EXCEPT $_REQUEST, because it also holds Cookies!
@@ -249,7 +249,7 @@ class FormPersister extends HtmlProcessor {
             if ($isBoolean) return $value !== '' && $value !== "0";
             // For array fields it is possible to enumerate all the
             // values in SCALAR using ';'.
-            if ($isArrayLike && !is_array($value)) $value = explode(';', $value);
+            if ($isArrayLike && !\is_array($value)) $value = explode(';', $value);
             $fromForm = false;
         } else {
             // If no data is found in GET, POST etc., always return false in boolean mode.
@@ -259,7 +259,7 @@ class FormPersister extends HtmlProcessor {
         if ($fromForm) {
             // Remove slashes on stupid magic_quotes_gpc mode.
             // TODO: handle nested arrays too!
-            if (is_scalar($value) && get_magic_quotes_gpc() && !@constant('MAGIC_QUOTES_GPC_DISABLED')) {
+            if (\is_scalar($value) && get_magic_quotes_gpc() && !@constant('MAGIC_QUOTES_GPC_DISABLED')) {
                 $value = stripslashes($value);
             }
         }
@@ -267,11 +267,11 @@ class FormPersister extends HtmlProcessor {
         $attrValue = strval(isset($attr['value']) ? $attr['value'] : 'on');
         if ($isArrayLike) {
             // Array-like field? If present, return true.
-            if (!is_array($value)) return false;
-            // Unfortunately we MUST use strict mode in in_array()
+            if (!\is_array($value)) return false;
+            // Unfortunately we MUST use strict mode in \in_array()
             // and cast array values to string before checking.
-            // This is because in_array(0, array('one')) === true.
-            return in_array(strval($attrValue), array_map('strval', $value), true);
+            // This is because \in_array(0, array('one')) === true.
+            return \in_array(strval($attrValue), \array_map('strval', $value), true);
         } else {
             if ($isBoolean) {
                 // Non-array boolean elements must be boolean-equal to match, OR
@@ -304,7 +304,7 @@ class FormPersister extends HtmlProcessor {
      * @param array &$autoindexes Container to hold auto-indexes
      * @return found value, or false if $name is not found.
     protected static function _deepFetch(&$arr, &$name, &$autoindexes) {
-        if (is_scalar($name) && strpos($name, '[') === false) {
+        if (\is_scalar($name) && \strpos($name, '[') === false) {
             // Fast fetch.
             return isset($arr[$name]) ? $arr[$name] : false;
         }
@@ -317,7 +317,7 @@ class FormPersister extends HtmlProcessor {
                 if (!isset($autoindexes[$leftPrefix])) $autoindexes[$leftPrefix] = 0;
                 $parts[$i] = $k = $autoindexes[$leftPrefix]++;
             }
-            if (!is_array($arr)) {
+            if (!\is_array($arr)) {
                 // Current container is not array.
                 return false;
             }
@@ -326,9 +326,9 @@ class FormPersister extends HtmlProcessor {
                 return false;
             }
             $arr = &$arr[$k];
-            $leftPrefix = strlen($leftPrefix) ? $leftPrefix . "[$k]" : $k;
+            $leftPrefix = \strlen($leftPrefix) ? $leftPrefix . "[$k]" : $k;
         }
-        if (!is_scalar($name)) {
+        if (!\is_scalar($name)) {
             $name = $parts;
         } else {
             $name = $leftPrefix;
@@ -341,13 +341,13 @@ class FormPersister extends HtmlProcessor {
      * version of would support syntax like "zzz['aaa']['b\'b']" etc.
      * For "zzz[aaa][bbb]" returns array(zzz, aaa, bbb).
     protected static function _splitMultiArray($name) {
-        if (is_array($name)) return $name;
+        if (\is_array($name)) return $name;
         if (strpos($name, '[') === false) return [$name];
         $regs = null;
         preg_match_all('/ ( ^[^[]+ | \[ .*? \] ) (?= \[ | $) /xs', $name, $regs);
         $arr = [];
         foreach ($regs[0] as $s) {
-            if ($s[0] == '[') $arr[] = substr($s, 1, -1);
+            if ($s[0] == '[') $arr[] = \substr($s, 1, -1);
             else $arr[] = $s;
         }
         return $arr;

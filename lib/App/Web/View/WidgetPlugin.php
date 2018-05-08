@@ -36,11 +36,11 @@ class MenuWidget {
     public function __construct(Db $db, $baseUri, $requestUri) {
         $this->db = $db;
         $this->baseUri = $baseUri;
-        $this->requestUri = trim($requestUri, '/');
+        $this->requestUri = \trim($requestUri, '/');
     }
 
     public function renderSystemMenu(array $config = null, array $attributes = null) {
-        $config = array_merge(['button' => true], (array)$config);
+        $config = \array_merge(['button' => true], (array)$config);
         $html = '';
         if ($config['button']) {
             $html = '<button class="btn btn-default btn-sm dropdown-toggle navbar-btn" type="button" data-toggle="dropdown" style="margin-left: 1em;"><span class="caret"></span></button>';

@@ -39,7 +39,7 @@ class Controller extends BaseController implements IHasServiceManager {
             $response['result'] = $actionResult;
             return;
         }
-        if (is_array($actionResult)) {
+        if (\is_array($actionResult)) {
             $response['result'] = $this->newPage($actionResult);
             return;
         }
@@ -117,7 +117,7 @@ class Controller extends BaseController implements IHasServiceManager {
     }
 
     protected function session(string $key = null): Session {
-        return new Session(get_class($this) . ($key ?: ''));
+        return new Session(\get_class($this) . ($key ?: ''));
     }
 
     protected function args($name = null, bool $trim = true) {

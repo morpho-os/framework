@@ -49,11 +49,11 @@ class Messenger implements \Countable {
     }
 
     public function hasWarningMessages(): bool {
-        return isset($this->messages[self::WARNING]) && count($this->messages[self::WARNING]) > 0;
+        return isset($this->messages[self::WARNING]) && \count($this->messages[self::WARNING]) > 0;
     }
 
     public function hasErrorMessages(): bool {
-        return isset($this->messages[self::ERROR]) && count($this->messages[self::ERROR]) > 0;
+        return isset($this->messages[self::ERROR]) && \count($this->messages[self::ERROR]) > 0;
     }
 
     public function addMessage(string $text, array $args = null, $type = null): void {
@@ -78,7 +78,7 @@ class Messenger implements \Countable {
 
     public function count(): int {
         $this->initMessageStorage();
-        return count($this->messages);
+        return \count($this->messages);
     }
 
     public function setMessageStorage(IMessageStorage $storage): void {
@@ -96,7 +96,7 @@ class Messenger implements \Countable {
     }
 
     protected function checkMessageType($type): void {
-        if (!in_array($type, $this->allowedTypes)) {
+        if (!\in_array($type, $this->allowedTypes)) {
             throw new \UnexpectedValueException();
         }
     }

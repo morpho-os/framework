@@ -16,7 +16,7 @@ class Must {
      * @return mixed
      */
     public static function beNotEmpty(...$args) {
-        $n = count($args);
+        $n = \count($args);
         if (!$n) {
             throw new InvalidArgumentException("Empty arguments");
         }
@@ -30,7 +30,7 @@ class Must {
      * @return mixed
      */
     public static function beEmpty(...$args) {
-        $n = count($args);
+        $n = \count($args);
         if (!$n) {
             throw new InvalidArgumentException("Empty arguments");
         }
@@ -41,15 +41,15 @@ class Must {
     }
 
     public static function haveOnlyKeys(array $arr, array $allowedKeys): void {
-        $diff = array_diff_key($arr, array_flip($allowedKeys));
-        if (count($diff)) {
-            throw new RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
+        $diff = \array_diff_key($arr, \array_flip($allowedKeys));
+        if (\count($diff)) {
+            throw new RuntimeException('Not allowed items are present: ' . shorten(\implode(', ', \array_keys($diff)), 80));
         }
     }
 
     public static function haveKeys(array $arr, array $requiredKeys): void {
-        $intersection = array_intersect_key(array_flip($requiredKeys), $arr);
-        if (count($intersection) != count($requiredKeys)) {
+        $intersection = \array_intersect_key(\array_flip($requiredKeys), $arr);
+        if (\count($intersection) != \count($requiredKeys)) {
             throw new RuntimeException("Required items are missing");
         }
     }

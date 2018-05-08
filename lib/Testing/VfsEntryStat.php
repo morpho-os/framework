@@ -24,7 +24,7 @@ class VfsEntryStat extends \ArrayObject {
     ];
 
     public function __construct(array $values = []) {
-        parent::__construct(array_merge($this->default, $values));
+        parent::__construct(\array_merge($this->default, $values));
     }
 
     public function offsetSet($name, $value) {

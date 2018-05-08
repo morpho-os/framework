@@ -38,7 +38,7 @@ class AstRewriter extends NodeVisitorAbstract {
 
     public function enterNode(Node $node) {
         if ($node instanceof DirMagicConst) {
-            return new StringScalar(dirname($this->context['filePath']));
+            return new StringScalar(\dirname($this->context['filePath']));
         } elseif ($node instanceof FileMagicConst) {
             return new StringScalar($this->context['filePath']);
         }
@@ -79,12 +79,12 @@ class AstRewriter extends NodeVisitorAbstract {
     }
 
     public function beforeTraverse(array $nodes): void {
-        if (!empty($this->context['config']['appendSourceInfo']) && count($nodes)) {
+        if (!empty($this->context['config']['appendSourceInfo']) && \count($nodes)) {
             $node = $nodes[0];
             $commentText = "Source file: '{$this->context['filePath']}'";
             $node->setAttribute(
                 'comments',
-                array_merge(
+                \array_merge(
                     [new DocComment("/**\n * $commentText\n */")],
                     (array)$node->getAttribute('comments')
                 )
@@ -94,7 +94,7 @@ class AstRewriter extends NodeVisitorAbstract {
 
     protected function evalRequire(Expr $expr): array {
         $filePath = $this->evalExpr($expr);
-        $code = file_get_contents($filePath);
+        $code = \file_get_contents($filePath);
         $processor = $this->processor;
         $ast = $processor->parse($code);
         return $processor->rewrite($ast, $this->context);

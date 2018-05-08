@@ -22,15 +22,15 @@ abstract class Query implements IQuery {
     public function dump(): string {
         [$sql, $args] = $this->build();
         $notSafeQuote = function ($value) { // @TODO: Move to Query::notSafeQuote()
-            if (preg_match('~^-?\d+$~s', (string)$value)) {
-                return intval($value);
+            if (\preg_match('~^-?\d+$~s', (string)$value)) {
+                return \intval($value);
             }
             // @TODO: Handle floats
             // Expression taken from the quoteValue() method, https://github.com/zendframework/zend-db/blob/master/src/Adapter/Platform/AbstractPlatform.php file.
-            return '\'' . addcslashes((string)$value, "\x00\n\r\\'\"\x1a") . '\'';
+            return '\'' . \addcslashes((string)$value, "\x00\n\r\\'\"\x1a") . '\'';
         };
         foreach ($args as $arg) {
-            $sql = preg_replace('~\?~', $notSafeQuote($arg), $sql, 1);
+            $sql = \preg_replace('~\?~', $notSafeQuote($arg), $sql, 1);
         }
         return $sql;
     }

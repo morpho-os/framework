@@ -6,7 +6,7 @@ use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 
 function parseFile(string $filePath): ?array {
-    return parse(file_get_contents($filePath));
+    return parse(\file_get_contents($filePath));
 }
 
 function parse(string $str): ?array {

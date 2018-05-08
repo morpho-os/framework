@@ -24,14 +24,14 @@ class Config extends \ArrayObject {
     }
 
     public static function check(?array $config, array $defaultConfig): array {
-        if (null === $config || count($config) === 0) {
+        if (null === $config || \count($config) === 0) {
             return $defaultConfig;
         }
-        $diff = array_diff_key($config, array_flip(array_keys($defaultConfig)));
-        if (count($diff)) {
+        $diff = \array_diff_key($config, \array_flip(\array_keys($defaultConfig)));
+        if (\count($diff)) {
             throw new InvalidConfigException($diff);
         }
-        return array_merge($defaultConfig, $config);
+        return \array_merge($defaultConfig, $config);
     }
 
     /**
@@ -41,7 +41,7 @@ class Config extends \ArrayObject {
         if ($recursive) {
             $this->exchangeArray(ArrayUtils::merge($this->getArrayCopy(), $config));
         } else {
-            $this->exchangeArray(array_merge($this->getArrayCopy(), $config));
+            $this->exchangeArray(\array_merge($this->getArrayCopy(), $config));
         }
         return $this;
     }

@@ -48,7 +48,7 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
     public function plugin($name) {
-        $name = ucfirst($name);
+        $name = \ucfirst($name);
         if (!isset($this->plugins[$name])) {
             $this->plugins[$name] = $this->newPlugin($name);
         }
@@ -100,7 +100,7 @@ class PhpTemplateEngine extends TemplateEngine {
      * will return 'http://foo/bar?redirect=http://baz
      */
     public function uriWithRedirectToSelf($uri): string {
-        if (is_string($uri)) {
+        if (\is_string($uri)) {
             $uri = new Uri($uri);
         }
         $newUri = prependBasePath(function () {
@@ -152,7 +152,7 @@ class PhpTemplateEngine extends TemplateEngine {
         $classFilePath = $instanceProvider->classFilePath($moduleMeta, 'Web\\View\\' . $name . self::PLUGIN_SUFFIX);
         if (false === $classFilePath) {
             $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
-            if (!class_exists($class)) {
+            if (!\class_exists($class)) {
                 throw new \RuntimeException("Unable to find the plugin '$name'");
             }
         } else {

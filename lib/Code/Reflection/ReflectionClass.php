@@ -15,7 +15,7 @@ class ReflectionClass extends BaseReflectionClass {
         while ($rClass = $rClass->getParentClass()) {
             $rClasses[] = $rClass;
         }
-        $rClasses = array_reverse($rClasses);
+        $rClasses = \array_reverse($rClasses);
         if ($appendSelf) {
             $rClasses[]= $this;
         }

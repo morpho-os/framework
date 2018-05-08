@@ -17,17 +17,17 @@ class ClassTypeDiscoverer {
     private $discoverStrategy;
 
     public static function definedClassTypes(): array {
-        return array_merge(
+        return \array_merge(
             self::definedClasses(),
-            get_declared_interfaces(),
-            get_declared_traits()
+            \get_declared_interfaces(),
+            \get_declared_traits()
         );
     }
     
     public static function definedClasses(): array {
-        return array_filter(get_declared_classes(), function ($class) {
+        return \array_filter(\get_declared_classes(), function ($class) {
             // Skip anonymous classes.
-            return 'class@anonymous' !== substr($class, 0, 15);
+            return 'class@anonymous' !== \substr($class, 0, 15);
         });
     }
 

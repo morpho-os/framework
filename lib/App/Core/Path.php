@@ -19,12 +19,12 @@ abstract class Path {
         if ($basePath === '') {
             return $path;
         }
-        $pos = strpos($path, $basePath);
+        $pos = \strpos($path, $basePath);
         if ($pos !== 0) {
             throw new \RuntimeException("The path '$path' does not contain the base path '$basePath'");
         }
 
-        return (string)substr($path, strlen($basePath) + 1);
+        return (string)\substr($path, \strlen($basePath) + 1);
     }
 
     /**
@@ -57,39 +57,39 @@ abstract class Path {
                     break;
                 case ($path == '/..'):
                     $path   = '/';
-                    $lastSlashPos = mb_strrpos($output, '/', -1);
+                    $lastSlashPos = \mb_strrpos($output, '/', -1);
                     if (false === $lastSlashPos) {
                         break;
                     }
-                    $output = mb_substr($output, 0, $lastSlashPos);
+                    $output = \mb_substr($output, 0, $lastSlashPos);
                     break;
-                case (mb_substr($path, 0, 4) == '/../'):
-                    $path   = '/' . mb_substr($path, 4);
-                    $lastSlashPos = mb_strrpos($output, '/', -1);
+                case (\mb_substr($path, 0, 4) == '/../'):
+                    $path   = '/' . \mb_substr($path, 4);
+                    $lastSlashPos = \mb_strrpos($output, '/', -1);
                     if (false === $lastSlashPos) {
                         break;
                     }
-                    $output = mb_substr($output, 0, $lastSlashPos);
+                    $output = \mb_substr($output, 0, $lastSlashPos);
                     break;
-                case (mb_substr($path, 0, 3) == '/./'):
-                    $path = mb_substr($path, 2);
+                case (\mb_substr($path, 0, 3) == '/./'):
+                    $path = \mb_substr($path, 2);
                     break;
-                case (mb_substr($path, 0, 2) == './'):
-                    $path = mb_substr($path, 2);
+                case (\mb_substr($path, 0, 2) == './'):
+                    $path = \mb_substr($path, 2);
                     break;
-                case (mb_substr($path, 0, 3) == '../'):
-                    $path = mb_substr($path, 3);
+                case (\mb_substr($path, 0, 3) == '../'):
+                    $path = \mb_substr($path, 3);
                     break;
                 default:
-                    $slash = mb_strpos($path, '/', 1);
+                    $slash = \mb_strpos($path, '/', 1);
                     if ($slash === false) {
                         $seg = $path;
                     } else {
-                        $seg = mb_substr($path, 0, $slash);
+                        $seg = \mb_substr($path, 0, $slash);
                     }
 
                     $output .= $seg;
-                    $path = mb_substr($path, mb_strlen($seg));
+                    $path = \mb_substr($path, \mb_strlen($seg));
                     break;
             }
         }
@@ -102,14 +102,14 @@ abstract class Path {
             return $path;
         }
         if (Environment::isWindows()) {
-            $path = str_replace('\\', '/', $path);
+            $path = \str_replace('\\', '/', $path);
         }
         if ($path === '/') {
             return $path;
         }
-        if (false !== strpos($path, '/..')) {
+        if (false !== \strpos($path, '/..')) {
             $path = static::removeDotSegments($path);
         }
-        return rtrim($path, '/\\');
+        return \rtrim($path, '/\\');
     }
 }

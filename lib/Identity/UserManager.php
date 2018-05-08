@@ -57,8 +57,8 @@ class UserManager {
      * @return true|array Returns true on success, array with errors otherwise.
      */
     public function logIn(array $user) {
-        $login = trim($user['login']);
-        $password = trim($user['password']);
+        $login = \trim($user['login']);
+        $password = \trim($user['password']);
 
         if (empty($login) || empty($password)) {
             return [self::EMPTY_LOGIN_OR_PASSWORD];

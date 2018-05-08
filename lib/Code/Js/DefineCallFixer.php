@@ -42,7 +42,7 @@ class DefineCallFixer {
                                 $deps[] = self::quote(self::fixModuleId($unquoted, $baseDirPath, $jsFilePath));
                             }
                         }
-                        $value .= implode(', ', $deps);
+                        $value .= \implode(', ', $deps);
                         $value .= ']';
                         $values[] = $value;
                         break;
@@ -53,7 +53,7 @@ class DefineCallFixer {
                         throw new \UnexpectedValueException();
                 }
             }
-            return implode(', ', $values);
+            return \implode(', ', $values);
         };
         return 'define(' . $eval($tokens);
     }
@@ -63,14 +63,14 @@ class DefineCallFixer {
     }
 
     private static function unquote(string $s): string {
-        return trim($s, '"');
+        return \trim($s, '"');
     }
 
     private static function fixModuleId(string $moduleId, string $baseDirPath, string $jsFilePath): string {
         if ($moduleId[0] === '.' || contains($moduleId, '/')) {
             return $moduleId;
         }
-        $newModuleId = Path::rel(dirname($jsFilePath) . '/' . $moduleId, $baseDirPath);
+        $newModuleId = Path::rel(\dirname($jsFilePath) . '/' . $moduleId, $baseDirPath);
         return $newModuleId;
     }
 

@@ -33,7 +33,7 @@ class Path extends BasePath implements IUriComponent {
 
     public function toStr(bool $encode): string {
         if ($encode) {
-            return str_replace('%2F', '/', rawurlencode($this->path));
+            return \str_replace('%2F', '/', \rawurlencode($this->path));
         }
         return $this->path;
     }

@@ -22,7 +22,7 @@ class FilesIter implements \IteratorAggregate {
     }
 
     public function getIterator() {
-        $baseDirPath = realpath($this->baseDirPath);
+        $baseDirPath = \realpath($this->baseDirPath);
         yield from chain(
             $this->filePaths($baseDirPath . '/' . LIB_DIR_NAME),
             filter($this->filterTestsFn(), $this->phpFilePaths($baseDirPath . '/' . TEST_DIR_NAME)),
@@ -33,16 +33,16 @@ class FilesIter implements \IteratorAggregate {
 
     private function filePathsInModuleDir(string $baseDirPath): iterable {
         foreach (Dir::dirPaths($baseDirPath . '/' . MODULE_DIR_NAME) as $dirPath) {
-            if (is_dir($dirPath . '/' . LIB_DIR_NAME)) {
+            if (\is_dir($dirPath . '/' . LIB_DIR_NAME)) {
                 yield from $this->filePaths($dirPath . '/' . LIB_DIR_NAME);
             }
-            if (is_dir($dirPath . '/' . VIEW_DIR_NAME)) {
+            if (\is_dir($dirPath . '/' . VIEW_DIR_NAME)) {
                 yield from $this->filePaths($dirPath . '/' . VIEW_DIR_NAME);
             }
-            if (is_dir($dirPath . '/' . TEST_DIR_NAME)) {
+            if (\is_dir($dirPath . '/' . TEST_DIR_NAME)) {
                 yield from filter($this->filterTestsFn(), $this->phpFilePaths($dirPath . '/' . TEST_DIR_NAME));
             }
-            if (is_dir($dirPath . '/' . PUBLIC_DIR_NAME)) {
+            if (\is_dir($dirPath . '/' . PUBLIC_DIR_NAME)) {
                 yield from $this->filePathsInPublicDir($dirPath . '/' . PUBLIC_DIR_NAME);
             }
         }
@@ -50,7 +50,7 @@ class FilesIter implements \IteratorAggregate {
 
     private function filterTestsFn(): \Closure {
         return function ($filePath) {
-            return !preg_match('~/' . preg_quote(TEST_DIR_NAME, '~') . '/.*?/_files/~s', $filePath);
+            return !\preg_match('~/' . \preg_quote(TEST_DIR_NAME, '~') . '/.*?/_files/~s', $filePath);
         };
     }
 

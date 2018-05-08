@@ -20,7 +20,7 @@ class ModuleIndex implements \IteratorAggregate {
 
     public function moduleNames(): iterable {
         $this->init();
-        return array_keys($this->index);
+        return \array_keys($this->index);
     }
 
     public function moduleExists(string $moduleName): bool {

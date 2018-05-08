@@ -80,7 +80,7 @@ class Uri {
      * @param Authority|string $authority
      */
     public function setAuthority($authority): void {
-        if (is_string($authority)) {
+        if (\is_string($authority)) {
             $authority = new Authority($authority);
         }
         $this->authority = $authority;
@@ -97,7 +97,7 @@ class Uri {
      * @param Path|string $path
      */
     public function setPath($path): void {
-        if (is_string($path)) {
+        if (\is_string($path)) {
             $path = new Path($path);
         }
         $this->path = $path;
@@ -115,7 +115,7 @@ class Uri {
      * @param Query|string $query
      */
     public function setQuery($query): void {
-        if (is_string($query)) {
+        if (\is_string($query)) {
             $query = new Query($query);
         }
         $this->query = $query;
@@ -146,10 +146,10 @@ class Uri {
      * @param string|Uri $relUri
      */
     public static function resolveRelUri($baseUri, $relUri): Uri {
-        if (is_string($baseUri)) {
+        if (\is_string($baseUri)) {
             $baseUri = self::parse($baseUri);
         }
-        if (is_string($relUri)) {
+        if (\is_string($relUri)) {
             $relUri = self::parse($relUri);
         }
 
@@ -197,11 +197,11 @@ class Uri {
                         if ($hasAuthority && $basePath === '') {
                             $targetPath = '/' . $relUriPath;
                         } else {
-                            $rPos = mb_strrpos($basePath, '/');
+                            $rPos = \mb_strrpos($basePath, '/');
                             if (false === $rPos) {
                                 $targetPath = $relUriPath;
                             } else {
-                                $targetPath = mb_substr($basePath, 0, $rPos + 1) . $relUri->path()->toStr(false);
+                                $targetPath = \mb_substr($basePath, 0, $rPos + 1) . $relUri->path()->toStr(false);
                             }
                         }
                         $targetPath = Path::removeDotSegments($targetPath);
@@ -223,7 +223,7 @@ class Uri {
 
         $scheme = $this->scheme();
         if ($scheme !== '') {
-            $uriStr .= ($encode ? rawurlencode($scheme) : $scheme) . ':';
+            $uriStr .= ($encode ? \rawurlencode($scheme) : $scheme) . ':';
         }
 
         $authority = $this->authority();
@@ -240,7 +240,7 @@ class Uri {
 
         $fragment = $this->fragment();
         if (null !== $fragment) {
-            $uriStr .= '#' . ($encode ? rawurlencode($fragment) : $fragment);
+            $uriStr .= '#' . ($encode ? \rawurlencode($fragment) : $fragment);
         }
 
         return $uriStr;
