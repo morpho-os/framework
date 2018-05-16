@@ -4,15 +4,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\App\Web;
+namespace Morpho\Test\Unit\App\Core;
 
 use const Morpho\App\Core\CONTROLLER_SUFFIX;
 use Morpho\App\Core\ModuleIndex;
 use Morpho\App\Core\ModuleMeta;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\InstanceProvider;
-use Morpho\App\Web\NotFoundException;
+use Morpho\App\Core\InstanceProvider;
 use Morpho\App\Web\Request;
 
 class InstanceProviderTest extends TestCase {
@@ -21,15 +20,13 @@ class InstanceProviderTest extends TestCase {
         /** @noinspection PhpParamsInspection */
         $instanceProvider = new InstanceProvider($serviceManager);
 
-        $this->expectException(NotFoundException::class);
-
         $request = $this->createMock(Request::class);
         $request->expects($this->any())
             ->method('handler')
             ->willReturn([null, null, null]);
 
         /** @noinspection PhpParamsInspection */
-        $instanceProvider->__invoke($request);
+        $this->assertFalse($instanceProvider->__invoke($request));
     }
 
     public function testInvoke_SetsHandlerFnAsRequestItem() {

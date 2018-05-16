@@ -13,7 +13,7 @@ use const Morpho\App\Core\PLUGIN_SUFFIX;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\InstanceProvider;
+use Morpho\App\Core\InstanceProvider;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\Request;

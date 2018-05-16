@@ -14,6 +14,7 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
+use Morpho\App\Core\InstanceProvider;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\App\Core\IRouter;
 use Morpho\App\Core\ModuleIndex;

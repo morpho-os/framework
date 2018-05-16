@@ -11,7 +11,7 @@ use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 
-abstract class InstanceProvider implements IFn {
+class InstanceProvider implements IFn {
     /**
      * @var ModuleIndex
      */
@@ -39,7 +39,7 @@ abstract class InstanceProvider implements IFn {
     public function __invoke($request) {
         [$moduleName, $controllerName,] = $request->handler();
         if (!$moduleName || !$controllerName) {
-            $this->throwNotFoundException();
+            return false;
         }
 
         $moduleMeta = $this->moduleIndex->moduleMeta($moduleName);
@@ -95,9 +95,4 @@ abstract class InstanceProvider implements IFn {
             $this->registeredModules[$moduleName] = true;
         }
     }
-
-    /**
-     * @throws \RuntimeException
-     */
-    abstract protected function throwNotFoundException(): void;
 }
