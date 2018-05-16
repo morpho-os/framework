@@ -141,7 +141,7 @@ class TsCompiler implements IFn {
     public function tsc($compilerConfig, $shellConfig = null): ICommandResult {
         return shell(
             'tsc ' . $this->configToArgsStr($compilerConfig),
-            \array_merge((array)$shellConfig, ['capture' => true])
+            \array_merge((array)$shellConfig, ['capture' => true, 'show' => false])
         );
     }
 

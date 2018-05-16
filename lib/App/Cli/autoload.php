@@ -123,6 +123,11 @@ function envVarsToStr(array $envVars): string {
 }
 
 function shell(string $command, array $config = null): ICommandResult {
+    if (isset($config['capture'])) {
+        if (!isset($config['show'])) {
+            $config['show'] = !$config['capture'];
+        }
+    }
     $config = Config::check((array) $config, [
         'checkCode' => true,
         // @TODO: tee: buffer and display output
@@ -161,7 +166,7 @@ function shell(string $command, array $config = null): ICommandResult {
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
     // @TODO: To get stderr use 2>&1 at the end.
-    return new ShellCommandResult($command, $exitCode, $output, $output);
+    return new ShellCommandResult($command, $exitCode, $output, '');
 }
 
 // @TODO: See \Composer\Util\ProcessExecutor
@@ -196,17 +201,14 @@ function checkResult(ICommandResult $result) {
     }
 }
 
-/**
- * @param string $question
- */
-function ask(string $question) {
+function ask(string $question, bool $trim = true): string {
     echo $question;
     $result = \fgets(STDIN);
     // fgets() returns false on Ctrl-D
     if (false === $result) {
         $result = '';
     }
-    return \rtrim($result);
+    return $trim ? \trim($result) : $result;
 }
 
 function askYesNo(string $question): bool {
