@@ -10,12 +10,12 @@ use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
     /**
-     * @var null|Request
+     * @var null|IRequest
      */
     protected $request;
 
     /**
-     * @param Request $request
+     * @param IRequest $request
      */
     public function __invoke($request): void {
         $request->response()->exchangeArray([]);
@@ -48,8 +48,17 @@ abstract class Controller implements IFn {
     }
 
     /**
+     * @param IRequest $request
      * @param null|Response|array|\ArrayObject $actionResult
      */
-    protected function handleActionResult(Request $request, $actionResult): void {
+    protected function handleActionResult(IRequest $request, $actionResult): void {
+    }
+
+    protected function arg($key, bool $trim = true) {
+        return $this->request->arg($key, $trim);
+    }
+
+    protected function args($key = null, bool $trim = true) {
+        return $this->request->args($key, $trim);
     }
 }

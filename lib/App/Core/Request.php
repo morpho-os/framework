@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Core;
 
-abstract class Request extends Message {
+abstract class Request extends Message implements IRequest {
     /**
      * @var ?string
      */
@@ -83,8 +83,6 @@ abstract class Request extends Message {
         }
         return $this->response;
     }
-
-    abstract public function args();
 
     abstract protected function newResponse(): IResponse;
 }

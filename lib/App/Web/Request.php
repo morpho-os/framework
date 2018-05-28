@@ -7,6 +7,7 @@
 namespace Morpho\App\Web;
 
 use Morpho\Base\IFn;
+use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\App\Core\IResponse;
 use Morpho\Fs\Path;
@@ -110,18 +111,22 @@ class Request extends BaseRequest {
      *     - connect()
      *     - propfind()
      */
-    public function args($name = null, bool $trim = true) {
+    public function args($names = null, bool $trim = true) {
         $method = $this->method();
         switch ($method) {
             case self::GET_METHOD:
-                return $this->query($name, $trim);
+                return $this->query($names, $trim);
             case self::POST_METHOD:
-                return $this->post($name, $trim);
+                return $this->post($names, $trim);
             case self::PATCH_METHOD:
-                return $this->patch($name, $trim);
+                return $this->patch($names, $trim);
             default:
                 throw new BadRequestException();
         }
+    }
+
+    public function arg($name) {
+        throw new NotImplementedException();
     }
 
     public function data(array $source, $name = null, bool $trim = true) {

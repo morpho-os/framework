@@ -7,10 +7,10 @@
 namespace Morpho\App\Web;
 
 use Morpho\App\Core\Dispatcher as BaseDispatcher;
-use Morpho\App\Core\Request;
+use Morpho\App\Core\IRequest;
 
 class Dispatcher extends BaseDispatcher {
-    protected function throwNotFoundException(Request $request): void {
+    protected function throwNotFoundException(IRequest $request): void {
         throw new NotFoundException();
     }
 }

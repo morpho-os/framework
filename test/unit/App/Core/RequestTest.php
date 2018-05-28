@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Core;
 
+use Morpho\App\Core\IRequest;
 use Morpho\Base\NotImplementedException;
 use Morpho\App\Core\IResponse;
 use Morpho\App\Core\Request;
@@ -21,7 +22,11 @@ class RequestTest extends MessageTest {
                 throw new NotImplementedException(__METHOD__);
             }
 
-            public function args() {
+            public function arg($nameOrIndex) {
+                throw new NotImplementedException(__METHOD__);
+            }
+
+            public function args($namesOrIndexes = null) {
                 throw new NotImplementedException(__METHOD__);
             }
         };
@@ -29,5 +34,9 @@ class RequestTest extends MessageTest {
 
     protected function newMessage(): Message {
         return clone $this->request;
+    }
+
+    public function testInterface() {
+        $this->assertInstanceOf(IRequest::class, $this->request);
     }
 }

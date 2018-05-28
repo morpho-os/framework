@@ -8,6 +8,7 @@ namespace Morpho\App\Cli;
 
 use Morpho\App\Core\IResponse;
 use Morpho\App\Core\Request as BaseRequest;
+use Morpho\Base\NotImplementedException;
 
 class Request extends BaseRequest {
     /**
@@ -19,11 +20,19 @@ class Request extends BaseRequest {
         $this->args = $args;
     }
 
-    public function args(): array {
+    public function args($namesOrIndexes = null) {
         if (null === $this->args) {
             $this->args = $_SERVER['argv'];
         }
         return $this->args;
+    }
+
+    /**
+     * @param string|int $nameOrIndex
+     * @return mixed
+     */
+    public function arg($nameOrIndex) {
+        throw new NotImplementedException();
     }
 
     protected function newResponse(): IResponse {

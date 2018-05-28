@@ -30,7 +30,7 @@ abstract class Dispatcher {
         $this->eventManager = $eventManager;
     }
 
-    public function dispatch(Request $request): void {
+    public function dispatch(IRequest $request): void {
         $i = 0;
         do {
             if ($i >= $this->maxNoOfDispatchIterations) {
@@ -64,7 +64,8 @@ abstract class Dispatcher {
     }
 
     /**
+     * @param IRequest $request
      * @throws \RuntimeException
      */
-    abstract protected function throwNotFoundException(Request $request): void;
+    abstract protected function throwNotFoundException(IRequest $request): void;
 }

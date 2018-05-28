@@ -6,6 +6,7 @@
  */
 namespace Morpho\App\Web;
 
+use Morpho\App\Core\IRequest;
 use function Morpho\Base\dasherize;
 use function Morpho\Base\typeOf;
 use Morpho\Ioc\IHasServiceManager;
@@ -14,7 +15,6 @@ use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\Page;
 use Morpho\App\Core\Controller as BaseController;
-use Morpho\App\Core\Request;
 
 class Controller extends BaseController implements IHasServiceManager {
     /**
@@ -27,7 +27,7 @@ class Controller extends BaseController implements IHasServiceManager {
      */
     protected $request;
 
-    protected function handleActionResult(Request $request, $actionResult): void {
+    protected function handleActionResult(IRequest $request, $actionResult): void {
         if (!$request->isDispatched()) {
             return;
         }
@@ -118,10 +118,6 @@ class Controller extends BaseController implements IHasServiceManager {
 
     protected function session(string $key = null): Session {
         return new Session(\get_class($this) . ($key ?: ''));
-    }
-
-    protected function args($name = null, bool $trim = true) {
-        return $this->request->args($name, $trim);
     }
 
     protected function data(array $source, $name = null, bool $trim = true) {

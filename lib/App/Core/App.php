@@ -42,7 +42,7 @@ abstract class App implements IHasServiceManager {
      */
     public function run() {
         $serviceManager = $this->serviceManager();
-        /** @var Request $request */
+        /** @var \Morpho\App\Core\IRequest $request */
         $request = $serviceManager['request'];
         $serviceManager['router']->route($request);
         $serviceManager['dispatcher']->dispatch($request);
