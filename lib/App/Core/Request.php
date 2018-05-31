@@ -25,18 +25,18 @@ abstract class Request extends Message implements IRequest {
     /**
      * @var bool
      */
-    private $isDispatched = false;
+    private $isHandled = false;
 
     /**
      * @var ?IResponse
      */
     private $response;
 
-    public function isDispatched(bool $flag = null): bool {
+    public function isHandled(bool $flag = null): bool {
         if ($flag !== null) {
-            $this->isDispatched = $flag;
+            $this->isHandled = $flag;
         }
-        return $this->isDispatched;
+        return $this->isHandled;
     }
 
     public function setHandler(array $handler): void {

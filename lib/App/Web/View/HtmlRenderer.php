@@ -14,6 +14,8 @@ use Morpho\App\Web\Request;
 class HtmlRenderer implements IFn {
     protected $serviceManager;
 
+    private const PAGE_NAME = 'index';
+
     public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
@@ -29,26 +31,28 @@ class HtmlRenderer implements IFn {
 
         // 1. Render view
         $moduleName = $request->moduleName();
-        /** @var Page $page */
-        $page = $response['result'];
-        $view = $page->view();
+        /** @var View $view */
+        $view = $response['result'];
+        if (!$view instanceof View) {
+            throw new \UnexpectedValueException();
+        }
         if (!$view->dirPath()) {
             $view->setDirPath(dasherize($request->controllerName()));
         }
-        $renderedView = $this->render($moduleName, $view);
+        $renderedView = $this->renderView($moduleName, $view);
 
-        // 2. Render Layout
-        $moduleName = $serviceManager->config()['view']['layoutModule'];
-        $layout = $page->layout();
-        $layout['body'] = $renderedView;
-        $renderedLayout = $this->render($moduleName, $layout);
+        // 2. Render page
+        $moduleName = $serviceManager->config()['view']['pageRenderer'];
+        $page = $view->parent() ?: $this->mkPage();
+        $page->vars()['body'] = $renderedView;
+        $renderedPage = $this->renderView($moduleName, $page);
 
-        $response->setBody($renderedLayout);
+        $response->setBody($renderedPage);
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'text/html;charset=utf-8';
     }
 
-    protected function render(string $moduleName, View $view): string {
+    protected function renderView(string $moduleName, View $view): string {
         $serviceManager = $this->serviceManager;
         $moduleIndex = $serviceManager['moduleIndex'];
         /** @var Theme $theme */
@@ -56,5 +60,9 @@ class HtmlRenderer implements IFn {
         $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
         $theme->appendBaseDirPath($viewDirPath);
         return $theme->render($view);
+    }
+
+    protected function mkPage(): View {
+        return new View(self::PAGE_NAME);
     }
 }

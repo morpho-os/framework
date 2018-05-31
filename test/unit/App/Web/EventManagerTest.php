@@ -7,15 +7,13 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\Base\Event;
-use Morpho\Base\IFn;
 use Morpho\App\Core\ServiceManager;
-use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\DispatchErrorHandler;
 use Morpho\App\Web\EventManager;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
-use Morpho\App\Web\View\Page;
+use Morpho\App\Web\View\View;
 
 class EventManagerTest extends TestCase {
     public function testDispatchErrorHandler() {
@@ -64,80 +62,42 @@ class EventManagerTest extends TestCase {
         $eventManager->trigger($event);
     }
 
-    public function testAfterDispatchHandler_CallsRenderer() {
-        /** @noinspection PhpParamsInspection */
-        $request = $this->newConfiguredRequest(true, false, $this->createMock(Page::class));
+    public function testAfterDispatchHandler_CallsActionResultRenderer() {
+        $request = $this->mkRequest(true, false, $this->createMock(View::class));
         $serviceManager = $this->createMock(ServiceManager::class);
+        $actionResultRenderer = new class {
+            public $args;
+            public function __invoke(...$args) {
+                return $this->args = $args;
+            }
+        };
         $serviceManager->expects($this->any())
             ->method('offsetGet')
-            ->with('contentNegotiator')
-            ->willReturn(new class {
-                public function __invoke() {
-                    return 'html';
-                }
-            });
-
+            ->with('actionResultRenderer')
+            ->willReturn($actionResultRenderer);
         /** @noinspection PhpParamsInspection */
-        $eventManager = new class ($serviceManager) extends EventManager {
-            public $renderer;
-            protected function newRenderer(string $rendererType, IServiceManager $serviceManager): IFn {
-                if ($rendererType === 'html') {
-                    return $this->renderer;
-                }
-                throw new \UnexpectedValueException();
-            }
-        };
-        $renderer = new class implements IFn {
-            public $args;
-            public function __invoke($value) {
-                $this->args = \func_get_args();
-            }
-        };
-        $eventManager->renderer = $renderer;
-
-        $event = new Event('afterDispatch', [
-            'request' => $request,
-        ]);
+        $eventManager = new EventManager($serviceManager);
+        $event = new Event('afterDispatch', ['request' => $request]);
 
         $eventManager->trigger($event);
 
-        $this->assertSame([$request], $renderer->args);
+        $this->assertSame([$request], $actionResultRenderer->args);
     }
 
-    public function dataForShouldRender() {
-        foreach ([true, false] as $isAjax) {
-            yield [$isAjax, false, false, $this->createMock(Page::class), false];
-            yield [$isAjax, false, false, null, false];
-            yield [$isAjax, false, true, $this->createMock(Page::class), false];
-            yield [$isAjax, false, true, null, false];
-            yield [$isAjax, true, false, $this->createMock(Page::class), true];
-            yield [$isAjax, true, false, null, false];
-            yield [$isAjax, true, true, $this->createMock(Page::class), $isAjax];
-            yield [$isAjax, true, true, null, false];
-        }
-    }
-
-    /**
-     * @dataProvider dataForShouldRender
-     */
-    public function testShouldRender(bool $isAjax, bool $isDispatched, bool $isRedirect, ?Page $page, bool $expected) {
-        $request = $this->newConfiguredRequest($isDispatched, $isRedirect, $page);
-        $request->isAjax($isAjax);
-        $serviceManager = $this->createMock(IServiceManager::class);
-        /** @noinspection PhpParamsInspection */
-        $renderer = new EventManager($serviceManager);
-
-        /** @noinspection PhpParamsInspection */
-        $this->assertSame($expected, $renderer->shouldRender($request));
-    }
-
-    private function newConfiguredRequest(bool $isDispatched, bool $isRedirect, ?Page $page) {
+    private function mkRequest(bool $isRedirect, $result) {
         $request = new Request();
-        $request->isDispatched($isDispatched);
+        $response = $this->mkResponse($isRedirect);
+        $response['result'] = $result;
+        $request->setResponse($response);
+        return $request;
+    }
+
+    private function mkResponse(bool $isRedirect) {
         $response = new class ($isRedirect) extends Response {
             private $isRedirect;
 
             public function __construct(bool $isRedirect) {
+                parent::__construct([]);
                 $this->isRedirect = $isRedirect;
             }
 
@@ -145,10 +105,6 @@ class EventManagerTest extends TestCase {
                 return $this->isRedirect;
             }
         };
-        if ($page) {
-            $response['result'] = $page;
-        }
-        $request->setResponse($response);
-        return $request;
+        return $response;
     }
 }

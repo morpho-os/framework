@@ -65,7 +65,7 @@ return [
             'logToFile' => true,
         ],
         'view' => [
-            'layoutModule' => VENDOR . '/system',
+            'pageRenderer' => VENDOR . '/system',
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.

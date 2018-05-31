@@ -125,7 +125,7 @@ class Request extends BaseRequest {
         }
     }
 
-    public function arg($name) {
+    public function arg($name, bool $trim = true) {
         throw new NotImplementedException();
     }
 

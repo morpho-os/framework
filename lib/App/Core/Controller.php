@@ -6,6 +6,7 @@
  */
 namespace Morpho\App\Core;
 
+use Morpho\Base\Config;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
@@ -14,25 +15,43 @@ abstract class Controller implements IFn {
      */
     protected $request;
 
+    private $checkActionMethodExistence = true;
+
+    public function __construct(array $config = null) {
+        if (null !== $config) {
+            $config = Config::check($config, ['checkActionMethodExistence' => true]);
+            foreach ($config as $name => $value) {
+                $this->$name = $value;
+            }
+        }
+    }
+
     /**
      * @param IRequest $request
      */
     public function __invoke($request): void {
         $request->response()->exchangeArray([]);
-        if (!$request->isDispatched()) {
-            throw new \LogicException('Request must be dispatched');
-        }
-        $action = $request->actionName();
-        if (empty($action)) {
+        $this->request = $request;
+        $actionName = $request->actionName();
+        if (empty($actionName)) {
             throw new \LogicException("Empty action name");
         }
-        $this->request = $request;
         $this->beforeEach();
-        $method = $action . 'Action';
-        if (\method_exists($this, $method)) {
-            $this->handleActionResult($request, $this->$method());
-        }
+        $this->runAction($actionName);
         $this->afterEach();
+    }
+
+    protected function runAction(string $actionName): void {
+        $methodName = $actionName . 'Action';
+        if ($this->checkActionMethodExistence) {
+            $actionResult = \method_exists($this, $methodName)
+                ? $this->$methodName()
+                : $this->mkNotFoundResponse($actionName);
+        } else {
+            $actionResult = $this->$methodName();
+        }
+        $response = $this->handleActionResult($actionResult);
+        $this->request->setResponse($response);
     }
 
     /**
@@ -48,17 +67,9 @@ abstract class Controller implements IFn {
     }
 
     /**
-     * @param IRequest $request
-     * @param null|Response|array|\ArrayObject $actionResult
+     * @param mixed $actionResult
      */
-    protected function handleActionResult(IRequest $request, $actionResult): void {
-    }
+    abstract protected function handleActionResult($actionResult): IResponse;
 
-    protected function arg($key, bool $trim = true) {
-        return $this->request->arg($key, $trim);
-    }
-
-    protected function args($key = null, bool $trim = true) {
-        return $this->request->args($key, $trim);
-    }
+    abstract protected function mkNotFoundResponse(string $actionName): IResponse;
 }

@@ -15,6 +15,7 @@ use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\App\Core\InstanceProvider;
+use Morpho\App\Web\View\ActionResultRenderer;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\App\Core\IRouter;
 use Morpho\App\Core\ModuleIndex;
@@ -133,6 +134,10 @@ class ServiceManager extends BaseServiceManager {
 
     protected function newDispatchErrorHandlerService() {
         return new DispatchErrorHandler();
+    }
+
+    protected function newActionResultRendererService() {
+        return new ActionResultRenderer($this);
     }
 
     private function appendSiteLogFileWriter($logger, int $logLevel) {

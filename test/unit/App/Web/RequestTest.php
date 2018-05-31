@@ -152,8 +152,8 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->request->{'is' . $httpMethod . 'Method'}());
     }
 
-    public function testIsDispatched() {
-        $this->checkBoolAccessor([$this->request, 'isDispatched'], false);
+    public function testIsHandled() {
+        $this->checkBoolAccessor([$this->request, 'isHandled'], false);
     }
 
     public function testTrim_Query() {

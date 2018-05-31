@@ -8,7 +8,6 @@ namespace Morpho\App\Web\View;
 
 use Morpho\Base\IFn;
 use function Morpho\Base\toJson;
-use Morpho\App\Web\Response;
 
 class JsonRenderer implements IFn {
     /**
@@ -18,17 +17,17 @@ class JsonRenderer implements IFn {
         /** @var \Morpho\App\Web\Response $response */
         $response = $request->response();
 
-        $page = $response['result'];
+        $result = $response['result'];
 
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'application/json;charset=utf-8';
-        if ($request->isAjax()) {
+/*        if ($request->isAjax()) {
             if ($response->isRedirect()) {
                 $page['redirect'] = $response->headers()['Location'];
                 unset($response->headers()['Location']);
                 $response->setStatusCode(Response::OK_STATUS_CODE);
             }
-        }
-        $response->setBody(toJson($page));
+        }*/
+        $response->setBody(toJson($result));
     }
 }

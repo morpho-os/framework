@@ -37,8 +37,6 @@ abstract class Dispatcher {
                 throw new \RuntimeException("Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times");
             }
             try {
-                $request->isDispatched(true);
-
                 $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));
 
                 $handler = ($this->handlerProvider)($request);
@@ -48,11 +46,13 @@ abstract class Dispatcher {
                 $handler($request);
 
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
+
+                $request->isHandled(true);
             } catch (\Throwable $e) {
                 $this->eventManager->trigger(new Event('dispatchError', ['request' => $request, 'exception' => $e]));
             }
             $i++;
-        } while (false === $request->isDispatched());
+        } while (!$request->isHandled());
     }
 
     public function setMaxNoOfDispatchIterations(int $n): void {

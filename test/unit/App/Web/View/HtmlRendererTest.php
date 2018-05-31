@@ -11,23 +11,19 @@ use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
 use Morpho\App\Web\View\HtmlRenderer;
-use Morpho\App\Web\View\Page;
 use Morpho\App\Web\View\View;
 
 class HtmlRendererTest extends TestCase {
     public function testInvoke() {
-        $page = new Page('test');
-        $view = new View('edit');
-        $layout = new View('front');
-        $page->setLayout($layout);
-        $page->setView($view);
+        $page = new View('test');
+        $view = new View('edit-user', null, $page);
 
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
-        $response['result'] = $page;
+        $response['result'] = $view;
 
         $viewModuleName = 'foo/bar';
-        $layoutModuleName = 'abc/test';
+        $pageRendererModuleName = 'abc/test';
 
         $request = new Request();
         $request->setModuleName('foo/bar');
@@ -37,11 +33,11 @@ class HtmlRendererTest extends TestCase {
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
             ->method('config')
-            ->willReturn(['view' => ['layoutModule' => $layoutModuleName]]);
+            ->willReturn(['view' => ['pageRenderer' => $pageRendererModuleName]]);
 
         $renderer = new class ($serviceManager) extends HtmlRenderer {
             public $map;
-            protected function render(string $moduleName, View $view): string {
+            protected function renderView(string $moduleName, View $view): string {
                 $renderer = $this->map[$moduleName];
                 return $renderer($view);
             }
@@ -51,9 +47,9 @@ class HtmlRendererTest extends TestCase {
             $this->assertSame($view, $viewArg);
             return 'hello';
         };
-        $renderer->map[$layoutModuleName] = function (View $layoutArg) use ($layout): string {
-            $this->assertSame(['body' => 'hello'], $layoutArg->getArrayCopy());
-            $this->assertSame($layout, $layoutArg);
+        $renderer->map[$pageRendererModuleName] = function (View $pageArg) use ($page): string {
+            $this->assertSame(['body' => 'hello'], $page->vars()->getArrayCopy());
+            $this->assertSame($page, $pageArg);
             return 'cat';
         };
 

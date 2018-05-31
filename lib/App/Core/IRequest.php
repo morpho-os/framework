@@ -2,7 +2,7 @@
 namespace Morpho\App\Core;
 
 interface IRequest extends IMessage {
-    public function isDispatched(bool $flag = null): bool;
+    public function isHandled(bool $flag = null): bool;
 
     public function setHandler(array $handler): void;
 

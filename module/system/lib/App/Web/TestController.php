@@ -9,11 +9,9 @@ use Morpho\App\Web\NotFoundException;
 
 class TestController extends Controller {
     public function indexAction() {
-        $page = $this->newPage();
-        $layout = $page->layout();
-        $layout->setDirPath(dasherize($this->request->controllerName()));
-        $layout->setName('test');
-        return $page;
+        $page = $this->mkView('test');
+        $page->setDirPath(dasherize($this->request->controllerName()));
+        return $this->mkView(null, null, $page);
     }
 
     public function status400Action() {

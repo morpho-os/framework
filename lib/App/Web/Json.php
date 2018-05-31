@@ -6,7 +6,9 @@
  */
 namespace Morpho\App\Web;
 
-class JsonResult implements IRestResource, \JsonSerializable {
+use function Morpho\Base\{fromJson, toJson};
+
+class Json implements \JsonSerializable, \Serializable {
     public const FORMAT = 'json';
     /**
      * @var mixed
@@ -20,7 +22,28 @@ class JsonResult implements IRestResource, \JsonSerializable {
         $this->value = $value;
     }
 
+    /**
+     * @return mixed
+     */
+    public function value() {
+        return $this->value;
+    }
+
+    /**
+     * @return mixed
+     */
     public function jsonSerialize() {
         return $this->value;
+    }
+
+    public function serialize(): ?string {
+        return toJson($this->value);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized): void {
+        $this->value = fromJson($serialized);
     }
 }

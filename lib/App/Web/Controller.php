@@ -6,14 +6,11 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\Core\IRequest;
+use Morpho\App\Core\IResponse;
+use Morpho\App\Web\View\View;
 use function Morpho\Base\dasherize;
-use function Morpho\Base\typeOf;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
-use Morpho\App\Web\Messages\Messenger;
-use Morpho\App\Web\Session\Session;
-use Morpho\App\Web\View\Page;
 use Morpho\App\Core\Controller as BaseController;
 
 class Controller extends BaseController implements IHasServiceManager {
@@ -27,123 +24,53 @@ class Controller extends BaseController implements IHasServiceManager {
      */
     protected $request;
 
-    protected function handleActionResult(IRequest $request, $actionResult): void {
-        if (!$request->isDispatched()) {
-            return;
-        }
-
-        /** @var Response $response */
-        $response = $request->response();
-
-        if ($actionResult instanceof IRestResource || $actionResult instanceof Page) {
-            $response['result'] = $actionResult;
-            return;
-        }
-        if (\is_array($actionResult)) {
-            $response['result'] = $this->newPage($actionResult);
-            return;
-        }
-
-        /** @var \Morpho\App\Web\Request $request */
-        if ($request->isAjax()) {
-            if ($actionResult instanceof Response) {
-                $response['result'] = $this->newPage();
-                return;
-            }
+    /**
+     * @param mixed $actionResult
+     */
+    protected function handleActionResult($actionResult): IResponse {
+        if ($actionResult instanceof IResponse) {
+            return $actionResult;
         } else {
-            if ($actionResult instanceof Response) {
-                $request->setResponse($actionResult);
-                return;
-            }
-            if ($response->isRedirect()) {
-                return;
+            $response = $this->request->response();
+            if (is_string($actionResult)) {
+                $response->setBody($actionResult);
+            }  else {
+                if (empty($actionResult)) {
+                     $actionResult = $this->mkView();
+                }
+                $response['result'] = $actionResult;
             }
         }
-        if (null === $actionResult) {
-            $response['result'] = $this->newPage($actionResult);
-        } else {
-            throw new \UnexpectedValueException('Type: ' . typeOf($actionResult));
-        }
+        return $response;
     }
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function messenger(): Messenger {
-        return $this->serviceManager['messenger'];
+    protected function mkJson($value): Json {
+        return new Json($value);
     }
 
-    protected function forward(string $actionName, string $controllerName = null, string $moduleName = null, array $routingParams = null): void {
-        $request = $this->request;
-        if (null !== $moduleName) {
-            $request->setModuleName($moduleName);
+    protected function mkResponse(int $statusCode = null, string $body = null): Response {
+        $response = new Response();
+        if (null !== $statusCode) {
+            $response->setStatusCode($statusCode);
         }
-        if (null !== $controllerName) {
-            $request->setControllerName($controllerName);
+        if (null !== $body) {
+            $response->setBody($body);
         }
-        $request->setActionName($actionName);
+        return $response;
+    }
 
-        if (null !== $routingParams) {
-            $request['routing'] = $routingParams;
+    protected function mkNotFoundResponse(string $actionName): IResponse {
+        return new Response(Response::NOT_FOUND_STATUS_CODE);
+    }
+
+    protected function mkView(string $name = null, $vars = null, View $parent = null): View {
+        if (null === $name) {
+            $name = dasherize($this->request->actionName());
         }
-
-        $request->isDispatched(false);
-    }
-
-    protected function redirect($uri = null, int $httpStatusCode = null): Response {
-        $request = $this->request;
-        if (null === $uri) {
-            $uri = $request->uri();
-        }
-        $uri = prependBasePath(function () {
-            return $this->request->uri()->path()->basePath();
-        }, $uri);
-        /** @var Response $response */
-        $response = $request->response();
-        return $response->redirect($uri, $httpStatusCode);
-    }
-
-    protected function accessDenied(): void {
-        throw new AccessDeniedException();
-    }
-
-    protected function notFound(): void {
-        throw new NotFoundException();
-    }
-
-    protected function badRequest(): void {
-        throw new BadRequestException();
-    }
-
-    protected function session(string $key = null): Session {
-        return new Session(\get_class($this) . ($key ?: ''));
-    }
-
-    protected function data(array $source, $name = null, bool $trim = true) {
-        return $this->request->data($source, $name, $trim);
-    }
-
-    protected function isPost(): bool {
-        return $this->request->isPostMethod();
-    }
-
-    protected function post($name = null, bool $trim = true) {
-        return $this->request->post($name, $trim);
-    }
-
-    protected function query($name = null, bool $trim = true) {
-        return $this->request->query($name, $trim);
-    }
-
-    protected function newPage(array $vars = null): Page {
-        return new Page(dasherize($this->request->actionName()), $vars);
-    }
-
-    protected function jsConfig(): \ArrayObject {
-        if (!isset($this->request['jsConfig'])) {
-            $this->request['jsConfig'] = new \ArrayObject();
-        }
-        return $this->request['jsConfig'];
+        return new View($name, $vars, $parent);
     }
 }

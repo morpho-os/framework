@@ -49,7 +49,7 @@ class ThemeTest extends TestCase {
         \touch($viewAbsFilePath);
 
         $expected = 'abcdefg123';
-        $viewVars = ['k' => 'v'];
+        $viewVars = new \ArrayObject(['k' => 'v']);
 
         $templateEngine = $this->createMock(TemplateEngine::class);
         $templateEngine->method('runFile')

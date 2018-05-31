@@ -13,10 +13,13 @@ class Response extends Message implements IResponse {
     protected $body = '';
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected $statusCode = 0;
+    protected $statusCode = 200;
 
+    /**
+     * @param string
+     */
     public function setBody(string $body): void {
         $this->body = $body;
     }

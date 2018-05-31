@@ -16,8 +16,8 @@ class ViewTest extends TestCase {
         $view = new View('edit', $vars);
         $view->isNotVar = 123;
         $this->assertSame($name, $view->name());
-        $this->assertInstanceOf(\ArrayObject::class, $view);
-        $this->assertSame($vars, $view->getArrayCopy());
+        $this->assertInstanceOf(\ArrayObject::class, $view->vars());
+        $this->assertSame($vars, $view->vars()->getArrayCopy());
 
         $this->assertNull($view->dirPath());
 

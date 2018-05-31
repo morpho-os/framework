@@ -14,9 +14,9 @@ class DumpListener {
      */
     public function __invoke($exception): void {
         $exAsString = $exception->__toString();
-        // The d() function can be found in the morpho/debug package.
-        if (\function_exists('d')) {
-            d()->dumpWithExitCode($exAsString, self::FAILURE_EXIT_CODE);
+        if (class_exists('Morpho\\Debug\\Debugger')) {
+            \Morpho\Debug\Debugger::instance()
+                ->dumpWithExitCode($exAsString, self::FAILURE_EXIT_CODE);
         } else {
             $message = PHP_SAPI == 'cli'
                 ? $exAsString

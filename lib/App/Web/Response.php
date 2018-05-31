@@ -18,7 +18,7 @@ class Response extends BaseResponse {
     /**
      * @var int
      */
-    protected $statusCode = 200;
+    protected $statusCode = self::OK_STATUS_CODE;
 
     /**
      * @var null|\ArrayObject
@@ -42,9 +42,9 @@ class Response extends BaseResponse {
     /**
      * @param string|Uri\Uri $uri
      */
-    public function redirect($uri, int $httpStatusCode = null): self {
+    public function redirect($uri, int $statusCode = null): self {
         $this->headers()->offsetSet('Location', \is_string($uri) ? $uri : $uri->toStr(true));
-        $this->setStatusCode($httpStatusCode ?: self::FOUND_STATUS_CODE);
+        $this->setStatusCode($statusCode ?: self::FOUND_STATUS_CODE);
         return $this;
     }
 

@@ -75,7 +75,7 @@ class DispatchErrorHandlerTest extends TestCase {
     public function testEffectOfTheThrowErrorFlag(\Throwable $exception, bool $mustLogError) {
         $dispatchErrorHandler = new DispatchErrorHandler();
         $request = $this->newRequest();
-        $request->isDispatched(true);
+        $request->isHandled(true);
         $exceptionMessage = $exception->getMessage();
         $dispatchErrorHandler->throwErrors(true);
         $serviceManager = $this->newServiceManagerWithLogger($mustLogError, $exception, 1);
@@ -87,13 +87,13 @@ class DispatchErrorHandlerTest extends TestCase {
             $this->assertSame([null, null, null], $request->handler());
             $this->assertSame($exception, $e);
             $this->assertSame($exceptionMessage, $e->getMessage());
-            $this->assertTrue($request->isDispatched()); // break the main loop
+            $this->assertTrue($request->isHandled()); // break the main loop
         }
     }
 
     private function checkHandlesTheSameErrorOccurredTwice(DispatchErrorHandler $dispatchErrorHandler, array $expectedHandler, \Throwable $exception, int $expectedStatusCode, bool $mustLogError) {
         $request = $this->newRequest();
-        $request->isDispatched(true);
+        $request->isHandled(true);
 
         $serviceManager = $this->newServiceManagerWithLogger($mustLogError, $exception, 2);
 
@@ -101,7 +101,7 @@ class DispatchErrorHandlerTest extends TestCase {
 
         $dispatchErrorHandler->handleError($exception, $request);
 
-        $this->assertFalse($request->isDispatched());
+        $this->assertFalse($request->isHandled());
         $this->assertEquals($expectedHandler, $request->handler());
         $this->assertEquals($exception, $request['error']);
         $this->assertEquals($expectedStatusCode, $request->response()->statusCode());
