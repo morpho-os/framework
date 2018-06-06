@@ -15,10 +15,13 @@ use Morpho\Fs\Dir;
 class Linter {
     /**
      * @param string $moduleDirPath
-     * @param iterable Iterable yielding \Morpho\Infra\IPsr4Mapper
-     * @return bool true on success, false otherwise
+     * @param iterable $psr4MapperListIt
+     *     Iterable yielding \Morpho\Infra\IPsr4Mapper
+     * @param callable|null $lint
+     * @return bool
+     *     true on success, false otherwise
      */
-    public static function checkModule(string $moduleDirPath, iterable $mappers, callable $lint = null): bool {
+    public static function checkModule(string $moduleDirPath, iterable $psr4MapperListIt, callable $lint = null): bool {
         showLn('Checking composer.json...');
         $metaFileErrors = ModuleChecker::checkMetaFile($moduleDirPath . '/composer.json');
         if (null === $lint) {
@@ -31,14 +34,14 @@ class Linter {
             $valid = false;
         } else {
             showOk();
-            foreach ($mappers as $mapper) {
+            foreach ($psr4MapperListIt as $psr4Mapper) {
                 $mappingErrors = [];
-                /** @var \Morpho\Infra\IPsr4Mapper $mapper */
-                showLn('Checking ' . wrapQ($mapper->nsPrefix()) . ' -> ' . wrapQ($mapper->baseDirPath() . '...'));
-                foreach ($mapper->filePaths() as $filePath) {
+                /** @var \Morpho\Infra\IPsr4Mapper $psr4Mapper */
+                showLn('Checking files in ' . wrapQ($psr4Mapper->baseDirPath() . ' (namespace ' . wrapQ($psr4Mapper->nsPrefix()) . ')...'));
+                foreach ($psr4Mapper->filePaths() as $filePath) {
                     $sourceFile = new SourceFile($filePath);
                     $sourceFile->setNsToDirPathMap([
-                        $mapper->nsPrefix() => $mapper->baseDirPath(),
+                        $psr4Mapper->nsPrefix() => $psr4Mapper->baseDirPath(),
                     ]);
                     $checkFileErrors = $lint($sourceFile);
                     $mappingErrors = \array_merge($mappingErrors, $checkFileErrors);
