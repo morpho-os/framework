@@ -20,7 +20,7 @@ interface IRequest extends IMessage {
 
     public function actionName(): ?string;
 
-    public function setResponse($response): void;
+    public function setResponse(IResponse $response): void;
 
     public function response(): IResponse;
 

@@ -15,7 +15,7 @@ abstract class Controller implements IFn {
      */
     protected $request;
 
-    private $checkActionMethodExistence = true;
+    private $checkActionMethodExistence = false;
 
     public function __construct(array $config = null) {
         if (null !== $config) {
@@ -67,7 +67,7 @@ abstract class Controller implements IFn {
     }
 
     /**
-     * @param mixed $actionResult
+     * @param array|null|IActionResult|IResponse|string $actionResult
      */
     abstract protected function handleActionResult($actionResult): IResponse;
 

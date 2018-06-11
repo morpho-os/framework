@@ -324,12 +324,16 @@ function normalizeEols(string $s): string {
 
 /**
  * @param mixed $data
+ * @param null $config
+ * @return string
  */
 function toJson($data, $config = null): string {
     return \json_encode($data, $config ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**
+ * @param string $json
+ * @param bool $objectsToArrays
  * @return mixed
  */
 function fromJson(string $json, bool $objectsToArrays = true) {

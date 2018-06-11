@@ -6,9 +6,10 @@
  */
 namespace Morpho\App\Web;
 
+use Morpho\App\Core\IActionResult;
 use function Morpho\Base\{fromJson, toJson};
 
-class Json implements \JsonSerializable, \Serializable {
+class Json implements \JsonSerializable, \Serializable, IActionResult {
     public const FORMAT = 'json';
     /**
      * @var mixed

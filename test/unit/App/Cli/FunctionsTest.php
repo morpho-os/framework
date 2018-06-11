@@ -122,7 +122,7 @@ OUT
     public function testShell_EnvVarsConfigParam() {
         $var = 'v' . \md5(__METHOD__);
         $val = 'hello';
-        $this->assertSame($val . "\n", shell('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true])->stdOut());
+        $this->assertSame($val . "\n", shell('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true, 'show' => false])->stdOut());
     }
 
     public function testEnvVarsToStr() {

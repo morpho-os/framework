@@ -1,21 +1,19 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web\View;
 
+use Morpho\App\Web\Json;
 use Morpho\App\Web\Request;
 use Morpho\Base\IFn;
 use Morpho\Ioc\IServiceManager;
 
 class ActionResultRenderer implements IFn {
-    /**
-     * @var IServiceManager
-     */
     protected $serviceManager;
 
     public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
 
-    public function __invoke($request) {
+    public function __invoke($request): void {
         if (!$this->shouldRender($request)) {
             return;
         }
@@ -25,42 +23,28 @@ class ActionResultRenderer implements IFn {
     public function shouldRender(Request $request): bool {
         $response = $request->response();
         /** @var \Morpho\App\Web\Response $response */
-        return !$response->isRedirect();
+        return !$response->isRedirect() && isset($response['result']);
     }
 
-    protected function render(Request $request) {
-        $renderer = $this->mkRenderer($request);
+    public function render(Request $request): void {
+        $renderer = $this->chooseRenderer($request);
+        /** @var IFn $renderer */
         $renderer->__invoke($request);
     }
 
-    protected function mkRenderer(Request $request): IFn {
+    public function chooseRenderer(Request $request): callable {
         $response = $request->response();
-        if (empty($response['result'])) {
-            throw new \UnexpectedValueException('Empty response result');
+        $actionResult = $response['result'] ?? null;
+        if ($actionResult instanceof Json) {
+            /*
+            $contentNegotiator = $serviceManager['contentNegotiator'];
+            $format = $contentNegotiator->__invoke($request);
+            switch ($format) {
+            */
+            return new JsonRenderer();
+        } elseif ($actionResult instanceof View) {
+            return new HtmlRenderer($this->serviceManager);
         }
-        $actionResult = $response['result'];
-
-        $serviceManager = $this->serviceManager;
-
-        if ($actionResult instanceof View) {
-            return new HtmlRenderer($serviceManager);
-        }
-
-        $contentNegotiator = $serviceManager['contentNegotiator'];
-        $format = $contentNegotiator->__invoke($request);
-        switch ($format) {
-            case 'json';
-                $renderer = new JsonRenderer();
-                break;
-            default:
-            case 'html':
-                $renderer = new HtmlRenderer($this->serviceManager);
-                break;
-            /* @TODO
-             * case 'xml':
-             * break;
-             */
-        }
-        return $renderer;
+        throw new \UnexpectedValueException('Unexpected action result');
     }
 }

@@ -73,7 +73,7 @@ abstract class Request extends Message implements IRequest {
         return $this->actionName;
     }
 
-    public function setResponse($response): void {
+    public function setResponse(IResponse $response): void {
         $this->response = $response;
     }
 

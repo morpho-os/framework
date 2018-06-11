@@ -16,12 +16,12 @@ use Morpho\App\Web\View\JsonRenderer;
 use function Morpho\Base\toJson;
 
 class JsonRendererTest extends TestCase {
-    public function testInvoke_PageResult() {
+    public function testInvoke_ViewActionResult() {
         $request = new Request();
 
         $data = ['foo' => 'bar'];
-        $page = new View('test', $data);
-        $response = new Response(['result' => $page]);
+        $view = new View('test', $data);
+        $response = new Response(['result' => $view]);
 
         $statusCode = 201;
         $response->setStatusCode($statusCode);
@@ -31,12 +31,12 @@ class JsonRendererTest extends TestCase {
 
         $renderer->__invoke($request);
 
-        $this->assertSame(toJson($page), $response->body());
+        $this->assertSame(toJson($view), $response->body());
         $this->assertSame(['Content-Type' => 'application/json;charset=utf-8'], $response->headers()->getArrayCopy());
         $this->assertSame($statusCode, $response->statusCode());
     }
 
-    public function testInvoke_JsonResult() {
+    public function testInvoke_JsonActionResult() {
         $renderer = new JsonRenderer();
 
         $request = new Request();

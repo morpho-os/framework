@@ -7,18 +7,21 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\Json;
-use Morpho\App\Web\View\View;
-use Morpho\Base\IFn;
-use Morpho\Testing\TestCase;
-use Morpho\App\Web\Controller;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
+use Morpho\App\Web\View\View;
+use Morpho\Base\IFn;
+use Morpho\Test\Unit\App\Web\ControllerTest\TMyController;
+use Morpho\Testing\TestCase;
+use Morpho\App\Web\Controller;
+
+require_once __DIR__ . '/_files/ControllerTest/TMyController.php';
 
 class ControllerTest extends TestCase {
     /**
      * @var IFn
      */
-    private $controller;
+    protected $controller;
 
     public function setUp() {
         parent::setUp();
@@ -26,7 +29,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(IFn::class, new Controller());
+        $this->assertInstanceOf(IFn::class, $this->controller);
     }
 
     public function testInvoke_ReturnNullFromAction() {
@@ -44,6 +47,22 @@ class ControllerTest extends TestCase {
         $this->assertSame([], $actionResult->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
     }
+    
+    public function testInvoke_ReturnArrayFromAction() {
+        $request = $this->mkConfiguredRequest(null);
+        $request->setActionName('returnArray');
+        $response1 = $request->response();
+
+        $this->controller->__invoke($request);
+
+        $this->checkMethodCalled('returnArrayAction');
+        $response = $request->response();
+        $actionResult = $response['result'];
+        $this->assertInstanceOf(View::class, $actionResult);
+        $this->assertSame('return-array', $actionResult->name());
+        $this->assertSame(['foo' => 'bar'], $actionResult->vars()->getArrayCopy());
+        $this->assertSame($response1, $response);
+    }
 
     public function testInvoke_ReturnStringFromAction() {
         $request = $this->mkConfiguredRequest();
@@ -54,7 +73,7 @@ class ControllerTest extends TestCase {
 
         $this->checkMethodCalled('returnStringAction');
         $response = $request->response();
-        $this->assertSame(MyController::class . '::returnStringActionCalled', $response->body());
+        $this->assertSame('returnStringActionCalled', $response->body());
         $this->assertSame($response1, $response);
     }
 
@@ -67,7 +86,7 @@ class ControllerTest extends TestCase {
 
         $this->checkMethodCalled('returnJsonAction');
         $response = $request->response();
-        $this->assertEquals(new Json(MyController::class . '::returnJsonActionCalled'), $response['result']);
+        $this->assertEquals(new Json('returnJsonActionCalled'), $response['result']);
         $this->assertSame($response1, $response);
     }
 
@@ -281,8 +300,7 @@ class ControllerTest extends TestCase {
         $uri->path()->setBasePath($basePath);
         $request->setUri($uri);
     }*/
-
-    private function mkConfiguredRequest(array $serverVars = null): Request {
+    protected function mkConfiguredRequest(array $serverVars = null): Request {
         $uriChecker = new class implements IFn { public function __invoke($value) {} };
         $request = new Request(null, $serverVars, $uriChecker);
         $response = new Response();
@@ -291,61 +309,11 @@ class ControllerTest extends TestCase {
         return $request;
     }
 
-    private function checkMethodCalled(string $method): void {
-        $this->assertSame(MyController::class . '::' . $method, $this->controller->calledMethod);
+    protected function checkMethodCalled(string $method): void {
+        $this->assertSame($method, $this->controller->calledMethod);
     }
 }
 
 class MyController extends Controller {
-    public $calledMethod;
-
-    public function returnNullAction() {
-        $this->calledMethod = __METHOD__;
-        return null;
-    }
-
-    public function returnStringAction() {
-        $this->calledMethod = __METHOD__;
-        return __METHOD__ . 'Called';
-    }
-
-    public function returnJsonAction() {
-        $this->calledMethod = __METHOD__;
-        return $this->mkJson(__METHOD__ . 'Called');
-    }
-
-    public function returnResponseAction() {
-        $this->calledMethod = __METHOD__;
-        return $this->mkResponse(null, __METHOD__ . 'Called');
-    }
-
-    public function returnViewAction() {
-        $this->calledMethod = __METHOD__;
-        return $this->mkView('test', ['foo' => 'bar']);
-    }
-
-    /*    public $statusCode;
-        public $forwardTo;
-        public $returnResponse;
-
-        public function forwardAction() {
-            $this->forward(...$this->forwardTo);
-        }
-
-        public function redirectHasArgsAction() {
-            $this->redirect('/some/page', $this->statusCode);
-        }
-
-        public function redirectNoArgsAction() {
-            $this->redirect();
-        }
-
-        public function returnResponseAction() {
-            return $this->returnResponse;
-        }
-
-        public function returnArrayAction() {
-            return ['foo' => 'bar'];
-        }
-*/
+    use TMyController;
 }

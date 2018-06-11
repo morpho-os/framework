@@ -123,11 +123,11 @@ function envVarsToStr(array $envVars): string {
 }
 
 function shell(string $command, array $config = null): ICommandResult {
-    if (isset($config['capture'])) {
+/*    if (isset($config['capture'])) {
         if (!isset($config['show'])) {
             $config['show'] = !$config['capture'];
         }
-    }
+    }*/
     $config = Config::check((array) $config, [
         'checkCode' => true,
         // @TODO: tee: buffer and display output
@@ -204,7 +204,7 @@ function checkResult(ICommandResult $result) {
 function ask(string $question, bool $trim = true): string {
     echo $question;
     $result = \fgets(STDIN);
-    // fgets() returns false on Ctrl-D
+    // \fgets() returns false on Ctrl-D
     if (false === $result) {
         $result = '';
     }

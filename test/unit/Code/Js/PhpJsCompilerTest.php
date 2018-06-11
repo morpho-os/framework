@@ -12,6 +12,7 @@ class PhpJsCompilerTest extends TestCase {
     }
 
     public function testInvoke_IncludeExpr() {
+        $this->markTestIncomplete();
         $compiler = new PhpJsCompiler();
         $sourceProgram = '<?php require "foo/bar.php";';
         $this->assertSame('', $compiler->__invoke($sourceProgram));

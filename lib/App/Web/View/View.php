@@ -6,9 +6,10 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\App\Core\IActionResult;
 use Morpho\Fs\Path;
 
-class View {
+class View implements IActionResult {
     /**
      * @var string
      */
