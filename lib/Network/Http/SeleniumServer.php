@@ -82,33 +82,31 @@ class SeleniumServer {
             //shell($cmd);
             $i = 0;
             do {
-                //showLn("Server started, i == " . $i);
                 \usleep(200000);
                 $i++;
             } while (!$this->listening() && $i < 25);
             if ($i == 25) {
                 throw new \RuntimeException("Unable to start Selenium Server");
             }
-            //showLn("Running tests...");
         }
     }
 
     public function listening(): bool {
         // @TODO: Use php sockets.
-        $res = shell('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkCode' => false, 'capture' => true]);
+        $res = shell('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkCode' => false, 'capture' => true, 'show' => false]);
         return !$res->isError();
     }
 
     public function stop(): void {
         $pid = $this->findPid();
         if ($pid) {
-            shell('kill ' . \intval($pid) . ' > /dev/null');
+            shell('kill ' . \intval($pid) . ' > /dev/null', ['show' => false]);
         }
-        shell('killall geckodriver &> /dev/null || true');
+        shell('killall geckodriver &> /dev/null || true', ['show' => false]);
     }
 
     private function findPid(): ?int {
-        $pid = (int) \trim((string) shell("lsof -t -c java -a -i ':" . \escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false]));
+        $pid = (int) \trim((string) shell("lsof -t -c java -a -i ':" . \escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false, 'show' => false]));
         // ss -t -a -n -p state all '( sport = 4444 )'
         return $pid > 0 ? $pid : null;
     }
