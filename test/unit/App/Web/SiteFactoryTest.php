@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use const Morpho\App\Core\CONFIG_DIR_NAME;
+use const Morpho\App\CONFIG_DIR_NAME;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\SiteFactory;
 use Morpho\App\Web\BadRequestException;
@@ -76,7 +76,8 @@ class SiteFactoryTest extends TestCase {
      */
     public function testDetectHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
-        $this->assertSame(\strtolower($expected), SiteFactory::detectHostName());
+        $siteFactory = $this->mkSiteFactory();
+        $this->assertSame(\strtolower($expected), $siteFactory->detectHostName());
     }
 
     public function dataForDetectHostName_InvalidIps() {
@@ -111,8 +112,8 @@ class SiteFactoryTest extends TestCase {
      */
     public function testDetectHostName_InvalidIps(string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
-        $this->expectException(BadRequestException::class);
-        SiteFactory::detectHostName();
+        $siteFactory = $this->mkSiteFactory();
+        $this->assertFalse($siteFactory->detectHostName());
     }
 
     public function dataForInvoke_ValidHost() {
@@ -137,11 +138,11 @@ class SiteFactoryTest extends TestCase {
         $siteConfigFilePath = $siteDirPath . '/' . CONFIG_DIR_NAME . '/config.php';
 
         $expectedSiteConfig = new \ArrayObject(\array_merge($siteConfig, [
-            'paths' => [
+            'path' => [
                 'dirPath' => $siteDirPath,
                 'configFilePath' => $siteConfigFilePath,
             ],
-            'modules' => [
+            'module' => [
                 $moduleName => [],
             ],
         ]));
@@ -149,12 +150,12 @@ class SiteFactoryTest extends TestCase {
         $_SERVER['HTTP_HOST'] = $hostName;
 
         $appConfig = [
-            'hostMapper' => function ($hostName1) use ($siteConfigFilePath, &$called, $hostName, $moduleName, $siteDirPath) {
+            'siteConfigProvider' => function ($hostName1) use ($siteConfigFilePath, &$called, $hostName, $moduleName, $siteDirPath) {
                 $called = true;
                 if ($hostName1 === $hostName) {
                     return [
                         'module' => $moduleName,
-                        'paths' => [
+                        'path' => [
                             'dirPath' => $siteDirPath,
                             'configFilePath' => $siteConfigFilePath,
                         ],
@@ -194,12 +195,20 @@ class SiteFactoryTest extends TestCase {
 
         $hostName = 'abc';
         $appConfig = [
-            'hostMapper' => function ($hostName) {
+            'siteConfigProvider' => function ($hostName) {
             },
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
 
-        $this->expectException(BadRequestException::class, 'Unable to detect the current site');
+        $this->expectException(BadRequestException::class, 'Invalid host or site');
         $siteFactory->__invoke($appConfig);
+    }
+
+    private function mkSiteFactory() {
+        return new class extends SiteFactory {
+            public function detectHostName() { // make the protected method public
+                return parent::detectHostName();
+            }
+        };
     }
 }

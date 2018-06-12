@@ -14,13 +14,13 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\App\Core\InstanceProvider;
+use Morpho\App\InstanceProvider;
 use Morpho\App\Web\View\ActionResultRenderer;
 use Morpho\Caching\VarExportFileCache;
-use Morpho\App\Core\IRouter;
-use Morpho\App\Core\ModuleIndex;
-use Morpho\App\Core\ModuleIndexer;
-use Morpho\App\Core\ServiceManager as BaseServiceManager;
+use Morpho\App\IRouter;
+use Morpho\App\ModuleIndex;
+use Morpho\App\ModuleIndexer;
+use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\Error\ErrorHandler;
 use Morpho\App\Web\Logging\WebProcessor;
 use Morpho\App\Web\Messages\Messenger;
@@ -41,7 +41,7 @@ class ServiceManager extends BaseServiceManager {
     }*/
 
     protected function newModuleIndexerService() {
-        return new ModuleIndexer(new VarExportFileCache($this['site']->config()['paths']['cacheDirPath']));
+        return new ModuleIndexer(new VarExportFileCache($this['site']->config()['path']['cacheDirPath']));
     }
 
     protected function newModuleMetaIteratorService() {

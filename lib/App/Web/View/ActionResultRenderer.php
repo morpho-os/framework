@@ -36,7 +36,7 @@ class ActionResultRenderer implements IFn {
         $response = $request->response();
         $actionResult = $response['result'] ?? null;
         if ($actionResult instanceof Json) {
-            /*
+            /* @TODO: if ($this->useContentNegotiation) $format = $negotiate(); mkRenderer($format);
             $contentNegotiator = $serviceManager['contentNegotiator'];
             $format = $contentNegotiator->__invoke($request);
             switch ($format) {

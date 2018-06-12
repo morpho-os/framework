@@ -9,10 +9,10 @@ namespace Morpho\Test\Unit\App\Web\View;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\Core\ModuleIndex;
-use Morpho\App\Core\ModuleMeta;
+use Morpho\App\ModuleIndex;
+use Morpho\App\ModuleMeta;
 use Morpho\App\Web\Request;
-use Morpho\App\Web\Site;
+use Morpho\App\Site;
 use Morpho\App\Web\View\ScriptProcessor;
 
 class ScriptProcessorTest extends TestCase {
@@ -111,6 +111,7 @@ OUT;
     public function testSkipsScriptsWithUnknownType() {
         $html = '<script type="text/template">foo</script>';
         $serviceManager = $this->createMock(IServiceManager::class);
+        /** @noinspection PhpParamsInspection */
         $processor = new ScriptProcessor($serviceManager);
 
         $processed = $processor->__invoke($html);

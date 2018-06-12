@@ -12,6 +12,7 @@ interface IEventManager {
     public function off(string $eventName, callable $handlerSelector = null): void;
 
     /**
+     * @param Event $event
      * @return mixed
      */
     public function trigger(Event $event);

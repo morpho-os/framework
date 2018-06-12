@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Cli;
 
-use Morpho\App\Core\Response as BaseResponse;
+use Morpho\App\Response as BaseResponse;
 
 class Response extends BaseResponse {
 }

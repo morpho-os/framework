@@ -7,9 +7,10 @@
 namespace Morpho\App\Cli;
 
 use Monolog\Logger;
-use Morpho\App\Core\ServiceManager as BaseServiceManager;
+use Morpho\App\IRouter;
+use Morpho\App\ServiceManager as BaseServiceManager;
 
-abstract class ServiceManager extends BaseServiceManager {
+class ServiceManager extends BaseServiceManager {
     protected function newErrorLoggerService() {
         $logger = new Logger('error');
         return $logger;
@@ -19,10 +20,8 @@ abstract class ServiceManager extends BaseServiceManager {
         return new Request();
     }
 
-/*    protected function newResponseService() {
-        return new Response();
-    }
-*/
-
     /*abstract protected function newDispatcherService();*/
+    protected function newRouterService(): IRouter {
+        // TODO: Implement newRouterService() method.
+    }
 }

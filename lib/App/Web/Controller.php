@@ -6,13 +6,13 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\Core\IActionResult;
-use Morpho\App\Core\IResponse;
+use Morpho\App\IActionResult;
+use Morpho\App\IResponse;
 use Morpho\App\Web\View\View;
 use function Morpho\Base\dasherize;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
-use Morpho\App\Core\Controller as BaseController;
+use Morpho\App\Controller as BaseController;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
     /**

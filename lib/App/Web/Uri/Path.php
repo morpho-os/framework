@@ -9,7 +9,7 @@ namespace Morpho\App\Web\Uri;
 use function Morpho\Base\endsWith;
 use function Morpho\Base\startsWith;
 use function Morpho\Base\contains;
-use Morpho\App\Core\Path as BasePath;
+use Morpho\App\Path as BasePath;
 
 class Path extends BasePath implements IUriComponent {
     /**

@@ -8,9 +8,9 @@
 namespace Morpho\App\Web\Routing;
 
 use Morpho\Base\IFn;
-use const Morpho\App\Core\CONTROLLER_SUFFIX;
-use const Morpho\App\Core\LIB_DIR_NAME;
-use Morpho\App\Core\ModuleIndex;
+use const Morpho\App\CONTROLLER_SUFFIX;
+use const Morpho\App\LIB_DIR_NAME;
+use Morpho\App\ModuleIndex;
 use Morpho\Fs\Dir;
 
 class ControllerFileMetaProvider implements IFn {
@@ -23,7 +23,7 @@ class ControllerFileMetaProvider implements IFn {
     public function __invoke($modules): iterable {
         $index = $this->moduleIndex;
         foreach ($modules as $moduleName) {
-            $paths = $index->moduleMeta($moduleName)['paths'];
+            $paths = $index->moduleMeta($moduleName)['path'];
             if (isset($paths['controllerDirPath'])) {
                 $controllerDirPath = $paths['controllerDirPath'];
             } else {

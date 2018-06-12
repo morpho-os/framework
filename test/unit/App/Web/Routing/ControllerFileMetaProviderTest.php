@@ -7,13 +7,14 @@
 namespace Morpho\Test\Unit\App\Web\Routing;
 
 use Morpho\Base\IFn;
-use Morpho\App\Core\ModuleIndex;
+use Morpho\App\ModuleIndex;
 use Morpho\Testing\TestCase;
-use Morpho\App\Core\ModuleMeta;
+use Morpho\App\ModuleMeta;
 use Morpho\App\Web\Routing\ControllerFileMetaProvider;
 
 class ControllerFileMetaProviderTest extends TestCase {
     public function testInterface() {
+        /** @noinspection PhpParamsInspection */
         $this->assertInstanceOf(IFn::class, new ControllerFileMetaProvider($this->createMock(ModuleIndex::class)));
     }
 
@@ -30,12 +31,13 @@ class ControllerFileMetaProviderTest extends TestCase {
                 ->method('moduleMeta')
                 ->will($this->returnCallback(function ($moduleName) use ($name, $testDirPath) {
                     return new ModuleMeta($moduleName, [
-                        'paths' => [
+                        'path' => [
                             'controllerDirPath' => $testDirPath . '/' . $moduleName,
                         ],
                     ]);
                 }));
         }
+        /** @noinspection PhpParamsInspection */
         $controllerFileMetaProvider = new ControllerFileMetaProvider($moduleIndex);
         $expected = [
             [
@@ -51,6 +53,7 @@ class ControllerFileMetaProviderTest extends TestCase {
                 'filePath' => $testDirPath . '/foo/BlueController.php',
             ],
         ];
+        /** @noinspection PhpParamsInspection */
         $actual = \iterator_to_array($controllerFileMetaProvider->__invoke($modules));
         \usort($actual, function ($a, $b) {
             return \strcmp($a['filePath'], $b['filePath']);

@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\Core\ModuleMetaIterator as BaseModuleMetaIterator;
+use Morpho\App\ModuleMetaIterator as BaseModuleMetaIterator;
 use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
@@ -24,11 +24,11 @@ class ModuleMetaIterator extends BaseModuleMetaIterator {
         parent::init($serviceManager);
         $site = $serviceManager['site'];
         $siteConfig = $site->config();
-        $this->enabledModules = \array_flip(\array_keys($siteConfig['modules']));
+        $this->enabledModules = \array_flip(\array_keys($siteConfig['module']));
         $siteModuleName = $site->moduleName();
         $this->metaPatch = [
             $siteModuleName  => [
-                'paths' => $siteConfig['paths'],
+                'path' => $siteConfig['path'],
             ],
         ];
     }

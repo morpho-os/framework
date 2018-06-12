@@ -34,7 +34,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
             $this->fatalErrorHandlerActive = true;
         }
 
-        $this->setIniSettings();
+        $this->setNewIniSettings();
     }
 
     public function unregister(): void {
@@ -45,7 +45,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         // There is no unregister_shutdown_function(), so we emulate it via flag.
         $this->fatalErrorHandlerActive = false;
 
-        $this->restoreIniSettings();
+        $this->restorePreviousIniSettings();
     }
 
     public function handleError($severity, $message, $filePath, $lineNo, $context): void {
@@ -130,7 +130,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return \md5(\str_replace("\x00", '', $e->getFile()) . "\x00" . $e->getLine());
     }
 
-    protected function setIniSettings(): void {
+    protected function setNewIniSettings(): void {
         $oldIniSettings = [];
         $oldIniSettings['display_errors'] = \ini_set('display_errors', '0');
         // @TODO: Do we need set the 'display_startup_errors'?
@@ -138,7 +138,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         $this->oldIniSettings = $oldIniSettings;
     }
 
-    protected function restoreIniSettings(): void {
+    protected function restorePreviousIniSettings(): void {
         if (null === $this->oldIniSettings) {
             return;
         }

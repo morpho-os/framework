@@ -9,7 +9,7 @@ namespace Morpho\App\Web\View;
 use function Morpho\Base\{
     dasherize, last
 };
-use const Morpho\App\Core\PLUGIN_SUFFIX;
+use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\IHasServiceManager;
 use function Morpho\App\Web\prependBasePath;
 use Morpho\Ioc\IServiceManager;

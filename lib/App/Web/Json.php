@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\Core\IActionResult;
+use Morpho\App\IActionResult;
 use function Morpho\Base\{fromJson, toJson};
 
 class Json implements \JsonSerializable, \Serializable, IActionResult {

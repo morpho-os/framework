@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Monolog\Logger;
 use Morpho\Base\IFn;
-use const Morpho\App\Core\VENDOR;
+use const Morpho\App\VENDOR;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\AccessDeniedException;

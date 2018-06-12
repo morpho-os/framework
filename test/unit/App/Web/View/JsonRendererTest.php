@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
-use Morpho\App\Core\IResponse;
+use Morpho\App\IResponse;
 use Morpho\App\Web\Json;
 use Morpho\App\Web\View\View;
 use Morpho\Testing\TestCase;

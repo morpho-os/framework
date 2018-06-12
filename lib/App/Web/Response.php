@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\Core\Response as BaseResponse;
+use Morpho\App\Response as BaseResponse;
 
 /**
  * This class based on \Zend\Http\PhpEnvironment\Response class.

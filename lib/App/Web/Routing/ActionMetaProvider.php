@@ -11,12 +11,12 @@ use function Morpho\Base\{
 };
 use Morpho\Base\IFn;
 use Morpho\Code\Reflection\ReflectionFile;
-use const Morpho\App\Core\CONTROLLER_SUFFIX;
-use const Morpho\App\Core\ACTION_SUFFIX;
+use const Morpho\App\CONTROLLER_SUFFIX;
+use const Morpho\App\ACTION_SUFFIX;
 
 class ActionMetaProvider implements IFn {
     protected $baseControllerClasses = [
-        //'Morpho\\Core\\Controller',
+        //'Morpho\\\Controller',
         'Morpho\\App\\Web\\Controller',
     ];
 

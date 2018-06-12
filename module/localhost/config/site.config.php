@@ -1,17 +1,17 @@
 <?php
-use const Morpho\App\Core\VENDOR;
-use const Morpho\App\Core\CACHE_DIR_NAME;
+use const Morpho\App\VENDOR;
+use const Morpho\App\CACHE_DIR_NAME;
 
 $moduleDirPath = \dirname(__DIR__);
 return [
-    'paths' => [
+    'path' => [
         'cacheDirPath' => $moduleDirPath . '/' . CACHE_DIR_NAME,
     ],
-    'modules' => [
+    'module' => [
         VENDOR . '/system',
 //        VENDOR . '/user',
     ],
-    'services' => [
+    'service' => [
         'router' => [
             'home' => [
                 'handler' => [VENDOR . '/system', 'Index', 'index'],
@@ -69,7 +69,7 @@ return [
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
-    'iniSettings' => [
+    'iniConfig' => [
         //'display_errors' => '1',
         //'date.timezone' => 'UTC',
         //'default_charset' => 'UTF-8',

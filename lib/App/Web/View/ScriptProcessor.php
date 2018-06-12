@@ -8,8 +8,8 @@ namespace Morpho\App\Web\View;
 
 use function Morpho\Base\dasherize;
 use function Morpho\Base\last;
-use const Morpho\App\Core\APP_DIR_NAME;
-use const Morpho\App\Core\MODULE_DIR_NAME;
+use const Morpho\App\APP_DIR_NAME;
+use const Morpho\App\MODULE_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
     private $scripts = [];

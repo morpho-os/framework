@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test;
 
-use const Morpho\App\Core\{AUTOLOAD_FILE_NAME, VENDOR_DIR_NAME};
+use const Morpho\App\{AUTOLOAD_FILE_NAME, VENDOR_DIR_NAME};
 use Morpho\Testing\Sut;
 
 \date_default_timezone_set('UTC');

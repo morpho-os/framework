@@ -6,8 +6,8 @@
  */
 namespace Morpho\App\Cli;
 
-use Morpho\App\Core\IResponse;
-use Morpho\App\Core\Request as BaseRequest;
+use Morpho\App\IResponse;
+use Morpho\App\Request as BaseRequest;
 use Morpho\Base\NotImplementedException;
 
 class Request extends BaseRequest {

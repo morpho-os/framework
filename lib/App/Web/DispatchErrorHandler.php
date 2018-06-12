@@ -7,7 +7,7 @@
 namespace Morpho\App\Web;
 
 use Morpho\Base\Must;
-use const Morpho\App\Core\VENDOR;
+use const Morpho\App\VENDOR;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\THasServiceManager;
 use Morpho\Error\ErrorHandler;

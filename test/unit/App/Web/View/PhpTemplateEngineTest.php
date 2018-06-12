@@ -7,13 +7,13 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\Base\IFn;
-use Morpho\App\Core\ModuleIndex;
-use Morpho\App\Core\ModuleMeta;
-use const Morpho\App\Core\PLUGIN_SUFFIX;
+use Morpho\App\ModuleIndex;
+use Morpho\App\ModuleMeta;
+use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\Core\InstanceProvider;
+use Morpho\App\InstanceProvider;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\Request;

@@ -9,9 +9,9 @@ namespace Morpho\App\Web;
 use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
-use Morpho\App\Core\IResponse;
+use Morpho\App\IResponse;
 use Morpho\Fs\Path;
-use Morpho\App\Core\Request as BaseRequest;
+use Morpho\App\Request as BaseRequest;
 use Morpho\App\Web\Uri\Authority;
 use Morpho\App\Web\Uri\Uri;
 

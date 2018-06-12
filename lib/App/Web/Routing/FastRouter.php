@@ -12,7 +12,7 @@ use FastRoute\RouteCollector;
 use function Morpho\Base\compose;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteParser\Std as StdRouteParser;
-use Morpho\App\Core\IRouter;
+use Morpho\App\IRouter;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\File;
@@ -92,7 +92,7 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function routesMeta(): iterable {
-        /** @var \Morpho\App\Core\ModuleIndex $moduleIndex */
+        /** @var \Morpho\App\ModuleIndex $moduleIndex */
         $moduleIndex = $this->serviceManager['moduleIndex'];
         $modules = $moduleIndex->moduleNames();
         return compose(
