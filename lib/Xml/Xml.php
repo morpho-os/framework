@@ -8,7 +8,7 @@ namespace Morpho\Xml;
 
 class Xml {
     public static function arrayToDomDoc(array $data, array $config = []): Doc {
-        $doc = Doc::new($config);
+        $doc = Doc::mk($config);
         self::arrayToXml($data, $doc);
         return $doc;
     }
@@ -35,7 +35,7 @@ class Xml {
         $innerHTML = "";
         $children = $element->childNodes;
         foreach ($children as $child) {
-            $tmpDom = Xml::newDomDoc();
+            $tmpDom = Xml::mkDomDoc();
             $tmpDom->appendChild($tmp_dom->importNode($child, true));
             $innerHTML.=trim($tmp_dom->saveHTML());
         }

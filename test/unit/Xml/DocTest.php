@@ -56,15 +56,15 @@ OUT;
         $this->assertSame([$nodes->item(0), $nodes->item(1)], $nodes->init());
     }
 
-    public function testNew_ThrowsExceptionOnInvalidConfig() {
+    public function testMk_ThrowsExceptionOnInvalidConfig() {
         $this->expectException(InvalidConfigException::class, "Invalid config keys: invalidOne, invalidTwo");
-        Doc::new(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
+        Doc::mk(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testNew_DefaultConfig() {
-        $doc = Doc::new();
+    public function testMk_DefaultConfig() {
+        $doc = Doc::mk();
         $this->assertInstanceOf(Doc::class, $doc);
-        $doc1 = Doc::new();
+        $doc1 = Doc::mk();
         $this->assertInstanceOf(Doc::class, $doc1);
         $this->assertNotSame($doc, $doc1);
     }

@@ -34,7 +34,7 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     public function filePath(string $class) {
         if (null === $this->map) {
-            $this->map = $this->newTypeMap();
+            $this->map = $this->mkTypeMap();
         }
         return isset($this->map[$class]) ? $this->map[$class] : false;
     }
@@ -53,7 +53,7 @@ class ClassTypeMapAutoloader extends Autoloader {
         return $this->useCache;
     }
 
-    protected function newTypeMap(): array {
+    protected function mkTypeMap(): array {
         $useCache = $this->useCache;
         if ($useCache && \is_file($this->mapFilePath)) {
             return requireFile($this->mapFilePath);

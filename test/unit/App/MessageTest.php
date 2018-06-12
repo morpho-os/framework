@@ -11,7 +11,7 @@ use Morpho\Testing\TestCase;
 
 abstract class MessageTest extends TestCase {
     public function testMessage() {
-        $message = $this->newMessage();
+        $message = $this->mkMessage();
         $this->assertInstanceOf(\ArrayObject::class, $message, 'Message is \\ArrayObject');
 
         $message->test = '123';
@@ -19,5 +19,5 @@ abstract class MessageTest extends TestCase {
         $this->assertSame(['foo' => 'bar'], $message->getArrayCopy(), 'Properties should be ignored');
     }
 
-    abstract protected function newMessage(): Message;
+    abstract protected function mkMessage(): Message;
 }

@@ -19,7 +19,7 @@ abstract class Controller implements IFn {
 
     public function __construct(array $config = null) {
         if (null !== $config) {
-            $config = Config::check($config, ['checkActionMethodExistence' => true]);
+            $config = Config::check(['checkActionMethodExistence' => true], $config);
             foreach ($config as $name => $value) {
                 $this->$name = $value;
             }

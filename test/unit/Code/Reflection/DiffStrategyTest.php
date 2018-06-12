@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Code\Reflection;
 
 class DiffStrategyTest extends DiscoverStrategyTest {
-    protected function newDiscoverStrategy() {
+    protected function mkDiscoverStrategy() {
         return new \Morpho\Code\Reflection\DiffStrategy();
     }
 }

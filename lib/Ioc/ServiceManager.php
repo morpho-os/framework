@@ -12,6 +12,9 @@ namespace Morpho\Ioc;
  *     2) Service Locator - inject/push self to the object and allow to pull from self
  */
 class ServiceManager extends \ArrayObject implements IServiceManager {
+    private const FACTORY_METHOD_PREFIX = 'mk';
+    private const FACTORY_METHOD_SUFFIX = 'Service';
+
     protected $aliases = [];
 
     protected $config;
@@ -50,7 +53,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
         }
         $this->loading[$id] = true;
         try {
-            $this[$id] = $service = $this->newService($id);
+            $this[$id] = $service = $this->mkService($id);
         } catch (\Exception $e) {
             unset($this->loading[$id]);
             throw $e;
@@ -76,7 +79,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
         if (parent::offsetExists($id)) {
             return true;
         }
-        $method = 'new' . $id . 'Service';
+        $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
         return \method_exists($this, $method);
     }
 
@@ -113,8 +116,8 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
     /**
      * @return mixed
      */
-    protected function newService(string $id) {
-        $method = 'new' . $id . 'Service';
+    protected function mkService(string $id) {
+        $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
         if (\method_exists($this, $method)) {
             $this->beforeCreate($id);
             $service = $this->$method();

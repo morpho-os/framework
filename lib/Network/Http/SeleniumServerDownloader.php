@@ -25,7 +25,7 @@ class SeleniumServerDownloader {
         if (\is_file($destFilePath)) {
             return $destFilePath;
         }
-        shell('curl -L -o ' . \escapeshellarg($destFilePath) . ' ' . \escapeshellarg($uri));
+        shell('curl -L -o ' . \escapeshellarg($destFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destFilePath;
     }
 

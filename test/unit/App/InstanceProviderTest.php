@@ -64,7 +64,7 @@ class InstanceProviderTest extends TestCase {
 
             }
 
-            public function newInstance(ModuleMeta $moduleMeta, string $classSuffix) {
+            public function mkInstance(ModuleMeta $moduleMeta, string $classSuffix) {
                 if ($moduleMeta !== $this->expectedModuleMeta) {
                     throw new \UnexpectedValueException();
                 }

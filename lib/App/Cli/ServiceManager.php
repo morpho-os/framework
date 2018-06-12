@@ -11,17 +11,17 @@ use Morpho\App\IRouter;
 use Morpho\App\ServiceManager as BaseServiceManager;
 
 class ServiceManager extends BaseServiceManager {
-    protected function newErrorLoggerService() {
+    protected function mkErrorLoggerService() {
         $logger = new Logger('error');
         return $logger;
     }
 
-    protected function newRequestService() {
+    protected function mkRequestService() {
         return new Request();
     }
 
-    /*abstract protected function newDispatcherService();*/
-    protected function newRouterService(): IRouter {
+    /*abstract protected function mkDispatcherService();*/
+    protected function mkRouterService(): IRouter {
         // TODO: Implement newRouterService() method.
     }
 }

@@ -71,20 +71,20 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     }
 
     public function testRegisterTwiceThrowsException() {
-        $errorHandler = $this->newErrorHandler();
+        $errorHandler = $this->mkErrorHandler();
         $errorHandler->register();
         $this->expectException('\LogicException');
         $errorHandler->register();
     }
 
     public function testUnregisterWithoutRegisterThrowsException() {
-        $errorHandler = $this->newErrorHandler();
+        $errorHandler = $this->mkErrorHandler();
         $this->expectException('\LogicException');
         $errorHandler->unregister();
     }
 
     public function testRegisterAndUnregister() {
-        $errorHandler = $this->newErrorHandler();
+        $errorHandler = $this->mkErrorHandler();
         $oldDisplayErrors = \ini_get('display_errors');
         $oldDisplayStartupErrors = \ini_get('display_startup_errors');
         $this->assertNull($errorHandler->register());
@@ -103,11 +103,11 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     }
 
     public function testRegisterAsFatalErrorHandler() {
-        $this->checkBoolAccessor([$this->newErrorHandler(false), 'registerAsFatalErrorHandler'], true);
+        $this->checkBoolAccessor([$this->mkErrorHandler(false), 'registerAsFatalErrorHandler'], true);
     }
 
     public function testExitOnFatalError() {
-        $this->checkBoolAccessor([$this->newErrorHandler(false), 'exitOnFatalError'], true);
+        $this->checkBoolAccessor([$this->mkErrorHandler(false), 'exitOnFatalError'], true);
     }
 
     public function dataForTestHandleError_ConvertsErrorToException() {
@@ -135,7 +135,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
      * @dataProvider dataForTestHandleError_ConvertsErrorToException
      */
     public function testHandleError_ConvertsErrorToException($severity, $expectedErrorClass) {
-        $errorHandler = $this->newErrorHandler();
+        $errorHandler = $this->mkErrorHandler();
         $errorHandler->register();
 
         try {
@@ -228,7 +228,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->assertEquals($lineNo, $exception->getLine());
     }
 
-    private function newErrorHandler($init = true) {
+    private function mkErrorHandler($init = true) {
         $errorHandler = new ErrorHandler();
         if ($init) {
             $errorHandler->exitOnFatalError(false);

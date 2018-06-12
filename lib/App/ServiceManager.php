@@ -13,7 +13,7 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
-    protected function newErrorHandlerService() {
+    protected function mkErrorHandlerService() {
         $listeners = [];
         $logListener = new LogListener($this['errorLogger']);
         $listeners[] = $this->config['errorHandler']['noDupsListener']
@@ -25,5 +25,5 @@ abstract class ServiceManager extends BaseServiceManager {
         return new ErrorHandler($listeners);
     }
 
-    abstract protected function newRouterService(): IRouter;
+    abstract protected function mkRouterService(): IRouter;
 }

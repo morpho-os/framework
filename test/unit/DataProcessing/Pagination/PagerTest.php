@@ -64,18 +64,18 @@ class PagerTest extends TestCase {
         $this->assertEquals(0, $pager->totalPagesCount());
     }
 
-    public function testNewPageByNumber() {
+    public function testMkPageByNumber() {
         $totalItemsCount = 7;
         $this->pager->setPageSize(2);
         $items = \range(0, $totalItemsCount - 1);
         $this->pager->setItems($items);
-        $this->assertEquals([6], $this->pager->newPageByNumber(4)->toArray());
-        $this->assertEquals([4, 5], $this->pager->newPageByNumber(3)->toArray());
-        $this->assertEquals([0, 1], $this->pager->newPageByNumber(1)->toArray());
+        $this->assertEquals([6], $this->pager->mkPageByNumber(4)->toArray());
+        $this->assertEquals([4, 5], $this->pager->mkPageByNumber(3)->toArray());
+        $this->assertEquals([0, 1], $this->pager->mkPageByNumber(1)->toArray());
 
         // check bounds
-        $this->assertEquals([], $this->pager->newPageByNumber(5)->toArray());
-        $this->assertEquals([0, 1], $this->pager->newPageByNumber(-1)->toArray());
+        $this->assertEquals([], $this->pager->mkPageByNumber(5)->toArray());
+        $this->assertEquals([0, 1], $this->pager->mkPageByNumber(-1)->toArray());
     }
 
     public function testIterator() {

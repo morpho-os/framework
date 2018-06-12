@@ -63,14 +63,14 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function currentPage(): iterable {
-        return $this->newPageByNumber($this->currentPageNumber());
+        return $this->mkPageByNumber($this->currentPageNumber());
     }
 
-    public function newPageByNumber(int $pageNumber): Page {
+    public function mkPageByNumber(int $pageNumber): Page {
         $pageNumber = \max(\intval($pageNumber), 1);
         $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
-        return $this->newPage(
+        return $this->mkPage(
             $this->items(
                 $offset,
                 $pageSize
@@ -91,7 +91,7 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function current(): Page {
-        return $this->newPageByNumber($this->currentPageNumber());
+        return $this->mkPageByNumber($this->currentPageNumber());
     }
 
     public function valid(): bool {
@@ -125,7 +125,7 @@ class Pager implements \Iterator, \Countable {
     /**
      * Creates a new Page with $items.
      */
-    protected function newPage(array $items): Page {
+    protected function mkPage(array $items): Page {
         return new Page($items);
     }
 

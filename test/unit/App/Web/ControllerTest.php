@@ -204,7 +204,7 @@ class ControllerTest extends TestCase {
     public function testRedirect_HasArguments($statusCode) {
         $controller = new MyController();
         $controller->statusCode = $statusCode;
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $uri = new Uri('http://localhost/base/path/some/module?foo=bar');
         $basePath = '/base/path';
         $uri->path()->setBasePath($basePath);
@@ -228,7 +228,7 @@ class ControllerTest extends TestCase {
 /*
     public function testRedirect_NoArgs() {
         $controller = new MyController();
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $uriStr = 'http://localhost/base/path/some/module?foo=bar';
         $request->setUri(new Uri($uriStr));
         $request->setActionName('redirectNoArgs');
@@ -249,7 +249,7 @@ class ControllerTest extends TestCase {
 
     public function testForwardTo() {
         $controller = new MyController();
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
 
         $actionName = 'forward-here';
         $controllerName = 'my-other';
@@ -271,7 +271,7 @@ class ControllerTest extends TestCase {
         $controller = new MyController();
         $controller->returnResponse = $response = new Response();
         $response->setBody('foo');
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $request->setActionName('returnResponse');
 
         $controller->__invoke($request);
@@ -283,7 +283,7 @@ class ControllerTest extends TestCase {
     
     public function testInvoke_ReturningArrayFromAction() {
         $controller = new MyController();
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $request->setActionName('returnArray');
 
         $controller->__invoke($request);

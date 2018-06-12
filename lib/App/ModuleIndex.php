@@ -36,7 +36,7 @@ class ModuleIndex implements \IteratorAggregate {
         if (isset($this->loaded[$moduleName])) {
             return $this->loaded[$moduleName];
         }
-        return $this->loaded[$moduleName] = $this->newModuleMeta($moduleName, $this->index[$moduleName]);
+        return $this->loaded[$moduleName] = $this->mkModuleMeta($moduleName, $this->index[$moduleName]);
     }
 
     public function rebuild(): void {
@@ -44,7 +44,7 @@ class ModuleIndex implements \IteratorAggregate {
         $this->indexer->clear();
     }
 
-    protected function newModuleMeta(string $moduleName, $meta): ModuleMeta {
+    protected function mkModuleMeta(string $moduleName, $meta): ModuleMeta {
         return new ModuleMeta($moduleName, $meta);
     }
 

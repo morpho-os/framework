@@ -318,7 +318,7 @@ class Request extends BaseRequest {
      * }
      */
 
-    protected function newResponse(): IResponse {
+    protected function mkResponse(): IResponse {
         return new Response();
     }
 

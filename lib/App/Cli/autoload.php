@@ -128,13 +128,13 @@ function shell(string $command, array $config = null): ICommandResult {
             $config['show'] = !$config['capture'];
         }
     }*/
-    $config = Config::check((array) $config, [
+    $config = Config::check([
         'checkCode' => true,
         // @TODO: tee: buffer and display output
         'capture' => false,
         'show' => true,
         'envVars' => null,
-    ]);
+    ], (array) $config);
     $output = '';
     $exitCode = 1;
     if ($config['envVars']) {
@@ -171,11 +171,11 @@ function shell(string $command, array $config = null): ICommandResult {
 
 // @TODO: See \Composer\Util\ProcessExecutor
 function proc(string $command, array $config = null): ICommandResult {
-    $config = Config::check((array) $config, [
+    $config = Config::check([
         'checkCode' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
-    ]);
+    ], (array) $config);
     $process = new Process($command);
     $exitCode = $process->run();
     if ($config['checkCode']) {

@@ -10,7 +10,7 @@ use Morpho\Caching\ICache;
 use Morpho\Caching\PhpFileCache;
 
 class PhpFileCacheTest extends CacheTest {
-    protected function newCache(): ICache {
+    protected function mkCache(): ICache {
         return new PhpFileCache($this->createTmpDir());
     }
 }

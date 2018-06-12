@@ -52,7 +52,7 @@ class Doc extends DOMDocument {
         $fixEncoding = $config['fixEncoding'] ?? false;
         unset($config['fixEncoding']);
 
-        $doc = self::new($config);
+        $doc = self::mk($config);
 
         \libxml_use_internal_errors(true);
 
@@ -75,7 +75,7 @@ class Doc extends DOMDocument {
         return $doc;
     }
 
-    public static function new(array $config = null): Doc {
+    public static function mk(array $config = null): Doc {
         $config = (array) $config;
         $invalidConfig = \array_diff_key($config, self::CREATE_CONFIG_PARAMS);
         if (\count($invalidConfig)) {

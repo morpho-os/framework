@@ -85,19 +85,19 @@ class ServiceManagerTest extends TestCase {
 class MyServiceManager extends ServiceManager {
     public $closureCalledWith;
 
-    protected function newObjService() {
+    protected function mkObjService() {
         return new \stdClass();
     }
 
-    protected function newFooService() {
+    protected function mkFooService() {
         return $this['bar'];
     }
 
-    protected function newBarService() {
+    protected function mkBarService() {
         return $this['foo'];
     }
 
-    protected function newMyClosureService() {
+    protected function mkMyClosureService() {
         return function ($foo) {
             $this->closureCalledWith = $foo;
         };

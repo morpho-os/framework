@@ -24,7 +24,6 @@ class File extends Entry {
         }
 
         $config = Config::check(
-            (array)$config,
             [
                 'lock'           => false,
                 'offset'         => -1,
@@ -32,7 +31,8 @@ class File extends Entry {
                 'useIncludePath' => false,
                 'context'        => null,
                 'removeBom'      => true,
-            ]
+            ],
+            (array)$config
         );
 
         $content = @\file_get_contents($filePath, $config['useIncludePath']);
@@ -88,7 +88,7 @@ class File extends Entry {
         if ($filterOrConfig) { // If a filter was specified, don't ignore empty lines.
             $defaultConfig['skipEmptyLines'] = false;
         }
-        $config = Config::check((array) $config, $defaultConfig);
+        $config = Config::check($defaultConfig, (array) $config);
         $handle = \fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
@@ -161,7 +161,7 @@ class File extends Entry {
      * Appends content to the file and returns the file path.
      */
     public static function append(string $filePath, string $content, array $config = null): string {
-        return self::write($filePath, $content, Config::check((array)$config, ['append' => true]));
+        return self::write($filePath, $content, Config::check(['append' => true], (array)$config));
     }
 
     /**
@@ -306,14 +306,14 @@ class File extends Entry {
 
     private static function filePutContentsConfigToFlags(array $config): int {
         $config = Config::check(
-            $config,
             [
                 'useIncludePath' => false,
                 'lock'           => true,
                 'append'         => false,
                 'context'        => null,
                 'mode'           => Stat::FILE_MODE,
-            ]
+            ],
+            $config
         );
         $flags = 0;
         if ($config['append']) {

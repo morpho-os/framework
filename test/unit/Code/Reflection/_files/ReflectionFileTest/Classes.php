@@ -1,9 +1,5 @@
-<?php
-//declare(strict_types=1);
-
+<?php declare(strict_types=1);
 namespace Morpho\Test\Unit\Code\Reflection\ReflectionFileTest;
-
-
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -75,7 +71,7 @@ class ServiceManager implements IServiceManager {
         }
         $this->loading[$id] = true;
         try {
-            $this->services[$id] = $service = $this->newService($id);
+            $this->services[$id] = $service = $this->mkService($id);
         } catch (\Exception $e) {
             unset($this->loading[$id]);
             throw $e;
@@ -103,7 +99,7 @@ class ServiceManager implements IServiceManager {
         }
     }
 
-    protected function newService($id) {
+    protected function mkService($id) {
         $method = 'new' . $id . 'Service';
         if (\method_exists($this, $method)) {
             $this->beforeCreate($id);

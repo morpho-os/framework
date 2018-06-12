@@ -74,11 +74,11 @@ class DispatchErrorHandlerTest extends TestCase {
      */
     public function testEffectOfTheThrowErrorFlag(\Throwable $exception, bool $mustLogError) {
         $dispatchErrorHandler = new DispatchErrorHandler();
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $request->isHandled(true);
         $exceptionMessage = $exception->getMessage();
         $dispatchErrorHandler->throwErrors(true);
-        $serviceManager = $this->newServiceManagerWithLogger($mustLogError, $exception, 1);
+        $serviceManager = $this->mkServiceManagerWithLogger($mustLogError, $exception, 1);
         $dispatchErrorHandler->setServiceManager($serviceManager);
         try {
             $dispatchErrorHandler->handleError($exception, $request);
@@ -92,10 +92,10 @@ class DispatchErrorHandlerTest extends TestCase {
     }
 
     private function checkHandlesTheSameErrorOccurredTwice(DispatchErrorHandler $dispatchErrorHandler, array $expectedHandler, \Throwable $exception, int $expectedStatusCode, bool $mustLogError) {
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $request->isHandled(true);
 
-        $serviceManager = $this->newServiceManagerWithLogger($mustLogError, $exception, 2);
+        $serviceManager = $this->mkServiceManagerWithLogger($mustLogError, $exception, 2);
 
         $dispatchErrorHandler->setServiceManager($serviceManager);
 
@@ -115,7 +115,7 @@ class DispatchErrorHandlerTest extends TestCase {
         }
     }
 
-    private function newServiceManagerWithLogger(bool $mustLogError, \Throwable $expectedException, int $expectedNumberOfCalls) {
+    private function mkServiceManagerWithLogger(bool $mustLogError, \Throwable $expectedException, int $expectedNumberOfCalls) {
         $errorLogger = $this->createMock(Logger::class);
         if ($mustLogError) {
             $errorLogger->expects($this->exactly($expectedNumberOfCalls))
@@ -134,7 +134,7 @@ class DispatchErrorHandlerTest extends TestCase {
         return $serviceManager;
     }
 
-    private function newRequest(array $serverVars = null) {
+    private function mkRequest(array $serverVars = null) {
         return new Request(
             null,
             $serverVars,

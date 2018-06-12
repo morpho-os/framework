@@ -25,7 +25,7 @@ abstract class CacheTest extends TestCase {
      */
     public function testCaching($data) {
         // @TODO: get, set, delete, clear, getMultiple, setMultiple, deleteMultiple, has
-        $cache = $this->newCache();
+        $cache = $this->mkCache();
         $key = 'my-val';
         $this->assertFalse($cache->has($key));
         $this->assertNull($cache->get($key));
@@ -43,5 +43,5 @@ abstract class CacheTest extends TestCase {
         $this->assertSame($def, $cache->get($key, $def));
     }
 
-    abstract protected function newCache(): ICache;
+    abstract protected function mkCache(): ICache;
 }

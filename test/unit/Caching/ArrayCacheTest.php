@@ -10,7 +10,7 @@ use Morpho\Caching\ArrayCache;
 use Morpho\Caching\ICache;
 
 class ArrayCacheTest extends CacheTest {
-    protected function newCache(): ICache {
+    protected function mkCache(): ICache {
         return new ArrayCache();
     }
 }

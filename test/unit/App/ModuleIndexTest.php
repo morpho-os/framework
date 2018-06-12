@@ -14,7 +14,7 @@ use Morpho\Testing\TestCase;
 class ModuleIndexTest extends TestCase {
     public function testRebuild() {
         $moduleIndexer = $this->createMock(IModuleIndexer::class);
-        $moduleIndex = $this->newModuleIndex($moduleIndexer);
+        $moduleIndex = $this->mkModuleIndex($moduleIndexer);
         $moduleName = 'foo/bar';
         $moduleIndexer->expects($this->exactly(2))
             ->method('index')
@@ -31,7 +31,7 @@ class ModuleIndexTest extends TestCase {
     }
 
     public function testModuleOperations() {
-        $moduleIndex = $this->newModuleIndex($this->newModuleIndexer());
+        $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
 
         $this->assertSame(['galaxy/neptune', 'galaxy/mars'], $moduleIndex->moduleNames());
 
@@ -40,14 +40,14 @@ class ModuleIndexTest extends TestCase {
     }
 
     public function testModuleMeta_ThrowsExceptionForNonExistentModule() {
-        $moduleIndex = $this->newModuleIndex($this->newModuleIndexer());
+        $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
         $this->expectException(\RuntimeException::class, "Unable to get meta for the module 'galaxy/invalid'");
 
         $moduleIndex->moduleMeta('galaxy/invalid');
     }
     
     public function testIter() {
-        $moduleIndex = $this->newModuleIndex($this->newModuleIndexer());
+        $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
         $this->assertInstanceOf(\Traversable::class, $moduleIndex);
         $i = 0;
         foreach ($moduleIndex as $moduleName) {
@@ -57,7 +57,7 @@ class ModuleIndexTest extends TestCase {
         $this->assertSame(2, $i);
     }
 
-    private function newModuleIndex($moduleIndexer) {
+    private function mkModuleIndex($moduleIndexer) {
         return new class ($moduleIndexer) extends ModuleIndex {
             protected function newModuleMeta(string $moduleName, $meta): ModuleMeta {
                 return new ModuleMeta($moduleName, $meta);
@@ -65,7 +65,7 @@ class ModuleIndexTest extends TestCase {
         };
     }
 
-    private function newModuleIndexer() {
+    private function mkModuleIndexer() {
         $moduleIndexer = $this->createConfiguredMock(IModuleIndexer::class, [
             'index' => [
                 'galaxy/neptune' => [

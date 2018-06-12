@@ -87,11 +87,11 @@ class Messenger implements \Countable {
 
     protected function initMessageStorage(): void {
         if (null === $this->messages) {
-            $this->messages = $this->newMessageStorage();
+            $this->messages = $this->mkMessageStorage();
         }
     }
 
-    protected function newMessageStorage(): IMessageStorage {
+    protected function mkMessageStorage(): IMessageStorage {
         return new SessionMessageStorage(__CLASS__);
     }
 

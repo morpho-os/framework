@@ -23,7 +23,7 @@ class Config extends \ArrayObject {
         }
     }
 
-    public static function check(?array $config, array $defaultConfig): array {
+    public static function check(array $defaultConfig, ?array $config): array {
         if (null === $config || \count($config) === 0) {
             return $defaultConfig;
         }

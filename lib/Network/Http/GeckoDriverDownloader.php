@@ -25,7 +25,7 @@ class GeckoDriverDownloader {
             $geckoDriverDownloadUri = $fileDownloadMeta['browser_download_url'];
             $arcFilePath = \dirname($destFilePath) . '/geckodriver.tar.gz';
             (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
-            shell('tar xzf ' . \escapeshellarg($arcFilePath) . ' && chmod +x ' . \escapeshellarg($binFileName) . ' && rm -f ' . \escapeshellarg($arcFilePath));
+            shell('tar xzf ' . \escapeshellarg($arcFilePath) . ' && chmod +x ' . \escapeshellarg($binFileName) . ' && rm -f ' . \escapeshellarg($arcFilePath), ['show' => false]);
         } finally {
             \chdir($curDirPath);
         }

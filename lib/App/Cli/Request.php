@@ -35,7 +35,7 @@ class Request extends BaseRequest {
         throw new NotImplementedException();
     }
 
-    protected function newResponse(): IResponse {
+    protected function mkResponse(): IResponse {
         return new Response();
     }
 }

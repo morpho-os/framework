@@ -17,7 +17,7 @@ class DbClient extends BaseDbClient {
         throw new NotImplementedException();
     }
 
-    public function newReplaceQuery(): ReplaceQuery {
+    public function mkReplaceQuery(): ReplaceQuery {
         throw new NotImplementedException();
     }
 
@@ -29,7 +29,7 @@ class DbClient extends BaseDbClient {
         throw new NotImplementedException();
     }
 
-    protected function newPdo($config, $pdoConfig): \PDO {
+    protected function mkPdo($config, $pdoConfig): \PDO {
         // @TODO: Support the `:memory`:
         if (empty($config['filePath'])) {
             throw new \RuntimeException("The config param 'filePath' is required");

@@ -79,10 +79,10 @@ abstract class Request extends Message implements IRequest {
 
     public function response(): IResponse {
         if (null === $this->response) {
-            $this->response = $this->newResponse();
+            $this->response = $this->mkResponse();
         }
         return $this->response;
     }
 
-    abstract protected function newResponse(): IResponse;
+    abstract protected function mkResponse(): IResponse;
 }

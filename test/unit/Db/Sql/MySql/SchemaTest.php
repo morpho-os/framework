@@ -31,7 +31,7 @@ class SchemaTest extends DbTestCase {
 
     public function setUp() {
         parent::setUp();
-        $db = $this->newDbClient();
+        $db = $this->mkDbClient();
         $this->schema = new Schema($db);
         $this->schema->deleteAllTables();
         $this->db = $db;

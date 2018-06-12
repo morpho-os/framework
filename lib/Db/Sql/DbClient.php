@@ -42,7 +42,7 @@ abstract class DbClient {
             self::setPdoAttributes($configOrPdo, static::$pdoConfig);
             $this->connection = $configOrPdo;
         } else {
-            $this->connection = $this->newPdo($configOrPdo, $configOrPdo['pdoConfig'] ?? static::$pdoConfig);
+            $this->connection = $this->mkPdo($configOrPdo, $configOrPdo['pdoConfig'] ?? static::$pdoConfig);
         }
     }
 
@@ -91,23 +91,23 @@ abstract class DbClient {
 
     abstract public function query(): GeneralQuery;
 
-    public function newSelectQuery(): SelectQuery {
+    public function mkSelectQuery(): SelectQuery {
         return new SelectQuery($this);
     }
 
-    public function newInsertQuery(): InsertQuery {
+    public function mkInsertQuery(): InsertQuery {
         return new InsertQuery($this);
     }
 
-    public function newUpdateQuery(): UpdateQuery {
+    public function mkUpdateQuery(): UpdateQuery {
         return new UpdateQuery($this);
     }
 
-    public function newDeleteQuery(): DeleteQuery {
+    public function mkDeleteQuery(): DeleteQuery {
         return new DeleteQuery($this);
     }
 
-    abstract public function newReplaceQuery(): ReplaceQuery;
+    abstract public function mkReplaceQuery(): ReplaceQuery;
 
     // For SELECT use prepare feature.
     public function quote($val, int $type = \PDO::PARAM_STR): string {
@@ -228,7 +228,7 @@ abstract class DbClient {
         return $result;
     }
 
-    abstract protected function newPdo($config, $pdoConfig): \PDO;
+    abstract protected function mkPdo($config, $pdoConfig): \PDO;
 
     /**
      * @return array|\Morpho\Base\Config

@@ -19,7 +19,7 @@ class RequestTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->request = $this->newRequest();
+        $this->request = $this->mkRequest();
     }
 
     public function testResponse_ReturnsTheSameInstance() {
@@ -87,9 +87,9 @@ class RequestTest extends TestCase {
         ];
         if ($useGlobalServerVar) {
             $_SERVER = $serverVars;
-            $request = $this->newRequest(null);
+            $request = $this->mkRequest(null);
         } else {
-            $request = $this->newRequest($serverVars);
+            $request = $this->mkRequest($serverVars);
         }
         $this->assertSame($expectedHeaders, $request->headers()->getArrayCopy());
     }
@@ -213,7 +213,7 @@ class RequestTest extends TestCase {
 
     public function testUriInitialization_BasePath() {
         $basePath = '/foo/bar/baz';
-        $request = $this->newRequest([
+        $request = $this->mkRequest([
             'REQUEST_URI' => $basePath . '/index.php/one/two',
             'SCRIPT_NAME' => $basePath . '/index.php'
         ]);
@@ -241,7 +241,7 @@ class RequestTest extends TestCase {
     public function testUriInitialization_Scheme($isHttps, $serverVars) {
         $trustedProxyIp = '127.0.0.2';
         $serverVars['REMOTE_ADDR'] = $trustedProxyIp;
-        $request = $this->newRequest($serverVars);
+        $request = $this->mkRequest($serverVars);
         $request->setTrustedProxyIps([$trustedProxyIp]);
         if ($isHttps) {
             $this->assertSame('https', $request->uri()->scheme());
@@ -251,7 +251,7 @@ class RequestTest extends TestCase {
     }
 
     public function testUriInitialization_Query() {
-        $request = $this->newRequest([
+        $request = $this->mkRequest([
             'REQUEST_URI' => '/',
             'SCRIPT_NAME' => '/index.php',
             'QUERY_STRING' => '',
@@ -276,7 +276,7 @@ class RequestTest extends TestCase {
     }
 
     public function testData() {
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $this->assertSame(
             ['bar' => 'baz'],
             $request->data(['foo' => ['bar' => ' baz  ']], 'foo')
@@ -286,7 +286,7 @@ class RequestTest extends TestCase {
     public function testMappingPostToPatch() {
         $data = ['foo' => 'bar', 'baz' => 'abc'];
         $_POST = \array_merge($data, ['_method' => Request::PATCH_METHOD]);
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $this->assertTrue($request->isPatchMethod());
         $this->assertSame($data, $request->patch());
     }
@@ -330,12 +330,12 @@ class RequestTest extends TestCase {
     }
 
     private function checkHttpMethod(array $serverVars, string $httpMethod): void {
-        $request = $this->newRequest($serverVars);
+        $request = $this->mkRequest($serverVars);
         $this->assertSame($httpMethod, $request->method());
         $this->assertTrue($request->{'is' . $httpMethod . 'Method'}());
     }
 
-    private function newRequest(array $serverVars = null) {
+    private function mkRequest(array $serverVars = null) {
         return new Request(
             null,
             $serverVars,

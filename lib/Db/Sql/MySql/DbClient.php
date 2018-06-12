@@ -54,12 +54,12 @@ class DbClient extends BaseDbClient {
         $this->eval($sql, $args);
     }
 
-    public function newReplaceQuery(): ReplaceQuery {
+    public function mkReplaceQuery(): ReplaceQuery {
         return new ReplaceQuery($this);
     }
 
-    protected function newPdo($config, $pdoConfig): \PDO {
-        $config = Config::check($config, [
+    protected function mkPdo($config, $pdoConfig): \PDO {
+        $config = Config::check([
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
             'user' => self::DEFAULT_USER,
@@ -67,7 +67,7 @@ class DbClient extends BaseDbClient {
             'password' => self::DEFAULT_PASSWORD,
             'charset' => self::DEFAULT_CHARSET,
             'sockFilePath' => null,
-        ]);
+        ], $config);
         $transportStr = null !== $config['sockFilePath']
             ? 'unix_socket=' . $config['sockFilePath']
             : "host={$config['host']};port={$config['port']}";

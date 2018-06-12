@@ -26,7 +26,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $serviceManager = $this->newServiceManager();
+        $serviceManager = $this->mkServiceManager();
         $this->templateEngine = new PhpTemplateEngine($serviceManager);
         $this->configureTemplateEngine($this->templateEngine);
     }
@@ -55,7 +55,7 @@ class PhpTemplateEngineTest extends TestCase {
         $request->expects($this->any())
             ->method('uri')
             ->willReturn($curUri);
-        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $serviceManager = $this->mkServiceManager(['request' => $request]);
         $templateEngine = new PhpTemplateEngine($serviceManager);
         $this->configureTemplateEngine($templateEngine);
         $uri = $templateEngine->uriWithRedirectToSelf($uriStr);
@@ -162,7 +162,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testLink_PrependBasePath() {
-        $serviceManager = $this->newServiceManager();
+        $serviceManager = $this->mkServiceManager();
         $templateEngine = new PhpTemplateEngine($serviceManager);
         $this->configureTemplateEngine($templateEngine);
 
@@ -279,23 +279,23 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testModuleControllerActionName() {
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $moduleName = 'foo/bar';
         $controllerName = 'News';
         $actionName = 'edit';
         $request->setHandler([$moduleName, $controllerName, $actionName]);
-        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $serviceManager = $this->mkServiceManager(['request' => $request]);
         $this->templateEngine->setServiceManager($serviceManager);
         $this->assertSame($moduleName, $this->templateEngine->moduleName());
         $this->assertSame($controllerName, $this->templateEngine->controllerName());
         $this->assertSame($actionName, $this->templateEngine->actionName());
 
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $moduleName = 'baz/test';
         $controllerName = 'Blog';
         $actionName = 'update';
         $request->setHandler([$moduleName, $controllerName, $actionName]);
-        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $serviceManager = $this->mkServiceManager(['request' => $request]);
         $this->templateEngine->setServiceManager($serviceManager);
         $this->assertSame($moduleName, $this->templateEngine->moduleName());
         $this->assertSame($controllerName, $this->templateEngine->controllerName());
@@ -303,13 +303,13 @@ class PhpTemplateEngineTest extends TestCase {
     }
     
     public function testUri() {
-        $request = $this->newRequest();
+        $request = $this->mkRequest();
         $uri = new Uri();
         $uri1 = $this->templateEngine->uri();
         $this->assertNotSame($uri, $uri1);
         $this->assertSame($uri1, $this->templateEngine->uri());
         $request->setUri($uri);
-        $serviceManager = $this->newServiceManager(['request' => $request]);
+        $serviceManager = $this->mkServiceManager(['request' => $request]);
         $this->templateEngine->setServiceManager($serviceManager);
         $this->assertSame($uri, $this->templateEngine->uri());
     }
@@ -332,9 +332,9 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertSame($handlerFn, $this->templateEngine->handler());
     }
 
-    private function newServiceManager($services = null): ServiceManager {
+    private function mkServiceManager($services = null): ServiceManager {
         if (null === $services) {
-            $request = $this->newRequest();
+            $request = $this->mkRequest();
             $uri = new Uri();
             $uri->setPath('/base/path/foo/bar');
             $uri->path()->setBasePath('/base/path');
@@ -350,7 +350,7 @@ class PhpTemplateEngineTest extends TestCase {
         $templateEngine->useCache(false);
     }
 
-    private function newRequest(array $serverVars = null) {
+    private function mkRequest(array $serverVars = null) {
         return new Request(
             null,
             $serverVars,

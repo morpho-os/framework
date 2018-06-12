@@ -49,7 +49,7 @@ class InstanceProvider implements IFn {
         // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
         $isCli = PHP_SAPI == 'cli';
         $classSuffix = 'App' . '\\' . ($isCli ? 'Cli' : 'Web') . '\\' . $controllerName . CONTROLLER_SUFFIX;
-        $handler = $this->newInstance($moduleMeta, $classSuffix);
+        $handler = $this->mkInstance($moduleMeta, $classSuffix);
         $request['handlerFn'] = $handler;
         return $handler;
     }
@@ -72,7 +72,7 @@ class InstanceProvider implements IFn {
      * @param string $classSuffix Class suffix like Web\IndexController, which will added to module's namespaces.
      * @return \object|false
      */
-    public function newInstance(ModuleMeta $moduleMeta, string $classSuffix) {
+    public function mkInstance(ModuleMeta $moduleMeta, string $classSuffix) {
         $classPath = $this->classFilePath($moduleMeta, $classSuffix);
         if (false !== $classPath) {
             [$class, $filePath] = $classPath;

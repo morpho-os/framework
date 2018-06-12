@@ -75,7 +75,7 @@ class HttpClient {
         }
         // @TODO: Implement without call of the external tool.
         // @TODO: use curl, wget or fetch, see the `man parallel`
-        shell('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri));
+        shell('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destPath;
     }
 }

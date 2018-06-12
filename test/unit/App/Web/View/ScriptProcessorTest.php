@@ -23,7 +23,7 @@ class ScriptProcessorTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $serviceManager = $this->newConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
+        $serviceManager = $this->mkConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
         $this->processor = new ScriptProcessor($serviceManager);
     }
 
@@ -131,7 +131,7 @@ OUT;
      * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript
      */
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConfig) {
-        $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
+        $serviceManager = $this->mkConfiguredServiceManager(['table', 'cat', 'tail']);
         $request = $serviceManager['request'];
         $request['jsConfig'] = $jsConfig;
 
@@ -155,7 +155,7 @@ OUT;
     }
 
     public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
-        $serviceManager = $this->newConfiguredServiceManager(['table', 'cat', 'tail']);
+        $serviceManager = $this->mkConfiguredServiceManager(['table', 'cat', 'tail']);
         $processor = new ScriptProcessor($serviceManager);
 
         $childPage = <<<OUT
@@ -174,7 +174,7 @@ OUT;
         );
     }
 
-    private function newConfiguredServiceManager($handler) {
+    private function mkConfiguredServiceManager($handler) {
         $request = new Request();
         $request->setHandler($handler);
 

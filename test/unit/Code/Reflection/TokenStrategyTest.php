@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Code\Reflection;
 use Morpho\Code\Reflection\TokenStrategy;
 
 class TokenStrategyTest extends DiscoverStrategyTest {
-    protected function newDiscoverStrategy() {
+    protected function mkDiscoverStrategy() {
         return new TokenStrategy();
     }
 }

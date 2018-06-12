@@ -31,46 +31,46 @@ use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
 
 class ServiceManager extends BaseServiceManager {
-    public function newRouterService(): IRouter {
+    public function mkRouterService(): IRouter {
         //return new Router($this['db']);
         return new FastRouter();
     }
 
-/*    protected function newDbService() {
+/*    protected function mkDbService() {
         return Db::connect($this->config['db']);
     }*/
 
-    protected function newModuleIndexerService() {
+    protected function mkModuleIndexerService() {
         return new ModuleIndexer(new VarExportFileCache($this['site']->config()['path']['cacheDirPath']));
     }
 
-    protected function newModuleMetaIteratorService() {
+    protected function mkModuleMetaIteratorService() {
         return new ModuleMetaIterator($this);
     }
 
-    protected function newSessionService() {
+    protected function mkSessionService() {
         return new Session(__CLASS__);
     }
 
-    protected function newRequestService() {
+    protected function mkRequestService() {
         return new Request(null, null, new UriChecker($this));
     }
 
-    protected function newDebugLoggerService() {
+    protected function mkDebugLoggerService() {
         $logger = new Logger('debug');
         $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
         return $logger;
     }
 
-    protected function newModuleIndexService() {
+    protected function mkModuleIndexService() {
         return new ModuleIndex($this['moduleIndexer']);
     }
 
-    protected function newThemeService() {
+    protected function mkThemeService() {
         return new Theme($this['templateEngine']);
     }
 
-    protected function newTemplateEngineService() {
+    protected function mkTemplateEngineService() {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
         $siteModuleName = $this['site']->moduleName();
@@ -80,30 +80,30 @@ class ServiceManager extends BaseServiceManager {
         return $templateEngine;
     }
 
-/*    protected function newAutoloaderService() {
+/*    protected function mkAutoloaderService() {
         return composerAutoloader();
     }*/
 
-    protected function newMessengerService() {
+    protected function mkMessengerService() {
         return new Messenger();
     }
 
-    protected function newInstanceProviderService() {
+    protected function mkInstanceProviderService() {
         return new InstanceProvider($this);
     }
 
-    protected function newDispatcherService() {
+    protected function mkDispatcherService() {
         return new Dispatcher(
             $this['instanceProvider'],
             $this['eventManager']
         );
     }
 
-    protected function newEventManagerService() {
+    protected function mkEventManagerService() {
         return new EventManager($this);
     }
 
-    protected function newErrorLoggerService() {
+    protected function mkErrorLoggerService() {
         $logger = (new Logger('error'))
             ->pushProcessor(new WebProcessor())
             ->pushProcessor(new MemoryUsageProcessor())
@@ -128,15 +128,15 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
-    protected function newContentNegotiatorService() {
+    protected function mkContentNegotiatorService() {
         return new ContentNegotiator();
     }
 
-    protected function newDispatchErrorHandlerService() {
+    protected function mkDispatchErrorHandlerService() {
         return new DispatchErrorHandler();
     }
 
-    protected function newActionResultRendererService() {
+    protected function mkActionResultRendererService() {
         return new ActionResultRenderer($this);
     }
 

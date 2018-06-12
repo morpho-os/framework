@@ -16,7 +16,7 @@ abstract class DiscoverStrategyTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->strategy = $this->newDiscoverStrategy();
+        $this->strategy = $this->mkDiscoverStrategy();
     }
 
     public function testClassTypesDefinedInFile() {
@@ -31,5 +31,5 @@ abstract class DiscoverStrategyTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    abstract protected function newDiscoverStrategy();
+    abstract protected function mkDiscoverStrategy();
 }

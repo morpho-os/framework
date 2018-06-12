@@ -23,7 +23,7 @@ class DbClientTest extends BaseDbClientTest {
 
     public function setUp() {
         parent::setUp();
-        $this->db = $this->newDbClient();
+        $this->db = $this->mkDbClient();
         $this->schema = new Schema($this->db);
         $this->schema->deleteAllTables();
     }
@@ -110,7 +110,7 @@ SQL
         $this->assertSame($rows, $this->db->select('* FROM cars ORDER BY name')->rows());
     }
 
-    public function dataForNewQueryOperations() {
+    public function dataForMkQueryOperations() {
         return [
             [
                 'select'
@@ -131,10 +131,10 @@ SQL
     }
 
     /**
-     * @dataProvider dataForNewQueryOperations
+     * @dataProvider dataForMkQueryOperations
      */
-    public function testNewQueryOperations($op) {
-        $method = 'new' . $op . 'Query';
+    public function testMkQueryOperations($op) {
+        $method = 'mk' . $op . 'Query';
         $query = $this->db->$method();
         $this->assertNotSame($query, $this->db->$method());
         $this->assertInstanceOf(Query::class, $query);

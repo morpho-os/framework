@@ -177,7 +177,7 @@ class DeclareStmtManager {
             }
             if (\preg_match('~\S~siA', $this->code, $match, 0, $this->offset)) {
                 $value = \substr($this->code, $this->offset);
-                $this->emit($this->newNode($value, self::OTHER_CODE_NODE));
+                $this->emit($this->mkNode($value, self::OTHER_CODE_NODE));
                 break;
             }
         }
@@ -192,10 +192,10 @@ class DeclareStmtManager {
             return false;
         }
         $value = \array_pop($match);
-        return $this->newNode($value, $nodeType);
+        return $this->mkNode($value, $nodeType);
     }
 
-    private function newNode(string $value, string $type): \ArrayObject {
+    private function mkNode(string $value, string $type): \ArrayObject {
         return new \ArrayObject([
             'value' => $value,
             'type' => $type,

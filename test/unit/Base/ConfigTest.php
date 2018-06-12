@@ -104,19 +104,19 @@ class ConfigTest extends TestCase {
         $this->assertEquals(
             $expected,
             Config::check(
-                $config,
-                $defaultConfig
+                $defaultConfig,
+                $config
             )
         );
     }
 
     public function testCheck_Array_ThrowsExceptionWhenParamsWithDefaultKeysAreMissing() {
         $this->expectException(InvalidConfigException::class, "Invalid config keys: foo");
-        Config::check(['foo' => 'bar'], ['one' => 1]);
+        Config::check(['one' => 1], ['foo' => 'bar']);
     }
 
     public function testCheck_Array_InvalidNumericKeys() {
         $this->expectException(InvalidConfigException::class, "Invalid config keys: 2, 5");
-        Config::check([2 => 'two', 'foo' => 'bar', 5 => 'five'], ['foo' => 'baz']);
+        Config::check(['foo' => 'baz'], [2 => 'two', 'foo' => 'bar', 5 => 'five']);
     }
 }

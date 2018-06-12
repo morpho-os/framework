@@ -145,7 +145,7 @@ class DateTime extends DateTimeImmutable {
         return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
     }
 
-    public static function newFromTimestamp($timestamp) {
+    public static function mkFromTimestamp($timestamp) {
         return (new static())->setTimestamp($timestamp);
     }
 }

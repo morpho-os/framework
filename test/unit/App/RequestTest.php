@@ -18,7 +18,7 @@ class RequestTest extends MessageTest {
     public function setUp() {
         parent::setUp();
         $this->request = new class extends Request {
-            protected function newResponse(): IResponse {
+            protected function mkResponse(): IResponse {
                 throw new NotImplementedException(__METHOD__);
             }
 
@@ -32,7 +32,7 @@ class RequestTest extends MessageTest {
         };
     }
 
-    protected function newMessage(): Message {
+    protected function mkMessage(): Message {
         return clone $this->request;
     }
 

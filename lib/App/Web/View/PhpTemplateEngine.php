@@ -50,7 +50,7 @@ class PhpTemplateEngine extends TemplateEngine {
     public function plugin($name) {
         $name = \ucfirst($name);
         if (!isset($this->plugins[$name])) {
-            $this->plugins[$name] = $this->newPlugin($name);
+            $this->plugins[$name] = $this->mkPlugin($name);
         }
         return $this->plugins[$name];
     }
@@ -143,7 +143,7 @@ class PhpTemplateEngine extends TemplateEngine {
         ]);
     }
 
-    protected function newPlugin(string $name) {
+    protected function mkPlugin(string $name) {
         $moduleName = $this->request()->moduleName();
 
         $serviceManager = $this->serviceManager;

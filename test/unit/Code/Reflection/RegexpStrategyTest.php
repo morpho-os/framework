@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Code\Reflection;
 
 class RegexpStrategyTest extends DiscoverStrategyTest {
-    protected function newDiscoverStrategy() {
+    protected function mkDiscoverStrategy() {
         return new \Morpho\Code\Reflection\RegexpStrategy();
     }
 }

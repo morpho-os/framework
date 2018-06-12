@@ -30,7 +30,7 @@ class ResponseTest extends MessageTest {
         $this->assertFalse($this->response->isBodyEmpty());
     }
 
-    protected function newMessage(): Message {
+    protected function mkMessage(): Message {
         return clone $this->response;
     }
 }

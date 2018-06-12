@@ -43,10 +43,10 @@ class TsCompiler implements IFn {
      * @param array|Config $config
      */
     public function __invoke($config): ICommandResult {
-        $config = Config::check($config, [
+        $config = Config::check([
             'compilerConfig' => $this->compilerConfig(),
             'shellConfig' => $this->shellConfig(),
-        ]);
+        ], $config);
         return $this->tsc($config['compilerConfig'], $config['shellConfig']);
     }
 

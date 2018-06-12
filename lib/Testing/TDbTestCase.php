@@ -31,14 +31,14 @@ trait TDbTestCase {
         ];
     }
 
-    protected function newDbClient(array $config = null): DbClient {
+    protected function mkDbClient(array $config = null): DbClient {
         if (!$config) {
             $config = $this->dbConfig();
         }
         return DbClient::connect($config);
     }
 
-    protected function newPdo(array $config = null): \PDO {
+    protected function mkPdo(array $config = null): \PDO {
         if (!$config) {
             $config = $this->dbConfig();
         }

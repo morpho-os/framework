@@ -52,13 +52,13 @@ class Html {
 
     public static function tag(string $tagName, array $attributes = null, string $text = null, array $config = null): string {
         $config = Config::check(
-            (array)$config,
             [
                 'escapeText' => true,
                 'isSingle'   => false,
                 'isXml'      => false,
                 'eol'        => false,
-            ]
+            ],
+            (array)$config
         );
         $output = self::openTag($tagName, (array)$attributes, $config['isXml']);
         if (!$config['isSingle']) {

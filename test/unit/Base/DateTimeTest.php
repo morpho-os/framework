@@ -66,9 +66,9 @@ class DateTimeTest extends TestCase {
         }
     }
 
-    public function testNewFromTimestamp() {
+    public function testMkFromTimestamp() {
         $timestamp = (new DateTime('2013-12-08 11:02:04'))->getTimestamp();
-        $this->assertEquals($timestamp, DateTime::newFromTimestamp($timestamp)->getTimestamp());
+        $this->assertEquals($timestamp, DateTime::mkFromTimestamp($timestamp)->getTimestamp());
     }
 
     public function testCreateFromFormatReturnsValidInstance() {

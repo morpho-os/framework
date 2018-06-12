@@ -32,12 +32,12 @@ class Dir extends Entry {
         }
 
         $config = Config::check(
-            (array) $config,
             [
                 'overwrite'      => false,
                 'followLinks' => false,
                 'skipIfExists'   => false,
-            ]
+            ],
+            (array) $config
         );
 
         if (\is_dir($targetDirPath)) {
@@ -96,12 +96,12 @@ class Dir extends Entry {
             throw new Exception("Invalid processor");
         }
         $config = Config::check(
-            $config,
             [
                 'recursive'      => false,
                 'followLinks' => false,
                 'type'           => Stat::ENTRY,
-            ]
+            ],
+            $config
         );
 
         if (\is_string($processor)) {
