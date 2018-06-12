@@ -1,4 +1,9 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Code\Compiler;
 
 use Morpho\Base\IFn;
@@ -7,7 +12,12 @@ use Morpho\Code\Compiler\BackEnd\BackEnd;
 use Morpho\Code\Compiler\FrontEnd\FrontEnd;
 use Morpho\Code\Compiler\MiddleEnd\MiddleEnd;
 
-class Compiler implements IFn {
+abstract class Compiler implements IFn {
+    /**
+     * @var null|\ArrayObject
+     */
+    protected $context;
+
     /**
      * @var array|null
      */
@@ -28,23 +38,18 @@ class Compiler implements IFn {
             'source' => $source,
             'compiler' => $this,
         ]);
-        $frontEnd = $this->mkFrontEnd();
-        $middleEnd = $this->mkMiddleEnd();
-        $backEnd = $this->mkBackEnd();
+        $this->context = $context;
+        $frontEnd = $this->mkFrontEnd($this->config['frontEndPhases']);
+        $middleEnd = $this->mkMiddleEnd($this->config['middleEndPhases']);
+        $backEnd = $this->mkBackEnd($this->config['backEndPhases']);
         return (new Pipe([$frontEnd, $middleEnd, $backEnd]))($context);
     }
 
-    private function mkFrontEnd(): FrontEnd {
-        return new FrontEnd($this->config['frontEndPhases']);
-    }
+    abstract protected function mkFrontEnd($config): FrontEnd;
 
-    private function mkMiddleEnd(): MiddleEnd {
-        return new MiddleEnd($this->config['middleEndPhases']);
-    }
+    abstract protected function mkMiddleEnd($config): MiddleEnd;
 
-    private function mkBackEnd(): BackEnd {
-        return new BackEnd($this->config['backEndPhases']);
-    }
+    abstract protected function mkBackEnd($config): BackEnd;
 
     protected function checkConfig(array $config): array {
         $requiredKeys = ['frontEndPhases', 'middleEndPhases', 'backEndPhases'];

@@ -4,10 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Code\Compiler;
+namespace Morpho\Code\Compiler\BackEnd;
 
-use Morpho\Base\IFn;
-
-// Each compiler phase can contain other phases and therefore it is a recursive data type.
-interface ICompilerPhase extends IFn {
+interface ICodeGen {
 }
