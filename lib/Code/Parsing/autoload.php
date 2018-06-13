@@ -4,6 +4,9 @@ namespace Morpho\Code\Parsing;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
+use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 
 function parseFile(string $filePath): ?array {
     return parse(\file_get_contents($filePath));
@@ -40,4 +43,10 @@ function pp(array $nodes): string {
 function ppFile(array $nodes): string {
     $pp = new PrettyPrinter();
     return $pp->prettyPrintFile($nodes);
+}
+
+function isClassType(\PhpParser\Node $node): bool {
+    return $node instanceof ClassStmt
+        || $node instanceof InterfaceStmt
+        || $node instanceof TraitStmt;
 }

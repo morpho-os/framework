@@ -7,28 +7,31 @@
 namespace Morpho\App\Web;
 
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\ErrorLogHandler;
-use Monolog\Handler\NativeMailerHandler;
+use Monolog\Handler\ErrorLogHandler as PhpErrorLogWriter;
+use Monolog\Handler\NativeMailerHandler as NativeMailerLogWriter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\App\InstanceProvider;
-use Morpho\App\Web\View\ActionResultRenderer;
-use Morpho\Caching\VarExportFileCache;
 use Morpho\App\IRouter;
+use Morpho\App\ISite;
+use Morpho\App\InstanceProvider;
 use Morpho\App\ModuleIndex;
 use Morpho\App\ModuleIndexer;
-use Morpho\App\ServiceManager as BaseServiceManager;
-use Morpho\Error\ErrorHandler;
+use Morpho\Error\DumpListener;
+use Morpho\Ioc\ServiceManager as BaseServiceManager;
 use Morpho\App\Web\Logging\WebProcessor;
 use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\Uri\UriChecker;
+use Morpho\App\Web\View\ActionResultRenderer;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
+use Morpho\Caching\VarExportFileCache;
+use Morpho\Error\LogListener;
+use Morpho\Error\NoDupsListener;
 
 class ServiceManager extends BaseServiceManager {
     public function mkRouterService(): IRouter {
@@ -39,6 +42,19 @@ class ServiceManager extends BaseServiceManager {
 /*    protected function mkDbService() {
         return Db::connect($this->config['db']);
     }*/
+
+    public function mkSiteService(): ISite {
+        $appConfig = $this['app']->config();
+        /** @var ISite $site */
+        $site = (new SiteFactory())($appConfig);
+        $siteConfig = $site->config();
+        $this->setConfig($siteConfig['service']);
+        return $site;
+    }
+
+    protected function mkInitializerService() {
+        return new Initializer($this);
+    }
 
     protected function mkModuleIndexerService() {
         return new ModuleIndexer(new VarExportFileCache($this['site']->config()['path']['cacheDirPath']));
@@ -58,7 +74,7 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkDebugLoggerService() {
         $logger = new Logger('debug');
-        $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
+        $this->appendLogFileWriter($logger, Logger::DEBUG);
         return $logger;
     }
 
@@ -110,20 +126,29 @@ class ServiceManager extends BaseServiceManager {
             ->pushProcessor(new MemoryPeakUsageProcessor())
             ->pushProcessor(new IntrospectionProcessor());
 
-        if (ErrorHandler::isErrorLogEnabled()) {
-            $logger->pushHandler(new ErrorLogHandler());
+        $config = $this->config['errorLogger'];
+
+        if ($config['errorLogWriter'] && ErrorHandler::isErrorLogEnabled()) {
+            $logger->pushHandler(new PhpErrorLogWriter());
         }
 
-        $config = $this->config['errorLogger'];
-        if ($config['mailOnError']) {
+        if (!empty($config['mailWriter']['enabled'])) {
             $logger->pushHandler(
-                new NativeMailerHandler($config['mailTo'], 'An error has occurred', $config['mailFrom'], Logger::NOTICE)
+                new NativeMailerLogWriter($config['mailTo'], 'An error has occurred', $config['mailFrom'], Logger::NOTICE)
             );
         }
 
-        if ($config['logToFile']) {
-            $this->appendSiteLogFileWriter($logger, Logger::DEBUG);
+        if ($config['logFileWriter']) {
+            $this->appendLogFileWriter($logger, Logger::DEBUG);
         }
+
+/*        if ($config['debugWriter']) {
+            $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
+                protected function write(array $record) {
+                    d($record['message']);
+                }
+            });
+        }*/
 
         return $logger;
     }
@@ -136,11 +161,23 @@ class ServiceManager extends BaseServiceManager {
         return new DispatchErrorHandler();
     }
 
+    protected function mkErrorHandlerService() {
+        $listeners = [];
+        $logListener = new LogListener($this['errorLogger']);
+        $listeners[] = $this->config['errorHandler']['noDupsListener']
+            ? new NoDupsListener($logListener)
+            : $logListener;
+        if ($this->config['errorHandler']['dumpListener']) {
+            $listeners[] = new DumpListener();
+        }
+        return new ErrorHandler($listeners);
+    }
+
     protected function mkActionResultRendererService() {
         return new ActionResultRenderer($this);
     }
 
-    private function appendSiteLogFileWriter($logger, int $logLevel) {
+    private function appendLogFileWriter(Logger $logger, int $logLevel): void {
         $moduleIndex = $this['moduleIndex'];
         $filePath = $moduleIndex->moduleMeta($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);

@@ -1,11 +1,20 @@
 <?php declare(strict_types=1);
 namespace Morpho\App;
 
+use Morpho\Base\IInitializer;
 use Morpho\Ioc\IServiceManager;
 
-abstract class AppInitializer implements IAppInitializer {
-    public function init(IServiceManager $serviceManager): void {
-        $siteConfig = $serviceManager['site']->config();
+abstract class Initializer implements IInitializer {
+    /**
+     * @var IServiceManager
+     */
+    protected $serviceManager;
+
+    public function __construct(IServiceManager $serviceManager) {
+        $this->serviceManager = $serviceManager;
+    }
+
+    protected function applySiteConfig($siteConfig): void {
         if (isset($siteConfig['iniConfig'])) {
             $this->applyIniConfig($siteConfig['iniConfig']);
         }

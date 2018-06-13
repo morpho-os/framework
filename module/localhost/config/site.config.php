@@ -59,10 +59,13 @@ return [
              */
         ],
         'errorLogger' => [
-            'mailOnError' => false,
-            'mailFrom' => 'admin@localhost',
-            'mailTo' => 'admin@localhost',
-            'logToFile' => true,
+            'mailWriter' => [
+                'enabled' => false,
+                'mailFrom' => 'admin@localhost',
+                'mailTo' => 'admin@localhost',
+            ],
+            'logFileWriter' => true,
+            'debugWriter' => true,
         ],
         'view' => [
             'pageRenderer' => VENDOR . '/system',

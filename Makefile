@@ -22,7 +22,7 @@ mtest:
 utest:
 	bin/test test/unit/TestSuite.php
 
-utest-stop-defect:
+utest-stop-on-defect:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/unit/TestSuite.php
 
 utest-stop-on-error:
@@ -41,4 +41,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test ftest mtest utest utest-stop-defect utest-stop-on-error lint clear clean update
+.PHONY: js css test ftest mtest utest utest-stop-on-defect utest-stop-on-error lint clear clean update

@@ -10,7 +10,7 @@ use function Morpho\Base\{
     endsWith, last
 };
 use Morpho\Base\IFn;
-use Morpho\Code\Reflection\ReflectionFile;
+use Morpho\Code\Reflection\FileReflection;
 use const Morpho\App\CONTROLLER_SUFFIX;
 use const Morpho\App\ACTION_SUFFIX;
 
@@ -32,8 +32,8 @@ class ActionMetaProvider implements IFn {
 
     private function controllerMeta(array $controllerFileMeta): iterable {
         require_once $controllerFileMeta['filePath'];
-        foreach ((new ReflectionFile($controllerFileMeta['filePath']))->classes() as $rClass) {
-            $class = $rClass->getName();
+        foreach ((new FileReflection($controllerFileMeta['filePath']))->classes() as $rClass) {
+            $class = $rClass->name();
             if (!endsWith($class, CONTROLLER_SUFFIX)) {
                 continue;
             }

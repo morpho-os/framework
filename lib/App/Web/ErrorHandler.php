@@ -1,31 +1,20 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web;
 
-use Morpho\App\IAppInitializer;
-use Morpho\App\ISite;
 use Morpho\App\Web\View\Html;
-use Morpho\Ioc\IServiceManager;
-use Morpho\App\AppInitializer as BaseAppInitializer;
+use Morpho\Error\ErrorHandler as BaseErrorHandler;
 
-class AppInitializer extends BaseAppInitializer {
-    public function mkSite(\ArrayObject $appConfig): ISite {
-        return (new SiteFactory())($appConfig);
+class ErrorHandler extends BaseErrorHandler {
+    public function __construct(iterable $listeners = null) {
+        parent::__construct($listeners);
+        $this->listeners()->append($this->mkListener());
     }
 
-    public function mkServiceManager(array $services): IServiceManager {
-        return new ServiceManager($services);
+    public function handleException(\Throwable $e): void {
+        parent::handleException($e);
     }
 
-    public function init(IServiceManager $serviceManager): void {
-        Environment::init();
-        if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
-            \ini_set('cookie_secure', '1');
-        }
-        $serviceManager['errorHandler']->register();
-        parent::init($serviceManager);
-    }
-
-    public function mkFallbackErrorHandler(): callable {
+    protected function mkListener(): \Closure {
         return function (\Throwable $e) {
             $statusLine = null;
             if ($e instanceof NotFoundException) {

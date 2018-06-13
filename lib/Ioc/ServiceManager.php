@@ -47,7 +47,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
                 \sprintf(
                     "Circular reference detected for the service '%s', path: '%s'",
                     $id,
-                    \implode(' -> ', \array_keys($this->loading))
+                    \implode(' -> ', \array_keys($this->loading)) . ' -> ' . $id
                 )
             );
         }

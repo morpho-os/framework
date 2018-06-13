@@ -12,7 +12,7 @@ class SiteFactory extends BaseSiteFactory {
     /**
      * @return string|false
      */
-    protected function detectHostName() {
+    protected function currentHostName() {
         // Use the `Host` header field-value, see https://tools.ietf.org/html/rfc3986#section-3.2.2
         $host = $_SERVER['HTTP_HOST'] ?? null;
 

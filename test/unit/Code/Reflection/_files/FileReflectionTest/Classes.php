@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Test\Unit\Code\Reflection\ReflectionFileTest;
+namespace Morpho\Test\Unit\Code\Reflection\FileReflectionTest;
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.

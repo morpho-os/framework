@@ -7,24 +7,20 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Site;
-use Morpho\App\Web\AppInitializer;
+use Morpho\App\Web\Initializer;
 use Morpho\Error\IErrorHandler;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 
-class AppInitializerTest extends TestCase {
+class InitializerTest extends TestCase {
     private $umask;
     private $timezone;
-    /**
-     * @var AppInitializer
-     */
-    private $initializer;
 
     public function setUp() {
         parent::setUp();
         $this->umask = \umask();
         $this->timezone = \ini_get('date.timezone');
-        $this->initializer = new AppInitializer();
+
     }
 
     public function tearDown() {
@@ -58,9 +54,10 @@ class AppInitializerTest extends TestCase {
             ]
         );
         $serviceManager = $this->mkServiceManager($siteConfig);
-
         /** @noinspection PhpParamsInspection */
-        $this->initializer->init($serviceManager);
+        $initializer = new Initializer($serviceManager);
+
+        $initializer->init();
 
         $this->assertSame($newUmask, \umask());
     }
@@ -91,7 +88,9 @@ class AppInitializerTest extends TestCase {
         $serviceManager = $this->mkServiceManager($siteConfig);
 
         /** @noinspection PhpParamsInspection */
-        $this->initializer->init($serviceManager);
+        $initializer = new Initializer($serviceManager);
+
+        $initializer->init();
 
         $this->assertSame($timeZone, \ini_get('date.timezone'));
     }

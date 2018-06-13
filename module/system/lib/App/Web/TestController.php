@@ -15,10 +15,10 @@ class TestController extends Controller {
         return $this->mkView(null, null, $page);
     }
 
-    public function nullActionResultAction() {
+/*    public function nullActionResultAction() {
         d('test');
         throw new NotImplementedException();
-    }
+    }*/
 
     public function responseActionResultAction() {
         throw new NotImplementedException();

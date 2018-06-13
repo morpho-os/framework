@@ -10,7 +10,7 @@ use function Morpho\Base\init;
 use function Morpho\Base\last;
 use function Morpho\Base\startsWith;
 use Morpho\Code\Reflection\ClassTypeDiscoverer;
-use Morpho\Code\Reflection\ReflectionFile;
+use Morpho\Code\Reflection\FileReflection;
 use Morpho\Fs\Path;
 
 /*
@@ -92,25 +92,24 @@ class FileChecker {
         return $errors;
     }
 
+    /**
+     * @param string $filePath
+     * @return \Traversable|string[]
+     */
     protected static function namespaces(string $filePath): iterable {
-        $rFile = new ReflectionFile($filePath);
+        $rFile = new FileReflection($filePath);
         foreach ($rFile->namespaces() as $rNamespace) {
             yield $rNamespace->name();
         }
     }
 
+    /**
+     * @param string $filePath
+     * @return \Traversable|string[]
+     */
     protected static function classes(string $filePath): iterable {
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         $classes = $classTypeDiscoverer->classTypesDefinedInFile($filePath);
         return $classes;
-        /*
-        $rFile = new ReflectionFile($filePath);
-        foreach ($rFile->namespaces() as $rNamespace) {
-            foreach ($rNamespace->classTypes() as $rClass) {
-                /** @var \Morpho\Code\Reflection\ReflectionClass $rClass * /
-                yield $rClass->getName();
-            }
-        }
-        */
     }
 }

@@ -62,7 +62,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return new Json($value);
     }
 
-    protected function mkResponse(int $statusCode = null, string $body = null): Response {
+    protected function mkResponse(int $statusCode = null, string $body = null): IResponse {
         $response = new Response();
         if (null !== $statusCode) {
             $response->setStatusCode($statusCode);
@@ -79,5 +79,27 @@ abstract class Controller extends BaseController implements IHasServiceManager {
 
     protected function arrToActionResult(array $values): IActionResult {
         return $this->mkView(null, (array) $values);
+    }
+
+    protected function redirectWithSuccessMessage(string $uri, string $text, array $args = null): IResponse {
+        $this->serviceManager['messenger']->addSuccessMessage($text, $args);
+        return $this->redirect($uri);
+    }
+
+    protected function redirect(string $uri): IResponse {
+        /** @var Response $response */
+        $response = $this->request->response();
+        $uri = prependBasePath(function () {
+            return $this->request->uri()->path()->basePath();
+        }, $uri);
+        return $response->redirect($uri);
+    }
+
+    protected function args($name = null, bool $trim = true) {
+        return $this->request->args($name, $trim);
+    }
+
+    protected function query($name = null, bool $trim = true) {
+        return $this->request->query($name, $trim);
     }
 }

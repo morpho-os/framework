@@ -24,7 +24,7 @@ class SiteFactoryTest extends TestCase {
         unset($GLOBALS[$this->classLoaderRegisteredKey]);
     }
 
-    public function dataForDetectHostName_ValidIps() {
+    public function dataForCurrentHostName_ValidIps() {
         return [
             // IPv4
             [
@@ -72,15 +72,15 @@ class SiteFactoryTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForDetectHostName_ValidIps
+     * @dataProvider dataForCurrentHostName_ValidIps
      */
-    public function testDetectHostName_ValidIps(string $expected, string $ip) {
+    public function testCurrentHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
         $siteFactory = $this->mkSiteFactory();
-        $this->assertSame(\strtolower($expected), $siteFactory->detectHostName());
+        $this->assertSame(\strtolower($expected), $siteFactory->currentHostName());
     }
 
-    public function dataForDetectHostName_InvalidIps() {
+    public function dataForCurrentHostName_InvalidIps() {
         return [
             // Some cases found in OpenJDK and RFCs.
             [
@@ -108,12 +108,12 @@ class SiteFactoryTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForDetectHostName_InvalidIps
+     * @dataProvider dataForCurrentHostName_InvalidIps
      */
-    public function testDetectHostName_InvalidIps(string $ip) {
+    public function testCurrentHostName_InvalidIps(string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
         $siteFactory = $this->mkSiteFactory();
-        $this->assertFalse($siteFactory->detectHostName());
+        $this->assertFalse($siteFactory->currentHostName());
     }
 
     public function dataForInvoke_ValidHost() {
@@ -145,6 +145,7 @@ class SiteFactoryTest extends TestCase {
             'module' => [
                 $moduleName => [],
             ],
+            'siteModule' => $moduleName,
         ]));
 
         $_SERVER['HTTP_HOST'] = $hostName;
@@ -154,7 +155,7 @@ class SiteFactoryTest extends TestCase {
                 $called = true;
                 if ($hostName1 === $hostName) {
                     return [
-                        'module' => $moduleName,
+                        'siteModule' => $moduleName,
                         'path' => [
                             'dirPath' => $siteDirPath,
                             'configFilePath' => $siteConfigFilePath,
@@ -174,7 +175,7 @@ class SiteFactoryTest extends TestCase {
                 $this->map = $map;
             }
 
-            protected function loadConfigFile(string $filePath) {
+            protected function loadConfigFile(string $filePath): array {
                 return $this->map[$filePath];
             }
         };
@@ -206,8 +207,8 @@ class SiteFactoryTest extends TestCase {
 
     private function mkSiteFactory() {
         return new class extends SiteFactory {
-            public function detectHostName() { // make the protected method public
-                return parent::detectHostName();
+            public function currentHostName() { // make the protected method public
+                return parent::currentHostName();
             }
         };
     }
