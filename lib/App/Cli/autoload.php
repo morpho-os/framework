@@ -35,14 +35,14 @@ function error(string $errMessage = null, int $exitCode = null): void {
     if ($errMessage) {
         showError($errMessage);
     }
-    exit(null !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
+    exit(null !== $exitCode && 0 !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
 }
 
 function errorLn(string $errMessage = null, int $exitCode = null): void {
     if ($errMessage) {
         showErrorLn($errMessage);
     }
-    exit(null !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
+    exit(null !== $exitCode && 0 !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
 }
 
 function showError(string $errMessage): void {

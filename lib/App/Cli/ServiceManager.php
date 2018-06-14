@@ -37,11 +37,11 @@ class ServiceManager extends BaseServiceManager {
             $logger->pushHandler(new PhpErrorLogWriter());
         }
 
-/*        $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
+        $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
             protected function write(array $record) {
                 errorLn($record['message']);
             }
-        });*/
+        });
 
         return $logger;
     }
