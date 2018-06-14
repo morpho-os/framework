@@ -6,9 +6,9 @@
  */
 namespace Morpho\Code\Reflection;
 
-use ReflectionClass as BaseReflectionClass;
+use ReflectionClass as BaseClassReflection;
 
-class ReflectionClass extends BaseReflectionClass {
+class ClassTypeReflection extends BaseClassReflection {
     public function parentClasses(bool $appendSelf = true): array {
         $rClasses = [];
         $rClass = $this;

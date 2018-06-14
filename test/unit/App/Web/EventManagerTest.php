@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\Base\Event;
-use Morpho\App\ServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\DispatchErrorHandler;
 use Morpho\App\Web\EventManager;

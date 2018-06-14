@@ -6,15 +6,18 @@
  */
 namespace Morpho\Code\Reflection;
 
-use function Morpho\Base\init;
-use function Morpho\Code\Parsing\isClassType;
 use function Morpho\Code\Parsing\parseFile;
+use function Morpho\Base\contains;
+use PhpParser\Node;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
 use PhpParser\Node\Stmt\Function_ as FunctionStmt;
 use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
 use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
 use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
+use ReflectionFunction;
 
 class FileReflection {
     private $filePath;
@@ -28,30 +31,34 @@ class FileReflection {
     }
 
     /**
-     * @return \Traversable|NamespaceReflection[]
+     * @return iterable|NamespaceReflection[]
      */
     public function namespaces(): iterable {
-        $ast = parseFile($this->filePath);
+        $stmts = parseFile($this->filePath);
+
         $traverser = new NodeTraverser();
+
         $traverser->addVisitor(new NameResolver());
-        $ast = $traverser->traverse($ast);
+
+        $stmts = $traverser->traverse($stmts);
+
         $globalClassTypes = $globalFunctions = [];
-        foreach ($ast as $node) {
-            if ($node instanceof NamespaceStmt) {
-                yield new NamespaceReflection(['filePath' => $this->filePath, 'node' => $node, 'name' => $node->name->toString()]);
-            } elseif (isClassType($node)) {
-                $globalClassTypes[] = $node;
-            } elseif ($node instanceof FunctionStmt) {
-                $globalFunctions[] = $node;
+        foreach ($stmts as $stmt) {
+            if ($stmt instanceof NamespaceStmt) {
+                yield new NamespaceReflection($this->filePath(), $stmt->name->toString(), $this->classTypes($stmt), $this->functions($stmt), false);
+            } elseif ($this->isClassType($stmt)) {
+                $globalClassTypes[] = $this->nodeName($stmt);
+            } elseif ($this->isFunction($stmt)) {
+                $globalFunctions[] = $this->nodeName($stmt);
             }
         }
         if (\count($globalClassTypes) || \count($globalFunctions)) {
-            yield new GlobalNamespaceReflection(['filePath' => $this->filePath, 'classTypes' => $globalClassTypes, 'functions' => $globalFunctions]);
+            yield new NamespaceReflection($this->filePath(), null, $globalClassTypes, $globalFunctions, true);
         }
     }
 
     /**
-     * @return \Traversable|ClassTypeReflection[]
+     * @return iterable|ClassTypeReflection[]
      */
     public function classes(): iterable {
         return $this->filterClassTypes(function (ClassTypeReflection $rClass) {
@@ -60,7 +67,7 @@ class FileReflection {
     }
 
     /**
-     * @return \Traversable|ClassTypeReflection[]
+     * @return iterable|ClassTypeReflection[]
      */
     public function traits(): iterable {
         return $this->filterClassTypes(function (ClassTypeReflection $rClass) {
@@ -69,7 +76,7 @@ class FileReflection {
     }
 
     /**
-     * @return \Traversable|ClassTypeReflection[]
+     * @return iterable|ClassTypeReflection[]
      */
     public function interfaces(): iterable {
         return $this->filterClassTypes(function (ClassTypeReflection $rClass) {
@@ -77,136 +84,118 @@ class FileReflection {
         });
     }
 
+    /**
+     * @return iterable|ClassTypeReflection[]
+     */
+    private function classTypes(NamespaceStmt $nsNode): iterable {
+        foreach ($nsNode->stmts as $node) {
+            if ($this->isClassType($node)) {
+                yield $node->namespacedName->toString();
+            }
+        }
+    }
 
-/*    private function nodeName(Node $node): string {
+    /**
+     * @return iterable|\ReflectionMethod[]
+     */
+    private function functions(NamespaceStmt $nsNode): iterable {
+        foreach ($nsNode->stmts as $node) {
+            if ($this->isFunction($node)) {
+                yield $node->namespacedName->toString();
+            }
+        }
+    }
+
+    private function isFunction(Node $node): bool {
+        return $node instanceof FunctionStmt;
+    }
+
+    private function isClassType(Node $node): bool {
+        return $node instanceof ClassStmt
+            || $node instanceof TraitStmt
+            || $node instanceof InterfaceStmt;
+    }
+
+    private function nodeName(Node $node): string {
         if ($node->name instanceof Identifier) {
             return $node->name->name;
         }
         return $node->name;
-    }*/
+    }
 
-    /**
-     * @param \Closure $filter
-     * @return iterable|ClassTypeReflection[]
-     */
     private function filterClassTypes(\Closure $filter): iterable {
         foreach ($this->namespaces() as $rNamespace) {
             /** @var $rNamespace NamespaceReflection */
-            foreach ($rNamespace->classTypes() as $classType) {
-                if ($filter($classType)) {
-                    yield $classType;
+            yield from $rNamespace->classTypes($filter);
+        }
+    }
+}
+
+/**
+ * This class should not be instantiated directly, use methods of the ReflectionFile instead.
+ */
+class NamespaceReflection {
+    private $name;
+    private $classTypes;
+    private $functions;
+    private $isGlobal;
+    private $filePath;
+
+    public function __construct(string $filePath, ?string $name, iterable $classTypes, iterable $functions, bool $isGlobal) {
+        $this->filePath = $filePath;
+        $this->name = $name;
+        $this->classTypes = $classTypes;
+        $this->functions = $functions;
+        $this->isGlobal = $isGlobal;
+    }
+
+    public function filePath(): string {
+        return $this->filePath;
+    }
+
+    public function isGlobal(): bool {
+        return $this->isGlobal;
+    }
+
+    public function name(): ?string {
+        return $this->name;
+    }
+
+    /**
+     * @return iterable Iterable over \ReflectionClass
+     */
+    public function classTypes(callable $filter = null): iterable {
+        $this->requireFile($this->filePath);
+        foreach ($this->classTypes as $class) {
+            $rClass = new ClassTypeReflection($class);
+            if ($filter) {
+                if ($filter($rClass)) {
+                    yield $rClass;
                 }
-            }
-        }
-    }
-}
-
-interface INamedType {
-    public function name(): ?string;
-
-    public function filePath(): string;
-}
-
-class NamespaceReflection implements INamedType {
-    protected $context;
-
-    public function __construct(array $context) {
-        $this->context = $context;
-    }
-
-    public function filePath(): string {
-        return $this->context['filePath'];
-    }
-
-    public function name(): ?string {
-        return $this->context['name'];
-    }
-
-    /**
-     * @return iterable|ClassTypeReflection[]
-     */
-    public function classTypes(): iterable {
-        foreach ($this->context['node']->stmts as $node) {
-            if (isClassType($node)) {
-                yield new ClassTypeReflection(['node' => $node, 'filePath' => $this->context['filePath'], 'name' => $node->namespacedName->toString()]);
+            } else {
+                yield $rClass;
             }
         }
     }
 
     /**
-     * @return iterable|FunctionReflection[]
+     * @return iterable Iterable over \ReflectionFunction
      */
     public function functions(): iterable {
-        foreach ($this->context['node']->stmts as $node) {
-            if ($node instanceof FunctionStmt) {
-                yield new FunctionReflection(['node' => $node, 'filePath' => $this->context['filePath'], 'name' => $node->namespacedName->toString()]);
-            }
-        }
-    }
-}
-
-class GlobalNamespaceReflection extends NamespaceReflection {
-    public function name(): ?string {
-        return null;
-    }
-
-    public function classTypes(): iterable {
-        foreach ($this->context['classTypes'] as $node) {
-            yield new ClassTypeReflection(['node' => $node, 'filePath' => $this->context['filePath'], 'name' => $node->namespacedName->toString()]);
+        /** @noinspection PhpIncludeInspection */
+        require_once $this->filePath;
+        foreach ($this->functions as $function) {
+            yield new ReflectionFunction($function);
         }
     }
 
-    /**
-     * @return iterable|FunctionReflection[]
-     */
-    public function functions(): iterable {
-        foreach ($this->context['functions'] as $node) {
-            yield new FunctionReflection(['node' => $node, 'filePath' => $this->context['filePath'], 'name' => $node->namespacedName->toString()]);
+    protected function requireFile(string $filePath): void {
+        if (contains($filePath, '://')) { // for streams use another approach.
+            $php = \file_get_contents($filePath);
+            eval('?>' . $php);
+        } else {
+            /** @noinspection PhpIncludeInspection */
+            require_once $filePath;
         }
-    }
-}
-
-class ClassTypeReflection implements INamedType {
-    private $context;
-
-    public function __construct(array $context) {
-        $this->context = $context;
-    }
-
-    public function name(): string {
-        return $this->context['name'];
-    }
-
-    public function filePath(): string {
-        return $this->context['filePath'];
-    }
-
-    public function isTrait(): bool {
-        return $this->context['node'] instanceof TraitStmt;
-    }
-
-    public function isInterface(): bool {
-        return $this->context['node'] instanceof InterfaceStmt;
-    }
-
-    public function nameOfNamespace(): string {
-        return init($this->context['node']->namespacedName->toString(), '\\');
-    }
-}
-
-
-class FunctionReflection implements INamedType {
-    private $context;
-
-    public function __construct(array $context) {
-        $this->context = $context;
-    }
-
-    public function name(): ?string {
-        return $this->context['name'];
-    }
-
-    public function filePath(): string {
-        return $this->context['filePath'];
     }
 }

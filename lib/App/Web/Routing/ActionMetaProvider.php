@@ -33,7 +33,7 @@ class ActionMetaProvider implements IFn {
     private function controllerMeta(array $controllerFileMeta): iterable {
         require_once $controllerFileMeta['filePath'];
         foreach ((new FileReflection($controllerFileMeta['filePath']))->classes() as $rClass) {
-            $class = $rClass->name();
+            $class = $rClass->getName();
             if (!endsWith($class, CONTROLLER_SUFFIX)) {
                 continue;
             }
