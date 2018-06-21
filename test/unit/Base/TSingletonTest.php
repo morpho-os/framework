@@ -5,10 +5,17 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Test\Unit\Base {
+
+    use Morpho\Test\Unit\Base\TSingletonTest\ChildSingleton;
     use Morpho\Testing\TestCase;
     use Morpho\Test\Unit\Base\TSingletonTest\Singleton;
 
     class TSingletonTest extends TestCase {
+        public function tearDown() {
+            parent::tearDown();
+            Singleton::resetState();
+        }
+
         public function testSingleton() {
             $instance = Singleton::instance();
             $this->assertInstanceOf(Singleton::class, $instance);
@@ -22,6 +29,12 @@ namespace Morpho\Test\Unit\Base {
             $this->assertInstanceOf(Singleton::class, $newInstance);
             $this->assertSame($newInstance, Singleton::instance());
         }
+
+        public function testInheritedSingleton() {
+            $instance = ChildSingleton::instance();
+            $this->assertInstanceOf(ChildSingleton::class, $instance);
+            $this->assertSame($instance, ChildSingleton::instance());
+        }
     }
 }
 
@@ -30,6 +43,9 @@ namespace Morpho\Test\Unit\Base\TSingletonTest {
 
     class Singleton {
         use TSingleton;
+    }
+
+    class ChildSingleton extends Singleton {
     }
 }
 

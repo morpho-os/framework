@@ -390,6 +390,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('fooBar', camelize('foo-bar'));
         $this->assertEquals('fooBar', camelize('FooBar'));
         $this->assertEquals('FooBar', camelize('FooBar', true));
+        $this->assertEquals('FooBar', camelize('fooBar', true));
         $this->assertEquals('fooBar', camelize('foo_bar'));
         $this->assertEquals('fooBar', camelize('-foo-bar-'));
         $this->assertEquals('fooBar', camelize('_foo-bar_'));

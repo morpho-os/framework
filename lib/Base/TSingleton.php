@@ -11,7 +11,7 @@ trait TSingleton {
 
     public static function instance(): self {
         if (!self::$instance) {
-            self::$instance = new self();
+            self::$instance = new static();
         }
         return self::$instance;
     }

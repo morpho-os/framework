@@ -8,17 +8,17 @@ namespace Morpho\Testing;
 
 use Morpho\Base\TSingleton;
 use function Morpho\App\moduleDirPath;
-use const Morpho\App\MODULE_DIR_NAME;
+//use const Morpho\App\MODULE_DIR_NAME;
 use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
-class Sut {
+class Sut implements ISut {
     use TSingleton;
 
     /**
      * @var ?string
      */
-    private $baseModuleDirPath;
+    //private $siteModuleDirPath;
     /**
      * @var ?string
      */
@@ -30,27 +30,27 @@ class Sut {
     private $publicDirPath;
 
     /**
-     * @var ?TestSettings
+     * @var ?TestConfig
      */
-    private $settings;
+    private $config;
 
-    public function baseDirPath() {
+    public function baseDirPath(): string {
         if (null === $this->baseDirPath) {
             $this->baseDirPath = moduleDirPath(__DIR__);
         }
         return $this->baseDirPath;
     }
 
-    public function baseModuleDirPath(): string {
-        if (null === $this->baseModuleDirPath) {
-            $this->baseModuleDirPath = $this->baseDirPath() . '/' . MODULE_DIR_NAME;
+/*    public function siteModuleDirPath(): string {
+        if (null === $this->siteModuleDirPath) {
+            $this->siteModuleDirPath = $this->baseDirPath() . '/' . MODULE_DIR_NAME;
         }
-        return $this->baseModuleDirPath;
-    }
+        return $this->siteModuleDirPath;
+    }*/
 
-    public function configFilePath(): string {
-        return $this->baseModuleDirPath() . '/config.php';
-    }
+/*    public function configFilePath(): string {
+        return $this->siteModuleDirPath() . '/config.php';
+    }*/
 
     public function publicDirPath(): string {
         if (null === $this->publicDirPath) {
@@ -59,36 +59,14 @@ class Sut {
         return $this->publicDirPath;
     }
 
-    public function settings(): TestSettings {
-        if (null === $this->settings) {
-            $this->settings = new TestSettings();
+    public function config(): \ArrayAccess {
+        if (null === $this->config) {
+            $this->config = $this->mkConfig();
         }
-        return $this->settings;
-    }
-}
-
-class TestSettings implements \ArrayAccess {
-    private $values = [];
-
-    private $default = [
-        'siteUri' => 'http://framework'
-    ];
-
-    public function offsetExists($name): bool {
-        return \array_key_exists($name, $this->values) || \array_key_exists($name, $this->default);
+        return $this->config;
     }
 
-    public function offsetGet($name) {
-        if (!\array_key_exists($name, $this->values)) {
-            return $this->default[$name];
-        }
-        return $this->values[$name];
-    }
-    public function offsetSet($name, $value) {
-        $this->values[$name] = $value;
-    }
-    
-    public function offsetUnset($name) {
-        unset($this->values[$name]);
+    protected function mkConfig(): \ArrayAccess {
+        return new SutConfig();
     }
 }

@@ -28,7 +28,7 @@ abstract class TestSuite extends BaseTestSuite {
         );
     }
 
-    protected function sut() {
+    protected function sut(): ISut {
         return Sut::instance();
     }
 }

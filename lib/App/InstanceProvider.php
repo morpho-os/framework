@@ -47,20 +47,21 @@ class InstanceProvider implements IFn {
         $this->registerModuleClassLoader($moduleMeta, $moduleName);
 
         // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
-        $isCli = PHP_SAPI == 'cli';
-        $classSuffix = 'App' . '\\' . ($isCli ? 'Cli' : 'Web') . '\\' . $controllerName . CONTROLLER_SUFFIX;
-        $handler = $this->mkInstance($moduleMeta, $classSuffix);
+        $classWithoutModuleNsPrefix = $this->controllerClassWithoutModuleNs($controllerName);
+        $handler = $this->mkInstance($moduleMeta, $classWithoutModuleNsPrefix);
         $request['handlerFn'] = $handler;
         return $handler;
     }
 
     /**
+     * @param ModuleMeta $moduleMeta
+     * @param string $classWithoutModuleNsPrefix
      * @return array|false
      */
-    public function classFilePath(ModuleMeta $moduleMeta, string $classSuffix) {
+    public function classFilePath(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
         foreach ($moduleMeta['namespace'] as $namespace => $nsDirPath) {
-            $class = $namespace . '\\' . $classSuffix;
-            $classFilePath = $moduleMeta['path']['dirPath'] . '/' . $nsDirPath . '/' . \str_replace('\\', '/', $classSuffix) . '.php';
+            $class = $namespace . '\\' . $classWithoutModuleNsPrefix;
+            $classFilePath = $moduleMeta['path']['dirPath'] . '/' . $nsDirPath . '/' . \str_replace('\\', '/', $classWithoutModuleNsPrefix) . '.php';
             if (\is_file($classFilePath)) {
                 return [$class, $classFilePath];
             }
@@ -69,11 +70,12 @@ class InstanceProvider implements IFn {
     }
 
     /**
-     * @param string $classSuffix Class suffix like Web\IndexController, which will added to module's namespaces.
+     * @param ModuleMeta $moduleMeta
+     * @param string $classWithoutModuleNsPrefix Class suffix like Web\IndexController, which will added to module's namespaces.
      * @return \object|false
      */
-    public function mkInstance(ModuleMeta $moduleMeta, string $classSuffix) {
-        $classPath = $this->classFilePath($moduleMeta, $classSuffix);
+    public function mkInstance(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
+        $classPath = $this->classFilePath($moduleMeta, $classWithoutModuleNsPrefix);
         if (false !== $classPath) {
             [$class, $filePath] = $classPath;
             if (!\class_exists($class, false)) {
@@ -94,5 +96,11 @@ class InstanceProvider implements IFn {
             require_once $moduleMeta->autoloadFilePath();
             $this->registeredModules[$moduleName] = true;
         }
+    }
+
+    protected function controllerClassWithoutModuleNs($controllerName): string {
+        $isCli = PHP_SAPI == 'cli';
+        $classWithoutModuleNsPrefix = 'App' . '\\' . ($isCli ? 'Cli' : 'Web') . '\\' . $controllerName . CONTROLLER_SUFFIX;
+        return $classWithoutModuleNsPrefix;
     }
 }

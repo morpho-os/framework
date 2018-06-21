@@ -37,7 +37,7 @@ class TestSuite extends BrowserTestSuite {
             $address = 'framework';
         }
             */
-        $this->sut()->settings()['siteUri'] = 'http://' . $address;
+        $this->sut()->config()['siteUri'] = 'http://' . $address;
     }
 
     public function tearDown(): void {

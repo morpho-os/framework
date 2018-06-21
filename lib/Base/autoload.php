@@ -194,18 +194,17 @@ function classify($string, bool $toFqName = false): string {
  *
  * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
  *                       All other characters will be removed.
- *
+ * @param bool $upperCaseFirstChar
  * @return string
  */
-function camelize($string, bool $lcfirst = false): string {
+function camelize($string, bool $upperCaseFirstChar = false): string {
     $string = sanitize($string, '-_ ');
     $string = \str_replace(['-', '_'], ' ', $string);
     $string = \ucwords($string);
     $string = \str_replace(' ', '', $string);
-    if (!$lcfirst) {
+    if (!$upperCaseFirstChar) {
         return \lcfirst($string);
     }
-
     return $string;
 }
 
@@ -222,11 +221,9 @@ function humanize($string, bool $escape = true) {
         },
         \str_replace('_', ' ', $string)
     );
-
     if ($escape) {
         $result = Html::encode($result);
     }
-
     return $result;
 }
 
@@ -989,6 +986,9 @@ function toArray($iter): array {
             throw new NotImplementedException();
         }
         return [];
+    }
+    if ($iter instanceof \ArrayObject) {
+        return $iter->getArrayCopy();
     }
     $arr = [];
     $i = 0;
