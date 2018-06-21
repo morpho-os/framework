@@ -6,6 +6,9 @@
  */
 namespace Morpho\Code\Compiler\MiddleEnd;
 
+/**
+ * ir (non-optimized) -> ir (optimized)
+ */
 interface IOptimizer {
 
 }

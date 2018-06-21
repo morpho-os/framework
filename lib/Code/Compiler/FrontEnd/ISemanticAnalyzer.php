@@ -6,7 +6,7 @@
  */
 namespace Morpho\Code\Compiler\FrontEnd;
 
-// Usually includes type checking
+// Usually includes TypeChecker
 interface ISemanticAnalyzer {
 
 }

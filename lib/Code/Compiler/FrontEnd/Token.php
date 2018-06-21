@@ -8,16 +8,19 @@ namespace Morpho\Code\Compiler\FrontEnd;
 
 class Token {
     /**
+     * AKA Token-class
      * @var string
      */
-    public $tokenClass;
+    public $type;
 
     /**
+     * AKA Lexeme
      * @var string
      */
-    public $lexeme;
+    public $value;
 
     /**
+     * @TODO: ['offset' => $offset, 'length' => $length], see also another formats in [esprima](https://github.com/ariya/esprima/blob/master/docs/lexical-analysis.md)
      * @var Location
      */
     public $location;

@@ -6,6 +6,6 @@
  */
 namespace Morpho\Code\Compiler\FrontEnd;
 
-// AKA Lexer/Scanner
+// AKA Lexer/Scanner/Tokenizer: string -> [token]
 interface ILexicalAnalyzer {
 }
