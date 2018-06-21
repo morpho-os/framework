@@ -13,6 +13,9 @@ css:
 test:
 	bin/test
 
+test-stop-on-error:
+	bin/test --stop-on-error --stop-on-failure --stop-on-warning
+
 ftest:
 	bin/test test/functional/TestSuite.php
 
@@ -41,4 +44,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test ftest mtest utest utest-stop-on-defect utest-stop-on-error lint clear clean update
+.PHONY: js css test test-stop-on-error ftest mtest utest utest-stop-on-defect utest-stop-on-error lint clear clean update

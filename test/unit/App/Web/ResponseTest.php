@@ -133,4 +133,18 @@ class ResponseTest extends TestCase {
             $response->called
         );
     }
+
+    public function testResetState() {
+        $this->response->setStatusCode(404);
+        $this->response->headers()['foo'] = 'bar';
+        $this->response->setBody('test');
+        $this->response->setStatusLine('Some status line');
+
+        $this->response->resetState();
+
+        $this->assertSame('', $this->response->body());
+        $this->assertSame(Response::OK_STATUS_CODE, $this->response->statusCode());
+        $this->assertSame([], $this->response->headers()->getArrayCopy());
+        $this->assertSame($this->response->statusCodeToStatusLine(200), $this->response->statusLine());
+    }
 }

@@ -57,14 +57,15 @@ SQL
 
     public function testLastInsertId_ForAutoincrementCol() {
         $this->db->eval(<<<SQL
-CREATE TABLE foo (
-    some int PRIMARY KEY AUTO_INCREMENT
+CREATE TABLE test (
+    foo int PRIMARY KEY AUTO_INCREMENT,
+    bar varchar(255)
 )
 SQL
         );
-        $this->db->insertRow('foo', ['some' => '']);
+        $this->db->insertRow('test', ['bar' => 'test']);
         $this->assertEquals('1', $this->db->lastInsertId());
-        $this->assertEquals('1', $this->db->lastInsertId('some'));
+        $this->assertEquals('1', $this->db->lastInsertId('foo'));
     }
 
     public function testSelectField() {

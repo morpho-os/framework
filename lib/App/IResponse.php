@@ -18,4 +18,6 @@ interface IResponse extends IMessage {
     public function setStatusCode(int $statusCode): void;
 
     public function statusCode(): int;
+
+    public function resetState(): void;
 }

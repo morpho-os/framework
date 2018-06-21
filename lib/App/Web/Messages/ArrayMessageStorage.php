@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\Messages;
 
-use Morpho\Base\ArrayIterator;
-
-class ArrayMessageStorage extends ArrayIterator implements IMessageStorage {
+class ArrayMessageStorage extends \ArrayObject implements IMessageStorage {
+    public function clear(): void {
+    }
 }

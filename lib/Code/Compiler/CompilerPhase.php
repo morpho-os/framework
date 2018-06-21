@@ -10,4 +10,9 @@ use Morpho\Base\Pipe;
 
 // AKA Stage
 class CompilerPhase extends Pipe implements ICompilerPhase {
+    protected $config;
+
+    public function __construct($config) {
+        $this->config = $config;
+    }
 }

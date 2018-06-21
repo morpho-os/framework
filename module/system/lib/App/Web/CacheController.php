@@ -19,7 +19,8 @@ class CacheController extends Controller {
             }
         });
         // @TODO: CSRF
-        return $this->redirectWithSuccessMessage($this->query('redirect') ?: '/', "The cache has been cleared successfully");
+        return $this->mkRedirectResult($this->query('redirect') ?: '/')
+            ->withSuccessMessage("The cache has been cleared successfully");
     }
 
     /**
@@ -28,7 +29,8 @@ class CacheController extends Controller {
     public function rebuildRoutesAction() {
         $this->serviceManager['router']->rebuildRoutes();
         // @TODO: CSRF
-        $this->redirectWithSuccessMessage($this->query('redirect') ?: '/', "Routes have been rebuilt successfully");
+        return $this->mkRedirectResult($this->query('redirect') ?: '/')
+            ->withSuccessMessage("Routes have been rebuilt successfully");
     }
     /**
      * @Title Rebuild events

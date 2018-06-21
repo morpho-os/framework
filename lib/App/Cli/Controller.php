@@ -7,22 +7,27 @@
 namespace Morpho\App\Cli;
 
 use Morpho\App\Controller as BaseController;
+use Morpho\App\IActionResult;
 use Morpho\App\IResponse;
 
 class Controller extends BaseController {
     /**
      * @param mixed $actionResult
      */
-    protected function handleActionResult($actionResult): IResponse {
+    protected function handleResult($actionResult): IResponse {
         $response = $this->request->response();
         $actionResult = (string) $actionResult;
         $response['result'] = $actionResult;
         return $response;
     }
-
-    protected function mkNotFoundResponse(string $actionName): IResponse {
+/*
+    protected function mkNotFoundResponse(): IResponse {
         $response = new Response();
         $response->setBody('Not found');
         return $response;
+    }
+*/
+    protected function mkNotFoundResult(): IActionResult {
+        // @TODO
     }
 }

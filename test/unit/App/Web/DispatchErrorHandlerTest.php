@@ -8,80 +8,43 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Monolog\Logger;
 use Morpho\Base\IFn;
-use const Morpho\App\VENDOR;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\AccessDeniedException;
-use Morpho\App\Web\BadRequestException;
 use Morpho\App\Web\DispatchErrorHandler;
-use Morpho\App\Web\NotFoundException;
 use Morpho\App\Web\Request;
-use Morpho\App\Web\Response;
 
 class DispatchErrorHandlerTest extends TestCase {
-    public function dataForHandleError_ThrowsExceptionWhenTheSameErrorOccursTwice() {
-        return [
-            [
-                new AccessDeniedException(), DispatchErrorHandler::ACCESS_DENIED_ERROR, Response::FORBIDDEN_STATUS_CODE, false,
-            ],
-            [
-                new NotFoundException(), DispatchErrorHandler::NOT_FOUND_ERROR, Response::NOT_FOUND_STATUS_CODE, false,
-            ],
-            [
-                new BadRequestException(), DispatchErrorHandler::BAD_REQUEST_ERROR,Response::BAD_REQUEST_STATUS_CODE, false,
-            ],
-            [
-                new \RuntimeException(), DispatchErrorHandler::UNCAUGHT_ERROR, Response::INTERNAL_SERVER_ERROR_STATUS_CODE, true,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForHandleError_ThrowsExceptionWhenTheSameErrorOccursTwice
-     */
-    public function testHandleError_ThrowsExceptionWhenTheSameErrorOccursTwice(\Throwable $exception, string $errorType, int $expectedStatusCode, bool $mustLogError) {
+    public function testHandleException_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         $handler = ['morpho-os/system', 'SomeCtrl', 'foo'];
         $dispatchErrorHandler = new DispatchErrorHandler();
-        $dispatchErrorHandler->setHandler($errorType, $handler);
-        $this->checkHandlesTheSameErrorOccurredTwice($dispatchErrorHandler, $handler, $exception, $expectedStatusCode, $mustLogError);
+        $dispatchErrorHandler->setExceptionHandler($handler);
+        $exception = new \RuntimeException();
+        $this->checkHandlesTheSameErrorOccurredTwice($dispatchErrorHandler, $handler, $exception, 500, true);
     }
 
-    /**
-     * @dataProvider dataForHandleError_ThrowsExceptionWhenTheSameErrorOccursTwice
-     */
-    public function testDefaultErrorHandler(\Throwable $exception, string $errorType, int $expectedStatusCode, bool $mustLogError) {
-        $handler = [
-            VENDOR . '/system',
-            'Error',
-            $errorType,
-        ];
-        $this->checkHandlesTheSameErrorOccurredTwice(new DispatchErrorHandler(), $handler, $exception, $expectedStatusCode, $mustLogError);
+    public function testDefaultExceptionHandler() {
+        $handler = DispatchErrorHandler::EXCEPTION_HANDLER;
+        $exception = new \RuntimeException();
+        $this->checkHandlesTheSameErrorOccurredTwice(new DispatchErrorHandler(), $handler, $exception, 500, true);
     }
 
-    public function testSetThrowErrorsAccessor() {
+    public function testThrowErrorsAccessor() {
         $this->checkBoolAccessor([new DispatchErrorHandler(), 'throwErrors'], false);
     }
 
-    public function dataForEffectOfTheThrowErrorFlag() {
-        yield [new AccessDeniedException('Access denied test'), false];
-        yield [new NotFoundException('Not found test'), false];
-        yield [new BadRequestException('Bad request test'), false];
-        yield [new \RuntimeException('Uncaught test'), true];
-    }
-
-    /**
-     * @dataProvider dataForEffectOfTheThrowErrorFlag
-     */
-    public function testEffectOfTheThrowErrorFlag(\Throwable $exception, bool $mustLogError) {
+    public function testHandleException_MustRethrowExceptionIfThrowErrorsIsSet() {
+        $exception = new \RuntimeException('Uncaught test');
+        //yield [, true];
         $dispatchErrorHandler = new DispatchErrorHandler();
         $request = $this->mkRequest();
         $request->isHandled(true);
         $exceptionMessage = $exception->getMessage();
         $dispatchErrorHandler->throwErrors(true);
-        $serviceManager = $this->mkServiceManagerWithLogger($mustLogError, $exception, 1);
+        $serviceManager = $this->mkServiceManagerWithLogger(true, $exception, 1);
+        /** @noinspection PhpParamsInspection */
         $dispatchErrorHandler->setServiceManager($serviceManager);
         try {
-            $dispatchErrorHandler->handleError($exception, $request);
+            $dispatchErrorHandler->handleException($exception, $request);
             $this->fail('Must throw an exception');
         } catch (\RuntimeException $e) {
             $this->assertSame([null, null, null], $request->handler());
@@ -97,9 +60,10 @@ class DispatchErrorHandlerTest extends TestCase {
 
         $serviceManager = $this->mkServiceManagerWithLogger($mustLogError, $exception, 2);
 
+        /** @noinspection PhpParamsInspection */
         $dispatchErrorHandler->setServiceManager($serviceManager);
 
-        $dispatchErrorHandler->handleError($exception, $request);
+        $dispatchErrorHandler->handleException($exception, $request);
 
         $this->assertFalse($request->isHandled());
         $this->assertEquals($expectedHandler, $request->handler());
@@ -107,7 +71,7 @@ class DispatchErrorHandlerTest extends TestCase {
         $this->assertEquals($expectedStatusCode, $request->response()->statusCode());
 
         try {
-            $dispatchErrorHandler->handleError($exception, $request);
+            $dispatchErrorHandler->handleException($exception, $request);
             $this->fail('Exception was not thrown');
         } catch (\RuntimeException $e) {
             $this->assertEquals('Exception loop has been detected', $e->getMessage());

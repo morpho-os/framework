@@ -14,9 +14,9 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
+use Morpho\App\Dispatcher;
 use Morpho\App\IRouter;
 use Morpho\App\ISite;
-use Morpho\App\InstanceProvider;
 use Morpho\App\ModuleIndex;
 use Morpho\App\ModuleIndexer;
 use Morpho\Error\DumpListener;
@@ -26,7 +26,7 @@ use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\Uri\UriChecker;
-use Morpho\App\Web\View\ActionResultRenderer;
+use Morpho\App\Web\ActionResultHandler;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
 use Morpho\Caching\VarExportFileCache;
@@ -158,7 +158,13 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkDispatchErrorHandlerService() {
-        return new DispatchErrorHandler();
+        $dispatchErrorHandler = new DispatchErrorHandler();
+        $config = $this->config()['dispatchErrorHandler'];
+        $dispatchErrorHandler->throwErrors($config['throwErrors']);
+        if (isset($config['exceptionHandler'])) {
+            $dispatchErrorHandler->setExceptionHandler($config['exceptionHandler']);
+        }
+        return $dispatchErrorHandler;
     }
 
     protected function mkErrorHandlerService() {
@@ -173,8 +179,8 @@ class ServiceManager extends BaseServiceManager {
         return new ErrorHandler($listeners);
     }
 
-    protected function mkActionResultRendererService() {
-        return new ActionResultRenderer($this);
+    protected function mkActionResultHandlerService() {
+        return new ActionResultHandler($this);
     }
 
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {

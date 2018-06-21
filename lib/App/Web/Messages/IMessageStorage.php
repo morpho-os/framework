@@ -6,8 +6,6 @@
  */
 namespace Morpho\App\Web\Messages;
 
-interface IMessageStorage extends \Countable, \Iterator, \ArrayAccess {
+interface IMessageStorage extends \Countable, \Traversable, \ArrayAccess {
     public function clear(): void;
-
-    public function toArray(): array;
 }

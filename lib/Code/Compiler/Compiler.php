@@ -12,7 +12,7 @@ use Morpho\Code\Compiler\BackEnd\BackEnd;
 use Morpho\Code\Compiler\FrontEnd\FrontEnd;
 use Morpho\Code\Compiler\MiddleEnd\MiddleEnd;
 
-abstract class Compiler implements IFn {
+class Compiler implements IFn {
     /**
      * @var null|\ArrayObject
      */
@@ -21,7 +21,7 @@ abstract class Compiler implements IFn {
     /**
      * @var array|null
      */
-    private $config;
+    protected $config;
 
     public function __construct(array $config = null) {
         if ($config) {
@@ -34,29 +34,40 @@ abstract class Compiler implements IFn {
     }
 
     public function __invoke($source) {
-        $context = new \ArrayObject([
-            'source' => $source,
-            'compiler' => $this,
-        ]);
+        $context = $this->mkContext($source);
         $this->context = $context;
-        $frontEnd = $this->mkFrontEnd($this->config['frontEndPhases']);
-        $middleEnd = $this->mkMiddleEnd($this->config['middleEndPhases']);
-        $backEnd = $this->mkBackEnd($this->config['backEndPhases']);
+        $frontEnd = $this->config['frontEnd']['instance'] ?? $this->mkFrontEnd();
+        $middleEnd = $this->config['middleEnd']['instance'] ?? $this->mkMiddleEnd();
+        $backEnd = $this->config['backEnd']['instance'] ?? $this->mkBackEnd();
         return (new Pipe([$frontEnd, $middleEnd, $backEnd]))($context);
     }
 
-    abstract protected function mkFrontEnd($config): FrontEnd;
+    protected function mkContext($source): \ArrayObject {
+        return new \ArrayObject([
+            'source' => $source,
+            'compiler' => $this,
+        ]);
+    }
 
-    abstract protected function mkMiddleEnd($config): MiddleEnd;
+    protected function mkFrontEnd(): FrontEnd {
+        return new FrontEnd($this->config['frontEnd']);
+    }
 
-    abstract protected function mkBackEnd($config): BackEnd;
+    protected function mkMiddleEnd(): MiddleEnd {
+        return new MiddleEnd($this->config['middleEnd']);
+    }
+
+    protected function mkBackEnd(): BackEnd {
+        return new BackEnd($this->config['backEnd']);
+    }
 
     protected function checkConfig(array $config): array {
-        $requiredKeys = ['frontEndPhases', 'middleEndPhases', 'backEndPhases'];
+/*        $requiredKeys = ['frontEnd', 'middleEnd', 'backEnd'];
         $intersection = array_intersect_key($config, array_flip($requiredKeys));
         if (count($intersection) !== count($requiredKeys)) {
             throw new \RuntimeException('The following required config items are missing: ' . implode(', ', array_diff($requiredKeys, array_keys($config))));
         }
-        return $intersection;
+        return $intersection;*/
+        return $config;
     }
 }

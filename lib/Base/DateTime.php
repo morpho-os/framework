@@ -23,6 +23,10 @@ class DateTime extends DateTimeImmutable {
         return new static('now', $timezone);
     }
 
+    public static function utcNow(): self {
+        return new static('now', new \DateTimeZone('UTC'));
+    }
+
     public function yearAsInt() {
         return (int)$this->format('Y');
     }

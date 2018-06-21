@@ -6,10 +6,7 @@
  */
 namespace Morpho\App\Web\Messages;
 
-/**
- * @TODO: Implement \IteratorAggregate
- */
-class Messenger implements \Countable {
+class Messenger implements \Countable, \IteratorAggregate {
     public const ERROR   = 'error';
     public const INFO    = 'info';
     public const SUCCESS = 'success';
@@ -18,7 +15,7 @@ class Messenger implements \Countable {
     /**
      * @var IMessageStorage
      */
-    protected $messages;
+    protected $messageStorage;
 
     protected $allowedTypes = [
         self::SUCCESS,
@@ -29,7 +26,7 @@ class Messenger implements \Countable {
 
     public function clearMessages(): void {
         $this->initMessageStorage();
-        $this->messages->clear();
+        $this->messageStorage->clear();
     }
 
     public function addSuccessMessage(string $text, array $args = null): void {
@@ -49,11 +46,11 @@ class Messenger implements \Countable {
     }
 
     public function hasWarningMessages(): bool {
-        return isset($this->messages[self::WARNING]) && \count($this->messages[self::WARNING]) > 0;
+        return isset($this->messageStorage[self::WARNING]) && \count($this->messageStorage[self::WARNING]) > 0;
     }
 
     public function hasErrorMessages(): bool {
-        return isset($this->messages[self::ERROR]) && \count($this->messages[self::ERROR]) > 0;
+        return isset($this->messageStorage[self::ERROR]) && \count($this->messageStorage[self::ERROR]) > 0;
     }
 
     public function addMessage(string $text, array $args = null, $type = null): void {
@@ -62,32 +59,32 @@ class Messenger implements \Countable {
         }
         $this->checkMessageType($type);
         $this->initMessageStorage();
-        if (!isset($this->messages[$type])) {
-            $this->messages[$type] = [];
+        if (!isset($this->messageStorage[$type])) {
+            $this->messageStorage[$type] = [];
         }
-        $this->messages[$type][] = [
+        $this->messageStorage[$type][] = [
             'text' => $text,
             'args' => (array)$args,
         ];
     }
 
-    public function toArray(): array {
+    public function getIterator(): iterable {
         $this->initMessageStorage();
-        return $this->messages->toArray();
+        return $this->messageStorage;
     }
 
     public function count(): int {
         $this->initMessageStorage();
-        return \count($this->messages);
+        return \count($this->messageStorage);
     }
 
     public function setMessageStorage(IMessageStorage $storage): void {
-        $this->messages = $storage;
+        $this->messageStorage = $storage;
     }
 
     protected function initMessageStorage(): void {
-        if (null === $this->messages) {
-            $this->messages = $this->mkMessageStorage();
+        if (null === $this->messageStorage) {
+            $this->messageStorage = $this->mkMessageStorage();
         }
     }
 

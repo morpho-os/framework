@@ -6,16 +6,16 @@
  */
 namespace Morpho\App;
 
-class Response extends Message implements IResponse {
+abstract class Response extends Message implements IResponse {
     /**
      * @var string
      */
     protected $body = '';
 
     /**
-     * @var int|null
+     * @var int
      */
-    protected $statusCode = 200;
+    protected $statusCode = 0;
 
     /**
      * @param string
@@ -42,6 +42,20 @@ class Response extends Message implements IResponse {
 
     public function statusCode(): int {
         return $this->statusCode;
+    }
+
+    public function resetState(): void {
+        $this->exchangeArray([]);
+        $this->resetStatusCode();
+        $this->resetBody();
+    }
+
+    public function resetBody(): void {
+        $this->body = '';
+    }
+
+    public function resetStatusCode(): void {
+        $this->statusCode = 0;
     }
 
     protected function sendBody(): void {

@@ -21,31 +21,23 @@ class EventManager extends BaseEventManager {
         $this->attachHandlers();
     }
 
-    protected function attachHandlers() {
-        $this->on('dispatchError', [$this, 'onDispatchError']);
-        $this->on('afterDispatch', [$this, 'onAfterDispatch']);
+    protected function attachHandlers(): void {
+        $this->on('afterDispatch', [$this, 'handleActionResult']);
+        $this->on('dispatchError', [$this, 'handleDispatchError']);
     }
 
-    protected function onDispatchError(Event $event): void {
+    protected function handleActionResult(Event $event): void {
+        /** @var Request $request */
+        $request = $event->args['request'];
+        $actionResultHandler = $this->serviceManager['actionResultHandler'];
+        $actionResultHandler->__invoke($request);
+    }
+
+    protected function handleDispatchError(Event $event): void {
         /** @var DispatchErrorHandler $dispatchErrorHandler */
         $dispatchErrorHandler = $this->serviceManager['dispatchErrorHandler'];
-        $config = $this->serviceManager->config()['dispatchErrorHandler'];
-        $dispatchErrorHandler->throwErrors($config['throwErrors']);
-        if (isset($config['handlers'])) {
-            foreach ($config['handlers'] as $errorType => $handler) {
-                $dispatchErrorHandler->setHandler($errorType, $handler);
-            }
-        }
         /** @var Request $request */
         $request = $event->args['request'];
-        $dispatchErrorHandler->handleError($event->args['exception'], $request);
-        // $request->response()->isRendered(false);
-    }
-
-    protected function onAfterDispatch(Event $event): void {
-        /** @var Request $request */
-        $request = $event->args['request'];
-        $actionResultRenderer = $this->serviceManager['actionResultRenderer'];
-        $actionResultRenderer->__invoke($request);
+        $dispatchErrorHandler->handleException($event->args['exception'], $request);
     }
 }

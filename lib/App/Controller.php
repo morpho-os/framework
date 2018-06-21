@@ -30,7 +30,7 @@ abstract class Controller implements IFn {
      * @param IRequest $request
      */
     public function __invoke($request): void {
-        $request->response()->exchangeArray([]);
+        $this->resetState($request);
         $this->request = $request;
         $actionName = $request->actionName();
         if (empty($actionName)) {
@@ -46,11 +46,12 @@ abstract class Controller implements IFn {
         if ($this->checkActionMethodExistence) {
             $actionResult = \method_exists($this, $methodName)
                 ? $this->$methodName()
-                : $this->mkNotFoundResponse($actionName);
+                : $this->mkNotFoundResult();
         } else {
             $actionResult = $this->$methodName();
         }
-        $response = $this->handleActionResult($actionResult);
+        //$this->request->response()['result'] = $actionResult;
+        $response = $this->handleResult($actionResult);
         $this->request->setResponse($response);
     }
 
@@ -69,7 +70,11 @@ abstract class Controller implements IFn {
     /**
      * @param array|null|IActionResult|IResponse|string $actionResult
      */
-    abstract protected function handleActionResult($actionResult): IResponse;
+    abstract protected function handleResult($actionResult): IResponse;
 
-    abstract protected function mkNotFoundResponse(string $actionName): IResponse;
+    abstract protected function mkNotFoundResult(): IActionResult;
+
+    protected function resetState(IRequest $request): void {
+        $request->response()->resetState();
+    }
 }

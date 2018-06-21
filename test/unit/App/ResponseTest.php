@@ -17,7 +17,9 @@ class ResponseTest extends MessageTest {
 
     public function setUp() {
         parent::setUp();
-        $this->response = new Response();
+        $this->response = new class extends Response {
+
+        };
     }
 
     public function testBodyAccessors() {

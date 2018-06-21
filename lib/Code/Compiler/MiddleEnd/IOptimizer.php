@@ -6,9 +6,10 @@
  */
 namespace Morpho\Code\Compiler\MiddleEnd;
 
+use Morpho\Code\Compiler\ICompilerPhase;
+
 /**
  * ir (non-optimized) -> ir (optimized)
  */
-interface IOptimizer {
-
+interface IOptimizer extends ICompilerPhase {
 }

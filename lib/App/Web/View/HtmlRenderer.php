@@ -31,9 +31,9 @@ class HtmlRenderer implements IFn {
 
         // 1. Render view
         $moduleName = $request->moduleName();
-        /** @var View $view */
+        /** @var ViewResult $view */
         $view = $response['result'];
-        if (!$view instanceof View) {
+        if (!$view instanceof ViewResult) {
             throw new \UnexpectedValueException();
         }
         if (!$view->dirPath()) {
@@ -52,7 +52,7 @@ class HtmlRenderer implements IFn {
         $response->headers()['Content-Type'] = 'text/html;charset=utf-8';
     }
 
-    protected function renderView(string $moduleName, View $view): string {
+    protected function renderView(string $moduleName, ViewResult $view): string {
         $serviceManager = $this->serviceManager;
         $moduleIndex = $serviceManager['moduleIndex'];
         /** @var Theme $theme */
@@ -62,7 +62,7 @@ class HtmlRenderer implements IFn {
         return $theme->render($view);
     }
 
-    protected function mkPage(): View {
-        return new View(self::PAGE_NAME);
+    protected function mkPage(): ViewResult {
+        return new ViewResult(self::PAGE_NAME);
     }
 }

@@ -157,8 +157,7 @@ class Request extends BaseRequest {
             return $this->post($name, $trim);
         }
         // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
-        // @TODO: Replace with MethodNotAllowed extends HttpException, handle MethodNotALlowed in other places.
-        throw new HttpException('Method not allowed');
+        throw new BadRequestException('Method not allowed');
     }
 
     public function hasPost(string $name): bool {

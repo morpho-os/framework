@@ -6,9 +6,9 @@
  */
 namespace Morpho\Testing;
 
+use const Morpho\App\MODULE_DIR_NAME;
 use Morpho\Base\TSingleton;
 use function Morpho\App\moduleDirPath;
-//use const Morpho\App\MODULE_DIR_NAME;
 use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
@@ -51,6 +51,10 @@ class Sut implements ISut {
 /*    public function configFilePath(): string {
         return $this->siteModuleDirPath() . '/config.php';
     }*/
+
+    public function baseModuleDirPath(): string {
+        return $this->baseDirPath() . '/' . MODULE_DIR_NAME;
+    }
 
     public function publicDirPath(): string {
         if (null === $this->publicDirPath) {

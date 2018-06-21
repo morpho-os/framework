@@ -145,7 +145,6 @@ class PhpTemplateEngine extends TemplateEngine {
 
     protected function mkPlugin(string $name) {
         $moduleName = $this->request()->moduleName();
-
         $serviceManager = $this->serviceManager;
         $moduleMeta = $serviceManager['moduleIndex']->moduleMeta($moduleName);
         $instanceProvider = $serviceManager['instanceProvider'];

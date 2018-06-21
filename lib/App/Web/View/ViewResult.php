@@ -9,7 +9,7 @@ namespace Morpho\App\Web\View;
 use Morpho\App\IActionResult;
 use Morpho\Fs\Path;
 
-class View implements IActionResult {
+class ViewResult implements IActionResult {
     /**
      * @var string
      */
@@ -26,16 +26,16 @@ class View implements IActionResult {
     protected $vars;
 
     /**
-     * @var View|null
+     * @var ViewResult|null
      */
     private $parent;
 
     /**
      * @param string $name
      * @param array|null|\ArrayObject $vars
-     * @param View|null $parent
+     * @param ViewResult|null $parent
      */
-    public function __construct(string $name, $vars = null, View $parent = null) {
+    public function __construct(string $name, $vars = null, ViewResult $parent = null) {
         $this->name = $name;
         if (null === $vars) {
             $vars = [];
@@ -68,11 +68,11 @@ class View implements IActionResult {
         return Path::combine($this->dirPath, $this->name);
     }
     
-    public function setParent(View $view): void {
+    public function setParent(ViewResult $view): void {
         $this->parent = $view;
     }
 
-    public function parent(): ?View {
+    public function parent(): ?ViewResult {
         return $this->parent;
     }
 }

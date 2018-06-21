@@ -11,12 +11,12 @@ use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
 use Morpho\App\Web\View\HtmlRenderer;
-use Morpho\App\Web\View\View;
+use Morpho\App\Web\View\ViewResult;
 
 class HtmlRendererTest extends TestCase {
     public function testInvoke() {
-        $page = new View('test');
-        $view = new View('edit-user', null, $page);
+        $page = new ViewResult('test');
+        $view = new ViewResult('edit-user', null, $page);
 
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
@@ -37,17 +37,17 @@ class HtmlRendererTest extends TestCase {
 
         $renderer = new class ($serviceManager) extends HtmlRenderer {
             public $map;
-            protected function renderView(string $moduleName, View $view): string {
+            protected function renderView(string $moduleName, ViewResult $view): string {
                 $renderer = $this->map[$moduleName];
                 return $renderer($view);
             }
         };
-        $renderer->map[$viewModuleName] = function (View $viewArg) use ($view): string {
+        $renderer->map[$viewModuleName] = function (ViewResult $viewArg) use ($view): string {
             $this->assertSame('news', $viewArg->dirPath());
             $this->assertSame($view, $viewArg);
             return 'hello';
         };
-        $renderer->map[$pageRendererModuleName] = function (View $pageArg) use ($page): string {
+        $renderer->map[$pageRendererModuleName] = function (ViewResult $pageArg) use ($page): string {
             $this->assertSame(['body' => 'hello'], $page->vars()->getArrayCopy());
             $this->assertSame($page, $pageArg);
             return 'cat';

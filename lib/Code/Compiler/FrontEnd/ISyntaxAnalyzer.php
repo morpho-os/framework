@@ -6,7 +6,9 @@
  */
 namespace Morpho\Code\Compiler\FrontEnd;
 
+use Morpho\Code\Compiler\ICompilerPhase;
+
 // AKA Parser
-interface ISyntaxAnalyzer {
+interface ISyntaxAnalyzer extends ICompilerPhase {
 
 }

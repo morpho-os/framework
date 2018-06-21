@@ -8,7 +8,7 @@ namespace Morpho\App\Web;
 
 use Morpho\App\IActionResult;
 use Morpho\App\IResponse;
-use Morpho\App\Web\View\View;
+use Morpho\App\Web\View\ViewResult;
 use function Morpho\Base\dasherize;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
@@ -28,21 +28,30 @@ abstract class Controller extends BaseController implements IHasServiceManager {
     /**
      * @param array|null|IActionResult|IResponse|string $actionResult
      */
-    protected function handleActionResult($actionResult): IResponse {
-        if (\is_array($actionResult) || null === $actionResult) {
-            $actionResult = $this->arrToActionResult((array) $actionResult);
+    protected function handleResult($actionResult): IResponse {
+        $shouldMakeDefaultResult = \is_array($actionResult) || null === $actionResult;
+        $response = null;
+        if ($shouldMakeDefaultResult) {
+            $actionResult = $this->mkDefaultResult($actionResult);
         } elseif ($actionResult instanceof IActionResult) {
-            // Do nothing
+            if ($actionResult instanceof RedirectResult) {
+                $response = $this->redirect($actionResult->uri, $actionResult->statusCode);
+            } elseif ($actionResult instanceof StatusCodeResult) {
+                $response = $this->request->response();
+                $response->setStatusCode($actionResult->statusCode);
+            }
         } elseif ($actionResult instanceof IResponse) {
-            return $actionResult;
+            $response = $actionResult;
+            $actionResult = null;
         } elseif (\is_string($actionResult)) {
             $response = $this->request->response();
             $response->setBody($actionResult);
-            return $response;
         } else {
             throw new \UnexpectedValueException();
         }
-        $response = $this->request->response();
+        if (null === $response) {
+            $response = $this->request->response();
+        }
         $response['result'] = $actionResult;
         return $response;
     }
@@ -51,15 +60,11 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function mkView(string $name = null, $vars = null, View $parent = null): View {
+    protected function mkViewResult(string $name = null, $vars = null, ViewResult $parent = null): ViewResult {
         if (null === $name) {
             $name = dasherize($this->request->actionName());
         }
-        return new View($name, $vars, $parent);
-    }
-
-    protected function mkJson($value): Json {
-        return new Json($value);
+        return new ViewResult($name, $vars, $parent);
     }
 
     protected function mkResponse(int $statusCode = null, string $body = null): IResponse {
@@ -73,26 +78,37 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $response;
     }
 
-    protected function mkNotFoundResponse(string $actionName): IResponse {
-        return new Response(Response::NOT_FOUND_STATUS_CODE);
+    protected function mkNotFoundResult(): IActionResult {
+        return new NotFoundResult();
     }
 
-    protected function arrToActionResult(array $values): IActionResult {
-        return $this->mkView(null, (array) $values);
+    protected function mkBadRequestResult(): IActionResult {
+        return new BadRequestResult();
     }
 
-    protected function redirectWithSuccessMessage(string $uri, string $text, array $args = null): IResponse {
-        $this->serviceManager['messenger']->addSuccessMessage($text, $args);
-        return $this->redirect($uri);
+    protected function mkForbiddenResult(): IActionResult {
+        return new ForbiddenResult();
     }
 
-    protected function redirect(string $uri): IResponse {
+    protected function mkDefaultResult($values): IActionResult {
+        return $this->mkViewResult(null, (array) $values);
+    }
+
+    protected function mkJsonResult($value): JsonResult {
+        return new JsonResult($value);
+    }
+
+    protected function mkRedirectResult(string $uri, int $statusCode = null): RedirectResult {
+        return new RedirectResult($uri, $statusCode, $this->serviceManager['messenger']);
+    }
+
+    protected function redirect(string $uri, int $statusCode = null): IResponse {
         /** @var Response $response */
         $response = $this->request->response();
         $uri = prependBasePath(function () {
             return $this->request->uri()->path()->basePath();
         }, $uri);
-        return $response->redirect($uri);
+        return $response->redirect($uri, $statusCode);
     }
 
     protected function args($name = null, bool $trim = true) {
@@ -101,5 +117,12 @@ abstract class Controller extends BaseController implements IHasServiceManager {
 
     protected function query($name = null, bool $trim = true) {
         return $this->request->query($name, $trim);
+    }
+
+    protected function jsConfig(): \ArrayObject {
+        if (!isset($this->request['jsConfig'])) {
+            $this->request['jsConfig'] = new \ArrayObject();
+        }
+        return $this->request['jsConfig'];
     }
 }

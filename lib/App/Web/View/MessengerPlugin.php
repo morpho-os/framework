@@ -6,6 +6,7 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\App\Web\Messages\Messenger;
 use function Morpho\Base\{
     dasherize, filterStringArgs
 };
@@ -25,7 +26,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         $messenger = $this->messenger();
         if ($this->count()) {
             $renderedMessages = [];
-            foreach ($messenger->toArray() as $type => $messages) {
+            foreach ($messenger as $type => $messages) {
                 $renderedMessages[] = $this->renderMessages($messages, $type);
             }
             $html = $this->wrapPageMessages(\implode("\n", $renderedMessages));
@@ -72,7 +73,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         . '</div>';
     }
 
-    protected function messenger() {
+    protected function messenger(): Messenger {
         return $this->serviceManager['messenger'];
     }
 }

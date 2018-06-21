@@ -4,14 +4,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\App;
+namespace Morpho\Test\Unit\App\Web;
 
 use const Morpho\App\CONTROLLER_SUFFIX;
 use Morpho\App\ModuleIndex;
 use Morpho\App\ModuleMeta;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\InstanceProvider;
+use Morpho\App\Web\InstanceProvider;
 use Morpho\App\Web\Request;
 
 class InstanceProviderTest extends TestCase {
@@ -49,7 +49,7 @@ class InstanceProviderTest extends TestCase {
 
         $controllerName = 'News';
 
-        $classSuffix = 'App' . '\\' . (PHP_SAPI === 'cli' ? 'Cli\\' : 'Web\\') . $controllerName . CONTROLLER_SUFFIX;
+        $classSuffix = 'App' . '\\Web\\' . $controllerName . CONTROLLER_SUFFIX;
 
         $instanceProvider = new class ($serviceManager, $moduleMeta, $moduleName, $classSuffix) extends InstanceProvider {
             private $expectedModuleMeta, $expectedModuleName, $expectedClassSuffix;

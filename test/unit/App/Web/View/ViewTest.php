@@ -7,13 +7,13 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\View\View;
+use Morpho\App\Web\View\ViewResult;
 
 class ViewTest extends TestCase {
     public function testView() {
         $vars = ['foo' => 'bar'];
         $name = 'edit';
-        $view = new View('edit', $vars);
+        $view = new ViewResult('edit', $vars);
         $view->isNotVar = 123;
         $this->assertSame($name, $view->name());
         $this->assertInstanceOf(\ArrayObject::class, $view->vars());

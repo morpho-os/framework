@@ -8,11 +8,14 @@ namespace Morpho\Code\Compiler\FrontEnd;
 
 use Morpho\Code\Compiler\CompilerPhase;
 
-abstract class FrontEnd extends CompilerPhase {
-    abstract public function diagnosticErrorMessages(): iterable;
+class FrontEnd extends CompilerPhase {
+    public function diagnosticErrorMessages(): iterable {
+        return [];
+    }
 
     public function getIterator() {
-        return [
+        yield from [
+            $this->mkInitializer(),
             $this->mkLexicalAnalyzer(),
             $this->mkSyntaxAnalyzer(),
             $this->mkSemanticAnalyzer(),
@@ -20,11 +23,43 @@ abstract class FrontEnd extends CompilerPhase {
         ];
     }
 
-    abstract protected function mkLexicalAnalyzer(): ILexicalAnalyzer;
+    protected function mkLexicalAnalyzer(): ILexicalAnalyzer {
+        return new class implements ILexicalAnalyzer {
+            public function __invoke($context) {
+                return $context;
+            }
+        };
+    }
 
-    abstract protected function mkSyntaxAnalyzer(): ISyntaxAnalyzer;
+    protected function mkSyntaxAnalyzer(): ISyntaxAnalyzer {
+        return new class implements ISyntaxAnalyzer {
+            public function __invoke($context) {
+                return $context;
+            }
+        };
+    }
 
-    abstract protected function mkSemanticAnalyzer(): ISemanticAnalyzer;
+    protected function mkSemanticAnalyzer(): ISemanticAnalyzer {
+        return new class implements ISemanticAnalyzer {
+            public function __invoke($context) {
+                return $context;
+            }
+        };
+    }
 
-    abstract protected function mkIntermediateCodeGen(): IIntermediateCodeGen;
+    protected function mkIntermediateCodeGen(): IIntermediateCodeGen {
+        return new class implements IIntermediateCodeGen {
+            public function __invoke($context) {
+                return $context;
+            }
+        };
+    }
+
+    private function mkInitializer(): IInitializer {
+        return new class implements IInitializer {
+            public function __invoke($context) {
+                return $context;
+            }
+        };
+    }
 }

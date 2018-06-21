@@ -49,14 +49,7 @@ return [
         ],
         'dispatchErrorHandler' => [
             'throwErrors' => false,
-            /*
-            'handlers' => [
-                \Morpho\App\Web\DispatchErrorHandler::ACCESS_DENIED_ERROR => ['my-vendor/my-module', 'MyError', 'accessDenied'],
-                \Morpho\App\Web\DispatchErrorHandler::BAD_REQUEST_ERROR => ['my-vendor/my-module', 'MyError', 'badRequest'],
-                \Morpho\App\Web\DispatchErrorHandler::NOT_FOUND_ERROR => ['my-vendor/my-module', 'MyError', 'notFound'],
-                \Morpho\App\Web\DispatchErrorHandler::UNCAUGHT_ERROR => ['my-vendor/my-module', 'MyError', 'uncaught'],
-            ],
-             */
+            //'exceptionHandler' => ['my-vendor/my-module', 'MyError', 'uncaught']
         ],
         'errorLogger' => [
             'mailWriter' => [
@@ -66,6 +59,7 @@ return [
             ],
             'logFileWriter' => true,
             'debugWriter' => true,
+            'errorLogWriter' => false,
         ],
         'view' => [
             'pageRenderer' => VENDOR . '/system',

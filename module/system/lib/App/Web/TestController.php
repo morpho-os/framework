@@ -1,18 +1,16 @@
 <?php declare(strict_types=1);
 namespace Morpho\System\App\Web;
 
-use function Morpho\Base\dasherize;
-use Morpho\App\Web\AccessDeniedException;
 use Morpho\App\Web\BadRequestException;
+use function Morpho\Base\dasherize;
 use Morpho\App\Web\Controller;
-use Morpho\App\Web\NotFoundException;
 use Morpho\Base\NotImplementedException;
 
 class TestController extends Controller {
     public function indexAction() {
-        $page = $this->mkView('test');
+        $page = $this->mkViewResult('test');
         $page->setDirPath(dasherize($this->request->controllerName()));
-        return $this->mkView(null, null, $page);
+        return $this->mkViewResult(null, null, $page);
     }
 
 /*    public function nullActionResultAction() {
@@ -37,15 +35,15 @@ class TestController extends Controller {
     }
 
     public function status400Action() {
-        throw new BadRequestException();
+        return $this->mkBadRequestResult();
     }
 
     public function status403Action() {
-        throw new AccessDeniedException();
+        return $this->mkForbiddenResult();
     }
 
     public function status404Action() {
-        throw new NotFoundException();
+        return $this->mkNotFoundResult();
     }
 
     public function status500Action() {

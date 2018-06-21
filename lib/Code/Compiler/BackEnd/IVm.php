@@ -2,5 +2,4 @@
 namespace Morpho\Code\Compiler\BackEnd;
 
 interface IVm {
-
 }

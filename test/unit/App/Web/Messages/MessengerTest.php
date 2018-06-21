@@ -51,9 +51,10 @@ class MessengerTest extends TestCase {
         $this->assertTrue($this->messenger->hasWarningMessages());
     }
 
-    public function testToArray() {
+    public function testMessageStorage() {
         $this->messenger->addSuccessMessage('Hello {0} and welcome', ['<b>Name</b>']);
         $this->messenger->addWarningMessage('Bar');
+        /** @noinspection PhpParamsInspection */
         $this->assertEquals(
             [
                 Messenger::SUCCESS => [
@@ -69,7 +70,7 @@ class MessengerTest extends TestCase {
                     ],
                 ],
             ],
-            $this->messenger->toArray()
+            iterator_to_array($this->messenger->getIterator())
         );
     }
 }

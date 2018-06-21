@@ -6,5 +6,7 @@
  */
 namespace Morpho\Code\Compiler\BackEnd;
 
-interface ICodeGen {
+use Morpho\Code\Compiler\ICompilerPhase;
+
+interface ICodeGen extends ICompilerPhase {
 }

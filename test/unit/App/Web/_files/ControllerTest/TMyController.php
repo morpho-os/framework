@@ -16,7 +16,7 @@ trait TMyController {
 
     protected function returnJsonAction() {
         $this->calledMethod = __FUNCTION__;
-        return $this->mkJson(__FUNCTION__ . 'Called');
+        return $this->mkJsonResult(__FUNCTION__ . 'Called');
     }
 
     protected function returnResponseAction() {
@@ -26,7 +26,7 @@ trait TMyController {
 
     protected function returnViewAction() {
         $this->calledMethod = __FUNCTION__;
-        return $this->mkView('test', ['foo' => 'bar']);
+        return $this->mkViewResult('test', ['foo' => 'bar']);
     }
 
     protected function returnArrayAction() {

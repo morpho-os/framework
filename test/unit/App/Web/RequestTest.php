@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
+use Morpho\App\Web\BadRequestException;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\BadRequestException;
 use Morpho\App\Web\Request;
 
 class RequestTest extends TestCase {

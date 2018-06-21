@@ -13,7 +13,9 @@ class Initializer extends BaseInitializer {
         if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
             \ini_set('cookie_secure', '1');
         }
-        $this->serviceManager['errorHandler']->register();
+        ErrorHandler::trackErrors(function () {
+            $this->serviceManager['errorHandler']->register();
+        });
 
         //$app = $this->serviceManager['app'];
 

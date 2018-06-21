@@ -17,13 +17,13 @@ class ErrorHandler extends BaseErrorHandler {
     protected function mkListener(): \Closure {
         return function (\Throwable $e) {
             $statusLine = null;
-            if ($e instanceof NotFoundException) {
+/*            if ($e instanceof NotFoundException) {
                 $statusLine = Environment::httpVersion() . ' 404 Not Found';
                 $message = "The requested resource was not found";
             } elseif ($e instanceof AccessDeniedException) {
                 $statusLine = Environment::httpVersion() . ' 403 Forbidden';
                 $message = "You don't have access to the requested resource";
-            } elseif ($e instanceof BadRequestException) {
+            } else*/if ($e instanceof BadRequestException) {
                 $statusLine = Environment::httpVersion() . ' 400 Bad Request';
                 $message = "Bad request, please contact site's support";
             } else {

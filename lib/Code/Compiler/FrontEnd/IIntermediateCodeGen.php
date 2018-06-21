@@ -6,6 +6,8 @@
  */
 namespace Morpho\Code\Compiler\FrontEnd;
 
-interface IIntermediateCodeGen {
+use Morpho\Code\Compiler\ICompilerPhase;
+
+interface IIntermediateCodeGen extends ICompilerPhase {
 
 }

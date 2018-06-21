@@ -11,7 +11,7 @@ use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 
-class InstanceProvider implements IFn {
+abstract class InstanceProvider implements IFn {
     /**
      * @var ModuleIndex
      */
@@ -98,9 +98,5 @@ class InstanceProvider implements IFn {
         }
     }
 
-    protected function controllerClassWithoutModuleNs($controllerName): string {
-        $isCli = PHP_SAPI == 'cli';
-        $classWithoutModuleNsPrefix = 'App' . '\\' . ($isCli ? 'Cli' : 'Web') . '\\' . $controllerName . CONTROLLER_SUFFIX;
-        return $classWithoutModuleNsPrefix;
-    }
+    abstract protected function controllerClassWithoutModuleNs($controllerName): string;
 }

@@ -2,7 +2,7 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\Controller;
-use Morpho\App\Web\Json;
+use Morpho\App\Web\JsonResult;
 use Morpho\App\Web\WebApiController;
 use Morpho\Test\Unit\App\Web\ControllerTest\TMyController;
 
@@ -33,7 +33,7 @@ class WebApiControllerTest extends ControllerTest {
         $this->checkMethodCalled('returnNullAction');
         $response = $request->response();
         $actionResult = $response['result'];
-        $this->assertInstanceOf(Json::class, $actionResult);
+        $this->assertInstanceOf(JsonResult::class, $actionResult);
         $this->assertSame([], $actionResult->value());
         $this->assertSame($response1, $response);
     }
@@ -48,7 +48,7 @@ class WebApiControllerTest extends ControllerTest {
         $this->checkMethodCalled('returnArrayAction');
         $response = $request->response();
         $actionResult = $response['result'];
-        $this->assertInstanceOf(Json::class, $actionResult);
+        $this->assertInstanceOf(JsonResult::class, $actionResult);
         $this->assertSame(['foo' => 'bar'], $actionResult->value());
         $this->assertSame($response1, $response);
     }

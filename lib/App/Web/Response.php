@@ -39,6 +39,11 @@ class Response extends BaseResponse {
     public const NOT_FOUND_STATUS_CODE = 404;
     public const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
 
+    public function __construct(array $input = null) {
+        parent::__construct((array) $input);
+        $this->headers = new \ArrayObject();
+    }
+
     /**
      * @param string|Uri\Uri $uri
      */
@@ -60,10 +65,17 @@ class Response extends BaseResponse {
     }
 
     public function headers(): \ArrayObject {
-        if ($this->headers === null) {
-            $this->headers = new \ArrayObject();
-        }
         return $this->headers;
+    }
+
+    public function resetState(): void {
+        parent::resetState();
+        $this->headers->exchangeArray([]);
+        $this->statusLine = '';
+    }
+
+    public function resetStatusCode(): void {
+        $this->statusCode = self::OK_STATUS_CODE;
     }
 
     public function isRedirect(): bool {

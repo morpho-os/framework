@@ -6,7 +6,9 @@
  */
 namespace Morpho\Code\Compiler\FrontEnd;
 
+use Morpho\Code\Compiler\ICompilerPhase;
+
 // Usually includes TypeChecker
-interface ISemanticAnalyzer {
+interface ISemanticAnalyzer extends ICompilerPhase {
 
 }

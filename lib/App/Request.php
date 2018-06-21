@@ -23,7 +23,7 @@ abstract class Request extends Message implements IRequest {
     protected $actionName;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     private $isHandled = false;
 

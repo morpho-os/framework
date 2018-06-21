@@ -9,7 +9,7 @@ namespace Morpho\App;
 use Morpho\Base\Event;
 use Morpho\Base\IEventManager;
 
-abstract class Dispatcher {
+class Dispatcher {
     /**
      * @var int
      */
@@ -33,6 +33,8 @@ abstract class Dispatcher {
     public function dispatch(IRequest $request): void {
         $i = 0;
         do {
+            $request->isHandled(false);
+
             if ($i >= $this->maxNoOfDispatchIterations) {
                 throw new \RuntimeException("Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times");
             }
@@ -40,14 +42,10 @@ abstract class Dispatcher {
                 $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));
 
                 $handler = ($this->handlerProvider)($request);
-                if (false === $handler) {
-                    $this->throwNotFoundException($request);
+                if ($handler) {
+                    $handler($request);
                 }
-                $handler($request);
-
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
-
-                $request->isHandled(true);
             } catch (\Throwable $e) {
                 $this->eventManager->trigger(new Event('dispatchError', ['request' => $request, 'exception' => $e]));
             }
@@ -62,10 +60,4 @@ abstract class Dispatcher {
     public function maxNoOfDispatchIterations(): int {
         return $this->maxNoOfDispatchIterations;
     }
-
-    /**
-     * @param IRequest $request
-     * @throws \RuntimeException
-     */
-    abstract protected function throwNotFoundException(IRequest $request): void;
 }

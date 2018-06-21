@@ -6,10 +6,12 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\App\Web\Json;
+use Morpho\App\IRequest;
+use Morpho\App\IResponse;
+use Morpho\App\Web\JsonResult;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
-use Morpho\App\Web\View\View;
+use Morpho\App\Web\View\ViewResult;
 use Morpho\Base\IFn;
 use Morpho\Test\Unit\App\Web\ControllerTest\TMyController;
 use Morpho\Testing\TestCase;
@@ -42,7 +44,7 @@ class ControllerTest extends TestCase {
         $this->checkMethodCalled('returnNullAction');
         $response = $request->response();
         $actionResult = $response['result'];
-        $this->assertInstanceOf(View::class, $actionResult);
+        $this->assertInstanceOf(ViewResult::class, $actionResult);
         $this->assertSame('return-null', $actionResult->name());
         $this->assertSame([], $actionResult->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
@@ -58,7 +60,7 @@ class ControllerTest extends TestCase {
         $this->checkMethodCalled('returnArrayAction');
         $response = $request->response();
         $actionResult = $response['result'];
-        $this->assertInstanceOf(View::class, $actionResult);
+        $this->assertInstanceOf(ViewResult::class, $actionResult);
         $this->assertSame('return-array', $actionResult->name());
         $this->assertSame(['foo' => 'bar'], $actionResult->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
@@ -86,7 +88,7 @@ class ControllerTest extends TestCase {
 
         $this->checkMethodCalled('returnJsonAction');
         $response = $request->response();
-        $this->assertEquals(new Json('returnJsonActionCalled'), $response['result']);
+        $this->assertEquals(new JsonResult('returnJsonActionCalled'), $response['result']);
         $this->assertSame($response1, $response);
     }
 
@@ -102,7 +104,7 @@ class ControllerTest extends TestCase {
 
         $view = $response['result'];
 
-        $this->assertInstanceOf(View::class, $view);
+        $this->assertInstanceOf(ViewResult::class, $view);
         $this->assertSame(['foo' => 'bar'], $view->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
     }
@@ -117,11 +119,27 @@ class ControllerTest extends TestCase {
         $this->checkMethodCalled('returnResponseAction');
         $response = $request->response();
         $this->assertNotSame($response1, $response);
-        $this->assertTrue(!isset($response['result']));
+        $this->assertNull($response['result']);
     }
 
     public function testInvoke_ReturnRedirectFromAction() {
         $this->markTestIncomplete();
+    }
+
+    public function testInvoke_CallsResetStateOfResponse() {
+        $request = $this->createMock(IRequest::class);
+        $response = $this->createMock(IResponse::class);
+        $response->expects($this->once())
+            ->method('resetState');
+        $request->expects($this->any())
+            ->method('response')
+            ->willReturn($response);
+        $request->expects($this->any())
+            ->method('actionName')
+            ->willReturn('returnNull');
+
+        $this->controller->__invoke($request);
+
     }
 /*    public function testInvoke_UnsetsResponseParamsFromPreviousInvoke() {
         $controller = new MyController();

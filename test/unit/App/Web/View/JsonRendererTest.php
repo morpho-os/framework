@@ -7,8 +7,8 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\App\IResponse;
-use Morpho\App\Web\Json;
-use Morpho\App\Web\View\View;
+use Morpho\App\Web\JsonResult;
+use Morpho\App\Web\View\ViewResult;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
@@ -20,7 +20,7 @@ class JsonRendererTest extends TestCase {
         $request = new Request();
 
         $data = ['foo' => 'bar'];
-        $view = new View('test', $data);
+        $view = new ViewResult('test', $data);
         $response = new Response(['result' => $view]);
 
         $statusCode = 201;
@@ -46,7 +46,7 @@ class JsonRendererTest extends TestCase {
         $data = [
             ['foo' => 'bar']
         ];
-        $request->response()['result'] = new Json($data);
+        $request->response()['result'] = new JsonResult($data);
 
         $renderer->__invoke($request);
 

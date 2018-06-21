@@ -34,10 +34,11 @@ class StatusCodeTest extends BrowserTestCase {
      * @dataProvider dataForResponseCodes
      */
     public function testResponseCodes($relUri, $expectedCode, ?string $expectedTitle, ?string $expectedText) {
+        $uri = $this->uri($relUri);
         $response = (new HttpClient())
             ->setMaxNumberOfRedirects(0)
-            ->get($this->uri($relUri), null);
-        $this->assertEquals($expectedCode, $response->statusCode(), 'Response: ' . \substr($response->body(), 0, 1000));
+            ->get($uri);
+        $this->assertEquals($expectedCode, $response->statusCode(), 'URI: ' . $uri . "\n, Response: " . \substr($response->body(), 0, 1000));
 
         if (null !== $expectedTitle || null !== $expectedText) {
             $html = $response->body();

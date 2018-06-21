@@ -7,6 +7,7 @@
 namespace Morpho\Db\Sql\MySql;
 
 /**
+ * https://dev.mysql.com/doc/refman/en/charset-general.html
  * Map<Char, Encoding>
  *     where
  *         Char is some character from finite alphabet of the charset

@@ -39,7 +39,7 @@ class BrowserTestCase extends TestCase {
 
     protected function browser(): Browser {
         if (null === $this->browser) {
-            $browser = $this->newBrowser();
+            $browser = $this->mkBrowser();
             $this->configureBrowser($browser);
             $this->browser = $browser;
         }

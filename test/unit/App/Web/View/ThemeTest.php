@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web\View;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\TemplateEngine;
 use Morpho\App\Web\View\Theme;
-use Morpho\App\Web\View\View;
+use Morpho\App\Web\View\ViewResult;
 
 class ThemeTest extends TestCase {
     public function testBasePathAccessors() {
@@ -61,7 +61,7 @@ class ThemeTest extends TestCase {
 
         $theme->appendBaseDirPath($baseViewDirPath);
 
-        $view = new View($viewName, $viewVars);
+        $view = new ViewResult($viewName, $viewVars);
         $view->setDirPath($viewDirPath);
         /** @noinspection PhpParamsInspection */
         $actual = $theme->render($view);
