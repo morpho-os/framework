@@ -1,6 +1,6 @@
-sudo: enabled
 dist: trusty
-group: deprecated-2017Q4
+sudo: required
+#group: deprecated-2017Q4
 
 language: php
 
@@ -18,7 +18,8 @@ matrix:
 
 addons:
   # versions are listed here https://downloads.mariadb.org/
-  mariadb: 10.1
+  #mariadb: 10.1
+  mariadb: latest
   firefox: latest
   apt:
     packages:
