@@ -7,7 +7,7 @@
 namespace Morpho\Base;
 
 /**
- * Pipe/Pipeline is sequence of phases/phases, where each phase is callable with the type:
+ * Pipe/Pipeline is sequence of phases/stages, where each phase is callable with the type:
  *     (mixed $value): mixed
  */
 class Pipe extends \ArrayObject implements IFn {
