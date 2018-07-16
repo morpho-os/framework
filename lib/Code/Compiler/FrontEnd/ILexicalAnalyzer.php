@@ -8,6 +8,6 @@ namespace Morpho\Code\Compiler\FrontEnd;
 
 use Morpho\Code\Compiler\ICompilerPhase;
 
-// AKA Lexer/Scanner/Tokenizer: string -> [token]
+// AKA Lexer/Scanner/Tokenizer: string -> Token[]
 interface ILexicalAnalyzer extends ICompilerPhase {
 }

@@ -6,6 +6,7 @@
  */
 namespace Morpho\Code\Compiler\FrontEnd;
 
+// Defines ILanguage yielding set of strings which it consists of.
 interface IGrammar {
     public function rules();
 }

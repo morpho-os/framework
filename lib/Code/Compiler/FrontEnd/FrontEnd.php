@@ -7,59 +7,24 @@
 namespace Morpho\Code\Compiler\FrontEnd;
 
 use Morpho\Code\Compiler\CompilerPhase;
+use Morpho\Code\Compiler\ICompiler;
 
-class FrontEnd extends CompilerPhase {
-    public function diagnosticErrorMessages(): iterable {
+class FrontEnd extends CompilerPhase implements IFrontEnd {
+    public function __construct(ICompiler $compiler) {
+        $this->factory = $compiler->config()['frontEnd']['factory'];
+    }
+
+    public function diagnosticMessages(): iterable {
         return [];
     }
 
     public function getIterator() {
         yield from [
-            $this->mkInitializer(),
-            $this->mkLexicalAnalyzer(),
-            $this->mkSyntaxAnalyzer(),
-            $this->mkSemanticAnalyzer(),
-            $this->mkIntermediateCodeGen(),
+            $this->factory->mkInitializer(),
+            $this->factory->mkLexicalAnalyzer(),
+            $this->factory->mkSyntaxAnalyzer(),
+            $this->factory->mkSemanticAnalyzer(),
+            $this->factory->mkIntermediateCodeGen(),
         ];
-    }
-
-    protected function mkLexicalAnalyzer(): ILexicalAnalyzer {
-        return new class implements ILexicalAnalyzer {
-            public function __invoke($context) {
-                return $context;
-            }
-        };
-    }
-
-    protected function mkSyntaxAnalyzer(): ISyntaxAnalyzer {
-        return new class implements ISyntaxAnalyzer {
-            public function __invoke($context) {
-                return $context;
-            }
-        };
-    }
-
-    protected function mkSemanticAnalyzer(): ISemanticAnalyzer {
-        return new class implements ISemanticAnalyzer {
-            public function __invoke($context) {
-                return $context;
-            }
-        };
-    }
-
-    protected function mkIntermediateCodeGen(): IIntermediateCodeGen {
-        return new class implements IIntermediateCodeGen {
-            public function __invoke($context) {
-                return $context;
-            }
-        };
-    }
-
-    private function mkInitializer(): IInitializer {
-        return new class implements IInitializer {
-            public function __invoke($context) {
-                return $context;
-            }
-        };
     }
 }

@@ -8,7 +8,7 @@ namespace Morpho\Code\Compiler\MiddleEnd;
 
 use Morpho\Code\Compiler\CompilerPhase;
 
-class MiddleEnd extends CompilerPhase {
+class MiddleEnd extends CompilerPhase implements IMiddleEnd {
     public function getIterator() {
         yield from [
             $this->mkOptimizer(),

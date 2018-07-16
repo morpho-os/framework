@@ -8,7 +8,7 @@ namespace Morpho\Code\Compiler\BackEnd;
 
 use Morpho\Code\Compiler\CompilerPhase;
 
-class BackEnd extends CompilerPhase {
+class BackEnd extends CompilerPhase implements IBackEnd {
     public function getIterator() {
         yield from [
             $this->mkCodeGen(),
@@ -18,8 +18,7 @@ class BackEnd extends CompilerPhase {
     protected function mkCodeGen(): ICodeGen {
         return new class implements ICodeGen {
             public function __invoke($context) {
-                $context['target'] = $context['source'];
-                return $context;
+                return $context['source'];
             }
         };
     }
