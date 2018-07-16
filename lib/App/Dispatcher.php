@@ -45,6 +45,9 @@ class Dispatcher {
                 if ($handler) {
                     $handler($request);
                 }
+
+                $request->isHandled(true);
+
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
             } catch (\Throwable $e) {
                 $this->eventManager->trigger(new Event('dispatchError', ['request' => $request, 'exception' => $e]));
