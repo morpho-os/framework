@@ -37,11 +37,11 @@ abstract class Controller implements IFn {
             throw new \LogicException("Empty action name");
         }
         $this->beforeEach();
-        $this->runAction($actionName);
+        $this->run($actionName);
         $this->afterEach();
     }
 
-    protected function runAction(string $actionName): void {
+    protected function run(string $actionName): void {
         $methodName = $actionName . 'Action';
         if ($this->checkActionMethodExistence) {
             $actionResult = \method_exists($this, $methodName)

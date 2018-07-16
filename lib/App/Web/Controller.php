@@ -94,6 +94,10 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->mkViewResult(null, (array) $values);
     }
 
+    /**
+     * @param mixed $value
+     * @return JsonResult
+     */
     protected function mkJsonResult($value): JsonResult {
         return new JsonResult($value);
     }
