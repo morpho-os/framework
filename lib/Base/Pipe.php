@@ -7,16 +7,13 @@
 namespace Morpho\Base;
 
 /**
- * Pipe/Pipeline is sequence of stages/phases, where each stage is callable with the type:
+ * Pipe/Pipeline is sequence of phases/phases, where each phase is callable with the type:
  *     (mixed $value): mixed
  */
 class Pipe extends \ArrayObject implements IFn {
-    private $beforeEachAction;
-    private $afterEachAction;
-
     public function __invoke($value) {
-        foreach ($this as $stage) {
-            $value = $this->runStage($stage, $value);
+        foreach ($this as $phase) {
+            $value = $this->runPhase($phase, $value);
         }
         return $value;
     }
@@ -26,22 +23,7 @@ class Pipe extends \ArrayObject implements IFn {
         return $this;
     }
 
-    public function setBeforeEachAction(callable $action) {
-        $this->beforeEachAction = $action;
-    }
-
-    public function setAfterEachAction(callable $action) {
-        $this->afterEachAction = $action;
-    }
-
-    protected function runStage(callable $stage, $value) {
-        if ($this->beforeEachAction) {
-            $value = ($this->beforeEachAction)($value);
-        }
-        $value = $stage($value);
-        if ($this->afterEachAction) {
-            $value = ($this->afterEachAction)($value);
-        }
-        return $value;
+    protected function runPhase(callable $phase, $value) {
+        return $phase($value);
     }
 }

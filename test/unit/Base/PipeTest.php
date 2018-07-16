@@ -33,7 +33,7 @@ class PipeTest extends TestCase {
         $this->assertEquals(['foo', 'bar'], \iterator_to_array($pipe));
     }
 
-    public function testClosureAndIFnAsStages() {
+    public function testClosureAndIFnAsPhases() {
         $val = null;
         $closure = function ($v) use (&$val)  {
             $val = $v;
@@ -57,25 +57,5 @@ class PipeTest extends TestCase {
 
         $this->assertSame($testVal, $ifnImpl->val);
         $this->assertSame($testVal, $val);
-    }
-
-    public function testRunPreAndPostActionsForEachStage() {
-        $pipe = new Pipe();
-        $pipe->append(function ($value) use (&$stageArgs) {
-            $stageArgs = \func_get_args();
-            return ++$value;
-        });
-        $pipe->setBeforeEachAction(function ($value) use (&$beforeEachArgs) {
-            $beforeEachArgs = \func_get_args();
-            return ++$value;
-        });
-        $pipe->setAfterEachAction(function ($value) use (&$afterEachArgs) {
-            $afterEachArgs = \func_get_args();
-            return ++$value;
-        });
-        $this->assertSame(3, $pipe(0));
-        $this->assertSame([0], $beforeEachArgs);
-        $this->assertSame([1], $stageArgs);
-        $this->assertSame([2], $afterEachArgs);
     }
 }
