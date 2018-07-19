@@ -4,7 +4,7 @@ namespace Morpho\App\Web;
 use Morpho\App\IActionResult;
 
 /**
- * This class inspired by NotFoundResult from .NET
+ * This class inspired by StatusCodeResult from .NET
  */
 class StatusCodeResult implements IActionResult {
     /**
