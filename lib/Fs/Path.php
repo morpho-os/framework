@@ -15,7 +15,7 @@ class Path extends BasePath {
     public static function isAbs(string $path): bool {
         return $path !== ''
             && ($path[0] === '/' || $path[0] === '\\')
-            || (isset($path[1]) && $path[1] === ':');
+            || (isset($path[1]) && $path[1] === ':'); // preg_match('~^[a-zA-Z]+:~', $path);
     }
 
     public static function assertSafe(string $path) {
@@ -86,6 +86,15 @@ class Path extends BasePath {
 
     public static function fileName(string $path): string {
         return \pathinfo($path, PATHINFO_BASENAME);
+    }
+
+    public static function dirPath(string $path): string {
+        // Handle paths like vfs:///foo/bar
+        $pos = strpos($path, ':');
+        if (false !== $pos && preg_match('~^([a-z]+://)(.*)$~si', $path, $match)) {
+            return $match[1] . dirname($match[2]);
+        }
+        return dirname($path);
     }
 
     public static function normalizeExt(string $ext): string {

@@ -153,7 +153,8 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
      */
     public function testEntryName(string $uri, $expectedNameOrException) {
         if ($expectedNameOrException instanceof \Exception) {
-            $this->expectException(\get_class($expectedNameOrException), $expectedNameOrException->getMessage());
+            $this->expectException(\get_class($expectedNameOrException));
+            $this->expectExceptionMessage($expectedNameOrException->getMessage());
             Vfs::entryName($uri);
         } else {
             $this->assertSame($expectedNameOrException, Vfs::entryName($uri));
@@ -164,7 +165,8 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         Vfs::register();
         $entryUri = Vfs::URI_PREFIX . '/foo/bar';
         \mkdir($entryUri, 0755, true);
-        $this->expectException(\RuntimeException::class, 'Unable to open file, entry is a directory');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to open file, entry is a directory');
         \file_put_contents($entryUri, 'test');
     }
 
@@ -172,7 +174,8 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         Vfs::register();
         $entryUri = Vfs::URI_PREFIX . '/foo/bar';
         \mkdir($entryUri, 0755, true);
-        $this->expectException(\RuntimeException::class, 'Unable to create directory, such directory already exists');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to create directory, such directory already exists');
         \mkdir($entryUri, 0755, true);
     }
 

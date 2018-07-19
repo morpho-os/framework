@@ -410,4 +410,15 @@ class PathTest extends TestCase {
         $this->expectException(FsException::class, $expectedMessage);
         Path::unique($dirPath, true, 0);
     }
+
+    public function testDirPath() {
+        $this->assertSame('', Path::dirPath(''));
+        $this->assertSame('/', Path::dirPath('/'));
+        $this->assertSame('/', Path::dirPath('/foo'));
+        $this->assertSame('/foo', Path::dirPath('/foo/bar'));
+        $this->assertSame('vfs://', Path::dirPath('vfs://'));
+        $this->assertSame('vfs:///', Path::dirPath('vfs:///'));
+        $this->assertSame('vfs:///foo', Path::dirPath('vfs:///foo/bar'));
+        $this->assertSame('vfs:///foo', Path::dirPath('vfs:///foo/bar/'));
+    }
 }
