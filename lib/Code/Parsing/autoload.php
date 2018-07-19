@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace Morpho\Code\Parsing;
 
+use Morpho\Error\ParseException;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
@@ -9,7 +10,11 @@ use PhpParser\Node\Stmt\Class_ as ClassStmt;
 use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 
 function parseFile(string $filePath): ?array {
-    return parse(\file_get_contents($filePath));
+    try {
+        return parse(\file_get_contents($filePath));
+    } catch (\PhpParser\Error $e) {
+        throw new \RuntimeException("Unable to parse the file '$filePath'", 0, $e);
+    }
 }
 
 function parse(string $str): ?array {
