@@ -6,11 +6,44 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{
-    endsWith, formatFloat, hasPrefix, hasSuffix, lines, memoize, not, op, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, waitUntilNoOfAttempts, wrapQ, startsWith, formatBytes
-};
+use function Morpho\Base\{endsWith,
+    formatFloat,
+    hasPrefix,
+    hasSuffix,
+    lines,
+    memoize,
+    not,
+    op,
+    suffix,
+    fromJson,
+    partial,
+    compose,
+    prefix,
+    toJson,
+    tpl,
+    uniqueName,
+    deleteDups,
+    classify,
+    trimMore,
+    sanitize,
+    underscore,
+    dasherize,
+    camelize,
+    humanize,
+    titleize,
+    htmlId,
+    shorten,
+    showLn,
+    normalizeEols,
+    typeOf,
+    using,
+    waitUntilNoOfAttempts,
+    wrapQ,
+    startsWith,
+    formatBytes};
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
 
@@ -662,6 +695,48 @@ class FunctionsTest extends TestCase {
 
         $this->assertSame($result, $fn1($a, $b));
         $this->assertSame($result, $fn2($a));
+    }
+
+    public function testUsing_CallsInvoke() {
+        $disposable = new class implements IDisposable {
+            public $disposeArgs;
+            public $invokeArgs;
+            public function dispose(): void {
+                $this->disposeArgs = func_get_args();
+            }
+
+            public function __invoke($value) {
+                $this->invokeArgs = func_get_args();
+                return 'returnedFromInvoke';
+            }
+        };
+        $val = 'foo';
+        $this->assertSame('returnedFromInvoke', using($disposable, $val));
+        $this->assertSame([$val], $disposable->invokeArgs);
+        $this->assertSame([], $disposable->disposeArgs);
+    }
+
+    public function testUsing_CallsDispose() {
+        $disposable = new class implements IDisposable {
+            public $disposeArgs;
+            public $invokeArgs;
+            public function dispose(): void {
+                $this->disposeArgs = func_get_args();
+            }
+
+            public function __invoke($value) {
+                throw new \RuntimeException('Some error');
+            }
+        };
+        $val = 'bar';
+        try {
+            using($disposable, $val);
+            $this->fail();
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Some error', $e->getMessage());
+        }
+        $this->assertNull($disposable->invokeArgs);
+        $this->assertSame([], $disposable->disposeArgs);
     }
 
     private function assertCommon($fn) {

@@ -34,6 +34,20 @@ const EPS = 0.00001;
 
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
+/**
+ * @param IDisposable $disposable
+ * @param mixed $val Will be passed to IFn::__invoke()
+ * @return mixed
+ */
+function using(IDisposable $disposable, $val = null) {
+    try {
+        $result = $disposable($val);
+    } finally {
+        $disposable->dispose();
+    }
+    return $result;
+}
+
 function unpackArgs(array $args): array {
     return \count($args) === 1 && \is_array($args[0])
         ? $args[0]
