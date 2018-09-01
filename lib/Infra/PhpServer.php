@@ -98,7 +98,7 @@ class PhpServer {
      */
     protected function findFreePort(Address $address): Address {
         return Address::parse(\stream_socket_get_name(
-            \stream_socket_server("tcp://{$address->host()}:0"),
+            \stream_socket_server("tcp://{$address->host()}:0"), // :0 means bind random open port
             false
         ));
     }
