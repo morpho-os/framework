@@ -10,7 +10,7 @@ use Morpho\Code\Compiler\CompilerPhase;
 
 class MiddleEnd extends CompilerPhase implements IMiddleEnd {
     public function getIterator() {
-        yield from [
+        return [
             $this->mkOptimizer(),
         ];
     }

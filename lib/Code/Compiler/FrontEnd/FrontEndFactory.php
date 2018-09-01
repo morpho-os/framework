@@ -2,14 +2,6 @@
 namespace Morpho\Code\Compiler\FrontEnd;
 
 class FrontEndFactory implements IFrontEndFactory {
-    public function mkInitializer(): IInitializer {
-        return new class implements IInitializer {
-            public function __invoke($context) {
-                return $context;
-            }
-        };
-    }
-
     public function mkLexicalAnalyzer(): ILexicalAnalyzer {
         return new class implements ILexicalAnalyzer {
             public function __invoke($context) {
@@ -40,5 +32,14 @@ class FrontEndFactory implements IFrontEndFactory {
                 return $context;
             }
         };
+    }
+
+    public function mkFrontEndPhases(): iterable {
+        return [
+            $this->mkLexicalAnalyzer(),
+            $this->mkSyntaxAnalyzer(),
+            $this->mkSemanticAnalyzer(),
+            $this->mkIntermediateCodeGen(),
+        ];
     }
 }

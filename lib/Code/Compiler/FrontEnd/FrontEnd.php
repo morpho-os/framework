@@ -10,6 +10,11 @@ use Morpho\Code\Compiler\CompilerPhase;
 use Morpho\Code\Compiler\ICompiler;
 
 class FrontEnd extends CompilerPhase implements IFrontEnd {
+    /**
+     * @var IFrontEndFactory
+     */
+    protected $factory;
+
     public function __construct(ICompiler $compiler) {
         $this->factory = $compiler->config()['frontEnd']['factory'];
     }
@@ -19,12 +24,6 @@ class FrontEnd extends CompilerPhase implements IFrontEnd {
     }
 
     public function getIterator() {
-        yield from [
-            $this->factory->mkInitializer(),
-            $this->factory->mkLexicalAnalyzer(),
-            $this->factory->mkSyntaxAnalyzer(),
-            $this->factory->mkSemanticAnalyzer(),
-            $this->factory->mkIntermediateCodeGen(),
-        ];
+        return $this->factory->mkFrontEndPhases();
     }
 }

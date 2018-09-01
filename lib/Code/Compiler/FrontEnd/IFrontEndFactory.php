@@ -2,8 +2,6 @@
 namespace Morpho\Code\Compiler\FrontEnd;
 
 interface IFrontEndFactory {
-    public function mkInitializer(): IInitializer;
-
     public function mkLexicalAnalyzer(): ILexicalAnalyzer;
 
     public function mkSyntaxAnalyzer(): ISyntaxAnalyzer;
@@ -11,4 +9,6 @@ interface IFrontEndFactory {
     public function mkSemanticAnalyzer(): ISemanticAnalyzer;
 
     public function mkIntermediateCodeGen(): IIntermediateCodeGen;
+
+    public function mkFrontEndPhases(): iterable;
 }

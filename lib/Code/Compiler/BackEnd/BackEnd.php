@@ -10,7 +10,7 @@ use Morpho\Code\Compiler\CompilerPhase;
 
 class BackEnd extends CompilerPhase implements IBackEnd {
     public function getIterator() {
-        yield from [
+        return [
             $this->mkCodeGen(),
         ];
     }

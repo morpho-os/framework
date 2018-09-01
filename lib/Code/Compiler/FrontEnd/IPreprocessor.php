@@ -3,5 +3,5 @@ namespace Morpho\Code\Compiler\FrontEnd;
 
 use Morpho\Code\Compiler\ICompilerPhase;
 
-interface IInitializer extends ICompilerPhase {
+interface IPreprocessor extends ICompilerPhase {
 }
