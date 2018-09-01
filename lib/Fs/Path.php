@@ -14,7 +14,7 @@ use Morpho\App\Path as BasePath;
 class Path extends BasePath {
     public static function isAbs(string $path): bool {
         return $path !== ''
-            && ($path[0] === '/' || $path[0] === '\\')
+            && $path[0] === '/'
             || (isset($path[1]) && $path[1] === ':'); // preg_match('~^[a-zA-Z]+:~', $path);
     }
 

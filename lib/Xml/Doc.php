@@ -41,7 +41,7 @@ class Doc extends DOMDocument {
         if (!\is_file($filePath) || !\is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
-        $source = File::read($filePath, ['binary' => false]);
+        $source = File::read($filePath, ['removeBom' => true]);
         return self::parse($source, $config);
     }
 
