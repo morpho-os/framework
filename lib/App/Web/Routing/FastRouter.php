@@ -20,6 +20,9 @@ use Morpho\Fs\Path;
 use Morpho\App\Web\Request;
 
 class FastRouter implements IHasServiceManager, IRouter {
+    /**
+     * @var IServiceManager
+     */
     protected $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager): void {
@@ -39,15 +42,31 @@ class FastRouter implements IHasServiceManager, IRouter {
 
         $routeInfo = $this->dispatcher()
             ->dispatch($request->method(), $uri);
-        if ($routeInfo[0] === IDispatcher::FOUND) {
-            $handlerInfo = $routeInfo[1];
-            $request->setModuleName($handlerInfo['module']);
-            $request->setControllerName($handlerInfo['controller']);
-            $request->setActionName($handlerInfo['action']);
-            $params = $routeInfo[2] ?? null;
-            if ($params) {
-                $request['routing'] = $params;
-            }
+        switch ($routeInfo[0]) {
+            case -1:
+                $handler = $this->config()['handlers']['badRequest'];
+                $request->setHandler($handler);
+                break;
+            case IDispatcher::NOT_FOUND:
+                $handler = $this->config()['handlers']['notFound'];
+                $request->setHandler($handler);
+                break;
+            case IDispatcher::METHOD_NOT_ALLOWED:
+                $handler = $this->config()['handlers']['methodNotAllowed'];
+                $request->setHandler($handler);
+                break;
+            case IDispatcher::FOUND:
+                $handlerInfo = $routeInfo[1];
+                $request->setModuleName($handlerInfo['module']);
+                $request->setControllerName($handlerInfo['controller']);
+                $request->setActionName($handlerInfo['action']);
+                $params = $routeInfo[2] ?? null;
+                if ($params) {
+                    $request['routing'] = $params;
+                }
+                break;
+            default:
+                throw new \UnexpectedValueException();
         }
     }
 
@@ -80,13 +99,10 @@ class FastRouter implements IHasServiceManager, IRouter {
 
     protected function handleHomeUri(Request $request, $uri): bool {
         if ($uri === '/') {
-            $routerConfig = $this->serviceManager->config()['router'];
-            if (isset($routerConfig['home'])) {
-                $handler = $routerConfig['home'];
-                $request->setHandler($handler['handler']);
-                $request->setMethod($handler['method']);
-                return true;
-            }
+            $routerConfig = $this->config();
+            $request->setHandler($routerConfig['handlers']['home']);
+            $request->setMethod(Request::GET_METHOD);
+            return true;
         }
         return false;
     }
@@ -110,6 +126,10 @@ class FastRouter implements IHasServiceManager, IRouter {
 
     protected function loadDispatchData() {
         return require $this->cacheFilePath();
+    }
+
+    protected function config(): array {
+        return $this->serviceManager->config()['router'];
     }
 
     private function cacheFilePath(): string {

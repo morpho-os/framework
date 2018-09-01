@@ -19,4 +19,8 @@ class ErrorController extends Controller {
     public function uncaughtAction() {
         $this->request->response()->setStatusCode(500);
     }
+
+    public function methodNotAllowed() {
+        $this->request->response()->setStatusCode(405);
+    }
 }

@@ -26,7 +26,6 @@ use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\Uri\UriChecker;
-use Morpho\App\Web\ActionResultHandler;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
 use Morpho\Caching\VarExportFileCache;

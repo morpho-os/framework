@@ -13,9 +13,11 @@ return [
     ],
     'service' => [
         'router' => [
-            'home' => [
-                'handler' => [VENDOR . '/system', 'Index', 'index'],
-                'method' => 'get',
+            'handlers' => [
+                'home'             => [VENDOR . '/localhost', 'Index', 'index'],
+                'notFound'         => [VENDOR . '/system', 'Error', 'notFound'],
+                'badRequest'       => [VENDOR . '/system', 'Error', 'badRequest'],
+                'methodNotAllowed' => [VENDOR . '/system', 'Error', 'methodNotAllowed'],
             ],
         ],
         'db' => [
