@@ -61,6 +61,10 @@ export function redirectToHome(): void {
     redirectTo('/');
 }
 
-export function redirectTo(uri: string): void {
-    window.location.href = uri;
+export function redirectTo(uri: string, storePageInHistory = false): void {
+    if (storePageInHistory) {
+        window.location.href = uri;
+    } else {
+        window.location.replace(uri);
+    }
 }
