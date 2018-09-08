@@ -59,9 +59,10 @@ abstract class InstanceProvider implements IFn {
      * @return array|false
      */
     public function classFilePath(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
+        $relClassFilePath = \str_replace('\\', '/', $classWithoutModuleNsPrefix) . '.php';
         foreach ($moduleMeta['namespace'] as $namespace => $nsDirPath) {
             $class = $namespace . '\\' . $classWithoutModuleNsPrefix;
-            $classFilePath = $moduleMeta['path']['dirPath'] . '/' . $nsDirPath . '/' . \str_replace('\\', '/', $classWithoutModuleNsPrefix) . '.php';
+            $classFilePath = $moduleMeta['path']['dirPath'] . '/' . $nsDirPath . '/' .  $relClassFilePath;
             if (\is_file($classFilePath)) {
                 return [$class, $classFilePath];
             }
@@ -75,9 +76,9 @@ abstract class InstanceProvider implements IFn {
      * @return \object|false
      */
     public function mkInstance(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
-        $classPath = $this->classFilePath($moduleMeta, $classWithoutModuleNsPrefix);
-        if (false !== $classPath) {
-            [$class, $filePath] = $classPath;
+        $classFilePath = $this->classFilePath($moduleMeta, $classWithoutModuleNsPrefix);
+        if (false !== $classFilePath) {
+            [$class, $filePath] = $classFilePath;
             if (!\class_exists($class, false)) {
                 requireFile($filePath, true);
             }
@@ -98,5 +99,5 @@ abstract class InstanceProvider implements IFn {
         }
     }
 
-    abstract protected function controllerClassWithoutModuleNs($controllerName): string;
+    abstract protected function controllerClassWithoutModuleNs(string $controllerName): string;
 }

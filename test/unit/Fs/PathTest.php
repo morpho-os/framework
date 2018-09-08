@@ -22,8 +22,8 @@ class PathTest extends TestCase {
                 false,
             ],
             [
-                '\\',  // UNC (Universal Naming Convention)
-                true,
+                '\\',  // UNC/Universal Naming Convention
+                false,
             ],
             [
                 '/',

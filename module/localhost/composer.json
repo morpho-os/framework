@@ -5,7 +5,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Morpho\\Localhost\\": "lib"
+            "Morpho\\Site\\Localhost\\": "lib"
         }
     }
 }

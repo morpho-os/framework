@@ -160,9 +160,7 @@ class ServiceManager extends BaseServiceManager {
         $dispatchErrorHandler = new DispatchErrorHandler();
         $config = $this->config()['dispatchErrorHandler'];
         $dispatchErrorHandler->throwErrors($config['throwErrors']);
-        if (isset($config['exceptionHandler'])) {
-            $dispatchErrorHandler->setExceptionHandler($config['exceptionHandler']);
-        }
+        $dispatchErrorHandler->setExceptionHandler($config['exceptionHandler']);
         return $dispatchErrorHandler;
     }
 

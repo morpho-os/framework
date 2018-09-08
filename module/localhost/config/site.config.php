@@ -1,23 +1,47 @@
 <?php
-use const Morpho\App\VENDOR;
 use const Morpho\App\CACHE_DIR_NAME;
+use const Morpho\App\VENDOR;
 
 $moduleDirPath = \dirname(__DIR__);
+$siteModuleName = VENDOR . '/localhost';
+$errorHandlers = [
+    'badRequest'       => [
+        'handler'  => [$siteModuleName, 'Error', 'badRequest'],
+        'httpCode' => 400,
+    ],
+    'forbidden'        => [
+        'handler'  => [$siteModuleName, 'Error', 'forbidden'],
+        'httpCode' => 403,
+    ],
+    'notFound'         => [
+        'handler'  => [$siteModuleName, 'Error', 'notFound'],
+        'httpCode' => 404,
+    ],
+    'methodNotAllowed' => [
+        'handler'  => [$siteModuleName, 'Error', 'methodNotAllowed'],
+        'httpCode' => 405,
+    ],
+    'uncaught'         => [
+        'handler'  => [$siteModuleName, 'Error', 'uncaught'],
+        'httpCode' => 500,
+    ],
+];
+
 return [
     'path' => [
         'cacheDirPath' => $moduleDirPath . '/' . CACHE_DIR_NAME,
     ],
     'module' => [
-        VENDOR . '/system',
+//        $vendor . '/system',
 //        VENDOR . '/user',
     ],
     'service' => [
         'router' => [
             'handlers' => [
-                'home'             => [VENDOR . '/localhost', 'Index', 'index'],
-                'notFound'         => [VENDOR . '/system', 'Error', 'notFound'],
-                'badRequest'       => [VENDOR . '/system', 'Error', 'badRequest'],
-                'methodNotAllowed' => [VENDOR . '/system', 'Error', 'methodNotAllowed'],
+                'badRequest' => $errorHandlers['badRequest']['handler'],
+                'notFound' => $errorHandlers['notFound']['handler'],
+                'methodNotAllowed' => $errorHandlers['methodNotAllowed']['handler'],
+                'home' => [$siteModuleName, 'Index', 'index'],
             ],
         ],
         'db' => [
@@ -51,7 +75,7 @@ return [
         ],
         'dispatchErrorHandler' => [
             'throwErrors' => false,
-            //'exceptionHandler' => ['my-vendor/my-module', 'MyError', 'uncaught']
+            'exceptionHandler' => ['my-vendor/my-module', 'MyError', 'uncaught']
         ],
         'errorLogger' => [
             'mailWriter' => [
@@ -64,7 +88,14 @@ return [
             'errorLogWriter' => false,
         ],
         'view' => [
-            'pageRenderer' => VENDOR . '/system',
+            'pageRenderer' => $siteModuleName,
+        ],
+        'actionResultHandler' => [
+            $errorHandlers['badRequest']['httpCode'] => $errorHandlers['badRequest']['handler'],
+            $errorHandlers['forbidden']['httpCode'] => $errorHandlers['forbidden']['handler'],
+            $errorHandlers['notFound']['httpCode'] => $errorHandlers['notFound']['handler'],
+            $errorHandlers['methodNotAllowed']['httpCode'] => $errorHandlers['methodNotAllowed']['handler'],
+            $errorHandlers['uncaught']['httpCode'] => $errorHandlers['uncaught']['handler'],
         ],
     ],
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.

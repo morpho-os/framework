@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Morpho\\Localhost\\' => array($baseDir . '/lib'),
+    'Morpho\\Site\\Localhost\\' => array($baseDir . '/lib'),
 );

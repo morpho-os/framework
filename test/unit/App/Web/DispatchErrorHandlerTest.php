@@ -22,12 +22,6 @@ class DispatchErrorHandlerTest extends TestCase {
         $this->checkHandlesTheSameErrorOccurredTwice($dispatchErrorHandler, $handler, $exception, 500, true);
     }
 
-    public function testDefaultExceptionHandler() {
-        $handler = DispatchErrorHandler::EXCEPTION_HANDLER;
-        $exception = new \RuntimeException();
-        $this->checkHandlesTheSameErrorOccurredTwice(new DispatchErrorHandler(), $handler, $exception, 500, true);
-    }
-
     public function testThrowErrorsAccessor() {
         $this->checkBoolAccessor([new DispatchErrorHandler(), 'throwErrors'], false);
     }

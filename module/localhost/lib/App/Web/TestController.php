@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
-namespace Morpho\System\App\Web;
+namespace Morpho\Site\Localhost\App\Web;
 
-use Morpho\App\Web\BadRequestException;
 use function Morpho\Base\dasherize;
 use Morpho\App\Web\Controller;
 use Morpho\Base\NotImplementedException;

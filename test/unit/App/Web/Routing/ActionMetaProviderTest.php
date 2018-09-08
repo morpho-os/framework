@@ -171,4 +171,16 @@ class ActionMetaProviderTest extends TestCase {
             \iterator_to_array($actionMetaProvider($controllerFileMetas), false)
         );
     }
+
+    public function testAnnotations_NoAutoRoutesAnnotation() {
+        $controllerDirPath = $this->getTestDirPath();
+        $controllerFileMetas = [
+            [
+                'module' => 'test/annotations',
+                'filePath' => $controllerDirPath . '/NoAutoRoutesController.php',
+           ]
+        ];
+        $actionMetaProvider = new ActionMetaProvider();
+        $this->assertSame([], \iterator_to_array($actionMetaProvider->__invoke($controllerFileMetas)));
+    }
 }

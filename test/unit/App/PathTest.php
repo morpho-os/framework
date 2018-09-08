@@ -19,6 +19,4 @@ class PathTest extends TestCase {
         );
         Path::rel($path, $baseDirPath);
     }
-
-
 }

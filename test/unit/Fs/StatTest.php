@@ -11,12 +11,20 @@ use Morpho\Fs\Stat;
 use Morpho\Testing\TestCase;
 
 class StatTest extends TestCase {
+    private $oldUmask;
+
     public function setUp() {
-        parent::setUp();
         if (Environment::isWindows()) {
             // @TODO: Check on windows.
             $this->markTestIncomplete();
         }
+        parent::setUp();
+        $this->oldUmask = umask();
+    }
+
+    public function tearDown() {
+        umask($this->oldUmask);
+        parent::tearDown();
     }
 
     public function testModeAndModeStr() {
@@ -63,16 +71,25 @@ class StatTest extends TestCase {
 
     public function testIsSocket() {
         $tmpDirPath = $this->createTmpDir();
-        $dev = [125, 1];
+        $unixSocketFilePath = $tmpDirPath . '/sock';
+        /*
+        //$dev = [125, 1];
         $mode = 0777;
-        $path = $tmpDirPath . '/sock';
         $this->assertTrue(\posix_mknod($path, POSIX_S_IFSOCK | $mode, $dev[0], $dev[1]));
+        */
+        $sockAddress = 'unix://' . $unixSocketFilePath;
+        umask(0); // To allow to read the file
+        try {
+            $serverSock = stream_socket_server($sockAddress, $errNo, $errStr);
 
-        $this->assertTrue(Stat::isEntry($path));
-        $this->assertFalse(Stat::isBlockDev($path));
-        $this->assertFalse(Stat::isCharDev($path));
-        $this->assertFalse(Stat::isNamedPipe($path));
-        $this->assertTrue(Stat::isSocket($path));
+            $this->assertTrue(Stat::isEntry($unixSocketFilePath));
+            $this->assertFalse(Stat::isBlockDev($unixSocketFilePath));
+            $this->assertFalse(Stat::isCharDev($unixSocketFilePath));
+            $this->assertFalse(Stat::isNamedPipe($unixSocketFilePath));
+            $this->assertTrue(Stat::isSocket($unixSocketFilePath));
+        } finally {
+            fclose($serverSock);
+        }
     }
 
     public function testIsEntry_Link() {

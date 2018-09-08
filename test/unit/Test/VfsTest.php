@@ -132,11 +132,11 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         ];
         yield [
             $prefix,
-            new \UnexpectedValueException('Invalid path'),
+            new \UnexpectedValueException("Path must be not empty and must start with the '/'"),
         ];
         yield [
             $prefix . 'foo',
-            new \UnexpectedValueException('Invalid path'),
+            new \UnexpectedValueException("Path must be not empty and must start with the '/'"),
         ];
         yield [
             $prefix . '/foo',

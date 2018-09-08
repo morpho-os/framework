@@ -10,18 +10,20 @@ use function Morpho\Base\{
     endsWith, last
 };
 use Morpho\Base\IFn;
+use Morpho\Code\Reflection\ClassTypeReflection;
 use Morpho\Code\Reflection\FileReflection;
 use const Morpho\App\CONTROLLER_SUFFIX;
 use const Morpho\App\ACTION_SUFFIX;
 
 class ActionMetaProvider implements IFn {
-    protected $baseControllerClasses = [
-        //'Morpho\\\Controller',
-        'Morpho\\App\\Web\\Controller',
-    ];
+    protected $baseControllerClasses = [\Morpho\App\Web\Controller::class];
 
     private $ignoredMethods;
 
+    /**
+     * @param iterable $controllerFileMetas
+     * @return iterable
+     */
     public function __invoke($controllerFileMetas): iterable {
         foreach ($controllerFileMetas as $controllerFileMeta) {
             foreach ($this->controllerMeta($controllerFileMeta) as $controllerMeta) {
@@ -33,6 +35,9 @@ class ActionMetaProvider implements IFn {
     private function controllerMeta(array $controllerFileMeta): iterable {
         require_once $controllerFileMeta['filePath'];
         foreach ((new FileReflection($controllerFileMeta['filePath']))->classes() as $rClass) {
+            if ($this->shouldBeSkipped($rClass)) {
+                continue;
+            }
             $class = $rClass->getName();
             if (!endsWith($class, CONTROLLER_SUFFIX)) {
                 continue;
@@ -45,6 +50,11 @@ class ActionMetaProvider implements IFn {
             ];
             yield $controllerMeta;
         }
+    }
+
+    private function shouldBeSkipped(ClassTypeReflection $rClass): bool {
+        $docComments = $rClass->getDocComment();
+        return false !== $docComments && (bool) preg_match('~\s*@noAutoRoutes\s*~si', $docComments);
     }
 
     private function actionMeta(array $controllerMeta): array {

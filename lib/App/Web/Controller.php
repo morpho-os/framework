@@ -106,6 +106,10 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return new RedirectResult($uri, $statusCode, $this->serviceManager['messenger']);
     }
 
+    protected function mkStatusCodeResult(int $statusCode): StatusCodeResult {
+        return new StatusCodeResult($statusCode);
+    }
+
     protected function redirect(string $uri, int $statusCode = null): IResponse {
         /** @var Response $response */
         $response = $this->request->response();

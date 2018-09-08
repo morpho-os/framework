@@ -6,15 +6,12 @@
  */
 namespace Morpho\App\Web;
 
-use const Morpho\App\VENDOR;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\THasServiceManager;
 use Morpho\Error\ErrorHandler;
 
 class DispatchErrorHandler implements IHasServiceManager {
     use THasServiceManager;
-
-    public const EXCEPTION_HANDLER = [VENDOR . '/system', 'Error', 'uncaught'];
 
     private $thrownExceptions = [];
 
@@ -40,7 +37,10 @@ class DispatchErrorHandler implements IHasServiceManager {
             throw $exception;
         }
 
-        $handler = $this->exceptionHandler ?? self::EXCEPTION_HANDLER;
+        $handler = $this->exceptionHandler;
+        if (!$handler) {
+            throw new \UnexpectedValueException('Empty exception handler');
+        }
 
         foreach ($this->thrownExceptions as $prevException) {
             if (ErrorHandler::hashId($prevException) === ErrorHandler::hashId($exception)) {

@@ -1,11 +1,9 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web;
 
-use const Morpho\App\VENDOR;
 use Morpho\App\Web\View\HtmlRenderer;
 use Morpho\App\Web\View\JsonRenderer;
 use Morpho\App\Web\View\ViewResult;
-use function Morpho\Base\dasherize;
 use Morpho\Base\IFn;
 use Morpho\Ioc\IServiceManager;
 
@@ -22,7 +20,6 @@ class ActionResultHandler implements IFn {
     public function __invoke($request): void {
         /** @var \Morpho\App\Web\Response $response */
         $response = $request->response();
-        $isHandled = true;
         if ($response->isRedirect()) {
             if ($request->isAjax()) {
                 $response['result'] = new JsonResult(['redirect' => $response->headers()->offsetGet('Location')]);
@@ -34,16 +31,10 @@ class ActionResultHandler implements IFn {
         } elseif (isset($response['result'])) {
             $actionResult = $response['result'];
             if ($actionResult instanceof StatusCodeResult) {
-                // @TODO: Allow to set handlers through site's config
-                $handlerMap = [
-                    400 => [VENDOR . '/system', 'Error', 'badRequest'],
-                    403 => [VENDOR . '/system', 'Error', 'forbidden'],
-                    404 => [VENDOR . '/system', 'Error', 'notFound'],
-                ];
+                $handlerMap = $this->serviceManager->config()['actionResultHandler'];
                 $handler = $handlerMap[$actionResult->statusCode];
                 $request->setHandler($handler);
-                //$response['result'] = new ViewResult(dasherize($handler[2]));
-                $isHandled = false;
+                $request->isHandled(false);
             } elseif ($actionResult instanceof ViewResult) {
                 $renderer = new HtmlRenderer($this->serviceManager);
                 $renderer->__invoke($request);
@@ -57,6 +48,5 @@ class ActionResultHandler implements IFn {
             switch ($format) {
             */
         }
-        $request->isHandled($isHandled);
     }
 }
