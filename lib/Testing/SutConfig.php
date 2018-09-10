@@ -6,19 +6,19 @@
  */
 namespace Morpho\Testing;
 
-class SutConfig implements \ArrayAccess {
+class SutConfig extends \ArrayObject {
     private $values = [];
 
-    protected $defaultValues = [
-        'siteUri' => 'http://framework',
-    ];
+    public function __construct(array $values = []) {
+        $this->values = $values;
+    }
 
     public function offsetExists($name): bool {
-        return \array_key_exists($name, $this->values) || \array_key_exists($name, $this->defaultValues);
+        return \array_key_exists($name, $this->values);
     }
 
     public function offsetGet($name) {
-        return \array_key_exists($name, $this->defaultValues) ? $this->defaultValues[$name] : $this->values[$name];
+        return $this->values[$name];
     }
 
     public function offsetSet($name, $value) {

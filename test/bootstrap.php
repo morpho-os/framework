@@ -13,8 +13,7 @@ use Morpho\Testing\Sut;
 
 (function () {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
-    $classLoader->addPsr4(__NAMESPACE__ . '\\Unit\\', __DIR__ . '/unit');
-    $classLoader->addPsr4(__NAMESPACE__ . '\\Functional\\', __DIR__ . '/functional');
+    $classLoader->addPsr4(__NAMESPACE__ . '\\', __DIR__);
 
     foreach (\glob(Sut::instance()->baseDirPath() . '/' . MODULE_DIR_NAME . '/*') as $path) {
         if (!\is_dir($path)) {

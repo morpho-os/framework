@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Functional;
+namespace Morpho\Test\Integration;
 
 use Morpho\Infra\PhpServer;
 use Morpho\Network\Address;
@@ -26,18 +26,18 @@ class TestSuite extends BrowserTestSuite {
 
     public function setUp(): void {
         parent::setUp();
-        //if (getenv('TRAVIS')) {
+
+        $sut = $this->sut();
+        $isTravis = $sut->config()['isTravis'];
+        if ($isTravis) {
             $this->phpServer = $phpServer = new PhpServer(
                 new Address('127.0.0.1', 7654),
                 Sut::instance()->publicDirPath()
             );
             $address = $phpServer->start();
-            /*
-        } else {
-            $address = 'framework';
+            $sut->config()['port'] = $address->port();
+            $sut->config()['siteUri'] = 'http://' . $address;
         }
-            */
-        $this->sut()->config()['siteUri'] = 'http://' . $address;
     }
 
     public function tearDown(): void {

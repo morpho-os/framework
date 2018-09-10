@@ -10,17 +10,17 @@ css:
 	# To compress add the `-c` option
 	cd $(publicModuleDirPath)/system/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < index.styl > index.css
 
+###############################################################################
+# All tests
+
 test:
 	bin/test
 
 test-stop-on-error:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning
 
-ftest:
-	bin/test test/functional/TestSuite.php
-
-mtest:
-	bin/test module
+###############################################################################
+# Unit tests
 
 utest:
 	bin/test test/unit/TestSuite.php
@@ -31,12 +31,28 @@ utest-stop-on-defect:
 utest-stop-on-error:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/unit/TestSuite.php
 
+###############################################################################
+# Acceptance tests
+
+itest:
+	bin/test test/Integration/TestSuite.php
+
+itest-stop-on-error:
+	bin/test test/Integration/TestSuite.php --stop-on-error --stop-on-failure --stop-on-warning
+
+###############################################################################
+# Module tests
+
+mtest:
+	bin/test module
+
+
 lint:
 	php test/lint.php
 
-clear:
+clear: clean
 clean:
-	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/functional/*.log
+	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/Integration/*.log
 
 update:
 	composer update
@@ -44,4 +60,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test test-stop-on-error ftest mtest utest utest-stop-on-defect utest-stop-on-error lint clear clean update
+.PHONY: js css test test-stop-on-error utest utest-stop-on-defect utest-stop-on-error itest itest-stop-on-error mtest lint clear clean update

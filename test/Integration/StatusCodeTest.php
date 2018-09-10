@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Functional;
+namespace Morpho\Test\Integration;
 
 use Morpho\Network\Http\HttpClient;
 use Morpho\Testing\BrowserTestCase;
@@ -13,19 +13,35 @@ class StatusCodeTest extends BrowserTestCase {
     public function dataForResponseCodes() {
         return [
             [
-                '/system/test', 200, null, null,
+                '/localhost/test',
+                200,
+                null,
+                null,
             ],
             [
-                '/system/test/status400', 400, 'Bad request (400)', 'Bad request. If you sure that it is not an error then please contact technical support.'
+                '/localhost/test/status400',
+                400,
+                'Bad request (400)',
+                'The server can\'t process your request. Contact technical support if you think that this page should show different result.',
             ],
             [
-                '/system/test/status403', 403, 'Access denied (403)', 'You don\'t have enough permissions to access the requested resource.',
+                '/localhost/test/status403',
+                403,
+                'Access denied (403)',
+                'You don\'t have enough permissions to access the requested resource. Contact technical support if you think that this page should show different result.',
             ],
             [
-                '/system/test/status404', 404, 'Such page does not exist (404)', null,
+                '/localhost/test/status404',
+                404,
+                'Such page does not exist (404)',
+                'Contact technical support if you think that this page should show different result.',
+                null,
             ],
             [
-                '/system/test/status500', 500, 'Internal error has occurred (500)', 'Please contact technical support.'
+                '/localhost/test/status500',
+                500,
+                'Internal error has occurred (500)',
+                'Please contact technical support.',
             ],
         ];
     }

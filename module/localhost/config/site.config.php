@@ -75,7 +75,7 @@ return [
         ],
         'dispatchErrorHandler' => [
             'throwErrors' => false,
-            'exceptionHandler' => ['my-vendor/my-module', 'MyError', 'uncaught']
+            'exceptionHandler' => $errorHandlers['uncaught']['handler'],
         ],
         'errorLogger' => [
             'mailWriter' => [

@@ -3,13 +3,13 @@ namespace Morpho\Site\Localhost\App\Web;
 
 use function Morpho\Base\dasherize;
 use Morpho\App\Web\Controller;
-use Morpho\Base\NotImplementedException;
 
 class TestController extends Controller {
     public function indexAction() {
-        $page = $this->mkViewResult('test');
+
+/*        $page = $this->mkViewResult('test');
         $page->setDirPath(dasherize($this->request->controllerName()));
-        return $this->mkViewResult(null, null, $page);
+        return $this->mkViewResult(null, null, $page);*/
     }
 
 /*    public function nullActionResultAction() {
@@ -17,7 +17,7 @@ class TestController extends Controller {
         throw new NotImplementedException();
     }*/
 
-    public function responseActionResultAction() {
+/*    public function responseActionResultAction() {
         throw new NotImplementedException();
     }
 
@@ -31,7 +31,7 @@ class TestController extends Controller {
 
     public function viewActionResultAction() {
         throw new NotImplementedException();
-    }
+    }*/
 
     public function status400Action() {
         return $this->mkBadRequestResult();

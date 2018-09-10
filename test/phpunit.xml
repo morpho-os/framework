@@ -1,7 +1,9 @@
 <phpunit bootstrap="./bootstrap.php" colors="false" verbose="true" beStrictAboutTestsThatDoNotTestAnything="true" failOnRisky="true" failOnWarning="true">
     <testsuites>
         <testsuite name="Morpho Test Suite">
-            <file>TestSuite.php</file>
+            <file>Unit/TestSuite.php</file>
+            <file>Integration/TestSuite.php</file>
+            <file>ModuleTestSuite.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

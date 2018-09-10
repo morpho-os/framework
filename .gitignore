@@ -18,5 +18,5 @@ node_modules/
 
 *.log
 selenium.log.lck
-/test/functional/geckodriver
-/test/functional/selenium-server-standalone-*.jar  
+/test/Integration/geckodriver
+/test/Integration/selenium-server-standalone-*.jar

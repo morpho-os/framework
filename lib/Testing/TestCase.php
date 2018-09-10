@@ -191,10 +191,6 @@ abstract class TestCase extends BaseTestCase {
         }
     }
 
-    protected function isTravis(): bool {
-        return !empty(\getenv('TRAVIS'));
-    }
-
     private function deleteTmpDirs(): void {
         $sysTmpDirPath = $this->tmpDirPath();
         foreach ($this->tmpDirPaths as $tmpDirPath) {

@@ -16,26 +16,26 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav" id="main-menu">
 <?php /*
-                    <li><a href="/system/setting">Settings</a></li>
-                    <li><a href="/system/module/list">Modules</a></li>
+                    <li><a href="/localhost/setting">Settings</a></li>
+                    <li><a href="/localhost/module/list">Modules</a></li>
 */ ?>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Caches and indexes <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="<?= $this->uriWithRedirectToSelf('/system/cache/rebuild-routes') ?>">Rebuild routes</a></li>
-<?php /* <li><a href="<?= $this->uriWithRedirectToSelf('/system/cache/rebuild-events') ?>">Rebuild events</a></li> */ ?>
-                            <li><a href="<?= $this->uriWithRedirectToSelf('/system/cache/clear-all') ?>">Clear cache</a></li>
+                            <li><a href="<?= $this->uriWithRedirectToSelf('/localhost/cache/rebuild-routes') ?>">Rebuild routes</a></li>
+<?php /* <li><a href="<?= $this->uriWithRedirectToSelf('/localhost/cache/rebuild-events') ?>">Rebuild events</a></li> */ ?>
+                            <li><a href="<?= $this->uriWithRedirectToSelf('/localhost/cache/clear-all') ?>">Clear cache</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tests <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="/system/test">Client tests</a></li>
+                            <li><a href="/localhost/test">Client tests</a></li>
                             <li class="nav-divider"></li>
-                            <li><a href="/system/test/status400">400 page</a></li>
-                            <li><a href="/system/test/status403">403 page</a></li>
-                            <li><a href="/system/test/status404">404 page</a></li>
-                            <li><a href="/system/test/status500">500 page</a></li>
+                            <li><a href="/localhost/test/status400">400 page</a></li>
+                            <li><a href="/localhost/test/status403">403 page</a></li>
+                            <li><a href="/localhost/test/status404">404 page</a></li>
+                            <li><a href="/localhost/test/status500">500 page</a></li>
                         </ul>
                     </li>
                 </ul>

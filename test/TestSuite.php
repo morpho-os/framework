@@ -6,27 +6,10 @@
  */
 namespace Morpho\Test;
 
-use const Morpho\App\TEST_DIR_NAME;
-use Morpho\Testing\Sut;
-
 class TestSuite extends \Morpho\Testing\TestSuite {
     public function testFilePaths(): iterable {
-        $sut = Sut::instance();
-
-        yield __DIR__ . '/unit/TestSuite.php';
-
-        foreach (new \DirectoryIterator($sut->baseModuleDirPath()) as $path) {
-            if ($path->isDot()) {
-                continue;
-            }
-            $testDirPath = $path->getPathname() . '/' . TEST_DIR_NAME;
-            if (\is_dir($testDirPath)) {
-                foreach ($this->testFilesInDir($testDirPath) as $file) {
-                    yield $file->getPathname();
-                }
-            }
-        }
-
-        yield __DIR__ . '/functional/TestSuite.php';
+        yield __DIR__ . '/Unit/TestSuite.php';
+        yield __DIR__ . '/ModuleTestSuite.php';
+        yield __DIR__ . '/Integration/TestSuite.php';
     }
 }

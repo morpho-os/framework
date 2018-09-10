@@ -71,6 +71,12 @@ class Sut implements ISut {
     }
 
     protected function mkConfig(): \ArrayAccess {
-        return new SutConfig();
+        $isTravis = !empty(\getenv('TRAVIS'));
+        $host = $isTravis ? '127.0.0.1' : 'framework';
+        return new SutConfig([
+            'host' => $host,
+            'siteUri' => 'http://' . $host,
+            'isTravis' => $isTravis,
+        ]);
     }
 }
