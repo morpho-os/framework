@@ -23,13 +23,13 @@ test-stop-on-error:
 # Unit tests
 
 utest:
-	bin/test test/unit/TestSuite.php
+	bin/test test/Unit/TestSuite.php
 
 utest-stop-on-defect:
-	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/unit/TestSuite.php
+	bin/test --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete test/Unit/TestSuite.php
 
 utest-stop-on-error:
-	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/unit/TestSuite.php
+	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/Unit/TestSuite.php
 
 ###############################################################################
 # Acceptance tests
