@@ -78,9 +78,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
      * @return void
      */
     protected function setParentViewResult($parentViewResultOrPath): void {
-        $this->parentViewResult = is_string($parentViewResultOrPath)
-            ? $this->mkViewResult($parentViewResultOrPath)
-            : $parentViewResultOrPath;
+        $this->parentViewResult = $parentViewResultOrPath;
     }
 
     protected function resetState(IRequest $request): void {
@@ -88,7 +86,13 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         $this->parentViewResult = null;
     }
 
-    protected function mkViewResult(string $path = null, $vars = null, ViewResult $parent = null): ViewResult {
+    /**
+     * @param string|null $path
+     * @param array|null|\ArrayObject $vars
+     * @param ViewResult|null|string $parent
+     * @return ViewResult
+     */
+    protected function mkViewResult(string $path = null, $vars = null, $parent = null): ViewResult {
         if (null === $path) {
             $path = dasherize($this->request->actionName());
         }

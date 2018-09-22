@@ -32,15 +32,15 @@ class ViewResult implements IActionResult {
     /**
      * @param string $path
      * @param array|null|\ArrayObject $vars
-     * @param ViewResult|null $parent
+     * @param ViewResult|null|string $parent
      */
-    public function __construct(string $path, $vars = null, ViewResult $parent = null) {
+    public function __construct(string $path, $vars = null, $parent = null) {
         $this->path = $path;
         if (null === $vars) {
             $vars = [];
         }
         $this->vars = \is_array($vars) ? new \ArrayObject($vars) : $vars;
-        $this->parent = $parent;
+        $this->parent = null !== $parent ? $this->normalizeParent($parent) : $parent;
     }
 
     /*public function setName(string $name): void {
@@ -70,12 +70,19 @@ class ViewResult implements IActionResult {
     public function path(): string {
         return $this->path;//Path::combine($this->dirPath, $this->name);
     }
-    
-    public function setParent(ViewResult $view): void {
-        $this->parent = $view;
+
+    /**
+     * @param string|ViewResult $viewResult
+     */
+    public function setParent($viewResult): void {
+        $this->parent = $this->normalizeParent($viewResult);
     }
 
     public function parent(): ?ViewResult {
         return $this->parent;
+    }
+
+    private function normalizeParent($parent): ViewResult {
+        return is_string($parent) ? new ViewResult($parent) : $parent;
     }
 }
