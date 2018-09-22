@@ -38,10 +38,6 @@ class ServiceManager extends BaseServiceManager {
         return new FastRouter();
     }
 
-/*    protected function mkDbService() {
-        return Db::connect($this->config['db']);
-    }*/
-
     public function mkSiteService(): ISite {
         $appConfig = $this['app']->config();
         /** @var ISite $site */

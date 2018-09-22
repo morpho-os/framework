@@ -62,7 +62,8 @@ class ThemeTest extends TestCase {
         $theme->appendBaseDirPath($baseViewDirPath);
 
         $view = new ViewResult($viewName, $viewVars);
-        $view->setDirPath($viewDirPath);
+        $viewPath = $view->path();
+        $view->setPath($viewDirPath . (strlen($viewPath) ? '/' . $viewPath : ''));
         /** @noinspection PhpParamsInspection */
         $actual = $theme->render($view);
 

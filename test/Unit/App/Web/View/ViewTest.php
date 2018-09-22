@@ -12,23 +12,16 @@ use Morpho\App\Web\View\ViewResult;
 class ViewTest extends TestCase {
     public function testView() {
         $vars = ['foo' => 'bar'];
-        $name = 'edit';
+        $path = 'edit';
         $view = new ViewResult('edit', $vars);
         $view->isNotVar = 123;
-        $this->assertSame($name, $view->name());
+        $this->assertSame($path, $view->path());
         $this->assertInstanceOf(\ArrayObject::class, $view->vars());
         $this->assertSame($vars, $view->vars()->getArrayCopy());
 
-        $this->assertNull($view->dirPath());
-
         $dirPath = $this->getTestDirPath();
         /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($view->setDirPath($dirPath));
-        $this->assertSame($dirPath, $view->dirPath());
-
-        $newName = 'update';
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($view->setName($newName));
-        $this->assertSame($dirPath . '/' . $newName, $view->path());
+        $this->assertNull($view->setPath($dirPath));
+        $this->assertSame($dirPath, $view->path());
     }
 }

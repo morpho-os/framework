@@ -8,20 +8,19 @@ namespace Morpho\Base;
 
 class Converter {
     /**
-     * The code was found in Drupal-8 parse_size()
-     *
-     * @param string $size
+     * The code was taken from [Bytes::toInt()](https://github.com/drupal/core-utility/blob/8.7.x/Bytes.php)
+     * @param string $valWithUnit
      * @return int
      */
-    public static function toBytes($size) {
-        $unit = \preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
-        $size = \preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
+    public static function toBytes(string $valWithUnit): int {
+        $unit = \preg_replace('/[^bkmgtpezy]/i', '', $valWithUnit);
+        $val = \preg_replace('/[^0-9\.]/', '', $valWithUnit);
         if ($unit) {
-            // Find the position of the unit in the ordered string which is the power of magnitude to multiply
-            // a kilobyte by.
-            return \round($size * \pow(1024, \stripos('bkmgtpezy', $unit[0])));
+            // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
+            $b = \round($val * \pow(1024, \stripos('bkmgtpezy', $unit[0])));
         } else {
-            return \round($size);
+            $b = \round($val);
         }
+        return (int) $b;
     }
 }

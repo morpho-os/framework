@@ -43,7 +43,7 @@ class HtmlRendererTest extends TestCase {
             }
         };
         $renderer->map[$viewModuleName] = function (ViewResult $viewArg) use ($view): string {
-            $this->assertSame('news', $viewArg->dirPath());
+            $this->assertSame('news/edit-user', $view->path());
             $this->assertSame($view, $viewArg);
             return 'hello';
         };

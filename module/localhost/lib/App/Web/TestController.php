@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace Morpho\Site\Localhost\App\Web;
 
-use function Morpho\Base\dasherize;
 use Morpho\App\Web\Controller;
 
 class TestController extends Controller {

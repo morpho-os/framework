@@ -119,6 +119,16 @@ class PhpTemplateEngine extends TemplateEngine {
         return Html::tag('a', $attributes, $text, $config);
     }
 
+    public function copyright(string $brand, $startYear = null): string {
+        $currentYear = date('Y');
+        if ($startYear == $currentYear) {
+            $range = $currentYear;
+        } else {
+            $range = intval($startYear) . '-' . $currentYear;
+        }
+        return '© ' . $range . ', ' . Html::encode($brand);
+    }
+
     public function __call($pluginName, array $args) {
         $plugin = $this->plugin($pluginName);
         return $plugin($args);

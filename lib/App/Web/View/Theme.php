@@ -23,8 +23,8 @@ class Theme {
         return false !== $this->absFilePath($viewPath, false);
     }*/
 
-    public function render(ViewResult $view): string {
-        return $this->renderFile($view->path(), $view->vars());
+    public function render(ViewResult $viewResult): string {
+        return $this->renderFile($viewResult->path(), $viewResult->vars());
     }
 
     public function appendBaseDirPath(string $dirPath): void {

@@ -7,18 +7,17 @@
 namespace Morpho\App\Web\View;
 
 use Morpho\App\IActionResult;
-use Morpho\Fs\Path;
 
 class ViewResult implements IActionResult {
     /**
      * @var string
      */
-    protected $name;
+    protected $path;
 
     /**
      * @var null|string
      */
-    protected $dirPath;
+    //protected $dirPath;
 
     /**
      * @var array|\ArrayObject
@@ -31,12 +30,12 @@ class ViewResult implements IActionResult {
     private $parent;
 
     /**
-     * @param string $name
+     * @param string $path
      * @param array|null|\ArrayObject $vars
      * @param ViewResult|null $parent
      */
-    public function __construct(string $name, $vars = null, ViewResult $parent = null) {
-        $this->name = $name;
+    public function __construct(string $path, $vars = null, ViewResult $parent = null) {
+        $this->path = $path;
         if (null === $vars) {
             $vars = [];
         }
@@ -44,28 +43,32 @@ class ViewResult implements IActionResult {
         $this->parent = $parent;
     }
 
-    public function setName(string $name): void {
+    /*public function setName(string $name): void {
         $this->name = $name;
-    }
+    }*/
 
-    public function name(): string {
+/*    public function name(): string {
         return $this->name;
-    }
+    }*/
 
     public function vars(): \ArrayObject {
         return $this->vars;
     }
 
-    public function setDirPath(string $dirPath): void {
+/*    public function setDirPath(string $dirPath): void {
         $this->dirPath = $dirPath;
     }
 
     public function dirPath(): ?string {
         return $this->dirPath;
+    }*/
+
+    public function setPath(string $path): void {
+        $this->path = $path;
     }
 
     public function path(): string {
-        return Path::combine($this->dirPath, $this->name);
+        return $this->path;//Path::combine($this->dirPath, $this->name);
     }
     
     public function setParent(ViewResult $view): void {

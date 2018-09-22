@@ -32,18 +32,21 @@ class HtmlRenderer implements IFn {
         // 1. Render view
         $moduleName = $request->moduleName();
         /** @var ViewResult $view */
-        $view = $response['result'];
-        if (!$view instanceof ViewResult) {
+        $viewResult = $response['result'];
+        if (!$viewResult instanceof ViewResult) {
             throw new \UnexpectedValueException();
         }
-        if (!$view->dirPath()) {
-            $view->setDirPath(dasherize($request->controllerName()));
+
+        $viewPath = $viewResult->path();
+        if (false === strpos($viewPath, '/')) {
+            $viewResult->setPath(dasherize($request->controllerName()) . '/' . $viewPath);
         }
-        $renderedView = $this->renderView($moduleName, $view);
+
+        $renderedView = $this->renderView($moduleName, $viewResult);
 
         // 2. Render page
         $moduleName = $serviceManager->config()['view']['pageRenderer'];
-        $page = $view->parent() ?: $this->mkPage();
+        $page = $viewResult->parent() ?: $this->mkPage();
         $page->vars()['body'] = $renderedView;
         $renderedPage = $this->renderView($moduleName, $page);
 
@@ -52,14 +55,14 @@ class HtmlRenderer implements IFn {
         $response->headers()['Content-Type'] = 'text/html;charset=utf-8';
     }
 
-    protected function renderView(string $moduleName, ViewResult $view): string {
+    protected function renderView(string $moduleName, ViewResult $viewResult): string {
         $serviceManager = $this->serviceManager;
         $moduleIndex = $serviceManager['moduleIndex'];
         /** @var Theme $theme */
         $theme = $serviceManager['theme'];
         $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
         $theme->appendBaseDirPath($viewDirPath);
-        return $theme->render($view);
+        return $theme->render($viewResult);
     }
 
     protected function mkPage(): ViewResult {
