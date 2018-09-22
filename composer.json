@@ -53,6 +53,7 @@
         },
         "files": [
             "lib/Base/autoload.php",
+            "lib/Db/autoload.php",
             "lib/Debug/autoload.php",
             "lib/Error/autoload.php",
             "lib/App/autoload.php",
