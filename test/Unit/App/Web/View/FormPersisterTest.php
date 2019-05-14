@@ -18,7 +18,7 @@ class FormPersisterTest extends TestCase {
      */
     private $formPersister;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $serviceManager = new ServiceManager();
         $request = $this->createMock(Request::class);

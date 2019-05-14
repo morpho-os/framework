@@ -17,7 +17,7 @@ class PagerTest extends TestCase {
      */
     private $pager;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->pager = new Pager();
     }

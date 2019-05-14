@@ -15,7 +15,7 @@ use Morpho\Ioc\ServiceManager;
 class ServiceManagerTest extends TestCase {
     private $serviceManager;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->serviceManager = new MyServiceManager;
     }

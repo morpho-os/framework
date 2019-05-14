@@ -10,7 +10,7 @@ use Morpho\Code\Autoloading\ClassTypeMapAutoloader;
 use Morpho\Testing\TestCase;
 
 class ClassTypeMapAutoloaderTest extends TestCase {
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         $mapFilePath = $this->mapFilePath();
         if (\is_file($mapFilePath)) {

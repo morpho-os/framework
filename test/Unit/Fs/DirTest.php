@@ -15,15 +15,15 @@ use Morpho\Fs\Exception as FsException;
 
 class DirTest extends TestCase {
     public function testPhpFilesRe() {
-        $this->assertEquals(1, \preg_match(Dir::PHP_FILES_RE, __FILE__));
-        $this->assertEquals(1, \preg_match(Dir::PHP_FILES_RE, \basename(__FILE__)));
-        $this->assertEquals(1, \preg_match(Dir::PHP_FILES_RE, 'foo/.php'));
-        $this->assertEquals(1, \preg_match(Dir::PHP_FILES_RE, '.php'));
+        $this->assertEquals(1, \preg_match(Dir::PHP_FILE_RE, __FILE__));
+        $this->assertEquals(1, \preg_match(Dir::PHP_FILE_RE, \basename(__FILE__)));
+        $this->assertEquals(1, \preg_match(Dir::PHP_FILE_RE, 'foo/.php'));
+        $this->assertEquals(1, \preg_match(Dir::PHP_FILE_RE, '.php'));
 
-        $this->assertEquals(0, \preg_match(Dir::PHP_FILES_RE, __FILE__ . '.ts'));
-        $this->assertEquals(0, \preg_match(Dir::PHP_FILES_RE, \basename(__FILE__) . '.ts'));
-        $this->assertEquals(0, \preg_match(Dir::PHP_FILES_RE, 'foo/.ts'));
-        $this->assertEquals(0, \preg_match(Dir::PHP_FILES_RE, '.ts'));
+        $this->assertEquals(0, \preg_match(Dir::PHP_FILE_RE, __FILE__ . '.ts'));
+        $this->assertEquals(0, \preg_match(Dir::PHP_FILE_RE, \basename(__FILE__) . '.ts'));
+        $this->assertEquals(0, \preg_match(Dir::PHP_FILE_RE, 'foo/.ts'));
+        $this->assertEquals(0, \preg_match(Dir::PHP_FILE_RE, '.ts'));
     }
 
     public function testDoIn() {

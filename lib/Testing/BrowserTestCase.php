@@ -20,7 +20,7 @@ class BrowserTestCase extends TestCase {
      */
     private $browser;
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         if ($this->browser) {
             $this->browser->quit();

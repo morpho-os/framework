@@ -28,7 +28,7 @@ const INDENT = '    ';
 const SHORTEN_TAIL = '...';
 const SHORTEN_LENGTH = 30;
 
-// @TODO: Detect precise value.
+// https://stackoverflow.com/questions/23837286/why-does-php-not-provide-an-epsilon-constant-for-floating-point-comparisons
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
 
@@ -326,20 +326,21 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
 }
 
 function normalizeEols(string $s): string {
-    $res = \preg_replace(EOL_FULL_RE, "\n", $s);
+    return str_replace(["\r\n", "\n", "\r"], "\n", (string) $s);
+    /*$res = \preg_replace(EOL_FULL_RE, "\n", $s);
     if (null === $res) {
         throw new RuntimeException("Unable to replace EOLs");
     }
-    return $res;
+    return $res;*/
 }
 
 /**
- * @param mixed $data
+ * @param mixed $val
  * @param null $config
  * @return string
  */
-function toJson($data, $config = null): string {
-    return \json_encode($data, $config ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+function toJson($val, $config = null): string {
+    return \json_encode($val, $config ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**

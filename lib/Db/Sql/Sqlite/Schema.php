@@ -22,7 +22,7 @@ class Schema extends BaseSchema {
             SELECT name
             FROM sqlite_temp_master
             WHERE type = 'table'
-            ORDER BY name");
+            ORDER BY name")->column();
     }
 
     public function tableExists(string $tableName): bool {

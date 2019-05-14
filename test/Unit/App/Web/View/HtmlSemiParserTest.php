@@ -12,7 +12,7 @@ use Morpho\Testing\TestCase;
 class HtmlSemiParserTest extends TestCase {
     private $parser;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->parser = new HtmlSemiParser();
     }

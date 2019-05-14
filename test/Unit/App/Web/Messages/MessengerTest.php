@@ -17,7 +17,7 @@ class MessengerTest extends TestCase {
      */
     private $messenger;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->messenger = new Messenger();
         $this->messenger->setMessageStorage(new MessageStorage([]));

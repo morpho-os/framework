@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace Morpho\Code\Parsing;
 
-use Morpho\Error\ParseException;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;

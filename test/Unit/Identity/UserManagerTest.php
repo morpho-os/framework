@@ -14,7 +14,7 @@ use Morpho\App\Web\Session\Session;
 class UserManagerTest extends DbTestCase {
     private $userManager;
     
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
 
         $userRepo = new class implements IUserRepo {

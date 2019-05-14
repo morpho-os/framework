@@ -16,7 +16,7 @@ class TsCompilerTest extends TestCase {
      */
     private $compiler;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->compiler = new TsCompiler();
     }

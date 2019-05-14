@@ -16,14 +16,14 @@ class InitializerTest extends TestCase {
     private $umask;
     private $timezone;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->umask = \umask();
         $this->timezone = \ini_get('date.timezone');
 
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         \umask($this->umask);
         \ini_set('date.timezone', $this->timezone);

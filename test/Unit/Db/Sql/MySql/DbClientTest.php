@@ -21,7 +21,7 @@ class DbClientTest extends BaseDbClientTest {
 
     private $schema;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->db = $this->mkDbClient();
         $this->schema = new Schema($this->db);

@@ -73,12 +73,15 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
     public function offsetExists($id): bool {
         // Resolve alias:
         $id = \strtolower($id);
-        while (isset($this->aliases[$id])) {
+
+        while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
             $id = $this->aliases[$id];
         }
+
         if (parent::offsetExists($id)) {
             return true;
         }
+
         $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
         return \method_exists($this, $method);
     }

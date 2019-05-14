@@ -29,7 +29,7 @@ class SchemaTest extends DbTestCase {
 
     private const DB = 'test';
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $db = $this->mkDbClient();
         $this->schema = new Schema($db);
@@ -38,7 +38,7 @@ class SchemaTest extends DbTestCase {
         $this->dbs = [];
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         foreach ($this->dbs as $dbName) {
             $this->db->eval("DROP DATABASE IF EXISTS " . $dbName);

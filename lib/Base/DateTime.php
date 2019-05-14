@@ -13,14 +13,17 @@ class DateTime extends DateTimeImmutable {
     const DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * @param null|string|DateTimeZone $timezone
-     * @return DateTime
+     * @param null|string $time
+     * @param null|string|DateTimeZone $timeZone
      */
-    public static function now($timezone = null): self {
-        if (\is_string($timezone)) {
-            $timezone = new DateTimeZone($timezone);
+    public function __construct(string $time = null, $timeZone = null) {
+        if (null === $time) {
+            $time = 'now';
         }
-        return new static('now', $timezone);
+        if (\is_string($timeZone)) {
+            $timeZone = new DateTimeZone($timeZone);
+        }
+        parent::__construct($time, $timeZone);
     }
 
     public static function utcNow(): self {
@@ -127,6 +130,10 @@ class DateTime extends DateTimeImmutable {
             parent::createFromFormat($format, $value, $timeZone)
                 ->format(self::DATETIME_FORMAT)
         );
+    }
+
+    public static function dateTimeStr($timeZone = null): string {
+        return (new static(null, $timeZone))->formatDateTime();
     }
 
     /**

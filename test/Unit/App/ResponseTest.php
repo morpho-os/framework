@@ -15,7 +15,7 @@ class ResponseTest extends MessageTest {
      */
     private $response;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->response = new class extends Response {
 

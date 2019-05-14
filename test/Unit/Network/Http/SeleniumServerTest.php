@@ -12,7 +12,7 @@ use Morpho\Testing\TestCase;
 class SeleniumServerTest extends TestCase {
     private $seleniumServer;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->seleniumServer = new SeleniumServer('/tmp/foo/bar');
     }

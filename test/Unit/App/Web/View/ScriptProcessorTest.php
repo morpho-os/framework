@@ -21,7 +21,7 @@ class ScriptProcessorTest extends TestCase {
      */
     private $processor;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $serviceManager = $this->mkConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
         $this->processor = new ScriptProcessor($serviceManager);

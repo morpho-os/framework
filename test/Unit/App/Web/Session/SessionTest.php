@@ -15,7 +15,7 @@ class SessionTest extends TestCase {
      */
     private $session;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $_SESSION = [];
         $this->session = new Session(__CLASS__, false);

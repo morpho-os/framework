@@ -14,7 +14,7 @@ abstract class DiscoverStrategyTest extends TestCase {
      */
     private $strategy;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->strategy = $this->mkDiscoverStrategy();
     }

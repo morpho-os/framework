@@ -1,12 +1,11 @@
-dist: trusty
+dist: xenial
 sudo: required
-#group: deprecated-2017Q4
-
 language: php
+#group: deprecated-2017Q4
 
 php:
 # - hhvm
-  - 7.2
+  - 7.3
   # https://docs.travis-ci.com/user/languages/php/#Nightly-builds
   - nightly
 

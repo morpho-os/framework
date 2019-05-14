@@ -8,7 +8,7 @@ namespace Morpho\Base;
 
 use Zend\Stdlib\ArrayUtils;
 
-class Config extends \ArrayObject {
+class Config extends \ArrayObject implements IConfig {
     protected $default;
 
     public function __construct($values = null) {
@@ -40,9 +40,14 @@ class Config extends \ArrayObject {
     }
 
     /**
-     * @TODO support $config: \Config|ArrayObject
+     * @param array|\ArrayObject|Config $config
+     * @param bool $recursive
+     * @return Config
      */
-    public function merge(array $config, bool $recursive = true): self {
+    public function merge($config, bool $recursive = true): self {
+        if ($config instanceof \ArrayObject) {
+            $config = $config->getArrayCopy();
+        }
         if ($recursive) {
             $this->exchangeArray(ArrayUtils::merge($this->getArrayCopy(), $config));
         } else {

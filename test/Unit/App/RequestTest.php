@@ -15,7 +15,7 @@ use Morpho\App\Message;
 class RequestTest extends MessageTest {
     private $request;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->request = new class extends Request {
             protected function mkResponse(): IResponse {

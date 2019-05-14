@@ -38,7 +38,7 @@ class ServiceManager extends BaseServiceManager {
         }
 
         $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
-            protected function write(array $record) {
+            protected function write(array $record): void {
                 errorLn($record['message']);
             }
         });

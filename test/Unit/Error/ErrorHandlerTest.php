@@ -18,12 +18,12 @@ require_once __DIR__ . '/BaseErrorHandlerTest.php';
 class ErrorHandlerTest extends BaseErrorHandlerTest {
     private $oldErrorLevel;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->oldErrorLevel = \ini_get('display_errors');
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         \ini_set('display_errors', $this->oldErrorLevel);
     }

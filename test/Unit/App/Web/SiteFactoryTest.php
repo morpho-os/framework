@@ -14,12 +14,12 @@ use Morpho\App\Web\BadRequestException;
 class SiteFactoryTest extends TestCase {
     private $classLoaderRegisteredKey;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->classLoaderRegisteredKey = __CLASS__ . 'classLoaderRegistered';
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         unset($GLOBALS[$this->classLoaderRegisteredKey]);
     }

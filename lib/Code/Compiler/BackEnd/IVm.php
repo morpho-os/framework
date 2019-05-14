@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 namespace Morpho\Code\Compiler\BackEnd;
 
-interface IVm {
+use Morpho\Code\Compiler\IInterpreter;
+
+interface IVm extends IInterpreter {
 }

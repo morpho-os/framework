@@ -14,7 +14,7 @@ use Morpho\Fs\Exception as FsException;
 class LinkTest extends TestCase {
     private $tmpDirPath;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->tmpDirPath = $this->createTmpDir(__FUNCTION__);
     }

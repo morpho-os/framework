@@ -7,7 +7,7 @@
 namespace Morpho\App\Web\View;
 
 use function Morpho\Base\{
-    dasherize, last
+    dasherize, last, toJson
 };
 use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\IHasServiceManager;
@@ -84,6 +84,10 @@ class PhpTemplateEngine extends TemplateEngine {
     public function loggedInUser() {
         return $this->serviceManager['userManager']->loggedInUser();
     }*/
+
+    public function toJson($val): string {
+        return toJson($val);
+    }
 
     public function uri(): Uri {
         if (null === $this->uri) {

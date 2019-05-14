@@ -50,7 +50,7 @@ use RuntimeException;
 class FunctionsTest extends TestCase {
     private $tmpHandle;
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         if (isset($this->tmpHandle)) {
             \fclose($this->tmpHandle);

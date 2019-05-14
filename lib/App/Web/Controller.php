@@ -159,6 +159,10 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->request->query($name, $trim);
     }
 
+    protected function post($name, bool $trim = true) {
+        return $this->request->post($name, $trim);
+    }
+
     protected function jsConfig(): \ArrayObject {
         if (!isset($this->request['jsConfig'])) {
             $this->request['jsConfig'] = new \ArrayObject();

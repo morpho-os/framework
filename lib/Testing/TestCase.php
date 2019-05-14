@@ -20,12 +20,12 @@ abstract class TestCase extends BaseTestCase {
 
     protected $backupGlobals = true;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         Vfs::register();
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         parent::tearDown();
         if (null !== $this->prevTimezone) {
             \date_default_timezone_set($this->prevTimezone);

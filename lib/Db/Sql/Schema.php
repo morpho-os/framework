@@ -33,5 +33,8 @@ abstract class Schema {
 
     abstract public function deleteTableIfExists(string $tableName): void;
 
+    /**
+     * @return iterable<string>
+     */
     abstract public function tableNames(): iterable;
 }

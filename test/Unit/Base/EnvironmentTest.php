@@ -12,12 +12,12 @@ use Morpho\Base\Environment;
 class EnvironmentTest extends TestCase {
     private $oldZendEnableGc;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->oldZendEnableGc = \ini_set('zend.enable_gc', '1'); // we change this setting below.
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         \ini_set('zend.enable_gc', $this->oldZendEnableGc);
     }

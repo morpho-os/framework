@@ -24,7 +24,7 @@ class PhpTemplateEngineTest extends TestCase {
      */
     private $templateEngine;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $serviceManager = $this->mkServiceManager();
         $this->templateEngine = new PhpTemplateEngine($serviceManager);

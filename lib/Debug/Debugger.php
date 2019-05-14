@@ -227,6 +227,20 @@ class Debugger {
         return $this;
     }
 
+    public function dumpBytes(...$args): void {
+        $output = '';
+        foreach ($args as $arg) {
+            $bytesFormatted = \bin2hex($arg);
+            $output .= $this->varToStr($bytesFormatted);
+        }
+        $output .= $this->calledAt();
+        if ($this->isHtmlMode()) {
+            $output = $this->formatHtml($output, false);
+        }
+        echo $output;
+        exit($this->exitCode);
+    }
+
     final public static function instance() {
         if (null === self::$instance) {
             self::$instance = self::$class ? new self::$class : new self();

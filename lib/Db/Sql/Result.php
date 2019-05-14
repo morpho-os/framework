@@ -6,8 +6,6 @@
  */
 namespace Morpho\Db\Sql;
 
-use function Morpho\Base\toArray;
-
 class Result extends \PDOStatement implements \Countable {
     // Override the constructor to fix the "PDOException: SQLSTATE[HY000]: General error: user-supplied statement does not accept constructor arguments in ..."
     protected function __construct() {

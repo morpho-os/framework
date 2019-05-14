@@ -13,7 +13,7 @@ use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
 
 class Dir extends Entry {
-    public const PHP_FILES_RE = '~\.php$~si';
+    public const PHP_FILE_RE = '~\.php$~si';
 
     public static function move(string $sourceDirPath, string $targetDirPath): string {
         // @TODO: why not rename()?

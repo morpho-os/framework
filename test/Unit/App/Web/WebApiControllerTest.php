@@ -14,7 +14,7 @@ class WebApiControllerTest extends ControllerTest {
      */
     protected $controller;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->controller = new MyWebApiController();
     }

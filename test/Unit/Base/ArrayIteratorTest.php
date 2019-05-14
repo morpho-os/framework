@@ -12,7 +12,7 @@ use Morpho\Testing\TestCase;
 class ArrayIteratorTest extends TestCase {
     private $it;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->it = new ArrayIterator();
     }

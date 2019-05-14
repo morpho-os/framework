@@ -16,7 +16,7 @@ class DebuggerTest extends TestCase {
      */
     private $debugger;
 
-    public function setUp() {
+    public function setUp(): void {
         $this->debugger = Debugger::instance();
     }
 
@@ -53,7 +53,7 @@ Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
         $this->assertEquals($expected, $this->debugger->calledAt());
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         Debugger::resetState();
     }
 

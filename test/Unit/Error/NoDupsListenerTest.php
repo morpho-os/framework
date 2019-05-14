@@ -13,7 +13,7 @@ use Morpho\Error\NoDupsListener;
 class NoDupsListenerTest extends TestCase {
     private $lockFileDirPath;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->lockFileDirPath = $this->createTmpDir();
     }

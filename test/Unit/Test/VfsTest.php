@@ -14,12 +14,12 @@ use Morpho\Testing\Vfs;
 class VfsTest extends \PHPUnit\Framework\TestCase {
     private $umask;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->umask = \umask();
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         \umask($this->umask);
         Vfs::resetState();

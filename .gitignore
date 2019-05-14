@@ -20,3 +20,4 @@ node_modules/
 selenium.log.lck
 /test/Integration/geckodriver
 /test/Integration/selenium-server-standalone-*.jar
+.phpunit.result.cache

@@ -13,7 +13,7 @@ use Morpho\Testing\TestCase;
 abstract class BaseErrorHandlerTest extends TestCase {
     protected $prevErrorHandler, $prevExceptionHandler, $handlerArgs;
 
-    public function setUp() {
+    public function setUp(): void {
         $handler = \set_error_handler([$this, __FUNCTION__]);
         \restore_error_handler();
         $this->prevErrorHandler = $handler;
@@ -25,7 +25,7 @@ abstract class BaseErrorHandlerTest extends TestCase {
         unset($this->handlerArgs);
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         HandlerManager::popHandlersUntil(HandlerManager::ERROR, op('===', $this->prevErrorHandler));
         HandlerManager::popHandlersUntil(HandlerManager::EXCEPTION, op('===', $this->prevExceptionHandler));
     }

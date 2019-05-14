@@ -13,7 +13,7 @@ use Morpho\Testing\TestCase;
 class StatTest extends TestCase {
     private $oldUmask;
 
-    public function setUp() {
+    public function setUp(): void {
         if (Environment::isWindows()) {
             // @TODO: Check on windows.
             $this->markTestIncomplete();
@@ -22,7 +22,7 @@ class StatTest extends TestCase {
         $this->oldUmask = umask();
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         umask($this->oldUmask);
         parent::tearDown();
     }

@@ -12,14 +12,14 @@ use Morpho\Testing\DbTestCase;
 class InsertQueryTest extends DbTestCase {
     private $db;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->db = $this->mkDbClient();
         $this->db->eval('DROP TABLE IF EXISTS insertTest');
         $this->db->eval('CREATE TABLE insertTest (foo varchar(255), created int, i int unsigned NOT NULL AUTO_INCREMENT, PRIMARY KEY (`i`));');
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         $this->db->eval('DROP TABLE IF EXISTS insertTest');
     }
