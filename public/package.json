@@ -10,15 +10,15 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap-styl": "^5.0.4",
-    "es6-promise": "^4.1.1",
+    "es6-promise": "^4.2.6",
     "imd": "github:morpho-os/imd",
-    "jquery": "^3.2.1"
+    "jquery": "^3.4.0"
   },
   "devDependencies": {
-    "@types/jasmine": "^2.5.54",
-    "@types/jquery": "^3.2.12",
-    "jasmine-core": "^2.8.0",
-    "sourcemapped-stacktrace": "^1.1.7",
-    "tslib": "^1.7.1"
+    "@types/jasmine": "^2.8.16",
+    "@types/jquery": "^3.3.29",
+    "jasmine-core": "^2.99.1",
+    "sourcemapped-stacktrace": "^1.1.9",
+    "tslib": "^1.9.3"
   }
 }
