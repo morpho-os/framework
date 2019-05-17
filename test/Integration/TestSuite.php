@@ -7,9 +7,7 @@
 namespace Morpho\Test\Integration;
 
 use Morpho\Infra\PhpServer;
-use Morpho\Network\Address;
-use Morpho\Network\Http\GeckoDriverDownloader;
-use Morpho\Network\Http\SeleniumServerDownloader;
+use Morpho\Network\TcpAddress;
 use Morpho\Network\Http\SeleniumServer;
 use Morpho\Testing\BrowserTestSuite;
 use Morpho\Testing\Sut;
@@ -18,21 +16,35 @@ class TestSuite extends BrowserTestSuite {
     /**
      * @var PhpServer
      */
-    private $phpServer;
+    private static $phpServer;
+    /**
+     * @var SeleniumServer
+     */
+    private static $seleniumServer;
+
+    protected $testCase = true; // to enable @before* and @after* annotations.
 
     public function testFilePaths(): iterable {
         return $this->testFilesInDir(__DIR__);
     }
 
-    public function setUp(): void {
-        parent::setUp();
-
-        $sut = $this->sut();
-        $isTravis = $sut->config()['isTravis'];
-        if ($isTravis) {
-            $this->phpServer = $phpServer = new PhpServer(
-                new Address('127.0.0.1', 7654),
-                Sut::instance()->publicDirPath()
+    /**
+     * @beforeClass
+     * @after
+     */
+    public static function beforeAll() {
+        self::$seleniumServer = SeleniumServer::mk([
+            'geckoBinFilePath' => __DIR__ . '/geckodriver',
+            'serverJarFilePath' => __DIR__ . '/selenium-server-standalone.jar',
+            'serverVersion' => null,
+            'logFilePath' => __DIR__ . '/selenium.log',
+        ]);
+        self::$seleniumServer->start();
+        $sut = Sut::instance();
+        if ($sut->config()['isTravis']) {
+            self::$phpServer = $phpServer = new PhpServer(
+                new TcpAddress($sut->config()['domain'], 7654),
+                $sut->publicDirPath()
             );
             $address = $phpServer->start();
             $sut->config()['port'] = $address->port();
@@ -40,24 +52,12 @@ class TestSuite extends BrowserTestSuite {
         }
     }
 
-    public function tearDown(): void {
-        parent::tearDown();
-        if ($this->phpServer) {
-            $this->phpServer->stop();
+    /**
+     * @afterClass
+     */
+    public static function afterAll() {
+        if (self::$phpServer) {
+            self::$phpServer->stop();
         }
-    }
-
-    protected function configureSeleniumServer(SeleniumServer $seleniumServer): void {
-        $toolsDirPath = __DIR__;
-
-        $geckoBinFilePath = (new GeckoDriverDownloader)($toolsDirPath . '/' . GeckoDriverDownloader::FILE_NAME);
-
-        //$seleniumStandaloneFilePath = $toolsDirPath . '/selenium-server-standalone-3.4.0.jar';
-        $seleniumStandaloneFilePath = (new SeleniumServerDownloader())($toolsDirPath, \getenv('SELENIUM_VERSION') ?: null);
-
-        $seleniumServer->setServerJarFilePath($seleniumStandaloneFilePath);
-        $seleniumServer->setGeckoBinFilePath($geckoBinFilePath);
-        $seleniumServer->setLogFilePath($toolsDirPath . '/selenium.log');
-        $seleniumServer->setPort(SeleniumServer::PORT);
     }
 }

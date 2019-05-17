@@ -16,8 +16,8 @@ node_modules/
 #/module/*/config/*
 /module/*/cache/*
 
+selenium.log.*
+*.jar
 *.log
-selenium.log.lck
-/test/Integration/geckodriver
-/test/Integration/selenium-server-standalone-*.jar
+geckodriver
 .phpunit.result.cache

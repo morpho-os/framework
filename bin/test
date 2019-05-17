@@ -11,7 +11,7 @@ phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
 testDirPath="$baseDirPath/test"
 phpUnitConfigFilePath="$testDirPath/phpunit.xml"
-seleniumLogFilePath="$testDirPath/functional/selenium.log"
+seleniumLogFilePath="$testDirPath/selenium.log"
 
 #$phpUnitBinFilePath --version
 

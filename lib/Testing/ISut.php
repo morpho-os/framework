@@ -2,5 +2,7 @@
 namespace Morpho\Testing;
 
 interface ISut {
+    public function baseDirPath(): string;
+
     public function config(): \ArrayAccess;
 }

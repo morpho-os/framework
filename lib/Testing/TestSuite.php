@@ -13,6 +13,7 @@ abstract class TestSuite extends BaseTestSuite {
 
     public static function suite() {
         $suite = new static();
+        $suite->setName(get_class($suite));
         $suite->addTestFiles($suite->testFilePaths());
         return $suite;
     }
@@ -26,9 +27,5 @@ abstract class TestSuite extends BaseTestSuite {
             ),
             $this->testFileRegexp
         );
-    }
-
-    protected function sut(): ISut {
-        return Sut::instance();
     }
 }

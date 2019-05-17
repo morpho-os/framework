@@ -6,30 +6,10 @@
  */
 namespace Morpho\Testing;
 
+use Morpho\Network\Http\GeckoDriverDownloader;
 use Morpho\Network\Http\SeleniumServer;
+use Morpho\Network\Http\SeleniumServerDownloader;
 
 abstract class BrowserTestSuite extends TestSuite {
-    /**
-     * @var SeleniumServer
-     */
-    private $server;
 
-    public function setUp(): void {
-        parent::setUp();
-        $server = new SeleniumServer();
-        $this->configureSeleniumServer($server);
-        $server->start();
-        $this->server = $server;
-    }
-
-    public function tearDown(): void {
-        parent::tearDown();
-        if ($this->server) {
-            $this->server->stop();
-        }
-    }
-
-    protected function configureSeleniumServer(SeleniumServer $seleniumServer): void {
-        // Do nothing here, should be overridden in child classes.
-    }
 }

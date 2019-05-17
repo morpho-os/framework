@@ -20,10 +20,6 @@ addons:
   #mariadb: 10.1
   mariadb: latest
   firefox: latest
-  apt:
-    packages:
-      # For Selenium server.
-      - oracle-java8-set-default
 
 env:
   - DISPLAY=:99

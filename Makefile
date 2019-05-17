@@ -32,7 +32,7 @@ utest-stop-on-error:
 	bin/test --stop-on-error --stop-on-failure --stop-on-warning test/Unit/TestSuite.php
 
 ###############################################################################
-# Acceptance tests
+# Integration tests
 
 itest:
 	bin/test test/Integration/TestSuite.php

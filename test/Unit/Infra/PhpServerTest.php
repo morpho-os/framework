@@ -7,13 +7,13 @@
 namespace Morpho\Test\Unit\Infra;
 
 use Morpho\Infra\PhpServer;
-use Morpho\Network\Address;
+use Morpho\Network\TcpAddress;
 use Morpho\Testing\TestCase;
 
 class PhpServerTest extends TestCase {
     public function testStartAndStop() {
         $host = '127.0.0.1';
-        $address = new Address($host, null); // use numeric address to avoid binding with IPv6.
+        $address = new TcpAddress($host, null); // use numeric address to avoid binding with IPv6.
 
         $docRootDirPath = $this->createTmpDir();
         \file_put_contents($docRootDirPath . '/index.php', "<?php die('hello');");
@@ -24,7 +24,7 @@ class PhpServerTest extends TestCase {
 
         $address = $server->start();
 
-        $this->assertInstanceOf(Address::class, $address);
+        $this->assertInstanceOf(TcpAddress::class, $address);
         $this->assertSame($host, $address->host());
         $this->assertRegExp('~^\d+$~', (string)$address->port());
 

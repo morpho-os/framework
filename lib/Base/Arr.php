@@ -10,6 +10,31 @@ use OutOfBoundsException;
 use RuntimeException;
 
 class Arr {
+    public static function onlyItems(array $dataSource, array $keys, $createMissingItems = true): array {
+        if ($createMissingItems) {
+            $items = [];
+            foreach ($keys as $key) {
+                $items[$key] = isset($dataSource[$key]) ? $dataSource[$key] : null;
+            }
+            return $items;
+        }
+        return array_intersect_key($dataSource, array_flip($keys));
+    }
+
+    public static function requireItems(array $items, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
+        $requiredItems = [];
+        foreach ($requiredKeys as $key) {
+            if (!isset($items[$key]) && !array_key_exists($key, $items)) {
+                throw new \UnexpectedValueException("Missing the required item with the key " . $key);
+            }
+            if ($checkForEmptiness && !$items[$key]) {
+                throw new \UnexpectedValueException("The item '$key' is empty");
+            }
+            $requiredItems[$key] = $items[$key];
+        }
+        return $returnOnlyRequired ? $requiredItems : $items;
+    }
+
     /**
      * Union for sets, for difference use \array_diff(), for intersection use \array_intersect().
      */

@@ -7,7 +7,8 @@
 namespace Morpho\Network;
 
 class TcpServer {
-    public static function isListening(Address $address): bool {
+    public static function isListening(TcpAddress $address): bool {
+        TcpAddress::check($address);
         $handle = @\fsockopen('tcp://' . $address->host(), $address->port(), $errNo, $errStr, 1);
         if ($handle) {
             \fclose($handle);

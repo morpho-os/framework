@@ -18,10 +18,6 @@ class Sut implements ISut {
     /**
      * @var ?string
      */
-    //private $siteModuleDirPath;
-    /**
-     * @var ?string
-     */
     private $baseDirPath;
 
     /**
@@ -40,17 +36,6 @@ class Sut implements ISut {
         }
         return $this->baseDirPath;
     }
-
-/*    public function siteModuleDirPath(): string {
-        if (null === $this->siteModuleDirPath) {
-            $this->siteModuleDirPath = $this->baseDirPath() . '/' . MODULE_DIR_NAME;
-        }
-        return $this->siteModuleDirPath;
-    }*/
-
-/*    public function configFilePath(): string {
-        return $this->siteModuleDirPath() . '/config.php';
-    }*/
 
     public function baseModuleDirPath(): string {
         return $this->baseDirPath() . '/' . MODULE_DIR_NAME;
@@ -71,11 +56,14 @@ class Sut implements ISut {
     }
 
     protected function mkConfig(): \ArrayAccess {
+        $domain = \getenv('DOMAIN');
         $isTravis = !empty(\getenv('TRAVIS'));
-        $host = $isTravis ? '127.0.0.1' : 'framework';
+        if (false === $domain) {
+            $domain = $isTravis ? '127.0.0.1' : 'framework';
+        }
         return new SutConfig([
-            'host' => $host,
-            'siteUri' => 'http://' . $host,
+            'domain' => $domain,
+            'siteUri' => 'http://' . $domain,
             'isTravis' => $isTravis,
         ]);
     }

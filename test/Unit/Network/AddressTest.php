@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Network;
 
-use Morpho\Network\Address;
+use Morpho\Network\TcpAddress;
 use Morpho\Testing\TestCase;
 
 class AddressTest extends TestCase {
@@ -43,7 +43,7 @@ class AddressTest extends TestCase {
      * @dataProvider dataForToString
      */
     public function testToString(string $host, ?int $port) {
-        $address = new Address($host, $port);
+        $address = new TcpAddress($host, $port);
 
         $this->assertSame($host, $address->host());
         $this->assertSame($port, $address->port());
@@ -55,9 +55,9 @@ class AddressTest extends TestCase {
      * @dataProvider dataForToString
      */
     public function testParse(string $host, ?int $port) {
-        $address = Address::parse($host . (null === $port ? '' : ':' . $port));
+        $address = TcpAddress::parse($host . (null === $port ? '' : ':' . $port));
         $this->assertEquals(
-            new Address($host, $port),
+            new TcpAddress($host, $port),
             $address
         );
         $this->assertSame($host, $address->host());

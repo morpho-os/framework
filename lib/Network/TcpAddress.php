@@ -6,7 +6,7 @@
  */
 namespace Morpho\Network;
 
-class Address {
+class TcpAddress {
     protected $host;
     protected $port;
 
@@ -23,6 +23,15 @@ class Address {
         $host = \substr($address, 0, $pos);
         $port = \substr($address, $pos + 1);
         return new static($host, (int)$port);
+    }
+
+    public static function check(TcpAddress $address): TcpAddress {
+        if (!$address->host() || !$address->port()) {
+            if (!$address->port() != 0) {
+                throw new \UnexpectedValueException();
+            }
+        }
+        return $address;
     }
 
     public function setHost(string $host): void {

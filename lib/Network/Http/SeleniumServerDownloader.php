@@ -12,24 +12,23 @@ use Morpho\Xml\Doc;
 
 // Based on https://github.com/jarib/selenium-travis/blob/master/selenium-webdriver/lib/selenium/server.rb
 class SeleniumServerDownloader {
-    public function __invoke(string $destDirPath, string $version = null): string {
-        if (!$version || $version === 'latest') {
-            $version = $this->latestVersion();
+    public static function download(string $version, string $destJarFilePath): string {
+        if (is_file($destJarFilePath)) {
+            return $destJarFilePath;
         }
-        $downloadFileName = "selenium-server-standalone-$version.jar";
+        if (null === $version) {
+            $version = self::latestVersion();
+        }
         if (!\preg_match('/(\d+\.\d+)\./As', $version, $match)) {
             throw new \UnexpectedValueException();
         }
+        $downloadFileName = "selenium-server-standalone-$version.jar";
         $uri = "https://selenium-release.storage.googleapis.com/{$match[1]}/$downloadFileName";
-        $destFilePath = $destDirPath . '/' . $downloadFileName;
-        if (\is_file($destFilePath)) {
-            return $destFilePath;
-        }
-        shell('curl -L -o ' . \escapeshellarg($destFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
-        return $destFilePath;
+        shell('curl -L -o ' . \escapeshellarg($destJarFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
+        return $destJarFilePath;
     }
 
-    private function latestVersion(): string {
+    public static function latestVersion(): string {
         /*
         $tmpFilePath = __DIR__ . '/test.xml';
         if (!\is_file($tmpFilePath)) {
@@ -43,7 +42,7 @@ class SeleniumServerDownloader {
         $doc->xPath()->registerNamespace('s3', 'http://doc.s3.amazonaws.com/2006-03-01');
         // "//Key[contains(text(), 'selenium-server-standalone-')]"
         $versions = filter(function (&$v, $k) {
-            if (\preg_match('~selenium-server-standalone-(\d+\.\d+\.\d+)\.jar~', $v->nodeValue, $m)) {
+            if (\preg_match('~selenium-server-standalone-(\d+\.\d+\.\d+.*)\.jar~', $v->nodeValue, $m)) {
                 $v = \array_pop($m);
                 return true;
             }
@@ -63,6 +62,7 @@ class SeleniumServerDownloader {
         if (null === $latest) {
             throw new \RuntimeException("Unable to find the latest version");
         }
+        /** @var string $latest */
         return $latest;
     }
 }

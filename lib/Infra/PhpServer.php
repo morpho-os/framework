@@ -7,7 +7,7 @@
 namespace Morpho\Infra;
 
 use function Morpho\Base\waitUntilNoOfAttempts;
-use Morpho\Network\Address;
+use Morpho\Network\TcpAddress;
 use Morpho\Network\TcpServer;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -22,12 +22,12 @@ class PhpServer {
      */
     private $process;
 
-    public function __construct(Address $address, string $docRootDirPath) {
+    public function __construct(TcpAddress $address, string $docRootDirPath) {
         $this->address = $address;
         $this->docRootDirPath = $docRootDirPath;
     }
 
-    public function start(): Address {
+    public function start(): TcpAddress {
         $this->actualAddress = $address = null === $this->address->port()
             ? $this->findFreePort($this->address)
             : $this->address;
@@ -96,8 +96,8 @@ class PhpServer {
     /**
      * NB: This method can return invalid result in an environment when other processes can start listening during running of this method.
      */
-    protected function findFreePort(Address $address): Address {
-        return Address::parse(\stream_socket_get_name(
+    protected function findFreePort(TcpAddress $address): TcpAddress {
+        return TcpAddress::parse(\stream_socket_get_name(
             \stream_socket_server("tcp://{$address->host()}:0"), // :0 means bind random open port
             false
         ));
