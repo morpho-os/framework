@@ -18,8 +18,12 @@ matrix:
 addons:
   # versions are listed here https://downloads.mariadb.org/
   #mariadb: 10.1
-  mariadb: latest
+#  mariadb: latest
   firefox: latest
+
+services:
+  # https://docs.travis-ci.com/user/database-setup/#mysql
+  - mysql
 
 env:
   - DISPLAY=:99
