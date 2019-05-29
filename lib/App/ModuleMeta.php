@@ -14,6 +14,10 @@ class ModuleMeta extends \ArrayObject {
         parent::__construct($meta);
     }
 
+    public function moduleName(): string {
+        return $this->moduleName;
+    }
+
     public function autoloadFilePath(): string {
         return $this->vendorDirPath() . '/' . AUTOLOAD_FILE_NAME;
     }

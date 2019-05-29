@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 use const Morpho\App\CACHE_DIR_NAME;
 use const Morpho\App\VENDOR;
 

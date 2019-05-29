@@ -44,7 +44,7 @@ abstract class InstanceProvider implements IFn {
 
         $moduleMeta = $this->moduleIndex->moduleMeta($moduleName);
 
-        $this->registerModuleClassLoader($moduleMeta, $moduleName);
+        $this->registerModuleClassLoader($moduleMeta);
 
         // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
         $classWithoutModuleNsPrefix = $this->controllerClassWithoutModuleNs($controllerName);
@@ -72,7 +72,7 @@ abstract class InstanceProvider implements IFn {
 
     /**
      * @param ModuleMeta $moduleMeta
-     * @param string $classWithoutModuleNsPrefix Class suffix like Web\IndexController, which will added to module's namespaces.
+     * @param string $classWithoutModuleNsPrefix Class suffix like Http\IndexController, which will added to module's namespaces.
      * @return \object|false
      */
     public function mkInstance(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
@@ -91,7 +91,8 @@ abstract class InstanceProvider implements IFn {
         return false;
     }
 
-    protected function registerModuleClassLoader(ModuleMeta $moduleMeta, string $moduleName): void {
+    protected function registerModuleClassLoader(ModuleMeta $moduleMeta): void {
+        $moduleName = $moduleMeta->moduleName();
         if (!isset($this->registeredModules[$moduleName])) {
             /** @noinspection PhpIncludeInspection */
             require_once $moduleMeta->autoloadFilePath();
