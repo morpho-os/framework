@@ -10,7 +10,6 @@ use Morpho\Base\Environment;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
 use Morpho\Error\ErrorHandler;
-use Morpho\Ioc\IServiceManager;
 
 class App extends EventManager {
     /**
@@ -43,26 +42,27 @@ class App extends EventManager {
      * @return IResponse|false
      */
     public function run() {
-        /** @var IServiceManager $serviceManager */
-        $serviceManager = $this->config['serviceManager'];
-        try {
-            $serviceManager['app'] = $this;
-            $initializer = $serviceManager['initializer'];
-            /** @var \Morpho\Base\IInitializer $initializer */
-            $initializer->init();
-            /** @var IRequest $request */
-            $request = $serviceManager['request'];
-            $serviceManager['router']->route($request);
-            $serviceManager['dispatcher']->dispatch($request);
-            $response = $request->response();
-            $response->send();
-            return $response;
-        } catch (\Throwable $e) {
-            $errorHandler = $serviceManager['errorHandler'];
-            $errorHandler->handleException($e);
-            //$this->trigger(new Event('error', ['exception' => $e]));
-            return false;
+        /** @var ServiceManager $serviceManager */
+        $bootServiceManager = $this->config['serviceManager']($this);
+
+        $bootServiceManager['app'] = $this;
+
+        /** @var Site $site */
+        $site = $bootServiceManager['site'];
+
+        $serviceManager = $site->config()['serviceManager'];
+
+        foreach ($bootServiceManager as $id => $service) {
+            $serviceManager[$id] = $service;
         }
+
+        $serviceManager->setConfig($site->config()['service']);
+
+        /** @var AppInitializer $appInitializer */
+        $appInitializer = $serviceManager['appInitializer'];
+        $appInitializer->init();
+
+        return $site->__invoke($serviceManager);
     }
 
     public function setConfig(\ArrayObject $config): void {
@@ -76,7 +76,7 @@ class App extends EventManager {
     protected static function logErrorFallback(\Throwable $e): void {
         if (ErrorHandler::isErrorLogEnabled()) {
             // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
-            \error_log(\addslashes((string)$e));
+            \error_log(\addslashes((string) $e));
         }
     }
 }

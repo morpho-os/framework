@@ -12,8 +12,8 @@ namespace Morpho\Ioc;
  *     2) Service Locator - inject/push self to the object and allow to pull from self
  */
 class ServiceManager extends \ArrayObject implements IServiceManager {
-    private const FACTORY_METHOD_PREFIX = 'mk';
-    private const FACTORY_METHOD_SUFFIX = 'Service';
+    protected const FACTORY_METHOD_PREFIX = 'mk';
+    protected const FACTORY_METHOD_SUFFIX = 'Service';
 
     protected $aliases = [];
 

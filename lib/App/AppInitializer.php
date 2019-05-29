@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 namespace Morpho\App;
 
-use Morpho\Base\IInitializer;
 use Morpho\Ioc\IServiceManager;
 
-abstract class Initializer implements IInitializer {
+abstract class AppInitializer {
     /**
      * @var IServiceManager
      */
@@ -13,6 +12,8 @@ abstract class Initializer implements IInitializer {
     public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }
+
+    abstract public function init(): void;
 
     protected function applySiteConfig($siteConfig): void {
         if (isset($siteConfig['iniConfig'])) {

@@ -16,16 +16,14 @@ use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\App\Dispatcher;
 use Morpho\App\IRouter;
-use Morpho\App\ISite;
 use Morpho\App\ModuleIndex;
 use Morpho\App\ModuleIndexer;
 use Morpho\Error\DumpListener;
-use Morpho\Ioc\ServiceManager as BaseServiceManager;
+use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\App\Web\Logging\WebProcessor;
 use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Session\Session;
-use Morpho\App\Web\Uri\UriChecker;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
 use Morpho\Caching\VarExportFileCache;
@@ -38,17 +36,8 @@ class ServiceManager extends BaseServiceManager {
         return new FastRouter();
     }
 
-    public function mkSiteService(): ISite {
-        $appConfig = $this['app']->config();
-        /** @var ISite $site */
-        $site = (new SiteFactory())($appConfig);
-        $siteConfig = $site->config();
-        $this->setConfig($siteConfig['service']);
-        return $site;
-    }
-
-    protected function mkInitializerService() {
-        return new Initializer($this);
+    protected function mkAppInitializerService() {
+        return new AppInitializer($this);
     }
 
     protected function mkModuleIndexerService() {
@@ -64,7 +53,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkRequestService() {
-        return new Request(null, null, new UriChecker($this));
+        return new Request(null, null);
     }
 
     protected function mkDebugLoggerService() {

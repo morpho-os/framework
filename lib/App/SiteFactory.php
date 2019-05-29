@@ -6,17 +6,28 @@
  */
 namespace Morpho\App;
 use Morpho\Base\IFn;
+use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
+use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
-abstract class SiteFactory implements IFn {
-    public function __invoke($appConfig): ISite {
+abstract class SiteFactory implements IFn, IHasServiceManager {
+    /**
+     * @var IServiceManager
+     */
+    protected $serviceManager;
+
+    public function setServiceManager(IServiceManager $serviceManager): void {
+        $this->serviceManager = $serviceManager;
+    }
+
+    public function __invoke($value = null): ISite {
         $hostName = $this->currentHostName();
         if (!$hostName) {
             $this->throwInvalidSiteError();
         }
-        
-        $siteConfigProvider = $appConfig['siteConfigProvider'];
-        $initialSiteConfig = $siteConfigProvider($hostName);
+
+        $initialSiteConfig = $this->initialSiteConfig($hostName);
         if (!$initialSiteConfig) {
             $this->throwInvalidSiteError();
         }
@@ -24,6 +35,45 @@ abstract class SiteFactory implements IFn {
         
         $siteConfig = $this->loadExtendedSiteConfig($siteModuleName, $initialSiteConfig);
         return $this->mkSite($siteModuleName, $siteConfig, $hostName);
+    }
+
+    /**
+     * @param string $hostName
+     * @return array|false
+     */
+    protected function initialSiteConfig(string $hostName) {
+        $resolvingResult = $this->resolveHost($hostName);
+        if (false !== $resolvingResult) {
+            return [
+                'siteModule' => $resolvingResult['moduleName'],
+                'path'       => [
+                    'dirPath'        => $resolvingResult['moduleDirPath'],
+                    'publicDirPath'  => $resolvingResult['publicDirPath'],
+                    'configFilePath' => $resolvingResult['configFilePath'],
+                ],
+            ];
+        }
+        return false;
+    }
+
+    /**
+     * @param string $hostName
+     * @return array|false
+     */
+    protected function resolveHost(string $hostName) {
+        $allowedHostNames = ['localhost', 'framework', '127.0.0.1'];
+        if (in_array($hostName, $allowedHostNames, true)) {
+            $baseDirPath = $this->serviceManager['app']->config()['baseDirPath'];
+            $shortModuleName = 'localhost';
+            $moduleDirPath = $baseDirPath . '/' . MODULE_DIR_NAME . '/' . $shortModuleName;
+            return [
+                'moduleName' => VENDOR . '/' . $shortModuleName,
+                'moduleDirPath' => $moduleDirPath,
+                'publicDirPath' => $moduleDirPath . '/' . PUBLIC_DIR_NAME,
+                'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
+            ];
+        }
+        return false;
     }
 
     protected function mkSite(string $siteModuleName, \ArrayObject $siteConfig, string $hostName): ISite {

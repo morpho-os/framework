@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web;
 
-use Morpho\App\Initializer as BaseInitializer;
+use Morpho\App\AppInitializer as BaseAppInitializer;
 
-class Initializer extends BaseInitializer {
+class AppInitializer extends BaseAppInitializer {
     public function init(): void {
         Environment::init();
 

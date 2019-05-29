@@ -6,9 +6,9 @@
  */
 namespace Morpho\App\Cli;
 
-use Morpho\App\Initializer as BaseInitializer;
+use Morpho\App\AppInitializer as BaseAppInitializer;
 
-class Initializer extends BaseInitializer {
+class AppInitializer extends BaseAppInitializer {
     public function init(): void {
         Environment::init();
         $siteConfig = $this->serviceManager['site']->config();

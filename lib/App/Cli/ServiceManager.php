@@ -8,8 +8,7 @@ namespace Morpho\App\Cli;
 
 use Monolog\Logger;
 use Morpho\App\IRouter;
-use Morpho\App\ISite;
-use Morpho\Ioc\ServiceManager as BaseServiceManager;
+use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\Base\NotImplementedException;
 use Morpho\Error\ErrorHandler;
 use Monolog\Handler\ErrorLogHandler as PhpErrorLogWriter;
@@ -17,17 +16,8 @@ use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
 
 class ServiceManager extends BaseServiceManager {
-    protected function mkInitializerService() {
-        return new Initializer($this);
-    }
-
-    protected function mkSiteService(): ISite {
-        $appConfig = $this['app']->config();
-        /** @var ISite $site */
-        $site = (new SiteFactory())($appConfig);
-        $siteConfig = $site->config();
-        $this->setConfig($siteConfig['service']);
-        return $site;
+    protected function mkAppInitializerService() {
+        return new AppInitializer($this);
     }
 
     protected function mkErrorLoggerService() {

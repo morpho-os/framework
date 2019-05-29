@@ -1,4 +1,7 @@
 <?php declare(strict_types=1);
+
+use Morpho\App\Cli\ServiceManager as CliServiceManager;
+use Morpho\App\Web\ServiceManager as WebServiceManager;
 use const Morpho\App\CACHE_DIR_NAME;
 use const Morpho\App\VENDOR;
 
@@ -98,6 +101,7 @@ return [
             $errorHandlers['uncaught']['httpCode'] => $errorHandlers['uncaught']['handler'],
         ],
     ],
+    'serviceManager' => \PHP_SAPI === 'cli' ? new CliServiceManager() : new WebServiceManager(),
     'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
     'iniConfig' => [
         //'display_errors' => '1',

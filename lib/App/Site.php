@@ -39,4 +39,25 @@ class Site implements ISite {
     public function hostName(): string {
         return $this->hostName;
     }
+
+    /**
+     * @param ServiceManager $serviceManager
+     * @return \Morpho\App\IResponse|false
+     */
+    public function __invoke($serviceManager) {
+        try {
+            /** @var IRequest $request */
+            $request = $serviceManager['request'];
+            $serviceManager['router']->route($request);
+            $serviceManager['dispatcher']->dispatch($request);
+            $response = $request->response();
+            $response->send();
+            return $response;
+        } catch (\Throwable $e) {
+            $errorHandler = $serviceManager['errorHandler'];
+            $errorHandler->handleException($e);
+            //$this->trigger(new Event('error', ['exception' => $e]));
+            return false;
+        }
+    }
 }

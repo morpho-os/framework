@@ -6,7 +6,6 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\Base\IFn;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\App\IResponse;
@@ -83,15 +82,9 @@ class Request extends BaseRequest {
 
     private $trustedProxyIps;
 
-    /**
-     * @var IFn
-     */
-    private $uriChecker;
-
-    public function __construct($params = null, ?array $serverVars = null, IFn $uriChecker = null) {
+    public function __construct($params = null, ?array $serverVars = null) {
         parent::__construct(null !== $params ? $params : []);
         $this->serverVars = $serverVars;
-        $this->uriChecker = $uriChecker;
         $method = $this->detectOriginalMethod();
         $this->originalMethod = null !== $method ? $method : self::GET_METHOD;
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
@@ -382,8 +375,6 @@ class Request extends BaseRequest {
             $uri->setQuery($queryStr);
         }
 
-        $this->checkUri($uri);
-
         $this->uri = $uri;
     }
 
@@ -509,16 +500,6 @@ class Request extends BaseRequest {
             return $this->serverVars[$name] ?? $default;
         }
         return $_SERVER[$name] ?? $default;
-    }
-
-    /**
-     * Must throw the BadRequestException if the $uri can be considered as dangerous.
-     */
-    protected function checkUri(Uri $uri): void {
-        $checked = $this->uriChecker->__invoke($uri);
-        if (!$checked) {
-            throw new BadRequestException('Invalid URI'); // or AccessDenied?
-        }
     }
 
     protected function detectOriginalMethod(): ?string {

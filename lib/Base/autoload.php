@@ -34,6 +34,16 @@ const EPS = 0.00001;
 
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
+function evalFn($valOrFn) {
+    if ($valOrFn instanceof \Closure) { // should be more fast then is_callable()
+        return $valOrFn();
+    }
+    if (is_callable($valOrFn)) {
+        return $valOrFn();
+    }
+    return $valOrFn;
+}
+
 /**
  * @param IDisposable $disposable
  * @param mixed $val Will be passed to IFn::__invoke()
