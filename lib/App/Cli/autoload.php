@@ -169,6 +169,23 @@ function shell(string $command, array $config = null): ICommandResult {
     return new ShellCommandResult($command, $exitCode, $output, '');
 }
 
+/**
+ * Taken from https://habr.com/ru/post/135200/
+ * @param string $cmd
+ */
+function shell1(string $cmd, $env = null) {
+    $pid = pcntl_fork();
+    if ($pid < 0) {
+        throw new \RuntimeException('fork failed');
+    }
+    if ($pid == 0) {
+        pcntl_exec('/bin/sh', ['-c', $cmd], $env ?? []); // @TODO: pass $_ENV?
+        exit(127);
+    }
+    pcntl_waitpid($pid, $status);
+    return pcntl_wexitstatus($status);
+}
+
 // @TODO: See \Composer\Util\ProcessExecutor
 function proc(string $command, array $config = null): ICommandResult {
     $config = Config::check([
