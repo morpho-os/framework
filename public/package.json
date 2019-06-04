@@ -8,9 +8,7 @@
   "author": "",
   "private": true,
   "dependencies": {
-    "axios": "^0.18.0",
     "bootstrap-styl": "^5.0.4",
-    "es6-promise": "^4.2.6",
     "imd": "github:morpho-os/imd",
     "jquery": "^3.4.0"
   },
@@ -18,7 +16,6 @@
     "@types/jasmine": "^2.8.16",
     "@types/jquery": "^3.3.29",
     "jasmine-core": "^2.99.1",
-    "sourcemapped-stacktrace": "^1.1.9",
     "tslib": "^1.9.3"
   }
 }
