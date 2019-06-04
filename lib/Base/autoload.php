@@ -124,12 +124,13 @@ function uniqueName(): string {
  *
  * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
  *                       All other characters will be removed.
- * @param bool   $trim   Either trailing '-' characters should be removed or not.
+ * @param bool $trim Either trailing '-' characters should be removed or not.
  *
+ * @param bool $allowDots
  * @return string
  */
-function dasherize($string, bool $trim = true) {
-    $string = sanitize($string, '-_ ', false);
+function dasherize($string, bool $trim = true, bool $allowDots = false) {
+    $string = sanitize($string, '-_ ' . ($allowDots ? '.' : ''), false);
     $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];

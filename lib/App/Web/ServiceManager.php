@@ -31,7 +31,7 @@ use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
 
 class ServiceManager extends BaseServiceManager {
-    public function mkRouterService(): IRouter {
+    protected function mkRouterService(): IRouter {
         //return new Router($this['db']);
         return new FastRouter();
     }

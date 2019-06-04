@@ -104,14 +104,17 @@ class ScriptProcessor extends HtmlProcessor {
         $serviceManager = $this->serviceManager;
         $siteModuleName = $serviceManager['site']->moduleName();
         $publicDirPath = $serviceManager['moduleIndex']->moduleMeta($siteModuleName)->publicDirPath();
-        // @TODO: Add automatic compilation of ts
-        $jsModuleId = dasherize(last($module, '/')) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
+        $sanitize = function (string $val): string {
+            return dasherize($val, true, true);
+        };
+        // @TODO: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
+        $jsModuleId = $sanitize(last($module, '/')) . '/' . APP_DIR_NAME . '/' . $sanitize($controller) . '/' . $sanitize($action);
         $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';
         $jsFilePath = $publicDirPath . '/' . $relJsFilePath;
         $inline = $included = [];
         if (\is_file($jsFilePath)) {
             $included[] = [
-                'src' => $relJsFilePath,
+                'src' => '/' . $relJsFilePath,
                 '_tagName' => 'script',
                 '_text' => '',
             ];

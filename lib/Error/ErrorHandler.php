@@ -64,7 +64,8 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         \error_clear_last();
         if ($this->fatalErrorHandlerActive
             && $error
-            && \in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_PARSE, E_COMPILE_ERROR])
+            // [See for list of errors](https://wiki.php.net/rfc/engine_exceptions_for_php7#summary_of_current_error_model)
+            && \in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_PARSE])
         ) {
             $this->handleException(
                 self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null)

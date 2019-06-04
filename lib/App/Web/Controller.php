@@ -122,7 +122,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return new ForbiddenResult();
     }
 
-    protected function mkDefaultResult($values): IActionResult {
+    protected function mkDefaultResult(array $values = null): IActionResult {
         return $this->mkViewResult(null, (array) $values);
     }
 

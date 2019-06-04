@@ -132,7 +132,7 @@ class DateTime extends DateTimeImmutable {
         );
     }
 
-    public static function dateTimeStr($timeZone = null): string {
+    public static function now($timeZone = null): string {
         return (new static(null, $timeZone))->formatDateTime();
     }
 
