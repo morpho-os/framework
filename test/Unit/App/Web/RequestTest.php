@@ -261,20 +261,6 @@ class RequestTest extends TestCase {
         $this->assertSame('http://framework/', $uri->toStr(true));
     }
     
-    public function testUriInitialization_ThrowsBadRequestOnNotAllowedHost() {
-        $request = new Request(
-            null,
-            ['HTTP_HOST' => 'malicious'],
-            new class implements IFn {
-                public function __invoke($value) {
-                    return false;
-                }
-            }
-        );
-        $this->expectException(BadRequestException::class, 'Invalid URI');
-        $request->uri();
-    }
-
     public function testData() {
         $request = $this->mkRequest();
         $this->assertSame(

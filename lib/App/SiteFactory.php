@@ -21,7 +21,7 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
         $this->serviceManager = $serviceManager;
     }
 
-    public function __invoke($value = null): ISite {
+    public function __invoke($_ = null): ISite {
         $hostName = $this->currentHostName();
         if (!$hostName) {
             $this->throwInvalidSiteError();

@@ -239,7 +239,7 @@ class FileTest extends TestCase {
             $usedFilePath = $filePath;
             return 'ok';
         }, $tmpDirPath));
-        $this->assertContains(__FUNCTION__, $usedFilePath);
+        $this->assertStringContainsString(__FUNCTION__, $usedFilePath);
         $this->assertFileNotExists($usedFilePath);
     }
 

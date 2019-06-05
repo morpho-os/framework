@@ -10,7 +10,7 @@ use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\Dir;
 use Morpho\Fs\File;
 
-class ModuleMetaIterator implements \IteratorAggregate {
+class ModuleIterator implements \IteratorAggregate {
     /**
      * @var string
      */
@@ -26,14 +26,14 @@ class ModuleMetaIterator implements \IteratorAggregate {
             if (!\is_file($metaFilePath)) {
                 continue;
             }
-            $moduleMeta = File::readJson($metaFilePath);
-            $moduleMeta['path'] = [
+            $module = File::readJson($metaFilePath);
+            $module['path'] = [
                 'dirPath' => $moduleDirPath,
             ];
-            if (!$this->filter($moduleMeta)) {
+            if (!$this->filter($module)) {
                 continue;
             }
-            yield $this->map($moduleMeta);
+            yield $this->map($module);
         }
     }
 
@@ -41,23 +41,22 @@ class ModuleMetaIterator implements \IteratorAggregate {
         return Dir::dirPaths($this->baseDirPath . '/' . MODULE_DIR_NAME, null, ['recursive' => false]);
     }
 
-    protected function filter(array $moduleMeta): bool {
-        return isset($moduleMeta['name']);
+    protected function filter(array $module): bool {
+        return isset($module['name']);
     }
 
-    protected function map(array $moduleMeta): array {
+    protected function map(array $module): array {
         $namespaces = [];
-        foreach ($moduleMeta['autoload']['psr-4'] ?? [] as $key => $value) {
+        foreach ($module['autoload']['psr-4'] ?? [] as $key => $value) {
             $namespaces[\trim($key, '\\/')] = \trim($value, '\\/');
         }
 
-        $moduleName = $moduleMeta['name'];
-        $moduleMeta = [
+        $moduleName = $module['name'];
+        return [
             'name' => $moduleName,
-            'path' => $moduleMeta['path'],
+            'path' => $module['path'],
             'namespace' => $namespaces,
         ];
-        return $moduleMeta;
     }
 
     protected function init(IServiceManager $serviceManager): void {

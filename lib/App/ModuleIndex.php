@@ -28,7 +28,7 @@ class ModuleIndex implements \IteratorAggregate {
         return isset($this->index[$moduleName]);
     }
 
-    public function moduleMeta(string $moduleName): ModuleMeta {
+    public function module(string $moduleName): Module {
         $this->init();
         if (!isset($this->index[$moduleName])) {
             throw new \RuntimeException("Unable to get meta for the module '$moduleName'");
@@ -36,7 +36,7 @@ class ModuleIndex implements \IteratorAggregate {
         if (isset($this->loaded[$moduleName])) {
             return $this->loaded[$moduleName];
         }
-        return $this->loaded[$moduleName] = $this->mkModuleMeta($moduleName, $this->index[$moduleName]);
+        return $this->loaded[$moduleName] = $this->mkModule($moduleName, $this->index[$moduleName]);
     }
 
     public function rebuild(): void {
@@ -44,8 +44,8 @@ class ModuleIndex implements \IteratorAggregate {
         $this->indexer->clear();
     }
 
-    protected function mkModuleMeta(string $moduleName, $meta): ModuleMeta {
-        return new ModuleMeta($moduleName, $meta);
+    protected function mkModule(string $moduleName, $meta): Module {
+        return new Module($moduleName, $meta);
     }
 
     private function init(): void {

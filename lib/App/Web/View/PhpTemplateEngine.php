@@ -160,9 +160,9 @@ class PhpTemplateEngine extends TemplateEngine {
     protected function mkPlugin(string $name) {
         $moduleName = $this->request()->moduleName();
         $serviceManager = $this->serviceManager;
-        $moduleMeta = $serviceManager['moduleIndex']->moduleMeta($moduleName);
+        $module = $serviceManager['moduleIndex']->module($moduleName);
         $instanceProvider = $serviceManager['instanceProvider'];
-        $classFilePath = $instanceProvider->classFilePath($moduleMeta, 'Web\\View\\' . $name . self::PLUGIN_SUFFIX);
+        $classFilePath = $instanceProvider->classFilePath($module, 'Web\\View\\' . $name . self::PLUGIN_SUFFIX);
         if (false === $classFilePath) {
             $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
             if (!\class_exists($class)) {

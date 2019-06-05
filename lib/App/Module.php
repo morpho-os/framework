@@ -6,16 +6,16 @@
  */
 namespace Morpho\App;
 
-class ModuleMeta extends \ArrayObject {
-    protected $moduleName;
+class Module extends \ArrayObject {
+    protected $name;
 
     public function __construct(string $moduleName, $meta) {
-        $this->moduleName = $moduleName;
+        $this->name = $moduleName;
         parent::__construct($meta);
     }
 
-    public function moduleName(): string {
-        return $this->moduleName;
+    public function name(): string {
+        return $this->name;
     }
 
     public function autoloadFilePath(): string {

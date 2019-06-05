@@ -6,6 +6,8 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\Fs\Path;
+use Morpho\Ioc\IServiceManager;
 use function Morpho\Base\dasherize;
 use function Morpho\Base\last;
 use const Morpho\App\APP_DIR_NAME;
@@ -15,6 +17,13 @@ class ScriptProcessor extends HtmlProcessor {
     private $scripts = [];
 
     protected const INDEX_ATTR = '_index';
+
+    private $baseUriPath;
+
+    public function __construct(IServiceManager $serviceManager) {
+        parent::__construct($serviceManager);
+        $this->baseUriPath = '/'; // @todo
+    }
 
     protected function containerBody($tag) {
         if (isset($tag[self::SKIP_ATTR])) {
@@ -103,7 +112,7 @@ class ScriptProcessor extends HtmlProcessor {
         [$module, $controller, $action] = $this->request()->handler();
         $serviceManager = $this->serviceManager;
         $siteModuleName = $serviceManager['site']->moduleName();
-        $publicDirPath = $serviceManager['moduleIndex']->moduleMeta($siteModuleName)->publicDirPath();
+        $publicDirPath = $serviceManager['moduleIndex']->module($siteModuleName)->publicDirPath();
         $sanitize = function (string $val): string {
             return dasherize($val, true, true);
         };
@@ -114,7 +123,7 @@ class ScriptProcessor extends HtmlProcessor {
         $inline = $included = [];
         if (\is_file($jsFilePath)) {
             $included[] = [
-                'src' => '/' . $relJsFilePath,
+                'src' => $this->scriptUri($relJsFilePath),
                 '_tagName' => 'script',
                 '_text' => '',
             ];
@@ -137,5 +146,9 @@ class ScriptProcessor extends HtmlProcessor {
     protected function changeBodyScripts(array $scripts): ?array {
         // Do nothing
         return null;
+    }
+
+    private function scriptUri(string $relJsFilePath): string {
+        return Path::combine($this->baseUriPath, $relJsFilePath);
     }
 }

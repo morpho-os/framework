@@ -6,10 +6,12 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
+use Morpho\App\ISite;
 use const Morpho\App\CONFIG_DIR_NAME;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\SiteFactory;
 use Morpho\App\Web\BadRequestException;
+use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 class SiteFactoryTest extends TestCase {
     private $classLoaderRegisteredKey;
@@ -134,60 +136,59 @@ class SiteFactoryTest extends TestCase {
     /**
      * @dataProvider dataForInvoke_ValidHost
      */
-    public function testInvoke_ValidHost(string $hostName, string $moduleName, string $siteDirPath, array $siteConfig) {
-        $siteConfigFilePath = $siteDirPath . '/' . CONFIG_DIR_NAME . '/config.php';
+    public function testInvoke_ValidHost(string $hostName, string $moduleName, string $moduleDirPath, array $siteConfig) {
+        $_SERVER['HTTP_HOST'] = $hostName;
+
+        $siteFactoryConfig = [
+            'moduleName' => $moduleName,
+            'moduleDirPath' => $moduleDirPath,
+            'siteConfig' => $siteConfig,
+            'publicDirPath' => $moduleDirPath . '/' . PUBLIC_DIR_NAME,
+            'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
+        ];
+        $siteFactory = new class ($siteFactoryConfig) extends SiteFactory {
+            private $config;
+            public function __construct(array $config) {
+                $this->config = $config;
+            }
+
+            protected function resolveHost(string $hostName) {
+                if (!in_array($hostName, ['foo.bar.com', 'some-name'], true)) {
+                    return false;
+                }
+                return [
+                    'moduleName' => $this->config['moduleName'],
+                    'moduleDirPath' => $this->config['moduleDirPath'],
+                    'publicDirPath' => $this->config['publicDirPath'],
+                    'configFilePath' => $this->config['configFilePath'],
+                ];
+            }
+
+            protected function loadConfigFile(string $configFilePath): array {
+                return $this->config['siteConfig'];
+            }
+        };
+
+        $site = $siteFactory->__invoke();
+
+        $this->assertInstanceOf(ISite::class, $site);
+
+        $this->assertSame($hostName, $site->hostName());
+        $this->assertSame($moduleName, $site->moduleName());
+
+        $this->assertTrue($GLOBALS[__CLASS__ . 'Registered']);
 
         $expectedSiteConfig = new \ArrayObject(\array_merge($siteConfig, [
             'path' => [
-                'dirPath' => $siteDirPath,
-                'configFilePath' => $siteConfigFilePath,
+                'dirPath' => $moduleDirPath,
+                'publicDirPath' => $siteFactoryConfig['publicDirPath'],
+                'configFilePath' => $siteFactoryConfig['configFilePath'],
             ],
             'module' => [
                 $moduleName => [],
             ],
             'siteModule' => $moduleName,
         ]));
-
-        $_SERVER['HTTP_HOST'] = $hostName;
-
-        $appConfig = [
-            'siteConfigProvider' => function ($hostName1) use ($siteConfigFilePath, &$called, $hostName, $moduleName, $siteDirPath) {
-                $called = true;
-                if ($hostName1 === $hostName) {
-                    return [
-                        'siteModule' => $moduleName,
-                        'path' => [
-                            'dirPath' => $siteDirPath,
-                            'configFilePath' => $siteConfigFilePath,
-                        ],
-                    ];
-                }
-            }
-        ];
-
-        $map = [
-            $siteConfigFilePath => $siteConfig,
-        ];
-
-        $siteFactory = new class ($map) extends SiteFactory {
-            private $map;
-            public function __construct(array $map) {
-                $this->map = $map;
-            }
-
-            protected function loadConfigFile(string $filePath): array {
-                return $this->map[$filePath];
-            }
-        };
-        $siteFactory->__invoke($appConfig);
-
-        $site = $siteFactory->__invoke($appConfig);
-
-        $this->assertTrue($called);
-        $this->assertTrue($GLOBALS[__CLASS__ . 'Registered']);
-
-        $this->assertSame($hostName, $site->hostName());
-        $this->assertSame($moduleName, $site->moduleName());
         $this->assertEquals($expectedSiteConfig, $site->config());
     }
 

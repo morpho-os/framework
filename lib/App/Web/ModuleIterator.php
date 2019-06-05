@@ -6,11 +6,11 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\ModuleMetaIterator as BaseModuleMetaIterator;
+use Morpho\App\ModuleIterator as BaseModuleIterator;
 use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
-class ModuleMetaIterator extends BaseModuleMetaIterator {
+class ModuleIterator extends BaseModuleIterator {
     /**
      * @var array
      */
@@ -18,7 +18,7 @@ class ModuleMetaIterator extends BaseModuleMetaIterator {
     /**
      * @var array
      */
-    protected $metaPatch;
+    protected $patch;
 
     protected function init(IServiceManager $serviceManager): void {
         parent::init($serviceManager);
@@ -26,24 +26,24 @@ class ModuleMetaIterator extends BaseModuleMetaIterator {
         $siteConfig = $site->config();
         $this->enabledModules = \array_flip(\array_keys($siteConfig['module']));
         $siteModuleName = $site->moduleName();
-        $this->metaPatch = [
+        $this->patch = [
             $siteModuleName  => [
                 'path' => $siteConfig['path'],
             ],
         ];
     }
 
-    protected function filter(array $moduleMeta): bool {
-        return parent::filter($moduleMeta) && isset($this->enabledModules[$moduleMeta['name']]);
+    protected function filter(array $module): bool {
+        return parent::filter($module) && isset($this->enabledModules[$module['name']]);
     }
 
-    protected function map(array $moduleMeta): array {
-        $moduleName = $moduleMeta['name'];
-        $moduleMeta = parent::map($moduleMeta);
-        if (isset($this->metaPatch[$moduleName])) {
-            $moduleMeta = ArrayUtils::merge($moduleMeta, $this->metaPatch[$moduleName]);
+    protected function map(array $module): array {
+        $moduleName = $module['name'];
+        $module = parent::map($module);
+        if (isset($this->patch[$moduleName])) {
+            $module = ArrayUtils::merge($module, $this->patch[$moduleName]);
         }
-        $moduleMeta['weight'] = $this->enabledModules[$moduleName] ?? 0;
-        return $moduleMeta;
+        $module['weight'] = $this->enabledModules[$moduleName] ?? 0;
+        return $module;
     }
 }

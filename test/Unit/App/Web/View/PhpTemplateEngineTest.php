@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\Base\IFn;
 use Morpho\App\ModuleIndex;
-use Morpho\App\ModuleMeta;
+use Morpho\App\Module;
 use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Ioc\IServiceManager;
@@ -237,7 +237,7 @@ class PhpTemplateEngineTest extends TestCase {
 
         $pluginName = 'Messenger';
 
-        $moduleMeta = new ModuleMeta($moduleName, []);
+        $module = new Module($moduleName, []);
 
         $pluginClass= __CLASS__ . '\\TestPlugin';
         $classFilePath = [$pluginClass, $this->getTestDirPath() . '/TestPlugin.php'];
@@ -245,14 +245,14 @@ class PhpTemplateEngineTest extends TestCase {
         $instanceProvider = $this->createMock(InstanceProvider::class);
         $instanceProvider->expects($this->any())
             ->method('classFilePath')
-            ->with($this->identicalTo($moduleMeta), $this->identicalTo('Web\\View\\' . $pluginName . PLUGIN_SUFFIX))
+            ->with($this->identicalTo($module), $this->identicalTo('Web\\View\\' . $pluginName . PLUGIN_SUFFIX))
             ->willReturn($classFilePath);
 
         $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())
-            ->method('moduleMeta')
+            ->method('module')
             ->with($moduleName)
-            ->willReturn($moduleMeta);
+            ->willReturn($module);
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())

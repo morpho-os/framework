@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\App;
 
 use Morpho\App\ModuleIndex;
 use Morpho\App\IModuleIndexer;
-use Morpho\App\ModuleMeta;
+use Morpho\App\Module;
 use Morpho\Testing\TestCase;
 
 class ModuleIndexTest extends TestCase {
@@ -20,14 +20,14 @@ class ModuleIndexTest extends TestCase {
             ->method('index')
             ->willReturnOnConsecutiveCalls([$moduleName => ['first']], [$moduleName => ['second']]);
 
-        $this->assertSame('first', $moduleIndex->moduleMeta($moduleName)[0]);
+        $this->assertSame('first', $moduleIndex->module($moduleName)[0]);
 
         $moduleIndexer->expects($this->once())
             ->method('clear');
 
         $this->assertNull($moduleIndex->rebuild());
 
-        $this->assertSame('second', $moduleIndex->moduleMeta($moduleName)[0]);
+        $this->assertSame('second', $moduleIndex->module($moduleName)[0]);
     }
 
     public function testModuleOperations() {
@@ -39,11 +39,11 @@ class ModuleIndexTest extends TestCase {
         $this->assertFalse($moduleIndex->moduleExists('galaxy/invalid'));
     }
 
-    public function testModuleMeta_ThrowsExceptionForNonExistentModule() {
+    public function testModule_ThrowsExceptionForNonExistentModule() {
         $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
         $this->expectException(\RuntimeException::class, "Unable to get meta for the module 'galaxy/invalid'");
 
-        $moduleIndex->moduleMeta('galaxy/invalid');
+        $moduleIndex->module('galaxy/invalid');
     }
     
     public function testIter() {
@@ -59,8 +59,8 @@ class ModuleIndexTest extends TestCase {
 
     private function mkModuleIndex($moduleIndexer) {
         return new class ($moduleIndexer) extends ModuleIndex {
-            protected function newModuleMeta(string $moduleName, $meta): ModuleMeta {
-                return new ModuleMeta($moduleName, $meta);
+            protected function mkModule(string $moduleName, $meta): Module {
+                return new Module($moduleName, $meta);
             }
         };
     }

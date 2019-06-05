@@ -42,27 +42,27 @@ abstract class InstanceProvider implements IFn {
             return false;
         }
 
-        $moduleMeta = $this->moduleIndex->moduleMeta($moduleName);
+        $module = $this->moduleIndex->module($moduleName);
 
-        $this->registerModuleClassLoader($moduleMeta);
+        $this->registerModuleClassLoader($module);
 
         // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
         $classWithoutModuleNsPrefix = $this->controllerClassWithoutModuleNs($controllerName);
-        $handler = $this->mkInstance($moduleMeta, $classWithoutModuleNsPrefix);
+        $handler = $this->mkInstance($module, $classWithoutModuleNsPrefix);
         $request['handlerFn'] = $handler;
         return $handler;
     }
 
     /**
-     * @param ModuleMeta $moduleMeta
+     * @param Module $module
      * @param string $classWithoutModuleNsPrefix
      * @return array|false
      */
-    public function classFilePath(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
+    public function classFilePath(Module $module, string $classWithoutModuleNsPrefix) {
         $relClassFilePath = \str_replace('\\', '/', $classWithoutModuleNsPrefix) . '.php';
-        foreach ($moduleMeta['namespace'] as $namespace => $nsDirPath) {
+        foreach ($module['namespace'] as $namespace => $nsDirPath) {
             $class = $namespace . '\\' . $classWithoutModuleNsPrefix;
-            $classFilePath = $moduleMeta['path']['dirPath'] . '/' . $nsDirPath . '/' .  $relClassFilePath;
+            $classFilePath = $module['path']['dirPath'] . '/' . $nsDirPath . '/' .  $relClassFilePath;
             if (\is_file($classFilePath)) {
                 return [$class, $classFilePath];
             }
@@ -71,12 +71,12 @@ abstract class InstanceProvider implements IFn {
     }
 
     /**
-     * @param ModuleMeta $moduleMeta
+     * @param Module $module
      * @param string $classWithoutModuleNsPrefix Class suffix like Http\IndexController, which will added to module's namespaces.
      * @return \object|false
      */
-    public function mkInstance(ModuleMeta $moduleMeta, string $classWithoutModuleNsPrefix) {
-        $classFilePath = $this->classFilePath($moduleMeta, $classWithoutModuleNsPrefix);
+    public function mkInstance(Module $module, string $classWithoutModuleNsPrefix) {
+        $classFilePath = $this->classFilePath($module, $classWithoutModuleNsPrefix);
         if (false !== $classFilePath) {
             [$class, $filePath] = $classFilePath;
             if (!\class_exists($class, false)) {
@@ -91,11 +91,11 @@ abstract class InstanceProvider implements IFn {
         return false;
     }
 
-    protected function registerModuleClassLoader(ModuleMeta $moduleMeta): void {
-        $moduleName = $moduleMeta->moduleName();
+    protected function registerModuleClassLoader(Module $module): void {
+        $moduleName = $module->name();
         if (!isset($this->registeredModules[$moduleName])) {
             /** @noinspection PhpIncludeInspection */
-            require_once $moduleMeta->autoloadFilePath();
+            require_once $module->autoloadFilePath();
             $this->registeredModules[$moduleName] = true;
         }
     }

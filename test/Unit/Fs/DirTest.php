@@ -755,7 +755,7 @@ class DirTest extends TestCase {
     public function testDirNames_ClosureProcessorWhichReturnsBool() {
         $testDirPath = $this->getTestDirPath();
         $processor = function ($dirName, $path) use (&$calledTimes) {
-            $this->assertNotContains('/', $dirName);
+            $this->assertStringNotContainsString('/', $dirName);
             $this->assertRegExp('~^.*/.*/(2|4)$~', $path);
             $calledTimes++;
             return true;
@@ -793,8 +793,8 @@ class DirTest extends TestCase {
 
     public function testFileNames_Recursive_WithProcessor() {
         $processor = function (...$args) use (&$calledTimes) {
-            $this->assertNotContains('/', $args[0]);
-            $this->assertContains('/', $args[1]);
+            $this->assertStringNotContainsString('/', $args[0]);
+            $this->assertStringContainsString('/', $args[1]);
             $this->assertCount(2, $args);
             $calledTimes++;
             return $args[0] !== '6.php';

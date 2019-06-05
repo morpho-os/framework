@@ -60,7 +60,7 @@ class HtmlRenderer implements IFn {
         $moduleIndex = $serviceManager['moduleIndex'];
         /** @var Theme $theme */
         $theme = $serviceManager['theme'];
-        $viewDirPath = $moduleIndex->moduleMeta($moduleName)->viewDirPath();
+        $viewDirPath = $moduleIndex->module($moduleName)->viewDirPath();
         $theme->appendBaseDirPath($viewDirPath);
         return $theme->render($viewResult);
     }

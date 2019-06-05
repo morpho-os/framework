@@ -14,6 +14,8 @@ use Morpho\Db\Sql\MySql\ServerCollation;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\MySql\TableCollation;
 use Morpho\Testing\DbTestCase;
+use const Morpho\Base\INT_TYPE;
+use const Morpho\Base\STRING_TYPE;
 
 class SchemaTest extends DbTestCase {
     /**
@@ -82,7 +84,7 @@ class SchemaTest extends DbTestCase {
 
     public function testSizeOfTables() {
         $size = $this->schema->sizeOfTables('mysql');
-        $this->assertInternalType('array', $size);
+        $this->assertIsArray($size);
         $this->assertNotEmpty($size);
         $expectedKeys = ['tableName', 'tableType', 'sizeInBytes'];
         foreach ($size as $row) {
@@ -97,15 +99,24 @@ class SchemaTest extends DbTestCase {
     public function testAvailableCharsetsOfServer() {
         $checkVal = function ($val, $expectedType) {
             $this->assertNotEmpty($val);
-            $this->assertInternalType($expectedType, $val);
+            switch ($expectedType) {
+                case STRING_TYPE:
+                    $this->assertIsString($val);
+                    break;
+                case INT_TYPE:
+                    $this->assertIsInt($val);
+                    break;
+                default:
+                    throw new \UnexpectedValueException();
+            }
         };
         $i = 0;
         foreach ($this->schema->availableCharsetsOfServer() as $charset) {
             /** @var ServerCharset $charset */
             $this->assertInstanceOf(ServerCharset::class, $charset);
-            $checkVal($charset->name(), 'string');
-            $checkVal($charset->description(), 'string');
-            $checkVal($charset->charSize(), 'int');
+            $checkVal($charset->name(), STRING_TYPE);
+            $checkVal($charset->description(), STRING_TYPE);
+            $checkVal($charset->charSize(), INT_TYPE);
             $collation = $charset->defaultCollation();
             $this->assertInstanceOf(ServerCollation::class, $collation);
             $this->assertNotEmpty($collation->name());
@@ -174,7 +185,7 @@ class SchemaTest extends DbTestCase {
         $infix = 'character';
         $vars = $this->schema->varsLike($infix);
         foreach ($vars as $key => $value) {
-            $this->assertContains($infix, $key);
+            $this->assertStringContainsString($infix, $key);
         }
         $this->assertTrue(\count($vars) > 0);
     }

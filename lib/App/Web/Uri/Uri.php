@@ -6,6 +6,7 @@
  */
 namespace Morpho\App\Web\Uri;
 
+use function Morpho\Base\lastPos;
 use function Morpho\Base\startsWith;
 
 /**
@@ -197,7 +198,7 @@ class Uri {
                         if ($hasAuthority && $basePath === '') {
                             $targetPath = '/' . $relUriPath;
                         } else {
-                            $rPos = \mb_strrpos($basePath, '/');
+                            $rPos = lastPos($basePath, '/');
                             if (false === $rPos) {
                                 $targetPath = $relUriPath;
                             } else {

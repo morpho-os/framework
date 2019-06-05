@@ -10,7 +10,7 @@ use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\ModuleIndex;
-use Morpho\App\ModuleMeta;
+use Morpho\App\Module;
 use Morpho\App\Web\Request;
 use Morpho\App\Site;
 use Morpho\App\Web\View\ScriptProcessor;
@@ -149,7 +149,7 @@ OUT;
 
         $jsConfigStr = \json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
         $this->assertRegExp(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
     }
@@ -169,7 +169,7 @@ is a child
 OUT;
         $processor->__invoke($childPage);
         $this->assertRegExp(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
             $processor->__invoke('<body></body>')
         );
     }
@@ -183,12 +183,12 @@ OUT;
             'moduleName' => $siteModuleName,
         ]);
         $publicDirPath = $this->getTestDirPath();
-        $moduleMeta = $this->createConfiguredMock(ModuleMeta::class, ['publicDirPath' => $publicDirPath]);
+        $module = $this->createConfiguredMock(Module::class, ['publicDirPath' => $publicDirPath]);
         $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())
-            ->method('moduleMeta')
+            ->method('module')
             ->with($siteModuleName)
-            ->willReturn($moduleMeta);
+            ->willReturn($module);
         $services = [
             'request' => $request,
             'site' => $site,

@@ -35,7 +35,7 @@ class AllPagesTests extends BrowserTestCase {
     public function testCacheAndIndexPages($expectedMessage, $menuItemsText) {
         $this->browser()->get($this->uri());
         $this->clickMenuItems($menuItemsText);
-        $this->assertContains(
+        $this->assertStringContainsString(
             $expectedMessage,
             $this->browser()->findElement(By::cssSelector('#page-messages .alert-success'))->getText()
         );

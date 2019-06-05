@@ -60,11 +60,11 @@ class StatusCodeTest extends BrowserTestCase {
             $html = $response->body();
 
             if (null !== $expectedTitle) {
-                $this->assertContains('<title>' . \htmlspecialchars($expectedTitle, ENT_QUOTES) . '</title>', $html);
+                $this->assertStringContainsString('<title>' . \htmlspecialchars($expectedTitle, ENT_QUOTES) . '</title>', $html);
                 $this->assertRegExp('~<h1[^>]*>' . \preg_quote(\htmlspecialchars($expectedTitle, ENT_QUOTES), '~') . '</h1>~s', $html);
             }
             if (null !== $expectedText) {
-                $this->assertContains(\htmlspecialchars($expectedText, ENT_QUOTES), $html);
+                $this->assertStringContainsString(\htmlspecialchars($expectedText, ENT_QUOTES), $html);
             }
         }
     }

@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\App\Web;
 
 use const Morpho\App\CONTROLLER_SUFFIX;
 use Morpho\App\ModuleIndex;
-use Morpho\App\ModuleMeta;
+use Morpho\App\Module;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\InstanceProvider;
@@ -31,13 +31,16 @@ class InstanceProviderTest extends TestCase {
 
     public function testInvoke_SetsHandlerFnAsRequestItem() {
         $serviceManager = $this->createMock(IServiceManager::class);
-        $moduleMeta = $this->createMock(ModuleMeta::class);
-        $moduleIndex = $this->createMock(ModuleIndex::class);
+        $module = $this->createMock(Module::class);
         $moduleName = 'foo/bar';
+        $module->expects($this->any())
+            ->method('name')
+            ->willReturn($moduleName);
+        $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())
-            ->method('moduleMeta')
+            ->method('module')
             ->with($moduleName)
-            ->willReturn($moduleMeta);
+            ->willReturn($module);
         $services = [
             'moduleIndex' => $moduleIndex,
         ];
@@ -49,23 +52,23 @@ class InstanceProviderTest extends TestCase {
 
         $controllerName = 'News';
 
-        $classSuffix = 'App' . '\\Web\\' . $controllerName . CONTROLLER_SUFFIX;
+        $classSuffix = 'App\\Web\\' . $controllerName . CONTROLLER_SUFFIX;
 
-        $instanceProvider = new class ($serviceManager, $moduleMeta, $moduleName, $classSuffix) extends InstanceProvider {
-            private $expectedModuleMeta, $expectedModuleName, $expectedClassSuffix;
+        $instanceProvider = new class ($serviceManager, $module, $moduleName, $classSuffix) extends InstanceProvider {
+            private $expectedModule, $expectedModuleName, $expectedClassSuffix;
 
             public $returnedInstance;
 
-            public function __construct(IServiceManager $serviceManager, ModuleMeta $expectedModuleMeta, string $expectedModuleName, string $expectedClassSuffix) {
+            public function __construct(IServiceManager $serviceManager, Module $expectedModule, string $expectedModuleName, string $expectedClassSuffix) {
                 parent::__construct($serviceManager);
-                $this->expectedModuleMeta = $expectedModuleMeta;
+                $this->expectedModule = $expectedModule;
                 $this->expectedModuleName = $expectedModuleName;
                 $this->expectedClassSuffix = $expectedClassSuffix;
 
             }
 
-            public function mkInstance(ModuleMeta $moduleMeta, string $classSuffix) {
-                if ($moduleMeta !== $this->expectedModuleMeta) {
+            public function mkInstance(Module $module, string $classSuffix) {
+                if ($module !== $this->expectedModule) {
                     throw new \UnexpectedValueException();
                 }
                 if ($classSuffix !== $this->expectedClassSuffix) {
@@ -76,11 +79,11 @@ class InstanceProviderTest extends TestCase {
                 return $instance;
             }
 
-            protected function registerModuleClassLoader($moduleMeta, $moduleName): void {
-                if ($moduleMeta !== $this->expectedModuleMeta) {
+            protected function registerModuleClassLoader(Module $module): void {
+                if ($module !== $this->expectedModule) {
                     throw new \UnexpectedValueException();
                 }
-                if ($moduleName !== $this->expectedModuleName) {
+                if ($module->name() !== $this->expectedModuleName) {
                     throw new \UnexpectedValueException();
                 }
             }

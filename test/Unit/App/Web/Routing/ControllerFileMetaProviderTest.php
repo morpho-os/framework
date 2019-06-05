@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web\Routing;
 use Morpho\Base\IFn;
 use Morpho\App\ModuleIndex;
 use Morpho\Testing\TestCase;
-use Morpho\App\ModuleMeta;
+use Morpho\App\Module;
 use Morpho\App\Web\Routing\ControllerFileMetaProvider;
 
 class ControllerFileMetaProviderTest extends TestCase {
@@ -28,9 +28,9 @@ class ControllerFileMetaProviderTest extends TestCase {
         $moduleIndex = $this->createMock(ModuleIndex::class);
         foreach ($modules as $name => $_) {
             $moduleIndex->expects($this->any())
-                ->method('moduleMeta')
+                ->method('module')
                 ->will($this->returnCallback(function ($moduleName) use ($name, $testDirPath) {
-                    return new ModuleMeta($moduleName, [
+                    return new Module($moduleName, [
                         'path' => [
                             'controllerDirPath' => $testDirPath . '/' . $moduleName,
                         ],

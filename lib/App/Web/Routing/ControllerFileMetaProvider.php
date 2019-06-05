@@ -23,7 +23,7 @@ class ControllerFileMetaProvider implements IFn {
     public function __invoke($modules): iterable {
         $index = $this->moduleIndex;
         foreach ($modules as $moduleName) {
-            $paths = $index->moduleMeta($moduleName)['path'];
+            $paths = $index->module($moduleName)['path'];
             if (isset($paths['controllerDirPath'])) {
                 $controllerDirPath = $paths['controllerDirPath'];
             } else {

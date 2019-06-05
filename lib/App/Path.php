@@ -7,6 +7,7 @@
 namespace Morpho\App;
 
 use Morpho\Base\Environment;
+use function Morpho\Base\lastPos;
 
 abstract class Path {
     public static function rel(string $path, string $basePath): string {
@@ -57,7 +58,7 @@ abstract class Path {
                     break;
                 case ($path == '/..'):
                     $path   = '/';
-                    $lastSlashPos = \mb_strrpos($output, '/', -1);
+                    $lastSlashPos = lastPos($output, '/', -1);
                     if (false === $lastSlashPos) {
                         break;
                     }
@@ -65,7 +66,7 @@ abstract class Path {
                     break;
                 case (\mb_substr($path, 0, 4) == '/../'):
                     $path   = '/' . \mb_substr($path, 4);
-                    $lastSlashPos = \mb_strrpos($output, '/', -1);
+                    $lastSlashPos = lastPos($output, '/', -1);
                     if (false === $lastSlashPos) {
                         break;
                     }

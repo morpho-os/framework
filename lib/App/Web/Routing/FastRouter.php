@@ -135,7 +135,7 @@ class FastRouter implements IHasServiceManager, IRouter {
     private function cacheFilePath(): string {
         $serviceManager = $this->serviceManager;
         $siteModuleName = $serviceManager['site']->moduleName();
-        $cacheDirPath = $serviceManager['moduleIndex']->moduleMeta($siteModuleName)->cacheDirPath();
+        $cacheDirPath = $serviceManager['moduleIndex']->module($siteModuleName)->cacheDirPath();
         return $cacheDirPath . '/route.php';
     }
 }

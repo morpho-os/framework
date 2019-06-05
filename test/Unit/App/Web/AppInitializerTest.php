@@ -7,12 +7,12 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Site;
-use Morpho\App\Web\Initializer;
+use Morpho\App\Web\AppInitializer;
 use Morpho\Error\IErrorHandler;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 
-class InitializerTest extends TestCase {
+class AppInitializerTest extends TestCase {
     private $umask;
     private $timezone;
 
@@ -55,7 +55,7 @@ class InitializerTest extends TestCase {
         );
         $serviceManager = $this->mkServiceManager($siteConfig);
         /** @noinspection PhpParamsInspection */
-        $initializer = new Initializer($serviceManager);
+        $initializer = new AppInitializer($serviceManager);
 
         $initializer->init();
 
@@ -88,7 +88,7 @@ class InitializerTest extends TestCase {
         $serviceManager = $this->mkServiceManager($siteConfig);
 
         /** @noinspection PhpParamsInspection */
-        $initializer = new Initializer($serviceManager);
+        $initializer = new AppInitializer($serviceManager);
 
         $initializer->init();
 

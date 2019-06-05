@@ -23,8 +23,8 @@ class ModuleChecker {
             $errors[] = 'metaFileNotFound';
         } else {
             try {
-                $moduleMeta = File::readJson($metaFilePath);
-                if (!isset($moduleMeta['autoload']['psr-4'])) {
+                $module = File::readJson($metaFilePath);
+                if (!isset($module['autoload']['psr-4'])) {
                     $errors[] = self::INVALID_META_FILE_FORMAT;
                 }
             } catch (\RuntimeException $e) {

@@ -59,8 +59,8 @@ class TsCompilerTest extends TestCase {
 
     public function testCompilerConfigToStr() {
         $option = 'strictNullChecks';
-        $this->assertNotContains('--' . $option, $this->compiler->compilerConfigToStr([$option => false]));
-        $this->assertContains('--' . $option, $this->compiler->compilerConfigToStr([$option => true]));
+        $this->assertStringNotContainsString('--' . $option, $this->compiler->compilerConfigToStr([$option => false]));
+        $this->assertStringContainsString('--' . $option, $this->compiler->compilerConfigToStr([$option => true]));
     }
 
     public function testVersion() {
@@ -103,8 +103,8 @@ OUT
         $this->compiler->compileToFile([$inFilePath1, $inFilePath2], $outFilePath);
 
         $ts = \file_get_contents($outFilePath);
-        $this->assertContains('function foo()', $ts);
-        $this->assertContains('function bar()', $ts);
+        $this->assertStringContainsString('function foo()', $ts);
+        $this->assertStringContainsString('function bar()', $ts);
     }
 
     public function testCompileFile_MultipleInFilesToMultipleOutFiles() {
@@ -122,8 +122,8 @@ OUT
 
         $this->compiler->compileToFile([$inFilePath1, $inFilePath2]);
 
-        $this->assertContains('function foo()', \file_get_contents($tmpDirPath . '/foo.js'));
-        $this->assertContains('function bar()', \file_get_contents($tmpDirPath . '/bar.js'));
+        $this->assertStringContainsString('function foo()', \file_get_contents($tmpDirPath . '/foo.js'));
+        $this->assertStringContainsString('function bar()', \file_get_contents($tmpDirPath . '/bar.js'));
     }
 
     public function testCompileToDir() {
@@ -141,7 +141,7 @@ OUT
 
     public function testCompilerConfigToStr_HandlesArraysProperly() {
         $this->compiler->compilerConfig()['types'] = ['jquery', 'mocha'];
-        $this->assertContains("'--types' 'jquery,mocha'", $this->compiler->compilerConfigToStr());
+        $this->assertStringContainsString("'--types' 'jquery,mocha'", $this->compiler->compilerConfigToStr());
     }
 
     public function testValueOfCompilerConfigParam() {

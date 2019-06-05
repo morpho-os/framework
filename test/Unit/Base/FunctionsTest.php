@@ -13,6 +13,7 @@ use function Morpho\Base\{endsWith,
     formatFloat,
     hasPrefix,
     hasSuffix,
+    lastPos,
     lines,
     memoize,
     not,
@@ -269,7 +270,7 @@ class FunctionsTest extends TestCase {
             public $t = 123;
         }];
         $json = toJson($v);
-        $this->assertInternalType('string', $json);
+        $this->assertIsString($json);
         $this->assertNotEmpty($json);
         $v1 = fromJson($json);
         $this->assertCount(\count($v), $v1);
@@ -737,6 +738,19 @@ class FunctionsTest extends TestCase {
         }
         $this->assertNull($disposable->invokeArgs);
         $this->assertSame([], $disposable->disposeArgs);
+    }
+
+    public function testLastPos() {
+        $this->assertSame(0, lastPos('', ''));
+        $this->assertSame(0, lastPos('', '', -1));
+        $this->assertSame(0, lastPos('/', ''));
+        $this->assertFalse(lastPos('', '/'));
+        $this->assertFalse(lastPos('', '/', -1));
+        $this->assertSame(0, lastPos('f', 'f'));
+        $this->assertFalse(lastPos('f', 'fo'));
+        $this->assertFalse(lastPos('f', 'fo', -1));
+        $this->assertSame(0, lastPos('fo', 'fo', -1));
+        $this->assertSame(2, lastPos('fofo', 'fo', -1));
     }
 
     private function assertCommon($fn) {

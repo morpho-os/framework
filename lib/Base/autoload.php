@@ -382,6 +382,22 @@ function startsWith(string $string, string $prefix): bool {
 }
 
 /**
+ * @param string $haystack
+ * @param string $needle
+ * @param int $offset
+ * @return int|false
+ */
+function lastPos(string $haystack, string $needle, int $offset = 0) {
+    if ($needle === '') {
+        return $offset >= 0 ? $offset : 0;
+    }
+    if ($haystack === '') {
+        return false;
+    }
+    return mb_strrpos($haystack, $needle, $offset);
+}
+
+/**
  * Inspired by the lines function in Haskell.
  */
 function lines(string $text): array {
@@ -1028,3 +1044,4 @@ function toArray($iter): array {
     }
     return $arr;
 }
+

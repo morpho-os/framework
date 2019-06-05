@@ -44,8 +44,8 @@ class ServiceManager extends BaseServiceManager {
         return new ModuleIndexer(new VarExportFileCache($this['site']->config()['path']['cacheDirPath']));
     }
 
-    protected function mkModuleMetaIteratorService() {
-        return new ModuleMetaIterator($this);
+    protected function mkModuleIteratorService() {
+        return new ModuleIterator($this);
     }
 
     protected function mkSessionService() {
@@ -74,7 +74,7 @@ class ServiceManager extends BaseServiceManager {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
         $siteModuleName = $this['site']->moduleName();
-        $cacheDirPath = $this['moduleIndex']->moduleMeta($siteModuleName)->cacheDirPath();
+        $cacheDirPath = $this['moduleIndex']->module($siteModuleName)->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConfig['useCache']);
         return $templateEngine;
@@ -167,7 +167,7 @@ class ServiceManager extends BaseServiceManager {
 
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {
         $moduleIndex = $this['moduleIndex'];
-        $filePath = $moduleIndex->moduleMeta($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
+        $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)

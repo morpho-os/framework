@@ -100,10 +100,10 @@ OUT
         $cmd = 'ls '  . \escapeshellarg(__DIR__);
         \ob_start();
         $result = shell($cmd, ['capture' => $capture, 'show' => $show]);
-        $this->assertContains($show ? \basename(__FILE__) : '', \ob_get_clean());
+        $this->assertStringContainsString($show ? \basename(__FILE__) : '', \ob_get_clean());
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
-        $this->assertContains($capture ? \basename(__FILE__) : '', (string)$result);
+        $this->assertStringContainsString($capture ? \basename(__FILE__) : '', (string)$result);
     }
 
     public function testShell_CheckExitConfigParam() {
@@ -179,9 +179,9 @@ OUT
         $this->assertInstanceOf(ProcCommandResult::class, $result);
         $this->assertSame($cmd, $result->command());
         $checkStdOut = function ($stdOut) {
-            $this->assertContains(".\n", $stdOut);
-            $this->assertContains("..\n", $stdOut);
-            $this->assertContains(\basename(__FILE__), $stdOut);
+            $this->assertStringContainsString(".\n", $stdOut);
+            $this->assertStringContainsString("..\n", $stdOut);
+            $this->assertStringContainsString(\basename(__FILE__), $stdOut);
         };
         $checkStdOut($result->stdOut());
         $this->assertSame(0, $result->exitCode());
