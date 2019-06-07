@@ -12,7 +12,7 @@ use function Morpho\App\moduleDirPath;
 use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
-class Sut implements ISut {
+class Sut extends \ArrayObject implements ISut {
     use TSingleton;
 
     /**

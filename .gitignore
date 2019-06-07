@@ -4,7 +4,7 @@
 !/bin/test
 
 # composer's files.
-/vendor/
+vendor/
 composer.lock
 
 # bower
@@ -14,10 +14,12 @@ bower_components/
 node_modules/
 
 #/module/*/config/*
-/module/*/cache/*
+cache/*
+log/*
 
 selenium.log.*
 *.jar
 *.log
 geckodriver
 .phpunit.result.cache
+*.tsbuildinfo

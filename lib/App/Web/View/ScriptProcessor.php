@@ -16,7 +16,7 @@ use const Morpho\App\MODULE_DIR_NAME;
 class ScriptProcessor extends HtmlProcessor {
     private $scripts = [];
 
-    protected const INDEX_ATTR = '_index';
+    protected const INDEX_ATTR = 'data-index';
 
     private $baseUriPath;
 

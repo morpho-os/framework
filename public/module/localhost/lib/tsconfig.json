@@ -1,0 +1,13 @@
+{
+    "extends": "./../../../tsconfig-base",
+    "compilerOptions": {
+        "composite": true,
+        "outFile": "index.js",
+        "rootDir": "../.."
+//        "typeRoots": ["."],
+        //"types": ["index"]
+    },
+    "include": [
+        "./*.ts"
+    ]
+}

@@ -5,12 +5,13 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Network\Http;
+use Morpho\Network\IServer;
 use function Morpho\App\Cli\shell;
 use Morpho\Base\Arr;
 use Morpho\Fs\FileNotFoundException;
 
 // Uses external tools: lsof, nc, kill, killall, geckodriver, selenium-server-standalone.jar, java, printf, bash.
-class SeleniumServer {
+class SeleniumServer implements IServer {
     private $logFilePath;
 
     public const PORT = 4444;
@@ -100,16 +101,16 @@ class SeleniumServer {
             do {
                 \usleep(200000);
                 $i++;
-            } while (!$this->listening() && $i < 25);
+            } while (!$this->acceptingConnections() && $i < 25);
             if ($i == 25) {
                 throw new \RuntimeException("Unable to start Selenium Server");
             }
         }
     }
 
-    public function listening(): bool {
+    public function acceptingConnections(int $port = self::PORT): bool {
         // @TODO: Use php sockets.
-        $res = shell('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . self::PORT, ['checkCode' => false, 'capture' => true, 'show' => false]);
+        $res = shell('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . $port, ['checkCode' => false, 'capture' => true, 'show' => false]);
         return !$res->isError();
     }
 

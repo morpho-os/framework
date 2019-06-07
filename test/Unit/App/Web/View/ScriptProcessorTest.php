@@ -63,7 +63,7 @@ OUT;
         $parentPage = <<<OUT
 <body>
 This is a
-<script src="bar/parent.js" _index="100"></script>
+<script src="bar/parent.js" data-index="100"></script>
 parent
 </body>
 OUT;

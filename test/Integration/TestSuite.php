@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Integration;
 
-use Morpho\Infra\PhpServer;
+use Morpho\Network\PhpServer;
 use Morpho\Network\TcpAddress;
 use Morpho\Network\Http\SeleniumServer;
 use Morpho\Testing\BrowserTestSuite;
@@ -32,17 +32,13 @@ class TestSuite extends BrowserTestSuite {
      * @beforeClass
      * @after
      */
-    public static function beforeAll() {
-        self::$seleniumServer = SeleniumServer::mk([
-            'geckoBinFilePath' => __DIR__ . '/geckodriver',
-            'serverJarFilePath' => __DIR__ . '/selenium-server-standalone.jar',
-            'serverVersion' => null,
-            'logFilePath' => __DIR__ . '/selenium.log',
-        ]);
-        self::$seleniumServer->start();
-        $sut = Sut::instance();
+    public static function beforeAll(): void {
+        $sut = sut::instance();
+
+        static::startSeleniumServer($sut);
+
         if ($sut->config()['isTravis']) {
-            self::$phpServer = $phpServer = new PhpServer(
+            $sut['phpServer'] = $phpServer = new PhpServer(
                 new TcpAddress($sut->config()['domain'], 7654),
                 $sut->publicDirPath()
             );
@@ -55,9 +51,26 @@ class TestSuite extends BrowserTestSuite {
     /**
      * @afterClass
      */
-    public static function afterAll() {
+    public static function afterAll(): void {
         if (self::$phpServer) {
             self::$phpServer->stop();
         }
+        if (self::$seleniumServer) {
+            self::$seleniumServer->stop();
+        }
+    }
+
+    public static function startSeleniumServer($sut = null): SeleniumServer {
+        $seleniumServer = SeleniumServer::mk([
+            'geckoBinFilePath' => __DIR__ . '/geckodriver',
+            'serverJarFilePath' => __DIR__ . '/selenium-server-standalone.jar',
+            'serverVersion' => null,
+            'logFilePath' => __DIR__ . '/selenium.log',
+        ]);
+        $seleniumServer->start();
+        if ($sut) {
+            $sut['seleniumServer'] = $seleniumServer;
+        }
+        return $seleniumServer;
     }
 }

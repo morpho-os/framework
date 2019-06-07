@@ -1,40 +1,13 @@
 {
     "compilerOptions": {
-        "allowJs": true,
-        "experimentalDecorators": true,
-        "forceConsistentCasingInFileNames": true,
-        "jsx": "preserve",
-        "module": "amd",
-        "moduleResolution": "node",
-        "newLine": "lf",
-        "noEmitOnError": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "preserveConstEnums": true,
-        "removeComments": true,
-        "sourceMap": true,
-        "strict": true,
-        "target": "es5",
-        "lib": [
-            "dom",
-            "es2015.promise",
-            "es2015.iterable",
-            "es5"
-        ],
-        "baseUrl": "./module",
-        "types": [
-            "jasmine",
-            "jquery",
-            "lib"
-        ],
-        "typeRoots": [
-            "node_modules/@types",
-            "module/system"
-        ]
+        "listEmittedFiles": false,
+        "traceResolution": false,
+        "diagnostics": false,
+        "listFiles": false
     },
-    "include": [
-        "module/*/lib/**/*.ts",
-        "module/*/app/**/*.ts",
-        "module/*/test/**/*.ts"
+    "files": [],
+    "include": [],
+    "references": [
+        { "path": "module/localhost/lib" }
     ]
 }

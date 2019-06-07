@@ -2,14 +2,14 @@
 <?php require __DIR__ . '/../_main-menu.phtml' ?>
 <?php require __DIR__ . '/../_main.phtml' ?>
 <?php require __DIR__ . '/../_script.phtml' ?>
-<link rel="stylesheet" href="/module/system/rc/css/test.css">
+<link rel="stylesheet" href="/module/localhost/rc/css/test.css">
 <script src="/node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
-<script src="/node_modules/sourcemapped-stacktrace/dist/sourcemapped-stacktrace.js"></script>
-<script src="/module/system/lib/jasmine.js"></script>
-<script src="/module/system/lib/check.js"></script>
+<script src="/module/localhost/lib/test/jasmine.js"></script>
+<script src="/module/localhost/lib/test/check.js"></script>
+<script src="/module/localhost/test/main.js"></script>
 <script>
-define(["require", "exports", "system/lib/check", "/node_modules/sourcemapped-stacktrace/dist/sourcemapped-stacktrace.js"], function (require, exports, module, sourceMappedStackTrace) {
-    module.main($('#main__body'), sourceMappedStackTrace);
+define(["require", "exports", "localhost/test/main"], function (require, exports, module) {
+    module.main();
 });
 </script>
 </body>

@@ -13,9 +13,9 @@
     "jquery": "^3.4.0"
   },
   "devDependencies": {
-    "@types/jasmine": "^2.8.16",
-    "@types/jquery": "^3.3.29",
-    "jasmine-core": "^2.99.1",
-    "tslib": "^1.9.3"
+    "@types/jasmine": "latest",
+    "@types/jquery": "latest",
+    "jasmine-core": "latest",
+    "tslib": "latest"
   }
 }

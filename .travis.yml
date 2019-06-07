@@ -28,17 +28,6 @@ services:
 env:
   - DISPLAY=:99
 
-# Build lifecycle, see https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle:
-#  1. before_install
-#  2. install
-#  3. before_script
-#  4. script
-#  5. after_success or after_failure
-#  6. OPTIONAL before_deploy
-#  7. OPTIONAL deploy
-#  8. OPTIONAL after_deploy
-#  9. after_script
-
 before_install:
   - "id && pwd && uname -a"
   #- "ip addr show && cat /etc/hosts"
@@ -60,7 +49,7 @@ install:
   - "travis_retry composer selfupdate && composer --version"
   - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
   # Use `--prefer-dist` to download an archive instead of downloading sources.
-  - travis_retry composer install --prefer-dist --no-interaction
+  - travis_retry composer install --no-interaction
 
 before_script:
   - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""

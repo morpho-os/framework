@@ -3,12 +3,17 @@ moduleDirPath := $(baseDirPath)/module
 publicDirPath = $(baseDirPath)/public
 publicModuleDirPath := $(publicDirPath)/module
 
+assets: js css
+
 js:
-	bin/tsc $(publicModuleDirPath)
+	rm -f $(publicModuleDirPath)/**/lib/index.d.ts
+	tsc --build public/tsconfig.json
+	cat $(publicModuleDirPath)/localhost/lib/type.d.ts >> $(publicModuleDirPath)/localhost/lib/index.d.ts
 
 css:
 	# To compress add the `-c` option
-	cd $(publicModuleDirPath)/system/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < index.styl > index.css
+	cd $(publicModuleDirPath)/localhost/rc/css && stylus -I $(publicDirPath)/node_modules/bootstrap-styl --disable-cache < index.styl > index.css
+	cd $(publicModuleDirPath)/localhost/rc/css && stylus --disable-cache < test.styl > test.css
 
 ###############################################################################
 # All tests
@@ -46,13 +51,13 @@ itest-stop-on-error:
 mtest:
 	bin/test module
 
-
 lint:
 	php test/lint.php
 
 clear: clean
 clean:
 	sudo rm -rf module/localhost/log/* module/localhost/cache/* test/Integration/*.log
+	rm -f $(publicModuleDirPath)/**/*.{js,js.map,tsbuildinfo,css} $(publicModuleDirPath)/localhost/lib/index.d.ts
 
 update:
 	composer update
@@ -60,4 +65,4 @@ update:
 	cd public && npm install
 
 .SILENT:
-.PHONY: js css test test-stop-on-error utest utest-stop-on-defect utest-stop-on-error itest itest-stop-on-error mtest lint clear clean update
+.PHONY: assets js css test test-stop-on-error utest utest-stop-on-defect utest-stop-on-error itest itest-stop-on-error mtest lint clear clean update

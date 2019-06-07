@@ -7,13 +7,12 @@
 namespace Morpho\Test\Integration;
 
 use Facebook\WebDriver\WebDriverBy as By;
-use Morpho\Testing\BrowserTestCase;
 
-class AllPagesTests extends BrowserTestCase {
+class AllPagesTest extends TestCase {
     private $homePageTitle = 'Hello World!';
 
     public function testJsTestsPage() {
-        $this->browser()->get($this->uri('system/test?bot'));
+        $this->browser()->get($this->uri('localhost/test?bot'));
         $by = By::id('testing-results');
         $this->browser()->waitUntilElementIsVisible($by);
         $numberOfFailedTests = $this->browser()->findElement($by)->getText();

@@ -6,10 +6,6 @@
  */
 namespace Morpho\Testing;
 
-use Morpho\Network\Http\GeckoDriverDownloader;
-use Morpho\Network\Http\SeleniumServer;
-use Morpho\Network\Http\SeleniumServerDownloader;
-
 abstract class BrowserTestSuite extends TestSuite {
 
 }

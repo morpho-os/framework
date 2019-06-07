@@ -17,7 +17,7 @@
         "module"
     ],
     "require": {
-        "php-64bit": "~7.2",
+        "php-64bit": "~7.3",
         "ext-date": "*",
         "ext-dom": "*",
         "ext-json": "*",
@@ -45,8 +45,14 @@
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master",
-        "facebook/webdriver": "dev-community"
+        "facebook/webdriver": "dev-master"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:morpho-os/php-webdriver.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Morpho\\": "lib/"

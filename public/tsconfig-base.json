@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "inlineSourceMap": true,
+        "jsx": "preserve",
+        "lib": ["es5", "es2015", "dom"],
+        "module": "amd",
+        "moduleResolution": "node",
+        "newLine": "lf",
+        "noEmitHelpers": true,
+        "noEmitOnError": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": false,
+        "preserveConstEnums": true,
+        "removeComments": true,
+        "strict": true,
+        "target": "es2015"
+    },
+    "files": [],
+    "include": []
+}
