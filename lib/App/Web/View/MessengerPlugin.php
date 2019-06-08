@@ -8,7 +8,7 @@ namespace Morpho\App\Web\View;
 
 use Morpho\App\Web\Messages\Messenger;
 use function Morpho\Base\{
-    dasherize, filterStringArgs
+    dasherize, format
 };
 use Morpho\Ioc\{
     IServiceManager, IHasServiceManager
@@ -58,7 +58,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     }
 
     protected function renderMessage(array $message, $type) {
-        $text = filterStringArgs(
+        $text = format(
             \nl2br(Html::encode($message['text'])),
             $message['args'],
             function ($arg) { return $arg; }

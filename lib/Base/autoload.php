@@ -318,7 +318,7 @@ function deleteDups($string, $chars, bool $isCharClass = true) {
     return \preg_replace($regExp, '\1', (string)$string);
 }
 
-function filterStringArgs($string, array $args, callable $filterFn): string {
+function format($string, array $args, callable $filterFn): string {
     $fromToMap = [];
     foreach ($args as $key => $value) {
         $fromToMap['{' . $key . '}'] = $filterFn($value);
