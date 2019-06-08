@@ -9,6 +9,7 @@ js:
 	rm -f $(publicModuleDirPath)/**/lib/index.d.ts
 	tsc --build public/tsconfig.json
 	cat $(publicModuleDirPath)/localhost/lib/type.d.ts >> $(publicModuleDirPath)/localhost/lib/index.d.ts
+	#find $(publicModuleDirPath)/localhost/lib -maxdepth 1 -name '*.js' -and ! -name 'index.js' -delete
 
 css:
 	# To compress add the `-c` option

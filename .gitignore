@@ -23,3 +23,6 @@ selenium.log.*
 geckodriver
 .phpunit.result.cache
 *.tsbuildinfo
+
+/public/module/localhost/lib/*.js
+!/public/module/localhost/lib/index.js
