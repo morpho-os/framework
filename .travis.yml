@@ -48,8 +48,7 @@ install:
 
   - "travis_retry composer selfupdate && composer --version"
   - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
-  # Use `--prefer-dist` to download an archive instead of downloading sources.
-  - travis_retry composer install --no-interaction
+  - travis_retry composer install --no-interaction --ignore-platform-reqs
 
 before_script:
   - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
