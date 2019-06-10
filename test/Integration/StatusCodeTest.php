@@ -7,8 +7,9 @@
 namespace Morpho\Test\Integration;
 
 use Morpho\Network\Http\HttpClient;
+use Morpho\Testing\BrowserTestCase;
 
-class StatusCodeTest extends TestCase {
+class StatusCodeTest extends BrowserTestCase {
     public function dataForResponseCodes() {
         return [
             [

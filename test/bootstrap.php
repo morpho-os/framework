@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test;
 
-use const Morpho\App\{AUTOLOAD_FILE_NAME, MODULE_DIR_NAME, VENDOR_DIR_NAME};
+use const Morpho\App\{AUTOLOAD_FILE_NAME, VENDOR_DIR_NAME};
 use Morpho\Testing\Sut;
 
 \date_default_timezone_set('UTC');
@@ -15,7 +15,7 @@ use Morpho\Testing\Sut;
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
     $classLoader->addPsr4(__NAMESPACE__ . '\\', __DIR__);
 
-    foreach (\glob(Sut::instance()->baseDirPath() . '/' . MODULE_DIR_NAME . '/*') as $path) {
+    foreach (\glob(Sut::instance()['baseModuleDirPath'] . '/*') as $path) {
         if (!\is_dir($path)) {
             continue;
         }

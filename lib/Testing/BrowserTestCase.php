@@ -18,7 +18,14 @@ class BrowserTestCase extends TestCase {
     /**
      * @var \Facebook\WebDriver\Remote\RemoteWebDriver
      */
-    private $browser;
+    protected $browser;
+
+    public function setUp(): void {
+        parent::setUp();
+        $sut = $this->sut();
+        BrowserTestSuite::startSeleniumServerOnce($sut);
+        $this->browser = $this->browser();
+    }
 
     public function tearDown(): void {
         parent::tearDown();
@@ -55,7 +62,7 @@ class BrowserTestCase extends TestCase {
     }
 
     protected function uri(string $relUri = null): string {
-        return $this->sut()->config()['siteUri']
+        return $this->sut()['uri']
             . (null !== $relUri ? '/' . \ltrim($relUri, '/') : '');
     }
 }

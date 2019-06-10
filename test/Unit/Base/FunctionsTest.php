@@ -18,6 +18,7 @@ use function Morpho\Base\{endsWith,
     memoize,
     not,
     op,
+    setProps,
     suffix,
     fromJson,
     partial,
@@ -751,6 +752,40 @@ class FunctionsTest extends TestCase {
         $this->assertFalse(lastPos('f', 'fo', -1));
         $this->assertSame(0, lastPos('fo', 'fo', -1));
         $this->assertSame(2, lastPos('fofo', 'fo', -1));
+    }
+
+    public function testSetProps() {
+        $config = [
+            'privateFoo' => 'abc',
+            'protectedBar' => 'defg',
+            'publicBaz' => 'hig',
+            'notDeclared' => 'some',
+        ];
+        $instance = new class($config) {
+            private $privateFoo;
+            protected $protectedBar;
+            public $publicBaz;
+
+            public $setPropsResult;
+
+            public function __construct(array $config) {
+                $this->setPropsResult = setProps($this, $config);
+            }
+
+            public function protectedBar() {
+                return $this->protectedBar;
+            }
+
+            public function privateFoo() {
+                return $this->privateFoo;
+            }
+        };
+        $this->assertSame($instance, $instance->setPropsResult);
+        $this->assertSame($config['publicBaz'], $instance->publicBaz);
+        $this->assertSame($config['protectedBar'], $instance->protectedBar());
+        $this->assertSame($config['privateFoo'], $instance->privateFoo());
+        $this->assertSame(['__construct', 'protectedBar', 'privateFoo'], \get_class_methods($instance));
+        $this->assertFalse(\property_exists($instance, 'notDeclared'));
     }
 
     private function assertCommon($fn) {

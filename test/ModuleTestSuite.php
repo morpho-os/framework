@@ -12,7 +12,7 @@ use Morpho\Testing\Sut;
 class ModuleTestSuite extends \Morpho\Testing\TestSuite {
     public function testFilePaths(): iterable {
         $sut = Sut::instance();
-        foreach (new \DirectoryIterator($sut->baseModuleDirPath()) as $path) {
+        foreach (new \DirectoryIterator($sut['baseModuleDirPath']) as $path) {
             if ($path->isDot()) {
                 continue;
             }

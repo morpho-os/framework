@@ -7,20 +7,21 @@
 namespace Morpho\Test\Integration;
 
 use Facebook\WebDriver\WebDriverBy as By;
+use Morpho\Testing\BrowserTestCase;
 
-class AllPagesTest extends TestCase {
+class AllPagesTest extends BrowserTestCase {
     private $homePageTitle = 'Hello World!';
 
     public function testJsTestsPage() {
-        $this->browser()->get($this->uri('localhost/test?bot'));
+        $this->browser->get($this->uri('localhost/test?bot'));
         $by = By::id('testing-results');
-        $this->browser()->waitUntilElementIsVisible($by);
-        $numberOfFailedTests = $this->browser()->findElement($by)->getText();
+        $this->browser->waitUntilElementIsVisible($by);
+        $numberOfFailedTests = $this->browser->findElement($by)->getText();
         $this->assertEquals(0, $numberOfFailedTests);
     }
 
     public function testHomePage() {
-        $this->browser()->get($this->uri());
+        $this->browser->get($this->uri());
         $this->checkPageTitle($this->homePageTitle);
     }
 
@@ -32,23 +33,23 @@ class AllPagesTest extends TestCase {
      * @dataProvider dataForCacheAndIndexPages
      */
     public function testCacheAndIndexPages($expectedMessage, $menuItemsText) {
-        $this->browser()->get($this->uri());
+        $this->browser->get($this->uri());
         $this->clickMenuItems($menuItemsText);
         $this->assertStringContainsString(
             $expectedMessage,
-            $this->browser()->findElement(By::cssSelector('#page-messages .alert-success'))->getText()
+            $this->browser->findElement(By::cssSelector('#page-messages .alert-success'))->getText()
         );
         $this->checkPageTitle($this->homePageTitle);
     }
 
     private function checkPageTitle(string $expectedTitle) {
-        $this->browser()->waitUntilTitleIsEqual($expectedTitle);
-        $this->assertSame($expectedTitle, $this->browser()->findElement(By::tagName('h1'))->getText());
+        $this->browser->waitUntilTitleIsEqual($expectedTitle);
+        $this->assertSame($expectedTitle, $this->browser->findElement(By::tagName('h1'))->getText());
     }
 
     private function clickMenuItems(iterable $menuItemsText) {
         foreach ($menuItemsText as $menuItemText) {
-            $this->browser()->findElement(By::xpath("//a[contains(text(), '$menuItemText')]"))->click();
+            $this->browser->findElement(By::xpath("//a[contains(text(), '$menuItemText')]"))->click();
         }
     }
 }

@@ -18,7 +18,7 @@ class Arr {
             }
             return $items;
         }
-        return array_intersect_key($dataSource, array_flip($keys));
+        return \array_intersect_key($dataSource, \array_flip(\array_values($keys)));
     }
 
     public static function requireItems(array $items, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
@@ -115,10 +115,6 @@ class Arr {
      */
     public static function setsEqual(array $a, array $b): bool {
         return \count($a) === \count($b) && \count(\array_diff($a, $b)) === 0;
-    }
-
-    public static function itemsWithKeys(array $arr, array $keys): array {
-        return self::intersect($arr, \array_flip(\array_values($keys)));
     }
 
     public static function flatten(array $arr): array {

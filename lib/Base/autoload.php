@@ -337,7 +337,7 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
 }
 
 function normalizeEols(string $s): string {
-    return str_replace(["\r\n", "\n", "\r"], "\n", (string) $s);
+    return str_replace(["\r\n", "\n", "\r"], "\n", $s);
     /*$res = \preg_replace(EOL_FULL_RE, "\n", $s);
     if (null === $res) {
         throw new RuntimeException("Unable to replace EOLs");
@@ -379,6 +379,22 @@ function startsWith(string $string, string $prefix): bool {
         return true;
     }
     return 0 === \strpos($string, $prefix);
+}
+
+/**
+ * Sets properties of the object $instance using values from $props
+ * @param object $instance
+ * @param iterable $props E.g.: ['myProp1' => 'myVal1', 'myProp2' => 'myVal2'];
+ * @return object
+ */
+function setProps(object $instance, iterable $props): object {
+    $assignProps = function ($props) {
+        foreach (\array_intersect_key($props, \get_object_vars($this)) as $name => $value) {
+            $this->$name = $value;
+        }
+    };
+    $assignProps->call($instance, $props);
+    return $instance;
 }
 
 /**

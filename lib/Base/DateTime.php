@@ -10,7 +10,8 @@ use DateTimeImmutable;
 use DateTimeZone;
 
 class DateTime extends DateTimeImmutable {
-    const DATETIME_FORMAT = 'Y-m-d H:i:s';
+    public const MYSQL_DATETIME = 'Y-m-d H:i:s';
+    public const MYSQL_DATETIME_RE = '~^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2}) (?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})$~s';
 
     /**
      * @param null|string $time
@@ -26,8 +27,8 @@ class DateTime extends DateTimeImmutable {
         parent::__construct($time, $timeZone);
     }
 
-    public static function utcNow(): self {
-        return new static('now', new \DateTimeZone('UTC'));
+    public static function now($timeZone = null): string {
+        return (new static(null, $timeZone))->mySqlDateTime();
     }
 
     public function yearAsInt() {
@@ -125,22 +126,21 @@ class DateTime extends DateTimeImmutable {
         return $lastDays[$month - 1];
     }
 
-    public static function createFromFormat($format, $value, $timeZone = null) {
+    /**
+     * Overridden to return self.
+     * @param string $format
+     * @param string $value
+     * @param null|string|\DateTimeZone $timeZone
+     * @return DateTimeImmutable|false|DateTime
+     */
+    public static function createFromFormat($format, $value, $timeZone = null): self {
         return new static(
-            parent::createFromFormat($format, $value, $timeZone)
-                ->format(self::DATETIME_FORMAT)
+            parent::createFromFormat($format, $value, $timeZone)->format(self::ISO8601)
         );
     }
 
-    public static function now($timeZone = null): string {
-        return (new static(null, $timeZone))->formatDateTime();
-    }
-
-    /**
-     * @return string
-     */
-    public function formatDateTime() {
-        return $this->format(self::DATETIME_FORMAT);
+    public function mySqlDateTime(): string {
+        return $this->format(self::MYSQL_DATETIME);
     }
 
     public function getTimestamp(): int {
@@ -151,12 +151,16 @@ class DateTime extends DateTimeImmutable {
      * @param string|int $value
      * @return bool
      */
-    public static function isTimestamp($value) {
+    public static function isTimestamp($value): bool {
         $value = (string)$value;
         return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
     }
 
-    public static function mkFromTimestamp($timestamp) {
+    public static function mkFromTimestamp($timestamp): self {
         return (new static())->setTimestamp($timestamp);
+    }
+    
+    public function __toString() {
+        return $this->mySqlDateTime();
     }
 }

@@ -10,6 +10,8 @@ use Morpho\Base\DateTime;
 use Morpho\Testing\TestCase;
 
 class DateTimeTest extends TestCase {
+    private const MYSQL_DATETIME_RE = '~^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2}) (?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})$~s';
+
     public function testIsImmutable() {
         $this->assertInstanceOf('\DateTimeImmutable', new DateTime());
     }
@@ -28,9 +30,9 @@ class DateTimeTest extends TestCase {
         $this->assertSame(9, $dateTime->secondAsInt());
     }
 
-    public function testFormatDateTime() {
+    public function testMySqlDateTime() {
         $date = '2042-02-10 12:11:43';
-        $this->assertEquals($date, (new DateTime($date))->formatDateTime());
+        $this->assertEquals($date, (new DateTime($date))->mySqlDateTime());
     }
 
     public function dataForTestIsTimestamp() {
@@ -83,5 +85,15 @@ class DateTimeTest extends TestCase {
         $this->assertEquals(31, DateTime::createFromFormat($format, '2009-08-01')->numberOfDaysInMonth());
         $this->assertEquals(31, DateTime::createFromFormat($format, '2009-08-01')->numberOfDaysInMonth());
         $this->assertEquals(30, DateTime::createFromFormat($format, '2009-09-01')->numberOfDaysInMonth());
+    }
+
+    public function testNow() {
+        $this->assertRegExp(self::MYSQL_DATETIME_RE, DateTime::now());
+    }
+
+    public function testToString() {
+        $dateTime = '2013-12-08 11:02:04';
+        $this->assertSame($dateTime, (new DateTime($dateTime))->__toString());
+        $this->assertRegExp(self::MYSQL_DATETIME_RE, (new DateTime())->__toString());
     }
 }

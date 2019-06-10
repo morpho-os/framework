@@ -8,7 +8,6 @@ namespace Morpho\Test\Integration;
 
 use Morpho\Network\PhpServer;
 use Morpho\Network\TcpAddress;
-use Morpho\Network\Http\SeleniumServer;
 use Morpho\Testing\BrowserTestSuite;
 use Morpho\Testing\Sut;
 
@@ -17,10 +16,6 @@ class TestSuite extends BrowserTestSuite {
      * @var PhpServer
      */
     private static $phpServer;
-    /**
-     * @var SeleniumServer
-     */
-    private static $seleniumServer;
 
     protected $testCase = true; // to enable @before* and @after* annotations.
 
@@ -33,18 +28,18 @@ class TestSuite extends BrowserTestSuite {
      * @after
      */
     public static function beforeAll(): void {
-        $sut = sut::instance();
+        $sut = Sut::instance();
 
-        static::startSeleniumServer($sut);
+        BrowserTestSuite::startSeleniumServer($sut);
 
-        if ($sut->config()['isTravis']) {
+        if ($sut['isTravis']) {
             $sut['phpServer'] = $phpServer = new PhpServer(
-                new TcpAddress($sut->config()['domain'], 7654),
-                $sut->publicDirPath()
+                new TcpAddress($sut['domain'], 7654),
+                $sut['publicDirPath']
             );
             $address = $phpServer->start();
-            $sut->config()['port'] = $address->port();
-            $sut->config()['siteUri'] = 'http://' . $address;
+            $sut['port'] = $address->port();
+            $sut['uri'] = 'http://' . $address;
         }
     }
 
@@ -55,22 +50,7 @@ class TestSuite extends BrowserTestSuite {
         if (self::$phpServer) {
             self::$phpServer->stop();
         }
-        if (self::$seleniumServer) {
-            self::$seleniumServer->stop();
-        }
-    }
 
-    public static function startSeleniumServer($sut = null): SeleniumServer {
-        $seleniumServer = SeleniumServer::mk([
-            'geckoBinFilePath' => __DIR__ . '/geckodriver',
-            'serverJarFilePath' => __DIR__ . '/selenium-server-standalone.jar',
-            'serverVersion' => null,
-            'logFilePath' => __DIR__ . '/selenium.log',
-        ]);
-        $seleniumServer->start();
-        if ($sut) {
-            $sut['seleniumServer'] = $seleniumServer;
-        }
-        return $seleniumServer;
+        BrowserTestSuite::stopSeleniumServer(Sut::instance());
     }
 }
