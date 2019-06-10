@@ -115,8 +115,8 @@ class TemplateEngine extends Pipe {
         if (!$this->cacheDirPath) {
             throw new \RuntimeException("The property '" . \get_class($this) . "::cacheDirPath' is empty");
         }
-        $this->uniqueFileHash = \md5($this->uniqueFileHash . '|' . $filePath);
-        $cacheFilePath = $this->cacheDirPath . '/' . $this->uniqueFileHash . '.php';
+        //$this->uniqueFileHash = \md5($this->uniqueFileHash . '|' . $filePath);
+        $cacheFilePath = $this->cacheDirPath . '/' . md5($filePath) . '.php';
         if (!\is_file($cacheFilePath) || !$this->useCache()) {
             $code = File::read($filePath);
             $context = new \ArrayObject([

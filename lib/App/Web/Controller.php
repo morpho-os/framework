@@ -58,7 +58,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         if (null === $response) {
             $response = $this->request->response();
         }
-        $response['result'] = $actionResult;
+         $response['result'] = $actionResult;
 
         if ($this->parentViewResult) {
             if ($response['result'] instanceof ViewResult) {
@@ -168,5 +168,9 @@ abstract class Controller extends BaseController implements IHasServiceManager {
             $this->request['jsConfig'] = new \ArrayObject();
         }
         return $this->request['jsConfig'];
+    }
+
+    protected function messenger(): Messages\Messenger {
+        return $this->serviceManager['messenger'];
     }
 }

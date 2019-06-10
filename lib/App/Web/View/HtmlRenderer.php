@@ -29,7 +29,7 @@ class HtmlRenderer implements IFn {
         /** @var \Morpho\App\Web\Response $response */
         $response = $request->response();
 
-        // 1. Render view
+        // 1. Render page body.
         $moduleName = $request->moduleName();
         /** @var ViewResult $view */
         $viewResult = $response['result'];
