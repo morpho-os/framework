@@ -4,7 +4,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 import {ErrorMessage, renderMessage} from "./message";
-import {Widget} from "./widget";
+import {Widget, WidgetConfig} from "./widget";
 import {redirectTo} from "./base";
 
 type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
@@ -44,7 +44,22 @@ export function validateEl($el: JQuery, validators?: ElValidator[]): string[] {
     return errors;
 }
 
-export class Form extends Widget {
+export enum FieldType {
+    Button = 'button',
+    Checkbox = 'checkbox',
+    File = 'file',
+    Hidden = 'hidden',
+    Image = 'image',
+    Password = 'password',
+    Radio = "radio",
+    Reset = 'reset',
+    Select = 'select',
+    Submit = 'submit',
+    Textarea = 'textarea',
+    Textfield = 'text'
+}
+
+export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
     public static readonly defaultInvalidCssClass: string = 'invalid';
     public skipValidation!: boolean;
     public elContainerCssClass!: string;
@@ -143,6 +158,55 @@ export class Form extends Widget {
         });
         this.showFormErrors(formErrors);
         this.scrollToFirstError();
+    }
+
+    public static fieldType($field: JQuery): FieldType {
+        const typeAttr = () => {
+            const typeAttr = $field.attr('type');
+            return typeAttr === undefined ? '' : typeAttr.toLowerCase();
+        };
+        let typeAttribute;
+        switch ($field[0].tagName) {
+            case 'INPUT':
+                typeAttribute = typeAttr();
+                switch (typeAttribute) {
+                    case 'text':
+                        return FieldType.Textfield;
+                    case 'radio':
+                        return FieldType.Radio;
+                    case 'submit':
+                        return FieldType.Submit;
+                    case 'button':
+                        return FieldType.Button;
+                    case 'checkbox':
+                        return FieldType.Checkbox;
+                    case 'file':
+                        return FieldType.File;
+                    case 'hidden':
+                        return FieldType.Hidden;
+                    case 'image':
+                        return FieldType.Image;
+                    case 'password':
+                        return FieldType.Password;
+                    case 'reset':
+                        return FieldType.Reset;
+                }
+                break;
+            case 'TEXTAREA':
+                return FieldType.Textarea;
+            case 'SELECT':
+                return FieldType.Select;
+            case 'BUTTON':
+                typeAttribute = typeAttr();
+                if (typeAttribute === '' || typeAttribute === 'submit') {
+                    return FieldType.Submit;
+                }
+                if (typeAttribute === 'button') {
+                    return FieldType.Button;
+                }
+                break;
+        }
+        throw new Error('Unknown field type');
     }
 
     protected showFormErrors(errors: ErrorMessage[]): void {

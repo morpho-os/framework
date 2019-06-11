@@ -96,7 +96,7 @@ declare module "localhost/lib/error" {
 }
 declare module "localhost/lib/form" {
     import { ErrorMessage } from "localhost/lib/message";
-    import { Widget } from "localhost/lib/widget";
+    import { Widget, WidgetConfig } from "localhost/lib/widget";
     type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
     export type ResponseError = ResponseErrorMessage[] | {
         [elName: string]: ResponseErrorMessage[];
@@ -110,7 +110,21 @@ declare module "localhost/lib/form" {
     }
     export function defaultValidators(): ElValidator[];
     export function validateEl($el: JQuery, validators?: ElValidator[]): string[];
-    export class Form extends Widget {
+    export enum FieldType {
+        Button = "button",
+        Checkbox = "checkbox",
+        File = "file",
+        Hidden = "hidden",
+        Image = "image",
+        Password = "password",
+        Radio = "radio",
+        Reset = "reset",
+        Select = "select",
+        Submit = "submit",
+        Textarea = "textarea",
+        Textfield = "text"
+    }
+    export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
         static readonly defaultInvalidCssClass: string;
         skipValidation: boolean;
         elContainerCssClass: string;
@@ -128,6 +142,7 @@ declare module "localhost/lib/form" {
         submit(): void;
         send(): JQueryXHR;
         showErrors(errors: Array<ErrorMessage | [JQuery, ErrorMessage[]]>): void;
+        static fieldType($field: JQuery): FieldType;
         protected showFormErrors(errors: ErrorMessage[]): void;
         protected showElErrors($el: JQuery, errors: ErrorMessage[]): void;
         protected removeElErrors($el: JQuery): void;
