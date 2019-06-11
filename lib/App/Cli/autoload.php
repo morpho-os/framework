@@ -169,6 +169,10 @@ function shell(string $command, array $config = null): ICommandResult {
     return new ShellCommandResult($command, $exitCode, $output, '');
 }
 
+function shellSu(string $command, array $config = null): ICommandResult {
+    return shell('sudo bash -c "' . $command . '"', $config);
+}
+
 /**
  * Taken from https://habr.com/ru/post/135200/
  * @param string $cmd
@@ -186,23 +190,23 @@ function shell1(string $cmd, $env = null) {
     return pcntl_wexitstatus($status);
 }
 
-// @TODO: See \Composer\Util\ProcessExecutor
-function proc(string $command, array $config = null): ICommandResult {
+/**
+ * @param array|string $command
+ * @param array|null $config
+ * @return ICommandResult
+ */
+function proc($command, array $config = null): ICommandResult {
     $config = Config::check([
         'checkCode' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
     ], (array) $config);
-    $process = new Process($command);
+    $process = is_array($command) ? new Process($command) : Process::fromShellCommandline($command);
     $exitCode = $process->run();
     if ($config['checkCode']) {
         checkExitCode($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);
-}
-
-function shellSu(string $command, array $config = null): ICommandResult {
-    return shell('sudo bash -c "' . $command . '"', $config);
 }
 
 function checkExitCode(int $exitCode, string $errMessage = null): int {
