@@ -14,24 +14,24 @@ use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 // SUT/System Under Test
 class Sut extends \ArrayObject {
-    private $domain;
+    use TSingleton;
+
+    protected $domain;
 
     /**
      * @var ?string
      */
-    private $baseDirPath;
+    protected $baseDirPath;
 
     /**
      * @var ?string
      */
-    private $publicDirPath;
+    protected $publicDirPath;
 
     /**
      * @var ?TestConfig
      */
-    private $config;
-
-    use TSingleton;
+    protected $config;
 
     public function offsetGet($name) {
         switch ($name) {
@@ -54,29 +54,29 @@ class Sut extends \ArrayObject {
         }
     }
 
-    private function isTravis(): bool {
+    protected function isTravis(): bool {
         return !empty(\getenv('TRAVIS'));
     }
 
-    private function baseModuleDirPath(): string {
+    protected function baseModuleDirPath(): string {
         return $this->baseDirPath() . '/' . MODULE_DIR_NAME;
     }
 
-    private function baseDirPath(): string {
+    protected function baseDirPath(): string {
         if (null === $this->baseDirPath) {
             $this->baseDirPath = moduleDirPath(__DIR__);
         }
         return $this->baseDirPath;
     }
 
-    private function publicDirPath(): string {
+    protected function publicDirPath(): string {
         if (null === $this->publicDirPath) {
             $this->publicDirPath = $this->baseDirPath() . '/' . PUBLIC_DIR_NAME;
         }
         return $this->publicDirPath;
     }
 
-    private function domain(): string {
+    protected function domain(): string {
         if (null === $this->domain) {
             $domain = \getenv('DOMAIN');
             if (false === $domain) {
@@ -87,11 +87,11 @@ class Sut extends \ArrayObject {
         return $this->domain;
     }
 
-    private function uri(): string {
+    protected function uri(): string {
         return 'http://' . $this->domain();
     }
 
-    private function seleniumDirPath(): string {
+    protected function seleniumDirPath(): string {
         return $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
     }
 }
