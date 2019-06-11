@@ -34,6 +34,9 @@ class Sut extends \ArrayObject {
     protected $config;
 
     public function offsetGet($name) {
+        if (parent::offsetExists($name)) {
+            return parent::offsetGet($name);
+        }
         switch ($name) {
             case 'baseModuleDirPath':
                 return $this->baseModuleDirPath();
