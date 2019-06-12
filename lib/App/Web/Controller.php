@@ -10,10 +10,10 @@ use Morpho\App\IActionResult;
 use Morpho\App\IResponse;
 use Morpho\App\IRequest;
 use Morpho\App\Web\View\ViewResult;
-use function Morpho\Base\dasherize;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Controller as BaseController;
+use function Morpho\Base\dasherize;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
     /**

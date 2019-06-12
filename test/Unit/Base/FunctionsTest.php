@@ -13,6 +13,7 @@ use function Morpho\Base\{endsWith,
     formatFloat,
     hasPrefix,
     hasSuffix,
+    last,
     lastPos,
     lines,
     memoize,
@@ -367,7 +368,10 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('ff', trimMore('__ ff  ', '_'));
     }
 
-    // ------------------------------------------------------------------------
+    public function testLast() {
+        $this->assertSame('foo', last('foo', '/'));
+        $this->assertSame('bar', last('foo/bar', '/'));
+    }
 
     public function testSanitize() {
         $input = "foo[\"1][b'ar]\x00`ls`;&quot;<>";
@@ -759,7 +763,6 @@ class FunctionsTest extends TestCase {
             'privateFoo' => 'abc',
             'protectedBar' => 'defg',
             'publicBaz' => 'hig',
-            'notDeclared' => 'some',
         ];
         $instance = new class($config) {
             private $privateFoo;
@@ -780,11 +783,37 @@ class FunctionsTest extends TestCase {
                 return $this->privateFoo;
             }
         };
+
+
         $this->assertSame($instance, $instance->setPropsResult);
         $this->assertSame($config['publicBaz'], $instance->publicBaz);
         $this->assertSame($config['protectedBar'], $instance->protectedBar());
         $this->assertSame($config['privateFoo'], $instance->privateFoo());
         $this->assertSame(['__construct', 'protectedBar', 'privateFoo'], \get_class_methods($instance));
+    }
+
+    public function testSetProps_NotDeclaredProperty() {
+        $instance = new class {
+            private $privateFoo;
+            protected $protectedBar;
+            public $publicBaz;
+
+            public function setProps($config) {
+                setProps($this, $config);
+            }
+        };
+        $config = [
+            'privateFoo' => 'abc',
+            'protectedBar' => 'defg',
+            'publicBaz' => 'hig',
+            'notDeclared' => 'some',
+        ];
+        try {
+            $instance->setProps($config);
+            $this->fail();
+        } catch (\UnexpectedValueException $e) {
+            $this->assertStringContainsString("Unknown property 'notDeclared'", $e->getMessage());
+        }
         $this->assertFalse(\property_exists($instance, 'notDeclared'));
     }
 

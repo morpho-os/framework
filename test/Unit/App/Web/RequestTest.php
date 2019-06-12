@@ -6,7 +6,6 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\App\Web\BadRequestException;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
@@ -68,7 +67,7 @@ class RequestTest extends TestCase {
             "SCRIPT_NAME" => "/test.php",
             "CONTENT_LENGTH" => "4521",
             "CONTENT_TYPE"   => "",
-            "REQUEST_METHOD" => "POST",
+            "REQUEST_METHOD" => \Zend\Http\Request::METHOD_POST,
             "CONTENT_MD5" => "Q2hlY2sgSW50ZWdyaXR5IQ==",
         ];
         $expectedHeaders = [
@@ -143,7 +142,7 @@ class RequestTest extends TestCase {
      */
     public function testIsHttpMethod($httpMethod) {
         $_SERVER['REQUEST_METHOD'] = 'unknown';
-        if ($httpMethod === Request::GET_METHOD) {
+        if ($httpMethod === \Zend\Http\Request::METHOD_GET) {
             $this->assertTrue($this->request->isGetMethod());
         } else {
             $this->assertFalse($this->request->{'is' . $httpMethod . 'Method'}());
@@ -185,14 +184,8 @@ class RequestTest extends TestCase {
     }
 
     public function dataForGetArgs() {
-        return [
-            [
-                'GET',
-            ],
-            [
-                'POST',
-            ],
-        ];
+        yield [\Zend\Http\Request::METHOD_GET];
+        yield [\Zend\Http\Request::METHOD_POST];
     }
 
     /**
@@ -271,7 +264,7 @@ class RequestTest extends TestCase {
     
     public function testMappingPostToPatch() {
         $data = ['foo' => 'bar', 'baz' => 'abc'];
-        $_POST = \array_merge($data, ['_method' => Request::PATCH_METHOD]);
+        $_POST = \array_merge($data, ['_method' => \Zend\Http\Request::METHOD_PATCH]);
         $request = $this->mkRequest();
         $this->assertTrue($request->isPatchMethod());
         $this->assertSame($data, $request->patch());
@@ -295,7 +288,7 @@ class RequestTest extends TestCase {
      */
     public function testMethod_OverwritingHttpMethod_ThroughMethodArg($httpMethod) {
         $_GET['_method'] = $httpMethod;
-        $this->checkHttpMethod(['REQUEST_METHOD' => 'POST'], $httpMethod);
+        $this->checkHttpMethod(['REQUEST_METHOD' => \Zend\Http\Request::METHOD_POST], $httpMethod);
     }
 
     /**
@@ -303,7 +296,7 @@ class RequestTest extends TestCase {
      */
     public function testMethod_OverwritingHttpMethod_ThroughHeader($httpMethod) {
         $this->checkHttpMethod([
-            'REQUEST_METHOD' => 'POST',
+            'REQUEST_METHOD' => \Zend\Http\Request::METHOD_POST,
             'HTTP_X_HTTP_METHOD_OVERRIDE' => $httpMethod,
         ], $httpMethod);
     }

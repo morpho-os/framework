@@ -6,12 +6,20 @@
  */
 namespace Morpho\App;
 
+use function Morpho\Base\dasherize;
+use function Morpho\Base\last;
+
 class Module extends \ArrayObject {
     protected $name;
 
     public function __construct(string $moduleName, $meta) {
         $this->name = $moduleName;
         parent::__construct($meta);
+    }
+
+    public static function filterShortModuleName(string $moduleName): string {
+        $shortModuleName = last($moduleName, '/');
+        return dasherize($shortModuleName, true, true);
     }
 
     public function name(): string {

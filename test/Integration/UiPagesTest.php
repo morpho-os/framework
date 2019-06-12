@@ -9,7 +9,7 @@ namespace Morpho\Test\Integration;
 use Facebook\WebDriver\WebDriverBy as By;
 use Morpho\Testing\BrowserTestCase;
 
-class AllPagesTest extends BrowserTestCase {
+class UiPagesTest extends BrowserTestCase {
     private $homePageTitle = 'Hello World!';
 
     public function testJsTestsPage() {

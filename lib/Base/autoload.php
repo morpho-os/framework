@@ -129,7 +129,7 @@ function uniqueName(): string {
  * @param bool $allowDots
  * @return string
  */
-function dasherize($string, bool $trim = true, bool $allowDots = false) {
+function dasherize(string $string, bool $trim = true, bool $allowDots = false) {
     $string = sanitize($string, '-_ ' . ($allowDots ? '.' : ''), false);
     $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
@@ -389,7 +389,11 @@ function startsWith(string $string, string $prefix): bool {
  */
 function setProps(object $instance, iterable $props): object {
     $assignProps = function ($props) {
-        foreach (\array_intersect_key($props, \get_object_vars($this)) as $name => $value) {
+        $knownProps = \array_fill_keys(array_keys(\get_object_vars($this)), true);
+        foreach ($props as $name => $value) {
+            if (!isset($knownProps[$name])) {
+                throw new \UnexpectedValueException("Unknown property '$name'");
+            }
             $this->$name = $value;
         }
     };

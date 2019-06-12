@@ -9,7 +9,7 @@ namespace Morpho\Test\Integration;
 use Morpho\Network\Http\HttpClient;
 use Morpho\Testing\BrowserTestCase;
 
-class StatusCodeTest extends BrowserTestCase {
+class ErrorPagesTest extends BrowserTestCase {
     public function dataForResponseCodes() {
         return [
             [
@@ -51,9 +51,9 @@ class StatusCodeTest extends BrowserTestCase {
      */
     public function testResponseCodes($relUri, $expectedCode, ?string $expectedTitle, ?string $expectedText) {
         $uri = $this->uri($relUri);
-        $response = (new HttpClient())
-            ->setMaxNumberOfRedirects(0)
-            ->get($uri);
+        $client = new HttpClient();
+        $client->setMaxNumberOfRedirects(0);
+        $response = $client->get($uri);
         $this->assertEquals($expectedCode, $response->statusCode(), 'URI: ' . $uri . "\n, Response: " . \substr($response->body(), 0, 1000));
 
         if (null !== $expectedTitle || null !== $expectedText) {

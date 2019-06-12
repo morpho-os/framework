@@ -4,7 +4,7 @@ namespace Morpho\Site\Localhost\App\Web;
 use Morpho\App\Web\Controller;
 
 /**
- * @noAutoRoutes
+ * @noRoutes
  */
 class ErrorController extends Controller {
     public function badRequestAction() {
@@ -23,7 +23,7 @@ class ErrorController extends Controller {
         $this->request->response()->setStatusCode(500);
     }
 
-    public function methodNotAllowed() {
+    public function methodNotAllowedAction() {
         $this->request->response()->setStatusCode(405);
     }
 }

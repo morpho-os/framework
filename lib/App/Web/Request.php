@@ -21,17 +21,6 @@ use Morpho\App\Web\Uri\Uri;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest {
-    // See https://tools.ietf.org/html/rfc7231#section-4, https://tools.ietf.org/html/rfc5789
-    //public const CONNECT_METHOD = 'CONNECT';
-    public const DELETE_METHOD = 'DELETE';
-    public const GET_METHOD = 'GET';
-    //public const HEAD_METHOD = 'HEAD';
-    //public const OPTIONS_METHOD = 'OPTIONS';
-    public const PATCH_METHOD = 'PATCH';
-    public const POST_METHOD = 'POST';
-    //public const PUT_METHOD = 'PUT';
-    //public const TRACE_METHOD = 'TRACE';
-
     /**
      * @var \ArrayObject
      */
@@ -66,12 +55,12 @@ class Request extends BaseRequest {
         /*
         self::CONNECT_METHOD,
         */
-        self::DELETE_METHOD,
-        self::GET_METHOD,
+        \Zend\Http\Request::METHOD_DELETE,
+        \Zend\Http\Request::METHOD_GET,
         //self::HEAD_METHOD,
         //self::OPTIONS_METHOD,
-        self::POST_METHOD,
-        self::PATCH_METHOD,
+        \Zend\Http\Request::METHOD_POST,
+        \Zend\Http\Request::METHOD_PATCH,
         //self::PUT_METHOD,
         //self::TRACE_METHOD,
     ];
@@ -86,7 +75,7 @@ class Request extends BaseRequest {
         parent::__construct(null !== $params ? $params : []);
         $this->serverVars = $serverVars;
         $method = $this->detectOriginalMethod();
-        $this->originalMethod = null !== $method ? $method : self::GET_METHOD;
+        $this->originalMethod = null !== $method ? $method : \Zend\Http\Request::METHOD_GET;
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
     }
 
@@ -107,11 +96,11 @@ class Request extends BaseRequest {
     public function args($names = null, bool $trim = true) {
         $method = $this->method();
         switch ($method) {
-            case self::GET_METHOD:
+            case \Zend\Http\Request::METHOD_GET:
                 return $this->query($names, $trim);
-            case self::POST_METHOD:
+            case \Zend\Http\Request::METHOD_POST:
                 return $this->post($names, $trim);
-            case self::PATCH_METHOD:
+            case \Zend\Http\Request::METHOD_PATCH:
                 return $this->patch($names, $trim);
             default:
                 throw new BadRequestException();
@@ -146,7 +135,7 @@ class Request extends BaseRequest {
      * @return mixed @TODO Specify concrete types.
      */
     public function patch($name = null, bool $trim = true) {
-        if ($this->overwrittenMethod === self::PATCH_METHOD) {
+        if ($this->overwrittenMethod === \Zend\Http\Request::METHOD_PATCH) {
             return $this->post($name, $trim);
         }
         // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
@@ -243,11 +232,11 @@ class Request extends BaseRequest {
     }*/
 
     public function isDeleteMethod(): bool {
-        return $this->method() === self::DELETE_METHOD;
+        return $this->method() === \Zend\Http\Request::METHOD_DELETE;
     }
 
     public function isGetMethod(): bool {
-        return $this->method() === self::GET_METHOD;
+        return $this->method() === \Zend\Http\Request::METHOD_GET;
     }
 
 /*    public function isHeadMethod(): bool {
@@ -259,11 +248,11 @@ class Request extends BaseRequest {
     }*/
 
     public function isPatchMethod(): bool {
-        return $this->method() === self::PATCH_METHOD;
+        return $this->method() === \Zend\Http\Request::METHOD_PATCH;
     }
 
     public function isPostMethod(): bool {
-        return $this->method() === self::POST_METHOD;
+        return $this->method() === \Zend\Http\Request::METHOD_POST;
     }
 
 /*    public function isPutMethod(): bool {

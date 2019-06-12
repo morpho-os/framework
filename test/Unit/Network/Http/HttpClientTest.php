@@ -7,6 +7,7 @@
 namespace Morpho\Test\Unit\Network\Http;
 
 use InvalidArgumentException;
+use Morpho\Network\Http\HttpResponse;
 use Morpho\Testing\TestCase;
 use Morpho\Network\Http\HttpClient;
 
@@ -15,7 +16,8 @@ class HttpClientTest extends TestCase {
         $client = new HttpClient();
         $this->assertEquals(5, $client->maxNumberOfRedirects());
         $n = 0;
-        $this->assertSame($client, $client->setMaxNumberOfRedirects($n));
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertVoid($client->setMaxNumberOfRedirects($n));
         $this->assertEquals($n, $client->maxNumberOfRedirects());
     }
 
@@ -23,5 +25,17 @@ class HttpClientTest extends TestCase {
         $client = new HttpClient();
         $this->expectException(InvalidArgumentException::class, "The value must be >= 0");
         $client->setMaxNumberOfRedirects(-1);
+    }
+
+    public function testClientSendsPostIfNoDataSpecified() {
+        $client = new class extends HttpClient {
+            public $request;
+            public function send(\Zend\Http\Request $request): HttpResponse {
+                $this->request = $request;
+                return new HttpResponse(new \Zend\Http\Response());
+            }
+        };
+        $client->post('http://localhost');
+        $this->assertSame(\Zend\Http\Request::METHOD_POST, $client->request->getMethod());
     }
 }

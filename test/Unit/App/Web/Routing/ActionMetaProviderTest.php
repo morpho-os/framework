@@ -43,6 +43,18 @@ class ActionMetaProviderTest extends TestCase {
                 'module' => 'sunny/day',
                 'filePath' => $testDirPath . '/My3Controller.php',
             ];
+            yield [
+                'module' => 'one/more',
+                'filePath' => $testDirPath . '/BaseController.php',
+            ];
+            yield [
+                'module' => 'one/more',
+                'filePath' => $testDirPath . '/NotClassController.php',
+            ];
+            yield [
+                'module' => 'one/more',
+                'filePath' => $testDirPath . '/NotClass1Controller.php',
+            ];
         })();
         $expected = [
             // SecondParentController.php
@@ -172,12 +184,12 @@ class ActionMetaProviderTest extends TestCase {
         );
     }
 
-    public function testAnnotations_NoAutoRoutesAnnotation() {
+    public function testAnnotations_NoRoutesAnnotation() {
         $controllerDirPath = $this->getTestDirPath();
         $controllerFileMetas = [
             [
                 'module' => 'test/annotations',
-                'filePath' => $controllerDirPath . '/NoAutoRoutesController.php',
+                'filePath' => $controllerDirPath . '/NoRoutesController.php',
            ]
         ];
         $actionMetaProvider = new ActionMetaProvider();

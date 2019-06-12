@@ -128,7 +128,7 @@ abstract class TestCase extends BaseTestCase {
         $this->assertNull($value);
     }
 
-    protected function normalizeHtml(string $html) {
+    protected function normalizeHtml(string $html): string {
         return \preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], \trim($html));
     }
 

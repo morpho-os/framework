@@ -101,7 +101,7 @@ class FastRouter implements IHasServiceManager, IRouter {
         if ($uri === '/') {
             $routerConfig = $this->config();
             $request->setHandler($routerConfig['handlers']['home']);
-            $request->setMethod(Request::GET_METHOD);
+            $request->setMethod(\Zend\Http\Request::METHOD_GET);
             return true;
         }
         return false;

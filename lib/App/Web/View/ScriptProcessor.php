@@ -6,10 +6,10 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\App\Module;
 use Morpho\Fs\Path;
 use Morpho\Ioc\IServiceManager;
 use function Morpho\Base\dasherize;
-use function Morpho\Base\last;
 use const Morpho\App\APP_DIR_NAME;
 use const Morpho\App\MODULE_DIR_NAME;
 
@@ -113,11 +113,8 @@ class ScriptProcessor extends HtmlProcessor {
         $serviceManager = $this->serviceManager;
         $siteModuleName = $serviceManager['site']->moduleName();
         $publicDirPath = $serviceManager['moduleIndex']->module($siteModuleName)->publicDirPath();
-        $sanitize = function (string $val): string {
-            return dasherize($val, true, true);
-        };
         // @TODO: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
-        $jsModuleId = $sanitize(last($module, '/')) . '/' . APP_DIR_NAME . '/' . $sanitize($controller) . '/' . $sanitize($action);
+        $jsModuleId = Module::filterShortModuleName($module) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
         $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';
         $jsFilePath = $publicDirPath . '/' . $relJsFilePath;
         $inline = $included = [];

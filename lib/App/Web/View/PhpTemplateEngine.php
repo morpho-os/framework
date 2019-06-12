@@ -6,9 +6,8 @@
  */
 namespace Morpho\App\Web\View;
 
-use function Morpho\Base\{
-    dasherize, last, toJson
-};
+use function Morpho\Base\dasherize;
+use function Morpho\Base\toJson;
 use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\IHasServiceManager;
 use function Morpho\App\Web\prependBasePath;
@@ -56,9 +55,7 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
     public function pageCssId(): string {
-        return dasherize(last($this->moduleName(), '/'))
-            . '-' . dasherize($this->controllerName())
-            . '-' . dasherize($this->actionName());
+        return dasherize($this->controllerName()) . '-' . dasherize($this->actionName());
     }
 
     public function handler(): callable {

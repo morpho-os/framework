@@ -18,17 +18,12 @@ class CacheController extends Controller {
                 return $path !== $cacheDirPath . '/.gitignore';
             }
         });
-        // @TODO: CSRF
         return $this->mkRedirectResult($this->query('redirect') ?: '/')
             ->withSuccessMessage("The cache has been cleared successfully");
     }
 
-    /**
-     * @Title Rebuild routes
-     */
-    public function rebuildRoutesAction() {
+    public function clearRoutesAction() {
         $this->serviceManager['router']->rebuildRoutes();
-        // @TODO: CSRF
         return $this->mkRedirectResult($this->query('redirect') ?: '/')
             ->withSuccessMessage("Routes have been rebuilt successfully");
     }

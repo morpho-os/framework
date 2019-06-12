@@ -6,10 +6,10 @@
  */
 namespace Morpho\App\Web\View;
 
-use function Morpho\Base\dasherize;
 use Morpho\Base\IFn;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Web\Request;
+use function Morpho\Base\dasherize;
 
 class HtmlRenderer implements IFn {
     protected $serviceManager;

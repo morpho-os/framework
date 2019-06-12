@@ -32,6 +32,7 @@ class HttpClient {
         if (null !== $data) {
             $request->setQuery(new Parameters((array) $data));
         }
+        $request->setMethod(\Zend\Http\Request::METHOD_GET);
         $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
         $res = $this->client->send($request);
         return new HttpResponse($res);
@@ -48,16 +49,16 @@ class HttpClient {
         if (null !== $data) {
             $request->setPost(new Parameters((array) $data));
         }
+        $request->setMethod(\Zend\Http\Request::METHOD_POST);
         $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
-        return new HttpResponse($this->client->send($request));
+        return $this->send($request);
     }
 
-    public function setMaxNumberOfRedirects(int $n): self {
+    public function setMaxNumberOfRedirects(int $n): void {
         if ($n < 0) {
             throw new \InvalidArgumentException("The value must be >= 0");
         }
         $this->maxNumberOfRedirects = $n;
-        return $this;
     }
 
     public function maxNumberOfRedirects(): int {
@@ -77,5 +78,9 @@ class HttpClient {
         // @TODO: use curl, wget or fetch, see the `man parallel`
         shell('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destPath;
+    }
+
+    protected function send(\Zend\Http\Request $request): HttpResponse {
+        return new HttpResponse($this->client->send($request));
     }
 }

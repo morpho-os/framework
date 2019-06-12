@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
-
 namespace Morpho\Test\Unit\App\Web\Routing\ActionMetaProviderTest;
 
 use Morpho\App\Web\Controller;
 
 /**
- * @noAutoRoutes
+ * @noRoutes
  */
-class NoAutoRoutesController extends Controller {
+class NoRoutesController extends Controller {
     public function doSomethingAction() {
 
     }

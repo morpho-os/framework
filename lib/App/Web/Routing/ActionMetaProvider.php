@@ -39,9 +39,6 @@ class ActionMetaProvider implements IFn {
                 continue;
             }
             $class = $rClass->getName();
-            if (!endsWith($class, CONTROLLER_SUFFIX)) {
-                continue;
-            }
             $controllerMeta = [
                 'filePath' => $controllerFileMeta['filePath'],
                 'module' => $controllerFileMeta['module'],
@@ -53,8 +50,14 @@ class ActionMetaProvider implements IFn {
     }
 
     private function shouldBeSkipped(ClassTypeReflection $rClass): bool {
+        if ($rClass->isAbstract()) {
+            return true;
+        }
+        if (!endsWith($rClass->getName(), CONTROLLER_SUFFIX)) {
+            return true;
+        }
         $docComments = $rClass->getDocComment();
-        return false !== $docComments && (bool) preg_match('~\s*@noAutoRoutes\s*~si', $docComments);
+        return false !== $docComments && (bool) preg_match('~\s*@noRoutes\s*~si', $docComments);
     }
 
     private function actionMeta(array $controllerMeta): array {
