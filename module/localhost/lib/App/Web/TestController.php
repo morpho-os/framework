@@ -5,35 +5,8 @@ use Morpho\App\Web\Controller;
 
 class TestController extends Controller {
     public function indexAction() {
-
-
-/*        $page = $this->mkViewResult('test');
-        $page->setDirPath(dasherize($this->request->controllerName()));
-        return $this->mkViewResult(null, null, $page);*/
-
         $this->setParentViewResult('test/test');
     }
-
-/*    public function nullActionResultAction() {
-        d('test');
-        throw new NotImplementedException();
-    }*/
-
-/*    public function responseActionResultAction() {
-        throw new NotImplementedException();
-    }
-
-    public function jsonActionResultAction() {
-        throw new NotImplementedException();
-    }
-
-    public function xmlActionResultAction() {
-        throw new NotImplementedException();
-    }
-
-    public function viewActionResultAction() {
-        throw new NotImplementedException();
-    }*/
 
     public function status400Action() {
         return $this->mkBadRequestResult();
@@ -45,6 +18,10 @@ class TestController extends Controller {
 
     public function status404Action() {
         return $this->mkNotFoundResult();
+    }
+
+    public function status405Action() {
+        // For testing clients should send: POST $prefix/test/status405
     }
 
     public function status500Action() {

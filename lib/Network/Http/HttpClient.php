@@ -7,8 +7,9 @@
 namespace Morpho\Network\Http;
 
 use function Morpho\App\Cli\shell;
-use Zend\Http\Client;
+use Zend\Http\Client as HttpClientInternal;
 use Zend\Stdlib\Parameters;
+use Zend\Http\Request as RequestInternal;
 
 class HttpClient {
     private $client;
@@ -18,40 +19,38 @@ class HttpClient {
     private $maxNumberOfRedirects = 5;
 
     public function __construct() {
-        $this->client = new Client();
+        $this->client = new HttpClientInternal();
     }
 
-    public function get($uri, array $data = null, $headers = null): HttpResponse {
-        if ($uri !== null) {
-            $this->client->setUri($uri);
-        }
+    public function send(string $httpMethod, string $uri, array $data = null, $headers = null): HttpResponse {
         $request = $this->client->getRequest();
+        if (null !== $data) {
+            switch ($httpMethod) {
+                case RequestInternal::METHOD_GET:
+                    $request->setQuery(new Parameters((array) $data));
+                    break;
+                case RequestInternal::METHOD_POST:
+                    $request->setPost(new Parameters((array) $data));
+                    break;
+                default:
+                    throw new \UnexpectedValueException();
+            }
+        }
+        $this->client->setUri($uri);
+        $request->setMethod($httpMethod);
         if (null !== $headers) {
             $request->getHeaders()->addHeaders($headers);
         }
-        if (null !== $data) {
-            $request->setQuery(new Parameters((array) $data));
-        }
-        $request->setMethod(\Zend\Http\Request::METHOD_GET);
         $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
-        $res = $this->client->send($request);
-        return new HttpResponse($res);
+        return $this->doSend($request);
     }
 
-    public function post($uri, array $data = null, $headers = null): HttpResponse {
-        if ($uri !== null) {
-            $this->client->setUri($uri);
-        }
-        $request = $this->client->getRequest();
-        if (null !== $headers) {
-            $request->getHeaders()->addHeaders($headers);
-        }
-        if (null !== $data) {
-            $request->setPost(new Parameters((array) $data));
-        }
-        $request->setMethod(\Zend\Http\Request::METHOD_POST);
-        $this->client->setOptions(['maxredirects' => $this->maxNumberOfRedirects]);
-        return $this->send($request);
+    public function get(string $uri, array $data = null, $headers = null): HttpResponse {
+        return $this->send(RequestInternal::METHOD_GET, $uri, $data, $headers);
+    }
+
+    public function post(string $uri, array $data = null, $headers = null): HttpResponse {
+        return $this->send(RequestInternal::METHOD_POST, $uri, $data, $headers);
     }
 
     public function setMaxNumberOfRedirects(int $n): void {
@@ -79,8 +78,8 @@ class HttpClient {
         shell('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destPath;
     }
-
-    protected function send(\Zend\Http\Request $request): HttpResponse {
+    
+    protected function doSend(RequestInternal $request): HttpResponse {
         return new HttpResponse($this->client->send($request));
     }
 }

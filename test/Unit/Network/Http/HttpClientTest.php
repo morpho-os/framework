@@ -27,10 +27,13 @@ class HttpClientTest extends TestCase {
         $client->setMaxNumberOfRedirects(-1);
     }
 
-    public function testClientSendsPostIfNoDataSpecified() {
+    public function testUsesPostHttpMethodIfNoDataProvided() {
         $client = new class extends HttpClient {
+            /**
+             * @var \Zend\Http\Request
+             */
             public $request;
-            public function send(\Zend\Http\Request $request): HttpResponse {
+            public function doSend(\Zend\Http\Request $request): HttpResponse {
                 $this->request = $request;
                 return new HttpResponse(new \Zend\Http\Response());
             }
