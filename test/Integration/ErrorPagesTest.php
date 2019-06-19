@@ -84,8 +84,8 @@ class ErrorPagesTest extends BrowserTestCase {
         yield ['bad-request'];
         yield ['forbidden'];
         yield ['not-found'];
-        yield ['uncaught'];
         yield ['method-not-allowed'];
+        yield ['uncaught'];
     }
 
     /**

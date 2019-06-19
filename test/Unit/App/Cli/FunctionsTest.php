@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidConfigException;
 use function Morpho\App\Cli\{
-    argsToStr, envVarsToStr, shell, escapeArgs, proc, showOk, stylize
+    argsStr, envVarsStr, shell, escapeArgs, proc, showOk, stylize
 };
 use Morpho\App\Cli\ProcCommandResult;
 use Morpho\Testing\TestCase;
@@ -71,14 +71,17 @@ OUT
         );
     }
 
-    public function testArgsToStr() {
-        $this->assertEquals(" 'foo'", argsToStr('foo'));
-        $this->assertEquals(" 'foo' 'bar'", argsToStr(['foo', 'bar']));
+    public function testArgsStr() {
+        $this->assertSame(" '1'", argsStr(1));
+        $this->assertSame('', argsStr([]));
+        $this->assertEquals(" 'foo'", argsStr('foo'));
+        $this->assertEquals(" 'foo' 'bar'", argsStr(['foo', 'bar']));
         $gen = function () {
             yield 'foo';
             yield 'bar';
         };
-        $this->assertEquals(" 'foo' 'bar'", argsToStr($gen()));
+        $this->assertEquals(" 'foo' 'bar'", argsStr($gen()));
+        $this->assertSame(" 'foo' 'bar'", argsStr(new \ArrayObject(['foo', 'bar'])));
     }
 
     public function testShell_ThrowsExceptionOnInvalidConfigParam() {
@@ -125,14 +128,14 @@ OUT
         $this->assertSame($val . "\n", shell('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true, 'show' => false])->stdOut());
     }
 
-    public function testEnvVarsToStr() {
-        $this->assertSame("PATH='foo' TEST='foo'\''bar'", envVarsToStr(['PATH' => 'foo', 'TEST' => "foo'bar"]));
-        $this->assertSame('', envVarsToStr([]));
+    public function testEnvVarsStr() {
+        $this->assertSame("PATH='foo' TEST='foo'\''bar'", envVarsStr(['PATH' => 'foo', 'TEST' => "foo'bar"]));
+        $this->assertSame('', envVarsStr([]));
     }
 
-    public function testEnvVarsToStr_ThrowsExceptionForInvalidVarName() {
+    public function testEnvVarsStr_ThrowsExceptionForInvalidVarName() {
         $this->expectException(\RuntimeException::class, 'Invalid variable name');
-        envVarsToStr(['&']);
+        envVarsStr(['&']);
     }
 
     public function testPipe() {

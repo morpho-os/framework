@@ -15,7 +15,7 @@ class Pipe extends \ArrayObject implements IFn {
         foreach ($this as $phase) {
             $value = $this->runPhase($phase, $value);
         }
-        return $value;
+    return $value;
     }
 
     public function append($value): self {

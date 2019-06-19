@@ -659,6 +659,27 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
     throw new NotImplementedException();
 }
 
+/**
+ * Makes passed object true iterable so that foreach loop would work.
+ * @param \IteratorAggregate|\iterable|\Closure If \Closure then must return \Generator
+ * @return iterable
+ */
+function it($it): iterable {
+    if ($it instanceof \IteratorAggregate) {
+        return $it->getIterator();
+    }
+    if (\is_iterable($it)) {
+        return $it;
+    }
+    if ($it instanceof \Closure) {
+        $gen = $it();
+        if ($gen instanceof \Generator) {
+            return $gen;
+        }
+    }
+    throw new \UnexpectedValueException();
+}
+
 // ----------------------------------------------------------------------------
 // Iterables
 // Code below based on the https://github.com/nikic/iter (Copyright (c) 2013 by Nikita Popov)

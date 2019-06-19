@@ -10,7 +10,7 @@ use OutOfBoundsException;
 use RuntimeException;
 
 class Arr {
-    public static function onlyItems(array $dataSource, array $keys, $createMissingItems = true): array {
+    public static function only(array $dataSource, array $keys, $createMissingItems = true): array {
         if ($createMissingItems) {
             $items = [];
             foreach ($keys as $key) {
@@ -21,7 +21,7 @@ class Arr {
         return \array_intersect_key($dataSource, \array_flip(\array_values($keys)));
     }
 
-    public static function requireItems(array $items, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
+    public static function require(array $items, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
         $requiredItems = [];
         foreach ($requiredKeys as $key) {
             if (!isset($items[$key]) && !array_key_exists($key, $items)) {

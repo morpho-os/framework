@@ -133,6 +133,13 @@ class FileTest extends TestCase {
         File::copy($sourceFilePath, $this->tmpDirPath());
     }
 
+    public function testCopy_FileToDir() {
+        $tmpFilePath = $this->createTmpFile();
+        $tmpDirPath = $this->createTmpDir();
+        File::copy($tmpFilePath, $tmpDirPath);
+        $this->assertTrue(is_file($tmpDirPath . '/' . basename($tmpFilePath)));
+    }
+
     public function testWrite() {
         $tmpDirPath = $this->createTmpDir();
         $filePath = $tmpDirPath . '/foo.txt';
@@ -296,9 +303,9 @@ OUT
 
     public function testReadLines_ThrowsExceptionIfBothLastArgumentsAreArrays() {
         $this->expectException(\InvalidArgumentException::class);
-        foreach (File::readLines(__FILE__, [], []) as $line);
+        $gen = File::readLines(__FILE__, [], []);
+        $gen->rewind();
     }
-
 
     public function testReadLines_DoesNotSkipEmptyLinesIfFilterProvided() {
         $tmpFilePath = $this->createTmpFile();
@@ -318,5 +325,15 @@ OUT
             '',
         ];
         $this->assertEquals($expected, \iterator_to_array(File::readLines($tmpFilePath, function () { return true; }), false));
+    }
+
+    public function testChange() {
+        $tmpFilePath = $this->createTmpFile();
+        \file_put_contents($tmpFilePath, 'Foo');
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertVoid(File::change($tmpFilePath, function ($contents) {
+            return str_replace('Foo', 'Bar', $contents);
+        }));
+        $this->assertSame('Bar', \file_get_contents($tmpFilePath));
     }
 }

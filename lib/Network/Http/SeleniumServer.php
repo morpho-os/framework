@@ -28,7 +28,7 @@ class SeleniumServer implements IServer {
 
     public static function mk(array $config): SeleniumServer {
         $port = $config['port'] ?? self::PORT;
-        $config = Arr::requireItems($config, ['geckoBinFilePath', 'serverVersion', 'serverJarFilePath', 'logFilePath']);
+        $config = Arr::require($config, ['geckoBinFilePath', 'serverVersion', 'serverJarFilePath', 'logFilePath']);
         $geckoBinFilePath = $config['geckoBinFilePath'];
         $geckoBinFilePath = (new GeckoDriverDownloader())($geckoBinFilePath);
         $serverJarFilePath = SeleniumServerDownloader::download($config['serverVersion'] ?? SeleniumServerDownloader::latestVersion(), $config['serverJarFilePath']);

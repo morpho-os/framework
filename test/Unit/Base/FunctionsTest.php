@@ -13,6 +13,7 @@ use function Morpho\Base\{endsWith,
     formatFloat,
     hasPrefix,
     hasSuffix,
+    it,
     last,
     lastPos,
     lines,
@@ -815,6 +816,66 @@ class FunctionsTest extends TestCase {
             $this->assertStringContainsString("Unknown property 'notDeclared'", $e->getMessage());
         }
         $this->assertFalse(\property_exists($instance, 'notDeclared'));
+    }
+
+    public function dataForIt_ValidCases() {
+        $it = new \ArrayIterator(['foo', 'bar']);
+        $itAggr = new class($it) implements \IteratorAggregate {
+            public $it;
+
+            public function __construct($it) {
+                $this->it = $it;
+            }
+
+            public function getIterator() {
+                return $this->it;
+            }
+        };
+        yield [
+            $itAggr->it,
+            $itAggr
+        ];
+        yield [
+            function ($actual) {
+                $this->assertInstanceOf(\Generator::class, $actual);
+            },
+            function () {
+                yield 'foo';
+                yield 'bar';
+            }
+        ];
+        yield [
+            ['foo', 'bar'],
+            ['foo', 'bar'],
+        ];
+        yield [
+            $it,
+            $it,
+        ];
+    }
+
+    /**
+     * @dataProvider dataForIt_ValidCases
+     */
+    public function testIt_ValidCases($expected, $it) {
+        if ($expected instanceof \Closure) {
+            $expected(it($it));
+        } else {
+            $this->assertSame($expected, it($it));
+        }
+    }
+
+    public function dataForIt_InvalidCases() {
+        yield ['foo'];
+        yield [function () {}];
+    }
+
+    /**
+     * @dataProvider dataForIt_InvalidCases
+     */
+    public function testIt_InvalidCases($it) {
+        $this->expectException(\UnexpectedValueException::class);
+        it($it);
     }
 
     private function assertCommon($fn) {

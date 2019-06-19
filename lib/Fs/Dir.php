@@ -465,6 +465,10 @@ class Dir extends Entry {
                 continue;
             }
             $entryPath = $entry->getPathname();
+            if (\is_link($entryPath)) {
+                @\unlink($entryPath);
+                continue;
+            }
             if ($entry->isDir()) {
                 if (null !== $predicate) {
                     if ($predicate($entryPath, true)) {

@@ -86,7 +86,17 @@ function stylize(string $text, $codes): string {
         . $colorOff;
 }
 
-function escapeArgs(iterable $args): array {
+/**
+ * @param int|string|iterable $args
+ * @return array
+ */
+function escapeArgs($args): array {
+    if (!is_iterable($args)) {
+        if (\is_string($args) || \is_int($args)) {
+            return [\escapeshellarg((string) $args)];
+        }
+        throw new \UnexpectedValueException();
+    }
     $res = [];
     foreach ($args as $arg) {
         $res[] = \escapeshellarg($arg);
@@ -94,21 +104,16 @@ function escapeArgs(iterable $args): array {
     return $res;
 }
 
-function argsToStr($args): string {
-    if (!\is_array($args)) {
-        if (!$args instanceof \Traversable) {
-            $args = (array)$args;
-        }
-    } else {
-        if (!\count($args)) {
-            return '';
-        }
-    }
+/**
+ * @param int|string|iterable $args
+ * @return string
+ */
+function argsStr($args): string {
     $suffix = \implode(' ', escapeArgs($args));
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
-function envVarsToStr(array $envVars): string {
+function envVarsStr(array $envVars): string {
     if (!\count($envVars)) {
         return '';
     }
@@ -120,6 +125,22 @@ function envVarsToStr(array $envVars): string {
         $str .= ' ' . $name . '=' . \escapeshellarg($value);
     }
     return \substr($str, 1);
+}
+
+function mkdir(string $args, array $config = null): ICommandResult {
+    return shell('mkdir -p ' . $args);
+}
+
+function mv(string $args, array $config = null): ICommandResult {
+    return shell('mv ' . $args, $config);
+}
+
+function cp($args, array $config = null): ICommandResult {
+    return shell('cp -r ' . $args, $config);
+}
+
+function rm(string $args, array $config = null): ICommandResult {
+    return shell('rm -rf ' . $args, $config);
 }
 
 function shell(string $command, array $config = null): ICommandResult {
@@ -138,7 +159,7 @@ function shell(string $command, array $config = null): ICommandResult {
     $output = '';
     $exitCode = 1;
     if ($config['envVars']) {
-        $command = envVarsToStr($config['envVars']) . ';' . $command;
+        $command = envVarsStr($config['envVars']) . ';' . $command;
     }
 
     if ($config['capture']) {
@@ -177,17 +198,17 @@ function shellSu(string $command, array $config = null): ICommandResult {
  * Taken from https://habr.com/ru/post/135200/
  * @param string $cmd
  */
-function shell1(string $cmd, $env = null) {
-    $pid = pcntl_fork();
+function rawShell(string $cmd, $env = null) {
+    $pid = \pcntl_fork();
     if ($pid < 0) {
         throw new \RuntimeException('fork failed');
     }
     if ($pid == 0) {
-        pcntl_exec('/bin/sh', ['-c', $cmd], $env ?? []); // @TODO: pass $_ENV?
+        \pcntl_exec('/bin/sh', ['-c', $cmd], $env ?? []); // @TODO: pass $_ENV?
         exit(127);
     }
-    pcntl_waitpid($pid, $status);
-    return pcntl_wexitstatus($status);
+    \pcntl_waitpid($pid, $status);
+    return \pcntl_wexitstatus($status);
 }
 
 /**

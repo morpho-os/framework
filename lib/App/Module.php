@@ -17,7 +17,7 @@ class Module extends \ArrayObject {
         parent::__construct($meta);
     }
 
-    public static function filterShortModuleName(string $moduleName): string {
+    public static function filteredShortModuleName(string $moduleName): string {
         $shortModuleName = last($moduleName, '/');
         return dasherize($shortModuleName, true, true);
     }

@@ -305,6 +305,16 @@ class File extends Entry {
         return $res;
     }
 
+    /**
+     * @param string $filePath
+     * @param callable $fn (string $contents): string
+     */
+    public static function change(string $filePath, callable $fn): void {
+        $contents = file_get_contents($filePath);
+        $newContents = $fn($contents);
+        file_put_contents($filePath, $newContents);
+    }
+
     private static function filePutContentsConfigToFlags(array $config): int {
         $config = Config::check(
             [

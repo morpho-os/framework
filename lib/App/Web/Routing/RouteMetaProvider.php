@@ -66,7 +66,7 @@ class RouteMetaProvider implements IFn {
         $action = $actionMeta['action'];
         $title = null;
 
-        $uri = '/' . Module::filterShortModuleName($actionMeta['module']) . '/' . dasherize($actionMeta['controller']);
+        $uri = '/' . Module::filteredShortModuleName($actionMeta['module']) . '/' . dasherize($actionMeta['controller']);
         if (isset($this->restActions[$action])) {
             $uri .= \rtrim('/' . $this->restActions[$action][1], '/');
             $httpMethod = $this->restActions[$action][0];
