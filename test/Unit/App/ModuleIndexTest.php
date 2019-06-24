@@ -41,9 +41,9 @@ class ModuleIndexTest extends TestCase {
 
     public function testModule_ThrowsExceptionForNonExistentModule() {
         $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
-        $this->expectException(\RuntimeException::class, "Unable to get meta for the module 'galaxy/invalid'");
-
-        $moduleIndex->module('galaxy/invalid');
+        $moduleName = 'galaxy/foo';
+        $this->expectException(\RuntimeException::class, "The module '$moduleName' was not found in index");
+        $moduleIndex->module($moduleName);
     }
     
     public function testIter() {

@@ -80,6 +80,11 @@ class UriTest extends TestCase {
         $this->checkAccessors([new Uri(), 'fragment'], null, 'toc');
         $this->checkAccessors([new Uri(), 'fragment'], null, null);
     }
+
+    public function testParse_UriInstance() {
+        $uri = new Uri();
+        $this->assertSame($uri, Uri::parse($uri));
+    }
     
     public function dataForToStr() {
         foreach ($this->dataForParse() as $sample) {

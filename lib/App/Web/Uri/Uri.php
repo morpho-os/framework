@@ -137,7 +137,14 @@ class Uri {
         return $this->fragment;
     }
 
-    public static function parse(string $uri): self {
+    /**
+     * @param string|Uri $uri
+     * @return Uri
+     */
+    public static function parse($uri): self {
+        if ($uri instanceof self) {
+            return $uri;
+        }
         return (new UriParser())->__invoke($uri);
     }
 

@@ -31,7 +31,7 @@ class ModuleIndex implements \IteratorAggregate {
     public function module(string $moduleName): Module {
         $this->init();
         if (!isset($this->index[$moduleName])) {
-            throw new \RuntimeException("Unable to get meta for the module '$moduleName'");
+            throw new \RuntimeException("The module '$moduleName' was not found in index");
         }
         if (isset($this->loaded[$moduleName])) {
             return $this->loaded[$moduleName];

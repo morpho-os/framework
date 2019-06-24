@@ -42,14 +42,14 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
      * @return array|false
      */
     protected function initialSiteConfig(string $hostName) {
-        $resolvingResult = $this->resolveHost($hostName);
-        if (false !== $resolvingResult) {
+        $result = $this->hostNameToSiteModule($hostName);
+        if (false !== $result) {
             return [
-                'siteModule' => $resolvingResult['moduleName'],
+                'siteModule' => $result['moduleName'],
                 'path'       => [
-                    'dirPath'        => $resolvingResult['moduleDirPath'],
-                    'publicDirPath'  => $resolvingResult['publicDirPath'],
-                    'configFilePath' => $resolvingResult['configFilePath'],
+                    'dirPath'        => $result['moduleDirPath'],
+                    'publicDirPath'  => $result['publicDirPath'],
+                    'configFilePath' => $result['configFilePath'],
                 ],
             ];
         }
@@ -60,7 +60,7 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
      * @param string $hostName
      * @return array|false
      */
-    protected function resolveHost(string $hostName) {
+    protected function hostNameToSiteModule(string $hostName) {
         $allowedHostNames = ['localhost', 'framework', '127.0.0.1'];
         if (in_array($hostName, $allowedHostNames, true)) {
             $baseDirPath = $this->serviceManager['app']->config()['baseDirPath'];

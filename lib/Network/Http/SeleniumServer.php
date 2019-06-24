@@ -85,12 +85,14 @@ class SeleniumServer implements IServer {
             if (!\is_file($serverJarFilePath)) {
                 throw new FileNotFoundException($serverJarFilePath);
             }
-            $trustStoreFilePath = $serverJarFilePath . '.' . uniqid('cacerts');
+            $trustStoreFilePath = /*$keyStoreFilePath =*/ $serverJarFilePath . '.' . uniqid('cacerts');
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
             $cmd = 'java'
+                . ' -Djavax.net.ssl.trustStoreType=jks'
                 . ' -Djavax.net.ssl.trustStore=' . \escapeshellarg($trustStoreFilePath) // To fix Facebook\WebDriver\Exception\UnknownServerException caused by invalid `cacerts` file
+                //. ' -Djavax.net.ssl.keyStore=' . \escapeshellarg($keyStoreFilePath)
                 . ' -Dwebdriver.gecko.driver=' . \escapeshellarg($geckoBinFilePath)
-                //. ($marionette ? '' : ' -Dwebdriver.firefox.marionette=false')
+                //. ' -Dwebdriver.firefox.marionette=true'
                 . ' -jar ' . \escapeshellarg($serverJarFilePath)
                 . ($this->logFilePath ? ' -log ' . \escapeshellarg($this->logFilePath()) : '')
                 . ' &> /dev/null &';

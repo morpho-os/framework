@@ -149,13 +149,17 @@ function shell(string $command, array $config = null): ICommandResult {
             $config['show'] = !$config['capture'];
         }
     }*/
+    $showSet = isset($config['show']);
     $config = Config::check([
         'checkCode' => true,
         // @TODO: tee: buffer and display output
-        'capture' => false,
         'show' => true,
+        'capture' => false,
         'envVars' => null,
     ], (array) $config);
+    if (!$showSet && $config['capture']) {
+        $config['show'] = false;
+    }
     $output = '';
     $exitCode = 1;
     if ($config['envVars']) {

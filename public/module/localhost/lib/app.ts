@@ -1,4 +1,4 @@
-import {PageMessenger } from "./message";
+import {PageMessenger} from "./message";
 
 export class App {
     public context: Record<string, any> = {};

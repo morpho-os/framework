@@ -152,7 +152,7 @@ class SiteFactoryTest extends TestCase {
                 $this->config = $config;
             }
 
-            protected function resolveHost(string $hostName) {
+            protected function hostNameToSiteModule(string $hostName) {
                 if (!in_array($hostName, ['foo.bar.com', 'some-name'], true)) {
                     return false;
                 }
