@@ -30,7 +30,7 @@ class FormPersister extends HtmlProcessor {
                 $tag['action'] = $request->path();
             } else {
                 */
-            $tag['action'] = $request->uri()->toStr(false);
+            $tag['action'] = $request->uri()->toStr(null, false);
         }
         return $tag;
     }

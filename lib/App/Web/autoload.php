@@ -30,7 +30,7 @@ function prependBasePath($provideBasePath, $uri): Uri {
     if ($uri->authority()->isNull() && $uri->scheme() === '') {
         $path = $uri->path();
         if (!$path->isRel()) {
-            $uriStr = Path::combine($provideBasePath(), $uri->toStr(false));
+            $uriStr = Path::combine($provideBasePath(), $uri->toStr(null, false));
             return new Uri($uriStr);
         }
     }

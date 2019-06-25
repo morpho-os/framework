@@ -6,6 +6,8 @@
  */
 namespace Morpho\App\Web\Uri;
 
+use Morpho\Base\Config;
+use function Morpho\Base\all;
 use function Morpho\Base\lastPos;
 use function Morpho\Base\startsWith;
 
@@ -110,7 +112,6 @@ class Uri {
         }
         return $this->path;
     }
-
 
     /**
      * @param Query|string $query
@@ -226,29 +227,78 @@ class Uri {
         return $targetUri;
     }
 
-    public function toStr(bool $encode): string {
+    public function toStr(?array $parts, bool $encode): string {
+        if (null !== $parts) {
+            $config = \array_fill_keys($parts, true);
+            $config = Config::check([
+                'scheme' => false,
+                'authority' => false,
+                'path' => false,
+                'query' => false,
+                'fragment' => false,
+            ], $config);
+        } else {
+            $config = [
+                'scheme' => true,
+                'authority' => true,
+                'path' => true,
+                'query' => true,
+                'fragment' => true,
+            ];
+        }
+
         $uriStr = '';
 
-        $scheme = $this->scheme();
-        if ($scheme !== '') {
-            $uriStr .= ($encode ? \rawurlencode($scheme) : $scheme) . ':';
+        $shouldReturnOnly = function (string $partName) use ($config) {
+            $val = $config[$partName];
+            unset($config[$partName]);
+            return $val && all(function ($val) {
+                return !$val;
+            }, $config);
+        };
+
+        if ($config['scheme']) {
+            $scheme = $this->scheme();
+            if ($scheme !== '') {
+                if ($shouldReturnOnly('scheme')) {
+                    return $encode ? \rawurlencode($scheme) : $scheme;
+                }
+                $uriStr .= ($encode ? \rawurlencode($scheme) : $scheme) . ':';
+            }
         }
 
-        $authority = $this->authority();
-        if (!$authority->isNull()) {
-            $uriStr .= '//' . $authority->toStr($encode);
+        if ($config['authority']) {
+            $authority = $this->authority();
+            if (!$authority->isNull()) {
+                if ($shouldReturnOnly('authority')) {
+                    return $authority->toStr($encode);
+                }
+                $uriStr .= '//' . $authority->toStr($encode);
+            }
         }
 
-        $uriStr .= $this->path()->toStr($encode);
-
-        $query = $this->query();
-        if (!$query->isNull()) {
-            $uriStr .= '?' . $query->toStr($encode);
+        if ($config['path']) {
+            $uriStr .= $this->path()->toStr($encode);
         }
 
-        $fragment = $this->fragment();
-        if (null !== $fragment) {
-            $uriStr .= '#' . ($encode ? \rawurlencode($fragment) : $fragment);
+        if ($config['query']) {
+            $query = $this->query();
+            if (!$query->isNull()) {
+                if ($shouldReturnOnly('query')) {
+                    return $query->toStr($encode);
+                }
+                $uriStr .= '?' . $query->toStr($encode);
+            }
+        }
+
+        if ($config['fragment']) {
+            $fragment = $this->fragment();
+            if (null !== $fragment) {
+                if ($shouldReturnOnly('fragment')) {
+                    return $encode ? \rawurlencode($fragment) : $fragment;
+                }
+                $uriStr .= '#' . ($encode ? \rawurlencode($fragment) : $fragment);
+            }
         }
 
         return $uriStr;

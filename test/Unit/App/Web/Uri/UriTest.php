@@ -29,8 +29,43 @@ class UriTest extends TestCase {
                 . '?'
                 . \rawurlencode('один') . '=' . \rawurlencode('единица') . '&' . \rawurlencode('два') . '=' . \rawurlencode('двойка')
                 . '#' . \rawurlencode('фрагмент'),
-            (new Uri($uriStr))->toStr(true)
+            (new Uri($uriStr))->toStr(null, true)
         );
+    }
+
+    public function testToStr_ConfigForParts() {
+        $scheme = 'http';
+        $authority = 'example.com';
+        $path = '/foo/bar';
+        $query = 'one=1&two=2';
+        $fragment = 'toc';
+        $uriStr = $scheme . '://' . $authority . $path . '?' . $query . '#' . $fragment;
+        $uri = new Uri($uriStr);
+
+        // Scheme
+        $this->assertSame($scheme, $uri->toStr(['scheme'], false));
+
+        // Authority
+        $this->assertSame($authority, $uri->toStr(['authority'], false));
+        $this->assertSame($scheme . '://' . $authority, $uri->toStr(['scheme', 'authority'], false));
+
+        // Path
+        $this->assertSame($path, $uri->toStr(['path'], false));
+        $this->assertSame($scheme . '://' . $authority . $path, $uri->toStr(['scheme', 'authority', 'path'], false));
+        $this->assertSame('//' . $authority . $path, $uri->toStr(['authority', 'path'], false));
+
+        // Query
+        $this->assertSame($query, $uri->toStr(['query'], false));
+        $this->assertSame($path . '?' . $query, $uri->toStr(['path', 'query'], false));
+        $this->assertSame('//' . $authority . $path . '?' . $query, $uri->toStr(['authority', 'path', 'query'], false));
+        $this->assertSame($scheme . '://' . $authority . $path . '?' . $query, $uri->toStr(['scheme', 'authority', 'path', 'query'], false));
+        $this->assertSame('//' . $authority . '?' . $query, $uri->toStr(['authority', 'query'], false));
+
+        // Fragment
+        $this->assertSame($fragment, $uri->toStr(['fragment'], false));
+        $this->assertSame('?' . $query . '#' . $fragment, $uri->toStr(['query', 'fragment'], false));
+        $this->assertSame($path . '?' . $query . '#' . $fragment, $uri->toStr(['path', 'query', 'fragment'], false));
+        $this->assertSame($path . '#' . $fragment, $uri->toStr(['path', 'fragment'], false));
     }
 
     public function testSchemeAccessors() {
@@ -46,7 +81,7 @@ class UriTest extends TestCase {
         $this->assertTrue($authority->isNull());
 
         $newAuthority = new Authority('example.com');
-        $this->assertNull($uri->setAuthority($newAuthority));
+        $this->assertVoid($uri->setAuthority($newAuthority));
         $this->assertSame($newAuthority, $uri->authority());
     }
 
@@ -56,11 +91,11 @@ class UriTest extends TestCase {
         $this->assertEquals(new Path(''), $uri->path());
 
         $path = '/foo/bar';
-        $this->assertNull($uri->setPath($path));
+        $this->assertVoid($uri->setPath($path));
         $this->assertEquals(new Path($path), $uri->path());
 
         $path = new Path($path);
-        $this->assertNull($uri->setPath($path));
+        $this->assertVoid($uri->setPath($path));
         $this->assertSame($path, $uri->path());
     }
 
@@ -97,7 +132,7 @@ class UriTest extends TestCase {
      */
     public function testToStr(string $uriStr) {
         $uri = new Uri($uriStr);
-        $this->assertSame($uriStr, $uri->toStr(false));
+        $this->assertSame($uriStr, $uri->toStr(null, false));
     }
     
     public function dataForResolveRelUri_NormalExamples() {
@@ -133,7 +168,7 @@ class UriTest extends TestCase {
      */
     public function testResolveRelUri_NormalExamples($relUri, $expected) {
         $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);
-        $this->assertSame($expected, $uri->toStr(false));
+        $this->assertSame($expected, $uri->toStr(null, false));
     }
     
     public function dataForResolveRelUri_AbnormalExamples() {
@@ -163,6 +198,6 @@ class UriTest extends TestCase {
      */
     public function testResolveRelUri_AbnormalExamples($relUri, $expected) {
         $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);
-        $this->assertSame($expected, $uri->toStr(false));
+        $this->assertSame($expected, $uri->toStr(null, false));
     }
 }

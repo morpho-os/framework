@@ -9,10 +9,8 @@ namespace Morpho\App\Web;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\trimMore;
 use Morpho\App\IResponse;
-use Morpho\Fs\Path;
 use Morpho\App\Request as BaseRequest;
-use Morpho\App\Web\Uri\Authority;
-use Morpho\App\Web\Uri\Uri;
+use Morpho\App\Web\Uri;
 
 /**
  * Some methods in this class based on \Zend\Http\PhpEnvironment\Request class.
@@ -201,14 +199,14 @@ class Request extends BaseRequest {
         return $headers->offsetExists('X-Requested-With') && $headers->offsetGet('X-Requested-With') === 'XMLHttpRequest';
     }
 
-    public function uri(): Uri {
+    public function uri(): Uri\Uri {
         if (null === $this->uri) {
             $this->initUri();
         }
         return $this->uri;
     }
 
-    public function setUri(Uri $uri): void {
+    public function setUri(Uri\Uri $uri): void {
         $this->uri = $uri;
     }
 
@@ -340,11 +338,11 @@ class Request extends BaseRequest {
     }
 
     protected function initUri(): void {
-        $uri = new Uri();
+        $uri = new Uri\Uri();
 
         $uri->setScheme($this->isSecure() ? 'https' : 'http');
 
-        $authority = new Authority();
+        $authority = new Uri\Authority();
         [$host, $port] = $this->detectHostAndPort();
         if ($host) {
             $authority->setHost($host);
@@ -354,10 +352,12 @@ class Request extends BaseRequest {
         }
         $uri->setAuthority($authority);
 
-        $requestUri = $this->detectRequestUri();
-        $uri->setPath($requestUri);
+        $detectedPath = Uri\Path::normalize($this->detectPath());
 
-        $uri->path()->setBasePath($this->detectBasePath($requestUri));
+        $basePath = $this->detectBasePath($detectedPath);
+        $path = new Uri\Path($detectedPath);
+        $path->setBasePath($basePath);
+        $uri->setPath($path);
 
         $queryStr = $this->serverVar('QUERY_STRING');
         if ($queryStr !== '') {
@@ -418,7 +418,7 @@ class Request extends BaseRequest {
         return [$host, $port];
     }
 
-    protected function detectRequestUri(): string {
+    protected function detectPath(): string {
         $requestUri = $this->serverVar('REQUEST_URI');
 
         $normalizeUri = function ($requestUri) {
@@ -470,7 +470,7 @@ class Request extends BaseRequest {
         if ('' === $scriptName) {
             return '/';
         }
-        $basePath = \ltrim(Path::normalize(\dirname($scriptName)), '/');
+        $basePath = \ltrim(Uri\Path::normalize(\dirname($scriptName)), '/');
 /*        if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();
         }*/

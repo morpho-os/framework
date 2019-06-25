@@ -9,6 +9,7 @@ namespace Morpho\App\Web\Routing;
 use FastRoute\Dispatcher as IDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
+use Morpho\App\Web\Uri;
 use function Morpho\Base\compose;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteParser\Std as StdRouteParser;
@@ -16,7 +17,6 @@ use Morpho\App\IRouter;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\File;
-use Morpho\Fs\Path;
 use Morpho\App\Web\Request;
 
 class FastRouter implements IHasServiceManager, IRouter {
@@ -25,23 +25,22 @@ class FastRouter implements IHasServiceManager, IRouter {
      */
     protected $serviceManager;
 
+    protected $homePath = '/';
+
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }
 
     public function route($request): void {
         /** @var Request $request */
-        $uri = Path::normalize($request->uri()->path()->toStr(false));
-        if ($uri === '') {
-            $uri = '/';
-        }
+        $uri = $request->uri();
 
-        if ($this->handleHomeUri($request, $uri)) {
+        if ($this->handleHome($request, $uri)) {
             return;
         }
 
         $routeInfo = $this->dispatcher()
-            ->dispatch($request->method(), $uri);
+            ->dispatch($request->method(), $uri->path()->toStr(false));
         switch ($routeInfo[0]) {
             case -1:
                 $handler = $this->config()['handlers']['badRequest'];
@@ -97,8 +96,8 @@ class FastRouter implements IHasServiceManager, IRouter {
         return new GroupCountBasedDispatcher($dispatchData);
     }
 
-    protected function handleHomeUri(Request $request, $uri): bool {
-        if ($uri === '/') {
+    protected function handleHome(Request $request, Uri\Uri $uri): bool {
+        if ($uri->path()->toStr(false) === $this->homePath) {
             $routerConfig = $this->config();
             $request->setHandler($routerConfig['handlers']['home']);
             $request->setMethod(\Zend\Http\Request::METHOD_GET);

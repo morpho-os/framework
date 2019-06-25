@@ -55,6 +55,6 @@ class FunctionsTest extends TestCase {
         $uri = prependBasePath(function () use ($basePath) {
             return $basePath;
         }, $uriStr);
-        $this->assertSame($expected, $uri->toStr(false));
+        $this->assertSame($expected, $uri->toStr(null, false));
     }
 }

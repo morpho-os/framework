@@ -24,6 +24,7 @@ class Config extends \ArrayObject implements IConfig {
     }
 
     /**
+     * Merges $defaultConfig and $config, throws InvalidConfigException if $config contains any keys not present in $defaultConfig
      * @param array $defaultConfig
      * @param array|null $config
      * @return array

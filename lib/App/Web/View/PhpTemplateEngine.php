@@ -107,8 +107,8 @@ class PhpTemplateEngine extends TemplateEngine {
         $newUri = prependBasePath(function () {
             return $this->uri()->path()->basePath();
         }, $uri);
-        $newUri->query()['redirect'] = $this->uri()->toStr(false);
-        return $newUri->toStr(true);
+        $newUri->query()['redirect'] = $this->uri()->toStr(null, false);
+        return $newUri->toStr(null, true);
     }
 
     /**
@@ -116,7 +116,7 @@ class PhpTemplateEngine extends TemplateEngine {
      */
     public function link($uri, string $text, array $attributes = null, array $config = null): string {
         $attributes = (array) $attributes;
-        $attributes['href'] = prependBasePath(function () { return $this->uri()->path()->basePath(); }, $uri)->toStr(false);
+        $attributes['href'] = prependBasePath(function () { return $this->uri()->path()->basePath(); }, $uri)->toStr(null, false);
         return Html::tag('a', $attributes, $text, $config);
     }
 
