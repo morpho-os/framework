@@ -35,11 +35,14 @@ class PhpTemplateEngine extends TemplateEngine {
 
     private const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
 
-    private $phases = [];
+    /**
+     * @var callable[]
+     */
+    private $tasks;
 
     public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
-        $this->phases = [
+        $this->tasks = [
             new FormPersister($serviceManager),
             new UriProcessor($serviceManager),
             new ScriptProcessor($serviceManager),
@@ -145,8 +148,8 @@ class PhpTemplateEngine extends TemplateEngine {
             new Processor(),
             function ($context) {
                 $code = $context['code'];
-                foreach ($this->phases as $phase) {
-                    $code = $phase($code);
+                foreach ($this->tasks as $task) {
+                    $code = $task($code);
                 }
                 $context['code'] = $code;
                 return $context;

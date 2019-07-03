@@ -50,7 +50,6 @@ class ModuleIterator implements \IteratorAggregate {
         foreach ($module['autoload']['psr-4'] ?? [] as $key => $value) {
             $namespaces[\trim($key, '\\/')] = \trim($value, '\\/');
         }
-
         $moduleName = $module['name'];
         return [
             'name' => $moduleName,

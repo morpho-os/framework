@@ -105,7 +105,7 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
 
     private function errorHandlers() {
         $handlers = HandlerManager::handlersOfType(HandlerManager::ERROR);
-        if (isset($handlers[0][0]) && \is_string($handlers[0][0]) && 0 === \strpos($handlers[0][0], 'PHPUnit\\')) {
+        if (isset($handlers[0]) && $handlers[0] instanceof \PHPUnit\Util\ErrorHandler) {
             \array_shift($handlers);
         }
         return $handlers;

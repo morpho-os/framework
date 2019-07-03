@@ -12,10 +12,10 @@ namespace Morpho\Base;
  */
 class Pipe extends \ArrayObject implements IFn {
     public function __invoke($value) {
-        foreach ($this as $phase) {
-            $value = $this->runPhase($phase, $value);
+        foreach ($this as $task) {
+            $value = $this->runTask($task, $value);
         }
-    return $value;
+        return $value;
     }
 
     public function append($value): self {
@@ -23,7 +23,7 @@ class Pipe extends \ArrayObject implements IFn {
         return $this;
     }
 
-    protected function runPhase(callable $phase, $value) {
-        return $phase($value);
+    protected function runTask(callable $task, $value) {
+        return $task($value);
     }
 }

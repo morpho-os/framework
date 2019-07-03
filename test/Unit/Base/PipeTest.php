@@ -33,7 +33,7 @@ class PipeTest extends TestCase {
         $this->assertEquals(['foo', 'bar'], \iterator_to_array($pipe));
     }
 
-    public function testClosureAndIFnAsPhases() {
+    public function testClosureAndIFnAsTasks() {
         $val = null;
         $closure = function ($v) use (&$val)  {
             $val = $v;

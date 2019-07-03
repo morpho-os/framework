@@ -6,11 +6,10 @@
  */
 namespace Morpho\App\Web\Routing;
 
+use function Morpho\Base\compose;
 use FastRoute\Dispatcher as IDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
-use Morpho\App\Web\Uri;
-use function Morpho\Base\compose;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\App\IRouter;
@@ -31,16 +30,16 @@ class FastRouter implements IHasServiceManager, IRouter {
         $this->serviceManager = $serviceManager;
     }
 
+    /**
+     * @param Request $request
+     */
     public function route($request): void {
-        /** @var Request $request */
-        $uri = $request->uri();
-
-        if ($this->handleHome($request, $uri)) {
+        if ($this->handleHome($request)) {
             return;
         }
 
         $routeInfo = $this->dispatcher()
-            ->dispatch($request->method(), $uri->path()->toStr(false));
+            ->dispatch($request->method(), $request->uri()->path()->toStr(false));
         switch ($routeInfo[0]) {
             case -1:
                 $handler = $this->config()['handlers']['badRequest'];
@@ -96,7 +95,8 @@ class FastRouter implements IHasServiceManager, IRouter {
         return new GroupCountBasedDispatcher($dispatchData);
     }
 
-    protected function handleHome(Request $request, Uri\Uri $uri): bool {
+    protected function handleHome(Request $request): bool {
+        $uri = $request->uri();
         if ($uri->path()->toStr(false) === $this->homePath) {
             $routerConfig = $this->config();
             $request->setHandler($routerConfig['handlers']['home']);

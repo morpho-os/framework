@@ -58,7 +58,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         if (null === $response) {
             $response = $this->request->response();
         }
-         $response['result'] = $actionResult;
+        $response['result'] = $actionResult;
 
         if ($this->parentViewResult) {
             if ($response['result'] instanceof ViewResult) {
