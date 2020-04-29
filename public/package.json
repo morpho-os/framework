@@ -10,7 +10,7 @@
   "dependencies": {
     "bootstrap-styl": "^5.0.4",
     "imd": "github:morpho-os/imd",
-    "jquery": "^3.4.0"
+    "jquery": "^3.5.0"
   },
   "devDependencies": {
     "@types/jasmine": "latest",
