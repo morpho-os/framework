@@ -68,7 +68,7 @@ class FileTest extends TestCase {
 
         File::delete($targetFilePath);
 
-        $this->assertFileNotExists($targetFilePath);
+        $this->assertFileDoesNotExist($targetFilePath);
     }
 
     public function testDeleteNonExistentFileThrowsException() {
@@ -78,7 +78,7 @@ class FileTest extends TestCase {
 
     public function testTruncate() {
         $filePath = $this->createTmpDir() . '/' . \basename(\md5(__METHOD__));
-        $this->assertFileNotExists($filePath);
+        $this->assertFileDoesNotExist($filePath);
         $someString = '123';
         \file_put_contents($filePath, $someString);
         $this->assertEquals($someString, \file_get_contents($filePath));
@@ -89,11 +89,11 @@ class FileTest extends TestCase {
 
     public function testMove_ToNonExistentDirAndFile() {
         $sourceFilePath = $this->createTmpDir() . '/' . \basename(\md5(__METHOD__));
-        $this->assertFileNotExists($sourceFilePath);
+        $this->assertFileDoesNotExist($sourceFilePath);
         \copy(__FILE__, $sourceFilePath);
         $this->assertFileExists($sourceFilePath);
         $targetFilePath = $this->createTmpDir() . '/some/new/name.php';
-        $this->assertFileNotExists($targetFilePath);
+        $this->assertFileDoesNotExist($targetFilePath);
 
         $this->assertEquals($targetFilePath, File::move($sourceFilePath, $targetFilePath));
 
@@ -119,7 +119,7 @@ class FileTest extends TestCase {
     public function testCopy() {
         $tmpDirPath = $this->createTmpDir();
         $outFilePath = $tmpDirPath . '/foo/bar/baz/' . \basename(__FILE__);
-        $this->assertFileNotExists($outFilePath);
+        $this->assertFileDoesNotExist($outFilePath);
 
         $this->assertEquals($outFilePath, File::copy(__FILE__, $outFilePath));
 
@@ -236,7 +236,7 @@ class FileTest extends TestCase {
             return 'ok';
         }));
         $this->assertNotEmpty($usedFilePath);
-        $this->assertFileNotExists($usedFilePath);
+        $this->assertFileDoesNotExist($usedFilePath);
     }
 
     public function testUsingTmp_NonDefaultTmpDir() {
@@ -247,7 +247,7 @@ class FileTest extends TestCase {
             return 'ok';
         }, $tmpDirPath));
         $this->assertStringContainsString(__FUNCTION__, $usedFilePath);
-        $this->assertFileNotExists($usedFilePath);
+        $this->assertFileDoesNotExist($usedFilePath);
     }
 
     public function testWriteLines_Generator() {

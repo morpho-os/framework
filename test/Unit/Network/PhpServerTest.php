@@ -26,9 +26,9 @@ class PhpServerTest extends TestCase {
 
         $this->assertInstanceOf(TcpAddress::class, $address);
         $this->assertSame($host, $address->host());
-        $this->assertRegExp('~^\d+$~', (string)$address->port());
+        $this->assertMatchesRegularExpression('~^\d+$~', (string)$address->port());
 
-        $this->assertRegExp('~^[1-9]\d*$~', (string)$server->pid());
+        $this->assertMatchesRegularExpression('~^[1-9]\d*$~', (string)$server->pid());
         $this->assertTrue($server->isStarted());
 
         $handle = \fsockopen('tcp://' . $address->host() . ':' . $address->port());
@@ -39,7 +39,7 @@ class PhpServerTest extends TestCase {
             $response .= \fgets($handle, 1024);
         }
         \fclose($handle);
-        $this->assertRegExp('~^HTTP/\d+.\d+ 200 OK\r\n.*hello~s', $response);
+        $this->assertMatchesRegularExpression('~^HTTP/\d+.\d+ 200 OK\r\n.*hello~s', $response);
 
         $server->stop();
 

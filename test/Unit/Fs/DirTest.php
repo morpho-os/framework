@@ -178,7 +178,7 @@ class DirTest extends TestCase {
         $this->assertVoid(Dir::delete($dirPathToDelete));
 
         $this->assertDirectoryExists('vfs:///some');
-        $this->assertDirectoryNotExists($dirPathToDelete);
+        $this->assertDirectoryDoesNotExist($dirPathToDelete);
     }
 
     public function testDeleteEmptyDirs() {
@@ -273,8 +273,8 @@ class DirTest extends TestCase {
 
         $this->assertSame($paths, Dir::recreate($paths));
         $checkExist();
-        $this->assertFileNotExists($paths[0] . '/test');
-        $this->assertFileNotExists($paths[1] . '/test');
+        $this->assertFileDoesNotExist($paths[0] . '/test');
+        $this->assertFileDoesNotExist($paths[1] . '/test');
     }
 
     public function testPaths_WithoutProcessor_WithDefaultConfig() {
@@ -737,7 +737,7 @@ class DirTest extends TestCase {
     public function testDirNames_ClosureProcessor() {
         $testDirPath = $this->getTestDirPath();
         $processor = function ($dirName, $path) use (&$calledTimes) {
-            $this->assertRegExp('~^.*/.*/(2|4)$~', $path);
+            $this->assertMatchesRegularExpression('~^.*/.*/(2|4)$~', $path);
             $calledTimes++;
             $map = [
                 '2' => 'foo',
@@ -756,7 +756,7 @@ class DirTest extends TestCase {
         $testDirPath = $this->getTestDirPath();
         $processor = function ($dirName, $path) use (&$calledTimes) {
             $this->assertStringNotContainsString('/', $dirName);
-            $this->assertRegExp('~^.*/.*/(2|4)$~', $path);
+            $this->assertMatchesRegularExpression('~^.*/.*/(2|4)$~', $path);
             $calledTimes++;
             return true;
         };

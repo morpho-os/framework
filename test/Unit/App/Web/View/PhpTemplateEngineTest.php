@@ -195,18 +195,18 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testInvoke_EscapesVars() {
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '~^<h1>\s*<\?php\s+echo htmlspecialchars\(\$var, ENT_QUOTES\);\s+\?>\s*</h1>$~si',
             $this->invokeTemplateEngine('<h1><?= $var ?></h1>')
         );
     }
 
     public function testInvoke_PrintDoesNotEscapeVars() {
-        $this->assertRegexp(
+        $this->assertMatchesRegularExpression(
             '~^<\?php\s+print\s+\'<div><span>Text</span></div>\';$~s',
             $this->invokeTemplateEngine("<?php print '<div><span>Text</span></div>'; ?>")
         );
-        $this->assertRegexp(
+        $this->assertMatchesRegularExpression(
             '~^<\?php\s+print\s+"<div><span>Text</span></div>";$~s',
             $this->invokeTemplateEngine('<?php print("<div><span>Text</span></div>");')
         );

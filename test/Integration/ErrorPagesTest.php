@@ -72,7 +72,7 @@ class ErrorPagesTest extends BrowserTestCase {
             $html = $response->body();
             if (null !== $expectedTitle) {
                 $this->assertStringContainsString('<title>' . \htmlspecialchars($expectedTitle, ENT_QUOTES) . '</title>', $html);
-                $this->assertRegExp('~<h1[^>]*>' . \preg_quote(\htmlspecialchars($expectedTitle, ENT_QUOTES), '~') . '</h1>~s', $html);
+                $this->assertMatchesRegularExpression('~<h1[^>]*>' . \preg_quote(\htmlspecialchars($expectedTitle, ENT_QUOTES), '~') . '</h1>~s', $html);
             }
             if (null !== $expectedText) {
                 $this->assertStringContainsString(\htmlspecialchars($expectedText, ENT_QUOTES), $html);

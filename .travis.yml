@@ -4,19 +4,14 @@ language: php
 
 php:
   - 7.4
-  # https://docs.travis-ci.com/user/languages/php/#Nightly-builds
   - nightly
 
 matrix:
   allow_failures:
-#    - php: hhvm
     - php: nightly
   fast_finish: true
 
 addons:
-  # versions are listed here https://downloads.mariadb.org/
-  #mariadb: 10.1
-#  mariadb: latest
   firefox: latest
 
 services:
@@ -28,7 +23,6 @@ env:
 
 before_install:
   - "id && pwd && uname -a"
-  #- "ip addr show && cat /etc/hosts"
   - php -m
 
 install:
@@ -46,7 +40,7 @@ install:
 
   - "travis_retry composer selfupdate && composer --version"
   - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
-  - travis_retry composer install --no-interaction --ignore-platform-reqs
+  - travis_retry composer install --no-interaction
 
 before_script:
   - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""

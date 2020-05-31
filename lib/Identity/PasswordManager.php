@@ -4,6 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+
 namespace Morpho\Identity;
 
 use Zend\Math\Rand;
@@ -21,10 +22,10 @@ class PasswordManager {
     // Characters which are hard to read or which can cause problems in some programs, e.g. shell.
     public const CONFUSED_CHARS = '"\'`|loIO01';
 
-    public const USE_LOWER_CHARS    = 0b00001;
-    public const USE_UPPER_CHARS    = 0b00010;
-    public const USE_DIGIT_CHARS    = 0b00100;
-    public const USE_PUNCT_CHARS    = 0b11000;
+    public const USE_LOWER_CHARS = 0b00001;
+    public const USE_UPPER_CHARS = 0b00010;
+    public const USE_DIGIT_CHARS = 0b00100;
+    public const USE_PUNCT_CHARS = 0b11000;
     public const USE_CONFUSED_CHARS = 0b01000; // subset of PUNCT_CHARS
     public const USE_ALL_CHARS = self::USE_LOWER_CHARS | self::USE_UPPER_CHARS | self::USE_DIGIT_CHARS | self::USE_PUNCT_CHARS;
 

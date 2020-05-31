@@ -247,10 +247,10 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertTrue(\touch($oldFileUri));
         $this->assertFileExists($oldFileUri);
-        $this->assertFileNotExists($newFileUri);
+        $this->assertFileDoesNotExist($newFileUri);
 
         $this->assertTrue(\rename($oldFileUri, $newFileUri));
-        $this->assertFileNotExists($oldFileUri);
+        $this->assertFileDoesNotExist($oldFileUri);
         $this->assertFileExists($newFileUri);
     }
 

@@ -30,28 +30,24 @@
         "ext-session": "*",
         "ext-spl": "*",
         "ext-tokenizer": "*",
+        "morpho-os/zf-fork": "dev-master",
         "monolog/monolog": "dev-master",
         "nikic/fast-route": "dev-master",
         "nikic/php-parser": "dev-master",
         "psr/log": "dev-master",
         "symfony/finder": "dev-master",
         "symfony/process": "dev-master",
-        "zendframework/zend-http": "dev-master",
-        "zendframework/zend-mail": "dev-master",
-        "zendframework/zend-math": "dev-master",
-        "zendframework/zend-servicemanager": "dev-master",
-        "zendframework/zend-stdlib": "dev-master",
         "psr/simple-cache": "^1.0@dev",
         "willdurand/negotiation": "^3.0@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master",
-        "facebook/webdriver": "dev-master"
+        "php-webdriver/webdriver": "dev-master"
     },
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:morpho-os/php-webdriver.git"
+            "url": "git@github.com:morpho-os/zf-fork.git"
         }
     ],
     "autoload": {

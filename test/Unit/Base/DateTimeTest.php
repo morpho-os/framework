@@ -88,12 +88,12 @@ class DateTimeTest extends TestCase {
     }
 
     public function testNow() {
-        $this->assertRegExp(self::MYSQL_DATETIME_RE, DateTime::now());
+        $this->assertMatchesRegularExpression(self::MYSQL_DATETIME_RE, DateTime::now());
     }
 
     public function testToString() {
         $dateTime = '2013-12-08 11:02:04';
         $this->assertSame($dateTime, (new DateTime($dateTime))->__toString());
-        $this->assertRegExp(self::MYSQL_DATETIME_RE, (new DateTime())->__toString());
+        $this->assertMatchesRegularExpression(self::MYSQL_DATETIME_RE, (new DateTime())->__toString());
     }
 }

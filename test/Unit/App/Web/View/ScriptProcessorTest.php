@@ -35,7 +35,7 @@ is a child
 OUT;
 
         // processor should save child scripts
-        $this->assertRegExp('~^This\s+is a child$~', $this->processor->__invoke($childPage));
+        $this->assertMatchesRegularExpression('~^This\s+is a child$~', $this->processor->__invoke($childPage));
 
         $parentPage = <<<OUT
 <body>
@@ -47,7 +47,7 @@ OUT;
         // And now render them for <body>
         $html = $this->processor->__invoke($parentPage);
 
-        $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="bar/parent.js"></script>\s*<script src="foo/child.js"></script>\s*</body>$~', $html);
+        $this->assertMatchesRegularExpression('~^<body>\s+This is a\s+parent\s*<script src="bar/parent.js"></script>\s*<script src="foo/child.js"></script>\s*</body>$~', $html);
     }
 
     public function testHandlingOfScripts_IndexAttribute() {
@@ -70,7 +70,7 @@ OUT;
         // And now render them for <body>
         $html = $this->processor->__invoke($parentPage);
 
-        $this->assertRegExp('~^<body>\s+This is a\s+parent\s*<script src="foo/child.js"></script>\s*<script src="bar/parent.js"></script>\s*</body>$~', $html);
+        $this->assertMatchesRegularExpression('~^<body>\s+This is a\s+parent\s*<script src="foo/child.js"></script>\s*<script src="bar/parent.js"></script>\s*</body>$~', $html);
     }
 
     public function dataForSkipAttribute() {
@@ -148,7 +148,7 @@ OUT;
         $processedBody = $processor->__invoke('<body></body>');
 
         $jsConfigStr = \json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
@@ -168,7 +168,7 @@ alert("OK");
 is a child
 OUT;
         $processor->__invoke($childPage);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
             $processor->__invoke('<body></body>')
         );
