@@ -3,13 +3,13 @@
 namespace Morpho\Infra;
 
 use function Morpho\Base\endsWith;
-use function Morpho\App\Cli\shell;
+use function Morpho\App\Cli\sh;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $process = true;
 if (posix_isatty(STDOUT)) {
-    $res = shell('dialog --stdout --yesno \'Process?\' 0 0', ['checkCode' => false, 'capture' => true]);
+    $res = sh('dialog --stdout --yesno \'Process?\' 0 0', ['checkCode' => false, 'capture' => true]);
     $process = !$res->isError();
 }
 

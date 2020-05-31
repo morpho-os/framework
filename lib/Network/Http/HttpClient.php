@@ -6,7 +6,7 @@
  */
 namespace Morpho\Network\Http;
 
-use function Morpho\App\Cli\shell;
+use function Morpho\App\Cli\sh;
 use Zend\Http\Client as HttpClientInternal;
 use Zend\Stdlib\Parameters;
 use Zend\Http\Request as RequestInternal;
@@ -75,7 +75,7 @@ class HttpClient {
         }
         // @TODO: Implement without call of the external tool.
         // @TODO: use curl, wget or fetch, see the `man parallel`
-        shell('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => false]);
+        sh('curl -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destPath;
     }
     

@@ -7,7 +7,7 @@
 namespace Morpho\Network\Http;
 
 use function Morpho\Base\filter;
-use function Morpho\App\Cli\shell;
+use function Morpho\App\Cli\sh;
 use Morpho\Xml\Doc;
 
 // Based on https://github.com/jarib/selenium-travis/blob/master/selenium-webdriver/lib/selenium/server.rb
@@ -24,7 +24,7 @@ class SeleniumServerDownloader {
         }
         $downloadFileName = "selenium-server-standalone-$version.jar";
         $uri = "https://selenium-release.storage.googleapis.com/{$match[1]}/$downloadFileName";
-        shell('curl -L -o ' . \escapeshellarg($destJarFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
+        sh('curl -L -o ' . \escapeshellarg($destJarFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destJarFilePath;
     }
 

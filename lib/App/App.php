@@ -10,12 +10,10 @@ use Morpho\Base\Environment;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
 use Morpho\Error\ErrorHandler;
+use Morpho\Ioc\IServiceManager;
 
 class App extends EventManager {
-    /**
-     * @var \ArrayObject
-     */
-    protected $config;
+    protected \ArrayObject $config;
 
     public function __construct(\ArrayObject $config = null) {
         $this->setConfig($config ?: new \ArrayObject([]));
@@ -42,6 +40,12 @@ class App extends EventManager {
      * @return IResponse|false
      */
     public function run() {
+        $serviceManager = $this->init();
+        $site = $serviceManager['site'];
+        return $site->__invoke($serviceManager);
+    }
+
+    public function init(): IServiceManager {
         /** @var ServiceManager $serviceManager */
         $bootServiceManager = $this->config['serviceManager']($this);
 
@@ -62,7 +66,7 @@ class App extends EventManager {
         $appInitializer = $serviceManager['appInitializer'];
         $appInitializer->init();
 
-        return $site->__invoke($serviceManager);
+        return $serviceManager;
     }
 
     public function setConfig(\ArrayObject $config): void {

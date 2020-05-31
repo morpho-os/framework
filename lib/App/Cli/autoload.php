@@ -6,13 +6,13 @@
  */
 namespace Morpho\App\Cli;
 
-const STDIN_FD  = 0;
-const STDOUT_FD = 1;
-const STDERR_FD = 2;
+const IN_FD  = 0;
+const OUT_FD = 1;
+const ERR_FD = 2;
 const STD_PIPES = [
-    STDIN_FD  => ['pipe', 'r'],  // child process will read from STDIN
-    STDOUT_FD => ['pipe', 'w'],  // child process will write to STDOUT
-    STDERR_FD => ['pipe', 'w'],  // child process will write to STDERR
+    IN_FD  => ['pipe', 'r'],  // child process will read from STDIN
+    OUT_FD => ['pipe', 'w'],  // child process will write to STDOUT
+    ERR_FD => ['pipe', 'w'],  // child process will write to STDERR
 ];
 
 use Morpho\Base\Config;
@@ -128,28 +128,29 @@ function envVarsStr(array $envVars): string {
 }
 
 function mkdir(string $args, array $config = null): ICommandResult {
-    return shell('mkdir -p ' . $args);
+    return sh('mkdir -p ' . $args);
 }
 
 function mv(string $args, array $config = null): ICommandResult {
-    return shell('mv ' . $args, $config);
+    return sh('mv ' . $args, $config);
 }
 
 function cp($args, array $config = null): ICommandResult {
-    return shell('cp -r ' . $args, $config);
+    return sh('cp -r ' . $args, $config);
 }
 
 function rm(string $args, array $config = null): ICommandResult {
-    return shell('rm -rf ' . $args, $config);
+    return sh('rm -rf ' . $args, $config);
 }
 
-function shell(string $command, array $config = null): ICommandResult {
+function sh(string $command, array $config = null): ICommandResult {
 /*    if (isset($config['capture'])) {
         if (!isset($config['show'])) {
             $config['show'] = !$config['capture'];
         }
     }*/
     $showSet = isset($config['show']);
+    $captureSet = isset($config['capture']);
     $config = Config::check([
         'checkCode' => true,
         // @TODO: tee: buffer and display output
@@ -159,6 +160,9 @@ function shell(string $command, array $config = null): ICommandResult {
     ], (array) $config);
     if (!$showSet && $config['capture']) {
         $config['show'] = false;
+    }
+    if ($showSet && !$config['show'] && !$captureSet) {
+        $config['capture'] = true;
     }
     $output = '';
     $exitCode = 1;
@@ -194,15 +198,15 @@ function shell(string $command, array $config = null): ICommandResult {
     return new ShellCommandResult($command, $exitCode, $output, '');
 }
 
-function shellSu(string $command, array $config = null): ICommandResult {
-    return shell('sudo bash -c "' . $command . '"', $config);
+function shSu(string $command, array $config = null): ICommandResult {
+    return sh('sudo bash -c "' . $command . '"', $config);
 }
 
 /**
  * Taken from https://habr.com/ru/post/135200/
  * @param string $cmd
  */
-function rawShell(string $cmd, $env = null) {
+function rawSh(string $cmd, $env = null) {
     $pid = \pcntl_fork();
     if ($pid < 0) {
         throw new \RuntimeException('fork failed');
@@ -243,7 +247,7 @@ function checkExitCode(int $exitCode, string $errMessage = null): int {
 
 function checkResult(ICommandResult $result) {
     if ($result->isError()) {
-        errorLn($result->stdErr() . ' Exit code: ' . $result->exitCode());
+        errorLn($result->err() . ' Exit code: ' . $result->exitCode());
     }
 }
 

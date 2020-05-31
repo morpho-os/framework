@@ -35,7 +35,7 @@ abstract class CommandResult implements ICommandResult {
         /*if (!is_bool($noEmptyLines) && is_callable($noEmptyLines)) {
             $filter = $noEmptyLines;
         }*/
-        foreach (\preg_split(EOL_FULL_RE, $this->stdOut(), -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
+        foreach (\preg_split(EOL_FULL_RE, $this->out(), -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
             if ($trimLines) {
                 $line = \trim($line);
             }
@@ -47,6 +47,6 @@ abstract class CommandResult implements ICommandResult {
     }
 
     public function __toString(): string {
-        return (string) $this->stdOut();
+        return (string) $this->out();
     }
 }

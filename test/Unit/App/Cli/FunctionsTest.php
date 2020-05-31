@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Cli;
 use Morpho\Base\Environment;
 use Morpho\Base\InvalidConfigException;
 use function Morpho\App\Cli\{
-    argsStr, envVarsStr, shell, escapeArgs, proc, showOk, stylize
+    argsStr, envVarsStr, sh, escapeArgs, proc, showOk, stylize
 };
 use Morpho\App\Cli\ProcCommandResult;
 use Morpho\Testing\TestCase;
@@ -86,7 +86,7 @@ OUT
 
     public function testShell_ThrowsExceptionOnInvalidConfigParam() {
         $this->expectException(InvalidConfigException::class);
-        shell('ls', ['some invalid option' => 'value of invalid option']);
+        sh('ls', ['some invalid option' => 'value of invalid option']);
     }
 
     public function dataForShell_CaptureAndShowConfigOptions() {
@@ -102,7 +102,7 @@ OUT
     public function testShell_CaptureAndShowConfigOptions(bool $capture, bool $show) {
         $cmd = 'ls '  . \escapeshellarg(__DIR__);
         \ob_start();
-        $result = shell($cmd, ['capture' => $capture, 'show' => $show]);
+        $result = sh($cmd, ['capture' => $capture, 'show' => $show]);
         $this->assertStringContainsString($show ? \basename(__FILE__) : '', \ob_get_clean());
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
@@ -112,7 +112,7 @@ OUT
     public function testShell_CheckExitConfigParam() {
         $exitCode = 134;
         $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
-        shell('php -r "exit(' . $exitCode . ');"');
+        sh('php -r "exit(' . $exitCode . ');"');
     }
 
     public function testShellSu() {
@@ -125,7 +125,7 @@ OUT
     public function testShell_EnvVarsConfigParam() {
         $var = 'v' . \md5(__METHOD__);
         $val = 'hello';
-        $this->assertSame($val . "\n", shell('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true, 'show' => false])->stdOut());
+        $this->assertSame($val . "\n", sh('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true, 'show' => false])->out());
     }
 
     public function testEnvVarsStr() {
@@ -186,7 +186,7 @@ OUT
             $this->assertStringContainsString("..\n", $stdOut);
             $this->assertStringContainsString(\basename(__FILE__), $stdOut);
         };
-        $checkStdOut($result->stdOut());
+        $checkStdOut($result->out());
         $this->assertSame(0, $result->exitCode());
         $this->assertFalse($result->isError());
         $lines = \iterator_to_array($result->lines());

@@ -7,7 +7,7 @@
 namespace Morpho\Network\Http;
 
 use function Morpho\Base\fromJson;
-use function Morpho\App\Cli\shell;
+use function Morpho\App\Cli\sh;
 
 class GeckoDriverDownloader {
     public const FILE_NAME = 'geckodriver';
@@ -25,7 +25,7 @@ class GeckoDriverDownloader {
             $geckoDriverDownloadUri = $fileDownloadMeta['browser_download_url'];
             $arcFilePath = \dirname($destFilePath) . '/geckodriver.tar.gz';
             (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
-            shell('tar xzf ' . \escapeshellarg($arcFilePath) . ' && chmod +x ' . \escapeshellarg($binFileName) . ' && rm -f ' . \escapeshellarg($arcFilePath), ['show' => false]);
+            sh('tar xzf ' . \escapeshellarg($arcFilePath) . ' && chmod +x ' . \escapeshellarg($binFileName) . ' && rm -f ' . \escapeshellarg($arcFilePath), ['show' => false]);
         } finally {
             \chdir($curDirPath);
         }

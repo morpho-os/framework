@@ -80,7 +80,7 @@ class PasswordManager {
         return ['cost' => self::COST];
     }
 
-    private static function algo(): int {
-        return PASSWORD_DEFAULT;
+    private static function algo(): string {
+        return \PASSWORD_DEFAULT;
     }
 }

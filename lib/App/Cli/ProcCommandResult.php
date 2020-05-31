@@ -12,7 +12,7 @@ class ProcCommandResult extends CommandResult {
     /**
      * @var Process
      */
-    protected $proc;
+    protected Process $proc;
 
     public function __construct(Process $proc, int $exitCode) {
         parent::__construct($exitCode);
@@ -23,11 +23,11 @@ class ProcCommandResult extends CommandResult {
         return $this->proc->getCommandLine();
     }
 
-    public function stdOut(): string {
+    public function out(): string {
         return $this->proc->getOutput();
     }
 
-    public function stdErr(): string {
+    public function err(): string {
         return $this->proc->getErrorOutput();
     }
 }

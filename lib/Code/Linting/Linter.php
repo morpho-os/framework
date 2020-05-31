@@ -14,16 +14,16 @@ use Morpho\Fs\Dir;
 
 class Linter {
     /**
-     * @param string $moduleDirPath
+     * @param string $composerFileDirPath
      * @param iterable $psr4MapperListIt
      *     Iterable yielding \Morpho\Infra\IPsr4Mapper
      * @param callable|null $lint
      * @return bool
      *     true on success, false otherwise
      */
-    public static function checkModule(string $moduleDirPath, iterable $psr4MapperListIt, callable $lint = null): bool {
-        showLn('Checking composer.json...');
-        $metaFileErrors = ModuleChecker::checkMetaFile($moduleDirPath . '/composer.json');
+    public static function checkModule(string $composerFileDirPath, iterable $psr4MapperListIt, callable $lint = null): bool {
+        showLn("Checking '$composerFileDirPath/composer.json'...");
+        $metaFileErrors = ModuleChecker::checkMetaFile($composerFileDirPath . '/composer.json');
         if (null === $lint) {
             $lint = [FileChecker::class, 'checkFile'];
         }

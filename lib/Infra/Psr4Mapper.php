@@ -19,6 +19,9 @@ class Psr4Mapper implements IPsr4Mapper {
 
     private $provideFilePaths;
 
+    /**
+     * @param $provideFilePaths: (ns: Namespace, path: Path): iterable
+     */
     public function __construct(string $ns, string $baseDirPath, callable $provideFilePaths) {
         $this->nsPrefix = $ns;
         $this->baseDirPath = $baseDirPath;

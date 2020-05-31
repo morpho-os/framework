@@ -6,7 +6,7 @@
  */
 namespace Morpho\Network\Http;
 use Morpho\Network\IServer;
-use function Morpho\App\Cli\shell;
+use function Morpho\App\Cli\sh;
 use Morpho\Base\Arr;
 use Morpho\Fs\FileNotFoundException;
 
@@ -112,20 +112,20 @@ class SeleniumServer implements IServer {
 
     public function acceptingConnections(int $port = self::PORT): bool {
         // @TODO: Use php sockets.
-        $res = shell('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . $port, ['checkCode' => false, 'capture' => true, 'show' => false]);
+        $res = sh('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . $port, ['checkCode' => false, 'capture' => true, 'show' => false]);
         return !$res->isError();
     }
 
     public function stop(): void {
         $pid = $this->findPid();
         if ($pid) {
-            shell('kill ' . \intval($pid) . ' > /dev/null', ['show' => false]);
+            sh('kill ' . \intval($pid) . ' > /dev/null', ['show' => false]);
         }
-        shell('killall geckodriver &> /dev/null || true', ['show' => false]);
+        sh('killall geckodriver &> /dev/null || true', ['show' => false]);
     }
 
     private function findPid(): ?int {
-        $pid = (int) \trim((string) shell("lsof -t -c java -a -i ':" . \escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false, 'show' => false]));
+        $pid = (int) \trim((string) sh("lsof -t -c java -a -i ':" . \escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false, 'show' => false]));
         // ss -t -a -n -p state all '( sport = 4444 )'
         return $pid > 0 ? $pid : null;
     }
