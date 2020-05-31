@@ -17,11 +17,12 @@
         "module"
     ],
     "require": {
-        "php-64bit": "~7.3",
+        "php-64bit": "~7.4",
         "ext-date": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "ext-pcntl": "*",
         "ext-pcre": "*",
         "ext-pdo": "*",
         "ext-posix": "*",
