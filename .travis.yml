@@ -1,11 +1,9 @@
-dist: xenial
+dist: bionic
 sudo: required
 language: php
-#group: deprecated-2017Q4
 
 php:
-# - hhvm
-  - 7.3
+  - 7.4
   # https://docs.travis-ci.com/user/languages/php/#Nightly-builds
   - nightly
 
