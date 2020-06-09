@@ -6,8 +6,8 @@ set -euo pipefail
 # perms: 755 for dirs, 644 for files, user: runner, group: docker
 
 prepareEnv() {
-    npm install -g typescript@next
     sudo id
+    sudo npm install -g typescript@next
 
     # Create block device
     sudo mknod -m 0777 /tmp/block-dev-test b 125 1
