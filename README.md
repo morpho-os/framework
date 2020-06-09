@@ -1,23 +1,41 @@
-# PHP 7 framework: Morpho
+# Morpho framework
 
-Morpho is **PHP 7** framework to build PHP applications: Web-sites, Web-applications, Web-IDEs, Command-line applications.
+## About
 
-## Status of the code
+Morpho is framework for building web-sites, web-applications, web-IDEs, command-line applications.
 
-API not stable and can be changed, don't use in production.
+## Used technologies
 
-## Documentation (now in Russian only)
+* Server-side:
+    * PHP
+* Client-side:
+    * TypeScript
+    * Stylus (CSS) and HTML
+    * [Fira font from Mozilla](https://github.com/mozilla/Fira/blob/master/LICENSE)
+* Infra:
+    * Git
+    * PHP
+    * Node.js
+    * GNU Bash
+    * GNU Make
+    
+## Supported OSs
 
-<a href="https://morpho-os.github.io/framework/index.html">Документация (@TODO: устарела, требует обновления)</a>
+Only Linux, other OSs are not supported.
 
-## Current build status
+## Documentation
 
-[![Build Status](https://travis-ci.org/morpho-os/framework.svg?branch=master)](https://travis-ci.org/morpho-os/framework)
+Documentation does not exist yet.
+
+## Status of the code and API
+
+API is not stable and can be changed, don't use in production.
+
+## Current CI and build status
+
+* [![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
+* Build status: ready to use builds don't exist yet.
 
 ## License
 
-License is Apache-2.0.
-
-### Third-party libraries or resources
-
-* [Fira font from Mozilla](https://github.com/mozilla/Fira/blob/master/LICENSE)
+[Apache-2.0](LICENSE)
