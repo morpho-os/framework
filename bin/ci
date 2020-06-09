@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
+# [GitHub Actions Documentation](https://help.github.com/en/actions)
+
 set -euo pipefail
 
-# id: uid=1001(runner) gid=116(docker) groups=116(docker),4(adm),101(systemd-journal)
-# perms: 755 for dirs, 644 for files, user: runner, group: docker
+showEnvFacts() {
+    ps faux
+    cat /etc/os-release
+    id
+    ls -al
+}
 
 prepareEnv() {
-    sudo id
     sudo npm install -g typescript@next
 
     # Create block device
@@ -25,8 +30,9 @@ prepareEnv() {
     #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
     composer install --no-interaction
 
-    mysql -uroot -e "DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
-    mysql -uroot -e "SHOW DATABASES"
+    sudo systemctl start mysql
+    mysql -uroot -proot -e "DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci"
+    mysql -uroot -proot -e "SHOW DATABASES"
 }
 
 runTests() {
@@ -52,6 +58,7 @@ deployResults() {
     ##    branch: master
 }
 
+showEnvFacts
 prepareEnv
 runTests
 deployResults
