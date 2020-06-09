@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_FILE_NAME="$(basename "$0")"
+readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
+
+echo --------------------------------------------------------------------------------
+id
+ps faux
+echo --------------------------------------------------------------------------------
+php --version
+node --version
+mysql --version
+firefox --version
+composer --version
+typescript --version
+nvm --version
+sudo id
+echo --------------------------------------------------------------------------------
+
+# Create block device
+sudo mknod -m 0777 /tmp/block-dev-test b 125 1
+sudo chown $(id -u):$(id -g) /tmp/block-dev-test
+
+# To running Selenium && firefox, see https://docs.travis-ci.com/user/gui-and-headless-browsers/
+export DISPLAY=:99
+# `start-stop-daemon` is provided by the `dpkg` package
+/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
+#
+#  # `node` means `latest stable Node.js release`
+#  - nvm install node
+npm install -g typescript@next
+tsc --version
+
+pushd "$SCRIPT_DIR_PATH"/client > /dev/null
+npm install
+popd > /dev/null
+
+
+#  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
+#  - travis_retry composer install --no-interaction
+
+#before_script:
+#  - "mysql -uroot -e \"DROP DATABASE IF EXISTS test; CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
+
+#script:
+#  - bin/test
+#  - php test/lint.php
+
+## https://docs.travis-ci.com/user/deployment/pages/
+## deploy nightly builds
+##deploy:
+##  provider: pages
+##  skip-cleanup: true
+##  github-token: $GITHUB_TOKEN
+##  keep-history: true
+##  # Directory to push to GitHub Pages, relative to the current directory, defaults to the current directory (example: your_build_folder)
+##  local-dir: test/result
+##  # Optional, be verbose about internal steps, defaults to false.
+##  verbose: false
+##  on:
+##    repo: morpho-os/morpho-os.github.io
+##    branch: master
+
+
+
+
+
+

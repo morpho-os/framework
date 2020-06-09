@@ -3,6 +3,7 @@
 !/bin/lint
 !/bin/test
 !/bin/build
+!/bin/ci
 
 # Composer's files:
 vendor/
