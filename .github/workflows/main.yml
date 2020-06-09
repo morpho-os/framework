@@ -22,5 +22,8 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
+    - name: Test
+      run: pwd && ls -alR
+
     - name: Run a multi-line script
       run: bin/ci
