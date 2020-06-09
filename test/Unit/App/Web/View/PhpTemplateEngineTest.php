@@ -261,7 +261,7 @@ class PhpTemplateEngineTest extends TestCase {
                 if ($id === 'request') {
                     return $request;
                 }
-                if ($id === 'moduleIndex') {
+                if ($id === 'serverModuleIndex') {
                     return $moduleIndex;
                 }
                 if ($id === 'instanceProvider') {

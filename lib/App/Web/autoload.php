@@ -11,12 +11,12 @@ namespace Morpho\App\Web;
 use Morpho\Fs\Path;
 use Morpho\App\Web\Uri\Uri;
 const CSS_DIR_NAME = 'css';
-const DOMAIN_DIR_NAME = 'domain';
+//const DOMAIN_DIR_NAME = 'domain';
 const FONT_DIR_NAME = 'font';
 const IMG_DIR_NAME = 'img';
-const JS_DIR_NAME = 'js';
-const PUBLIC_DIR_NAME = 'public';
-const SCRIPT_DIR_NAME = 'script';
+//const JS_DIR_NAME = 'js';
+//const PUBLIC_DIR_NAME = 'public';
+//const SCRIPT_DIR_NAME = 'script';
 const UPLOAD_DIR_NAME = 'upload';
 
 /**

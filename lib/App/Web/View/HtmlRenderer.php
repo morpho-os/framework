@@ -57,7 +57,7 @@ class HtmlRenderer implements IFn {
 
     protected function renderView(string $moduleName, ViewResult $viewResult): string {
         $serviceManager = $this->serviceManager;
-        $moduleIndex = $serviceManager['moduleIndex'];
+        $moduleIndex = $serviceManager['serverModuleIndex'];
         /** @var Theme $theme */
         $theme = $serviceManager['theme'];
         $viewDirPath = $moduleIndex->module($moduleName)->viewDirPath();

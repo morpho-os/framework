@@ -10,7 +10,7 @@ use Facebook\WebDriver\WebDriverBy as By;
 use Morpho\Testing\BrowserTestCase;
 
 class UiPagesTest extends BrowserTestCase {
-    private $homePageTitle = 'Hello World!';
+    private string $homePageTitle = 'Hello World!';
 
     public function testJsTestsPage() {
         $this->browser->get($this->uri('localhost/test?bot'));

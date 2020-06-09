@@ -37,7 +37,7 @@ class StatTest extends TestCase {
 
     public function testIsBlockDev() {
         //$this->assertTrue(posix_mknod($tmpDirPath . '/block-dev', POSIX_S_IFBLK | $mode, $dev[0], $dev[1]));
-        $path = $this->sut()['isTravis'] ? '/tmp/block-dev-test' : '/dev/loop0';
+        $path = $this->sut()->isTravis() ? '/tmp/block-dev-test' : '/dev/loop0';
         $this->assertTrue(Stat::isEntry($path));
         $this->assertTrue(Stat::isBlockDev($path));
         $this->assertFalse(Stat::isCharDev($path));

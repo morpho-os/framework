@@ -11,7 +11,7 @@ namespace Morpho\App;
  */
 class ModuleIndex implements \IteratorAggregate {
     private $index;
-    private $indexer;
+    private IModuleIndexer $indexer;
     private $loaded;
 
     public function __construct(IModuleIndexer $indexer) {
@@ -45,7 +45,7 @@ class ModuleIndex implements \IteratorAggregate {
     }
 
     protected function mkModule(string $moduleName, $meta): Module {
-        return new Module($moduleName, $meta);
+        return new ServerModule($moduleName, $meta);
     }
 
     private function init(): void {

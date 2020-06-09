@@ -37,7 +37,7 @@ class FunctionsTest extends TestCase {
         }
 
         $tmpFilePath = $this->createTmpFile();
-        $autoloadFilePath = $this->sut()['baseDirPath'] . '/vendor/autoload.php';
+        $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         \file_put_contents($tmpFilePath, <<<OUT
 <?php
 require "$autoloadFilePath";
@@ -148,7 +148,7 @@ OUT
         }
 
         $tmpFilePath = $this->createTmpFile();
-        $autoloadFilePath = $this->sut()['baseDirPath'] . '/vendor/autoload.php';
+        $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         $question = "Do you want to play";
         \file_put_contents($tmpFilePath, <<<OUT
 <?php

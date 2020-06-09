@@ -7,14 +7,14 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\ISite;
+use const Morpho\App\CLIENT_MODULE_DIR_NAME;
 use const Morpho\App\CONFIG_DIR_NAME;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\SiteFactory;
 use Morpho\App\Web\BadRequestException;
-use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 class SiteFactoryTest extends TestCase {
-    private $classLoaderRegisteredKey;
+    private string $classLoaderRegisteredKey;
 
     public function setUp(): void {
         parent::setUp();
@@ -143,11 +143,11 @@ class SiteFactoryTest extends TestCase {
             'moduleName' => $moduleName,
             'moduleDirPath' => $moduleDirPath,
             'siteConfig' => $siteConfig,
-            'publicDirPath' => $moduleDirPath . '/' . PUBLIC_DIR_NAME,
+            'clientModuleDirPath' => $moduleDirPath . '/' . CLIENT_MODULE_DIR_NAME,
             'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
         ];
         $siteFactory = new class ($siteFactoryConfig) extends SiteFactory {
-            private $config;
+            private array $config;
             public function __construct(array $config) {
                 $this->config = $config;
             }
@@ -157,10 +157,12 @@ class SiteFactoryTest extends TestCase {
                     return false;
                 }
                 return [
-                    'moduleName' => $this->config['moduleName'],
-                    'moduleDirPath' => $this->config['moduleDirPath'],
-                    'publicDirPath' => $this->config['publicDirPath'],
-                    'configFilePath' => $this->config['configFilePath'],
+                    'siteModule' => $this->config['moduleName'],
+                    'path' => [
+                        'dirPath' => $this->config['moduleDirPath'],
+                        'configFilePath' => $this->config['configFilePath'],
+                        'clientModuleDirPath' => $this->config['clientModuleDirPath'],
+                    ],
                 ];
             }
 
@@ -181,7 +183,7 @@ class SiteFactoryTest extends TestCase {
         $expectedSiteConfig = new \ArrayObject(\array_merge($siteConfig, [
             'path' => [
                 'dirPath' => $moduleDirPath,
-                'publicDirPath' => $siteFactoryConfig['publicDirPath'],
+                'clientModuleDirPath' => $siteFactoryConfig['clientModuleDirPath'],
                 'configFilePath' => $siteFactoryConfig['configFilePath'],
             ],
             'module' => [

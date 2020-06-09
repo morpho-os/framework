@@ -17,7 +17,7 @@
         "module"
     ],
     "require": {
-        "php-64bit": "~7.4",
+        "php-64bit": ">=7.4",
         "ext-date": "*",
         "ext-dom": "*",
         "ext-json": "*",

@@ -2,27 +2,25 @@
 !/bin/add-license-header
 !/bin/lint
 !/bin/test
+!/bin/build
 
-# composer's files.
+# Composer's files:
 vendor/
 composer.lock
 
-# bower
-bower_components/
-
-# npm
-node_modules/
-
-#/module/*/config/*
+# Generated files:
 cache/*
 log/*
-
 selenium.log.*
 *.jar
 *.log
 geckodriver
 .phpunit.result.cache
 *.tsbuildinfo
+/client/localhost/lib/**/*.js
+!/client/localhost/lib/**/index.js
 
-/public/module/localhost/lib/*.js
-!/public/module/localhost/lib/index.js
+# bower
+bower_components/
+# npm
+node_modules/

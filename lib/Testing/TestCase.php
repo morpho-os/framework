@@ -11,10 +11,10 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 abstract class TestCase extends BaseTestCase {
     const TIMEZONE = 'UTC';
 
-    private $tmpDirPaths = [];
-    private $tmpFilePaths = [];
+    private array $tmpDirPaths = [];
+    private array $tmpFilePaths = [];
 
-    private $classFilePath;
+    private string $classFilePath;
 
     private $prevTimezone;
 
@@ -70,7 +70,7 @@ abstract class TestCase extends BaseTestCase {
         }
     }
 
-    protected function sut(): \ArrayObject {
+    protected function sut(): Sut {
         return Sut::instance();
     }
 

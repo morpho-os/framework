@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_FILE_NAME="$(basename "$0")"
+readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
+
+readonly baseDirPath=$(dirname "$SCRIPT_DIR_PATH")
+readonly serverModuleDirPath=$baseDirPath/server
+readonly clientModuleDirPath=$baseDirPath/client
+
+ts() {
+    tsc --build "$clientModuleDirPath"/tsconfig.json
+}
+
+css() {
+    local -r inCssDirPath="$clientModuleDirPath"/localhost/rc/css
+    local -r outCssDirPath=$inCssDirPath
+    # To compress add the `-c` option
+    mkdir -p "$outCssDirPath"
+    cd "$inCssDirPath" && stylus -I "$clientModuleDirPath"/node_modules/bootstrap-styl --disable-cache < index.styl > "$outCssDirPath"/index.css
+    cd "$inCssDirPath" && stylus --disable-cache < test.styl > "$outCssDirPath"/test.css
+}
+
+"$@"
+

@@ -29,6 +29,7 @@ use Morpho\App\Web\View\Theme;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
+use Morpho\Fs\Dir;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
@@ -40,12 +41,16 @@ class ServiceManager extends BaseServiceManager {
         return new AppInitializer($this);
     }
 
-    protected function mkModuleIndexerService() {
-        return new ModuleIndexer(new VarExportFileCache($this['site']->config()['path']['cacheDirPath']));
+    protected function mkServerModuleIndexService() {
+        return new ModuleIndex($this['serverModuleIndexer']);
     }
 
-    protected function mkModuleIteratorService() {
-        return new ModuleIterator($this);
+    protected function mkServerModuleIndexerService() {
+        return new ModuleIndexer($this['serverModuleIterator'], new VarExportFileCache($this['site']->config()['path']['cacheDirPath']), \get_class($this) . '::' . __FUNCTION__);
+    }
+
+    protected function mkServerModuleIteratorService() {
+        return new ServerModuleIterator($this);
     }
 
     protected function mkSessionService() {
@@ -62,10 +67,6 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
-    protected function mkModuleIndexService() {
-        return new ModuleIndex($this['moduleIndexer']);
-    }
-
     protected function mkThemeService() {
         return new Theme($this['templateEngine']);
     }
@@ -74,7 +75,7 @@ class ServiceManager extends BaseServiceManager {
         $templateEngineConfig = $this->config['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
         $siteModuleName = $this['site']->moduleName();
-        $cacheDirPath = $this['moduleIndex']->module($siteModuleName)->cacheDirPath();
+        $cacheDirPath = $this['serverModuleIndex']->module($siteModuleName)->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConfig['useCache']);
         return $templateEngine;
@@ -166,7 +167,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {
-        $moduleIndex = $this['moduleIndex'];
+        $moduleIndex = $this['serverModuleIndex'];
         $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(

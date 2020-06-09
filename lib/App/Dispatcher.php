@@ -10,20 +10,11 @@ use Morpho\Base\Event;
 use Morpho\Base\IEventManager;
 
 class Dispatcher {
-    /**
-     * @var int
-     */
-    protected $maxNoOfDispatchIterations = 20;
+    protected int $maxNoOfDispatchIterations = 20;
 
-    /**
-     * @var \ArrayObject
-     */
     protected $handlerProvider;
 
-    /**
-     * @var IEventManager
-     */
-    private $eventManager;
+    private IEventManager $eventManager;
 
     public function __construct(callable $handlerProvider, IEventManager $eventManager) {
         $this->handlerProvider = $handlerProvider;

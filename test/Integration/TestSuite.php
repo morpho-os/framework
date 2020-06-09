@@ -12,11 +12,6 @@ use Morpho\Testing\BrowserTestSuite;
 use Morpho\Testing\Sut;
 
 class TestSuite extends BrowserTestSuite {
-    /**
-     * @var PhpServer
-     */
-    private static $phpServer;
-
     protected $testCase = true; // to enable @before* and @after* annotations.
 
     public function testFilePaths(): iterable {
@@ -29,10 +24,21 @@ class TestSuite extends BrowserTestSuite {
      */
     public static function beforeAll(): void {
         $sut = Sut::instance();
-
         BrowserTestSuite::startSeleniumServer($sut);
+        self::startPhpServer($sut);
+    }
 
-        if ($sut['isTravis']) {
+    /**
+     * @afterClass
+     */
+    public static function afterAll(): void {
+        $sut = Sut::instance();
+        self::stopPhpServer($sut);
+        BrowserTestSuite::stopSeleniumServer($sut);
+    }
+
+    private static function startPhpServer(Sut $sut): void {
+        if ($sut->isTravis()) {
             $sut['phpServer'] = $phpServer = new PhpServer(
                 new TcpAddress($sut['domain'], 7654),
                 $sut['publicDirPath']
@@ -43,14 +49,9 @@ class TestSuite extends BrowserTestSuite {
         }
     }
 
-    /**
-     * @afterClass
-     */
-    public static function afterAll(): void {
-        if (self::$phpServer) {
-            self::$phpServer->stop();
+    private static function stopPhpServer(Sut $sut): void {
+        if ($sut->isTravis() && isset($sut['phpServer'])) {
+            $sut['phpServer']->stop();
         }
-
-        BrowserTestSuite::stopSeleniumServer(Sut::instance());
     }
 }

@@ -7,14 +7,9 @@
 namespace Morpho\Base;
 
 class Event extends \ArrayObject {
-    /**
-     * @var string
-     */
-    public $name;
-    /**
-     * @var array
-     */
-    public $args;
+    public string $name;
+
+    public array $args;
 
     public function __construct(string $name, array $args = []) {
         $this->name = $name;

@@ -6,14 +6,16 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
+use Morpho\App\ClientModule;
+use Morpho\App\ServerModule;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\ModuleIndex;
-use Morpho\App\Module;
 use Morpho\App\Web\Request;
 use Morpho\App\Site;
 use Morpho\App\Web\View\ScriptProcessor;
+use const Morpho\App\CLIENT_MODULE_DIR_NAME;
 
 class ScriptProcessorTest extends TestCase {
     /**
@@ -131,7 +133,7 @@ OUT;
      * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript
      */
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConfig) {
-        $serviceManager = $this->mkConfiguredServiceManager(['table', 'cat', 'tail']);
+        $serviceManager = $this->mkConfiguredServiceManager(['blog', 'cat', 'tail']);
         $request = $serviceManager['request'];
         $request['jsConfig'] = $jsConfig;
 
@@ -149,13 +151,13 @@ OUT;
 
         $jsConfigStr = \json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
         $this->assertMatchesRegularExpression(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/module/table/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "table/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "blog/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
     }
 
     public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
-        $serviceManager = $this->mkConfiguredServiceManager(['table', 'cat', 'tail']);
+        $serviceManager = $this->mkConfiguredServiceManager(['blog', 'cat', 'tail']);
         $processor = new ScriptProcessor($serviceManager);
 
         $childPage = <<<OUT
@@ -169,7 +171,7 @@ is a child
 OUT;
         $processor->__invoke($childPage);
         $this->assertMatchesRegularExpression(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/module/table/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
             $processor->__invoke('<body></body>')
         );
     }
@@ -182,8 +184,11 @@ OUT;
         $site = $this->createConfiguredMock(Site::class, [
             'moduleName' => $siteModuleName,
         ]);
-        $publicDirPath = $this->getTestDirPath();
-        $module = $this->createConfiguredMock(Module::class, ['publicDirPath' => $publicDirPath]);
+
+        $clientModuleDirPath = $this->getTestDirPath() . '/' . CLIENT_MODULE_DIR_NAME;
+        $clientModule = $this->createConfiguredMock(ClientModule::class, ['dirPath' => $clientModuleDirPath]);
+
+        $module = $this->createConfiguredMock(ServerModule::class, ['clientModule' => $clientModule]);
         $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())
             ->method('module')
@@ -192,7 +197,7 @@ OUT;
         $services = [
             'request' => $request,
             'site' => $site,
-            'moduleIndex' => $moduleIndex,
+            'serverModuleIndex' => $moduleIndex,
         ];
         $serviceManager = new ServiceManager($services);
         return $serviceManager;

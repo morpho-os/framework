@@ -7,7 +7,7 @@
 namespace Morpho\Caching;
 
 /**
- * This class based on \Doctrine\Common\Cache\ArrayCache from Doctrine project (MIT license).
+ * This class is based on \Doctrine\Common\Cache\ArrayCache from Doctrine project (MIT license).
  * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
  * @author Benjamin Eberlei <kontakt@beberlei.de>
@@ -22,15 +22,9 @@ class ArrayCache extends Cache {
      */
     private $data = [];
 
-    /**
-     * @var int
-     */
-    private $hitsCount = 0;
+    private int $hitsCount = 0;
 
-    /**
-     * @var int
-     */
-    private $missesCount = 0;
+    private int $missesCount = 0;
 
     /**
      * @var int

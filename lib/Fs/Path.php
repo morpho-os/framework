@@ -7,6 +7,7 @@
 namespace Morpho\Fs;
 
 use Morpho\Base\Environment;
+use Morpho\Base\NotImplementedException;
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
 use Morpho\App\Path as BasePath;
@@ -143,5 +144,9 @@ class Path extends BasePath {
             throw new Exception("Unable to generate an unique path for the '$path' (tried $i times)");
         }
         return $uniquePath;
+    }
+
+    public static function parentPaths(string $path): array {
+        throw new NotImplementedException();
     }
 }

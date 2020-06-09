@@ -17,7 +17,9 @@ use Morpho\App\Web\Request;
 class InstanceProviderTest extends TestCase {
     public function testInvoke_ThrowsNotFoundExceptionIfAnyRequestHandlerComponentIsEmpty() {
         $serviceManager = $this->createMock(IServiceManager::class);
-        /** @noinspection PhpParamsInspection */
+        $serviceManager->expects($this->any())
+            ->method('offsetGet')
+            ->willReturn($this->createMock(ModuleIndex::class));
         $instanceProvider = new InstanceProvider($serviceManager);
 
         $request = $this->createMock(Request::class);
@@ -25,7 +27,6 @@ class InstanceProviderTest extends TestCase {
             ->method('handler')
             ->willReturn([null, null, null]);
 
-        /** @noinspection PhpParamsInspection */
         $this->assertFalse($instanceProvider->__invoke($request));
     }
 
@@ -42,7 +43,7 @@ class InstanceProviderTest extends TestCase {
             ->with($moduleName)
             ->willReturn($module);
         $services = [
-            'moduleIndex' => $moduleIndex,
+            'serverModuleIndex' => $moduleIndex,
         ];
         $serviceManager->expects($this->any())
             ->method('offsetGet')
@@ -92,7 +93,6 @@ class InstanceProviderTest extends TestCase {
         $request = new Request();
         $request->setHandler([$moduleName, $controllerName, 'show']);
 
-        /** @noinspection PhpParamsInspection */
         $instanceProvider->__invoke($request);
 
         $this->assertSame($instanceProvider->returnedInstance, $request['handlerFn']);

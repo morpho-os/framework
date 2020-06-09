@@ -14,7 +14,7 @@ class UserManager {
     public const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
     public const EMPTY_LOGIN_OR_PASSWORD    = 'emptyPassword';
 
-    protected $session;
+    protected Session $session;
 
     protected $user;
 

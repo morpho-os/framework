@@ -14,12 +14,12 @@ use Morpho\Testing\TestCase;
 class ModuleIndexTest extends TestCase {
     public function testRebuild() {
         $moduleIndexer = $this->createMock(IModuleIndexer::class);
-        $moduleIndex = $this->mkModuleIndex($moduleIndexer);
         $moduleName = 'foo/bar';
         $moduleIndexer->expects($this->exactly(2))
             ->method('index')
             ->willReturnOnConsecutiveCalls([$moduleName => ['first']], [$moduleName => ['second']]);
 
+        $moduleIndex = $this->mkModuleIndex($moduleIndexer);
         $this->assertSame('first', $moduleIndex->module($moduleName)[0]);
 
         $moduleIndexer->expects($this->once())

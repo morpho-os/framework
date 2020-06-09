@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\Routing;
 
-use Morpho\App\Module;
+use Morpho\App\ServerModule;
 use Morpho\Base\IFn;
 use Morpho\App\Web\Request;
 use function Morpho\Base\dasherize;
@@ -66,7 +66,7 @@ class RouteMetaProvider implements IFn {
         $action = $actionMeta['action'];
         $title = null;
 
-        $uri = '/' . Module::filteredShortModuleName($actionMeta['module']) . '/' . dasherize($actionMeta['controller']);
+        $uri = '/' . ServerModule::filteredShortModuleName($actionMeta['module']) . '/' . dasherize($actionMeta['controller']);
         if (isset($this->restActions[$action])) {
             $uri .= \rtrim('/' . $this->restActions[$action][1], '/');
             $httpMethod = $this->restActions[$action][0];

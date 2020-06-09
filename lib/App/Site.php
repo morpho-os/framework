@@ -7,20 +7,11 @@
 namespace Morpho\App;
 
 class Site implements ISite {
-    /**
-     * @var string
-     */
-    protected $moduleName;
+    protected string $moduleName;
 
-    /**
-     * @var array
-     */
-    protected $config;
+    protected \ArrayObject $config;
 
-    /**
-     * @var string
-     */
-    private $hostName;
+    private string $hostName;
 
     public function __construct(string $moduleName, \ArrayObject $config, string $hostName) {
         $this->moduleName = $moduleName;

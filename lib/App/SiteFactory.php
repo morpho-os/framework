@@ -9,13 +9,11 @@ use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
-use const Morpho\App\Web\PUBLIC_DIR_NAME;
 
 abstract class SiteFactory implements IFn, IHasServiceManager {
-    /**
-     * @var IServiceManager
-     */
-    protected $serviceManager;
+    protected IServiceManager $serviceManager;
+
+    private const MAIN_MODULE = 'localhost';
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
@@ -27,33 +25,14 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
             $this->throwInvalidSiteError();
         }
 
-        $initialSiteConfig = $this->initialSiteConfig($hostName);
-        if (!$initialSiteConfig) {
+        $initialSiteConfig = $this->hostNameToSiteModule($hostName);
+        if (false === $initialSiteConfig) {
             $this->throwInvalidSiteError();
         }
-        $siteModuleName = $initialSiteConfig['siteModule'];
-        
-        $siteConfig = $this->loadExtendedSiteConfig($siteModuleName, $initialSiteConfig);
-        return $this->mkSite($siteModuleName, $siteConfig, $hostName);
-    }
 
-    /**
-     * @param string $hostName
-     * @return array|false
-     */
-    protected function initialSiteConfig(string $hostName) {
-        $result = $this->hostNameToSiteModule($hostName);
-        if (false !== $result) {
-            return [
-                'siteModule' => $result['moduleName'],
-                'path'       => [
-                    'dirPath'        => $result['moduleDirPath'],
-                    'publicDirPath'  => $result['publicDirPath'],
-                    'configFilePath' => $result['configFilePath'],
-                ],
-            ];
-        }
-        return false;
+        $siteConfig = $this->loadExtendedSiteConfig($initialSiteConfig['siteModule'], $initialSiteConfig);
+
+        return $this->mkSite($initialSiteConfig['siteModule'], $siteConfig, $hostName);
     }
 
     /**
@@ -63,14 +42,16 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
     protected function hostNameToSiteModule(string $hostName) {
         $allowedHostNames = ['localhost', 'framework', '127.0.0.1'];
         if (in_array($hostName, $allowedHostNames, true)) {
-            $baseDirPath = $this->serviceManager['app']->config()['baseDirPath'];
-            $shortModuleName = 'localhost';
-            $moduleDirPath = $baseDirPath . '/' . MODULE_DIR_NAME . '/' . $shortModuleName;
+            $appConfig = $this->serviceManager['app']->config();
+            $shortModuleName = self::MAIN_MODULE;
+            $moduleDirPath = $appConfig['baseServerModuleDirPath'] . '/' . $shortModuleName;
             return [
-                'moduleName' => VENDOR . '/' . $shortModuleName,
-                'moduleDirPath' => $moduleDirPath,
-                'publicDirPath' => $moduleDirPath . '/' . PUBLIC_DIR_NAME,
-                'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
+                'siteModule' => VENDOR . '/' . $shortModuleName,
+                'path' => [
+                    'dirPath' => $moduleDirPath,
+                    'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
+                    'clientModuleDirPath' => $appConfig['baseClientModuleDirPath'] . '/' . $shortModuleName,
+                ],
             ];
         }
         return false;

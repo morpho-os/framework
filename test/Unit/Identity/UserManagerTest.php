@@ -12,15 +12,15 @@ use Morpho\Testing\DbTestCase;
 use Morpho\App\Web\Session\Session;
 
 class UserManagerTest extends DbTestCase {
-    private $userManager;
+    private UserManager $userManager;
     
     public function setUp(): void {
         parent::setUp();
 
         $userRepo = new class implements IUserRepo {
-            private $id = 0;
+            private int $id = 0;
 
-            private $users = [];
+            private array $users = [];
 
             /**
              * @return array|false

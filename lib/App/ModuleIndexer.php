@@ -7,17 +7,16 @@
 namespace Morpho\App;
 
 use Morpho\Caching\ICache;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
 
-class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
-    private $cache;
-    private $cacheKey;
-    private $serviceManager;
+class ModuleIndexer implements IModuleIndexer{
+    private ICache $cache;
+    private string $cacheKey;
+    private iterable $moduleIt;
 
-    public function __construct(ICache $cache, string $cacheKey = null) {
+    public function __construct(iterable $moduleIt, ICache $cache, string $cacheKey) {
+        $this->moduleIt = $moduleIt;
         $this->cache = $cache;
-        $this->cacheKey = $cacheKey ?? \get_class($this) . '::' . __FUNCTION__;
+        $this->cacheKey = $cacheKey;
     }
 
     /**
@@ -31,7 +30,7 @@ class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
             return $index;
         }
         $index = [];
-        foreach ($this->serviceManager['moduleIterator'] as $module) {
+        foreach ($this->moduleIt as $module) {
             $index[$module['name']] = $module;
         }
         \uasort($index, function ($a, $b) {
@@ -46,9 +45,5 @@ class ModuleIndexer implements IModuleIndexer, IHasServiceManager {
      */
     public function clear(): void {
         $this->cache->delete($this->cacheKey);
-    }
-
-    public function setServiceManager(IServiceManager $serviceManager): void {
-        $this->serviceManager = $serviceManager;
     }
 }

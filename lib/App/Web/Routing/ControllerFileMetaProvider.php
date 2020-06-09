@@ -14,7 +14,7 @@ use Morpho\App\ModuleIndex;
 use Morpho\Fs\Dir;
 
 class ControllerFileMetaProvider implements IFn {
-    private $moduleIndex;
+    private ModuleIndex $moduleIndex;
 
     public function __construct(ModuleIndex $moduleIndex) {
         $this->moduleIndex = $moduleIndex;

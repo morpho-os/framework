@@ -6,19 +6,18 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\App\Module;
+use Morpho\App\ServerModule;
 use Morpho\Fs\Path;
 use Morpho\Ioc\IServiceManager;
 use function Morpho\Base\dasherize;
 use const Morpho\App\APP_DIR_NAME;
-use const Morpho\App\MODULE_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
-    private $scripts = [];
+    private array $scripts = [];
 
     protected const INDEX_ATTR = 'data-index';
 
-    private $baseUriPath;
+    private string $baseUriPath;
 
     public function __construct(IServiceManager $serviceManager) {
         parent::__construct($serviceManager);
@@ -112,11 +111,11 @@ class ScriptProcessor extends HtmlProcessor {
         [$module, $controller, $action] = $this->request()->handler();
         $serviceManager = $this->serviceManager;
         $siteModuleName = $serviceManager['site']->moduleName();
-        $publicDirPath = $serviceManager['moduleIndex']->module($siteModuleName)->publicDirPath();
+        $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
         // @TODO: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
-        $jsModuleId = Module::filteredShortModuleName($module) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
-        $relJsFilePath = MODULE_DIR_NAME . '/' . $jsModuleId . '.js';
-        $jsFilePath = $publicDirPath . '/' . $relJsFilePath;
+        $jsModuleId = ServerModule::filteredShortModuleName($module) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
+        $relJsFilePath = '/' . $jsModuleId . '.js';
+        $jsFilePath = Path::combine([$clientModuleDirPath, $relJsFilePath]);
         $inline = $included = [];
         if (\is_file($jsFilePath)) {
             $included[] = [

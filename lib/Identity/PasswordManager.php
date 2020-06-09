@@ -81,7 +81,10 @@ class PasswordManager {
         return ['cost' => self::COST];
     }
 
-    private static function algo(): string {
+    /**
+     * @return string|null Returns null for PHP >= 7.4.0 && <= 7.4.2 and string for PHP >= 7.4.3
+     */
+    private static function algo(): ?string {
         return \PASSWORD_DEFAULT;
     }
 }

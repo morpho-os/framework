@@ -15,11 +15,8 @@ use Morpho\Testing\Sut;
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
     $classLoader->addPsr4(__NAMESPACE__ . '\\', __DIR__);
 
-    foreach (\glob(Sut::instance()['baseModuleDirPath'] . '/*') as $path) {
-        if (!\is_dir($path)) {
-            continue;
-        }
-        $autoloadFilePath = $path . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
+    foreach (Sut::instance()->serverModuleDirIt() as $moduleDirPath) {
+        $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
         if (\is_file($autoloadFilePath)) {
             require $autoloadFilePath;
         }

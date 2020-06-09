@@ -12,23 +12,14 @@ use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 
 abstract class InstanceProvider implements IFn {
-    /**
-     * @var ModuleIndex
-     */
-    protected $moduleIndex;
+    protected ModuleIndex $moduleIndex;
 
-    /**
-     * @var array
-     */
-    private $registeredModules = [];
+    private array $registeredModules = [];
 
-    /**
-     * @var IServiceManager
-     */
-    private $serviceManager;
+    private IServiceManager $serviceManager;
 
     public function __construct(IServiceManager $serviceManager) {
-        $this->moduleIndex = $serviceManager['moduleIndex'];
+        $this->moduleIndex = $serviceManager['serverModuleIndex'];
         $this->serviceManager = $serviceManager;
     }
 
