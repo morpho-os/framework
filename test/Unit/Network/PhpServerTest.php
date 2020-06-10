@@ -45,4 +45,9 @@ class PhpServerTest extends TestCase {
 
         $this->assertFalse($server->isReady());
     }
+
+    public function testPidOfNotStartedProcess() {
+        $server = new PhpServer(new TcpAddress('localhost', null), '/tmp');
+        $this->assertNull($server->pid());
+    }
 }

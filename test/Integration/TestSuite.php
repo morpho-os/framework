@@ -42,6 +42,7 @@ class TestSuite extends BrowserTestSuite {
                 $sut->webServerAddress(),
                 $sut->webServerWebDirPath()
             );
+            $phpServer->start();
         }
     }
 

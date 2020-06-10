@@ -56,7 +56,9 @@ class PhpServer implements IServer {
      * Some code based \Symfony\Component\Process\Process::stop() ((c) Fabien Potencier <fabien@symfony.com>, Symfony project))
      */
     public function stop(): void {
-        $this->process->stop();
+        if (isset($this->process)) {
+            $this->process->stop();
+        }
         /*
         $this->process->signal(2); // Try send the SIGINT first
         try {
@@ -85,6 +87,9 @@ class PhpServer implements IServer {
     }
 
     public function pid(): ?int {
+        if (!isset($this->process)) {
+            return null;
+        }
         return $this->process->getPid();
     }
 
