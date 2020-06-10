@@ -15,7 +15,7 @@ class SeleniumServer implements IServer {
     private $logFilePath;
 
     public const PORT = 4444;
-    private $serverJarFilePath;
+    private ?string $serverJarFilePath;
     private $port;
     private $geckoBinFilePath;
 
@@ -85,7 +85,7 @@ class SeleniumServer implements IServer {
             if (!\is_file($serverJarFilePath)) {
                 throw new FileNotFoundException($serverJarFilePath);
             }
-            $trustStoreFilePath = /*$keyStoreFilePath =*/ $serverJarFilePath . '.' . uniqid('cacerts');
+            $trustStoreFilePath = /*$keyStoreFilePath =*/ $serverJarFilePath . '.' . \uniqid('cacerts');
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
             $cmd = 'java'
                 . ' -Djavax.net.ssl.trustStoreType=jks'

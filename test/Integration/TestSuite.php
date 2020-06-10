@@ -38,7 +38,7 @@ class TestSuite extends BrowserTestSuite {
     }
 
     private static function startPhpServer(Sut $sut): void {
-        if ($sut->isTravis()) {
+        if ($sut->isCi()) {
             $sut['phpServer'] = $phpServer = new PhpServer(
                 new TcpAddress($sut['domain'], 7654),
                 $sut['publicDirPath']
@@ -50,7 +50,7 @@ class TestSuite extends BrowserTestSuite {
     }
 
     private static function stopPhpServer(Sut $sut): void {
-        if ($sut->isTravis() && isset($sut['phpServer'])) {
+        if ($sut->isCi() && isset($sut['phpServer'])) {
             $sut['phpServer']->stop();
         }
     }

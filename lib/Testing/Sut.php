@@ -27,8 +27,8 @@ class Sut extends \ArrayObject {
         }
     }
 
-    public function isTravis(): bool {
-        return !empty(\getenv('TRAVIS'));
+    public function isCi(): bool {
+        return !empty(\getenv('MORPHO_CI'));
     }
 
     public function baseDirPath(): string {
@@ -40,9 +40,9 @@ class Sut extends \ArrayObject {
 
     protected function uriAuthority(): string {
         if (!isset($this->uriAuthority)) {
-            $uriAuthority = \getenv('URI_AUTHORITY');
+            $uriAuthority = \getenv('MORPHO_TEST_URI_AUTHORITY');
             if (false === $uriAuthority) {
-                $uriAuthority = $this->isTravis() ? '127.0.0.1' : 'framework';
+                $uriAuthority = $this->isCi() ? '127.0.0.1' : 'framework';
             }
             $this->uriAuthority = $uriAuthority;
         }

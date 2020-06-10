@@ -4,6 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+
 namespace Morpho\Testing;
 
 use Morpho\Db\Sql\DbClient;
@@ -24,10 +25,10 @@ trait TDbTestCase {
     protected function dbConfig(): array {
         return [
             'driver'   => 'mysql',
-            'host'     => '127.0.0.1',
-            'user'     => 'root',
-            'password' => '',
-            'db'       => 'test',
+            'host'     => getenv('MORPHO_TEST_DB_HOST') ?: '127.0.0.1',
+            'user'     => getenv('MORPHO_TEST_DB_USER') ?: 'root',
+            'password' => getenv('MORPHO_TEST_DB_PASSWORD') ?: '',
+            'db'       => getenv('MORPHO_TEST_DB_DB') ?: 'test',
         ];
     }
 

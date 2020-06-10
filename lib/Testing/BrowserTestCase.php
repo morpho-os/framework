@@ -54,7 +54,7 @@ class BrowserTestCase extends TestCase {
     }
 
     protected function mkBrowser() {
-        return Browser::new(DesiredCapabilities::firefox());
+        return Browser::mk(DesiredCapabilities::firefox());
     }
 
     protected function configureBrowser($browser): void {

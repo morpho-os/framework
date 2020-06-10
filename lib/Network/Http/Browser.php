@@ -55,7 +55,7 @@ class Browser extends RemoteWebDriver {
     /**
      * @param \Facebook\WebDriver\Remote\DesiredCapabilities|array $capabilities
      */
-    public static function new($capabilities) {
+    public static function mk($capabilities) {
         return static::create('http://localhost:4444/wd/hub', $capabilities, self::CONNECTION_TIMEOUT, self::REQUEST_TIMEOUT);
         /*
         // @var \Facebook\WebDriver\WebDriverTimeouts
