@@ -1060,22 +1060,13 @@ function tail($list, string $separator = null) {
     }
 }
 
-/**
- * @param string|iterable iter
- */
-function toArray($iter): array {
-    if (\is_string($iter)) {
-        if ($iter !== '') {
-            throw new NotImplementedException();
-        }
-        return [];
-    }
-    if ($iter instanceof \ArrayObject) {
-        return $iter->getArrayCopy();
+function toArray(iterable $it): array {
+    if ($it instanceof \ArrayObject) {
+        return $it->getArrayCopy();
     }
     $arr = [];
     $i = 0;
-    foreach ($iter as $key => $value) {
+    foreach ($it as $key => $value) {
         if (\preg_match('~^\d+$~s', (string)$key)) {
             $arr[$i] = $value;
             $i++;

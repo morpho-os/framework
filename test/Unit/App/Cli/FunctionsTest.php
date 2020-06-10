@@ -82,6 +82,11 @@ OUT
         };
         $this->assertEquals(" 'foo' 'bar'", argsStr($gen()));
         $this->assertSame(" 'foo' 'bar'", argsStr(new \ArrayObject(['foo', 'bar'])));
+        $gen1 = function () {
+             yield 1;
+             yield 2;
+        };
+        $this->assertSame(" '1' '2'", argsStr($gen1()));
     }
 
     public function testShell_ThrowsExceptionOnInvalidConfigParam() {

@@ -50,12 +50,27 @@ class Sut extends \ArrayObject {
         return $this->baseDirPath() . '/' . CLIENT_MODULE_DIR_NAME;
     }
 
-    public function uri(): string {
+    public function siteUri(): string {
         $webServerAddress = $this->webServerAddress();
         return 'http://' . $webServerAddress->host() . ':' . $webServerAddress->port();
     }
 
-    public function seleniumDirPath(): string {
-        return $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
+    public function seleniumServerConfig(): array {
+        $seleniumDirPath = getenv('MORPHO_SELENIUM_DIR_PATH') ?: $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
+        $seleniumServerJarFilePath = $seleniumDirPath . '/selenium-server-standalone.jar';
+        $geckoBinFilePath = $seleniumDirPath . '/geckodriver';
+        if ($this->isCi()) {
+            // GitHub CI exposes the `SELENIUM_JAR_PATH` environment variable with path to the .jar file.
+            $seleniumServerCandidateJarFilePath = getenv('SELENIUM_JAR_PATH');
+            if (false !== $seleniumServerCandidateJarFilePath && is_file($seleniumServerCandidateJarFilePath)) {
+                $seleniumServerJarFilePath = $seleniumServerCandidateJarFilePath;
+            }
+        }
+        return [
+            'geckoBinFilePath' => $geckoBinFilePath,
+            'serverJarFilePath' => $seleniumServerJarFilePath,
+            'logFilePath' => $seleniumDirPath . '/selenium.log',
+            'serverVersion' => null,
+        ];
     }
 }

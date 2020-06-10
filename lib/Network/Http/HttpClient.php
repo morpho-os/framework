@@ -12,11 +12,9 @@ use Zend\Stdlib\Parameters;
 use Zend\Http\Request as RequestInternal;
 
 class HttpClient {
-    private $client;
-    /**
-     * @var int
-     */
-    private $maxNumberOfRedirects = 5;
+    private HttpClientInternal $client;
+
+    private int $maxNumberOfRedirects = 5;
 
     public function __construct() {
         $this->client = new HttpClientInternal();
@@ -75,7 +73,7 @@ class HttpClient {
         }
         // @TODO: Implement without call of the external tool.
         // @TODO: use curl, wget or fetch, see the `man parallel`
-        sh('curl --silent -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => false]);
+        sh('curl --progress-bar -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => true]);
         return $destPath;
     }
     

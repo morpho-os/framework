@@ -9,10 +9,7 @@ namespace Morpho\App\Cli;
 use const Morpho\Base\EOL_FULL_RE;
 
 abstract class CommandResult implements ICommandResult {
-    /**
-     * @var int
-     */
-    protected $exitCode;
+    protected int $exitCode;
 
     public function __construct(int $exitCode) {
         $this->exitCode = $exitCode;
@@ -31,7 +28,7 @@ abstract class CommandResult implements ICommandResult {
     }
 
     // @TODO: Unify with #152.
-    public function lines($noEmptyLines = true, bool $trimLines = true): iterable {
+    public function lines($noEmptyLines = true, bool $trimLines = true): \Generator {
         /*if (!is_bool($noEmptyLines) && is_callable($noEmptyLines)) {
             $filter = $noEmptyLines;
         }*/

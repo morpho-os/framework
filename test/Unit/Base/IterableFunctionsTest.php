@@ -18,9 +18,6 @@ class IterableFunctionsTest extends TestCase {
                 [],
             ],
             [
-                '',
-            ],
-            [
                 new \ArrayIterator([]),
             ],
         ];

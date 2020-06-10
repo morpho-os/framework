@@ -10,13 +10,7 @@ use Morpho\Network\Http\SeleniumServer;
 
 abstract class BrowserTestSuite extends TestSuite {
     public static function startSeleniumServer(Sut $sut) {
-        $seleniumDirPath = $sut->seleniumDirPath();
-        $seleniumServer = SeleniumServer::mk([
-            'geckoBinFilePath' => $seleniumDirPath . '/geckodriver',
-            'serverJarFilePath' => $seleniumDirPath . '/selenium-server-standalone.jar',
-            'serverVersion' => null,
-            'logFilePath' => $seleniumDirPath . '/selenium.log',
-        ]);
+        $seleniumServer = SeleniumServer::mk($sut->seleniumServerConfig());
         $seleniumServer->start();
         $sut['seleniumServer'] = $seleniumServer;
     }

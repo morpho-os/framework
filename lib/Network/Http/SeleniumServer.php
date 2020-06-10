@@ -4,20 +4,24 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+
 namespace Morpho\Network\Http;
+
 use Morpho\Network\IServer;
+use function Morpho\App\Cli\argsStr;
 use function Morpho\App\Cli\sh;
 use Morpho\Base\Arr;
 use Morpho\Fs\FileNotFoundException;
+use function Morpho\Base\toArray;
 
 // Uses external tools: lsof, nc, kill, killall, geckodriver, selenium-server-standalone.jar, java, printf, bash.
 class SeleniumServer implements IServer {
-    private $logFilePath;
+    private ?string $logFilePath = null;
 
     public const PORT = 4444;
     private ?string $serverJarFilePath;
-    private $port;
-    private $geckoBinFilePath;
+    private int $port = self::PORT;
+    private string $geckoBinFilePath = '/usr/bin/geckodriver';
 
     /**
      * @param string $serverJarFilePath File path like __DIR__ . '/selenium-server-standalone.jar'
@@ -31,7 +35,7 @@ class SeleniumServer implements IServer {
         $config = Arr::require($config, ['geckoBinFilePath', 'serverVersion', 'serverJarFilePath', 'logFilePath']);
         $geckoBinFilePath = $config['geckoBinFilePath'];
         $geckoBinFilePath = (new GeckoDriverDownloader())($geckoBinFilePath);
-        $serverJarFilePath = SeleniumServerDownloader::download($config['serverVersion'] ?? SeleniumServerDownloader::latestVersion(), $config['serverJarFilePath']);
+        $serverJarFilePath = SeleniumServerDownloader::download($config['serverVersion'], $config['serverJarFilePath']);
         $seleniumServer = new static($serverJarFilePath);
         $seleniumServer->setGeckoBinFilePath($geckoBinFilePath);
         $seleniumServer->setLogFilePath($config['logFilePath']);
@@ -60,7 +64,7 @@ class SeleniumServer implements IServer {
     }
 
     public function port(): int {
-        return $this->port ?: self::PORT;
+        return $this->port;
     }
 
     public function setGeckoBinFilePath(string $filePath): void {
@@ -68,15 +72,12 @@ class SeleniumServer implements IServer {
     }
 
     public function geckoBinFilePath(): string {
-        if (null === $this->geckoBinFilePath) {
-            $this->geckoBinFilePath = '/usr/bin/geckodriver';
-        }
         return $this->geckoBinFilePath;
     }
 
     public function start(): void {
-        $pid = $this->findPid();
-        if (!$pid) {
+        $pids = toArray($this->findPids());
+        if (!count($pids)) {
             $geckoBinFilePath = $this->geckoBinFilePath();
             if (!\is_file($geckoBinFilePath)) {
                 throw new FileNotFoundException($geckoBinFilePath);
@@ -85,7 +86,8 @@ class SeleniumServer implements IServer {
             if (!\is_file($serverJarFilePath)) {
                 throw new FileNotFoundException($serverJarFilePath);
             }
-            $trustStoreFilePath = /*$keyStoreFilePath =*/ $serverJarFilePath . '.' . \uniqid('cacerts');
+            $trustStoreFilePath = /*$keyStoreFilePath =*/
+                $serverJarFilePath . '.' . \uniqid('cacerts');
             // java -Dwebdriver.gecko.bin=/usr/bin/geckodriver -jar /path/to/selenium-server-standalone.jar
             $cmd = 'java'
                 . ' -Djavax.net.ssl.trustStoreType=jks'
@@ -117,17 +119,15 @@ class SeleniumServer implements IServer {
     }
 
     public function stop(): void {
-        $pid = $this->findPid();
-        if ($pid) {
-            sh('kill ' . \intval($pid) . ' > /dev/null', ['show' => false]);
+        $pids = toArray($this->findPids());
+        if (count($pids)) {
+            sh('kill ' . argsStr($pids) . ' > /dev/null', ['show' => false]);
         }
         sh('killall geckodriver &> /dev/null || true', ['show' => false]);
     }
 
-    private function findPid(): ?int {
-        $pid = (int) \trim((string) sh("lsof -t -c java -a -i ':" . \escapeshellarg((string)$this->port()) . "' 2>&1", ['capture' => true, 'checkCode' => false, 'show' => false]));
-        // ss -t -a -n -p state all '( sport = 4444 )'
-        return $pid > 0 ? $pid : null;
+    private function findPids(): iterable {
+        return sh('lsof -t -c java -a -i :' . \escapeshellarg((string)$this->port()) . ' 2>&1', ['capture' => true, 'checkCode' => false, 'show' => false])->lines();
     }
 
     public function __destruct() {

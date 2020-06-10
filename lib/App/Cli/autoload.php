@@ -99,7 +99,7 @@ function escapeArgs($args): array {
     }
     $res = [];
     foreach ($args as $arg) {
-        $res[] = \escapeshellarg($arg);
+        $res[] = \escapeshellarg((string) $arg);
     }
     return $res;
 }
