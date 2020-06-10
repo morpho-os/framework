@@ -101,20 +101,23 @@ class SeleniumServer implements IServer {
             //showLn("Starting server: " . $cmd);
             \proc_close(\proc_open($cmd, [], $pipes));
             //shell($cmd);
-            $i = 0;
-            do {
-                \usleep(200000);
-                $i++;
-            } while (!$this->acceptingConnections() && $i < 25);
-            if ($i == 25) {
-                throw new \RuntimeException("Unable to start Selenium Server");
+            for ($i = 0; $i < 15; $i++) {
+                if ($this->acceptingConnections()) {
+                    return;
+                }
+                sleep(1);
             }
+            throw new \RuntimeException("Unable to start Selenium Server");
         }
     }
 
     public function acceptingConnections(int $port = self::PORT): bool {
+        # todo remove debugging
+        sh('ss -tlnp');
+
+
         // @TODO: Use php sockets.
-        $res = sh('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . $port, ['checkCode' => false, 'capture' => true, 'show' => false]);
+        $res = sh('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . intval($port), ['checkCode' => false, 'capture' => true, 'show' => false]);
         return !$res->isError();
     }
 
