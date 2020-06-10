@@ -17,9 +17,11 @@ showFacts() {
     ls -al
     echo --------------------------------------------------------------------------------
     php --version
+    which nginx || true
+    sudo apt install -y nginx
     nginx -V
     ls -alR /etc/nginx
-    systemctl status nginx
+    sudo systemctl start nginx
     grep -R php /etc/nginx
     exit 1
     echo --------------------------------------------------------------------------------
