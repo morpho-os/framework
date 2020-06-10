@@ -20,7 +20,7 @@ class PhpServerTest extends TestCase {
 
         $server = new PhpServer($address, $docRootDirPath);
 
-        $this->assertFalse($server->isStarted());
+        $this->assertFalse($server->isReady());
 
         $address = $server->start();
 
@@ -29,7 +29,7 @@ class PhpServerTest extends TestCase {
         $this->assertMatchesRegularExpression('~^\d+$~', (string)$address->port());
 
         $this->assertMatchesRegularExpression('~^[1-9]\d*$~', (string)$server->pid());
-        $this->assertTrue($server->isStarted());
+        $this->assertTrue($server->isReady());
 
         $handle = \fsockopen('tcp://' . $address->host() . ':' . $address->port());
 
@@ -43,6 +43,6 @@ class PhpServerTest extends TestCase {
 
         $server->stop();
 
-        $this->assertFalse($server->isStarted());
+        $this->assertFalse($server->isReady());
     }
 }

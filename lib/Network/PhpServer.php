@@ -24,12 +24,13 @@ class PhpServer implements IServer {
     }
 
     public function start(): TcpAddress {
-        if (TcpSocket::isListening($this->address)) {
+        if (null === $this->address->port()) {
+            $this->actualAddress = TcpSocket::findFreePort($this->address);
+        } elseif (!TcpSocket::isListening($this->address)) {
+            $this->actualAddress = $this->address;
+        } else {
             throw new \RuntimeException('The address ' . $this->address . ' is already in use');
         }
-        $this->actualAddress = null === $this->address->port()
-            ? TcpSocket::findFreePort($this->address)
-            : $this->address;
         $cmd = [
             $this->phpBinFilePath(),
             '-S', $this->actualAddress->host() . ':' . $this->actualAddress->port(),
@@ -77,7 +78,7 @@ class PhpServer implements IServer {
     }
 
     public function isReady(): bool {
-        if (null === $this->process) {
+        if (!isset($this->process)) {
             return false;
         }
         return $this->process->isRunning() && $this->isListening();
