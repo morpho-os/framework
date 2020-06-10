@@ -24,7 +24,7 @@ class SeleniumServerDownloader {
         }
         $downloadFileName = "selenium-server-standalone-$version.jar";
         $uri = "https://selenium-release.storage.googleapis.com/{$match[1]}/$downloadFileName";
-        sh('curl -L -o ' . \escapeshellarg($destJarFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
+        sh('curl --silent -L -o ' . \escapeshellarg($destJarFilePath) . ' ' . \escapeshellarg($uri), ['show' => false]);
         return $destJarFilePath;
     }
 

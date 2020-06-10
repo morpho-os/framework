@@ -169,7 +169,6 @@ function sh(string $command, array $config = null): ICommandResult {
     if ($config['envVars']) {
         $command = envVarsStr($config['envVars']) . ';' . $command;
     }
-
     if ($config['capture']) {
         $output = capture(function () use ($command, &$exitCode) {
             \passthru($command, $exitCode);

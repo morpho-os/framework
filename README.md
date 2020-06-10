@@ -33,7 +33,7 @@ API is not stable and can be changed, don't use in production.
 
 ## Current CI and build status
 
-* [![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
+* CI: [![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
 * Build status: ready to use builds don't exist yet.
 
 ## License

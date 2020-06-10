@@ -7,7 +7,9 @@
 namespace Morpho\Testing;
 
 use Morpho\Base\TSingleton;
+use Morpho\Network\TcpAddress;
 use function Morpho\App\moduleDirPath;
+use const Morpho\App\CLIENT_MODULE_DIR_NAME;
 use const Morpho\App\SERVER_MODULE_DIR_NAME;
 use const Morpho\App\TEST_DIR_NAME;
 
@@ -38,19 +40,19 @@ class Sut extends \ArrayObject {
         return $this->baseDirPath;
     }
 
-    protected function uriAuthority(): string {
-        if (!isset($this->uriAuthority)) {
-            $uriAuthority = \getenv('MORPHO_TEST_URI_AUTHORITY');
-            if (false === $uriAuthority) {
-                $uriAuthority = $this->isCi() ? '127.0.0.1' : 'framework';
-            }
-            $this->uriAuthority = $uriAuthority;
-        }
-        return $this->uriAuthority;
+    public function webServerAddress(): TcpAddress {
+        $domain = getenv('MORPHO_TEST_WEB_SERVER_DOMAIN') ?: 'framework';
+        $port = getenv('MORPHO_TEST_WEB_SERVER_PORT') ?: 80;
+        return new TcpAddress($domain, $port);
+    }
+
+    public function webServerWebDirPath(): string {
+        return $this->baseDirPath() . '/' . CLIENT_MODULE_DIR_NAME;
     }
 
     public function uri(): string {
-        return 'http://' . $this->uriAuthority();
+        $webServerAddress = $this->webServerAddress();
+        return 'http://' . $webServerAddress->host() . ':' . $webServerAddress->port();
     }
 
     public function seleniumDirPath(): string {

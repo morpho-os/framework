@@ -1,6 +1,6 @@
 {
     "name": "morpho-os/framework",
-    "description": "PHP 7 framework to build PHP applications: Web-sites, Web-applications, Web-IDEs, Command-line applications.",
+    "description": "Morpho is framework for building web-sites, web-applications, web-IDEs, command-line applications.",
     "type": "library",
     "license": [
         "Apache-2.0"
