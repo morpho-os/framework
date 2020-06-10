@@ -43,7 +43,7 @@ class Sut extends \ArrayObject {
     public function webServerAddress(): TcpAddress {
         $domain = getenv('MORPHO_TEST_WEB_SERVER_DOMAIN') ?: 'framework';
         $port = getenv('MORPHO_TEST_WEB_SERVER_PORT') ?: 80;
-        return new TcpAddress($domain, $port);
+        return new TcpAddress($domain, (int) $port);
     }
 
     public function webServerWebDirPath(): string {

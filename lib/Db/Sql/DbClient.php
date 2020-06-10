@@ -18,15 +18,14 @@ namespace Morpho\Db\Sql;
  * @method mixed getAttribute($attribute) {}
  */
 abstract class DbClient {
-    /**
-     * @var \PDO
-     */
     protected $connection;
+
+    public const DEFAULT_DRIVER = 'mysql';
 
     public const MYSQL_DRIVER  = 'mysql';
     public const SQLITE_DRIVER = 'sqlite';
 
-    protected static $pdoConfig = [
+    protected static array $pdoConfig = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         \PDO::ATTR_STATEMENT_CLASS => [__NAMESPACE__ . '\\Result', []],
@@ -50,12 +49,13 @@ abstract class DbClient {
      * @param \Morpho\Base\Config|array|\PDO|null $configOrPdo
      */
     public static function connect($configOrPdo = null): self {
-        if (null === $configOrPdo) {
-            $configOrPdo = static::defaultConfig();
-        }
         if ($configOrPdo instanceof \PDO) {
             $driverName = $configOrPdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         } else {
+            $configOrPdo = (array) $configOrPdo;
+            if (!isset($configOrPdo['driver'])) {
+                $configOrPdo['driver'] = self::DEFAULT_DRIVER;
+            }
             $driverName = $configOrPdo['driver'];
             unset($configOrPdo['driver']);
         }
@@ -229,13 +229,4 @@ abstract class DbClient {
     }
 
     abstract protected function mkPdo($config, $pdoConfig): \PDO;
-
-    /**
-     * @return array|\Morpho\Base\Config
-     */
-    protected static function defaultConfig() {
-        return [
-            'driver' => self::MYSQL_DRIVER,
-        ];
-    }
 }

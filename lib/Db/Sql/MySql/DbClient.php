@@ -13,12 +13,12 @@ use Morpho\Db\Sql\Schema as BaseSchema;
 use Morpho\Db\Sql\GeneralQuery as BaseGeneralQuery;
 
 class DbClient extends BaseDbClient {
-    const DEFAULT_HOST = '127.0.0.1';
-    const DEFAULT_PORT = 3306;
-    const DEFAULT_USER = 'root';
-    const DEFAULT_PASSWORD = '';
-    const DEFAULT_CHARSET = 'utf8';
-    const DEFAULT_DB = '';
+    public const DEFAULT_HOST = '127.0.0.1';
+    public const DEFAULT_PORT = 3306;
+    public const DEFAULT_USER = 'root';
+    public const DEFAULT_PASSWORD = '';
+    public const DEFAULT_CHARSET = 'utf8';
+    public const DEFAULT_DB = '';
 
     private $schema;
 

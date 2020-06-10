@@ -8,24 +8,20 @@ namespace Morpho\Test\Unit\Db\Sql\MySql;
 
 use Morpho\Db\Sql\IQuery;
 use Morpho\Db\Sql\MySql\DbClient;
+use Morpho\Db\Sql\DbClient as BaseDbClient;
 use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\Query;
 use Morpho\Db\Sql\Result;
 use Morpho\Test\Unit\Db\Sql\DbClientTest as BaseDbClientTest;
 
 class DbClientTest extends BaseDbClientTest {
-    /**
-     * @var \Morpho\Db\Sql\MySql\DbClient
-     */
-    private $db;
-
-    private $schema;
+    private BaseDbClient $db;
 
     public function setUp(): void {
         parent::setUp();
         $this->db = $this->mkDbClient();
-        $this->schema = new Schema($this->db);
-        $this->schema->deleteAllTables();
+        $schema = new Schema($this->db);
+        $schema->deleteAllTables();
     }
 
     public function testDbName() {
@@ -33,8 +29,12 @@ class DbClientTest extends BaseDbClientTest {
         $this->assertSame($dbConfig['db'], $this->db->dbName());
     }
 
-    public function testConnect_UsesMySqlWhenIfNoArgsPassed() {
-        $this->assertInstanceOf(DbClient::class, DbClient::connect());
+    public function testConnect_UsesMySqlByDefault() {
+        $dbConfig = $this->dbConfig();
+        $this->assertInstanceOf(DbClient::class, DbClient::connect([
+            'user' => $dbConfig['user'],
+            'password' => $dbConfig['password'],
+        ]));
     }
 
     public function testConnection() {
