@@ -23,8 +23,8 @@ class TestSuite extends BrowserTestSuite {
      */
     public static function beforeAll(): void {
         $sut = Sut::instance();
-        BrowserTestSuite::startSeleniumServer($sut);
         self::startPhpServer($sut);
+        BrowserTestSuite::startSeleniumServer($sut);
     }
 
     /**
@@ -32,8 +32,8 @@ class TestSuite extends BrowserTestSuite {
      */
     public static function afterAll(): void {
         $sut = Sut::instance();
-        self::stopPhpServer($sut);
         BrowserTestSuite::stopSeleniumServer($sut);
+        self::stopPhpServer($sut);
     }
 
     private static function startPhpServer(Sut $sut): void {
@@ -42,9 +42,6 @@ class TestSuite extends BrowserTestSuite {
                 $sut->webServerAddress(),
                 $sut->webServerWebDirPath()
             );
-            $address = $phpServer->start();
-            $sut['port'] = $address->port();
-            $sut['uri'] = 'http://' . $address;
         }
     }
 

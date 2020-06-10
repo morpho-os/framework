@@ -23,6 +23,8 @@ showFacts() {
 
 prepareEnv() {
     export MORPHO_CI=GitHub MORPHO_TEST_WEB_SERVER_DOMAIN=127.0.0.1 MORPHO_TEST_WEB_SERVER_PORT=7654
+    # GitHub CI exposes the `SELENIUM_JAR_PATH` environment variable with path to the .jar file.
+    export MORPHO_SELENIUM_SERVER_JAR_FILE_PATH=$SELENIUM_JAR_PATH MORPHO_GECKOBIN_FILE_PATH=/usr/bin/geckodriver
 
     sudo npm install -g typescript@next
 

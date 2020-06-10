@@ -4,6 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+
 namespace Morpho\Network;
 
 use function Morpho\Base\waitUntilNoOfAttempts;
@@ -11,28 +12,28 @@ use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 class PhpServer implements IServer {
-    private $address;
-    private $docRootDirPath;
+    private TcpAddress $address;
+    private string $docRootDirPath;
     //private $pid;
-    private $actualAddress;
-    /**
-     * @var Process
-     */
-    private $process;
+    private TcpAddress $actualAddress;
+    private Process $process;
 
     public function __construct(TcpAddress $address, string $docRootDirPath) {
         $this->address = $address;
         $this->docRootDirPath = $docRootDirPath;
     }
 
-    public function start() {
-        $this->actualAddress = $address = null === $this->address->port()
+    public function start(): TcpAddress {
+        if (TcpSocket::isListening($this->address)) {
+            throw new \RuntimeException('The address ' . $this->address . ' is already in use');
+        }
+        $this->actualAddress = null === $this->address->port()
             ? TcpSocket::findFreePort($this->address)
             : $this->address;
         $cmd = [
             $this->phpBinFilePath(),
-            '-S', $address->host() . ':' . $address->port(),
-            '-t', $this->docRootDirPath
+            '-S', $this->actualAddress->host() . ':' . $this->actualAddress->port(),
+            '-t', $this->docRootDirPath,
         ];
         $process = new Process($cmd, $this->docRootDirPath);
         $process->setTimeout(0);
@@ -42,12 +43,12 @@ class PhpServer implements IServer {
         }
         $this->process = $process;
         waitUntilNoOfAttempts(function () {
-          if (!$this->process->isRunning()) {
-              throw new \RuntimeException("Process has exited with the error: " . \rtrim($this->process->getErrorOutput()) . " (exit code: {$this->process->getExitCode()})");
-          }
-          return $this->isListening();
+            if (!$this->process->isRunning()) {
+                throw new \RuntimeException("Process has exited with the error: " . \rtrim($this->process->getErrorOutput()) . " (exit code: {$this->process->getExitCode()})");
+            }
+            return $this->isListening();
         }, 500000, 20);
-        return $address;
+        return $this->actualAddress;
     }
 
     /**
@@ -68,7 +69,14 @@ class PhpServer implements IServer {
         */
     }
 
-    public function isStarted(): bool {
+    public function actualAddress(): TcpAddress {
+        if (!$this->isReady()) {
+            throw new \LogicException('Server must be started first');
+        }
+        return $this->actualAddress;
+    }
+
+    public function isReady(): bool {
         if (null === $this->process) {
             return false;
         }

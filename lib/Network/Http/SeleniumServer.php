@@ -112,10 +112,6 @@ class SeleniumServer implements IServer {
     }
 
     public function acceptingConnections(int $port = self::PORT): bool {
-        # todo remove debugging
-        sh('ss -tlnp');
-
-
         // @TODO: Use php sockets.
         $res = sh('printf "GET / HTTP/1.1\r\n\r\n" | nc localhost ' . intval($port), ['checkCode' => false, 'capture' => true, 'show' => false]);
         return !$res->isError();
