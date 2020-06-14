@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+readonly SCRIPT_FILE_NAME="$(basename "$0")"
+readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
+
+readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
+
 showFacts() {
     echo --------------------------------------------------------------------------------
     #env
@@ -34,23 +40,23 @@ prepareEnv() {
 
     sudo apt install -y nginx
     # shellcheck disable=SC2016
-    echo 'server {
+    echo "server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
     # Catch all
     server_name _;
 
-    root /home/runner/work/framework/framework/client;
+    root $BASE_DIR_PATH/client;
     index index.php;
-    try_files $uri /index.php?$args;
+    try_files \$uri /index.php?\$args;
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php7.4-fpm.sock;
     }
-}' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
-    sudo chown -R www-data:www-data /home/runner/work/framework/framework/client
+}" | sudo tee > /dev/null /etc/nginx/sites-enabled/default
+    sudo chown -R www-data:www-data "$BASE_DIR_PATH"/client "$BASE_DIR_PATH"/server/localhost/{log,cache}
     sudo systemctl restart nginx
 
     #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
@@ -63,7 +69,19 @@ prepareEnv() {
 }
 
 runTests() {
-    bin/test
+    set +e
+    if ! bin/test; then
+        echo 'server/localhost/log/*'
+        cat "$BASE_DIR_PATH"/server/localhost/log/*
+        echo --------------------------------------------------------------------------------
+        echo 'server/localhost/cache/*'
+        cat "$BASE_DIR_PATH"/server/localhost/cache/*
+        echo --------------------------------------------------------------------------------
+        echo 'test/Integration/*.log'
+        cat "$BASE_DIR_PATH"/test/Integration/*.log
+        exit 1
+    fi
+    set -e
     php test/lint.php
 }
 
