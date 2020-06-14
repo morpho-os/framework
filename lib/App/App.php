@@ -54,24 +54,27 @@ class App extends EventManager {
     }
 
     public function init(): IServiceManager {
+        var_dump('----------1 -----------');
         /** @var ServiceManager $serviceManager */
         $bootServiceManager = $this->config['serviceManager']($this);
-
+        var_dump('----------2 -----------');
         $bootServiceManager['app'] = $this;
 
         /** @var Site $site */
         $site = $bootServiceManager['site'];
-
+        var_dump('----------3 -----------');
         $serviceManager = $site->config()['serviceManager'];
 
         foreach ($bootServiceManager as $id => $service) {
             $serviceManager[$id] = $service;
         }
-
+        var_dump('----------4 -----------');
         $serviceManager->setConfig($site->config()['service']);
 
         /** @var AppInitializer $appInitializer */
         $appInitializer = $serviceManager['appInitializer'];
+
+        var_dump('----------5 -----------');
         $appInitializer->init();
 
         return $serviceManager;
