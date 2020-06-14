@@ -4,10 +4,6 @@
 
 set -euo pipefail
 
-readonly SCRIPT_FILE_NAME="$(basename "$0")"
-readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
-
 setupNginx() {
     sudo apt install -y nginx
     # shellcheck disable=SC2016
@@ -15,16 +11,12 @@ setupNginx() {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    root /home/runner/work/framework/framework/client;
-
-    index index.php;
-
     # Catch all
     server_name _;
 
-    location / {
-        try_files $uri =404;
-    }
+    root /home/runner/work/framework/framework/client;
+    index index.php;
+    try_files $uri /index.php?$args;
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
@@ -45,7 +37,8 @@ setupNginx() {
     echo --------------------------------------------------------------------------------
     sudo find /etc/php/7.4/ -type f -print -exec cat \{\} \;
     echo --------------------------------------------------------------------------------
-    sudo ls -alR /var/run/php/
+    sudo systemctl | grep php-fpm
+    sudo ls -alR /home/runner/work/framework/framework/client
     exit 1
 }
 
