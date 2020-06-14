@@ -28,10 +28,12 @@ setupNginx() {
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-        #fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
     }
 }' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
+
+    sudo chown -R www-data:www-data /home/runner/work/framework/framework/client
+
     sudo systemctl restart nginx
 
     echo --------------------------------------------------------------------------------
@@ -42,10 +44,8 @@ setupNginx() {
     curl -s -v http://localhost
     echo --------------------------------------------------------------------------------
     sudo find /etc/php/7.4/ -type f -print -exec cat \{\} \;
-    # /etc/php/7.4/fpm/php-fpm.conf
     echo --------------------------------------------------------------------------------
     sudo ls -alR /var/run/php/
-
     exit 1
 }
 
