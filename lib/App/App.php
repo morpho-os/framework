@@ -59,13 +59,23 @@ class App extends EventManager {
         $bootServiceManager = $this->config['serviceManager']($this);
         var_dump('----------2 -----------');
         try {
+            var_dump($bootServiceManager);
+            var_dump('----------2.1 -----------');
+
             $bootServiceManager['app'] = $this;
+
+            var_dump('----------2.2 -----------');
 
             /** @var Site $site */
             $site = $bootServiceManager['site'];
 
+            var_dump('----------2.3 -----------');
+
         } catch (\Throwable $e) {
-            d($e);
+            d($e);$bootServiceManager['app'] = $this;
+
+        /** @var Site $site */
+        $site = $bootServiceManager['site'];
         }
         var_dump('----------3 -----------');
         $serviceManager = $site->config()['serviceManager'];
