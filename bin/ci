@@ -7,26 +7,44 @@ set -euo pipefail
 showFacts() {
     echo --------------------------------------------------------------------------------
     env
+    ls -al
+    id
+    cat /etc/os-release
+    echo --------------------------------------------------------------------------------
+    sudo apt install -y nginx
+    cat > /etc/nginx/sites-enabled/default <<'OUT'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /home/runner/work/framework/framework/client;
+
+    index index.php;
+
+    # Catch all
+    server_name _;
+
+    location / {
+        try_files $uri =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        #fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+        fastcgi_pass 127.0.0.1:9000;
+    }
+}
+OUT
+    sudo systemctl start nginx
     echo --------------------------------------------------------------------------------
     ps faux
     echo --------------------------------------------------------------------------------
-    cat /etc/os-release
+    ss -tlnp
     echo --------------------------------------------------------------------------------
-    id
+    curl -v http://localhost
     echo --------------------------------------------------------------------------------
-    ls -al
-    echo --------------------------------------------------------------------------------
-    php --version
-    sudo apt install -y nginx
-    nginx -V
-    cat /etc/nginx/sites-enabled/default
-    echo ---/etc/nginx/sites-enabled/default
-    cat /etc/nginx/snippets/fastcgi-php.conf
-    echo ---/etc/nginx/snippets/fastcgi-php.conf
-    ls -alR /etc/nginx
-    sudo systemctl start nginx
+    find /etc/php/7.4/ -type f -name -print -exec cat {} \;
     exit 1
-    echo --------------------------------------------------------------------------------
 }
 
 prepareEnv() {
