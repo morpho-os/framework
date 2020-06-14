@@ -21,13 +21,18 @@ class App extends EventManager {
 
     public static function main(\ArrayObject $config = null): int {
         try {
+            var_dump('before new');
             $app = new static($config);
+            var_dump('before run');
             $response = $app->run();
+            var_dump('after run');
             $exitCode = $response ? Environment::SUCCESS_CODE : Environment::FAILURE_CODE;
             $event = new Event('exit', ['exitCode'=> $exitCode, 'response' => $response]);
+            var_dump('before exit');
             $app->trigger($event);
             return $event->args['exitCode'];
         } catch (\Throwable $e) {
+            d($e);
             if (Environment::boolIniVal('display_errors')) {
                 echo $e;
             }

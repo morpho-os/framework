@@ -2,27 +2,13 @@
 
 set -euo pipefail
 
-#SCRIPT_FILE_NAME="$(basename "$0")"
-SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-#SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
-
-baseDirPath="$SCRIPT_DIR_PATH/.."
-phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
-phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
-testDirPath="$baseDirPath/test"
-phpUnitConfigFilePath="$testDirPath/phpunit.xml"
-seleniumLogFilePath="$testDirPath/selenium.log"
-
-#$phpUnitBinFilePath --version
-
+readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
+readonly PHP_UNIT_BIN_DIR_PATH="$BASE_DIR_PATH/vendor/phpunit/phpunit"
+readonly PHP_UNIT_BIN_FILE_PATH="$PHP_UNIT_BIN_DIR_PATH/phpunit"
+readonly TEST_DIR_PATH="$BASE_DIR_PATH/test"
+readonly PHP_UNIT_CONFIG_FILE_PATH="$TEST_DIR_PATH/phpunit.xml"
+readonly SELENIUM_LOG_FILE_PATH="$TEST_DIR_PATH/selenium.log"
 export SELENIUM_VERSION=latest
 
-php -f $phpUnitBinFilePath -- --fail-on-warning --fail-on-risky $([[ -n "${TRAVIS-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfigFilePath" "$@" || {
-    if [[ -n ${TRAVIS:-} ]]; then
-        echo ---------------------------------------------------------------
-        echo Selenium log:
-        echo ---------------------------------------------------------------
-        [[ -f "$seleniumLogFilePath" ]] && cat "$seleniumLogFilePath"
-    fi
-    exit 1
-}
+php -f "$PHP_UNIT_BIN_FILE_PATH" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $TEST_DIR_PATH/result/test.xml") -c "$PHP_UNIT_CONFIG_FILE_PATH" "$@"
