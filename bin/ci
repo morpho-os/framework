@@ -4,16 +4,14 @@
 
 set -euo pipefail
 
-showFacts() {
-    echo --------------------------------------------------------------------------------
-    env
-    ls -al
-    id
-    cat /etc/os-release
-    echo --------------------------------------------------------------------------------
+readonly SCRIPT_FILE_NAME="$(basename "$0")"
+readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
+
+setupNginx() {
     sudo apt install -y nginx
-    cat > /etc/nginx/sites-enabled/default <<'OUT'
-server {
+    # shellcheck disable=SC2016
+    echo 'server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
@@ -33,9 +31,9 @@ server {
         #fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
         fastcgi_pass 127.0.0.1:9000;
     }
-}
-OUT
+}' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
     sudo systemctl start nginx
+
     echo --------------------------------------------------------------------------------
     ps faux
     echo --------------------------------------------------------------------------------
@@ -47,7 +45,18 @@ OUT
     exit 1
 }
 
+showFacts() {
+    echo --------------------------------------------------------------------------------
+    env
+    ls -al
+    id
+    cat /etc/os-release
+    echo --------------------------------------------------------------------------------
+}
+
 prepareEnv() {
+    setupNginx
+
     export MORPHO_CI=GitHub MORPHO_TEST_WEB_SERVER_DOMAIN=127.0.0.1 MORPHO_TEST_WEB_SERVER_PORT=7654
     # GitHub CI exposes the `SELENIUM_JAR_PATH` environment variable with path to the .jar file.
     export MORPHO_SELENIUM_SERVER_JAR_FILE_PATH=$SELENIUM_JAR_PATH MORPHO_GECKOBIN_FILE_PATH=/usr/bin/geckodriver
