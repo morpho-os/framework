@@ -23,23 +23,22 @@ setupNginx() {
         fastcgi_pass unix:/run/php/php7.4-fpm.sock;
     }
 }' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
-
     sudo chown -R www-data:www-data /home/runner/work/framework/framework/client
-
     sudo systemctl restart nginx
 
-    echo --------------------------------------------------------------------------------
-    ps faux
-    echo --------------------------------------------------------------------------------
-    sudo ss -tlnp
-    echo --------------------------------------------------------------------------------
-    curl -s -v http://localhost
-    echo --------------------------------------------------------------------------------
-    sudo find /etc/php/7.4/ -type f -print -exec cat \{\} \;
-    echo --------------------------------------------------------------------------------
-    sudo systemctl | grep php-fpm
-    sudo ls -alR /home/runner/work/framework/framework/client
-    exit 1
+    #echo --------------------------------------------------------------------------------
+    #ps faux
+    #echo --------------------------------------------------------------------------------
+    #sudo ss -tlnp
+    #echo --------------------------------------------------------------------------------
+    #curl -s -v http://localhost
+    #echo --------------------------------------------------------------------------------
+    #sudo find /etc/php/7.4/ -type f -print -exec cat \{\} \;
+    #echo --------------------------------------------------------------------------------
+    #sudo systemctl | grep php-fpm
+    #sudo ls -alR /home/runner/work/framework/framework/client
+
+    export MORPHO_CI_DEBUG=1
 }
 
 showFacts() {
