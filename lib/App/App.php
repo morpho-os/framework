@@ -45,8 +45,11 @@ class App extends EventManager {
      * @return IResponse|false
      */
     public function run() {
+        var_dump('before init()');
         $serviceManager = $this->init();
+        var_dump('after init()');
         $site = $serviceManager['site'];
+        var_dump('before site::invoke()');
         return $site->__invoke($serviceManager);
     }
 
