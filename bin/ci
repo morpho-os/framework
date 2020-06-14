@@ -23,27 +23,11 @@ setupNginx() {
         fastcgi_pass unix:/run/php/php7.4-fpm.sock;
     }
 }' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
-    sudo chown -R www-data:www-data /home/runner/work/framework/framework/client
-    sudo systemctl restart nginx
-
-    #echo --------------------------------------------------------------------------------
-    #ps faux
-    #echo --------------------------------------------------------------------------------
-    #sudo ss -tlnp
-    #echo --------------------------------------------------------------------------------
-    #curl -s -v http://localhost
-    #echo --------------------------------------------------------------------------------
-    #sudo find /etc/php/7.4/ -type f -print -exec cat \{\} \;
-    #echo --------------------------------------------------------------------------------
-    #sudo systemctl | grep php-fpm
-    #sudo ls -alR /home/runner/work/framework/framework/client
-
-    export MORPHO_CI_DEBUG=1
 }
 
 showFacts() {
     echo --------------------------------------------------------------------------------
-    env
+    #env
     ls -al
     id
     cat /etc/os-release
@@ -51,13 +35,9 @@ showFacts() {
 }
 
 prepareEnv() {
-    setupNginx
-
-    export MORPHO_CI=GitHub MORPHO_TEST_WEB_SERVER_DOMAIN=127.0.0.1 MORPHO_TEST_WEB_SERVER_PORT=7654
+    export MORPHO_CI=GitHub MORPHO_CI_DEBUG=1 MORPHO_TEST_WEB_SERVER_DOMAIN=127.0.0.1 MORPHO_TEST_WEB_SERVER_PORT=7654
     # GitHub CI exposes the `SELENIUM_JAR_PATH` environment variable with path to the .jar file.
     export MORPHO_SELENIUM_SERVER_JAR_FILE_PATH=$SELENIUM_JAR_PATH MORPHO_GECKOBIN_FILE_PATH=/usr/bin/geckodriver
-
-    sudo npm install -g typescript@next
 
     # Create block device
     sudo mknod -m 0777 /tmp/block-dev-test b 125 1
@@ -68,9 +48,13 @@ prepareEnv() {
     # `start-stop-daemon` is provided by the `dpkg` package
     /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
 
+    sudo npm install -g typescript@next
     pushd client > /dev/null
     npm install
     popd > /dev/null
+
+    sudo chown -R www-data:www-data /home/runner/work/framework/framework/client
+    sudo systemctl restart nginx
 
     #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
     composer install --no-interaction
