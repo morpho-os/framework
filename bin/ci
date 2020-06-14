@@ -17,12 +17,14 @@ showFacts() {
     ls -al
     echo --------------------------------------------------------------------------------
     php --version
-    which nginx || true
     sudo apt install -y nginx
     nginx -V
+    cat /etc/nginx/sites-enabled/default
+    echo ---/etc/nginx/sites-enabled/default
+    cat /etc/nginx/snippets/fastcgi-php.conf
+    echo ---/etc/nginx/snippets/fastcgi-php.conf
     ls -alR /etc/nginx
     sudo systemctl start nginx
-    grep -R php /etc/nginx
     exit 1
     echo --------------------------------------------------------------------------------
 }
