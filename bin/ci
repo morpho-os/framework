@@ -13,7 +13,7 @@ readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
 showFacts() {
     echo --------------------------------------------------------------------------------
     #env
-    ls -al
+    ls -al "$BASE_DIR_PATH"/
     id
     cat /etc/os-release
     echo --------------------------------------------------------------------------------
@@ -69,6 +69,9 @@ prepareEnv() {
 }
 
 runTests() {
+    curl -v http://localhost:80/localhost/test/
+    exit 1
+
     set +e
     if ! bin/test; then
         echo 'server/localhost/log/*'
