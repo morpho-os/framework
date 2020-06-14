@@ -14,7 +14,7 @@ showFacts() {
 }
 
 prepareEnv() {
-    export MORPHO_CI=GitHub MORPHO_CI_DEBUG=1 MORPHO_TEST_WEB_SERVER_DOMAIN=127.0.0.1 MORPHO_TEST_WEB_SERVER_PORT=7654
+    export MORPHO_CI=GitHub MORPHO_CI_DEBUG=1 MORPHO_TEST_WEB_SERVER_DOMAIN=localhost MORPHO_TEST_WEB_SERVER_PORT=7654
     # GitHub CI exposes the `SELENIUM_JAR_PATH` environment variable with path to the .jar file.
     export MORPHO_SELENIUM_SERVER_JAR_FILE_PATH=$SELENIUM_JAR_PATH MORPHO_GECKOBIN_FILE_PATH=/usr/bin/geckodriver
 
@@ -56,7 +56,7 @@ prepareEnv() {
     #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
     composer install --no-interaction
 
-    sudo systemctl start mysql
+    sudo systemctl restart mysql
     export MORPHO_TEST_DB_USER=root MORPHO_TEST_DB_PASSWORD=root MORPHO_TEST_DB_DB=test
     mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "DROP DATABASE IF EXISTS $MORPHO_TEST_DB_DB; CREATE DATABASE $MORPHO_TEST_DB_DB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci"
     mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "SHOW DATABASES"

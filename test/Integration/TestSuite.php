@@ -37,18 +37,18 @@ class TestSuite extends BrowserTestSuite {
     }
 
     private static function startPhpServer(Sut $sut): void {
-        if ($sut->isCi()) {
-            $sut['phpServer'] = $phpServer = new PhpServer(
-                $sut->webServerAddress(),
-                $sut->webServerWebDirPath()
-            );
-            $phpServer->start();
-        }
+//        if ($sut->isCi()) {
+//            $sut['phpServer'] = $phpServer = new PhpServer(
+//                $sut->webServerAddress(),
+//                $sut->webServerWebDirPath()
+//            );
+//            $phpServer->start();
+//        }
     }
 
     private static function stopPhpServer(Sut $sut): void {
-        if ($sut->isCi() && isset($sut['phpServer'])) {
-            $sut['phpServer']->stop();
-        }
+//        if ($sut->isCi() && isset($sut['phpServer'])) {
+//            $sut['phpServer']->stop();
+//        }
     }
 }
