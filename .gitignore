@@ -6,7 +6,7 @@
 !/bin/ci
 
 # Composer's files:
-vendor/
+/vendor/
 composer.lock
 
 # Generated files:

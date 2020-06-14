@@ -20,21 +20,18 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
     }
 
     public function __invoke($_ = null): ISite {
-        var_dump('---1---');
         $hostName = $this->currentHostName();
-        var_dump('---2---');
         if (!$hostName) {
             $this->throwInvalidSiteError();
         }
-        var_dump('---3---');
+
         $initialSiteConfig = $this->hostNameToSiteModule($hostName);
-        var_dump('---4---');
         if (false === $initialSiteConfig) {
             $this->throwInvalidSiteError();
         }
-        var_dump('---5---');
+
         $siteConfig = $this->loadExtendedSiteConfig($initialSiteConfig['siteModule'], $initialSiteConfig);
-        var_dump('---6---');
+
         return $this->mkSite($initialSiteConfig['siteModule'], $siteConfig, $hostName);
     }
 
@@ -43,7 +40,6 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
      * @return array|false
      */
     protected function hostNameToSiteModule(string $hostName) {
-        var_dump('HOSTNAME: ', $hostName);
         $allowedHostNames = ['localhost', 'framework', '127.0.0.1'];
         if (in_array($hostName, $allowedHostNames, true)) {
             $appConfig = $this->serviceManager['app']->config();
