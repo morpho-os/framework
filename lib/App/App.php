@@ -21,18 +21,13 @@ class App extends EventManager {
 
     public static function main(\ArrayObject $config = null): int {
         try {
-            var_dump('before new');
             $app = new static($config);
-            var_dump('before run');
             $response = $app->run();
-            var_dump('after run');
             $exitCode = $response ? Environment::SUCCESS_CODE : Environment::FAILURE_CODE;
             $event = new Event('exit', ['exitCode'=> $exitCode, 'response' => $response]);
-            var_dump('before exit');
             $app->trigger($event);
             return $event->args['exitCode'];
         } catch (\Throwable $e) {
-            d($e);
             if (Environment::boolIniVal('display_errors')) {
                 echo $e;
             }
@@ -45,51 +40,30 @@ class App extends EventManager {
      * @return IResponse|false
      */
     public function run() {
-        var_dump('before init()');
         $serviceManager = $this->init();
-        var_dump('after init()');
         $site = $serviceManager['site'];
-        var_dump('before site::invoke()');
         return $site->__invoke($serviceManager);
     }
 
     public function init(): IServiceManager {
-        var_dump('----------1 -----------');
         /** @var ServiceManager $serviceManager */
         $bootServiceManager = $this->config['serviceManager']($this);
-        var_dump('----------2 -----------');
-        try {
-            var_dump($bootServiceManager);
-            var_dump('----------2.1 -----------');
 
-            $bootServiceManager['app'] = $this;
-
-            var_dump('----------2.2 -----------');
-
-            /** @var Site $site */
-            $site = $bootServiceManager['site'];
-
-            var_dump('----------2.3 -----------');
-
-        } catch (\Throwable $e) {
-            d($e);$bootServiceManager['app'] = $this;
+        $bootServiceManager['app'] = $this;
 
         /** @var Site $site */
         $site = $bootServiceManager['site'];
-        }
-        var_dump('----------3 -----------');
+
         $serviceManager = $site->config()['serviceManager'];
 
         foreach ($bootServiceManager as $id => $service) {
             $serviceManager[$id] = $service;
         }
-        var_dump('----------4 -----------');
+
         $serviceManager->setConfig($site->config()['service']);
 
         /** @var AppInitializer $appInitializer */
         $appInitializer = $serviceManager['appInitializer'];
-
-        var_dump('----------5 -----------');
         $appInitializer->init();
 
         return $serviceManager;
