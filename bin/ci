@@ -4,27 +4,6 @@
 
 set -euo pipefail
 
-setupNginx() {
-    sudo apt install -y nginx
-    # shellcheck disable=SC2016
-    echo 'server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    # Catch all
-    server_name _;
-
-    root /home/runner/work/framework/framework/client;
-    index index.php;
-    try_files $uri /index.php?$args;
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
-    }
-}' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
-}
-
 showFacts() {
     echo --------------------------------------------------------------------------------
     #env
@@ -53,6 +32,24 @@ prepareEnv() {
     npm install
     popd > /dev/null
 
+    sudo apt install -y nginx
+    # shellcheck disable=SC2016
+    echo 'server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # Catch all
+    server_name _;
+
+    root /home/runner/work/framework/framework/client;
+    index index.php;
+    try_files $uri /index.php?$args;
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+    }
+}' | sudo tee > /dev/null /etc/nginx/sites-enabled/default
     sudo chown -R www-data:www-data /home/runner/work/framework/framework/client
     sudo systemctl restart nginx
 
