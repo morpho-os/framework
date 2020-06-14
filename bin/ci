@@ -69,9 +69,6 @@ prepareEnv() {
 }
 
 runTests() {
-    curl -v http://localhost:80/localhost/test/
-    exit 1
-
     set +e
     if ! bin/test; then
         echo 'server/localhost/log/*'
