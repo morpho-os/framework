@@ -93,7 +93,7 @@ class SeleniumServer implements IServer {
                 . ' -Djavax.net.ssl.trustStore=' . \escapeshellarg($trustStoreFilePath) // To fix Facebook\WebDriver\Exception\UnknownServerException caused by invalid `cacerts` file
                 //. ' -Djavax.net.ssl.keyStore=' . \escapeshellarg($keyStoreFilePath)
                 . ' -Dwebdriver.gecko.driver=' . \escapeshellarg($geckoBinFilePath)
-                . ' -Dwebdriver.firefox.marionette=true'
+                //. ' -Dwebdriver.firefox.marionette=true'
                 . ' -jar ' . \escapeshellarg($serverJarFilePath)
                 . ($this->logFilePath ? ' -log ' . \escapeshellarg($this->logFilePath()) : '')
                 . ' &> /dev/null &';

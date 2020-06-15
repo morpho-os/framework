@@ -69,12 +69,7 @@ prepareEnv() {
 }
 
 runTests() {
-    echo -mount-------------------------------------------------------------------------------
-    mount
-    echo --ls /tmp-----------------------------------------------------------------------------
-    ls -al /tmp/
-    echo -- curl -----------------------------------------------------------------------------
-    curl -v http://localhost/localhost/test
+    curl -s -v http://localhost/localhost/test
     echo --php------------------------------------------------------------------------------
     php "$BASE_DIR_PATH"/test/Manual/selenium-webdriver.php
 

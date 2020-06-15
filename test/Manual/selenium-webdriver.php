@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Morpho\Test\Manual;
 
 // Tests related to https://github.com/morpho-os/framework/issues/413
@@ -7,6 +8,9 @@ require __DIR__ . '/init.php';
 
 var_dump('Temp directory:', sys_get_temp_dir());
 
+use Facebook\WebDriver\Exception\TimeOutException;
+use Facebook\WebDriver\Firefox\FirefoxDriver;
+use Facebook\WebDriver\Firefox\FirefoxProfile;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -18,10 +22,18 @@ $sut = Sut::instance();
 $uri = $sut->siteUri();
 
 function browsers() {
-    $desiredCapabilities = DesiredCapabilities::firefox();
-    $desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['-headless']]);
-    $browser = Browser::mk($desiredCapabilities);
-    return [$browser];
+    $mkFirefox = function () {
+        $desiredCapabilities = DesiredCapabilities::firefox();
+        $profile = new FirefoxProfile();
+        $desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['-headless']]);
+        $desiredCapabilities->setCapability(FirefoxDriver::PROFILE, $profile);
+        $desiredCapabilities->setCapability("marionette", true);
+        return Browser::mk($desiredCapabilities);
+    };
+    $mkChromium = function () {
+
+    };
+    return [$mkFirefox()/*, $mkChromium()*/];
 }
 
 $seleniumServerConfig = $sut->seleniumServerConfig();
@@ -38,8 +50,12 @@ foreach (browsers() as $browser) {
 
     $browser->get($testUri);
     $testingResultsSelector = WebDriverBy::id('testing-results');
-    $visibleElements = $browser->wait()->until(WebDriverExpectedCondition::visibilityOfAnyElementLocated($testingResultsSelector));
-    var_dump('Visible elements:', $visibleElements);
+    try {
+        $visibleElements = $browser->wait()->until(WebDriverExpectedCondition::visibilityOfAnyElementLocated($testingResultsSelector));
+        var_dump('Visible elements:', $visibleElements);
+    } catch (TimeOutException $e) {
+        var_dump('Timeout exception thrown:', $e);
+    }
 
     preg_match_all('~<script.*?src="([^"]+)">~si', file_get_contents($testUri), $match);
     assert(count($match[1]));
