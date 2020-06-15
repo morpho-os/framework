@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 namespace Morpho\Test\Manual;
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+// Tests related to https://github.com/morpho-os/framework/issues/413
+
+require __DIR__ . '/init.php';
+
+var_dump('Temp directory:', sys_get_temp_dir());
 
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
@@ -11,23 +14,37 @@ use Morpho\Network\Http\Browser;
 use Morpho\Network\Http\SeleniumServer;
 use Morpho\Testing\Sut;
 
-require __DIR__ . '/../../vendor/autoload.php';
-
 $sut = Sut::instance();
+$uri = $sut->siteUri();
+
+function browsers() {
+    $desiredCapabilities = DesiredCapabilities::firefox();
+    $desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['-headless']]);
+    $browser = Browser::mk($desiredCapabilities);
+    return [$browser];
+}
+
 $seleniumServerConfig = $sut->seleniumServerConfig();
 var_dump('Selenium server config:', $seleniumServerConfig);
 $seleniumServer = SeleniumServer::mk($seleniumServerConfig);
 $seleniumServer->start();
 
-$desiredCapabilities = DesiredCapabilities::firefox();
-$desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['-headless']]);
-var_dump('Browser capabilities:', $desiredCapabilities->toArray());
-$browser = Browser::mk($desiredCapabilities);
-
-$uri = $sut->siteUri();
 var_dump('Site URI:', $uri);
+foreach (browsers() as $browser) {
+    var_dump('Browser capabilities:', $browser->getCapabilities());
 
-$browser->get($uri . '/localhost/test');
-$testingResultsSelector = WebDriverBy::id('testing-results');
-$visibleElements = $browser->wait()->until(WebDriverExpectedCondition::visibilityOfAnyElementLocated($testingResultsSelector));
-var_dump('Visible elements:', $visibleElements);
+    $testUri = $uri . '/localhost/test';
+    var_dump('Checking URI:', $testUri);
+
+    $browser->get($testUri);
+    $testingResultsSelector = WebDriverBy::id('testing-results');
+    $visibleElements = $browser->wait()->until(WebDriverExpectedCondition::visibilityOfAnyElementLocated($testingResultsSelector));
+    var_dump('Visible elements:', $visibleElements);
+
+    preg_match_all('~<script.*?src="([^"]+)">~si', file_get_contents($testUri), $match);
+    assert(count($match[1]));
+    var_dump('Found scripts:', count($match[1]));
+    foreach ($match[1] as $scriptUri) {
+        var_dump('--------------------------------------------------------------------------------', $scriptUri, file_get_contents($uri . $scriptUri));
+    }
+}

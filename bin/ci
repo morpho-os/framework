@@ -12,7 +12,7 @@ readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
 
 showFacts() {
     echo --------------------------------------------------------------------------------
-    #env
+    env
     ls -al "$BASE_DIR_PATH"/
     id
     cat /etc/os-release
