@@ -57,16 +57,19 @@ class Sut extends \ArrayObject {
 
     public function seleniumServerConfig(): array {
         $seleniumDirPath = getenv('MORPHO_SELENIUM_DIR_PATH') ?: $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
+
         $seleniumServerJarFilePath = $seleniumDirPath . '/selenium-server-standalone.jar';
-        $geckoBinFilePath = $seleniumDirPath . '/geckodriver';
         $seleniumServerJarCandidateFilePath = getenv('MORPHO_SELENIUM_SERVER_JAR_FILE_PATH');
         if (false !== $seleniumServerJarCandidateFilePath && file_exists($seleniumServerJarCandidateFilePath)) {
             $seleniumServerJarFilePath = $seleniumServerJarCandidateFilePath;
         }
+
+        $geckoBinFilePath = $seleniumDirPath . '/geckodriver';
         $geckoBinCandidateFilePath = getenv('MORPHO_GECKOBIN_FILE_PATH');
         if (false !== $geckoBinCandidateFilePath && file_exists($geckoBinCandidateFilePath)) {
             $geckoBinFilePath = $geckoBinCandidateFilePath;
         }
+
         return [
             'geckoBinFilePath' => $geckoBinFilePath,
             'serverJarFilePath' => $seleniumServerJarFilePath,
