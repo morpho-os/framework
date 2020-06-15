@@ -6,7 +6,6 @@
  */
 namespace Morpho\Test\Integration;
 
-use Morpho\Network\PhpServer;
 use Morpho\Testing\BrowserTestSuite;
 use Morpho\Testing\Sut;
 
@@ -23,7 +22,6 @@ class TestSuite extends BrowserTestSuite {
      */
     public static function beforeAll(): void {
         $sut = Sut::instance();
-        self::startPhpServer($sut);
         BrowserTestSuite::startSeleniumServer($sut);
     }
 
@@ -33,22 +31,5 @@ class TestSuite extends BrowserTestSuite {
     public static function afterAll(): void {
         $sut = Sut::instance();
         BrowserTestSuite::stopSeleniumServer($sut);
-        self::stopPhpServer($sut);
-    }
-
-    private static function startPhpServer(Sut $sut): void {
-//        if ($sut->isCi()) {
-//            $sut['phpServer'] = $phpServer = new PhpServer(
-//                $sut->webServerAddress(),
-//                $sut->webServerWebDirPath()
-//            );
-//            $phpServer->start();
-//        }
-    }
-
-    private static function stopPhpServer(Sut $sut): void {
-//        if ($sut->isCi() && isset($sut['phpServer'])) {
-//            $sut['phpServer']->stop();
-//        }
     }
 }

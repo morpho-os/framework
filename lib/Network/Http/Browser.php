@@ -18,15 +18,13 @@ class Browser extends RemoteWebDriver {
 
     /**
      * Timeout in sec, how long to wait() for condition
-     * @var int
      */
-    private $waitTimeout = self::WAIT_TIMEOUT;
+    private int $waitTimeout = self::WAIT_TIMEOUT;
 
     /**
      * Interval in ms, how often check for condition in wait()
-     * @var int
      */
-    private $waitInterval = self::WAIT_INTERVAL;
+    private int $waitInterval = self::WAIT_INTERVAL;
 
     public function setWaitTimeout(int $timeout): self {
         $this->waitTimeout = $timeout;
@@ -53,10 +51,11 @@ class Browser extends RemoteWebDriver {
     }
 
     /**
-     * @param \Facebook\WebDriver\Remote\DesiredCapabilities|array $capabilities
+     * @param \Facebook\WebDriver\Remote\DesiredCapabilities|array $desiredCapabilities
+     *
      */
-    public static function mk($capabilities) {
-        return static::create('http://localhost:4444/wd/hub', $capabilities, self::CONNECTION_TIMEOUT, self::REQUEST_TIMEOUT);
+    public static function mk($desiredCapabilities): Browser {
+        return static::create('http://localhost:4444/wd/hub', $desiredCapabilities, self::CONNECTION_TIMEOUT, self::REQUEST_TIMEOUT);
         /*
         // @var \Facebook\WebDriver\WebDriverTimeouts
         $timeouts = $browser->manage()->timeouts();
@@ -67,8 +66,7 @@ class Browser extends RemoteWebDriver {
     }
 
     /**
-     * @param callable|\Facebook\WebDriver\WebDriverExpectedCondition $fnOrCondition
-     * @param string $message
+     * @param callable|\Facebook\WebDriver\WebDriverExpectedCondition $predicate
      * @param string $message
      * @return mixed
      */
@@ -80,8 +78,8 @@ class Browser extends RemoteWebDriver {
         $this->waitUntil(WebDriverExpectedCondition::titleIs($expectedTitle));
     }
 
-    public function waitUntilElementIsVisible(By $by): void {
-        $this->waitUntil(WebDriverExpectedCondition::visibilityOfElementLocated($by));
+    public function waitUntilElementIsVisible(By $selector): void {
+        $this->waitUntil(WebDriverExpectedCondition::visibilityOfElementLocated($selector));
     }
 
     /*

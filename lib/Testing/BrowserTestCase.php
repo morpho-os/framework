@@ -53,8 +53,14 @@ class BrowserTestCase extends TestCase {
         return $this->browser;
     }
 
-    protected function mkBrowser() {
-        return Browser::mk(DesiredCapabilities::firefox());
+    protected function mkBrowser(): Browser {
+        return Browser::mk($this->mkBrowserDesiredCapabilities());
+    }
+
+    protected function mkBrowserDesiredCapabilities(): DesiredCapabilities {
+        $desiredCapabilities = DesiredCapabilities::firefox();
+        $desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['-headless']]);
+        return $desiredCapabilities;
     }
 
     protected function configureBrowser($browser): void {

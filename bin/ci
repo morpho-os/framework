@@ -60,7 +60,7 @@ prepareEnv() {
     sudo systemctl restart nginx
 
     #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
-    composer install --no-interaction
+    composer --no-ansi --no-interaction install
 
     sudo systemctl restart mysql
     export MORPHO_TEST_DB_USER=root MORPHO_TEST_DB_PASSWORD=root MORPHO_TEST_DB_DB=test
