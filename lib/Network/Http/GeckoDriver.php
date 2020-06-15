@@ -18,7 +18,7 @@ class GeckoDriver implements IWebDriver {
 
     public function __construct(string $geckoBinFilePath = null) {
         if (null === $geckoBinFilePath) {
-            if (!is_file('/usr/bin/geckodriver')) {
+            if (!file_exists('/usr/bin/geckodriver')) {
                 throw new \RuntimeException(self::FILE_NAME . ' was not found');
             }
             $geckoBinFilePath = '/usr/bin/geckodriver';
@@ -27,6 +27,9 @@ class GeckoDriver implements IWebDriver {
     }
 
     public function start(): void {
+        if (!file_exists($this->geckoBinFilePath)) {
+            throw new \RuntimeException("The '{$this->geckoBinFilePath}' does not exist");
+        }
         $cmd = \escapeshellarg($this->geckoBinFilePath) . ' > /dev/null 2>&1 &';
         \proc_close(\proc_open($cmd, [], $pipes));
         for ($i = 0; $i < 15; $i++) {
@@ -35,6 +38,7 @@ class GeckoDriver implements IWebDriver {
             }
             sleep(1);
         }
+        throw new \RuntimeException('Unable to start server');
     }
 
     public function stop(): void {

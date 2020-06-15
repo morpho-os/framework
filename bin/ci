@@ -20,7 +20,7 @@ showFacts() {
 }
 
 prepareEnv() {
-    export MORPHO_CI=GitHub MORPHO_CI_DEBUG=1 MORPHO_TEST_WEB_SERVER_DOMAIN=localhost MORPHO_TEST_WEB_SERVER_PORT=80
+    export MORPHO_CI=GitHub MORPHO_CI_DEBUG=1 MORPHO_TEST_WEB_SERVER_DOMAIN=localhost MORPHO_TEST_WEB_SERVER_PORT=80 MORPHO_GECKO_BIN_FILE_PATH=/usr/bin/geckodriver
 
     # Create block device
     sudo mknod -m 0777 /tmp/block-dev-test b 125 1
