@@ -18,8 +18,8 @@ selenium.log.*
 geckodriver
 .phpunit.result.cache
 *.tsbuildinfo
-/client/localhost/lib/**/*.js
-!/client/localhost/lib/**/index.js
+/client/localhost/lib/*.js
+!/client/localhost/lib/*.index.js
 
 # bower
 bower_components/
