@@ -27,9 +27,9 @@ export function main(/*, sourceMappedStackTrace: SourceMappedStackTrace*/): void
 
     const seleniumReporter = {
         jasmineDone(runDetails: jasmine.RunDetails) {
-            if (window.location.search.indexOf('bot') >= 0) {
-                (<HTMLElement>document.getElementById('main__body')).innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
-            }
+            //if (window.location.search.indexOf('bot') >= 0) {
+            (<HTMLElement>document.getElementById('main__body')).innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
+            //}
         }
     };
     env.addReporter(seleniumReporter);
