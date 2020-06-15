@@ -22,7 +22,7 @@ class TestSuite extends BrowserTestSuite {
      */
     public static function beforeAll(): void {
         $sut = Sut::instance();
-        BrowserTestSuite::startSeleniumServer($sut);
+        BrowserTestSuite::startWebDriver($sut);
     }
 
     /**
@@ -30,6 +30,6 @@ class TestSuite extends BrowserTestSuite {
      */
     public static function afterAll(): void {
         $sut = Sut::instance();
-        BrowserTestSuite::stopSeleniumServer($sut);
+        BrowserTestSuite::stopWebDriver($sut);
     }
 }

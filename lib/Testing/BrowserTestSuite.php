@@ -6,25 +6,23 @@
  */
 namespace Morpho\Testing;
 
-use Morpho\Network\Http\SeleniumServer;
+use Morpho\Network\Http\GeckoDriver;
+use Morpho\Network\Http\IWebDriver;
 
 abstract class BrowserTestSuite extends TestSuite {
-    public static function startSeleniumServer(Sut $sut) {
-        $seleniumServer = SeleniumServer::mk($sut->seleniumServerConfig());
-        $seleniumServer->start();
-        $sut['seleniumServer'] = $seleniumServer;
+    public static function startWebDriver(Sut $sut, bool $once = true): IWebDriver {
+        if ($once && isset($sut['webDriver'])) {
+            return $sut['webDriver'];
+        }
+        $webDriver = new GeckoDriver();
+        $webDriver->start();
+        $sut['webDriver'] = $webDriver;
+        return $webDriver;
     }
 
-    public static function stopSeleniumServer(Sut $sut) {
-        if (isset($sut['seleniumServer'])) {
-            $sut['seleniumServer']->stop();
+    public static function stopWebDriver(Sut $sut): void {
+        if (isset($sut['webDriver'])) {
+            $sut['webDriver']->stop();
         }
-    }
-
-    public static function startSeleniumServerOnce(Sut $sut) {
-        if (isset($sut['seleniumServer'])) {
-            return; // Assume already started
-        }
-        self::startSeleniumServer($sut);
     }
 }

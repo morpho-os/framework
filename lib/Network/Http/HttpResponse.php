@@ -10,7 +10,7 @@ use Morpho\Base\NotImplementedException;
 use Zend\Http\Response;
 
 class HttpResponse {
-    private $response;
+    private Response $response;
 
     public function __construct(Response $response) {
         $this->response = $response;

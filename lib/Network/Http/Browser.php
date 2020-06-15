@@ -11,6 +11,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverBy as By;
 
 class Browser extends RemoteWebDriver {
+    public const WEB_DRIVER_URI = 'http://localhost:4444';
     protected const WAIT_TIMEOUT  = 20;    // sec
     protected const WAIT_INTERVAL = 1000;  // ms
     protected const CONNECTION_TIMEOUT = 30000; // ms, corresponds to CURLOPT_CONNECTTIMEOUT_MS
@@ -52,10 +53,14 @@ class Browser extends RemoteWebDriver {
 
     /**
      * @param \Facebook\WebDriver\Remote\DesiredCapabilities|array $desiredCapabilities
-     *
+     * @param string|null $webDriverUri
+     * @return Browser
      */
-    public static function mk($desiredCapabilities): Browser {
-        return static::create('http://localhost:4444/wd/hub', $desiredCapabilities, self::CONNECTION_TIMEOUT, self::REQUEST_TIMEOUT);
+    public static function mk($desiredCapabilities, string $webDriverUri = null): Browser {
+        if (null === $webDriverUri) {
+            $webDriverUri = self::WEB_DRIVER_URI;
+        }
+        return static::create($webDriverUri, $desiredCapabilities, self::CONNECTION_TIMEOUT, self::REQUEST_TIMEOUT);
         /*
         // @var \Facebook\WebDriver\WebDriverTimeouts
         $timeouts = $browser->manage()->timeouts();

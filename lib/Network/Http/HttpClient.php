@@ -76,6 +76,15 @@ class HttpClient {
         sh('curl --progress-bar -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => true]);
         return $destPath;
     }
+
+    public static function serverAcceptsConnections(string $host, int $port): bool {
+        $sock = @fsockopen($host, $port, $errNo, $errMsg, 5);
+        if (false === $sock) {
+            return false;
+        }
+        fwrite($sock, "GET / HTTP/1.1\r\n\r\n");
+        return (bool) preg_match('~^HTTP/\d+.\d+ \d{3}~si', fread($sock, 25));
+    }
     
     protected function doSend(RequestInternal $request): HttpResponse {
         return new HttpResponse($this->client->send($request));

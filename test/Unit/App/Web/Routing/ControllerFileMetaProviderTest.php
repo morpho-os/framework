@@ -14,7 +14,6 @@ use Morpho\App\Web\Routing\ControllerFileMetaProvider;
 
 class ControllerFileMetaProviderTest extends TestCase {
     public function testInterface() {
-        /** @noinspection PhpParamsInspection */
         $this->assertInstanceOf(IFn::class, new ControllerFileMetaProvider($this->createMock(ModuleIndex::class)));
     }
 
@@ -26,18 +25,19 @@ class ControllerFileMetaProviderTest extends TestCase {
         ];
         $testDirPath = $this->getTestDirPath();
         $moduleIndex = $this->createMock(ModuleIndex::class);
-        foreach ($modules as $name => $_) {
-            $moduleIndex->expects($this->any())
-                ->method('module')
-                ->will($this->returnCallback(function ($moduleName) use ($name, $testDirPath) {
+        $moduleIndex->expects($this->any())
+            ->method('module')
+            ->will($this->returnCallback(function ($moduleName) use ($modules, $testDirPath) {
+                if (in_array($moduleName, $modules, true)) {
                     return new Module($moduleName, [
                         'path' => [
                             'controllerDirPath' => $testDirPath . '/' . $moduleName,
                         ],
                     ]);
-                }));
-        }
-        /** @noinspection PhpParamsInspection */
+                }
+                throw new \UnexpectedValueException();
+            }));
+
         $controllerFileMetaProvider = new ControllerFileMetaProvider($moduleIndex);
         $expected = [
             [

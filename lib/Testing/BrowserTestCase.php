@@ -23,7 +23,7 @@ class BrowserTestCase extends TestCase {
     public function setUp(): void {
         parent::setUp();
         $sut = $this->sut();
-        BrowserTestSuite::startSeleniumServerOnce($sut);
+        BrowserTestSuite::startWebDriver($sut);
         $this->browser = $this->browser();
     }
 
@@ -54,10 +54,10 @@ class BrowserTestCase extends TestCase {
     }
 
     protected function mkBrowser(): Browser {
-        return Browser::mk($this->mkBrowserDesiredCapabilities());
+        return Browser::mk($this->mkBrowserCapabilities());
     }
 
-    protected function mkBrowserDesiredCapabilities(): DesiredCapabilities {
+    protected function mkBrowserCapabilities(): DesiredCapabilities {
         $desiredCapabilities = DesiredCapabilities::firefox();
         $desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['-headless']]);
         return $desiredCapabilities;

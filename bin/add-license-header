@@ -9,7 +9,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $process = true;
 if (posix_isatty(STDOUT)) {
-    $res = sh('dialog --stdout --yesno \'Process?\' 0 0', ['checkCode' => false, 'capture' => true]);
+    $res = sh('dialog --stdout --yesno \'Process?\' 0 0', ['check' => false, 'capture' => true]);
     $process = !$res->isError();
 }
 

@@ -152,7 +152,7 @@ function sh(string $command, array $config = null): ICommandResult {
     $showSet = isset($config['show']);
     $captureSet = isset($config['capture']);
     $config = Config::check([
-        'checkCode' => true,
+        'check' => true,
         // @TODO: tee: buffer and display output
         'show' => true,
         'capture' => false,
@@ -189,7 +189,7 @@ function sh(string $command, array $config = null): ICommandResult {
         }
     }
 
-    if ($config['checkCode']) {
+    if ($config['check']) {
         checkExitCode($exitCode);
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
@@ -225,13 +225,13 @@ function rawSh(string $cmd, $env = null) {
  */
 function proc($command, array $config = null): ICommandResult {
     $config = Config::check([
-        'checkCode' => true,
+        'check' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
     ], (array) $config);
     $process = is_array($command) ? new Process($command) : Process::fromShellCommandline($command);
     $exitCode = $process->run();
-    if ($config['checkCode']) {
+    if ($config['check']) {
         checkExitCode($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);
