@@ -72,10 +72,10 @@ runTests() {
     set +e
     if ! bin/test; then
         echo 'server/localhost/log/*'
-        cat "$BASE_DIR_PATH"/server/localhost/log/*
+        sudo sh -c "cat $BASE_DIR_PATH/server/localhost/log/*"
         echo --------------------------------------------------------------------------------
         echo 'server/localhost/cache/*'
-        cat "$BASE_DIR_PATH"/server/localhost/cache/*
+        sudo sh -c "cat $BASE_DIR_PATH/server/localhost/cache/*"
         echo --------------------------------------------------------------------------------
         echo 'test/Integration/*.log'
         cat "$BASE_DIR_PATH"/test/Integration/*.log

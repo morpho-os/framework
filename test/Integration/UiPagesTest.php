@@ -13,7 +13,7 @@ class UiPagesTest extends BrowserTestCase {
     private string $homePageTitle = 'Hello World!';
 
     public function testJsTestsPage() {
-        $this->browser->get($this->uri('localhost/test?bot'));
+        $this->browser->get($this->uri('localhost/test?bot=1'));
         $by = By::id('testing-results');
         $this->browser->waitUntilElementIsVisible($by);
         $numberOfFailedTests = $this->browser->findElement($by)->getText();

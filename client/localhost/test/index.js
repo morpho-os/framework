@@ -11,7 +11,7 @@ define("localhost/test/index", ["require", "exports", "localhost/lib/test/jasmin
         env.addReporter(new jasmine_1.TestResultsReporter(container, stackTraceFormatter));
         const seleniumReporter = {
             jasmineDone(runDetails) {
-                if (window.location.search.indexOf('bot') >= 0) {
+                if (window.location.search.indexOf('bot=') >= 0) {
                     document.getElementById('main__body').innerHTML += '<h2 id="testing-results">' + runDetails.failedExpectations.length + '</h2>';
                 }
             }
