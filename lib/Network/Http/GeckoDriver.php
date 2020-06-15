@@ -14,20 +14,20 @@ class GeckoDriver implements IWebDriver {
     public const FILE_NAME = 'geckodriver';
     public const HOST = 'localhost';
     public const PORT = 4444;
-    private string $geckoDriverBinFilePath;
+    private string $geckoBinFilePath;
 
-    public function __construct(string $geckoDriverBinFilePath = null) {
-        if (null === $geckoDriverBinFilePath) {
+    public function __construct(string $geckoBinFilePath = null) {
+        if (null === $geckoBinFilePath) {
             if (!is_file('/usr/bin/geckodriver')) {
                 throw new \RuntimeException(self::FILE_NAME . ' was not found');
             }
-            $geckoDriverBinFilePath = '/usr/bin/geckodriver';
+            $geckoBinFilePath = '/usr/bin/geckodriver';
         }
-        $this->geckoDriverBinFilePath = $geckoDriverBinFilePath;
+        $this->geckoBinFilePath = $geckoBinFilePath;
     }
 
     public function start(): void {
-        $cmd = \escapeshellarg($this->geckoDriverBinFilePath) . ' > /dev/null 2>&1 &';
+        $cmd = \escapeshellarg($this->geckoBinFilePath) . ' > /dev/null 2>&1 &';
         \proc_close(\proc_open($cmd, [], $pipes));
         for ($i = 0; $i < 15; $i++) {
             if (HttpClient::serverAcceptsConnections(self::HOST, self::PORT)) {

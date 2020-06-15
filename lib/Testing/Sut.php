@@ -50,31 +50,21 @@ class Sut extends \ArrayObject {
         return $this->baseDirPath() . '/' . CLIENT_MODULE_DIR_NAME;
     }
 
+    public function testRcDirPath(): string {
+        return getenv('MORPHO_TEST_RC_DIR_PATH') ?: $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
+    }
+
     public function siteUri(): string {
         $webServerAddress = $this->webServerAddress();
         return 'http://' . $webServerAddress->host() . ':' . $webServerAddress->port();
     }
 
-    public function seleniumServerConfig(): array {
-        $seleniumDirPath = getenv('MORPHO_SELENIUM_DIR_PATH') ?: $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
-
-        $seleniumServerJarFilePath = $seleniumDirPath . '/selenium-server-standalone.jar';
-        $seleniumServerJarCandidateFilePath = getenv('MORPHO_SELENIUM_SERVER_JAR_FILE_PATH');
-        if (false !== $seleniumServerJarCandidateFilePath && file_exists($seleniumServerJarCandidateFilePath)) {
-            $seleniumServerJarFilePath = $seleniumServerJarCandidateFilePath;
-        }
-
-        $geckoBinFilePath = $seleniumDirPath . '/geckodriver';
-        $geckoBinCandidateFilePath = getenv('MORPHO_GECKOBIN_FILE_PATH');
+    public function webDriverConfig(): array {
+        $geckoBinFilePath = $this->testRcDirPath() . '/geckodriver';
+        $geckoBinCandidateFilePath = getenv('MORPHO_GECKO_BIN_FILE_PATH');
         if (false !== $geckoBinCandidateFilePath && file_exists($geckoBinCandidateFilePath)) {
             $geckoBinFilePath = $geckoBinCandidateFilePath;
         }
-
-        return [
-            'geckoBinFilePath' => $geckoBinFilePath,
-            'serverJarFilePath' => $seleniumServerJarFilePath,
-            'logFilePath' => $seleniumDirPath . '/selenium.log',
-            'serverVersion' => null,
-        ];
+        return ['geckoBinFilePath' => $geckoBinFilePath];
     }
 }

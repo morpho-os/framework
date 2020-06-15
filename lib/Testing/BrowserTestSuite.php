@@ -14,7 +14,8 @@ abstract class BrowserTestSuite extends TestSuite {
         if ($once && isset($sut['webDriver'])) {
             return $sut['webDriver'];
         }
-        $webDriver = new GeckoDriver();
+        $webDriverConfig = $sut->webDriverConfig();
+        $webDriver = new GeckoDriver($webDriverConfig['geckoBinFilePath']);
         $webDriver->start();
         $sut['webDriver'] = $webDriver;
         return $webDriver;
