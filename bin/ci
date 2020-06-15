@@ -67,13 +67,6 @@ prepareEnv() {
 }
 
 runTests() {
-    curl -s -v http://localhost/localhost/test
-    echo --php------------------------------------------------------------------------------
-    php "$BASE_DIR_PATH"/test/Manual/selenium-webdriver.php
-
-    exit 1
-
-
     set +e
     if ! bin/test; then
         echo --------------------------------------------------------------------------------
