@@ -6,7 +6,7 @@
  */
 namespace Morpho\App;
 
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use function Morpho\Base\lastPos;
 
 abstract class Path {
@@ -102,7 +102,7 @@ abstract class Path {
         if ($path === '') {
             return $path;
         }
-        if (Environment::isWindows()) {
+        if (Env::isWindows()) {
             $path = \str_replace('\\', '/', $path);
         }
         if ($path === '/') {

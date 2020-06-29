@@ -6,9 +6,9 @@
  */
 namespace Morpho\App\Cli;
 
-use Morpho\Base\Environment as BaseEnvironment;
+use Morpho\Base\Env as BaseEnvironment;
 
-class Environment extends BaseEnvironment {
+class Env extends BaseEnvironment {
     public static function init(): void {
         parent::init();
         $_SERVER += [

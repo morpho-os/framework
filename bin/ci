@@ -10,92 +10,10 @@ readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
 
 readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
 
-showFacts() {
-    echo --------------------------------------------------------------------------------
-    env
-    ls -al "$BASE_DIR_PATH"/
-    id
-    cat /etc/os-release
-    echo --------------------------------------------------------------------------------
-}
-
-prepareEnv() {
-    export MORPHO_CI=GitHub MORPHO_CI_DEBUG=1 MORPHO_TEST_WEB_SERVER_DOMAIN=localhost MORPHO_TEST_WEB_SERVER_PORT=80 MORPHO_GECKO_BIN_FILE_PATH=/usr/bin/geckodriver
-
-    # Create block device
-    sudo mknod -m 0777 /tmp/block-dev-test b 125 1
-    sudo chown $(id -u):$(id -g) /tmp/block-dev-test
-
-    # To running firefox, see https://docs.travis-ci.com/user/gui-and-headless-browsers/
-    export DISPLAY=:99
-    # `start-stop-daemon` is provided by the `dpkg` package
-    /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
-
-    sudo npm install -g typescript@next
-    pushd client > /dev/null
-    npm install
-    popd > /dev/null
-
-    sudo apt install -y nginx
-    # shellcheck disable=SC2016
-    echo "server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    # Catch all
-    server_name _;
-
-    root $BASE_DIR_PATH/client;
-    index index.php;
-    try_files \$uri /index.php?\$args;
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
-    }
-}" | sudo tee > /dev/null /etc/nginx/sites-enabled/default
-    sudo chown -R www-data:www-data "$BASE_DIR_PATH"/client "$BASE_DIR_PATH"/server/localhost/{log,cache}
-    sudo systemctl restart nginx
-
-    #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
-    composer --no-ansi --no-interaction install
-
-    sudo systemctl restart mysql
-    export MORPHO_TEST_DB_USER=root MORPHO_TEST_DB_PASSWORD=root MORPHO_TEST_DB_DB=test
-    mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "DROP DATABASE IF EXISTS $MORPHO_TEST_DB_DB; CREATE DATABASE $MORPHO_TEST_DB_DB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci"
-    mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "SHOW DATABASES"
-}
-
 runTests() {
-    set +e
-    if ! bin/test; then
-        echo --------------------------------------------------------------------------------
-        echo 'server/localhost/log/*'
-        sudo sh -c "cat $BASE_DIR_PATH/server/localhost/log/*"
-    fi
-    set -e
-    php test/lint.php
+    $SCRIPT_DIR_PATH/test
+    php $BASE_DIR_PATH/test/lint.php
 }
 
-deployResults() {
-    :
-    ## https://docs.travis-ci.com/user/deployment/pages/
-    ## deploy nightly builds
-    ##deploy:
-    ##  provider: pages
-    ##  skip-cleanup: true
-    ##  github-token: $GITHUB_TOKEN
-    ##  keep-history: true
-    ##  # Directory to push to GitHub Pages, relative to the current directory, defaults to the current directory (example: your_build_folder)
-    ##  local-dir: test/result
-    ##  # Optional, be verbose about internal steps, defaults to false.
-    ##  verbose: false
-    ##  on:
-    ##    repo: morpho-os/morpho-os.github.io
-    ##    branch: master
-}
 
-showFacts
-prepareEnv
 runTests
-deployResults

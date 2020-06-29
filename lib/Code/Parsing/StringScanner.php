@@ -6,7 +6,7 @@
  */
 
 namespace Morpho\Code\Parsing;
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
 
 /**
@@ -276,6 +276,6 @@ class StringScanner {
     }
 
     private function encoding(): string {
-        return $this->encoding ?: Environment::ENCODING;
+        return $this->encoding ?: Env::ENCODING;
     }
 }

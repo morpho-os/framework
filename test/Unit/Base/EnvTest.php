@@ -7,9 +7,9 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Testing\TestCase;
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 
-class EnvironmentTest extends TestCase {
+class EnvTest extends TestCase {
     private $oldZendEnableGc;
 
     public function setUp(): void {
@@ -23,25 +23,25 @@ class EnvironmentTest extends TestCase {
     }
 
     public function testIsCli() {
-        $this->assertTrue(Environment::isCli());
+        $this->assertTrue(Env::isCli());
     }
 
     public function testBoolIniVal() {
-        $this->assertTrue(Environment::boolIniVal('realpath_cache_size'));
+        $this->assertTrue(Env::boolIniVal('realpath_cache_size'));
 
         $setting = 'zend.enable_gc';
-        $this->assertTrue(Environment::boolIniVal($setting));
+        $this->assertTrue(Env::boolIniVal($setting));
 
         \ini_set($setting, '0');
-        $this->assertFalse(Environment::boolIniVal($setting));
+        $this->assertFalse(Env::boolIniVal($setting));
 
         \ini_set($setting, '1');
-        $this->assertTrue(Environment::boolIniVal($setting));
+        $this->assertTrue(Env::boolIniVal($setting));
 
         // Names are case sensitive, so such setting should not exist.
-        $this->assertFalse(Environment::boolIniVal(\strtoupper($setting)));
+        $this->assertFalse(Env::boolIniVal(\strtoupper($setting)));
 
-        $this->assertFalse(Environment::boolIniVal(__FUNCTION__));
+        $this->assertFalse(Env::boolIniVal(__FUNCTION__));
     }
 
     public function dataForIniValToBool() {
@@ -125,29 +125,29 @@ class EnvironmentTest extends TestCase {
      * @dataProvider dataForIniValToBool
      */
     public function testIniValToBool($expected, $actual) {
-        $this->assertEquals($expected, Environment::iniValToBool($actual));
+        $this->assertEquals($expected, Env::iniValToBool($actual));
     }
 
     public function testIsBoolLikeIniVal() {
-        $this->assertFalse(Environment::isBoolLikeIniVal('abc'));
-        $this->assertFalse(Environment::isBoolLikeIniVal('100M'));
-        $this->assertFalse(Environment::isBoolLikeIniVal('01'));
-        $this->assertFalse(Environment::isBoolLikeIniVal('10'));
-        $this->assertFalse(Environment::isBoolLikeIniVal(10));
-        $this->assertFalse(Environment::isBoolLikeIniVal('2'));
-        $this->assertFalse(Environment::isBoolLikeIniVal('-1'));
-        $this->assertFalse(Environment::isBoolLikeIniVal(-1));
-        $this->assertFalse(Environment::isBoolLikeIniVal(2));
-        $this->assertFalse(Environment::isBoolLikeIniVal('90.58333'));
-        $this->assertFalse(Environment::isBoolLikeIniVal(90.58333));
-        $this->assertFalse(Environment::isBoolLikeIniVal('&'));
+        $this->assertFalse(Env::isBoolLikeIniVal('abc'));
+        $this->assertFalse(Env::isBoolLikeIniVal('100M'));
+        $this->assertFalse(Env::isBoolLikeIniVal('01'));
+        $this->assertFalse(Env::isBoolLikeIniVal('10'));
+        $this->assertFalse(Env::isBoolLikeIniVal(10));
+        $this->assertFalse(Env::isBoolLikeIniVal('2'));
+        $this->assertFalse(Env::isBoolLikeIniVal('-1'));
+        $this->assertFalse(Env::isBoolLikeIniVal(-1));
+        $this->assertFalse(Env::isBoolLikeIniVal(2));
+        $this->assertFalse(Env::isBoolLikeIniVal('90.58333'));
+        $this->assertFalse(Env::isBoolLikeIniVal(90.58333));
+        $this->assertFalse(Env::isBoolLikeIniVal('&'));
         foreach (['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0] as $v) {
-            $this->assertTrue(Environment::isBoolLikeIniVal($v));
+            $this->assertTrue(Env::isBoolLikeIniVal($v));
         }
     }
 
     public function testTmpDirPath() {
-        $tmpDirPath = Environment::tmpDirPath();
+        $tmpDirPath = Env::tmpDirPath();
         $this->assertNotEmpty($tmpDirPath && (false === \strpos($tmpDirPath, '\\')));
     }
 }

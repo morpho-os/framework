@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Environment;
+use Morpho\App\Web\Env;
 
 class EnvironmentTest extends TestCase {
     public function dataForHttpVersion() {
@@ -25,15 +25,15 @@ class EnvironmentTest extends TestCase {
         ];
         yield [
             'HTTP/invalid',
-            Environment::HTTP_VERSION,
+            Env::HTTP_VERSION,
         ];
         yield [
             'invalid',
-            Environment::HTTP_VERSION,
+            Env::HTTP_VERSION,
         ];
         yield [
             'HTTP/10.1',
-            Environment::HTTP_VERSION,
+            Env::HTTP_VERSION,
         ];
     }
 
@@ -42,6 +42,6 @@ class EnvironmentTest extends TestCase {
      */
     public function testHttpVersion(string $serverProtocol, string $expected) {
         $_SERVER['SERVER_PROTOCOL'] = $serverProtocol;
-        $this->assertSame($expected, Environment::httpVersion());
+        $this->assertSame($expected, Env::httpVersion());
     }
 }

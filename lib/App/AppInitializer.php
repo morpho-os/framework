@@ -4,10 +4,7 @@ namespace Morpho\App;
 use Morpho\Ioc\IServiceManager;
 
 abstract class AppInitializer {
-    /**
-     * @var IServiceManager
-     */
-    protected $serviceManager;
+    protected IServiceManager $serviceManager;
 
     public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;

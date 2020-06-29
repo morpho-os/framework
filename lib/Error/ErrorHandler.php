@@ -6,7 +6,7 @@
  */
 namespace Morpho\Error;
 
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 
 /**
  * ErrorHandler is main error/exception handler. It transforms errors to exceptions
@@ -16,11 +16,11 @@ use Morpho\Base\Environment;
  * @link https://github.com/DmitryKoterov/debug_errorhook
  */
 class ErrorHandler extends ExceptionHandler implements IErrorHandler {
-    private $exitOnFatalError = true;
+    private bool $exitOnFatalError = true;
 
-    private $registerAsFatalErrorHandler = true;
+    private bool $registerAsFatalErrorHandler = true;
 
-    private $fatalErrorHandlerActive = false;
+    private bool $fatalErrorHandlerActive = false;
 
     private $oldIniSettings = null;
 
@@ -124,7 +124,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
     }
 
     public static function isErrorLogEnabled(): bool {
-        return Environment::boolIniVal('log_errors') && !empty(\ini_get('error_log'));
+        return Env::boolIniVal('log_errors') && !empty(\ini_get('error_log'));
     }
 
     public static function hashId(\Throwable $e): string {

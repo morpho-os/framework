@@ -7,7 +7,7 @@
 namespace Morpho\Fs;
 
 use Morpho\Base\Config;
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\{
     fromJson, toJson
@@ -294,7 +294,7 @@ class File extends Entry {
      * @return mixed
      */
     public static function usingTmp(callable $fn, string $tmpDirPath = null) {
-        $tmpFilePath = \tempnam($tmpDirPath ?: Environment::tmpDirPath(), __FUNCTION__);
+        $tmpFilePath = \tempnam($tmpDirPath ?: Env::tmpDirPath(), __FUNCTION__);
         try {
             $res = $fn($tmpFilePath);
         } finally {

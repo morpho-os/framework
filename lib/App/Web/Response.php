@@ -96,7 +96,7 @@ class Response extends BaseResponse {
     }
 
     public function statusCodeToStatusLine(int $statusCode): string {
-        return Environment::httpVersion() . ' ' . \intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
+        return Env::httpVersion() . ' ' . \intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
     }
 
     public function statusCodeToReason(int $statusCode): string {

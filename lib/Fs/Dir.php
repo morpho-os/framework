@@ -8,7 +8,7 @@ namespace Morpho\Fs;
 
 use DirectoryIterator;
 use Morpho\Base\Config;
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
 
@@ -283,7 +283,7 @@ class Dir extends Entry {
      */
     public static function createTmp(string $relDirPath, int $mode = Stat::DIR_MODE): string {
         return self::create(
-            Path::combine(Environment::tmpDirPath(), $relDirPath),
+            Path::combine(Env::tmpDirPath(), $relDirPath),
             $mode
         );
     }

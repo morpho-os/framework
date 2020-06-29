@@ -23,8 +23,6 @@ function main(): void {
     };
     $mappers[] = new Psr4Mapper('Morpho\\', $absDirPath('lib'), Linter::phpFilePaths());
     $mappers[] = new Psr4Mapper($fqNs('Test'), $absDirPath('test'), Linter::testFilePaths(true));
-    $mappers[] = new Psr4Mapper($fqNs('Test\\Unit'), $absDirPath('test/Unit'), Linter::testFilePaths(true));
-    $mappers[] = new Psr4Mapper($fqNs('Test\\Integration'), $absDirPath('test/Integration'), Linter::testFilePaths(true));
     // @TODO: Add modules
     exit((int)!Linter::checkModule($moduleDirPath, $mappers));
 }

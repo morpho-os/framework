@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Environment;
+use Morpho\App\Web\Env;
 use Morpho\App\Web\Response;
 
 class ResponseTest extends TestCase {
@@ -44,10 +44,10 @@ class ResponseTest extends TestCase {
 
     public function testStatusLineAccessors() {
         $this->assertSame(
-            Environment::httpVersion() . ' ' . Response::OK_STATUS_CODE . ' OK',
+            Env::httpVersion() . ' ' . Response::OK_STATUS_CODE . ' OK',
             $this->response->statusLine()
         );
-        $newStatusLine = Environment::httpVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
+        $newStatusLine = Env::httpVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->response->setStatusLine($newStatusLine));
         $this->assertSame($newStatusLine, $this->response->statusLine());
@@ -104,7 +104,7 @@ class ResponseTest extends TestCase {
     public function testStatusCodeToStatusLine(int $statusCode, string $expectedReasonPhrase) {
         $this->response->setStatusCode($statusCode);
         $this->assertSame(
-            Environment::HTTP_VERSION . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
+            Env::HTTP_VERSION . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
             $this->response->statusLine()
         );
     }
@@ -127,7 +127,7 @@ class ResponseTest extends TestCase {
         $this->assertSame($body, \ob_get_clean());
         $this->assertSame(
             [
-                ['sendHeader', [Environment::httpVersion() . ' 404 Not Found']],
+                ['sendHeader', [Env::httpVersion() . ' 404 Not Found']],
                 ['sendHeader', ['Location: http://example.com']],
             ],
             $response->called

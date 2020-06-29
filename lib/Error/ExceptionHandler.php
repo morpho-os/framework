@@ -9,12 +9,9 @@ namespace Morpho\Error;
 use ArrayObject;
 
 class ExceptionHandler implements IExceptionHandler {
-    private $registered = false;
+    private bool $registered = false;
 
-    /**
-     * @var ArrayObject
-     */
-    protected $listeners;
+    protected ArrayObject $listeners;
 
     public function __construct(iterable $listeners = null) {
         if (null === $listeners) {

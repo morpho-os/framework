@@ -23,7 +23,7 @@ use Morpho\Error\ErrorHandler;
 use Symfony\Component\Process\Process;
 
 function bootstrap(): void {
-    (new Environment())->init();
+    (new Env())->init();
     (new ErrorHandler([new DumpListener()]))->register();
 }
 
@@ -35,14 +35,14 @@ function error(string $errMessage = null, int $exitCode = null): void {
     if ($errMessage) {
         showError($errMessage);
     }
-    exit(null !== $exitCode && 0 !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
+    exit(null !== $exitCode && 0 !== $exitCode ? $exitCode : Env::FAILURE_CODE);
 }
 
 function errorLn(string $errMessage = null, int $exitCode = null): void {
     if ($errMessage) {
         showErrorLn($errMessage);
     }
-    exit(null !== $exitCode && 0 !== $exitCode ? $exitCode : Environment::FAILURE_CODE);
+    exit(null !== $exitCode && 0 !== $exitCode ? $exitCode : Env::FAILURE_CODE);
 }
 
 function showError(string $errMessage): void {
@@ -78,12 +78,13 @@ function stylize(string $text, $codes): string {
     */
 
     // \033 is ASCII-code of the ESC.
-    static $colorOn = "\033[";
-    static $colorOff = "\033[0m";
-    return $colorOn
-        . \implode(';', (array) $codes) . 'm'
+    static $escapeSeqPrefix = "\033[";
+    static $escapeSeqSuffix = "\033[0m";
+    $textStyle = \implode(';', (array) $codes) . 'm';
+    return $escapeSeqPrefix
+        . $textStyle
         . $text
-        . $colorOff;
+        . $escapeSeqSuffix;
 }
 
 /**

@@ -8,7 +8,7 @@ namespace Morpho\Base;
 
 use Morpho\Fs\Path;
 
-abstract class Environment {
+abstract class Env {
     public const ENCODING = 'UTF-8';
     public const TIMEZONE = 'UTC';
 

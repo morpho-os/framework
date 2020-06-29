@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Cli;
 
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Base\InvalidConfigException;
 use function Morpho\App\Cli\{
     argsStr, envVarsStr, sh, escapeArgs, proc, showOk, stylize
@@ -32,7 +32,7 @@ class FunctionsTest extends TestCase {
      * @dataProvider dataForWriteErrorAndWriteErrorLn
      */
     public function testWriteErrorAndWriteErrorLn($fn, $expectedMessage, $error) {
-        if (Environment::isWindows()) {
+        if (Env::isWindows()) {
             $this->markTestSkipped();
         }
 

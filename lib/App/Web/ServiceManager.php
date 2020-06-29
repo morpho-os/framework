@@ -29,7 +29,6 @@ use Morpho\App\Web\View\Theme;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
-use Morpho\Fs\Dir;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {

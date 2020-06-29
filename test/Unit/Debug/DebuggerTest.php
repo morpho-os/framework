@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Debug;
 
 use Morpho\Testing\TestCase;
 use Morpho\Debug\Debugger;
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 
 class DebuggerTest extends TestCase {
     /**
@@ -58,7 +58,7 @@ Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
     }
 
     private function checkXdebug(): void {
-        if (Environment::isXdebugEnabled() && Environment::boolIniVal('xdebug.overload_var_dump')) {
+        if (Env::isXdebugEnabled() && Env::boolIniVal('xdebug.overload_var_dump')) {
             $this->markTestIncomplete();
         }
     }

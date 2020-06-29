@@ -7,9 +7,9 @@
 namespace Morpho\App\Web;
 
 use Morpho\Base\Converter;
-use Morpho\Base\Environment as BaseEnvironment;
+use Morpho\Base\Env as BaseEnvironment;
 
-class Environment extends BaseEnvironment {
+class Env extends BaseEnvironment {
     protected $startSession = false;
 
     public const HTTP_VERSION = 'HTTP/1.1';

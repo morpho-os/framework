@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Fs;
 
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Fs\Stat;
 use Morpho\Testing\TestCase;
 
@@ -14,7 +14,7 @@ class StatTest extends TestCase {
     private $oldUmask;
 
     public function setUp(): void {
-        if (Environment::isWindows()) {
+        if (Env::isWindows()) {
             // @TODO: Check on windows.
             $this->markTestIncomplete();
         }

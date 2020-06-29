@@ -7,10 +7,7 @@
 namespace Morpho\Base;
 
 class EventManager implements IEventManager {
-    /**
-     * @var array
-     */
-    protected $handlers = [];
+    protected array $handlers = [];
 
     public function on(string $eventName, callable $handler): void {
         $this->handlers[$eventName][] = $handler;

@@ -2,8 +2,6 @@
     <testsuites>
         <testsuite name="Morpho Test Suite">
             <file>Unit/TestSuite.php</file>
-            <file>Integration/TestSuite.php</file>
-            <file>ModuleTestSuite.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

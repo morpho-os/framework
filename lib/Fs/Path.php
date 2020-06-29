@@ -6,7 +6,7 @@
  */
 namespace Morpho\Fs;
 
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
 use Morpho\Base\SecurityException;
 use function Morpho\Base\unpackArgs;
@@ -26,7 +26,7 @@ class Path extends BasePath {
     }
 
     public static function isNormalized(string $path): bool {
-        $isWindows = Environment::isWindows();
+        $isWindows = Env::isWindows();
         if ($isWindows) {
             if (false !== \strpos($path, '\\')) {
                 return false;
@@ -43,7 +43,7 @@ class Path extends BasePath {
 
         $result = [];
         $i = 0;
-        $isWindows = Environment::isWindows();
+        $isWindows = Env::isWindows();
         foreach ($paths as $path) {
             $path = (string)$path;
             if ($path === '') {

@@ -20,7 +20,7 @@ abstract class CommandResult implements ICommandResult {
     }
 
     public function isError(): bool {
-        return $this->exitCode() !== Environment::SUCCESS_CODE;
+        return $this->exitCode() !== Env::SUCCESS_CODE;
     }
 
     public function getIterator() {

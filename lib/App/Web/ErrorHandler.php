@@ -24,10 +24,10 @@ class ErrorHandler extends BaseErrorHandler {
                 $statusLine = Environment::httpVersion() . ' 403 Forbidden';
                 $message = "You don't have access to the requested resource";
             } else*/if ($e instanceof BadRequestException) {
-                $statusLine = Environment::httpVersion() . ' 400 Bad Request';
+                $statusLine = Env::httpVersion() . ' 400 Bad Request';
                 $message = "Bad request, please contact site's support";
             } else {
-                $statusLine = Environment::httpVersion() . ' 500 Internal Server Error';
+                $statusLine = Env::httpVersion() . ' 500 Internal Server Error';
                 $message = "Unable to handle the request. Please contact site's support and try to return to this page again later";
             }
             if (!\headers_sent()) {

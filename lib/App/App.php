@@ -6,7 +6,7 @@
  */
 namespace Morpho\App;
 
-use Morpho\Base\Environment;
+use Morpho\Base\Env;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
 use Morpho\Error\ErrorHandler;
@@ -23,17 +23,17 @@ class App extends EventManager {
         try {
             $app = new static($config);
             $response = $app->run();
-            $exitCode = $response ? Environment::SUCCESS_CODE : Environment::FAILURE_CODE;
+            $exitCode = $response ? Env::SUCCESS_CODE : Env::FAILURE_CODE;
             $event = new Event('exit', ['exitCode'=> $exitCode, 'response' => $response]);
             $app->trigger($event);
             return $event->args['exitCode'];
         } catch (\Throwable $e) {
-            if (Environment::boolIniVal('display_errors')) {
+            if (Env::boolIniVal('display_errors')) {
                 echo $e;
             }
             self::logErrorFallback($e);
         }
-        return Environment::FAILURE_CODE;
+        return Env::FAILURE_CODE;
     }
 
     /**

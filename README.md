@@ -1,24 +1,21 @@
-# Morpho framework
+# morpho-os/framework
 
-## About
+Framework for building web-sites, web-applications, web-IDEs, command-line applications.
 
-Morpho is framework for building web-sites, web-applications, web-IDEs, command-line applications.
+## Usage
+
+See [morpho-os/localhost](https://github.com/morpho-os/localhost) for example of usage.
 
 ## Used technologies
 
 * Server-side:
     * PHP
-* Client-side:
-    * TypeScript
-    * Stylus (CSS) and HTML
-    * [Fira font from Mozilla](https://github.com/mozilla/Fira/blob/master/LICENSE)
 * Infra:
     * Git
     * PHP
-    * Node.js
     * GNU Bash
     * GNU Make
-    
+
 ## Supported OSs
 
 Only Linux, other OSs are not supported.
@@ -31,10 +28,10 @@ Documentation does not exist yet.
 
 API is not stable and can be changed, don't use in production.
 
-## Current CI and build status
+## CI
 
 * CI: [![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
-* Build status: ready to use builds don't exist yet.
+* Build status: todo
 
 ## License
 
