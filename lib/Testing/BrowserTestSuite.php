@@ -15,7 +15,7 @@ abstract class BrowserTestSuite extends TestSuite {
             return $sut['webDriver'];
         }
         $webDriverConfig = $sut->webDriverConfig();
-        $webDriver = new GeckoDriver($webDriverConfig['geckoBinFilePath']);
+        $webDriver = GeckoDriver::downloadMk($webDriverConfig['geckoBinFilePath'], $sut->testRcDirPath());
         $webDriver->start();
         $sut['webDriver'] = $webDriver;
         return $webDriver;

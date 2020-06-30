@@ -1,0 +1,14 @@
+<div class="container main" id="main">
+    <?php /*
+    <div id="taskbar">
+        <a class="btn"><i class="fa fa-edit"></i></a>
+    </div>
+    */ ?>
+    <?php if (isset($this->pageTitle)): ?>
+        <h1 id="main__title"><?= $this->pageTitle ?></h1>
+    <?php endif ?>
+    <?php print $this->messenger()->renderPageMessages() ?>
+    <div id="main__body">
+        <?php print $body ?>
+    </div>
+</div>

@@ -3,10 +3,13 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
-readonly PHP_UNIT_BIN_DIR_PATH="$BASE_DIR_PATH/vendor/phpunit/phpunit"
-readonly PHP_UNIT_BIN_FILE_PATH="$PHP_UNIT_BIN_DIR_PATH/phpunit"
-readonly TEST_DIR_PATH="$BASE_DIR_PATH/test"
-readonly PHP_UNIT_CONFIG_FILE_PATH="$TEST_DIR_PATH/phpunit.xml"
 
-php -f "$PHP_UNIT_BIN_FILE_PATH" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $TEST_DIR_PATH/result/test.xml") -c "$PHP_UNIT_CONFIG_FILE_PATH" "$@"
+readonly baseDirPath=$(realpath -e "$SCRIPT_DIR_PATH"/..)
+readonly phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
+readonly phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
+readonly testDirPath="$baseDirPath/test"
+readonly phpUnitConfigFilePath="$testDirPath/phpunit.xml"
+readonly seleniumLogFilePath="$testDirPath/selenium.log"
+export SELENIUM_VERSION=latest
+
+php -f "$phpUnitBinFilePath" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfigFilePath" "$@"

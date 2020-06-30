@@ -11,18 +11,21 @@ use function Morpho\Base\fromJson;
 use function Morpho\App\Cli\sh;
 
 class GeckoDriver implements IWebDriver {
-    public const FILE_NAME = 'geckodriver';
     public const HOST = 'localhost';
     public const PORT = 4444;
     private string $geckoBinFilePath;
 
-    public function __construct(string $geckoBinFilePath = null) {
-        if (null === $geckoBinFilePath) {
-            if (!file_exists('/usr/bin/geckodriver')) {
-                throw new \RuntimeException(self::FILE_NAME . ' was not found');
-            }
+    public static function downloadMk(string $geckoBinFilePath, string $downloadDirPath) {
+        if (!\file_exists($geckoBinFilePath)) {
             $geckoBinFilePath = '/usr/bin/geckodriver';
+            if (!\file_exists($geckoBinFilePath)) {
+                $geckoBinFilePath = self::download($downloadDirPath . '/geckodriver');
+            }
         }
+        return new GeckoDriver($geckoBinFilePath);
+    }
+
+    public function __construct(string $geckoBinFilePath) {
         $this->geckoBinFilePath = $geckoBinFilePath;
     }
 
@@ -51,9 +54,6 @@ class GeckoDriver implements IWebDriver {
 
     // This function based on https://github.com/SeleniumHQ/selenium/blob/6266e58b7cf379b8f80b125e97eb4e82a220fd09/scripts/travis/install.sh
     public static function download(string $destFilePath): string {
-        if (\is_file($destFilePath)) {
-            return $destFilePath;
-        }
         $binFileName = \basename($destFilePath);
         $curDirPath = \getcwd();
         try {

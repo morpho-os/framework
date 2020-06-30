@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "preserveConstEnums": true,
+        "removeComments": true,
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "newLine": "lf",
+        "noEmitHelpers": true,
+        "importHelpers": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "inlineSourceMap": true,
+        "module": "amd",
+        "target": "es2015"
+    }
+}

@@ -1,0 +1,31 @@
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+.test-results {
+  color: #222;
+  margin: 1em 0;
+}
+.test-results__test {
+  font-size: 18px;
+}
+.test-results__successful-test {
+  color: #188052;
+}
+.test-results__failed-test {
+  color: #ff8994;
+}
+.test-results__stack-line_ts {
+  font-weight: bold;
+}
+.test-results__stack-line_ts-last {
+  color: #8b0000;
+}
+.test-results__successful .panel-body {
+  background: #affeb2;
+}
+.test-results__failed .panel-body {
+  background: #ffb6c1;
+}
+

@@ -12,7 +12,7 @@ readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
 
 showFacts() {
     echo --------------------------------------------------------------------------------
-    #env
+#    env
     ls -al "$BASE_DIR_PATH"/
     id
     cat /etc/os-release
@@ -26,6 +26,38 @@ prepareEnv() {
     sudo mknod -m 0777 /tmp/block-dev-test b 125 1
     sudo chown $(id -u):$(id -g) /tmp/block-dev-test
 
+    # To running firefox, see https://docs.travis-ci.com/user/gui-and-headless-browsers/
+    export DISPLAY=:99
+    # `start-stop-daemon` is provided by the `dpkg` package
+    /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
+
+    sudo npm install -g typescript@next
+    pushd client > /dev/null
+    npm install
+    popd > /dev/null
+
+    sudo apt install -y nginx
+    # shellcheck disable=SC2016
+    echo "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # Catch all
+    server_name _;
+
+    root $BASE_DIR_PATH/client;
+    index index.php;
+    try_files \$uri /index.php?\$args;
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+    }
+}" | sudo tee > /dev/null /etc/nginx/sites-enabled/default
+    sudo chown -R www-data:www-data "$BASE_DIR_PATH"/client "$BASE_DIR_PATH"/server/localhost/{log,cache}
+    sudo systemctl restart nginx
+
+    #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
     composer --no-ansi --no-interaction install
 
     sudo systemctl restart mysql
@@ -35,8 +67,14 @@ prepareEnv() {
 }
 
 runTests() {
-    $SCRIPT_DIR_PATH/test
-    php $BASE_DIR_PATH/test/lint.php
+    set +e
+    if ! bin/test; then
+        echo --------------------------------------------------------------------------------
+        echo 'server/localhost/log/*'
+        sudo sh -c "cat $BASE_DIR_PATH/server/localhost/log/*"
+    fi
+    set -e
+    php test/lint.php
 }
 
 deployResults() {

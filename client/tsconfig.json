@@ -1,0 +1,14 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./localhost/app"
+        },
+        {
+            "path": "./localhost/lib"
+        },
+        {
+            "path": "./localhost/test"
+        }
+    ]
+}

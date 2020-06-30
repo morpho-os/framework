@@ -1,0 +1,11 @@
+{
+    "name": "morpho-os/localhost",
+    "type": "library",
+    "license": "Apache-2.0",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Morpho\\Site\\Localhost\\": "lib"
+        }
+    }
+}
