@@ -4,7 +4,7 @@ Framework for building web-sites, web-applications, web-IDEs, command-line appli
 
 ## Usage
 
-See [morpho-os/localhost](https://github.com/morpho-os/localhost) for example of usage.
+See [morpho-os/site](https://github.com/morpho-os/site) for example of usage.
 
 ## Used technologies
 
