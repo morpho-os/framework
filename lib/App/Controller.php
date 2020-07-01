@@ -6,7 +6,7 @@
  */
 namespace Morpho\App;
 
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
@@ -17,10 +17,10 @@ abstract class Controller implements IFn {
 
     private $checkActionMethodExistence = false;
 
-    public function __construct(array $config = null) {
-        if (null !== $config) {
-            $config = Config::check(['checkActionMethodExistence' => true], $config);
-            foreach ($config as $name => $value) {
+    public function __construct(array $conf = null) {
+        if (null !== $conf) {
+            $conf = Conf::check(['checkActionMethodExistence' => true], $conf);
+            foreach ($conf as $name => $value) {
                 $this->$name = $value;
             }
         }

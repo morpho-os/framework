@@ -25,7 +25,7 @@ abstract class DbClient {
     public const MYSQL_DRIVER  = 'mysql';
     public const SQLITE_DRIVER = 'sqlite';
 
-    protected static array $pdoConfig = [
+    protected static array $pdoConf = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         \PDO::ATTR_STATEMENT_CLASS => [__NAMESPACE__ . '\\Result', []],
@@ -34,37 +34,37 @@ abstract class DbClient {
     ];
 
     /**
-     * @param \Morpho\Base\Config|array|\PDO $configOrPdo
+     * @param \Morpho\Base\Conf|array|\PDO $confOrPdo
      */
-    protected function __construct($configOrPdo) {
-        if ($configOrPdo instanceof \PDO) {
-            self::setPdoAttributes($configOrPdo, static::$pdoConfig);
-            $this->connection = $configOrPdo;
+    protected function __construct($confOrPdo) {
+        if ($confOrPdo instanceof \PDO) {
+            self::setPdoAttributes($confOrPdo, static::$pdoConf);
+            $this->connection = $confOrPdo;
         } else {
-            $this->connection = $this->mkPdo($configOrPdo, $configOrPdo['pdoConfig'] ?? static::$pdoConfig);
+            $this->connection = $this->mkPdo($confOrPdo, $confOrPdo['pdoConf'] ?? static::$pdoConf);
         }
     }
 
     /**
-     * @param \Morpho\Base\Config|array|\PDO|null $configOrPdo
+     * @param \Morpho\Base\Conf|array|\PDO|null $confOrPdo
      */
-    public static function connect($configOrPdo = null): self {
-        if ($configOrPdo instanceof \PDO) {
-            $driverName = $configOrPdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+    public static function connect($confOrPdo = null): self {
+        if ($confOrPdo instanceof \PDO) {
+            $driverName = $confOrPdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         } else {
-            $configOrPdo = (array) $configOrPdo;
-            if (!isset($configOrPdo['driver'])) {
-                $configOrPdo['driver'] = self::DEFAULT_DRIVER;
+            $confOrPdo = (array) $confOrPdo;
+            if (!isset($confOrPdo['driver'])) {
+                $confOrPdo['driver'] = self::DEFAULT_DRIVER;
             }
-            $driverName = $configOrPdo['driver'];
-            unset($configOrPdo['driver']);
+            $driverName = $confOrPdo['driver'];
+            unset($confOrPdo['driver']);
         }
         switch ($driverName) {
             case self::MYSQL_DRIVER:
-                $db = new MySql\DbClient($configOrPdo);
+                $db = new MySql\DbClient($confOrPdo);
                 break;
             case self::SQLITE_DRIVER:
-                $db = new Sqlite\DbClient($configOrPdo);
+                $db = new Sqlite\DbClient($confOrPdo);
                 break;
             default:
                 throw new \UnexpectedValueException();
@@ -76,8 +76,8 @@ abstract class DbClient {
         return $this->connection;
     }
 
-    public static function setPdoAttributes(\PDO $connection, array $pdoConfig): void {
-        foreach ($pdoConfig as $name => $value) {
+    public static function setPdoAttributes(\PDO $connection, array $pdoConf): void {
+        foreach ($pdoConf as $name => $value) {
             $connection->setAttribute($name, $value);
         }
     }
@@ -228,5 +228,5 @@ abstract class DbClient {
         return $result;
     }
 
-    abstract protected function mkPdo($config, $pdoConfig): \PDO;
+    abstract protected function mkPdo($conf, $pdoConf): \PDO;
 }

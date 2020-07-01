@@ -9,13 +9,13 @@ namespace Morpho\App;
 class Site implements ISite {
     protected string $moduleName;
 
-    protected \ArrayObject $config;
+    protected \ArrayObject $conf;
 
     private string $hostName;
 
-    public function __construct(string $moduleName, \ArrayObject $config, string $hostName) {
+    public function __construct(string $moduleName, \ArrayObject $conf, string $hostName) {
         $this->moduleName = $moduleName;
-        $this->config = $config;
+        $this->conf = $conf;
         $this->hostName = $hostName;
     }
 
@@ -23,8 +23,8 @@ class Site implements ISite {
         return $this->moduleName;
     }
 
-    public function config(): \ArrayObject {
-        return $this->config;
+    public function conf(): \ArrayObject {
+        return $this->conf;
     }
 
     public function hostName(): string {

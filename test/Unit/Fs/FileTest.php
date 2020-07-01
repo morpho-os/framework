@@ -283,7 +283,7 @@ class FileTest extends TestCase {
         $this->assertEquals($lines, \file($tmpFilePath, FILE_IGNORE_NEW_LINES));
     }
 
-    public function testReadLines_DefaultConfig() {
+    public function testReadLines_DefaultConf() {
         $tmpFilePath = $this->createTmpFile();
         \file_put_contents($tmpFilePath, <<<OUT
     First

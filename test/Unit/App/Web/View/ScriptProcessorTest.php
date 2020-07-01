@@ -132,10 +132,10 @@ OUT;
     /**
      * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript
      */
-    public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConfig) {
+    public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConf) {
         $serviceManager = $this->mkConfiguredServiceManager(['blog', 'cat', 'tail']);
         $request = $serviceManager['request'];
-        $request['jsConfig'] = $jsConfig;
+        $request['jsConf'] = $jsConf;
 
         $processor = new ScriptProcessor($serviceManager);
 
@@ -149,9 +149,9 @@ OUT;
 
         $processedBody = $processor->__invoke('<body></body>');
 
-        $jsConfigStr = \json_encode((array)$jsConfig, JSON_UNESCAPED_SLASHES);
+        $jsConfStr = \json_encode((array)$jsConf, JSON_UNESCAPED_SLASHES);
         $this->assertMatchesRegularExpression(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "blog/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfigStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "blog/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
     }

@@ -15,7 +15,7 @@ const STD_PIPES = [
     ERR_FD => ['pipe', 'w'],  // child process will write to STDERR
 ];
 
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
 use Morpho\Error\DumpListener;
@@ -128,58 +128,58 @@ function envVarsStr(array $envVars): string {
     return \substr($str, 1);
 }
 
-function mkdir(string $args, array $config = null): ICommandResult {
+function mkdir(string $args, array $conf = null): ICommandResult {
     return sh('mkdir -p ' . $args);
 }
 
-function mv(string $args, array $config = null): ICommandResult {
-    return sh('mv ' . $args, $config);
+function mv(string $args, array $conf = null): ICommandResult {
+    return sh('mv ' . $args, $conf);
 }
 
-function cp($args, array $config = null): ICommandResult {
-    return sh('cp -r ' . $args, $config);
+function cp($args, array $conf = null): ICommandResult {
+    return sh('cp -r ' . $args, $conf);
 }
 
-function rm(string $args, array $config = null): ICommandResult {
-    return sh('rm -rf ' . $args, $config);
+function rm(string $args, array $conf = null): ICommandResult {
+    return sh('rm -rf ' . $args, $conf);
 }
 
-function sh(string $command, array $config = null): ICommandResult {
-/*    if (isset($config['capture'])) {
-        if (!isset($config['show'])) {
-            $config['show'] = !$config['capture'];
+function sh(string $command, array $conf = null): ICommandResult {
+/*    if (isset($conf['capture'])) {
+        if (!isset($conf['show'])) {
+            $conf['show'] = !$conf['capture'];
         }
     }*/
-    $showSet = isset($config['show']);
-    $captureSet = isset($config['capture']);
-    $config = Config::check([
+    $showSet = isset($conf['show']);
+    $captureSet = isset($conf['capture']);
+    $conf = Conf::check([
         'check' => true,
         // @TODO: tee: buffer and display output
         'show' => true,
         'capture' => false,
         'envVars' => null,
-    ], (array) $config);
-    if (!$showSet && $config['capture']) {
-        $config['show'] = false;
+    ], (array) $conf);
+    if (!$showSet && $conf['capture']) {
+        $conf['show'] = false;
     }
-    if ($showSet && !$config['show'] && !$captureSet) {
-        $config['capture'] = true;
+    if ($showSet && !$conf['show'] && !$captureSet) {
+        $conf['capture'] = true;
     }
     $output = '';
     $exitCode = 1;
-    if ($config['envVars']) {
-        $command = envVarsStr($config['envVars']) . ';' . $command;
+    if ($conf['envVars']) {
+        $command = envVarsStr($conf['envVars']) . ';' . $command;
     }
-    if ($config['capture']) {
+    if ($conf['capture']) {
         $output = capture(function () use ($command, &$exitCode) {
             \passthru($command, $exitCode);
         });
-        if ($config['show']) {
+        if ($conf['show']) {
             // Capture and show
             echo $output;
         }
     } else {
-        if ($config['show']) {
+        if ($conf['show']) {
             // Don't capture, but show
             \passthru($command, $exitCode);
         } else {
@@ -190,7 +190,7 @@ function sh(string $command, array $config = null): ICommandResult {
         }
     }
 
-    if ($config['check']) {
+    if ($conf['check']) {
         checkExitCode($exitCode);
     }
     // @TODO: Check the `system` function https://github.com/Gabriel439/Haskell-Turtle-Library/blob/master/src/Turtle/Bytes.hs#L319
@@ -198,8 +198,8 @@ function sh(string $command, array $config = null): ICommandResult {
     return new ShellCommandResult($command, $exitCode, $output, '');
 }
 
-function shSu(string $command, array $config = null): ICommandResult {
-    return sh('sudo bash -c "' . $command . '"', $config);
+function shSu(string $command, array $conf = null): ICommandResult {
+    return sh('sudo bash -c "' . $command . '"', $conf);
 }
 
 /**
@@ -221,18 +221,18 @@ function rawSh(string $cmd, $env = null) {
 
 /**
  * @param array|string $command
- * @param array|null $config
+ * @param array|null $conf
  * @return ICommandResult
  */
-function proc($command, array $config = null): ICommandResult {
-    $config = Config::check([
+function proc($command, array $conf = null): ICommandResult {
+    $conf = Conf::check([
         'check' => true,
         // @TODO: tee: buffer and display output
         //'capture' => false, // @TODO
-    ], (array) $config);
+    ], (array) $conf);
     $process = is_array($command) ? new Process($command) : Process::fromShellCommandline($command);
     $exitCode = $process->run();
-    if ($config['check']) {
+    if ($conf['check']) {
         checkExitCode($exitCode);
     }
     return new ProcCommandResult($process, $exitCode);

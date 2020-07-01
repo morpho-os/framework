@@ -56,7 +56,7 @@ class PasswordManager {
     }
 
     public static function isOutdatedHash(string $passwordHash): bool {
-        return \password_needs_rehash($passwordHash, static::algo(), static::config());
+        return \password_needs_rehash($passwordHash, static::algo(), static::conf());
     }
 
     /**
@@ -66,7 +66,7 @@ class PasswordManager {
         if (\strlen($plainPassword) > self::MAX_PASSWORD_LENGTH) {
             throw new \UnexpectedValueException("Password too long");
         }
-        $passwordHash = \password_hash($plainPassword, static::algo(), self::config());
+        $passwordHash = \password_hash($plainPassword, static::algo(), self::conf());
         if (false === $passwordHash) {
             throw new \RuntimeException("Unable to generate password hash");
         }
@@ -77,7 +77,7 @@ class PasswordManager {
         return \password_verify($plainPassword, $passwordHash);
     }
 
-    private static function config(): array {
+    private static function conf(): array {
         return ['cost' => self::COST];
     }
 

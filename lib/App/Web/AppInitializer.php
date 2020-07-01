@@ -7,8 +7,8 @@ class AppInitializer extends BaseAppInitializer {
     public function init(): void {
         Env::init();
 
-        $siteConfig = $this->serviceManager['site']->config();
-        $this->applySiteConfig($siteConfig);
+        $siteConf = $this->serviceManager['site']->conf();
+        $this->applySiteConf($siteConf);
 
         if (!empty($_SERVER['HTTPS']) && !isset($iniSettings['session']['cookie_secure'])) {
             \ini_set('cookie_secure', '1');

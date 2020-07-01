@@ -45,7 +45,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkServerModuleIndexerService() {
-        return new ModuleIndexer($this['serverModuleIterator'], new VarExportFileCache($this['site']->config()['path']['cacheDirPath']), \get_class($this) . '::' . __FUNCTION__);
+        return new ModuleIndexer($this['serverModuleIterator'], new VarExportFileCache($this['site']->conf()['path']['cacheDirPath']), \get_class($this) . '::' . __FUNCTION__);
     }
 
     protected function mkServerModuleIteratorService() {
@@ -71,12 +71,12 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkTemplateEngineService() {
-        $templateEngineConfig = $this->config['templateEngine'];
+        $templateEngineConf = $this->conf['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
         $siteModuleName = $this['site']->moduleName();
         $cacheDirPath = $this['serverModuleIndex']->module($siteModuleName)->cacheDirPath();
         $templateEngine->setCacheDirPath($cacheDirPath);
-        $templateEngine->useCache($templateEngineConfig['useCache']);
+        $templateEngine->useCache($templateEngineConf['useCache']);
         return $templateEngine;
     }
 
@@ -110,23 +110,23 @@ class ServiceManager extends BaseServiceManager {
             ->pushProcessor(new MemoryPeakUsageProcessor())
             ->pushProcessor(new IntrospectionProcessor());
 
-        $config = $this->config['errorLogger'];
+        $conf = $this->conf['errorLogger'];
 
-        if ($config['errorLogWriter'] && ErrorHandler::isErrorLogEnabled()) {
+        if ($conf['errorLogWriter'] && ErrorHandler::isErrorLogEnabled()) {
             $logger->pushHandler(new PhpErrorLogWriter());
         }
 
-        if (!empty($config['mailWriter']['enabled'])) {
+        if (!empty($conf['mailWriter']['enabled'])) {
             $logger->pushHandler(
-                new NativeMailerLogWriter($config['mailTo'], 'An error has occurred', $config['mailFrom'], Logger::NOTICE)
+                new NativeMailerLogWriter($conf['mailTo'], 'An error has occurred', $conf['mailFrom'], Logger::NOTICE)
             );
         }
 
-        if ($config['logFileWriter']) {
+        if ($conf['logFileWriter']) {
             $this->appendLogFileWriter($logger, Logger::DEBUG);
         }
 
-/*        if ($config['debugWriter']) {
+/*        if ($conf['debugWriter']) {
             $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
                 protected function write(array $record) {
                     d($record['message']);
@@ -143,19 +143,19 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkDispatchErrorHandlerService() {
         $dispatchErrorHandler = new DispatchErrorHandler();
-        $config = $this->config()['dispatchErrorHandler'];
-        $dispatchErrorHandler->throwErrors($config['throwErrors']);
-        $dispatchErrorHandler->setExceptionHandler($config['exceptionHandler']);
+        $conf = $this->conf()['dispatchErrorHandler'];
+        $dispatchErrorHandler->throwErrors($conf['throwErrors']);
+        $dispatchErrorHandler->setExceptionHandler($conf['exceptionHandler']);
         return $dispatchErrorHandler;
     }
 
     protected function mkErrorHandlerService() {
         $listeners = [];
         $logListener = new LogListener($this['errorLogger']);
-        $listeners[] = $this->config['errorHandler']['noDupsListener']
+        $listeners[] = $this->conf['errorHandler']['noDupsListener']
             ? new NoDupsListener($logListener)
             : $logListener;
-        if ($this->config['errorHandler']['dumpListener']) {
+        if ($this->conf['errorHandler']['dumpListener']) {
             $listeners[] = new DumpListener();
         }
         return new ErrorHandler($listeners);

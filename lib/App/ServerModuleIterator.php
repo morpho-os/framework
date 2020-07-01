@@ -14,7 +14,7 @@ class ServerModuleIterator implements \IteratorAggregate {
     private string $baseModuleDirPath;
 
     public function __construct(IServiceManager $serviceManager) {
-        $this->baseModuleDirPath = $serviceManager['app']->config()['baseServerModuleDirPath'];
+        $this->baseModuleDirPath = $serviceManager['app']->conf()['baseServerModuleDirPath'];
     }
 
     public function getIterator() {

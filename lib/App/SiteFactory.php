@@ -25,14 +25,14 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
             $this->throwInvalidSiteError();
         }
 
-        $initialSiteConfig = $this->hostNameToSiteModule($hostName);
-        if (false === $initialSiteConfig) {
+        $initialSiteConf = $this->hostNameToSiteModule($hostName);
+        if (false === $initialSiteConf) {
             $this->throwInvalidSiteError();
         }
 
-        $siteConfig = $this->loadExtendedSiteConfig($initialSiteConfig['siteModule'], $initialSiteConfig);
+        $siteConf = $this->loadExtendedSiteConf($initialSiteConf['siteModule'], $initialSiteConf);
 
-        return $this->mkSite($initialSiteConfig['siteModule'], $siteConfig, $hostName);
+        return $this->mkSite($initialSiteConf['siteModule'], $siteConf, $hostName);
     }
 
     /**
@@ -42,23 +42,23 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
     protected function hostNameToSiteModule(string $hostName) {
         $allowedHostNames = ['localhost', 'framework', '127.0.0.1'];
         if (in_array($hostName, $allowedHostNames, true)) {
-            $appConfig = $this->serviceManager['app']->config();
+            $appConf = $this->serviceManager['app']->conf();
             $shortModuleName = self::MAIN_MODULE;
-            $moduleDirPath = $appConfig['baseServerModuleDirPath'] . '/' . $shortModuleName;
+            $moduleDirPath = $appConf['baseServerModuleDirPath'] . '/' . $shortModuleName;
             return [
                 'siteModule' => VENDOR . '/' . $shortModuleName,
                 'path' => [
                     'dirPath' => $moduleDirPath,
-                    'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
-                    'clientModuleDirPath' => $appConfig['baseClientModuleDirPath'] . '/' . $shortModuleName,
+                    'confFilePath' => $moduleDirPath . '/' . CONF_DIR_NAME . '/site.conf.php',
+                    'clientModuleDirPath' => $appConf['baseClientModuleDirPath'] . '/' . $shortModuleName,
                 ],
             ];
         }
         return false;
     }
 
-    protected function mkSite(string $siteModuleName, \ArrayObject $siteConfig, string $hostName): ISite {
-        return new Site($siteModuleName, $siteConfig, $hostName);
+    protected function mkSite(string $siteModuleName, \ArrayObject $siteConf, string $hostName): ISite {
+        return new Site($siteModuleName, $siteConf, $hostName);
     }
 
     /**
@@ -71,31 +71,31 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
      */
     abstract protected function currentHostName();
 
-    protected function loadExtendedSiteConfig(string $siteModuleName, array $initialSiteConfig): \ArrayObject {
-        require $initialSiteConfig['path']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
+    protected function loadExtendedSiteConf(string $siteModuleName, array $initialSiteConf): \ArrayObject {
+        require $initialSiteConf['path']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
 
-        $configFilePath = $initialSiteConfig['path']['configFilePath'];
-        $extendedSiteConfig = ArrayUtils::merge($initialSiteConfig, $this->loadConfigFile($configFilePath));
+        $confFilePath = $initialSiteConf['path']['confFilePath'];
+        $extendedSiteConf = ArrayUtils::merge($initialSiteConf, $this->loadConfFile($confFilePath));
 
-        if (!isset($extendedSiteConfig['module'])) {
-            $extendedSiteConfig['module'] = [];
+        if (!isset($extendedSiteConf['module'])) {
+            $extendedSiteConf['module'] = [];
         }
-        $newModules = [$siteModuleName => []]; // Store the site config as first item
-        foreach ($extendedSiteConfig['module'] as $name => $moduleConfig) {
+        $newModules = [$siteModuleName => []]; // Store the site conf as first item
+        foreach ($extendedSiteConf['module'] as $name => $moduleConf) {
             if (\is_numeric($name)) {
-                $newModules[$moduleConfig] = [];
+                $newModules[$moduleConf] = [];
             } else {
-                $newModules[$name] = $moduleConfig;
+                $newModules[$name] = $moduleConf;
             }
         }
-        $extendedSiteConfig['module'] = $newModules;
+        $extendedSiteConf['module'] = $newModules;
 
-        return new \ArrayObject($extendedSiteConfig);
+        return new \ArrayObject($extendedSiteConf);
     }
 
-    protected function loadConfigFile(string $filePath): array {
+    protected function loadConfFile(string $filePath): array {
         if (!\is_file($filePath)) {
-            throw new \RuntimeException("Config file does not exist");
+            throw new \RuntimeException("Configuration file does not exist");
         }
         return require $filePath;
     }

@@ -8,12 +8,12 @@ namespace Morpho\Base;
 
 use RuntimeException;
 
-class InvalidConfigException extends RuntimeException {
+class InvalidConfException extends RuntimeException {
     public function __construct($message = null) {
         if (\is_array($message)) {
-            $message = 'Invalid config keys: ' . shorten(\implode(', ', \array_keys($message)), 80);
+            $message = 'Invalid conf keys: ' . shorten(\implode(', ', \array_keys($message)), 80);
         } elseif (null === $message) {
-            $message = "Invalid config has been provided";
+            $message = "Invalid conf has been provided";
         }
         parent::__construct($message);
     }

@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 
 class Html {
     public static function encode($text): string {
@@ -45,27 +45,27 @@ class Html {
         return $attributes ? ' ' . \implode(' ', $attributes) : '';
     }
 
-    public static function singleTag(string $tagName, array $attributes = null, array $config = []): string {
-        $config['isSingle'] = true;
-        return self::tag($tagName, $attributes, null, $config);
+    public static function singleTag(string $tagName, array $attributes = null, array $conf = []): string {
+        $conf['isSingle'] = true;
+        return self::tag($tagName, $attributes, null, $conf);
     }
 
-    public static function tag(string $tagName, array $attributes = null, string $text = null, array $config = null): string {
-        $config = Config::check(
+    public static function tag(string $tagName, array $attributes = null, string $text = null, array $conf = null): string {
+        $conf = Conf::check(
             [
                 'escapeText' => true,
                 'isSingle'   => false,
                 'isXml'      => false,
                 'eol'        => false,
             ],
-            (array)$config
+            (array)$conf
         );
-        $output = self::openTag($tagName, (array)$attributes, $config['isXml']);
-        if (!$config['isSingle']) {
-            $output .= $config['escapeText'] ? self::encode($text) : $text;
+        $output = self::openTag($tagName, (array)$attributes, $conf['isXml']);
+        if (!$conf['isSingle']) {
+            $output .= $conf['escapeText'] ? self::encode($text) : $text;
             $output .= self::closeTag($tagName);
         }
-        if ($config['eol']) {
+        if ($conf['eol']) {
             $output .= "\n";
         }
         return $output;

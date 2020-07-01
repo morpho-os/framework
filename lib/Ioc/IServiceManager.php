@@ -7,7 +7,7 @@
 namespace Morpho\Ioc;
 
 interface IServiceManager extends \ArrayAccess {
-    public function setConfig($config): void;
+    public function setConf($conf): void;
 
-    public function config();
+    public function conf();
 }

@@ -18,12 +18,12 @@ class ServerModuleIterator extends BaseServerModuleIterator {
     public function __construct(IServiceManager $serviceManager) {
         parent::__construct($serviceManager);
         $site = $serviceManager['site'];
-        $siteConfig = $site->config();
-        $this->enabledModules = \array_flip(\array_keys($siteConfig['module']));
+        $siteConf = $site->conf();
+        $this->enabledModules = \array_flip(\array_keys($siteConf['module']));
         $siteModuleName = $site->moduleName();
         $this->patch = [
             $siteModuleName => [
-                'path' => $siteConfig['path'],
+                'path' => $siteConf['path'],
             ],
         ];
     }

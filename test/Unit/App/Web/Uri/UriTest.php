@@ -33,7 +33,7 @@ class UriTest extends TestCase {
         );
     }
 
-    public function testToStr_ConfigForParts() {
+    public function testToStr_ConfForParts() {
         $scheme = 'http';
         $authority = 'example.com';
         $path = '/foo/bar';

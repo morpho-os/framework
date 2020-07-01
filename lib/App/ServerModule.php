@@ -67,11 +67,11 @@ class ServerModule extends Module {
         return $this['path']['libDirPath'] = $this->dirPath() . '/' . LIB_DIR_NAME;
     }
 
-    public function configDirPath(): string {
-        if (isset($this['path']['configDirPath'])) {
-            return $this['path']['configDirPath'];
+    public function confDirPath(): string {
+        if (isset($this['path']['confDirPath'])) {
+            return $this['path']['confDirPath'];
         }
-        return $this['path']['configDirPath'] = $this->dirPath() . '/' . CONFIG_DIR_NAME;
+        return $this['path']['confDirPath'] = $this->dirPath() . '/' . CONF_DIR_NAME;
     }
 
     public function tmpDirPath(): string {

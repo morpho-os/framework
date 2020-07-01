@@ -56,7 +56,7 @@ abstract class Env {
     }
 
     /**
-     * Converts any value that can be used in the ini configs to the bool value.
+     * Converts any value that can be used in the ini confs to the bool value.
      */
     public static function iniValToBool($value): bool {
         // Basic idea found here: php.net/ini_get.

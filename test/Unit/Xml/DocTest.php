@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\Xml;
 
 use Countable;
 use Iterator;
-use Morpho\Base\InvalidConfigException;
+use Morpho\Base\InvalidConfException;
 use Morpho\Testing\TestCase;
 use Morpho\Xml\Doc;
 
@@ -56,12 +56,12 @@ OUT;
         $this->assertSame([$nodes->item(0), $nodes->item(1)], $nodes->init());
     }
 
-    public function testMk_ThrowsExceptionOnInvalidConfig() {
-        $this->expectException(InvalidConfigException::class, "Invalid config keys: invalidOne, invalidTwo");
+    public function testMk_ThrowsExceptionOnInvalidConf() {
+        $this->expectException(InvalidConfException::class, "Invalid conf keys: invalidOne, invalidTwo");
         Doc::mk(['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testMk_DefaultConfig() {
+    public function testMk_DefaultConf() {
         $doc = Doc::mk();
         $this->assertInstanceOf(Doc::class, $doc);
         $doc1 = Doc::mk();
@@ -69,12 +69,12 @@ OUT;
         $this->assertNotSame($doc, $doc1);
     }
 
-    public function testParse_ThrowsExceptionOnInvalidConfig() {
-        $this->expectException(InvalidConfigException::class, "Invalid config keys: invalidOne, invalidTwo");
+    public function testParse_ThrowsExceptionOnInvalidConf() {
+        $this->expectException(InvalidConfException::class, "Invalid conf keys: invalidOne, invalidTwo");
         Doc::parse("foo", ['encoding' => 'utf-8', 'invalidOne' => 'first', 'invalidTwo' => 'second']);
     }
 
-    public function testParse_FixEncodingConfigParam() {
+    public function testParse_FixEncodingConfParam() {
         $html = <<<OUT
 <!DOCTYPE html><html><body>µ</body></html>
 OUT;

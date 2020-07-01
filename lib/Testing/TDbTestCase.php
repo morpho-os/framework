@@ -22,7 +22,7 @@ trait TDbTestCase {
         }
     }
 
-    protected function dbConfig(): array {
+    protected function dbConf(): array {
         return [
             'driver'   => 'mysql',
             'host'     => getenv('MORPHO_TEST_DB_HOST') ?: '127.0.0.1',
@@ -32,18 +32,18 @@ trait TDbTestCase {
         ];
     }
 
-    protected function mkDbClient(array $config = null): DbClient {
-        if (!$config) {
-            $config = $this->dbConfig();
+    protected function mkDbClient(array $conf = null): DbClient {
+        if (!$conf) {
+            $conf = $this->dbConf();
         }
-        return DbClient::connect($config);
+        return DbClient::connect($conf);
     }
 
-    protected function mkPdo(array $config = null): \PDO {
-        if (!$config) {
-            $config = $this->dbConfig();
+    protected function mkPdo(array $conf = null): \PDO {
+        if (!$conf) {
+            $conf = $this->dbConf();
         }
-        $dsn = $config['driver'] . ':dbname=' . $config['db'] . ';' . $config['host'] . ';' . ($config['charset'] ?? 'utf8');
-        return new \PDO($dsn, $config['user'], $config['password'], $config['pdoConfig'] ?? []);
+        $dsn = $conf['driver'] . ':dbname=' . $conf['db'] . ';' . $conf['host'] . ';' . ($conf['charset'] ?? 'utf8');
+        return new \PDO($dsn, $conf['user'], $conf['password'], $conf['pdoConf'] ?? []);
     }
 }

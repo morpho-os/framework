@@ -6,7 +6,7 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 use Morpho\Db\Sql\DbClient as BaseDbClient;
 use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\Schema as BaseSchema;
@@ -39,7 +39,7 @@ class DbClient extends BaseDbClient {
     }
 
     // @TODO: Move to Query
-    public function insertRows(string $tableName, array $rows, array $config = null): void {
+    public function insertRows(string $tableName, array $rows, array $conf = null): void {
         $args = [];
         $keys = null;
         foreach ($rows as $row) {
@@ -58,8 +58,8 @@ class DbClient extends BaseDbClient {
         return new ReplaceQuery($this);
     }
 
-    protected function mkPdo($config, $pdoConfig): \PDO {
-        $config = Config::check([
+    protected function mkPdo($conf, $pdoConf): \PDO {
+        $conf = Conf::check([
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
             'user' => self::DEFAULT_USER,
@@ -67,11 +67,11 @@ class DbClient extends BaseDbClient {
             'password' => self::DEFAULT_PASSWORD,
             'charset' => self::DEFAULT_CHARSET,
             'sockFilePath' => null,
-        ], $config);
-        $transportStr = null !== $config['sockFilePath']
-            ? 'unix_socket=' . $config['sockFilePath']
-            : "host={$config['host']};port={$config['port']}";
-        $dsn = self::MYSQL_DRIVER . ":$transportStr;dbname={$config['db']};charset={$config['charset']}";
-        return new \PDO($dsn, $config['user'], $config['password'], $pdoConfig);
+        ], $conf);
+        $transportStr = null !== $conf['sockFilePath']
+            ? 'unix_socket=' . $conf['sockFilePath']
+            : "host={$conf['host']};port={$conf['port']}";
+        $dsn = self::MYSQL_DRIVER . ":$transportStr;dbname={$conf['db']};charset={$conf['charset']}";
+        return new \PDO($dsn, $conf['user'], $conf['password'], $pdoConf);
     }
 }

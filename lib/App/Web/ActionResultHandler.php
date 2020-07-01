@@ -31,7 +31,7 @@ class ActionResultHandler implements IFn {
         } elseif (isset($response['result'])) {
             $actionResult = $response['result'];
             if ($actionResult instanceof StatusCodeResult) {
-                $handlerMap = $this->serviceManager->config()['actionResultHandler'];
+                $handlerMap = $this->serviceManager->conf()['actionResultHandler'];
                 $handler = $handlerMap[$actionResult->statusCode];
                 $request->setHandler($handler);
                 $request->isHandled(false);

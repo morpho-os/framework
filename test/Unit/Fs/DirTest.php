@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Fs;
 
 use LogicException;
-use Morpho\Base\InvalidConfigException;
+use Morpho\Base\InvalidConfException;
 use Morpho\Fs\Dir;
 use Morpho\Fs\Stat;
 use Morpho\Testing\TestCase;
@@ -277,7 +277,7 @@ class DirTest extends TestCase {
         $this->assertFileDoesNotExist($paths[1] . '/test');
     }
 
-    public function testPaths_WithoutProcessor_WithDefaultConfig() {
+    public function testPaths_WithoutProcessor_WithDefaultConf() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
@@ -297,7 +297,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithoutProcessor_WithDirConfigParam() {
+    public function testPaths_WithoutProcessor_WithDirConfParam() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -311,7 +311,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithoutProcessor_WithDirOrFileConfigParam() {
+    public function testPaths_WithoutProcessor_WithDirOrFileConfParam() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
@@ -327,12 +327,12 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithoutProcessor_WithoutBothFileAndDirConfigParams() {
+    public function testPaths_WithoutProcessor_WithoutBothFileAndDirConfParams() {
         $it = Dir::paths($this->getTestDirPath(), null, ['type' => 0, 'recursive' => true]);
         $this->assertEquals([], \iterator_to_array($it, false));
     }
 
-    public function testPaths_WithClosureProcessor_WithDefaultConfig() {
+    public function testPaths_WithClosureProcessor_WithDefaultConf() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -356,7 +356,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithRegExpProcessor_WithDefaultConfig() {
+    public function testPaths_WithRegExpProcessor_WithDefaultConf() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -372,7 +372,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithRegExpProcessor_WithDirConfigParam() {
+    public function testPaths_WithRegExpProcessor_WithDirConfParam() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -386,7 +386,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithRegExpProcessor_WithBothFileAndDirConfigParams() {
+    public function testPaths_WithRegExpProcessor_WithBothFileAndDirConfParams() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/2',
@@ -402,7 +402,7 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_WithRegExpProcessorThatDoesNotMatchAnyPath_WithFileConfigParam() {
+    public function testPaths_WithRegExpProcessorThatDoesNotMatchAnyPath_WithFileConfParam() {
         $this->assertEquals(
             [],
             \iterator_to_array(
@@ -416,7 +416,7 @@ class DirTest extends TestCase {
         );
     }
 
-    public function testPaths_WithRegExpProcessor_WithFileAndDirConfigParams_WithoutRecursiveConfigParam() {
+    public function testPaths_WithRegExpProcessor_WithFileAndDirConfParams_WithoutRecursiveConfParam() {
         $testDirPath = $this->getTestDirPath();
         $expected = [
             $testDirPath . '/1.txt',
@@ -437,12 +437,12 @@ class DirTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function testPaths_ThrowsExceptionOnInvalidConfigParam() {
-        $this->expectException(InvalidConfigException::class, 'Invalid config keys: invalid');
+    public function testPaths_ThrowsExceptionOnInvalidConfParam() {
+        $this->expectException(InvalidConfException::class, 'Invalid conf keys: invalid');
         \iterator_to_array(Dir::paths($this->getTestDirPath(), null, ['invalid' => 'foo']), false);
     }
 
-    public function testPaths_WithNotRecursiveConfigParam() {
+    public function testPaths_WithNotRecursiveConfParam() {
         $testDirPath = $this->getTestDirPath();
         $actual = \iterator_to_array(Dir::paths($testDirPath, null, ['recursive' => false]), false);
         $expected = [
@@ -656,14 +656,14 @@ class DirTest extends TestCase {
         \mkdir($sourceDirPath . '/dir1');
         \touch($sourceDirPath . '/dir1/file2.txt');
         \mkdir($sourceDirPath . '/.git');
-        \touch($sourceDirPath . '/.git/config');
+        \touch($sourceDirPath . '/.git/conf');
 
         $targetDirPath = $this->createTmpDir() . '/target';
 
         $this->assertSame($targetDirPath, Dir::copyContents($sourceDirPath, $targetDirPath));
         $this->assertTrue(\is_file($targetDirPath . '/file1.txt'));
         $this->assertTrue(\is_file($targetDirPath . '/dir1/file2.txt'));
-        $this->assertTrue(\is_file($targetDirPath . '/.git/config'));
+        $this->assertTrue(\is_file($targetDirPath . '/.git/conf'));
 
         $count = 0;
         foreach (new \DirectoryIterator($targetDirPath) as $item) {
@@ -723,7 +723,7 @@ class DirTest extends TestCase {
     }
 
     public function testDirNames_WithoutProcessor_RecursiveLogicThrowsException() {
-        $this->expectException(LogicException::class, "The 'recursive' config param must be false");
+        $this->expectException(LogicException::class, "The 'recursive' conf param must be false");
         Dir::dirNames($this->getTestDirPath(), null, ['recursive' => true]);
     }
 
@@ -824,9 +824,9 @@ class DirTest extends TestCase {
     /**
      * @dataProvider dataForFilePaths_RegExpProcessor_Recursive
      */
-    public function testFilePaths_RegExpProcessor_Recursive($config) {
+    public function testFilePaths_RegExpProcessor_Recursive($conf) {
         $testDirPath = $this->getTestDirPath();
-        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', $config);
+        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', $conf);
         $filePaths = \iterator_to_array($it, false);
         \sort($filePaths);
         $this->assertEquals(
@@ -854,9 +854,9 @@ class DirTest extends TestCase {
     /**
      * @dataProvider dataForFilePaths_RegExpProcessor_NotRecursive
      */
-    public function testFilePaths_RegExpProcessor_NotRecursive($config) {
+    public function testFilePaths_RegExpProcessor_NotRecursive($conf) {
         $testDirPath = $this->getTestDirPath();
-        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', $config);
+        $it = Dir::filePaths($testDirPath, '~\.(txt|php)$~s', $conf);
         $filePaths = \iterator_to_array($it, false);
         \sort($filePaths);
         $this->assertEquals(

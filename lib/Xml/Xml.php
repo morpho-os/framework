@@ -7,8 +7,8 @@
 namespace Morpho\Xml;
 
 class Xml {
-    public static function arrayToDomDoc(array $data, array $config = []): Doc {
-        $doc = Doc::mk($config);
+    public static function arrayToDomDoc(array $data, array $conf = []): Doc {
+        $doc = Doc::mk($conf);
         self::arrayToXml($data, $doc);
         return $doc;
     }

@@ -12,20 +12,20 @@ abstract class AppInitializer {
 
     abstract public function init(): void;
 
-    protected function applySiteConfig($siteConfig): void {
-        if (isset($siteConfig['iniConfig'])) {
-            $this->applyIniConfig($siteConfig['iniConfig']);
+    protected function applySiteConf($siteConf): void {
+        if (isset($siteConf['iniConf'])) {
+            $this->applyIniConf($siteConf['iniConf']);
         }
-        if (isset($siteConfig['umask'])) {
-            \umask($siteConfig['umask']);
+        if (isset($siteConf['umask'])) {
+            \umask($siteConf['umask']);
         }
     }
 
-    protected function applyIniConfig(array $iniConfig, $parentName = null): void {
-        foreach ($iniConfig as $name => $value) {
+    protected function applyIniConf(array $iniConf, $parentName = null): void {
+        foreach ($iniConf as $name => $value) {
             $settingName = $parentName ? $parentName . '.' . $name : $name;
             if (\is_array($value)) {
-                $this->applyIniConfig($value, $settingName);
+                $this->applyIniConf($value, $settingName);
             } else {
                 \ini_set($settingName, $value);
             }

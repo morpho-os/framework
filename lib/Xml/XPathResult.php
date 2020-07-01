@@ -23,8 +23,8 @@ class XPathResult implements \Iterator, Countable {
         $this->nodeList = $nodeList;
     }
 
-    public function toHtml(array $config = null): string {
-        $doc = Doc::mk($config);
+    public function toHtml(array $conf = null): string {
+        $doc = Doc::mk($conf);
         foreach ($this->nodeList as $node) {
             $doc->appendChild($doc->importNode($node, true));
         }

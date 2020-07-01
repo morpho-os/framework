@@ -13,15 +13,15 @@ use Morpho\Error\ErrorHandler;
 use Morpho\Ioc\IServiceManager;
 
 class App extends EventManager {
-    protected \ArrayObject $config;
+    protected \ArrayObject $conf;
 
-    public function __construct(\ArrayObject $config = null) {
-        $this->setConfig($config ?: new \ArrayObject([]));
+    public function __construct(\ArrayObject $conf = null) {
+        $this->setConf($conf ?: new \ArrayObject([]));
     }
 
-    public static function main(\ArrayObject $config = null): int {
+    public static function main(\ArrayObject $conf = null): int {
         try {
-            $app = new static($config);
+            $app = new static($conf);
             $response = $app->run();
             $exitCode = $response ? Env::SUCCESS_CODE : Env::FAILURE_CODE;
             $event = new Event('exit', ['exitCode'=> $exitCode, 'response' => $response]);
@@ -47,20 +47,20 @@ class App extends EventManager {
 
     public function init(): IServiceManager {
         /** @var ServiceManager $serviceManager */
-        $bootServiceManager = $this->config['serviceManager']($this);
+        $bootServiceManager = $this->conf['serviceManager']($this);
 
         $bootServiceManager['app'] = $this;
 
         /** @var Site $site */
         $site = $bootServiceManager['site'];
 
-        $serviceManager = $site->config()['serviceManager'];
+        $serviceManager = $site->conf()['serviceManager'];
 
         foreach ($bootServiceManager as $id => $service) {
             $serviceManager[$id] = $service;
         }
 
-        $serviceManager->setConfig($site->config()['service']);
+        $serviceManager->setConf($site->conf()['service']);
 
         /** @var AppInitializer $appInitializer */
         $appInitializer = $serviceManager['appInitializer'];
@@ -69,12 +69,12 @@ class App extends EventManager {
         return $serviceManager;
     }
 
-    public function setConfig(\ArrayObject $config): void {
-        $this->config = $config;
+    public function setConf(\ArrayObject $conf): void {
+        $this->conf = $conf;
     }
 
-    public function config(): \ArrayObject {
-        return $this->config;
+    public function conf(): \ArrayObject {
+        return $this->conf;
     }
 
     protected static function logErrorFallback(\Throwable $e): void {

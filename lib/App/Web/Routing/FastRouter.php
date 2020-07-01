@@ -42,15 +42,15 @@ class FastRouter implements IHasServiceManager, IRouter {
             ->dispatch($request->method(), $request->uri()->path()->toStr(false));
         switch ($routeInfo[0]) {
             case -1:
-                $handler = $this->config()['handlers']['badRequest'];
+                $handler = $this->conf()['handlers']['badRequest'];
                 $request->setHandler($handler);
                 break;
             case IDispatcher::NOT_FOUND:
-                $handler = $this->config()['handlers']['notFound'];
+                $handler = $this->conf()['handlers']['notFound'];
                 $request->setHandler($handler);
                 break;
             case IDispatcher::METHOD_NOT_ALLOWED:
-                $handler = $this->config()['handlers']['methodNotAllowed'];
+                $handler = $this->conf()['handlers']['methodNotAllowed'];
                 $request->setHandler($handler);
                 break;
             case IDispatcher::FOUND:
@@ -98,8 +98,8 @@ class FastRouter implements IHasServiceManager, IRouter {
     protected function handleHome(Request $request): bool {
         $uri = $request->uri();
         if ($uri->path()->toStr(false) === $this->homePath) {
-            $routerConfig = $this->config();
-            $request->setHandler($routerConfig['handlers']['home']);
+            $routerConf = $this->conf();
+            $request->setHandler($routerConf['handlers']['home']);
             $request->setMethod(\Zend\Http\Request::METHOD_GET);
             return true;
         }
@@ -127,8 +127,8 @@ class FastRouter implements IHasServiceManager, IRouter {
         return require $this->cacheFilePath();
     }
 
-    protected function config(): array {
-        return $this->serviceManager->config()['router'];
+    protected function conf(): array {
+        return $this->serviceManager->conf()['router'];
     }
 
     private function cacheFilePath(): string {

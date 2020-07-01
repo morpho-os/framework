@@ -9,17 +9,17 @@ use Morpho\App\App;
 use Morpho\Testing\TestCase;
 
 class AppTest extends TestCase {
-    public function testConfigAccessors() {
+    public function testConfAccessors() {
         $app = new App();
-        $this->assertEquals(new \ArrayObject([]), $app->config());
+        $this->assertEquals(new \ArrayObject([]), $app->conf());
 
-        $newConfig = new \ArrayObject(['foo' => 'bar']);
-        $app = new App($newConfig);
-        $this->assertSame($newConfig, $app->config());
+        $newConf = new \ArrayObject(['foo' => 'bar']);
+        $app = new App($newConf);
+        $this->assertSame($newConf, $app->conf());
 
-        $newConfig = new \ArrayObject(['color' => 'orange']);
+        $newConf = new \ArrayObject(['color' => 'orange']);
         /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($app->setConfig($newConfig));
-        $this->assertSame($newConfig, $app->config());
+        $this->assertNull($app->setConf($newConf));
+        $this->assertSame($newConf, $app->conf());
     }
 }

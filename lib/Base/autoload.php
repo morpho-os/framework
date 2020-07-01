@@ -347,11 +347,11 @@ function normalizeEols(string $s): string {
 
 /**
  * @param mixed $val
- * @param null $config
+ * @param null $conf
  * @return string
  */
-function toJson($val, $config = null): string {
-    return \json_encode($val, $config ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+function toJson($val, $conf = null): string {
+    return \json_encode($val, $conf ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**

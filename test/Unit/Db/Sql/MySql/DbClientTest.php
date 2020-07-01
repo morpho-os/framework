@@ -25,15 +25,15 @@ class DbClientTest extends BaseDbClientTest {
     }
 
     public function testDbName() {
-        $dbConfig = $this->dbConfig();
-        $this->assertSame($dbConfig['db'], $this->db->dbName());
+        $dbConf = $this->dbConf();
+        $this->assertSame($dbConf['db'], $this->db->dbName());
     }
 
     public function testConnect_UsesMySqlByDefault() {
-        $dbConfig = $this->dbConfig();
+        $dbConf = $this->dbConf();
         $this->assertInstanceOf(DbClient::class, DbClient::connect([
-            'user' => $dbConfig['user'],
-            'password' => $dbConfig['password'],
+            'user' => $dbConf['user'],
+            'password' => $dbConf['password'],
         ]));
     }
 
@@ -184,9 +184,9 @@ SQL
     }
 
     public function testConnect_PdoInstanceArgument() {
-        $dbConfig = $this->dbConfig();
-        $dsn = 'mysql:dbname=;' . $dbConfig['host'];
-        $pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
+        $dbConf = $this->dbConf();
+        $dsn = 'mysql:dbname=;' . $dbConf['host'];
+        $pdo = new \PDO($dsn, $dbConf['user'], $dbConf['password']);
         $connection = \Morpho\Db\Sql\DbClient::connect($pdo);
         $this->assertInstanceOf(DbClient::class, $connection);
     }

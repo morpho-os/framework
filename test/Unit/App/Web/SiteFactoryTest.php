@@ -8,7 +8,7 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\ISite;
 use const Morpho\App\CLIENT_MODULE_DIR_NAME;
-use const Morpho\App\CONFIG_DIR_NAME;
+use const Morpho\App\CONF_DIR_NAME;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\SiteFactory;
 use Morpho\App\Web\BadRequestException;
@@ -123,33 +123,33 @@ class SiteFactoryTest extends TestCase {
             'hostName' => 'foo.bar.com',
             'moduleName' => 'test/example',
             'siteDirPath' => $this->getTestDirPath() . '/example',
-            'siteConfig' => ['abc' => 123],
+            'siteConf' => ['abc' => 123],
         ];
         yield [
             'hostName' => 'some-name',
             'moduleName' => 'foo/bar',
             'siteDirPath' => $this->getTestDirPath() . '/my-site',
-            'siteConfig' => ['hello' => 'world'],
+            'siteConf' => ['hello' => 'world'],
         ];
     }
 
     /**
      * @dataProvider dataForInvoke_ValidHost
      */
-    public function testInvoke_ValidHost(string $hostName, string $moduleName, string $moduleDirPath, array $siteConfig) {
+    public function testInvoke_ValidHost(string $hostName, string $moduleName, string $moduleDirPath, array $siteConf) {
         $_SERVER['HTTP_HOST'] = $hostName;
 
-        $siteFactoryConfig = [
+        $siteFactoryConf = [
             'moduleName' => $moduleName,
             'moduleDirPath' => $moduleDirPath,
-            'siteConfig' => $siteConfig,
+            'siteConf' => $siteConf,
             'clientModuleDirPath' => $moduleDirPath . '/' . CLIENT_MODULE_DIR_NAME,
-            'configFilePath' => $moduleDirPath . '/' . CONFIG_DIR_NAME . '/site.config.php',
+            'confFilePath' => $moduleDirPath . '/' . CONF_DIR_NAME . '/site.conf.php',
         ];
-        $siteFactory = new class ($siteFactoryConfig) extends SiteFactory {
-            private array $config;
-            public function __construct(array $config) {
-                $this->config = $config;
+        $siteFactory = new class ($siteFactoryConf) extends SiteFactory {
+            private array $conf;
+            public function __construct(array $conf) {
+                $this->conf = $conf;
             }
 
             protected function hostNameToSiteModule(string $hostName) {
@@ -157,17 +157,17 @@ class SiteFactoryTest extends TestCase {
                     return false;
                 }
                 return [
-                    'siteModule' => $this->config['moduleName'],
+                    'siteModule' => $this->conf['moduleName'],
                     'path' => [
-                        'dirPath' => $this->config['moduleDirPath'],
-                        'configFilePath' => $this->config['configFilePath'],
-                        'clientModuleDirPath' => $this->config['clientModuleDirPath'],
+                        'dirPath' => $this->conf['moduleDirPath'],
+                        'confFilePath' => $this->conf['confFilePath'],
+                        'clientModuleDirPath' => $this->conf['clientModuleDirPath'],
                     ],
                 ];
             }
 
-            protected function loadConfigFile(string $configFilePath): array {
-                return $this->config['siteConfig'];
+            protected function loadConfFile(string $confFilePath): array {
+                return $this->conf['siteConf'];
             }
         };
 
@@ -180,32 +180,32 @@ class SiteFactoryTest extends TestCase {
 
         $this->assertTrue($GLOBALS[__CLASS__ . 'Registered']);
 
-        $expectedSiteConfig = new \ArrayObject(\array_merge($siteConfig, [
+        $expectedSiteConf = new \ArrayObject(\array_merge($siteConf, [
             'path' => [
                 'dirPath' => $moduleDirPath,
-                'clientModuleDirPath' => $siteFactoryConfig['clientModuleDirPath'],
-                'configFilePath' => $siteFactoryConfig['configFilePath'],
+                'clientModuleDirPath' => $siteFactoryConf['clientModuleDirPath'],
+                'confFilePath' => $siteFactoryConf['confFilePath'],
             ],
             'module' => [
                 $moduleName => [],
             ],
             'siteModule' => $moduleName,
         ]));
-        $this->assertEquals($expectedSiteConfig, $site->config());
+        $this->assertEquals($expectedSiteConf, $site->conf());
     }
 
     public function testInvoke_InvalidHost() {
         $siteFactory = new SiteFactory();
 
         $hostName = 'abc';
-        $appConfig = [
-            'siteConfigProvider' => function ($hostName) {
+        $appConf = [
+            'siteConfProvider' => function ($hostName) {
             },
         ];
         $_SERVER['HTTP_HOST'] = $hostName;
 
         $this->expectException(BadRequestException::class, 'Invalid host or site');
-        $siteFactory->__invoke($appConfig);
+        $siteFactory->__invoke($appConf);
     }
 
     private function mkSiteFactory() {

@@ -39,11 +39,11 @@ class ServiceManager extends BaseServiceManager {
     protected function mkErrorHandlerService() {
         $listeners = [];
         $logListener = new LogListener($this['errorLogger']);
-        $listeners[] = $this->config['errorHandler']['noDupsListener']
+        $listeners[] = $this->conf['errorHandler']['noDupsListener']
             ? new NoDupsListener($logListener)
             : $logListener;
         /*
-        if ($this->config['errorHandler']['dumpListener']) {
+        if ($this->conf['errorHandler']['dumpListener']) {
             $listeners[] = new DumpListener();
         }
         */

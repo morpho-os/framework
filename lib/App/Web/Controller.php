@@ -163,11 +163,11 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->request->post($name, $trim);
     }
 
-    protected function jsConfig(): \ArrayObject {
-        if (!isset($this->request['jsConfig'])) {
-            $this->request['jsConfig'] = new \ArrayObject();
+    protected function jsConf(): \ArrayObject {
+        if (!isset($this->request['jsConf'])) {
+            $this->request['jsConf'] = new \ArrayObject();
         }
-        return $this->request['jsConfig'];
+        return $this->request['jsConf'];
     }
 
     protected function messenger(): Messages\Messenger {

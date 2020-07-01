@@ -59,7 +59,7 @@ class Sut extends \ArrayObject {
         return 'http://' . $webServerAddress->host() . ':' . $webServerAddress->port();
     }
 
-    public function webDriverConfig(): array {
+    public function webDriverConf(): array {
         $geckoBinFilePath = $this->testRcDirPath() . '/geckodriver';
         $geckoBinCandidateFilePath = getenv('MORPHO_GECKO_BIN_FILE_PATH');
         if (false !== $geckoBinCandidateFilePath && file_exists($geckoBinCandidateFilePath)) {

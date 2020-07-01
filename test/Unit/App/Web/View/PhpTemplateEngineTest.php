@@ -361,7 +361,7 @@ class PhpTemplateEngineTest extends TestCase {
     private function invokeTemplateEngine(string $code): string {
         $context = new \ArrayObject([
             'code' => $code,
-            'config' => [
+            'conf' => [
                 'appendSourceInfo' => false,
             ],
         ]);

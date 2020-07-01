@@ -6,7 +6,7 @@
  */
 namespace Morpho\Fs;
 
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
 use function Morpho\Base\{
@@ -18,12 +18,12 @@ class File extends Entry {
     /**
      * Reads file as string.
      */
-    public static function read(string $filePath, array $config = null): string {
+    public static function read(string $filePath, array $conf = null): string {
         if (!\is_file($filePath)) {
             throw new FileNotFoundException($filePath);
         }
 
-        $config = Config::check(
+        $conf = Conf::check(
             [
                 'lock'           => false,
                 'offset'         => -1,
@@ -32,17 +32,17 @@ class File extends Entry {
                 'context'        => null,
                 'removeBom'      => true,
             ],
-            (array)$config
+            (array)$conf
         );
 
-        $content = @\file_get_contents($filePath, $config['useIncludePath']);
+        $content = @\file_get_contents($filePath, $conf['useIncludePath']);
 
         if (false === $content) {
             throw new Exception("Unable to read the '$filePath' file");
         }
 
         // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
-        if ($config['removeBom'] && \substr($content, 0, 3) === "\xEF\xBB\xBF") {
+        if ($conf['removeBom'] && \substr($content, 0, 3) === "\xEF\xBB\xBF") {
             return \substr($content, 3);
         }
 
@@ -71,40 +71,40 @@ class File extends Entry {
     }
 
     /**
-     * @param null|\Closure|array $filterOrConfig
+     * @param null|\Closure|array $filterOrConf
      */
-    public static function readLines(string $filePath, $filterOrConfig = null, array $config = null): \Generator {
-        if (\is_array($filterOrConfig)) {
-            if (\is_array($config)) {
+    public static function readLines(string $filePath, $filterOrConf = null, array $conf = null): \Generator {
+        if (\is_array($filterOrConf)) {
+            if (\is_array($conf)) {
                 throw new \InvalidArgumentException();
             }
-            $config = $filterOrConfig;
-            $filterOrConfig = null;
+            $conf = $filterOrConf;
+            $filterOrConf = null;
         }
-        $defaultConfig = [
+        $defaultConf = [
             'skipEmptyLines' => true,
             'rtrim' => true,
         ];
-        if ($filterOrConfig) { // If a filter was specified, don't ignore empty lines.
-            $defaultConfig['skipEmptyLines'] = false;
+        if ($filterOrConf) { // If a filter was specified, don't ignore empty lines.
+            $defaultConf['skipEmptyLines'] = false;
         }
-        $config = Config::check($defaultConfig, (array) $config);
+        $conf = Conf::check($defaultConf, (array) $conf);
         $handle = \fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
         }
         try {
             while (false !== ($line = \fgets($handle))) {
-                if ($config['rtrim']) {
+                if ($conf['rtrim']) {
                     $line = \rtrim($line);
                 }
-                if ($config['skipEmptyLines']) {
+                if ($conf['skipEmptyLines']) {
                     if (\strlen($line) === 0) {
                         continue;
                     }
                 }
-                if (null !== $filterOrConfig) {
-                    if ($filterOrConfig($line)) {
+                if (null !== $filterOrConf) {
+                    if ($filterOrConf($line)) {
                         yield $line;
                     }
                 } else {
@@ -126,8 +126,8 @@ class File extends Entry {
     /**
      * Writes json to the file and returns the file path.
      */
-    public static function writeJson(string $filePath, $json, $jsonConfig = null): string {
-        return self::write($filePath, toJson($json, $jsonConfig));
+    public static function writeJson(string $filePath, $json, $jsonConf = null): string {
+        return self::write($filePath, toJson($json, $jsonConf));
     }
 
     public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): \Generator {
@@ -148,31 +148,31 @@ class File extends Entry {
         throw new NotImplementedException(__METHOD__);
     }
 
-    public static function prepend(string $filePath, string $content, array $readConfig = null, array $writeConfig = null): string {
-        $writeConfig['append'] = false;
+    public static function prepend(string $filePath, string $content, array $readConf = null, array $writeConf = null): string {
+        $writeConf['append'] = false;
         return self::write(
             $filePath,
-            $content . self::read($filePath, $readConfig),
-            $writeConfig
+            $content . self::read($filePath, $readConf),
+            $writeConf
         );
     }
 
     /**
      * Appends content to the file and returns the file path.
      */
-    public static function append(string $filePath, string $content, array $config = null): string {
-        return self::write($filePath, $content, Config::check(['append' => true], (array)$config));
+    public static function append(string $filePath, string $content, array $conf = null): string {
+        return self::write($filePath, $content, Conf::check(['append' => true], (array)$conf));
     }
 
     /**
      * Writes string to file.
      */
-    public static function write(string $filePath, string $content, array $config = null): string {
+    public static function write(string $filePath, string $content, array $conf = null): string {
         if (empty($filePath)) {
             throw new Exception("The file path is empty");
         }
         Dir::create(Path::dirPath($filePath));
-        $result = @\file_put_contents($filePath, $content, static::filePutContentsConfigToFlags((array)$config), $config['context']);
+        $result = @\file_put_contents($filePath, $content, static::filePutContentsConfToFlags((array)$conf), $conf['context']);
         if (false === $result) {
             throw new Exception("Unable to write to the file '$filePath'");
         }
@@ -315,8 +315,8 @@ class File extends Entry {
         file_put_contents($filePath, $newContents);
     }
 
-    private static function filePutContentsConfigToFlags(array $config): int {
-        $config = Config::check(
+    private static function filePutContentsConfToFlags(array $conf): int {
+        $conf = Conf::check(
             [
                 'useIncludePath' => false,
                 'lock'           => true,
@@ -324,16 +324,16 @@ class File extends Entry {
                 'context'        => null,
                 'mode'           => Stat::FILE_MODE,
             ],
-            $config
+            $conf
         );
         $flags = 0;
-        if ($config['append']) {
+        if ($conf['append']) {
             $flags |= FILE_APPEND;
         }
-        if ($config['lock']) {
+        if ($conf['lock']) {
             $flags |= LOCK_EX;
         }
-        if ($config['useIncludePath']) {
+        if ($conf['useIncludePath']) {
             $flags |= FILE_USE_INCLUDE_PATH;
         }
         return $flags;

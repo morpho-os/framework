@@ -45,7 +45,7 @@ class HtmlRenderer implements IFn {
         $renderedView = $this->renderView($moduleName, $viewResult);
 
         // 2. Render page
-        $moduleName = $serviceManager->config()['view']['pageRenderer'];
+        $moduleName = $serviceManager->conf()['view']['pageRenderer'];
         $page = $viewResult->parent() ?: $this->mkPage();
         $page->vars()['body'] = $renderedView;
         $renderedPage = $this->renderView($moduleName, $page);

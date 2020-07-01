@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\Uri;
 
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 use function Morpho\Base\all;
 use function Morpho\Base\lastPos;
 use function Morpho\Base\startsWith;
@@ -229,16 +229,16 @@ class Uri {
 
     public function toStr(?array $parts, bool $encode): string {
         if (null !== $parts) {
-            $config = \array_fill_keys($parts, true);
-            $config = Config::check([
+            $conf = \array_fill_keys($parts, true);
+            $conf = Conf::check([
                 'scheme' => false,
                 'authority' => false,
                 'path' => false,
                 'query' => false,
                 'fragment' => false,
-            ], $config);
+            ], $conf);
         } else {
-            $config = [
+            $conf = [
                 'scheme' => true,
                 'authority' => true,
                 'path' => true,
@@ -249,15 +249,15 @@ class Uri {
 
         $uriStr = '';
 
-        $shouldReturnOnly = function (string $partName) use ($config) {
-            $val = $config[$partName];
-            unset($config[$partName]);
+        $shouldReturnOnly = function (string $partName) use ($conf) {
+            $val = $conf[$partName];
+            unset($conf[$partName]);
             return $val && all(function ($val) {
                 return !$val;
-            }, $config);
+            }, $conf);
         };
 
-        if ($config['scheme']) {
+        if ($conf['scheme']) {
             $scheme = $this->scheme();
             if ($scheme !== '') {
                 if ($shouldReturnOnly('scheme')) {
@@ -267,7 +267,7 @@ class Uri {
             }
         }
 
-        if ($config['authority']) {
+        if ($conf['authority']) {
             $authority = $this->authority();
             if (!$authority->isNull()) {
                 if ($shouldReturnOnly('authority')) {
@@ -277,11 +277,11 @@ class Uri {
             }
         }
 
-        if ($config['path']) {
+        if ($conf['path']) {
             $uriStr .= $this->path()->toStr($encode);
         }
 
-        if ($config['query']) {
+        if ($conf['query']) {
             $query = $this->query();
             if (!$query->isNull()) {
                 if ($shouldReturnOnly('query')) {
@@ -291,7 +291,7 @@ class Uri {
             }
         }
 
-        if ($config['fragment']) {
+        if ($conf['fragment']) {
             $fragment = $this->fragment();
             if (null !== $fragment) {
                 if ($shouldReturnOnly('fragment')) {

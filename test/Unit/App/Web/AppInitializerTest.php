@@ -29,7 +29,7 @@ class AppInitializerTest extends TestCase {
         \ini_set('date.timezone', $this->timezone);
     }
 
-    public function dataForUmaskCanBeSetThroughSiteConfig() {
+    public function dataForUmaskCanBeSetThroughSiteConf() {
         return [
             [
                 0027,
@@ -44,16 +44,16 @@ class AppInitializerTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForUmaskCanBeSetThroughSiteConfig
+     * @dataProvider dataForUmaskCanBeSetThroughSiteConf
      */
-    public function testUmaskCanBeSetThroughSiteConfig(int $newUmask) {
-        $siteConfig = \array_merge(
-            $this->mkSiteConfig($this->getTestDirPath()),
+    public function testUmaskCanBeSetThroughSiteConf(int $newUmask) {
+        $siteConf = \array_merge(
+            $this->mkSiteConf($this->getTestDirPath()),
             [
                 'umask' => $newUmask,
             ]
         );
-        $serviceManager = $this->mkServiceManager($siteConfig);
+        $serviceManager = $this->mkServiceManager($siteConf);
         /** @noinspection PhpParamsInspection */
         $initializer = new AppInitializer($serviceManager);
 
@@ -62,7 +62,7 @@ class AppInitializerTest extends TestCase {
         $this->assertSame($newUmask, \umask());
     }
 
-    public function dataForTimezoneCanBeSetThroughSiteConfig() {
+    public function dataForTimezoneCanBeSetThroughSiteConf() {
         return [
             [
                 'Europe/London',
@@ -74,18 +74,18 @@ class AppInitializerTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForTimezoneCanBeSetThroughSiteConfig
+     * @dataProvider dataForTimezoneCanBeSetThroughSiteConf
      */
-    public function testTimezoneCanBeSetThroughSiteConfig(string $timeZone) {
-        $siteConfig = \array_merge(
-            $this->mkSiteConfig($this->getTestDirPath()),
+    public function testTimezoneCanBeSetThroughSiteConf(string $timeZone) {
+        $siteConf = \array_merge(
+            $this->mkSiteConf($this->getTestDirPath()),
             [
-                'iniConfig' => [
+                'iniConf' => [
                     'date.timezone' => $timeZone
                 ],
             ]
         );
-        $serviceManager = $this->mkServiceManager($siteConfig);
+        $serviceManager = $this->mkServiceManager($siteConf);
 
         /** @noinspection PhpParamsInspection */
         $initializer = new AppInitializer($serviceManager);
@@ -95,7 +95,7 @@ class AppInitializerTest extends TestCase {
         $this->assertSame($timeZone, \ini_get('date.timezone'));
     }
 
-    private function mkSiteConfig(string $cacheDirPath): array {
+    private function mkSiteConf(string $cacheDirPath): array {
         return [
             'path' => [
                 'cacheDirPath' => $cacheDirPath,
@@ -105,10 +105,10 @@ class AppInitializerTest extends TestCase {
         ];
     }
 
-    private function mkServiceManager($siteConfig) {
+    private function mkServiceManager($siteConf) {
         $serviceManager = $this->createMock(ServiceManager::class);
         $site = $this->createConfiguredMock(Site::class, [
-            'config' => new \ArrayObject($siteConfig),
+            'conf' => new \ArrayObject($siteConf),
         ]);
         $errorHandler = $this->createMock(IErrorHandler::class);
         $serviceManager->expects($this->any())

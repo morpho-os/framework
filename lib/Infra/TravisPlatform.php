@@ -7,6 +7,6 @@
 namespace Morpho\Infra;
 
 // See https://travis-ci.org/
-class TravisPlatform implements ICiPlatform, IDeploymentSystem {
-    private const CONFIG_FILE_NAME = '.travis.yml';
+class TravisPlatform implements ICiPlatform {
+    private const CONF_FILE_NAME = '.travis.yml';
 }

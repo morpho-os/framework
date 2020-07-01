@@ -9,7 +9,7 @@ namespace Morpho\App;
 use Morpho\Base\IFn;
 
 interface ISite extends IFn {
-    public function config(): \ArrayObject;
+    public function conf(): \ArrayObject;
 
     public function moduleName(): string;
 

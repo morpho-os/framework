@@ -7,7 +7,7 @@
 namespace Morpho\Fs;
 
 use DirectoryIterator;
-use Morpho\Base\Config;
+use Morpho\Base\Conf;
 use Morpho\Base\Env;
 use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
@@ -22,7 +22,7 @@ class Dir extends Entry {
         return $targetDirPath;
     }
 
-    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $config = null): string {
+    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $conf = null): string {
         // @TODO: Handle dots and relative paths: '..', '.'
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         self::mustExist($sourceDirPath);
@@ -31,13 +31,13 @@ class Dir extends Entry {
             throw new Exception("Cannot copy the directory '$sourceDirPath' into itself");
         }
 
-        $config = Config::check(
+        $conf = Conf::check(
             [
                 'overwrite'      => false,
                 'followLinks' => false,
                 'skipIfExists'   => false,
             ],
-            (array) $config
+            (array) $conf
         );
 
         if (\is_dir($targetDirPath)) {
@@ -58,15 +58,15 @@ class Dir extends Entry {
             [
                 'recursive' => false,
                 'type' => Stat::ENTRY,
-                'followLinks' => $config['followLinks'],
+                'followLinks' => $conf['followLinks'],
             ]
         );
         foreach ($paths as $path) {
             $targetPath = $targetDirPath . '/' . \basename($path);
             if (\is_file($path) || \is_link($path)) {
-                File::copy($path, $targetPath, $config['overwrite'], $config['skipIfExists']);
+                File::copy($path, $targetPath, $conf['overwrite'], $conf['skipIfExists']);
             } else {
-                self::copy($path, $targetPath, $processor, $config);
+                self::copy($path, $targetPath, $processor, $conf);
             }
         }
 
@@ -88,20 +88,20 @@ class Dir extends Entry {
     /**
      * @param string|iterable $dirPaths
      * @param string|\Closure $processor
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function paths($dirPaths, $processor = null, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
+    public static function paths($dirPaths, $processor = null, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
         if (null !== $processor && !\is_string($processor) && !$processor instanceof \Closure) {
             throw new Exception("Invalid processor");
         }
-        $config = Config::check(
+        $conf = Conf::check(
             [
                 'recursive'      => false,
                 'followLinks' => false,
                 'type'           => Stat::ENTRY,
             ],
-            $config
+            $conf
         );
 
         if (\is_string($processor)) {
@@ -113,7 +113,7 @@ class Dir extends Entry {
         if (\is_string($dirPaths)) {
             $dirPaths = (array) $dirPaths;
         }
-        $recursive = $config['recursive'];
+        $recursive = $conf['recursive'];
         foreach ($dirPaths as $dirPath) {
             foreach (new DirectoryIterator($dirPath) as $item) {
                 if ($item->isDot()) {
@@ -124,9 +124,9 @@ class Dir extends Entry {
                 $isDir = $item->isDir();
 
                 if ($isDir) {
-                    $match = $config['type'] & Stat::DIR;
+                    $match = $conf['type'] & Stat::DIR;
                 } else {
-                    $match = $config['type'] & Stat::FILE;
+                    $match = $conf['type'] & Stat::FILE;
                 }
                 if (!$match) {
                     if (!$isDir || !$recursive) {
@@ -145,11 +145,11 @@ class Dir extends Entry {
                 }
 
                 if ($isDir && $recursive) {
-                    if ($item->isLink() && !$config['followLinks']) {
+                    if ($item->isLink() && !$conf['followLinks']) {
                         continue;
                     }
 
-                    yield from self::paths($item->getPathname(), $processor, $config);
+                    yield from self::paths($item->getPathname(), $processor, $conf);
                 }
             }
         }
@@ -158,10 +158,10 @@ class Dir extends Entry {
     /**
      * @param string|iterable $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function baseNames($dirPath, $processor, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
+    public static function baseNames($dirPath, $processor, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 $baseName = \basename($path);
@@ -184,19 +184,19 @@ class Dir extends Entry {
                 return \basename($path);
             };
         }
-        return self::paths($dirPath, $processor, $config);
+        return self::paths($dirPath, $processor, $conf);
     }
 
     /**
-     * Shortcut for the paths() with $config['type'] == Stat::DIR option.
+     * Shortcut for the paths() with $conf['type'] == Stat::DIR option.
      *
      * @param string|iterable $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function dirPaths($dirPath, $processor = null, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
-        $config['type'] = Stat::DIR;
+    public static function dirPaths($dirPath, $processor = null, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
+        $conf['type'] = Stat::DIR;
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
                 if (\is_string($processor)) {
@@ -207,57 +207,57 @@ class Dir extends Entry {
                 return $processor($path, true);
             };
         }
-        return self::paths($dirPath, $processor, $config);
+        return self::paths($dirPath, $processor, $conf);
     }
 
     /**
      * @param iterable|string $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function dirNames($dirPath, $processor = null, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
-        if (!empty($config['recursive'])) {
-            throw new \LogicException("The 'recursive' config param must be false");
+    public static function dirNames($dirPath, $processor = null, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
+        if (!empty($conf['recursive'])) {
+            throw new \LogicException("The 'recursive' conf param must be false");
         }
-        $config['type'] = Stat::DIR;
-        return self::baseNames($dirPath, $processor, $config);
+        $conf['type'] = Stat::DIR;
+        return self::baseNames($dirPath, $processor, $conf);
     }
 
     /**
-     * Shortcut for the paths() with $config['type'] == Stat::FILE option.
+     * Shortcut for the paths() with $conf['type'] == Stat::FILE option.
      *
      * @param iterable|string $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function filePaths($dirPath, $processor = null, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
-        $config['type'] = Stat::FILE;
-        return self::paths($dirPath, $processor, $config);
+    public static function filePaths($dirPath, $processor = null, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
+        $conf['type'] = Stat::FILE;
+        return self::paths($dirPath, $processor, $conf);
     }
 
     /**
      * @param iterable|string $dirPath
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function filePathsWithExt($dirPath, array $extensions, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
+    public static function filePathsWithExt($dirPath, array $extensions, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = \preg_quote($extension, '/');
         }
-        return self::filePaths($dirPath, '/\.(' . \implode('|', $extensions) . ')$/si', $config);
+        return self::filePaths($dirPath, '/\.(' . \implode('|', $extensions) . ')$/si', $conf);
     }
 
     /**
      * @param iterable|string $dirPath
      * @param string|\Closure $processor
-     * @param array|bool|null $config
+     * @param array|bool|null $conf
      */
-    public static function fileNames($dirPath, $processor = null, $config = null): \Generator {
-        $config = self::normalizeConfig($config);
-        $config['type'] = Stat::FILE;
-        return self::baseNames($dirPath, $processor, $config);
+    public static function fileNames($dirPath, $processor = null, $conf = null): \Generator {
+        $conf = self::normalizeConf($conf);
+        $conf['type'] = Stat::FILE;
+        return self::baseNames($dirPath, $processor, $conf);
     }
 
     public static function linkPaths(string $dirPath, callable $filter): \Generator {
@@ -493,19 +493,19 @@ class Dir extends Entry {
     }
 
     /**
-     * @param null|array|bool $config
+     * @param null|array|bool $conf
      * @return array
      */
-    private static function normalizeConfig($config): array {
-        if (!\is_array($config)) {
-            if (null === $config) {
-                $config = [];
-            } elseif (\is_bool($config)) {
-                $config = ['recursive' => $config];
+    private static function normalizeConf($conf): array {
+        if (!\is_array($conf)) {
+            if (null === $conf) {
+                $conf = [];
+            } elseif (\is_bool($conf)) {
+                $conf = ['recursive' => $conf];
             } else {
                 throw new \InvalidArgumentException();
             }
         }
-        return $config;
+        return $conf;
     }
 }

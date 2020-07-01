@@ -125,16 +125,16 @@ class ScriptProcessor extends HtmlProcessor {
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(' . \json_encode($this->jsConfig(), JSON_UNESCAPED_SLASHES) . '); });',
+                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(' . \json_encode($this->jsConf(), JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return [$inline, $included];
     }
 
-    protected function jsConfig(): array {
+    protected function jsConf(): array {
         $request = $this->request();
-        if (isset($request['jsConfig'])) {
-            return (array) $request['jsConfig'];
+        if (isset($request['jsConf'])) {
+            return (array) $request['jsConf'];
         }
         return [];
     }

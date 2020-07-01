@@ -8,7 +8,7 @@ namespace Morpho\Xml;
 
 use DOMDocument;
 
-use Morpho\Base\InvalidConfigException;
+use Morpho\Base\InvalidConfException;
 use Morpho\Fs\File;
 use Morpho\App\Web\View\Html;
 
@@ -37,22 +37,22 @@ class Doc extends DOMDocument {
         'xmlVersion' => true,
     ];
 
-    public static function parseFile(string $filePath, array $config = null): Doc {
+    public static function parseFile(string $filePath, array $conf = null): Doc {
         if (!\is_file($filePath) || !\is_readable($filePath)) {
             throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
         $source = File::read($filePath, ['removeBom' => true]);
-        return self::parse($source, $config);
+        return self::parse($source, $conf);
     }
 
-    public static function parse(string $source, array $config = null): Doc {
+    public static function parse(string $source, array $conf = null): Doc {
         $source = \trim($source);
 
-        $config = (array) $config;
-        $fixEncoding = $config['fixEncoding'] ?? false;
-        unset($config['fixEncoding']);
+        $conf = (array) $conf;
+        $fixEncoding = $conf['fixEncoding'] ?? false;
+        unset($conf['fixEncoding']);
 
-        $doc = self::mk($config);
+        $doc = self::mk($conf);
 
         \libxml_use_internal_errors(true);
 
@@ -60,7 +60,7 @@ class Doc extends DOMDocument {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
-                $source = '<meta http-equiv="content-type" content="text/html; charset=' . Html::encode($config['encoding'] ?? self::ENCODING) . '">'
+                $source = '<meta http-equiv="content-type" content="text/html; charset=' . Html::encode($conf['encoding'] ?? self::ENCODING) . '">'
                     . $source;
             }
             $result = $doc->loadHTML($source);
@@ -75,21 +75,21 @@ class Doc extends DOMDocument {
         return $doc;
     }
 
-    public static function mk(array $config = null): Doc {
-        $config = (array) $config;
-        $invalidConfig = \array_diff_key($config, self::CREATE_CONFIG_PARAMS);
-        if (\count($invalidConfig)) {
-            throw new InvalidConfigException($invalidConfig);
+    public static function mk(array $conf = null): Doc {
+        $conf = (array) $conf;
+        $invalidConf = \array_diff_key($conf, self::CREATE_CONFIG_PARAMS);
+        if (\count($invalidConf)) {
+            throw new InvalidConfException($invalidConf);
         }
 
         $doc = new Doc('1.0');
-        $config += [
+        $conf += [
             'preserveWhiteSpace' => false,
             'formatOutput'       => true,
             'substituteEntities' => true,
             'encoding'           => self::ENCODING,
         ];
-        foreach ($config as $name => $value) {
+        foreach ($conf as $name => $value) {
             $doc->$name = $value;
         }
 

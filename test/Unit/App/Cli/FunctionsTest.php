@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\App\Cli;
 
 use Morpho\Base\Env;
-use Morpho\Base\InvalidConfigException;
+use Morpho\Base\InvalidConfException;
 use function Morpho\App\Cli\{
     argsStr, envVarsStr, sh, escapeArgs, proc, showOk, stylize
 };
@@ -89,12 +89,12 @@ OUT
         $this->assertSame(" '1' '2'", argsStr($gen1()));
     }
 
-    public function testShell_ThrowsExceptionOnInvalidConfigParam() {
-        $this->expectException(InvalidConfigException::class);
+    public function testShell_ThrowsExceptionOnInvalidConfParam() {
+        $this->expectException(InvalidConfException::class);
         sh('ls', ['some invalid option' => 'value of invalid option']);
     }
 
-    public function dataForShell_CaptureAndShowConfigOptions() {
+    public function dataForShell_CaptureAndShowConfOptions() {
         yield [false, false];
         yield [false, true];
         yield [true, false];
@@ -102,9 +102,9 @@ OUT
     }
 
     /**
-     * @dataProvider dataForShell_CaptureAndShowConfigOptions
+     * @dataProvider dataForShell_CaptureAndShowConfOptions
      */
-    public function testShell_CaptureAndShowConfigOptions(bool $capture, bool $show) {
+    public function testShell_CaptureAndShowConfOptions(bool $capture, bool $show) {
         $cmd = 'ls '  . \escapeshellarg(__DIR__);
         \ob_start();
         $result = sh($cmd, ['capture' => $capture, 'show' => $show]);
@@ -114,7 +114,7 @@ OUT
         $this->assertStringContainsString($capture ? \basename(__FILE__) : '', (string)$result);
     }
 
-    public function testShell_CheckExitConfigParam() {
+    public function testShell_CheckExitConfParam() {
         $exitCode = 134;
         $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
         sh('php -r "exit(' . $exitCode . ');"');
@@ -127,7 +127,7 @@ OUT
         $this->markTestIncomplete();
     }
 
-    public function testShell_EnvVarsConfigParam() {
+    public function testShell_EnvVarsConfParam() {
         $var = 'v' . \md5(__METHOD__);
         $val = 'hello';
         $this->assertSame($val . "\n", sh('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true, 'show' => false])->out());

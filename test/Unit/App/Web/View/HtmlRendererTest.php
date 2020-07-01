@@ -32,7 +32,7 @@ class HtmlRendererTest extends TestCase {
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
-            ->method('config')
+            ->method('conf')
             ->willReturn(['view' => ['pageRenderer' => $pageRendererModuleName]]);
 
         $renderer = new class ($serviceManager) extends HtmlRenderer {

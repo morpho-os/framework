@@ -760,20 +760,20 @@ class FunctionsTest extends TestCase {
     }
 
     public function testSetProps() {
-        $config = [
+        $conf = [
             'privateFoo' => 'abc',
             'protectedBar' => 'defg',
             'publicBaz' => 'hig',
         ];
-        $instance = new class($config) {
+        $instance = new class($conf) {
             private $privateFoo;
             protected $protectedBar;
             public $publicBaz;
 
             public $setPropsResult;
 
-            public function __construct(array $config) {
-                $this->setPropsResult = setProps($this, $config);
+            public function __construct(array $conf) {
+                $this->setPropsResult = setProps($this, $conf);
             }
 
             public function protectedBar() {
@@ -787,9 +787,9 @@ class FunctionsTest extends TestCase {
 
 
         $this->assertSame($instance, $instance->setPropsResult);
-        $this->assertSame($config['publicBaz'], $instance->publicBaz);
-        $this->assertSame($config['protectedBar'], $instance->protectedBar());
-        $this->assertSame($config['privateFoo'], $instance->privateFoo());
+        $this->assertSame($conf['publicBaz'], $instance->publicBaz);
+        $this->assertSame($conf['protectedBar'], $instance->protectedBar());
+        $this->assertSame($conf['privateFoo'], $instance->privateFoo());
         $this->assertSame(['__construct', 'protectedBar', 'privateFoo'], \get_class_methods($instance));
     }
 
@@ -799,18 +799,18 @@ class FunctionsTest extends TestCase {
             protected $protectedBar;
             public $publicBaz;
 
-            public function setProps($config) {
-                setProps($this, $config);
+            public function setProps($conf) {
+                setProps($this, $conf);
             }
         };
-        $config = [
+        $conf = [
             'privateFoo' => 'abc',
             'protectedBar' => 'defg',
             'publicBaz' => 'hig',
             'notDeclared' => 'some',
         ];
         try {
-            $instance->setProps($config);
+            $instance->setProps($conf);
             $this->fail();
         } catch (\UnexpectedValueException $e) {
             $this->assertStringContainsString("Unknown property 'notDeclared'", $e->getMessage());

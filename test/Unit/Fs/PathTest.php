@@ -315,11 +315,11 @@ class PathTest extends TestCase {
     public function testExt() {
         $this->assertEquals('', Path::ext(''));
         $this->assertEquals('jpg', Path::ext('.jpg'));
-        $this->assertEquals('txt', Path::ext('config.txt'));
-        $this->assertEquals('txt', Path::ext('.config.txt'));
+        $this->assertEquals('txt', Path::ext('conf.txt'));
+        $this->assertEquals('txt', Path::ext('.conf.txt'));
 
         $this->assertEquals('txt', Path::ext('dir/.txt'));
-        $this->assertEquals('txt', Path::ext('dir/config.txt'));
+        $this->assertEquals('txt', Path::ext('dir/conf.txt'));
         $this->assertEquals('php', Path::ext(__FILE__));
         $this->assertEquals('ts', Path::ext(__DIR__ . '/test.d.ts'));
 

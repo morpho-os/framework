@@ -17,7 +17,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
 
     protected $aliases = [];
 
-    protected $config;
+    protected $conf;
 
     private $loading = [];
 
@@ -90,12 +90,12 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
         parent::offsetUnset(\strtolower($id));
     }
 
-    public function setConfig($config): void {
-        $this->config = $config;
+    public function setConf($conf): void {
+        $this->conf = $conf;
     }
 
-    public function config() {
-        return $this->config;
+    public function conf() {
+        return $this->conf;
     }
 
     public function setAliases(array $aliases) {

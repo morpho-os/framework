@@ -117,10 +117,10 @@ class PhpTemplateEngine extends TemplateEngine {
     /**
      * @param string|Uri $uri
      */
-    public function link($uri, string $text, array $attributes = null, array $config = null): string {
+    public function link($uri, string $text, array $attributes = null, array $conf = null): string {
         $attributes = (array) $attributes;
         $attributes['href'] = prependBasePath(function () { return $this->uri()->path()->basePath(); }, $uri)->toStr(null, false);
-        return Html::tag('a', $attributes, $text, $config);
+        return Html::tag('a', $attributes, $text, $conf);
     }
 
     public function copyright(string $brand, $startYear = null): string {

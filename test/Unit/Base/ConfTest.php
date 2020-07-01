@@ -6,41 +6,41 @@
  */
 namespace Morpho\Test\Unit\Base;
 
-use Morpho\Base\Config;
-use Morpho\Base\InvalidConfigException;
+use Morpho\Base\Conf;
+use Morpho\Base\InvalidConfException;
 use Morpho\Testing\TestCase;
 
-class ConfigTest extends TestCase {
+class ConfTest extends TestCase {
     public function testInterface() {
-        $this->assertInstanceOf(\ArrayObject::class, new Config());
+        $this->assertInstanceOf(\ArrayObject::class, new Conf());
     }
 
     public function testOnlyDefault() {
-        $config = new class extends Config {
+        $conf = new class extends Conf {
             protected $default = [
                 'foo' => 'bar',
             ];
         };
-        $this->assertSame(['foo' => 'bar'], $config->getArrayCopy());
+        $this->assertSame(['foo' => 'bar'], $conf->getArrayCopy());
     }
 
     public function testDefaultWithValues() {
-        $config = new class (['abc' => 123, 'foo' => 'pear']) extends Config {
+        $conf = new class (['abc' => 123, 'foo' => 'pear']) extends Conf {
             protected $default = [
                 'foo' => 'bar',
             ];
         };
-        $this->assertSame(['abc' => 123, 'foo' => 'pear'], $config->getArrayCopy());
+        $this->assertSame(['abc' => 123, 'foo' => 'pear'], $conf->getArrayCopy());
     }
 
     public function testOnlyValues() {
         $data = ['foo' => 'bar'];
-        $config = new Config($data);
-        $this->assertSame($data, $config->getArrayCopy());
+        $conf = new Conf($data);
+        $this->assertSame($data, $conf->getArrayCopy());
     }
 
     public function testNoDefaultAndValues() {
-        $this->assertSame([], (new Config())->getArrayCopy());
+        $this->assertSame([], (new Conf())->getArrayCopy());
     }
 
     public function dataForMerge() {
@@ -58,8 +58,8 @@ class ConfigTest extends TestCase {
      * @dataProvider dataForMerge
      */
     public function testMerge(bool $recursive, $expected) {
-        $config = new Config(['foo' => ['bar']]);
-        $this->assertSame($expected, $config->merge(['foo' => ['abc']], $recursive)->getArrayCopy());
+        $conf = new Conf(['foo' => ['bar']]);
+        $this->assertSame($expected, $conf->merge(['foo' => ['abc']], $recursive)->getArrayCopy());
     }
 
     public function dataForCheck_Array() {
@@ -100,23 +100,23 @@ class ConfigTest extends TestCase {
     /**
      * @dataProvider dataForCheck_Array
      */
-    public function testCheck_Array($expected, $config, $defaultConfig) {
+    public function testCheck_Array($expected, $conf, $defaultConf) {
         $this->assertEquals(
             $expected,
-            Config::check(
-                $defaultConfig,
-                $config
+            Conf::check(
+                $defaultConf,
+                $conf
             )
         );
     }
 
     public function testCheck_Array_ThrowsExceptionWhenParamsWithDefaultKeysAreMissing() {
-        $this->expectException(InvalidConfigException::class, "Invalid config keys: foo");
-        Config::check(['one' => 1], ['foo' => 'bar']);
+        $this->expectException(InvalidConfException::class, "Invalid conf keys: foo");
+        Conf::check(['one' => 1], ['foo' => 'bar']);
     }
 
     public function testCheck_Array_InvalidNumericKeys() {
-        $this->expectException(InvalidConfigException::class, "Invalid config keys: 2, 5");
-        Config::check(['foo' => 'baz'], [2 => 'two', 'foo' => 'bar', 5 => 'five']);
+        $this->expectException(InvalidConfException::class, "Invalid conf keys: 2, 5");
+        Conf::check(['foo' => 'baz'], [2 => 'two', 'foo' => 'bar', 5 => 'five']);
     }
 }

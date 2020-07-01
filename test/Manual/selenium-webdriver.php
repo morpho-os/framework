@@ -30,10 +30,10 @@ function browsers() {
     return [/*$mkChrome(), */ $mkFirefox()];
 }
 
-$webDriverConfig = $sut->webDriverConfig();
-var_dump('WebDriver config:', $webDriverConfig['geckoBinFilePath']);
+$webDriverConf = $sut->webDriverConf();
+var_dump('WebDriver conf:', $webDriverConf['geckoBinFilePath']);
 
-$webDriver = new GeckoDriver($webDriverConfig['geckoBinFilePath']);
+$webDriver = new GeckoDriver($webDriverConf['geckoBinFilePath']);
 $exitCode = 0;
 try {
     $webDriver->start();
