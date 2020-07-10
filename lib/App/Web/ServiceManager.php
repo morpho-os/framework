@@ -29,6 +29,7 @@ use Morpho\App\Web\View\Theme;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
+use Morpho\App\ApplyingSiteConfModuleIterator;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
@@ -49,7 +50,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkServerModuleIteratorService() {
-        return new ServerModuleIterator($this);
+        return new ApplyingSiteConfModuleIterator($this);
     }
 
     protected function mkSessionService() {

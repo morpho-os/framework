@@ -157,6 +157,10 @@ class PhpTemplateEngine extends TemplateEngine {
         ]);
     }
 
+    public function e($s): string {
+        return Html::encode($s);
+    }
+
     protected function mkPlugin(string $name) {
         $moduleName = $this->request()->moduleName();
         $serviceManager = $this->serviceManager;

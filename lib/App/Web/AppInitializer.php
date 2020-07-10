@@ -16,11 +16,5 @@ class AppInitializer extends BaseAppInitializer {
         ErrorHandler::trackErrors(function () {
             $this->serviceManager['errorHandler']->register();
         });
-
-        //$app = $this->serviceManager['app'];
-
-/*        $app->on('exit', function ($response) {
-            d($response);
-        });*/
     }
 }

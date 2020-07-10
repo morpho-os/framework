@@ -309,6 +309,7 @@ class Debugger {
     }
 
     protected function formatLine($line) {
+        $line = (string) $line;
         if (!$this->isHtmlMode()) {
             return "\n$line\n";
         }

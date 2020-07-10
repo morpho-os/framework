@@ -7,7 +7,6 @@
 namespace Morpho\Base;
 
 use Closure;
-use Morpho\App\Web\View\Html;
 use RuntimeException;
 use Throwable;
 use UnexpectedValueException;
@@ -33,6 +32,10 @@ const SHORTEN_LENGTH = 30;
 const EPS = 0.00001;
 
 const WAIT_INTERVAL_MICRO_SEC = 200000;
+
+function e($s): string {
+    return \htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+}
 
 function evalFn($valOrFn) {
     if ($valOrFn instanceof \Closure) { // should be more fast then is_callable()
@@ -236,7 +239,7 @@ function camelize($string, bool $upperCaseFirstChar = false): string {
 /**
  * Replaces the '_' character with space, works for camelCased strings also:
  * 'camelCased' -> 'camel cased'. Leaves other characters as is.
- * By default applies Html::encode() method to escape of HTML special characters.
+ * By default applies e() to escape of HTML special characters.
  */
 function humanize($string, bool $escape = true) {
     $result = \preg_replace_callback(
@@ -247,7 +250,7 @@ function humanize($string, bool $escape = true) {
         \str_replace('_', ' ', $string)
     );
     if ($escape) {
-        $result = Html::encode($result);
+        $result = e($result);
     }
     return $result;
 }

@@ -4,13 +4,13 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\App\Web;
+namespace Morpho\App;
 
-use Morpho\App\ServerModuleIterator as BaseServerModuleIterator;
+use Morpho\App\ServerModuleIterator;
 use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
-class ServerModuleIterator extends BaseServerModuleIterator {
+class ApplyingSiteConfModuleIterator extends ServerModuleIterator {
     protected array $enabledModules;
 
     protected array $patch;

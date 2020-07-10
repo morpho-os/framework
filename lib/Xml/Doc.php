@@ -10,7 +10,7 @@ use DOMDocument;
 
 use Morpho\Base\InvalidConfException;
 use Morpho\Fs\File;
-use Morpho\App\Web\View\Html;
+use function Morpho\Base\e;
 
 /**
  * @method XPathResult select(string $xPath, $contextNode = null)
@@ -60,7 +60,7 @@ class Doc extends DOMDocument {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
-                $source = '<meta http-equiv="content-type" content="text/html; charset=' . Html::encode($conf['encoding'] ?? self::ENCODING) . '">'
+                $source = '<meta http-equiv="content-type" content="text/html; charset=' . e($conf['encoding'] ?? self::ENCODING) . '">'
                     . $source;
             }
             $result = $doc->loadHTML($source);

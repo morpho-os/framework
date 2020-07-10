@@ -7,10 +7,11 @@
 namespace Morpho\App\Web\View;
 
 use Morpho\Base\Conf;
+use function Morpho\Base\e;
 
 class Html {
     public static function encode($text): string {
-        return \htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
+        return e($text);
     }
 
     /**

@@ -9,7 +9,7 @@ defectOpts = --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky
 assets: js css
 
 js:
-	bin/build ts
+	bin/build js
 
 css:
 	bin/build css
@@ -29,11 +29,11 @@ test-stop:
 utest:
 	bin/test test/Unit/TestSuite.php
 
+utest-stop:
+	bin/test $(errorOpts) test/Unit/TestSuite.php
+
 utest-stop-defect:
 	bin/test $(defectOpts) test/Unit/TestSuite.php
-
-utest-stop-error:
-	bin/test $(errorOpts) test/Unit/TestSuite.php
 
 ###############################################################################
 # Integration tests
@@ -67,4 +67,4 @@ setup:
 	npm install -g stylus typescript@next
 
 .SILENT:
-.PHONY: assets js css test test-stop-on-error utest utest-stop-on-defect utest-stop-on-error itest itest-stop-on-error mtest lint clear clean update setup
+.PHONY: assets js css test test-stop utest utest-stop utest-stop-defect itest itest-stop mtest lint clear clean update setup

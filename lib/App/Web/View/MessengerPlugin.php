@@ -17,19 +17,19 @@ use Morpho\Ioc\{
 class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     private $serviceManager;
 
-    public function count() {
+    public function count(): int {
         return $this->messenger()->count();
     }
 
-    public function renderPageMessages() {
+    public function renderPageMessages(): string {
         $html = '';
         $messenger = $this->messenger();
         if ($this->count()) {
             $renderedMessages = [];
             foreach ($messenger as $type => $messages) {
-                $renderedMessages[] = $this->renderMessages($messages, $type);
+                $renderedMessages[] = $this->renderMessagesOfType($messages, $type);
             }
-            $html = $this->wrapPageMessages(\implode("\n", $renderedMessages));
+            $html = $this->formatHtmlContainer($renderedMessages);
         }
         $messenger->clearMessages();
         return $html;
@@ -39,41 +39,42 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function wrapPageMessages($messages) {
-        return '<div id="page-messages">' . $messages . '</div>';
+    protected function formatHtmlContainer(array $renderedMessages): string {
+        return '<div id="page-messages">' . \implode("\n", $renderedMessages) . '</div>';
     }
 
-    protected function renderMessages(array $messages, $type) {
+    protected function renderMessagesOfType(iterable $messages, string $type) {
         $renderedMessages = [];
+        $cssClass = $this->messageTypeToCssClass($type);
         foreach ($messages as $message) {
-            $renderedMessages[] = $this->renderMessage($message, $type);
+            $renderedMessages[] = $this->renderMessageOfType($message, $type);
         }
-        return $this->wrapMessages(\implode("\n", $renderedMessages), $type);
+        return '<div class="messages ' . $this->messageTypeToCssClass($type) . '">'
+            . \implode("\n", $renderedMessages)
+            . '</div>';
     }
 
-    protected function wrapMessages($messages, $type) {
-        return '<div class="messages ' . dasherize($type) . '">'
-        . $messages
-        . '</div>';
-    }
-
-    protected function renderMessage(array $message, $type) {
+    protected function renderMessageOfType(array $message, string $type): string {
         $text = format(
             \nl2br(Html::encode($message['text'])),
             $message['args'],
             function ($arg) { return $arg; }
         );
-        return $this->wrapMessage($text, $type);
-    }
-
-    protected function wrapMessage($message, $type) {
-        return '<div class="alert alert-' . dasherize($type) . '">'
-        . '<button type="button" class="close" data-dismiss="alert">&times;</button>'
-        . '<div class="alert-body">' . $message . '</div>'
-        . '</div>';
+        $cssClass = $this->messageTypeToCssClass($type);
+        return '<div class="alert alert-' . $cssClass . ' alert-dismissible fade show" role="alert">' . $text . ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
     }
 
     protected function messenger(): Messenger {
         return $this->serviceManager['messenger'];
+    }
+
+    protected function messageTypeToCssClass(string $type): string {
+        $type2CssClass = [
+            \Morpho\App\Web\Messages\Messenger::ERROR => 'danger',
+            \Morpho\App\Web\Messages\Messenger::INFO => 'info',
+            \Morpho\App\Web\Messages\Messenger::SUCCESS => 'success',
+            \Morpho\App\Web\Messages\Messenger::WARNING => 'warning',
+        ];
+        return $type2CssClass[$type] ?? dasherize($type);
     }
 }

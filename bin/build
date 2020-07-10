@@ -10,7 +10,7 @@ readonly baseDirPath=$(dirname "$SCRIPT_DIR_PATH")
 readonly serverModuleDirPath=$baseDirPath/server
 readonly clientModuleDirPath=$baseDirPath/client
 
-ts() {
+js() {
     tsc --build "$clientModuleDirPath"/tsconfig.json
 }
 

@@ -36,15 +36,11 @@ class MessengerPluginTest extends TestCase {
 
     public function testRenderPageMessages_EscapesTextWithoutArgs() {
         $this->messenger->addWarningMessage("<strong>Important</strong> warning.");
-
         $expected = <<<OUT
 <div id="page-messages">
     <div class="messages warning">
-        <div class="alert alert-warning">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <div class="alert-body">
-                &lt;strong&gt;Important&lt;/strong&gt; warning.
-            </div>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            &lt;strong&gt;Important&lt;/strong&gt; warning. <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
     </div>
 </div>
@@ -57,11 +53,8 @@ OUT;
         $expected = <<<OUT
 <div id="page-messages">
     <div class="messages warning">
-        <div class="alert alert-warning">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <div class="alert-body">
-                &lt;div&gt;Random <b>system</b> warning &quot;!&quot; <div>for <b>unknown</b> reason</div> has been occurred.&lt;/div&gt;
-            </div>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            &lt;div&gt;Random <b>system</b> warning &quot;!&quot; <div>for <b>unknown</b> reason</div> has been occurred.&lt;/div&gt; <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
     </div>
 </div>
