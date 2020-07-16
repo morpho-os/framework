@@ -6,7 +6,6 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\App\ServerModule;
 use Morpho\Fs\Path;
 use Morpho\Ioc\IServiceManager;
 use function Morpho\Base\dasherize;
@@ -108,12 +107,12 @@ class ScriptProcessor extends HtmlProcessor {
      * Includes a file for controller's action.
      */
     private function actionScripts(): array {
-        [$module, $controller, $action] = $this->request()->handler();
+        $handler = $this->request()->handler();
         $serviceManager = $this->serviceManager;
         $siteModuleName = $serviceManager['site']->moduleName();
         $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
         // @TODO: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
-        $jsModuleId = ServerModule::filteredShortModuleName($module) . '/' . APP_DIR_NAME . '/' . dasherize($controller) . '/' . dasherize($action);
+        $jsModuleId = $handler['shortModule'] . '/' . APP_DIR_NAME . '/' . $handler['controllerPath'] . '/' . dasherize($handler['action']);
         $relJsFilePath = '/' . $jsModuleId . '.js';
         $jsFilePath = Path::combine([$clientModuleDirPath, $relJsFilePath]);
         $inline = $included = [];

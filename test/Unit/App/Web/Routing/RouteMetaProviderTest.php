@@ -64,27 +64,26 @@ class RouteMetaProviderTest extends TestCase {
      * @dataProvider dataForIterator_RestActions
      */
     public function testIterator_RestActions($action, $expectedHttpMethod, $expectedRelUriPath) {
-        $moduleName = 'foo-mod';
         $actionMetas = [
             [
-                'module' => $moduleName,
-                'controller' => 'bar-ctrl',
+                'module' => 'foo-mod',
                 'action' => $action,
-                'class' => __CLASS__,
+                'class' => 'Foo\\Bar\\Web\\My\\Nested\\VerySimpleController',
             ],
         ];
         $routeMetaProvider = new RouteMetaProvider();
         $actual = \iterator_to_array($routeMetaProvider->__invoke($actionMetas));
+        $expectedControllerPath = 'my/nested/very-simple';
         $this->assertEquals(
             [
                 [
                     'httpMethod' => $expectedHttpMethod,
-                    'uri' => '/foo-mod/bar-ctrl' . (null === $expectedRelUriPath ? '' : '/' . $expectedRelUriPath),
-                    'module' => $moduleName,
-                    'controller' => 'bar-ctrl',
-                    'action' => $action,
-                    'title' => null,
-                    'class' => __CLASS__,
+                    'uri' => '/foo-mod/' . $expectedControllerPath . (null === $expectedRelUriPath ? '' : '/' . $expectedRelUriPath),
+                    'module' => $actionMetas[0]['module'],
+                    'action' => $actionMetas[0]['action'],
+                    'class' => $actionMetas[0]['class'],
+                    'shortModule' => 'foo-mod',
+                    'controllerPath' => $expectedControllerPath,
                 ]
             ],
             $actual
@@ -92,17 +91,15 @@ class RouteMetaProviderTest extends TestCase {
     }
 
     public function testProvider_DocCommentsWithMultipleHttpMethodsWithCustomPathWithoutTitle() {
-        $module = 'foo-mod';
-        $controller = 'bar-ctrl';
+        $module = 'my-vendor/foo-mod';
         $action = 'do-it';
         $relUriPath = '/some/custom/$id/edit';
         $actionMetas = [
             [
                 'module' => $module,
-                'controller' => $controller,
                 'action' => $action,
                 'docComment' => "/** @POST|PATCH $relUriPath */",
-                'class' => __CLASS__,
+                'class' => 'Foo\\Bar\\Web\\MySimpleController',
             ],
         ];
         $routeMetaProvider = new RouteMetaProvider();
@@ -113,19 +110,21 @@ class RouteMetaProviderTest extends TestCase {
                     'httpMethod' => 'POST',
                     'uri' => $relUriPath,
                     'module' => $module,
-                    'controller' => $controller,
                     'action' => $action,
-                    'title' => null,
-                    'class' => __CLASS__,
+                    'class' => $actionMetas[0]['class'],
+                    'docComment' => $actionMetas[0]['docComment'],
+                    'shortModule' => 'foo-mod',
+                    'controllerPath' => 'my-simple',
                 ],
                 [
                     'httpMethod' => 'PATCH',
                     'uri' => $relUriPath,
                     'module' => $module,
-                    'controller' => $controller,
                     'action' => $action,
-                    'title' => null,
-                    'class' => __CLASS__,
+                    'class' => $actionMetas[0]['class'],
+                    'docComment' => $actionMetas[0]['docComment'],
+                    'shortModule' => 'foo-mod',
+                    'controllerPath' => 'my-simple',
                 ],
             ],
             $actual

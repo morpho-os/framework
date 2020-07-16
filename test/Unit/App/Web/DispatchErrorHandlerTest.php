@@ -41,7 +41,7 @@ class DispatchErrorHandlerTest extends TestCase {
             $dispatchErrorHandler->handleException($exception, $request);
             $this->fail('Must throw an exception');
         } catch (\RuntimeException $e) {
-            $this->assertSame([null, null, null], $request->handler());
+            $this->assertSame([], $request->handler());
             $this->assertSame($exception, $e);
             $this->assertSame($exceptionMessage, $e->getMessage());
             $this->assertTrue($request->isHandled()); // break the main loop
@@ -54,7 +54,6 @@ class DispatchErrorHandlerTest extends TestCase {
 
         $serviceManager = $this->mkServiceManagerWithLogger($mustLogError, $exception, 2);
 
-        /** @noinspection PhpParamsInspection */
         $dispatchErrorHandler->setServiceManager($serviceManager);
 
         $dispatchErrorHandler->handleException($exception, $request);

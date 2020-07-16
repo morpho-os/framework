@@ -18,14 +18,16 @@ use Morpho\App\Web\View\ScriptProcessor;
 use const Morpho\App\CLIENT_MODULE_DIR_NAME;
 
 class ScriptProcessorTest extends TestCase {
-    /**
-     * @var ScriptProcessor
-     */
-    private $processor;
+    private ScriptProcessor $processor;
 
     public function setUp(): void {
         parent::setUp();
-        $serviceManager = $this->mkConfiguredServiceManager(['foo/bar', 'Module', 'cache']);
+        $handler = [
+            'shortModule' => 'bar',
+            'controllerPath' => 'foo',
+            'action' => 'child',
+        ];
+        $serviceManager = $this->mkConfiguredServiceManager($handler);
         $this->processor = new ScriptProcessor($serviceManager);
     }
 
@@ -37,7 +39,7 @@ is a child
 OUT;
 
         // processor should save child scripts
-        $this->assertMatchesRegularExpression('~^This\s+is a child$~', $this->processor->__invoke($childPage));
+        $this->assertMatchesRegularExpression('~^This\\s+is a child$~', $this->processor->__invoke($childPage));
 
         $parentPage = <<<OUT
 <body>
@@ -133,7 +135,11 @@ OUT;
      * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript
      */
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConf) {
-        $serviceManager = $this->mkConfiguredServiceManager(['blog', 'cat', 'tail']);
+        $serviceManager = $this->mkConfiguredServiceManager([
+            'shortModule' => 'blog',
+            'controllerPath' => 'cat',
+            'action' => 'tail',
+        ]);
         $request = $serviceManager['request'];
         $request['jsConf'] = $jsConf;
 
@@ -157,7 +163,11 @@ OUT;
     }
 
     public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
-        $serviceManager = $this->mkConfiguredServiceManager(['blog', 'cat', 'tail']);
+        $serviceManager = $this->mkConfiguredServiceManager([
+            'shortModule' => 'blog',
+            'controllerPath' => 'cat',
+            'action' => 'tail',
+        ]);
         $processor = new ScriptProcessor($serviceManager);
 
         $childPage = <<<OUT
@@ -199,7 +209,6 @@ OUT;
             'site' => $site,
             'serverModuleIndex' => $moduleIndex,
         ];
-        $serviceManager = new ServiceManager($services);
-        return $serviceManager;
+        return new ServiceManager($services);
     }
 }

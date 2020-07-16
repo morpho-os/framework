@@ -40,28 +40,41 @@ class FastRouter implements IHasServiceManager, IRouter {
 
         $routeInfo = $this->dispatcher()
             ->dispatch($request->method(), $request->uri()->path()->toStr(false));
+
         switch ($routeInfo[0]) {
-            case -1:
+            case -1: // 400 Bad Request
+                throw new NotImplementedException();
+                /*
                 $handler = $this->conf()['handlers']['badRequest'];
                 $request->setHandler($handler);
+                 */
                 break;
-            case IDispatcher::NOT_FOUND:
+            case IDispatcher::NOT_FOUND: // 404 Not Found
+                throw new NotImplementedException();
+                /*
                 $handler = $this->conf()['handlers']['notFound'];
                 $request->setHandler($handler);
+                 */
                 break;
-            case IDispatcher::METHOD_NOT_ALLOWED:
+            case IDispatcher::METHOD_NOT_ALLOWED: // 405 Method Not Allowed
+                throw new NotImplementedException();
+                /*
                 $handler = $this->conf()['handlers']['methodNotAllowed'];
                 $request->setHandler($handler);
+                 */
                 break;
-            case IDispatcher::FOUND:
-                $handlerInfo = $routeInfo[1];
-                $request->setModuleName($handlerInfo['module']);
-                $request->setControllerName($handlerInfo['controller']);
-                $request->setActionName($handlerInfo['action']);
-                $params = $routeInfo[2] ?? null;
-                if ($params) {
-                    $request['routing'] = $params;
-                }
+            case IDispatcher::FOUND: // 200 OK
+                $handlerMeta = $routeInfo[1];
+                $request->setHandler([
+                    'module' => $handlerMeta['module'],
+                    'shortModule' => $handlerMeta['shortModule'],
+                    'class'  => $handlerMeta['class'],
+                    'method' => $handlerMeta['method'],
+                    'args'   => $routeInfo[2] ?? [],
+                    'filePath' => $handlerMeta['filePath'],
+                    'controllerPath' => $handlerMeta['controllerPath'],
+                    'action' => $handlerMeta['action'],
+                ]);
                 break;
             default:
                 throw new \UnexpectedValueException();
@@ -76,12 +89,7 @@ class FastRouter implements IHasServiceManager, IRouter {
                 $var = \array_pop($matches);
                 return '{' . \str_replace('$', '', $var) . ':[^/]+}';
             }, $routeMeta['uri']);
-            $handler = [
-                'module'     => $routeMeta['module'],
-                'controller' => $routeMeta['controller'],
-                'action'     => $routeMeta['action'],
-            ];
-            $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], $handler);
+            $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], $routeMeta);
         }
         $dispatchData = $routeCollector->getData();
         File::writePhpVar($cacheFilePath, $dispatchData, false);
@@ -99,8 +107,12 @@ class FastRouter implements IHasServiceManager, IRouter {
         $uri = $request->uri();
         if ($uri->path()->toStr(false) === $this->homePath) {
             $routerConf = $this->conf();
+
+            throw new NotImplementedException();
+/*
             $request->setHandler($routerConf['handlers']['home']);
             $request->setMethod(\Zend\Http\Request::METHOD_GET);
+ */
             return true;
         }
         return false;
@@ -111,7 +123,7 @@ class FastRouter implements IHasServiceManager, IRouter {
         $moduleIndex = $this->serviceManager['serverModuleIndex'];
         $modules = $moduleIndex->moduleNames();
         return compose(
-            new RouteMetaProvider(),
+            $this->serviceManager['routeMetaProvider'],
             compose(
                 new ActionMetaProvider(),
                 new ControllerFileMetaProvider($moduleIndex)
@@ -120,7 +132,7 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function cacheExists(): bool {
-        return \is_file($this->cacheFilePath());
+        return \file_exists($this->cacheFilePath());
     }
 
     protected function loadDispatchData() {

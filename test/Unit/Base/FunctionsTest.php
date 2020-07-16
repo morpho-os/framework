@@ -9,45 +9,7 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{endsWith,
-    formatFloat,
-    hasPrefix,
-    hasSuffix,
-    it,
-    last,
-    lastPos,
-    lines,
-    memoize,
-    not,
-    op,
-    setProps,
-    suffix,
-    fromJson,
-    partial,
-    compose,
-    prefix,
-    toJson,
-    tpl,
-    uniqueName,
-    deleteDups,
-    classify,
-    trimMore,
-    sanitize,
-    underscore,
-    dasherize,
-    camelize,
-    humanize,
-    titleize,
-    htmlId,
-    shorten,
-    showLn,
-    normalizeEols,
-    typeOf,
-    using,
-    waitUntilNoOfAttempts,
-    wrapQ,
-    startsWith,
-    formatBytes};
+use function Morpho\Base\{endsWith, formatFloat, hasPrefix, hasSuffix, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, startsWith, formatBytes};
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
 
@@ -86,13 +48,13 @@ class FunctionsTest extends TestCase {
         $called = 0;
         $predicate = function () use (&$called) {
             if ($called === 4) {
-                return true;
+                return 'abc';
             }
             $called++;
             return false;
         };
 
-        waitUntilNoOfAttempts($predicate, 0);
+        $this->assertSame('abc', waitUntilNoOfAttempts($predicate, 0));
         $this->assertEquals(4, $called);
     }
 
@@ -102,12 +64,17 @@ class FunctionsTest extends TestCase {
             $called++;
             return false;
         };
-        $this->expectException(RuntimeException::class, 'The condition is not satisfied');
+        $this->expectException(RuntimeException::class, 'The number of attempts has been reached');
         waitUntilNoOfAttempts($predicate, 0);
     }
 
-    public function testWaitUntilTimeout() {
-        $this->markTestIncomplete();
+    public function testWaitUntilTimeout_Timeout() {
+        $this->expectException(RuntimeException::class, 'The timeout has been reached');
+        $this->assertNull(waitUntilTimeout(fn () => usleep(2000), 1000));
+    }
+
+    public function testWaitUntilTimeout_NoTimeout() {
+        $this->assertSame('abc', waitUntilTimeout(fn () => 'abc', 1000));
     }
 
     public function dataForStartsWith() {
@@ -417,7 +384,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo-bar', dasherize('foo_bar'));
         $this->assertEquals('foo-bar', dasherize('-foo-bar-'));
         $this->assertEquals('foo-bar', dasherize('_foo-bar_'));
-        $this->assertEquals('-foo-bar-', dasherize('_foo-bar_', false));
+        $this->assertEquals('-foo-bar-', dasherize('_foo-bar_', '', false));
         $this->assertEquals('foo-bar', dasherize('_Foo_Bar_'));
         $this->assertEquals('foo-bar-baz', dasherize('FooBar_Baz'));
         $this->assertEquals('foo-bar', dasherize("  foo  bar  "));

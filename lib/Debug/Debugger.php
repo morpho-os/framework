@@ -147,7 +147,7 @@ class Debugger {
     public function varToStr($var, bool $fixOutput = true): string {
         $output = \trim(capture(function () use ($var) {
             if ($var instanceof \Generator) {
-                \var_dump("\\Generator which yields the values: " . $this->describeGen($var));
+                \var_dump("\\Generator which yields the values:\n" . $this->describeGen($var));
             } else {
                 \var_dump($var);
             }
@@ -390,8 +390,15 @@ OUT;
 
     protected function describeGen(\Generator $val): string {
         $out = '';
+        $i = 0;
         foreach ($val as $key => $value) {
-            $out .= $this->formatLine(rtrim($this->describeVal($key), ';') . ' => ' . \rtrim($this->describeVal($value)));
+            $out .= rtrim($this->describeVal($key), ';') . ' => ' . \rtrim($this->describeVal($value)) . "\n";
+            if ($i > 100) {
+                $out .= "...\n";
+                break;
+            }
+
+            $i++;
         }
         return $out;
     }

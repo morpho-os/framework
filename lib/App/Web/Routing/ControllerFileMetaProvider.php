@@ -37,7 +37,7 @@ class ControllerFileMetaProvider implements IFn {
             if (!\is_dir($controllerDirPath)) {
                 continue;
             }
-            foreach (Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~') as $filePath) {
+            foreach (Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~', true) as $filePath) {
                 yield [
                     'module' => $moduleName,
                     'filePath' => $filePath,

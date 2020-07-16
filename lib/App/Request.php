@@ -7,20 +7,7 @@
 namespace Morpho\App;
 
 abstract class Request extends Message implements IRequest {
-    /**
-     * @var ?string
-     */
-    protected $moduleName;
-
-    /**
-     * @var ?string
-     */
-    protected $controllerName;
-
-    /**
-     * @var ?string
-     */
-    protected $actionName;
+    private array $handler = [];
 
     /**
      * @var bool|null
@@ -40,37 +27,11 @@ abstract class Request extends Message implements IRequest {
     }
 
     public function setHandler(array $handler): void {
-        $this->setModuleName($handler[0]);
-        $this->setControllerName($handler[1]);
-        $this->setActionName($handler[2]);
+        $this->handler = $handler;
     }
 
     public function handler(): array {
-        return [$this->moduleName(), $this->controllerName(), $this->actionName()];
-    }
-
-    public function setModuleName(string $moduleName): void {
-        $this->moduleName = $moduleName;
-    }
-
-    public function moduleName(): ?string {
-        return $this->moduleName;
-    }
-
-    public function setControllerName(string $controllerName): void {
-        $this->controllerName = $controllerName;
-    }
-
-    public function controllerName(): ?string {
-        return $this->controllerName;
-    }
-
-    public function setActionName(string $actionName): void {
-        $this->actionName = $actionName;
-    }
-
-    public function actionName(): ?string {
-        return $this->actionName;
+        return $this->handler;
     }
 
     public function setResponse(IResponse $response): void {

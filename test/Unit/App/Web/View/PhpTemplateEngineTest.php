@@ -7,22 +7,15 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\Base\IFn;
-use Morpho\App\ModuleIndex;
-use Morpho\App\Module;
-use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\InstanceProvider;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\Request;
 
 class PhpTemplateEngineTest extends TestCase {
-    /**
-     * @var PhpTemplateEngine
-     */
-    private $templateEngine;
+    private PhpTemplateEngine $templateEngine;
 
     public function setUp(): void {
         parent::setUp();
@@ -226,46 +219,29 @@ class PhpTemplateEngineTest extends TestCase {
         $expected = 'Dir path: ' . $this->getTestDirPath() . ', file path: ' . $this->getTestDirPath() . '/dir-file-test.phtml';
         $this->assertEquals($expected, $this->templateEngine->runFile($this->getTestDirPath() . '/dir-file-test.phtml'));
     }
-    
+
     public function testPlugin_ReturnsTheSamePluginInstance() {
-        $moduleName = 'foo/bar';
+        $pluginName = 'Messenger';
+        $pluginClass= TestPlugin::class;
+
+        $pluginResolver = function (string $name) use ($pluginName) {
+            if ($name === $pluginName) {
+                return new TestPlugin();
+            }
+            $this->fail('Invalid plugin name');
+        };
 
         $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-            ->method('moduleName')
-            ->willReturn($moduleName);
-
-        $pluginName = 'Messenger';
-
-        $module = new Module($moduleName, []);
-
-        $pluginClass= __CLASS__ . '\\TestPlugin';
-        $classFilePath = [$pluginClass, $this->getTestDirPath() . '/TestPlugin.php'];
-
-        $instanceProvider = $this->createMock(InstanceProvider::class);
-        $instanceProvider->expects($this->any())
-            ->method('classFilePath')
-            ->with($this->identicalTo($module), $this->identicalTo('Web\\View\\' . $pluginName . PLUGIN_SUFFIX))
-            ->willReturn($classFilePath);
-
-        $moduleIndex = $this->createMock(ModuleIndex::class);
-        $moduleIndex->expects($this->any())
-            ->method('module')
-            ->with($moduleName)
-            ->willReturn($module);
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
             ->method('offsetGet')
-            ->willReturnCallback(function ($id) use ($instanceProvider, $request, $moduleIndex) {
+            ->willReturnCallback(function ($id) use ($pluginResolver, $request) {
                 if ($id === 'request') {
                     return $request;
                 }
-                if ($id === 'serverModuleIndex') {
-                    return $moduleIndex;
-                }
-                if ($id === 'instanceProvider') {
-                    return $instanceProvider;
+                if ($id === 'pluginResolver') {
+                    return $pluginResolver;
                 }
                 throw new \UnexpectedValueException($id);
             });
@@ -278,30 +254,6 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertSame($plugin, $this->templateEngine->plugin($pluginName));
     }
 
-    public function testModuleControllerActionName() {
-        $request = $this->mkRequest();
-        $moduleName = 'foo/bar';
-        $controllerName = 'News';
-        $actionName = 'edit';
-        $request->setHandler([$moduleName, $controllerName, $actionName]);
-        $serviceManager = $this->mkServiceManager(['request' => $request]);
-        $this->templateEngine->setServiceManager($serviceManager);
-        $this->assertSame($moduleName, $this->templateEngine->moduleName());
-        $this->assertSame($controllerName, $this->templateEngine->controllerName());
-        $this->assertSame($actionName, $this->templateEngine->actionName());
-
-        $request = $this->mkRequest();
-        $moduleName = 'baz/test';
-        $controllerName = 'Blog';
-        $actionName = 'update';
-        $request->setHandler([$moduleName, $controllerName, $actionName]);
-        $serviceManager = $this->mkServiceManager(['request' => $request]);
-        $this->templateEngine->setServiceManager($serviceManager);
-        $this->assertSame($moduleName, $this->templateEngine->moduleName());
-        $this->assertSame($controllerName, $this->templateEngine->controllerName());
-        $this->assertSame($actionName, $this->templateEngine->actionName());
-    }
-    
     public function testUri() {
         $request = $this->mkRequest();
         $uri = new Uri();
@@ -317,9 +269,8 @@ class PhpTemplateEngineTest extends TestCase {
     public function testHandler() {
         $handlerFn = function () {
         };
-        $params = new \ArrayObject(['handlerFn' => $handlerFn]);
-
-        $request = new Request($params);
+        $request = new Request();
+        $request->setHandler(['instance' => $handlerFn]);
 
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
@@ -339,7 +290,7 @@ class PhpTemplateEngineTest extends TestCase {
             $uri->setPath('/base/path/foo/bar');
             $uri->path()->setBasePath('/base/path');
             $request->setUri($uri);
-            $request->setHandler(['foo/bar', 'Test', 'Some']);
+            //$request->setHandler(['foo/bar', 'Test', 'Some']);
             $services = ['request' => $request];
         }
         return new ServiceManager($services);
@@ -369,3 +320,6 @@ class PhpTemplateEngineTest extends TestCase {
     }
 }
 
+class TestPlugin {
+
+}

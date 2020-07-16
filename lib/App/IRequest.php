@@ -8,18 +8,6 @@ interface IRequest extends IMessage {
 
     public function handler(): array;
 
-    public function setModuleName(string $moduleName): void;
-
-    public function moduleName(): ?string;
-
-    public function setControllerName(string $controllerName): void;
-
-    public function controllerName(): ?string;
-
-    public function setActionName(string $actionName): void;
-
-    public function actionName(): ?string;
-
     public function setResponse(IResponse $response): void;
 
     public function response(): IResponse;

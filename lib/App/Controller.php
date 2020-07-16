@@ -10,21 +10,7 @@ use Morpho\Base\Conf;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
-    /**
-     * @var null|IRequest
-     */
     protected $request;
-
-    private $checkActionMethodExistence = false;
-
-    public function __construct(array $conf = null) {
-        if (null !== $conf) {
-            $conf = Conf::check(['checkActionMethodExistence' => true], $conf);
-            foreach ($conf as $name => $value) {
-                $this->$name = $value;
-            }
-        }
-    }
 
     /**
      * @param IRequest $request
@@ -32,24 +18,17 @@ abstract class Controller implements IFn {
     public function __invoke($request): void {
         $this->resetState($request);
         $this->request = $request;
-        $actionName = $request->actionName();
-        if (empty($actionName)) {
-            throw new \LogicException("Empty action name");
-        }
         $this->beforeEach();
-        $this->run($actionName);
+        $this->run($request);
         $this->afterEach();
     }
 
-    protected function run(string $actionName): void {
-        $methodName = $actionName . 'Action';
-        if ($this->checkActionMethodExistence) {
-            $actionResult = \method_exists($this, $methodName)
-                ? $this->$methodName()
-                : $this->mkNotFoundResult();
-        } else {
-            $actionResult = $this->$methodName();
-        }
+    protected function run($request): void {
+        $handler = $request->handler();
+        $methodName = $handler['method'];
+        // @todo: ensure that is is safe to pass ...$args
+        //$args = $handler['args'];
+        $actionResult = $this->$methodName(/*...array_values($args)*/);
         //$this->request->response()['result'] = $actionResult;
         $response = $this->handleResult($actionResult);
         $this->request->setResponse($response);

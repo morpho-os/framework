@@ -60,122 +60,122 @@ class ActionMetaProviderTest extends TestCase {
             // SecondParentController.php
             [
                 'module'     => 'self/box',
-                'controller' => 'SecondParent',
                 'action'     => 'secondParent',
                 'class'      => __CLASS__ . '\\SecondParentController',
                 'filePath'   => $testDirPath . '/inheritance/SecondParentController.php',
+                'method'     => 'secondParentAction',
             ],
             // FirstParentController.php
             [
                 'module'     => 'store/product',
-                'controller' => 'FirstParent',
                 'action'     => 'firstParent',
                 'class'      => __CLASS__ . '\\FirstParentController',
                 'filePath'   => $testDirPath . '/inheritance/FirstParentController.php',
+                'method'     => 'firstParentAction',
             ],
             [
                 'module'     => 'store/product',
-                'controller' => 'FirstParent',
                 'action'     => 'secondParent',
                 'class'      => __CLASS__ . '\\FirstParentController',
                 'filePath'   => $testDirPath . '/inheritance/FirstParentController.php',
+                'method'     => 'secondParentAction',
             ],
             // ChildController.php
             [
                 'module'     => 'store/product',
-                'controller' => 'Child',
                 'action'     => 'child',
                 'class'      => __CLASS__ . '\\ChildController',
                 'filePath'   => $testDirPath . '/inheritance/ChildController.php',
+                'method'     => 'childAction',
             ],
             [
                 'module'     => 'store/product',
-                'controller' => 'Child',
                 'action'     => 'firstParent',
                 'class'      => __CLASS__ . '\\ChildController',
                 'filePath'   => $testDirPath . '/inheritance/ChildController.php',
+                'method'     => 'firstParentAction',
             ],
             [
                 'module'     => 'store/product',
-                'controller' => 'Child',
                 'action'     => 'secondParent',
                 'class'      => __CLASS__ . '\\ChildController',
                 'filePath'   => $testDirPath . '/inheritance/ChildController.php',
+                'method'     => 'secondParentAction',
             ],
             // My2Controller.php
             [
                 'module'     => 'foo/bar',
-                'controller' => 'MyFirst2',
                 'action'     => 'foo2',
                 'class'      => __CLASS__ . '\\MyFirst2Controller',
                 'filePath'   => $testDirPath . '/My2Controller.php',
+                'method'     => 'foo2Action',
             ],
             [
                 'module'     => 'foo/bar',
-                'controller' => 'MySecond2',
                 'action'     => 'doSomething2',
                 'class'      => __CLASS__ . '\\MySecond2Controller',
                 'filePath'   => $testDirPath . '/My2Controller.php',
+                'method'     => 'doSomething2Action',
             ],
             [
                 'module'     => 'foo/bar',
-                'controller' => 'MySecond2',
                 'action'     => 'process2',
                 'class'      => __CLASS__ . '\\MySecond2Controller',
                 'filePath'   => $testDirPath . '/My2Controller.php',
                 'docComment' => '/**
      * @foo Bar
      */',
+                'method'     => 'process2Action',
             ],
             // My1Controller.php
             [
                 'module'     => 'random/planet',
-                'controller' => 'My1First',
                 'action'     => 'foo1',
                 'class'      => __CLASS__ . '\\My1FirstController',
                 'filePath'   => $testDirPath . '/My1Controller.php',
+                'method'     => 'foo1Action',
             ],
             [
                 'module'     => 'random/planet',
-                'controller' => 'MySecond1',
                 'action'     => 'doSomething1',
                 'class'      => __CLASS__ . '\\MySecond1Controller',
                 'filePath'   => $testDirPath . '/My1Controller.php',
+                'method'     => 'doSomething1Action'
             ],
             [
                 'module'     => 'random/planet',
-                'controller' => 'MySecond1',
                 'action'     => 'process1',
                 'class'      => __CLASS__ . '\\MySecond1Controller',
                 'filePath'   => $testDirPath . '/My1Controller.php',
                 'docComment' => '/**
      * @foo Bar
      */',
+                'method'     => 'process1Action',
             ],
             // My3Controller.php
             [
                 'module'     => 'sunny/day',
-                'controller' => 'MyFirst3',
                 'action'     => 'foo3',
                 'class'      => __CLASS__ . '\\MyFirst3Controller',
                 'filePath'   => $testDirPath . '/My3Controller.php',
+                'method'     => 'foo3Action',
             ],
             [
                 'module'     => 'sunny/day',
-                'controller' => 'MySecond3',
                 'action'     => 'doSomething3',
                 'class'      => __CLASS__ . '\\MySecond3Controller',
                 'filePath'   => $testDirPath . '/My3Controller.php',
+                'method'     => 'doSomething3Action',
             ],
             [
                 'module'     => 'sunny/day',
-                'controller' => 'MySecond3',
                 'action'     => 'process3',
                 'class'      => __CLASS__ . '\\MySecond3Controller',
                 'filePath'   => $testDirPath . '/My3Controller.php',
                 'docComment' => '/**
      * @foo Bar
      */',
+                'method'     => 'process3Action',
             ],
         ];
         $this->assertEquals(

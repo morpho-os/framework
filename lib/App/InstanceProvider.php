@@ -11,7 +11,7 @@ use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 
-abstract class InstanceProvider implements IFn {
+class InstanceProvider implements IFn {
     protected ModuleIndex $moduleIndex;
 
     private array $registeredModules = [];
@@ -23,63 +23,27 @@ abstract class InstanceProvider implements IFn {
         $this->serviceManager = $serviceManager;
     }
 
-    /**
-     * @param Request $request
-     * @return callable|false
-     */
     public function __invoke($request) {
-        [$moduleName, $controllerName,] = $request->handler();
-        if (!$moduleName || !$controllerName) {
-            return false;
-        }
+        $handler = $request->handler();
 
-        $module = $this->moduleIndex->module($moduleName);
+        $module = $this->moduleIndex->module($handler['module']);
 
+        // @TODO: Register simple common autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
         $this->registerModuleClassLoader($module);
 
-        // @TODO: Register simple autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
-        $classWithoutModuleNsPrefix = $this->controllerClassWithoutModuleNs($controllerName);
-        $handler = $this->mkInstance($module, $classWithoutModuleNsPrefix);
-        $request['handlerFn'] = $handler;
-        return $handler;
-    }
-
-    /**
-     * @param Module $module
-     * @param string $classWithoutModuleNsPrefix
-     * @return array|false
-     */
-    public function classFilePath(Module $module, string $classWithoutModuleNsPrefix) {
-        $relClassFilePath = \str_replace('\\', '/', $classWithoutModuleNsPrefix) . '.php';
-        foreach ($module['namespace'] as $namespace => $nsDirPath) {
-            $class = $namespace . '\\' . $classWithoutModuleNsPrefix;
-            $classFilePath = $module['path']['dirPath'] . '/' . $nsDirPath . '/' .  $relClassFilePath;
-            if (\is_file($classFilePath)) {
-                return [$class, $classFilePath];
-            }
+        if (!\class_exists($handler['class'], false)) {
+            requireFile($handler['filePath'], true);
         }
-        return false;
-    }
-
-    /**
-     * @param Module $module
-     * @param string $classWithoutModuleNsPrefix Class suffix like Http\IndexController, which will added to module's namespaces.
-     * @return \object|false
-     */
-    public function mkInstance(Module $module, string $classWithoutModuleNsPrefix) {
-        $classFilePath = $this->classFilePath($module, $classWithoutModuleNsPrefix);
-        if (false !== $classFilePath) {
-            [$class, $filePath] = $classFilePath;
-            if (!\class_exists($class, false)) {
-                requireFile($filePath, true);
-            }
-            $instance = new $class();
-            if ($instance instanceof IHasServiceManager) {
-                $instance->setServiceManager($this->serviceManager);
-            }
-            return $instance;
+        $instance = new $handler['class'];
+        if ($instance instanceof IHasServiceManager) {
+            $instance->setServiceManager($this->serviceManager);
         }
-        return false;
+
+        $handler['instance'] = $instance;
+
+        $request->setHandler($handler);
+
+        return $instance;
     }
 
     protected function registerModuleClassLoader(Module $module): void {
@@ -90,6 +54,4 @@ abstract class InstanceProvider implements IFn {
             $this->registeredModules[$moduleName] = true;
         }
     }
-
-    abstract protected function controllerClassWithoutModuleNs(string $controllerName): string;
 }

@@ -23,13 +23,7 @@ trait TDbTestCase {
     }
 
     protected function dbConf(): array {
-        return [
-            'driver'   => 'mysql',
-            'host'     => getenv('MORPHO_TEST_DB_HOST') ?: '127.0.0.1',
-            'user'     => getenv('MORPHO_TEST_DB_USER') ?: 'root',
-            'password' => getenv('MORPHO_TEST_DB_PASSWORD') ?: '',
-            'db'       => getenv('MORPHO_TEST_DB_DB') ?: 'test',
-        ];
+        return $this->sut()->dbConf();
     }
 
     protected function mkDbClient(array $conf = null): DbClient {
@@ -46,4 +40,6 @@ trait TDbTestCase {
         $dsn = $conf['driver'] . ':dbname=' . $conf['db'] . ';' . $conf['host'] . ';' . ($conf['charset'] ?? 'utf8');
         return new \PDO($dsn, $conf['user'], $conf['password'], $conf['pdoConf'] ?? []);
     }
+
+    abstract protected function sut(): Sut;
 }

@@ -16,19 +16,10 @@ use Morpho\App\Controller as BaseController;
 use function Morpho\Base\dasherize;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
-    /**
-     * @var ViewResult|null
-     */
     protected $parentViewResult;
 
-    /**
-     * @var \Morpho\Ioc\IServiceManager
-     */
-    protected $serviceManager;
+    protected IServiceManager $serviceManager;
 
-    /**
-     * @var \Morpho\App\Web\Request
-     */
     protected $request;
 
     /**
@@ -94,7 +85,8 @@ abstract class Controller extends BaseController implements IHasServiceManager {
      */
     protected function mkViewResult(string $path = null, $vars = null, $parent = null): ViewResult {
         if (null === $path) {
-            $path = dasherize($this->request->actionName());
+
+            $path = dasherize($this->request->handler()['action']);
         }
         return new ViewResult($path, $vars, $parent);
     }

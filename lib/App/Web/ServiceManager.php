@@ -30,11 +30,17 @@ use Morpho\Caching\VarExportFileCache;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
 use Morpho\App\ApplyingSiteConfModuleIterator;
+use Morpho\App\Web\Routing\RouteMetaProvider;
+use Morpho\App\InstanceProvider;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
         //return new Router($this['db']);
         return new FastRouter();
+    }
+
+    protected function mkRouteMetaProviderService() {
+        return new RouteMetaProvider();
     }
 
     protected function mkAppInitializerService() {
@@ -79,6 +85,15 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine->setCacheDirPath($cacheDirPath);
         $templateEngine->useCache($templateEngineConf['useCache']);
         return $templateEngine;
+    }
+
+    protected function mkPluginResolverService(): callable {
+        return function (string $pluginName): string {
+            $known = [
+                'Messenger' => __NAMESPACE__ . '\\View\\MessengerPlugin',
+            ];
+            return $known[$pluginName];
+        };
     }
 
 /*    protected function mkAutoloaderService() {

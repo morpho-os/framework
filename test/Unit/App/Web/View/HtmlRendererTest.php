@@ -26,8 +26,10 @@ class HtmlRendererTest extends TestCase {
         $pageRendererModuleName = 'abc/test';
 
         $request = new Request();
-        $request->setModuleName('foo/bar');
-        $request->setControllerName('News');
+        $request->setHandler([
+            'module' => 'foo/bar',
+            'controllerPath' => 'news'
+        ]);
         $request->setResponse($response);
 
         $serviceManager = $this->createMock(IServiceManager::class);

@@ -12,7 +12,7 @@ use function Morpho\Base\lastPos;
 use function Morpho\Base\startsWith;
 
 /**
- * Implements of the [RFC 3986](https://tools.ietf.org/html/rfc3986)
+ * Implements the [RFC 3986](https://tools.ietf.org/html/rfc3986)
  */
 class Uri {
     /**

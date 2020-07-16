@@ -3,20 +3,20 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\Controller;
 use Morpho\App\Web\JsonResult;
-use Morpho\App\Web\WebApiController;
+use Morpho\App\Web\ApiController;
 use Morpho\Test\Unit\App\Web\ControllerTest\TMyController;
 
 require_once __DIR__ . '/_files/ControllerTest/TMyController.php';
 
-class WebApiControllerTest extends ControllerTest {
+class ApiControllerTest extends ControllerTest {
     /**
-     * @var WebApiController
+     * @var ApiController
      */
     protected $controller;
 
     public function setUp(): void {
         parent::setUp();
-        $this->controller = new MyWebApiController();
+        $this->controller = new MyApiController();
     }
 
     public function testInterface() {
@@ -25,7 +25,9 @@ class WebApiControllerTest extends ControllerTest {
 
     public function testInvoke_ReturnNullFromAction() {
         $request = $this->mkConfiguredRequest(null);
-        $request->setActionName('returnNull');
+        $request->setHandler([
+            'method' => 'returnNullAction',
+        ]);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -40,7 +42,9 @@ class WebApiControllerTest extends ControllerTest {
 
     public function testInvoke_ReturnArrayFromAction() {
         $request = $this->mkConfiguredRequest(null);
-        $request->setActionName('returnArray');
+        $request->setHandler([
+            'method' => 'returnArrayAction',
+        ]);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -54,6 +58,6 @@ class WebApiControllerTest extends ControllerTest {
     }
 }
 
-class MyWebApiController extends WebApiController {
+class MyApiController extends ApiController {
     use TMyController;
 }

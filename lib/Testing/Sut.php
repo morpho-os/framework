@@ -67,4 +67,14 @@ class Sut extends \ArrayObject {
         }
         return ['geckoBinFilePath' => $geckoBinFilePath];
     }
+
+    public function dbConf(): array {
+        return [
+            'driver'   => 'mysql',
+            'host'     => getenv('MORPHO_TEST_DB_HOST') ?: '127.0.0.1',
+            'user'     => getenv('MORPHO_TEST_DB_USER') ?: 'root',
+            'password' => getenv('MORPHO_TEST_DB_PASSWORD') ?: '',
+            'db'       => getenv('MORPHO_TEST_DB_DB') ?: 'test',
+        ];
+    }
 }

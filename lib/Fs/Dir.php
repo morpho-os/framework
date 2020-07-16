@@ -434,6 +434,15 @@ class Dir extends Entry {
         return $res;
     }
 
+    /**
+     * Returns number of entries in the given directory.
+     * @param string $dirPath
+     * @return int
+     */
+    public static function numOfEntries(string $dirPath): int {
+        return iterator_count(static::paths($dirPath));
+    }
+
     private static function delete_(string $dirPath, $predicateOrDeleteSelf) {
         if (\is_callable($predicateOrDeleteSelf)) {
             self::delete__($dirPath, $predicateOrDeleteSelf);

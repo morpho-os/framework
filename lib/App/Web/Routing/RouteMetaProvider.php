@@ -6,13 +6,13 @@
  */
 namespace Morpho\App\Web\Routing;
 
-use Morpho\App\ServerModule;
 use Morpho\Base\IFn;
 use Morpho\App\Web\Request;
-use function Morpho\Base\dasherize;
+use function Morpho\Base\{dasherize, endsWith, last};
+use const Morpho\App\CONTROLLER_SUFFIX;
 
 class RouteMetaProvider implements IFn {
-    protected $restActions = [
+    protected array $restActions = [
         'index'  => ['GET', null],       // GET    $entityType
         'list'   => ['GET', 'list'],     // GET    $entityType/list
         'new'    => ['GET', 'new'],      // GET    $entityType/new
@@ -63,27 +63,7 @@ class RouteMetaProvider implements IFn {
         $routesMeta = [];
         $i = 0;
 
-        $action = $actionMeta['action'];
-        $title = null;
-
-        $uri = '/' . ServerModule::filteredShortModuleName($actionMeta['module']) . '/' . dasherize($actionMeta['controller']);
-        if (isset($this->restActions[$action])) {
-            $uri .= \rtrim('/' . $this->restActions[$action][1], '/');
-            $httpMethod = $this->restActions[$action][0];
-        } else {
-            $httpMethod = \Zend\Http\Request::METHOD_GET;
-            $uri .= '/' . dasherize($action);
-        }
-
-        $routesMeta[$i] = [
-            'httpMethod' => $httpMethod,
-            'uri'        => $uri,
-            'module'     => $actionMeta['module'],
-            'controller' => $actionMeta['controller'],
-            'action'     => $action,
-            'title'      => $title,
-            'class'      => $actionMeta['class'],
-        ];
+        $routesMeta[$i] = $this->actionMetaToRouteMeta($actionMeta);
 
         if (!empty($actionMeta['docComment'])) {
             $docComment = self::parseDocComment($actionMeta['docComment']);
@@ -106,5 +86,36 @@ class RouteMetaProvider implements IFn {
         }
 
         return $routesMeta;
+    }
+
+    protected function actionMetaToRouteMeta(array $actionMeta): array {
+        $shortModuleName = dasherize(last($actionMeta['module'], '/'), '.');
+
+        $actionMeta['shortModule'] = $shortModuleName;
+
+        $baseUri = '/';
+
+        if (!\preg_match('~(?P<controllerNs>.*?\\\\(?:Web|Cli))\\\\(?P<controller>.*?)$~s', $actionMeta['class'], $match) || !endsWith($match['controller'], CONTROLLER_SUFFIX)) {
+            throw new \UnexpectedValueException();
+        }
+        $controller = \substr($match['controller'], 0, -\strlen(CONTROLLER_SUFFIX));
+        $controllerPath = \str_replace('\\', '/', dasherize($controller, '\\'));
+        $actionMeta['controllerPath'] = $controllerPath;
+
+        $uri = \rtrim($baseUri, '/') . '/' . $shortModuleName . '/' . $controllerPath;
+
+        $action = $actionMeta['action'];
+        if (isset($this->restActions[$action])) {
+            $uri .= \rtrim('/' . $this->restActions[$action][1], '/');
+            $httpMethod = $this->restActions[$action][0];
+        } else {
+            $httpMethod = 'GET';
+            $uri .= '/' . dasherize($action);
+        }
+
+        $actionMeta['httpMethod'] = $httpMethod;
+        $actionMeta['uri'] = $uri;
+
+        return $actionMeta;
     }
 }

@@ -11,6 +11,7 @@ use function Morpho\Base\trimMore;
 use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 use Morpho\App\Web\Uri;
+use ArrayObject;
 
 /**
  * Some methods in this class based on \Zend\Http\PhpEnvironment\Request class.
@@ -19,10 +20,7 @@ use Morpho\App\Web\Uri;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest {
-    /**
-     * @var \ArrayObject
-     */
-    protected $headers;
+    protected ?ArrayObject $headers = null;
 
     /**
      * @var ?string
@@ -39,17 +37,14 @@ class Request extends BaseRequest {
      */
     protected $isAjax;
 
-    /**
-     * @var ?array
-     */
-    private $serverVars;
+    private ?array $serverVars;
 
     /**
      * @var ?Uri
      */
     private $uri;
 
-    private static $methods = [
+    private static array $methods = [
         /*
         self::CONNECT_METHOD,
         */
@@ -63,11 +58,7 @@ class Request extends BaseRequest {
         //self::TRACE_METHOD,
     ];
 
-    /**
-     * @var array
-     */
-
-    private $trustedProxyIps;
+    private ?array $trustedProxyIps = null;
 
     public function __construct($params = null, ?array $serverVars = null) {
         parent::__construct(null !== $params ? $params : []);

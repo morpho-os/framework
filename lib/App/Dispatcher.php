@@ -12,9 +12,9 @@ use Morpho\Base\IEventManager;
 class Dispatcher {
     protected int $maxNoOfDispatchIterations = 20;
 
-    protected $handlerProvider;
-
     private IEventManager $eventManager;
+
+    private $handlerProvider;
 
     public function __construct(callable $handlerProvider, IEventManager $eventManager) {
         $this->handlerProvider = $handlerProvider;
@@ -33,10 +33,7 @@ class Dispatcher {
                 $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));
 
                 $handler = ($this->handlerProvider)($request);
-                if ($handler) {
-                    $handler($request);
-                }
-
+                $handler($request);
                 $request->isHandled(true);
 
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));

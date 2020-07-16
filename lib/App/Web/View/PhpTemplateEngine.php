@@ -8,7 +8,6 @@ namespace Morpho\App\Web\View;
 
 use function Morpho\Base\dasherize;
 use function Morpho\Base\toJson;
-use const Morpho\App\PLUGIN_SUFFIX;
 use Morpho\Ioc\IHasServiceManager;
 use function Morpho\App\Web\prependBasePath;
 use Morpho\Ioc\IServiceManager;
@@ -16,24 +15,18 @@ use Morpho\App\Web\Request;
 use Morpho\App\Web\Uri\Uri;
 
 class PhpTemplateEngine extends TemplateEngine {
-    /**
-     * @var IServiceManager
-     */
-    protected $serviceManager;
-    
-    private $uri;
+    protected IServiceManager $serviceManager;
 
     /**
      * @var Request
      */
-    private $request;
+    protected $request;
 
-    /**
-     * @var array
-     */
-    private $plugins = [];
+    private ?Uri $uri = null;
 
-    private const PLUGIN_SUFFIX = PLUGIN_SUFFIX;
+    private array $plugins = [];
+
+    private $pluginResolver;
 
     /**
      * @var callable[]
@@ -41,7 +34,8 @@ class PhpTemplateEngine extends TemplateEngine {
     private $tasks;
 
     public function __construct(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
+        parent::__construct();
+        $this->setServiceManager($serviceManager);
         $this->tasks = [
             new FormPersister($serviceManager),
             new UriProcessor($serviceManager),
@@ -58,23 +52,12 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
     public function pageCssId(): string {
-        return dasherize($this->controllerName()) . '-' . dasherize($this->actionName());
+        $handler = $this->request->handler();
+        return dasherize($handler['controllerPath']) . '-' . dasherize($handler['action']);
     }
 
-    public function handler(): callable {
-        return $this->request()['handlerFn'];
-    }
-
-    public function moduleName(): ?string {
-        return $this->request()->moduleName();
-    }
-
-    public function controllerName(): ?string {
-        return $this->request()->controllerName();
-    }
-
-    public function actionName(): ?string {
-        return $this->request()->actionName();
+    public function handler() {
+        return $this->request->handler()['instance'];
     }
 
 /*    public function isUserLoggedIn(): bool {
@@ -91,7 +74,7 @@ class PhpTemplateEngine extends TemplateEngine {
 
     public function uri(): Uri {
         if (null === $this->uri) {
-            $this->uri = $this->request()->uri();
+            $this->uri = $this->request->uri();
         }
         return $this->uri;
     }
@@ -140,7 +123,8 @@ class PhpTemplateEngine extends TemplateEngine {
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
-        $this->request = $this->uri = null;
+        $this->request = $this->serviceManager['request'];
+        $this->uri = null;
     }
 
     public function getIterator(): iterable {
@@ -162,31 +146,14 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
     protected function mkPlugin(string $name) {
-        $moduleName = $this->request()->moduleName();
-        $serviceManager = $this->serviceManager;
-        $module = $serviceManager['serverModuleIndex']->module($moduleName);
-        $instanceProvider = $serviceManager['instanceProvider'];
-        $classFilePath = $instanceProvider->classFilePath($module, 'Web\\View\\' . $name . self::PLUGIN_SUFFIX);
-        if (false === $classFilePath) {
-            $class = __NAMESPACE__ . '\\' . $name . self::PLUGIN_SUFFIX;
-            if (!\class_exists($class)) {
-                throw new \RuntimeException("Unable to find the plugin '$name'");
-            }
-        } else {
-            require_once $classFilePath[1];
-            $class = $classFilePath[0];
+        if (!$this->pluginResolver) {
+            $this->pluginResolver = $this->serviceManager['pluginResolver'];
         }
+        $class = ($this->pluginResolver)($name);
         $plugin = new $class();
         if ($plugin instanceof IHasServiceManager) {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;
-    }
-
-    protected function request(): Request {
-        if (null === $this->request) {
-            $this->request = $this->serviceManager['request'];
-        }
-        return $this->request;
     }
 }

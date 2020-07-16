@@ -27,7 +27,7 @@ class ControllerTest extends TestCase {
 
     public function setUp(): void {
         parent::setUp();
-        $this->controller = new MyController(['checkActionMethodExistence' => false]);
+        $this->controller = new MyController();
     }
 
     public function testInterface() {
@@ -36,7 +36,7 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnNullFromAction() {
         $request = $this->mkConfiguredRequest(null);
-        $request->setActionName('returnNull');
+        $request->setHandler(['method' => 'returnNullAction', 'action' => 'return-null']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -52,7 +52,7 @@ class ControllerTest extends TestCase {
     
     public function testInvoke_ReturnArrayFromAction() {
         $request = $this->mkConfiguredRequest(null);
-        $request->setActionName('returnArray');
+        $request->setHandler(['method' => 'returnArrayAction', 'action' => 'return-array']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -68,7 +68,7 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnStringFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setActionName('returnString');
+        $request->setHandler(['method' => 'returnStringAction', 'action' => 'return-string']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -81,7 +81,7 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnJsonFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setActionName('returnJson');
+        $request->setHandler(['method' => 'returnJsonAction', 'action' => 'return-json']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -94,7 +94,7 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnViewFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setActionName('returnView');
+        $request->setHandler(['method' => 'returnViewAction', 'action' => 'return-view']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -111,7 +111,7 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnResponseFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setActionName('returnResponse');
+        $request->setHandler(['method' => 'returnResponseAction']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
@@ -135,11 +135,10 @@ class ControllerTest extends TestCase {
             ->method('response')
             ->willReturn($response);
         $request->expects($this->any())
-            ->method('actionName')
-            ->willReturn('returnNull');
+            ->method('handler')
+            ->willReturn(['method' => 'returnNullAction', 'action' => 'return-null']);
 
         $this->controller->__invoke($request);
-
     }
 
     public function testSetParentViewResult() {
@@ -153,7 +152,7 @@ class ControllerTest extends TestCase {
             }
         };
         $request = $this->mkConfiguredRequest(null);
-        $request->setActionName('doSomething');
+        $request->setHandler(['method' => 'doSomethingAction', 'action' => 'do-something']);
 
         $controller->__invoke($request);
 
@@ -164,7 +163,7 @@ class ControllerTest extends TestCase {
 
     protected function mkConfiguredRequest(array $serverVars = null): Request {
         $uriChecker = new class implements IFn { public function __invoke($value) {} };
-        $request = new Request(null, $serverVars, $uriChecker);
+        $request = new Request(null, $serverVars);
         $response = new Response();
         $response->setBody('test');
         $request->setResponse($response);

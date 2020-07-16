@@ -10,10 +10,10 @@ use Morpho\Base\Pipe;
 use Morpho\Fs\File;
 
 class TemplateEngine extends Pipe {
-    protected $useCache = true;
-    protected $vars = [];
-    protected $cacheDirPath;
-    protected $uniqueFileHash = '';
+    protected bool $useCache = true;
+    protected array $vars = [];
+    protected string $cacheDirPath;
+    //protected $uniqueFileHash = '';
 
     public function setCacheDirPath(string $dirPath): void {
         $this->cacheDirPath = $dirPath;

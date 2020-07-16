@@ -124,16 +124,13 @@ function uniqueName(): string {
 
 /**
  * Replaces first capsed letter or underscore with dash and small later.
- *
- * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
- *                       All other characters will be removed.
+ * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s. All other characters will be removed.
+ * @param string $additionalChars
  * @param bool $trim Either trailing '-' characters should be removed or not.
- *
- * @param bool $allowDots
  * @return string
  */
-function dasherize(string $string, bool $trim = true, bool $allowDots = false) {
-    $string = sanitize($string, '-_ ' . ($allowDots ? '.' : ''), false);
+function dasherize(string $string, string $additionalChars = '', bool $trim = true) {
+    $string = sanitize($string, '-_ ' . $additionalChars, false);
     $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
@@ -644,22 +641,39 @@ function memoize(callable $fn): \Closure {
     };
 }
 
-function waitUntilNoOfAttempts(callable $predicate, int $waitIntervalMicroSec = null, int $noOfAttempts = 30): void {
+/**
+ * @return mixed The truthy result from the predicate
+ */
+function waitUntilNoOfAttempts(callable $predicate, int $waitIntervalMicroSec = null, int $noOfAttempts = 30) {
     if (null === $waitIntervalMicroSec) {
         $waitIntervalMicroSec = WAIT_INTERVAL_MICRO_SEC;
     }
     for ($i = 0; $i < $noOfAttempts; $i++) {
-        if ($predicate()) {
-            return;
+        $res = $predicate();
+        if ($res) {
+            return $res;
         }
         \usleep($waitIntervalMicroSec);
     }
-    throw new \RuntimeException('The condition is not satisfied');
+    throw new \RuntimeException('The number of attempts has been reached');
 }
 
+/**
+ * @return mixed The truthy result from the predicate
+ */
 function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
-    // @TODO: use waitUntilNoOfAttempts
-    throw new NotImplementedException();
+    $time = microtime(true);
+    while (true) {
+        $res = $predicate();
+        if ($res) {
+            return $res;
+        }
+        $time += microtime(true);
+        if ($time >= $timeoutMicroSec) {
+            throw new \RuntimeException('The timeout has been reached');
+        }
+        usleep($timeoutMicroSec);
+    }
 }
 
 /**

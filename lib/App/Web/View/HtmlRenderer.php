@@ -29,8 +29,10 @@ class HtmlRenderer implements IFn {
         /** @var \Morpho\App\Web\Response $response */
         $response = $request->response();
 
+        $handler = $request->handler();
+
         // 1. Render page body.
-        $moduleName = $request->moduleName();
+        $moduleName = $handler['module'];
         /** @var ViewResult $view */
         $viewResult = $response['result'];
         if (!$viewResult instanceof ViewResult) {
@@ -39,7 +41,7 @@ class HtmlRenderer implements IFn {
 
         $viewPath = $viewResult->path();
         if (false === strpos($viewPath, '/')) {
-            $viewResult->setPath(dasherize($request->controllerName()) . '/' . $viewPath);
+            $viewResult->setPath($handler['controllerPath'] . '/' . $viewPath);
         }
 
         $renderedView = $this->renderView($moduleName, $viewResult);

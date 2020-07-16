@@ -6,16 +6,8 @@
  */
 namespace Morpho\App;
 
-use function Morpho\Base\dasherize;
-use function Morpho\Base\last;
-
 class ServerModule extends Module {
     private ClientModule $clientModule;
-
-    public static function filteredShortModuleName(string $moduleName): string {
-        $shortModuleName = last($moduleName, '/');
-        return dasherize($shortModuleName, true, true);
-    }
 
     public function autoloadFilePath(): string {
         return $this->vendorDirPath() . '/' . AUTOLOAD_FILE_NAME;
