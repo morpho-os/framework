@@ -26,13 +26,13 @@ class ApiControllerTest extends ControllerTest {
     public function testInvoke_ReturnNullFromAction() {
         $request = $this->mkConfiguredRequest(null);
         $request->setHandler([
-            'method' => 'returnNullAction',
+            'method' => 'returnNull',
         ]);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnNullAction');
+        $this->checkMethodCalled('returnNull');
         $response = $request->response();
         $actionResult = $response['result'];
         $this->assertInstanceOf(JsonResult::class, $actionResult);
@@ -43,13 +43,13 @@ class ApiControllerTest extends ControllerTest {
     public function testInvoke_ReturnArrayFromAction() {
         $request = $this->mkConfiguredRequest(null);
         $request->setHandler([
-            'method' => 'returnArrayAction',
+            'method' => 'returnArray',
         ]);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnArrayAction');
+        $this->checkMethodCalled('returnArray');
         $response = $request->response();
         $actionResult = $response['result'];
         $this->assertInstanceOf(JsonResult::class, $actionResult);

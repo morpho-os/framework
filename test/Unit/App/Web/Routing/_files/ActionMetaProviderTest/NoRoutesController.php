@@ -7,7 +7,7 @@ use Morpho\App\Web\Controller;
  * @noRoutes
  */
 class NoRoutesController extends Controller {
-    public function doSomethingAction() {
+    public function doSomething() {
 
     }
 }

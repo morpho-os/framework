@@ -6,7 +6,6 @@
  */
 namespace Morpho\App;
 
-use Morpho\Base\Conf;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {

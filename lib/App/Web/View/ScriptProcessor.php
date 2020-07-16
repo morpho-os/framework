@@ -112,7 +112,7 @@ class ScriptProcessor extends HtmlProcessor {
         $siteModuleName = $serviceManager['site']->moduleName();
         $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
         // @TODO: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
-        $jsModuleId = $handler['shortModule'] . '/' . APP_DIR_NAME . '/' . $handler['controllerPath'] . '/' . dasherize($handler['action']);
+        $jsModuleId = $handler['modulePath'] . '/' . APP_DIR_NAME . '/' . $handler['controllerPath'] . '/' . dasherize($handler['method']);
         $relJsFilePath = '/' . $jsModuleId . '.js';
         $jsFilePath = Path::combine([$clientModuleDirPath, $relJsFilePath]);
         $inline = $included = [];

@@ -9,13 +9,14 @@ namespace Morpho\Test\Unit\App\Web\Routing;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\Routing\RouteMetaProvider;
+use function Morpho\Base\dasherize;
 
 class RouteMetaProviderTest extends TestCase {
     public function testInterface() {
         $this->assertInstanceOf(IFn::class, new RouteMetaProvider());
     }
 
-    public function dataForIterator_RestActions() {
+    public function dataForInvoke_RestActions() {
         return [
             [
                 'index',
@@ -61,44 +62,47 @@ class RouteMetaProviderTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIterator_RestActions
+     * @dataProvider dataForInvoke_RestActions
      */
-    public function testIterator_RestActions($action, $expectedHttpMethod, $expectedRelUriPath) {
+    public function testInvoke_RestActions(string $action, string $expectedHttpMethod, ?string $expectedActionPath) {
         $actionMetas = [
             [
-                'module' => 'foo-mod',
-                'action' => $action,
+                'module' => 'capture/group',
+                'method' => $action,
                 'class' => 'Foo\\Bar\\Web\\My\\Nested\\VerySimpleController',
             ],
         ];
         $routeMetaProvider = new RouteMetaProvider();
         $actual = \iterator_to_array($routeMetaProvider->__invoke($actionMetas));
+
         $expectedControllerPath = 'my/nested/very-simple';
+        $expectedUri = '/' . explode('/', $actionMetas[0]['module'])[1] . '/' . $expectedControllerPath . (null === $expectedActionPath ? '' : '/' . $expectedActionPath);
         $this->assertEquals(
             [
                 [
-                    'httpMethod' => $expectedHttpMethod,
-                    'uri' => '/foo-mod/' . $expectedControllerPath . (null === $expectedRelUriPath ? '' : '/' . $expectedRelUriPath),
                     'module' => $actionMetas[0]['module'],
-                    'action' => $actionMetas[0]['action'],
+                    'method' => $actionMetas[0]['method'],
                     'class' => $actionMetas[0]['class'],
-                    'shortModule' => 'foo-mod',
+                    'httpMethod' => $expectedHttpMethod,
+                    'uri' => $expectedUri,
+                    'modulePath' => explode('/', $actionMetas[0]['module'])[1],
                     'controllerPath' => $expectedControllerPath,
+                    'actionPath' => $expectedActionPath,
                 ]
             ],
             $actual
         );
     }
 
-    public function testProvider_DocCommentsWithMultipleHttpMethodsWithCustomPathWithoutTitle() {
+    public function testInvoke_DocCommentsWithMultipleHttpMethodsWithCustomPathWithoutTitle() {
         $module = 'my-vendor/foo-mod';
-        $action = 'do-it';
+        $method = 'doIt';
         $relUriPath = '/some/custom/$id/edit';
         $actionMetas = [
             [
                 'module' => $module,
-                'action' => $action,
-                'docComment' => "/** @POST|PATCH $relUriPath */",
+                'method' => $method,
+                'docComment' => "/** @@POST|PATCH $relUriPath */",
                 'class' => 'Foo\\Bar\\Web\\MySimpleController',
             ],
         ];
@@ -107,24 +111,26 @@ class RouteMetaProviderTest extends TestCase {
         $this->assertEquals(
             [
                 [
+                    'module' => $module,
+                    'class' => $actionMetas[0]['class'],
+                    'method' => $method,
+                    'docComment' => $actionMetas[0]['docComment'],
                     'httpMethod' => 'POST',
                     'uri' => $relUriPath,
-                    'module' => $module,
-                    'action' => $action,
-                    'class' => $actionMetas[0]['class'],
-                    'docComment' => $actionMetas[0]['docComment'],
-                    'shortModule' => 'foo-mod',
+                    'modulePath' => 'foo-mod',
                     'controllerPath' => 'my-simple',
+                    'actionPath' => dasherize($method),
                 ],
                 [
+                    'module' => $module,
+                    'class' => $actionMetas[0]['class'],
+                    'method' => $method,
+                    'docComment' => $actionMetas[0]['docComment'],
                     'httpMethod' => 'PATCH',
                     'uri' => $relUriPath,
-                    'module' => $module,
-                    'action' => $action,
-                    'class' => $actionMetas[0]['class'],
-                    'docComment' => $actionMetas[0]['docComment'],
-                    'shortModule' => 'foo-mod',
+                    'modulePath' => 'foo-mod',
                     'controllerPath' => 'my-simple',
+                    'actionPath' => dasherize($method),
                 ],
             ],
             $actual
@@ -134,7 +140,7 @@ class RouteMetaProviderTest extends TestCase {
     public function testParseDocComments() {
         $docComment = <<<OUT
 /**
- * @GET|POST
+ * @@GET|POST
  */
 OUT;
         $this->assertEquals(
@@ -150,7 +156,7 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @GET /
+ * @@GET /
  */
 OUT;
         $this->assertEquals(
@@ -166,7 +172,7 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @GET /some/path
+ * @@GET /some/path
  */
 OUT;
         $this->assertEquals(
@@ -182,8 +188,8 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @Title Foo
- * @GET /some/path
+ * @@Title Foo
+ * @@GET /some/path
  */
 OUT;
         $this->assertEquals(
@@ -199,7 +205,7 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @Title My menu item
+ * @@Title My menu item
  */
 OUT;
         $this->assertEquals(

@@ -8,6 +8,7 @@ namespace Morpho\App\Web\Routing;
 
 use Morpho\App\Web\Controller;
 use ReflectionClass;
+use ReflectionMethod;
 use function Morpho\Base\endsWith;
 use Morpho\Base\IFn;
 use Morpho\Code\Reflection\ClassTypeReflection;
@@ -16,10 +17,6 @@ use const Morpho\App\CONTROLLER_SUFFIX;
 
 class ActionMetaProvider implements IFn {
     protected array $baseControllerClasses = [Controller::class];
-
-    private ?array $ignoredMethods = null;
-
-    private const ACTION_SUFFIX = 'Action';
 
     /**
      * @param iterable $controllerFileMetas
@@ -36,7 +33,7 @@ class ActionMetaProvider implements IFn {
     private function controllerMeta(array $controllerFileMeta): iterable {
         require_once $controllerFileMeta['filePath'];
         foreach ((new FileReflection($controllerFileMeta['filePath']))->classes() as $rClass) {
-            if ($this->shouldBeSkipped($rClass)) {
+            if ($this->controllerMustBeSkipped($rClass)) {
                 continue;
             }
             $class = $rClass->getName();
@@ -48,7 +45,7 @@ class ActionMetaProvider implements IFn {
         }
     }
 
-    private function shouldBeSkipped(ClassTypeReflection $rClass): bool {
+    private function controllerMustBeSkipped(ClassTypeReflection $rClass): bool {
         if ($rClass->isAbstract()) {
             return true;
         }
@@ -61,45 +58,43 @@ class ActionMetaProvider implements IFn {
 
     private function actionMeta(array $controllerMeta): array {
         $actionsMeta = [];
-        $rClass = new ReflectionClass($controllerMeta['class']);
-        $ignoredMethods = $this->ignoredMethods();
-        foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
+        foreach ($this->actionMethods($controllerMeta['class']) as $rMethod) {
             $method = $rMethod->getName();
-            if (\in_array($method, $ignoredMethods)) {
-                continue;
-            }
-            if (endsWith(\strtolower($method), \strtolower(self::ACTION_SUFFIX))) {
-                $action = \substr($method, 0, -\strlen(self::ACTION_SUFFIX));
-                $actionsMeta[$action] = [
-                    'module' => $controllerMeta['module'],
-                    'action' => $action,
-                    'class' => $controllerMeta['class'],
-                    'method' => $method,
-                    'filePath' => $controllerMeta['filePath'],
-                ];
-                $docComment = $rMethod->getDocComment();
-                if ($docComment) {
-                    $actionsMeta[$action]['docComment'] = $docComment;
-                }
+            $actionsMeta[$method] = [
+                'module' => $controllerMeta['module'],
+                'class' => $controllerMeta['class'],
+                'method' => $method,
+                'filePath' => $controllerMeta['filePath'],
+            ];
+            $docComment = $rMethod->getDocComment();
+            if ($docComment) {
+                $actionsMeta[$method]['docComment'] = $docComment;
             }
         }
         return \array_values($actionsMeta);
     }
 
-    private function ignoredMethods(): array {
-        if (null === $this->ignoredMethods) {
-            $ignoredMethods = [];
-            foreach ($this->baseControllerClasses as $class) {
-                $rClass = new ReflectionClass($class);
-                foreach ($rClass->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) as $rMethod) {
-                    $method = $rMethod->getName();
-                    if (endsWith(\strtolower($method), \strtolower(self::ACTION_SUFFIX))) {
-                        $ignoredMethods[] = $method;
-                    }
+    private function actionMethods(string $controllerClass): array {
+        $ignoredMethods = [];
+        foreach ($this->baseControllerClasses as $baseControllerClass) {
+            foreach ((new ReflectionClass($baseControllerClass))->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
+                $ignoredMethods[] = $rMethod->getName();
+            }
+        }
+        $actionMethods = [];
+        foreach ((new ReflectionClass($controllerClass))->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
+            $method = $rMethod->getName();
+            if (\in_array($method, $ignoredMethods)) {
+                continue;
+            }
+            $docComment = $rMethod->getDocComment();
+            if ($docComment) {
+                if (false !== strpos($docComment, '@@notAction')) {
+                    continue;
                 }
             }
-            $this->ignoredMethods = $ignoredMethods;
+            $actionMethods[] = $rMethod;
         }
-        return $this->ignoredMethods;
+        return $actionMethods;
     }
 }

@@ -23,9 +23,9 @@ class ScriptProcessorTest extends TestCase {
     public function setUp(): void {
         parent::setUp();
         $handler = [
-            'shortModule' => 'bar',
+            'modulePath' => 'bar',
             'controllerPath' => 'foo',
-            'action' => 'child',
+            'method' => 'child',
         ];
         $serviceManager = $this->mkConfiguredServiceManager($handler);
         $this->processor = new ScriptProcessor($serviceManager);
@@ -136,9 +136,9 @@ OUT;
      */
     public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConf) {
         $serviceManager = $this->mkConfiguredServiceManager([
-            'shortModule' => 'blog',
+            'modulePath' => 'blog',
             'controllerPath' => 'cat',
-            'action' => 'tail',
+            'method' => 'tail',
         ]);
         $request = $serviceManager['request'];
         $request['jsConf'] = $jsConf;
@@ -164,9 +164,9 @@ OUT;
 
     public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
         $serviceManager = $this->mkConfiguredServiceManager([
-            'shortModule' => 'blog',
+            'modulePath' => 'blog',
             'controllerPath' => 'cat',
-            'action' => 'tail',
+            'method' => 'tail',
         ]);
         $processor = new ScriptProcessor($serviceManager);
 

@@ -12,10 +12,7 @@ class FastRouterTest extends TestCase {
     public function testBasePath() {
 /*
 @TODO: test cases:
-    /base/path
-    /base/path/index.php
-    /index.php
-    /index.php/foo/bar
+
 */
 
         $this->markTestIncomplete();

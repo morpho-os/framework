@@ -53,7 +53,7 @@ class PhpTemplateEngine extends TemplateEngine {
 
     public function pageCssId(): string {
         $handler = $this->request->handler();
-        return dasherize($handler['controllerPath']) . '-' . dasherize($handler['action']);
+        return dasherize($handler['controllerPath']) . '-' . dasherize($handler['method']);
     }
 
     public function handler() {

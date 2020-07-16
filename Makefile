@@ -3,6 +3,9 @@ clientModuleDirPath = $(CURDIR)/client
 errorOpts = --stop-on-error --stop-on-failure --stop-on-warning
 defectOpts = --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete
 
+# Default target
+all: test-stop
+
 ##############################################################################
 # Assets
 
@@ -67,4 +70,4 @@ setup:
 	npm install -g stylus typescript@next
 
 .SILENT:
-.PHONY: assets js css test test-stop utest utest-stop utest-stop-defect itest itest-stop mtest lint clear clean update setup
+.PHONY: all assets js css test test-stop utest utest-stop utest-stop-defect itest itest-stop mtest lint clear clean update setup

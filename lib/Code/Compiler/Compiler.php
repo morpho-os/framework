@@ -11,8 +11,8 @@ class Compiler implements IFn {
         $frontEnd = new FrontEnd();
         $backEnd = new BackEnd();
 
-        $context = $frontEnd($context);
-        $context = $backEnd($context);
+        //$context = $frontEnd($context);
+//        $context = $backEnd($context);
 
         return $context;
     }

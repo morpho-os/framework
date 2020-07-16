@@ -8,6 +8,7 @@ namespace Morpho\App\Web\Routing;
 
 use Morpho\Base\IFn;
 use Morpho\App\Web\Request;
+use Morpho\Fs\Path;
 use function Morpho\Base\{dasherize, endsWith, last};
 use const Morpho\App\CONTROLLER_SUFFIX;
 
@@ -32,10 +33,10 @@ class RouteMetaProvider implements IFn {
 
     public static function parseDocComment(string $docComment): array {
         $httpMethods = $title = $uri = null;
-        if (false !== \strpos($docComment, '@')) {
+        if (false !== \strpos($docComment, '@@')) {
             $httpMethodsRegexpPart = '(?:' . \implode('|', Request::knownMethods()) . ')';
             $routeRegExp = '~'
-                . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
+                . '@@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (\s+(?<uri>([^*\s]+)))?                                                                   # uri    (optional)
                 ~xm';
             if (\preg_match($routeRegExp, $docComment, $match)) {
@@ -48,7 +49,7 @@ class RouteMetaProvider implements IFn {
                 }
             }
 
-            if (\preg_match('~^\s*\*\s*@Title\s+(.+)\s*$~m', $docComment, $match)) {
+            if (\preg_match('~^\s*\*\s*@@Title\s+(.+)\s*$~m', $docComment, $match)) {
                 $title = \array_pop($match);
             }
         }
@@ -60,62 +61,59 @@ class RouteMetaProvider implements IFn {
     }
 
     protected function actionMetaToRoutesMeta(array $actionMeta): array {
-        $routesMeta = [];
         $i = 0;
-
-        $routesMeta[$i] = $this->actionMetaToRouteMeta($actionMeta);
-
+        $routesMeta = [array_merge($actionMeta, $this->routeMeta($actionMeta))];
         if (!empty($actionMeta['docComment'])) {
             $docComment = self::parseDocComment($actionMeta['docComment']);
-            if ($docComment['title']) {
-                $routesMeta[$i]['title'] = $docComment['title'];
+            ['title' => $title, 'uri' => $uri, 'httpMethods' => $httpMethods] = $docComment;
+            if ($title) {
+                $routesMeta[$i]['title'] = $title;
             }
-            if ($docComment['uri']) {
-                $routesMeta[$i]['uri'] = $docComment['uri'];
+            if ($uri) {
+                $routesMeta[$i]['uri'] = $uri;
             }
-            if (!empty($docComment['httpMethods'])) {
-                foreach ((array)$docComment['httpMethods'] as $httpMethod) {
+            if ($httpMethods) {
+                foreach ((array)$httpMethods as $httpMethod) {
                     if ($i > 0) {
-                        // ?
                         $routesMeta[$i] = $routesMeta[$i - 1];
                     }
                     $routesMeta[$i]['httpMethod'] = $httpMethod;
                     $i++;
                 }
+                return $routesMeta;
             }
         }
-
         return $routesMeta;
     }
 
-    protected function actionMetaToRouteMeta(array $actionMeta): array {
-        $shortModuleName = dasherize(last($actionMeta['module'], '/'), '.');
+    protected function routeMeta(array $actionMeta): array {
+        $modulePath = dasherize(last($actionMeta['module'], '/'), '.');
 
-        $actionMeta['shortModule'] = $shortModuleName;
-
-        $baseUri = '/';
+        $basePath = '/';
 
         if (!\preg_match('~(?P<controllerNs>.*?\\\\(?:Web|Cli))\\\\(?P<controller>.*?)$~s', $actionMeta['class'], $match) || !endsWith($match['controller'], CONTROLLER_SUFFIX)) {
             throw new \UnexpectedValueException();
         }
         $controller = \substr($match['controller'], 0, -\strlen(CONTROLLER_SUFFIX));
         $controllerPath = \str_replace('\\', '/', dasherize($controller, '\\'));
-        $actionMeta['controllerPath'] = $controllerPath;
 
-        $uri = \rtrim($baseUri, '/') . '/' . $shortModuleName . '/' . $controllerPath;
-
-        $action = $actionMeta['action'];
-        if (isset($this->restActions[$action])) {
-            $uri .= \rtrim('/' . $this->restActions[$action][1], '/');
-            $httpMethod = $this->restActions[$action][0];
+        $method = $actionMeta['method'];
+        if (isset($this->restActions[$method])) {
+            $actionPath = $this->restActions[$method][1];
+            $httpMethod = $this->restActions[$method][0];
         } else {
+            $actionPath = dasherize($method);
             $httpMethod = 'GET';
-            $uri .= '/' . dasherize($action);
         }
 
-        $actionMeta['httpMethod'] = $httpMethod;
-        $actionMeta['uri'] = $uri;
+        $uri = Path::combine($basePath, $modulePath, $controllerPath, $actionPath);
 
-        return $actionMeta;
+        return [
+            'httpMethod' => $httpMethod,
+            'uri' => $uri,
+            'modulePath' => $modulePath,
+            'controllerPath' => $controllerPath,
+            'actionPath' => $actionPath,
+        ];
     }
 }

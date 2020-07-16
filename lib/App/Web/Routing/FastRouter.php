@@ -65,16 +65,7 @@ class FastRouter implements IHasServiceManager, IRouter {
                 break;
             case IDispatcher::FOUND: // 200 OK
                 $handlerMeta = $routeInfo[1];
-                $request->setHandler([
-                    'module' => $handlerMeta['module'],
-                    'shortModule' => $handlerMeta['shortModule'],
-                    'class'  => $handlerMeta['class'],
-                    'method' => $handlerMeta['method'],
-                    'args'   => $routeInfo[2] ?? [],
-                    'filePath' => $handlerMeta['filePath'],
-                    'controllerPath' => $handlerMeta['controllerPath'],
-                    'action' => $handlerMeta['action'],
-                ]);
+                $request->setHandler(array_merge($handlerMeta, ['args' => $routeInfo[2] ?? []]));
                 break;
             default:
                 throw new \UnexpectedValueException();

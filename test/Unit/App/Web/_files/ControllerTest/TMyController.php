@@ -4,50 +4,50 @@ namespace Morpho\Test\Unit\App\Web\ControllerTest;
 trait TMyController {
     public $calledMethod;
 
-    protected function returnNullAction() {
+    protected function returnNull() {
         $this->calledMethod = __FUNCTION__;
         return null;
     }
 
-    protected function returnStringAction() {
+    protected function returnString() {
         $this->calledMethod = __FUNCTION__;
         return __FUNCTION__ . 'Called';
     }
 
-    protected function returnJsonAction() {
+    protected function returnJson() {
         $this->calledMethod = __FUNCTION__;
         return $this->mkJsonResult(__FUNCTION__ . 'Called');
     }
 
-    protected function returnResponseAction() {
+    protected function returnResponse() {
         $this->calledMethod = __FUNCTION__;
         return $this->mkResponse(null, __FUNCTION__ . 'Called');
     }
 
-    protected function returnViewAction() {
+    protected function returnView() {
         $this->calledMethod = __FUNCTION__;
         return $this->mkViewResult('test', ['foo' => 'bar']);
     }
 
-    protected function returnArrayAction() {
+    protected function returnArray() {
         $this->calledMethod = __FUNCTION__;
         return ['foo' => 'bar'];
     }
 
     /*
-        public function forwardAction() {
+        public function forward() {
             $this->forward(...$this->forwardTo);
         }
 
-        public function redirectHasArgsAction() {
+        public function redirectHasArgs() {
             $this->redirect('/some/page', $this->statusCode);
         }
 
-        public function redirectNoArgsAction() {
+        public function redirectNoArgs() {
             $this->redirect();
         }
 
-        public function returnResponseAction() {
+        public function returnResponse() {
             return $this->returnResponse;
         }
 */

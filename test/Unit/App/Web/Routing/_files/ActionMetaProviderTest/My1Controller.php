@@ -7,7 +7,7 @@ class My1FirstController extends Controller {
     public function dispatch1($request) {
     }
 
-    public function foo1Action() {
+    public function foo1() {
 
     }
 }
@@ -16,14 +16,14 @@ class Some1Class {
 }
 
 class MySecond1Controller extends \Morpho\App\Web\Controller {
-    public function doSomething1Action() {
+    public function doSomething1() {
 
     }
 
     /**
      * @foo Bar
      */
-    public function process1Action() {
+    public function process1() {
 
     }
 }

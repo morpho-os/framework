@@ -85,8 +85,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
      */
     protected function mkViewResult(string $path = null, $vars = null, $parent = null): ViewResult {
         if (null === $path) {
-
-            $path = dasherize($this->request->handler()['action']);
+            $path = dasherize($this->request->handler()['method']);
         }
         return new ViewResult($path, $vars, $parent);
     }

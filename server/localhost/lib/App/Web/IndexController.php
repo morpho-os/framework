@@ -4,6 +4,6 @@ namespace Morpho\Site\Localhost\App\Web;
 use Morpho\App\Web\Controller;
 
 class IndexController extends Controller {
-    public function indexAction() {
+    public function index() {
     }
 }

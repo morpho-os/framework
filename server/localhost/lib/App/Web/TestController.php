@@ -4,34 +4,34 @@ namespace Morpho\Site\Localhost\App\Web;
 use Morpho\App\Web\Controller;
 
 class TestController extends Controller {
-    public function indexAction() {
+    public function index() {
         $this->setParentViewResult('test/test');
     }
 
-    public function status400Action() {
+    public function status400() {
         return $this->mkBadRequestResult();
     }
 
-    public function status403Action() {
+    public function status403() {
         return $this->mkForbiddenResult();
     }
 
-    public function status404Action() {
+    public function status404() {
         return $this->mkNotFoundResult();
     }
 
-    public function status405Action() {
+    public function status405() {
         // For testing clients should send: POST $prefix/test/status405
     }
 
-    public function status500Action() {
+    public function status500() {
         throw new \RuntimeException();
     }
 
     /**
-     * @POST
+     * @@POST
      */
-    public function redirectAction() {
+    public function redirect() {
         return $this->mkJsonResult([
             'ok' => [
                 'redirect' => '/go/to/linux',
@@ -40,9 +40,9 @@ class TestController extends Controller {
     }
 
     /**
-     * @POST
+     * @@POST
      */
-    public function errorAction() {
+    public function error() {
         return $this->mkJsonResult([
             'err' => [
                 [

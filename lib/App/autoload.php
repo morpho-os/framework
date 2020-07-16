@@ -34,7 +34,6 @@ const META_FILE_NAME = 'composer.json';
 
 //const DOMAIN_NS = 'Domain';
 
-const ACTION_SUFFIX = 'Action';
 const CONTROLLER_SUFFIX = 'Controller';
 const PLUGIN_SUFFIX = 'Plugin';
 const REPO_SUFFIX = 'Repo';

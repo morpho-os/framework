@@ -36,12 +36,12 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnNullFromAction() {
         $request = $this->mkConfiguredRequest(null);
-        $request->setHandler(['method' => 'returnNullAction', 'action' => 'return-null']);
+        $request->setHandler(['method' => 'returnNull']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnNullAction');
+        $this->checkMethodCalled('returnNull');
         $response = $request->response();
         $actionResult = $response['result'];
         $this->assertInstanceOf(ViewResult::class, $actionResult);
@@ -49,15 +49,15 @@ class ControllerTest extends TestCase {
         $this->assertSame([], $actionResult->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
     }
-    
+
     public function testInvoke_ReturnArrayFromAction() {
         $request = $this->mkConfiguredRequest(null);
-        $request->setHandler(['method' => 'returnArrayAction', 'action' => 'return-array']);
+        $request->setHandler(['method' => 'returnArray']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnArrayAction');
+        $this->checkMethodCalled('returnArray');
         $response = $request->response();
         $actionResult = $response['result'];
         $this->assertInstanceOf(ViewResult::class, $actionResult);
@@ -68,38 +68,38 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnStringFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setHandler(['method' => 'returnStringAction', 'action' => 'return-string']);
+        $request->setHandler(['method' => 'returnString']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnStringAction');
+        $this->checkMethodCalled('returnString');
         $response = $request->response();
-        $this->assertSame('returnStringActionCalled', $response->body());
+        $this->assertSame('returnStringCalled', $response->body());
         $this->assertSame($response1, $response);
     }
 
     public function testInvoke_ReturnJsonFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setHandler(['method' => 'returnJsonAction', 'action' => 'return-json']);
+        $request->setHandler(['method' => 'returnJson']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnJsonAction');
+        $this->checkMethodCalled('returnJson');
         $response = $request->response();
-        $this->assertEquals(new JsonResult('returnJsonActionCalled'), $response['result']);
+        $this->assertEquals(new JsonResult('returnJsonCalled'), $response['result']);
         $this->assertSame($response1, $response);
     }
 
     public function testInvoke_ReturnViewFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setHandler(['method' => 'returnViewAction', 'action' => 'return-view']);
+        $request->setHandler(['method' => 'returnView']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnViewAction');
+        $this->checkMethodCalled('returnView');
         $response = $request->response();
 
         $view = $response['result'];
@@ -111,12 +111,12 @@ class ControllerTest extends TestCase {
 
     public function testInvoke_ReturnResponseFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setHandler(['method' => 'returnResponseAction']);
+        $request->setHandler(['method' => 'returnResponse']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnResponseAction');
+        $this->checkMethodCalled('returnResponse');
         $response = $request->response();
         $this->assertNotSame($response1, $response);
         $this->assertNull($response['result']);
@@ -136,7 +136,7 @@ class ControllerTest extends TestCase {
             ->willReturn($response);
         $request->expects($this->any())
             ->method('handler')
-            ->willReturn(['method' => 'returnNullAction', 'action' => 'return-null']);
+            ->willReturn(['method' => 'returnNull']);
 
         $this->controller->__invoke($request);
     }
@@ -147,12 +147,12 @@ class ControllerTest extends TestCase {
                 $this->setParentViewResult('some-page');
             }
 
-            protected function doSomethingAction() {
+            protected function doSomething() {
                 return $this->mkViewResult();
             }
         };
         $request = $this->mkConfiguredRequest(null);
-        $request->setHandler(['method' => 'doSomethingAction', 'action' => 'do-something']);
+        $request->setHandler(['method' => 'doSomething']);
 
         $controller->__invoke($request);
 
