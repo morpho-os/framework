@@ -8,30 +8,30 @@ class TestController extends Controller {
         $this->setParentViewResult('test/test');
     }
 
-    public function status400() {
+    public function testStatus400() {
         return $this->mkBadRequestResult();
     }
 
-    public function status403() {
+    public function testStatus403() {
         return $this->mkForbiddenResult();
     }
 
-    public function status404() {
+    public function testStatus404() {
         return $this->mkNotFoundResult();
     }
 
-    public function status405() {
+    public function testStatus405() {
         // For testing clients should send: POST $prefix/test/status405
     }
 
-    public function status500() {
+    public function testStatus500() {
         throw new \RuntimeException();
     }
 
     /**
      * @POST
      */
-    public function redirect() {
+    public function testRedirectTest() {
         return $this->mkJsonResult([
             'ok' => [
                 'redirect' => '/go/to/linux',
@@ -42,7 +42,7 @@ class TestController extends Controller {
     /**
      * @POST
      */
-    public function error() {
+    public function testError() {
         return $this->mkJsonResult([
             'err' => [
                 [

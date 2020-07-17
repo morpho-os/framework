@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use Morpho\App\Cli\ServiceManager as CliServiceManager;
 use Morpho\App\Web\ServiceManager as WebServiceManager;
 use const Morpho\App\CACHE_DIR_NAME;
@@ -14,7 +15,7 @@ $siteModuleName = VENDOR . '/localhost';
             'handler' => [
                 'module' => $siteModuleName,
                 'class'  => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
-                'method' => 'notFound',
+                'method' => $handler,
                 'modulePath' => 'localhost',
                 'controllerPath' => 'error',
             ],
@@ -28,7 +29,7 @@ $errorHandlers = [
     'notFound'         => [
         'handler'  => [
             'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
             'method'         => 'notFound',
             'modulePath'     => 'localhost',
             'controllerPath' => 'error',
@@ -38,8 +39,8 @@ $errorHandlers = [
     'badRequest'       => [
         'handler'  => [
             'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
-            'method'         => 'notFound',
+            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'method'         => 'badRequest',
             'modulePath'     => 'localhost',
             'controllerPath' => 'error',
         ],
@@ -48,8 +49,8 @@ $errorHandlers = [
     'forbidden'        => [
         'handler'  => [
             'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
-            'method'         => 'notFound',
+            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'method'         => 'forbidden',
             'modulePath'     => 'localhost',
             'controllerPath' => 'error',
         ],
@@ -58,8 +59,8 @@ $errorHandlers = [
     'methodNotAllowed' => [
         'handler'  => [
             'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
-            'method'         => 'notFound',
+            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'method'         => 'methodNotAllowed',
             'modulePath'     => 'localhost',
             'controllerPath' => 'error',
         ],
@@ -68,8 +69,8 @@ $errorHandlers = [
     'uncaught'         => [
         'handler'  => [
             'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
-            'method'         => 'notFound',
+            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'method'         => 'uncaught',
             'modulePath'     => 'localhost',
             'controllerPath' => 'error',
         ],
@@ -78,77 +79,77 @@ $errorHandlers = [
 ];
 
 return [
-    'path' => [
+    'path'           => [
         'cacheDirPath' => $thisModuleDirPath . '/' . CACHE_DIR_NAME,
     ],
-    'module' => [
+    'module'         => [
 //        $vendor . '/system',
 //        VENDOR . '/user',
     ],
-    'service' => [
-        'router' => [
+    'service'        => [
+        'router'               => [
             'handlers' => [
-                'notFound' => $errorHandlers['notFound']['handler'],
+                'notFound'         => $errorHandlers['notFound']['handler'],
                 'methodNotAllowed' => $errorHandlers['methodNotAllowed']['handler'],
             ],
         ],
-        'db' => [
-            'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'user' => 'root',
+        'db'                   => [
+            'driver'   => 'mysql',
+            'host'     => '127.0.0.1',
+            'user'     => 'root',
             'password' => '',
-            'db' => '',
-            'port' => '3306',
+            'db'       => '',
+            'port'     => '3306',
         ],
-        'moduleAutoloader' => [
+        'moduleAutoloader'     => [
             'useCache' => false,
         ],
-        'templateEngine' => [
+        'templateEngine'       => [
             'useCache' => false,
-/*            'forceCompileTs' => false,
-            'nodeBinDirPath' => getenv('NODE_BIN_DIR_PATH') ?: '/usr/bin',
-            'tsOptions' => [
-                '--forceConsistentCasingInFileNames',
-                '--removeComments',
-                '--noImplicitAny',
-                '--suppressImplicitAnyIndexErrors',
-                '--noEmitOnError',
-                '--newLine LF',
-                '--allowJs',
-            ],*/
+            /*            'forceCompileTs' => false,
+                        'nodeBinDirPath' => getenv('NODE_BIN_DIR_PATH') ?: '/usr/bin',
+                        'tsOptions' => [
+                            '--forceConsistentCasingInFileNames',
+                            '--removeComments',
+                            '--noImplicitAny',
+                            '--suppressImplicitAnyIndexErrors',
+                            '--noEmitOnError',
+                            '--newLine LF',
+                            '--allowJs',
+                        ],*/
         ],
-        'errorHandler' => [
-            'dumpListener' => true,
+        'errorHandler'         => [
+            'dumpListener'   => true,
             'noDupsListener' => false,
         ],
         'dispatchErrorHandler' => [
-            'throwErrors' => false,
+            'throwErrors'      => false,
             'exceptionHandler' => $errorHandlers['uncaught']['handler'],
         ],
-        'errorLogger' => [
-            'mailWriter' => [
-                'enabled' => false,
+        'errorLogger'          => [
+            'mailWriter'     => [
+                'enabled'  => false,
                 'mailFrom' => 'admin@localhost',
-                'mailTo' => 'admin@localhost',
+                'mailTo'   => 'admin@localhost',
             ],
-            'logFileWriter' => true,
-            'debugWriter' => true,
+            'logFileWriter'  => true,
+            'debugWriter'    => true,
             'errorLogWriter' => false,
         ],
-        'view' => [
+        'view'                 => [
             'pageRenderer' => $siteModuleName,
         ],
-        'actionResultHandler' => [
-            $errorHandlers['badRequest']['httpCode'] => $errorHandlers['badRequest']['handler'],
-            $errorHandlers['forbidden']['httpCode'] => $errorHandlers['forbidden']['handler'],
-            $errorHandlers['notFound']['httpCode'] => $errorHandlers['notFound']['handler'],
+        'actionResultHandler'  => [
+            $errorHandlers['badRequest']['httpCode']       => $errorHandlers['badRequest']['handler'],
+            $errorHandlers['forbidden']['httpCode']        => $errorHandlers['forbidden']['handler'],
+            $errorHandlers['notFound']['httpCode']         => $errorHandlers['notFound']['handler'],
             $errorHandlers['methodNotAllowed']['httpCode'] => $errorHandlers['methodNotAllowed']['handler'],
-            $errorHandlers['uncaught']['httpCode'] => $errorHandlers['uncaught']['handler'],
+            $errorHandlers['uncaught']['httpCode']         => $errorHandlers['uncaught']['handler'],
         ],
     ],
     'serviceManager' => \PHP_SAPI === 'cli' ? new CliServiceManager() : new WebServiceManager(),
-    'umask' => 0007, // This is valid for the `development` environment, change it for other environments.
-    'iniConfig' => [
+    'umask'          => 0007, // This is valid for the `development` environment, change it for other environments.
+    'iniConfig'      => [
         //'display_errors' => '1',
         //'date.timezone' => 'UTC',
         //'default_charset' => 'UTF-8',
@@ -172,7 +173,7 @@ return [
             */
 
             // Type: bool
-            'use_strict_mode' => '1',
+            'use_strict_mode'   => '1',
             /*
             // Type: int
             'gc_divisor' => '1',
@@ -185,7 +186,7 @@ return [
             'lazy_write' => '1',
             */
             // Type: string
-            'name' => 's',
+            'name'              => 's',
             /*
             // Type: string
             'referer_check' => '',
