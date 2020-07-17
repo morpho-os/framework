@@ -6,15 +6,160 @@
  */
 namespace Morpho\Test\Unit\App\Web\Routing;
 
+use Morpho\App\IRequest;
+use Morpho\App\IResponse;
+use Morpho\App\Web\Routing\FastRouter;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
+use FastRoute\Dispatcher as IDispatcher;
 
 class FastRouterTest extends TestCase {
-    public function testBasePath() {
-/*
-@TODO: test cases:
+    public function dataForRoute() {
+        // valid HTTP method and path
+        yield [
+            'GET',
+            '/foo/bar',
+            [
+                IDispatcher::FOUND,
+                ['this is found handler'],
+                ['my args'],
+            ],
+            [
+                'this is found handler',
+                'args' => ['my args'],
+            ],
+        ];
+        // valid HTTP method, invalid path
+        yield [
+            'GET',
+            '/foo',
+            [
+                IDispatcher::NOT_FOUND,
+                null,
+            ],
+            [
+                'this is notFound handler',
+            ],
+        ];
+        // invalid HTTP method, valid path
+        yield [
+            'PATCH',
+            '/foo/bar',
+            [
+                IDispatcher::METHOD_NOT_ALLOWED,
+                null
+            ],
+            [
+                'this is methodNotAllowed handler',
+            ],
+        ];
+    }
 
-*/
+    /**
+     * @dataProvider dataForRoute
+     */
+    public function testRoute(string $httpMethod, string $requestPath, array $routeInfo, array $expectedHandler) {
+        $uri = new class ($requestPath) {
+            private string $path;
 
-        $this->markTestIncomplete();
+            public function __construct(string $path) {
+                $this->path = $path;
+            }
+
+            public function path() {
+                return new class ($this->path) {
+                    private string $path;
+
+                    public function __construct(string $path) {
+                        $this->path = $path;
+                    }
+
+                    public function toStr(): string {
+                        return $this->path;
+                    }
+                };
+            }
+        };
+        $request = new class ($httpMethod, $uri) extends \ArrayObject implements IRequest {
+            private array $handler = [];
+            private string $httpMethod;
+            private $uri;
+
+            public function __construct(string $httpMethod, $uri) {
+                $this->httpMethod = $httpMethod;
+                $this->uri = $uri;
+            }
+
+            public function setHandler(array $handler): void {
+                $this->handler = $handler;
+            }
+
+            public function handler(): array {
+                return $this->handler;
+            }
+
+            public function uri() {
+                return $this->uri;
+            }
+
+            public function method(): string {
+                return 'GET';
+            }
+
+            public function isHandled(bool $flag = null): bool {
+            }
+
+            public function setResponse(IResponse $response): void {
+            }
+
+            public function response(): IResponse {
+            }
+
+            public function args($namesOrIndexes = null) {
+            }
+
+            public function arg($nameOrIndex) {
+            }
+        };
+        $serviceManager = $this->createMock(IServiceManager::class);
+        $serviceManager->expects($this->any())
+            ->method('conf')
+            ->willReturn([
+                'router' => [
+                    'handlers' => [
+                        'badRequest' => ['this is badRequest handler'],
+                        'notFound' => ['this is notFound handler'],
+                        'methodNotAllowed' => ['this is methodNotAllowed handler'],
+                    ],
+                ],
+            ]);
+        $router = new class ($routeInfo) extends FastRouter {
+            private $routeInfo;
+
+            public function __construct($routeInfo) {
+                $this->routeInfo = $routeInfo;
+            }
+
+            protected function mkDispatcher(): IDispatcher {
+                return new class ($this->routeInfo) implements IDispatcher {
+                    private $routeInfo;
+
+                    public function __construct($routeInfo) {
+                        $this->routeInfo = $routeInfo;
+                    }
+
+                    public function dispatch(string $httpMethod, string $uri): array {
+                        return $this->routeInfo;
+                    }
+                };
+            }
+        };
+        $router->setServiceManager($serviceManager);
+
+        $this->assertSame([], $request->handler());
+
+        $router->route($request);
+
+        $this->assertSame($expectedHandler, $request->handler());
     }
 }

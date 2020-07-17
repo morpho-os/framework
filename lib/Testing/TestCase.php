@@ -16,7 +16,7 @@ abstract class TestCase extends BaseTestCase {
 
     private string $classFilePath;
 
-    private $prevTimezone;
+    private ?string $prevTimezone = null;
 
     protected $backupGlobals = true;
 

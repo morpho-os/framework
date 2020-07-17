@@ -29,7 +29,7 @@ class TestController extends Controller {
     }
 
     /**
-     * @@POST
+     * @POST
      */
     public function redirect() {
         return $this->mkJsonResult([
@@ -40,7 +40,7 @@ class TestController extends Controller {
     }
 
     /**
-     * @@POST
+     * @POST
      */
     public function error() {
         return $this->mkJsonResult([

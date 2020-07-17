@@ -33,10 +33,10 @@ class RouteMetaProvider implements IFn {
 
     public static function parseDocComment(string $docComment): array {
         $httpMethods = $title = $uri = null;
-        if (false !== \strpos($docComment, '@@')) {
+        if (false !== \strpos($docComment, '@')) {
             $httpMethodsRegexpPart = '(?:' . \implode('|', Request::knownMethods()) . ')';
             $routeRegExp = '~'
-                . '@@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
+                . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (\s+(?<uri>([^*\s]+)))?                                                                   # uri    (optional)
                 ~xm';
             if (\preg_match($routeRegExp, $docComment, $match)) {
@@ -49,7 +49,7 @@ class RouteMetaProvider implements IFn {
                 }
             }
 
-            if (\preg_match('~^\s*\*\s*@@Title\s+(.+)\s*$~m', $docComment, $match)) {
+            if (\preg_match('~^\s*\*\s*@Title\s+(.+)\s*$~m', $docComment, $match)) {
                 $title = \array_pop($match);
             }
         }

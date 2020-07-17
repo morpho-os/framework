@@ -6,25 +6,73 @@ use const Morpho\App\VENDOR;
 
 $thisModuleDirPath = \dirname(__DIR__);
 $siteModuleName = VENDOR . '/localhost';
+
+/*$errorHandlers = (function () use ($siteModuleName) {
+    $handlers = [];
+    foreach ([404 => 'notFound', 400 => 'badRequest', 403 => 'forbidden', 405 => 'methodNotAllowed', 500 => 'uncaught'] as $httpCode => $handler) {
+        $handlers[$handler] = [
+            'handler' => [
+                'module' => $siteModuleName,
+                'class'  => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+                'method' => 'notFound',
+                'modulePath' => 'localhost',
+                'controllerPath' => 'error',
+            ],
+            'httpCode' => $httpCode,
+        ];
+    }
+    return $handlers;
+})();*/
+
 $errorHandlers = [
+    'notFound'         => [
+        'handler'  => [
+            'module'         => 'morpho-os/localhost',
+            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+            'method'         => 'notFound',
+            'modulePath'     => 'localhost',
+            'controllerPath' => 'error',
+        ],
+        'httpCode' => 404,
+    ],
     'badRequest'       => [
-        'handler'  => [$siteModuleName, 'Error', 'badRequest'],
+        'handler'  => [
+            'module'         => 'morpho-os/localhost',
+            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+            'method'         => 'notFound',
+            'modulePath'     => 'localhost',
+            'controllerPath' => 'error',
+        ],
         'httpCode' => 400,
     ],
     'forbidden'        => [
-        'handler'  => [$siteModuleName, 'Error', 'forbidden'],
+        'handler'  => [
+            'module'         => 'morpho-os/localhost',
+            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+            'method'         => 'notFound',
+            'modulePath'     => 'localhost',
+            'controllerPath' => 'error',
+        ],
         'httpCode' => 403,
     ],
-    'notFound'         => [
-        'handler'  => [$siteModuleName, 'Error', 'notFound'],
-        'httpCode' => 404,
-    ],
     'methodNotAllowed' => [
-        'handler'  => [$siteModuleName, 'Error', 'methodNotAllowed'],
+        'handler'  => [
+            'module'         => 'morpho-os/localhost',
+            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+            'method'         => 'notFound',
+            'modulePath'     => 'localhost',
+            'controllerPath' => 'error',
+        ],
         'httpCode' => 405,
     ],
     'uncaught'         => [
-        'handler'  => [$siteModuleName, 'Error', 'uncaught'],
+        'handler'  => [
+            'module'         => 'morpho-os/localhost',
+            'class'          => 'Morpho\\Site\\Localhost\\App\Web\\ErrorController',
+            'method'         => 'notFound',
+            'modulePath'     => 'localhost',
+            'controllerPath' => 'error',
+        ],
         'httpCode' => 500,
     ],
 ];
@@ -40,10 +88,8 @@ return [
     'service' => [
         'router' => [
             'handlers' => [
-                'badRequest' => $errorHandlers['badRequest']['handler'],
                 'notFound' => $errorHandlers['notFound']['handler'],
                 'methodNotAllowed' => $errorHandlers['methodNotAllowed']['handler'],
-                'home' => [$siteModuleName, 'Index', 'index'],
             ],
         ],
         'db' => [

@@ -6,7 +6,6 @@
  */
 namespace Morpho\App;
 
-use function Morpho\Base\requireFile;
 use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
@@ -31,9 +30,6 @@ class InstanceProvider implements IFn {
         // @TODO: Register simple common autoloader, which must try to load the class using simple scheme, then call Composer's autoloader in case of failure.
         $this->registerModuleClassLoader($module);
 
-        if (!\class_exists($handler['class'], false)) {
-            requireFile($handler['filePath'], true);
-        }
         $instance = new $handler['class'];
         if ($instance instanceof IHasServiceManager) {
             $instance->setServiceManager($this->serviceManager);

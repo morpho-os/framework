@@ -5,7 +5,7 @@ use Morpho\App\Web\Controller;
 
 class MyFirst2Controller extends Controller {
     /**
-     * @@notAction
+     * @notAction
      */
     public function dispatch2($request) {
     }
@@ -24,7 +24,7 @@ class MySecond2Controller extends Controller {
     }
 
     /**
-     * @@foo Bar
+     * @foo Bar
      */
     public function process2() {
 
@@ -36,7 +36,7 @@ class OneMore2Class {
 
 class Third2Controller extends Controller {
     /**
-     * @@notAction
+     * @notAction
      */
     public function dispatch2($request) {
     }

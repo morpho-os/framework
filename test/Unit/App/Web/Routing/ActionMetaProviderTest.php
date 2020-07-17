@@ -119,7 +119,7 @@ class ActionMetaProviderTest extends TestCase {
                 'class'      => $testNs . '\\MySecond2Controller',
                 'filePath'   => $testDirPath . '/My2Controller.php',
                 'docComment' => '/**
-     * @@foo Bar
+     * @foo Bar
      */',
                 'method'     => 'process2',
             ],

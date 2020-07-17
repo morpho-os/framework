@@ -89,7 +89,7 @@ class ActionMetaProvider implements IFn {
             }
             $docComment = $rMethod->getDocComment();
             if ($docComment) {
-                if (false !== strpos($docComment, '@@notAction')) {
+                if (false !== strpos($docComment, '@notAction')) {
                     continue;
                 }
             }

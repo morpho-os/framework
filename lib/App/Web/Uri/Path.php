@@ -12,20 +12,11 @@ use function Morpho\Base\contains;
 use Morpho\App\Path as BasePath;
 
 class Path extends BasePath implements IUriComponent {
-    /**
-     * @var ?string
-     */
-    protected $basePath;
+    protected ?string $basePath = null;
 
-    /**
-     * @var ?string
-     */
-    protected $relPath;
+    protected ?string $relPath = null;
 
-    /**
-     * @var string
-     */
-    protected $path;
+    protected string $path;
 
     public function __construct(string $path) {
         $this->path = $path;
@@ -42,9 +33,6 @@ class Path extends BasePath implements IUriComponent {
         return startsWith($this->path, $path);
     }
 
-    /**
-     * @param string $path
-     */
     public function endsWith(string $path): bool {
         return endsWith($this->path, $path);
     }
@@ -53,9 +41,6 @@ class Path extends BasePath implements IUriComponent {
         return contains($this->path, $path);
     }
 
-    /**
-     * @param string $basePath
-     */
     public function setBasePath(string $basePath): void {
         if (!$this->startsWith($basePath)) {
             throw new \RuntimeException('The base path is not begging of the path');

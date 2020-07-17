@@ -102,7 +102,7 @@ class RouteMetaProviderTest extends TestCase {
             [
                 'module' => $module,
                 'method' => $method,
-                'docComment' => "/** @@POST|PATCH $relUriPath */",
+                'docComment' => "/** @POST|PATCH $relUriPath */",
                 'class' => 'Foo\\Bar\\Web\\MySimpleController',
             ],
         ];
@@ -140,7 +140,7 @@ class RouteMetaProviderTest extends TestCase {
     public function testParseDocComments() {
         $docComment = <<<OUT
 /**
- * @@GET|POST
+ * @GET|POST
  */
 OUT;
         $this->assertEquals(
@@ -156,7 +156,7 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @@GET /
+ * @GET /
  */
 OUT;
         $this->assertEquals(
@@ -172,7 +172,7 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @@GET /some/path
+ * @GET /some/path
  */
 OUT;
         $this->assertEquals(
@@ -188,8 +188,8 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @@Title Foo
- * @@GET /some/path
+ * @Title Foo
+ * @GET /some/path
  */
 OUT;
         $this->assertEquals(
@@ -205,7 +205,7 @@ OUT;
 
         $docComment = <<<OUT
 /**
- * @@Title My menu item
+ * @Title My menu item
  */
 OUT;
         $this->assertEquals(

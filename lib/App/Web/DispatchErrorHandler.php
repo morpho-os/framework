@@ -37,8 +37,8 @@ class DispatchErrorHandler implements IHasServiceManager {
             throw $exception;
         }
 
-        $handler = $this->exceptionHandler;
-        if (!$handler) {
+        $exceptionHandler = $this->exceptionHandler;
+        if (!$exceptionHandler) {
             throw new \UnexpectedValueException('Empty exception handler');
         }
 
@@ -49,7 +49,7 @@ class DispatchErrorHandler implements IHasServiceManager {
         }
         $this->thrownExceptions[] = $exception;
 
-        $request->setHandler($handler);
+        $request->setHandler($exceptionHandler);
         $request->isHandled(false);
         $request['error'] = $exception;
         $request->response()->setStatusCode(Response::INTERNAL_SERVER_ERROR_STATUS_CODE);

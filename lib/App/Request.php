@@ -9,15 +9,9 @@ namespace Morpho\App;
 abstract class Request extends Message implements IRequest {
     private array $handler = [];
 
-    /**
-     * @var bool|null
-     */
-    private $isHandled = false;
+    private bool $isHandled = false;
 
-    /**
-     * @var ?IResponse
-     */
-    private $response;
+    private ?IResponse $response = null;
 
     public function isHandled(bool $flag = null): bool {
         if ($flag !== null) {
