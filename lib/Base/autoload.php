@@ -122,6 +122,11 @@ function uniqueName(): string {
     return 'unique' . $uniqueInt++;
 }
 
+function words($s): array {
+    $s = (string) $s;
+    return \preg_split('~\\s+~s', \trim($s), -1, \PREG_SPLIT_NO_EMPTY);
+}
+
 /**
  * Replaces first capsed letter or underscore with dash and small later.
  * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s. All other characters will be removed.

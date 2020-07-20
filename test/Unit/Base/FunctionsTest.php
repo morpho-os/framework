@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{endsWith, formatFloat, hasPrefix, hasSuffix, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, startsWith, formatBytes};
+use function Morpho\Base\{endsWith, formatFloat, hasPrefix, hasSuffix, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, htmlId, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, startsWith, formatBytes, words};
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
 
@@ -843,6 +843,17 @@ class FunctionsTest extends TestCase {
     public function testIt_InvalidCases($it) {
         $this->expectException(\UnexpectedValueException::class);
         it($it);
+    }
+
+    public function testWords() {
+        $this->assertSame([], words(''));
+        $this->assertSame([], words('    '));
+        $this->assertSame(['foo'], words(' foo   '));
+        $this->assertSame(['foo', 'bar'], words(' foo   bar    '));
+        $this->assertSame(['foo', 'bar'], words('foo   bar'));
+        $this->assertSame(['bar'], words('bar'));
+        $this->assertSame(['bar', '123'], words('bar    123   '));
+        $this->assertSame(['123'], words(123));
     }
 
     private function assertCommon($fn) {
