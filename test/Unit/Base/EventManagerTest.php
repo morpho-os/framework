@@ -59,6 +59,15 @@ class EventManagerTest extends TestCase {
         $this->assertNull($args3);
     }
 
+    public function testCanChangeFieldsOfEvent() {
+        $event = new Event('change', ['foo' => 'bar']);
+        $eventManager = new EventManager();
+        $eventManager->on('change', fn ($event) => $event->args['foo'] = 'abc');
+        $this->assertSame('bar', $event->args['foo']);
+        $eventManager->trigger($event);
+        $this->assertSame('abc', $event->args['foo']);
+    }
+
     public function testOff_NonExistingHandlerDoesNotThrowError() {
         $eventManager = new EventManager();
         $eventManager->off('foo', function () {});

@@ -31,7 +31,6 @@ use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
 use Morpho\App\ApplyingSiteConfModuleIterator;
 use Morpho\App\Web\Routing\RouteMetaProvider;
-use Morpho\App\InstanceProvider;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
@@ -102,17 +101,6 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkMessengerService() {
         return new Messenger();
-    }
-
-    protected function mkInstanceProviderService() {
-        return new InstanceProvider($this);
-    }
-
-    protected function mkDispatcherService() {
-        return new Dispatcher(
-            $this['instanceProvider'],
-            $this['eventManager']
-        );
     }
 
     protected function mkEventManagerService() {

@@ -14,6 +14,7 @@ use Morpho\Error\ErrorHandler;
 use Monolog\Handler\ErrorLogHandler as PhpErrorLogWriter;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
+use Morpho\Base\EventManager;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkAppInitializerService() {
@@ -56,5 +57,13 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkRouterService(): IRouter {
         throw new NotImplementedException();
+    }
+
+    protected function mkEventManagerService() {
+        $eventManager = new EventManager();
+        $eventManager->on('dispatchError', function ($event) {
+            throw $event->args['exception'];
+        });
+        return $eventManager;
     }
 }
