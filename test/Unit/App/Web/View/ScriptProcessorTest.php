@@ -157,7 +157,7 @@ OUT;
 
         $jsConfStr = \json_encode((array)$jsConf, JSON_UNESCAPED_SLASHES);
         $this->assertMatchesRegularExpression(
-            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "blog/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(' . \preg_quote($jsConfStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
+            '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*define\(\["require", "exports", "blog/app/cat/tail"\], function \(require, exports, module\) \{\s*module\.main\(window.app || {}, ' . \preg_quote($jsConfStr, '~') . '\);\s*\}\);\s*</script>\s*</body>$~s',
             $processedBody
         );
     }

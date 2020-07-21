@@ -10,7 +10,7 @@ use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 
-class InstanceProvider implements IFn {
+class HandlerInstanceProvider implements IFn {
     protected ModuleIndex $moduleIndex;
 
     private array $registeredModules = [];

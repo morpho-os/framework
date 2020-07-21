@@ -29,10 +29,9 @@ Only Linux, other OSs are not supported.
 
 Documentation does not exist yet.
 
-## CI
+## CI status
 
-* CI: [![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
-* Build status: todo
+[![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
 
 ## License
 

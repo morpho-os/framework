@@ -4,6 +4,9 @@ namespace Morpho\Test\Unit\App\Web\Routing\ActionMetaProviderTest;
 use Morpho\App\Web\Controller;
 
 class My1FirstController extends Controller {
+    /**
+     * @notAction
+     */
     public function dispatch1($request) {
     }
 
@@ -32,6 +35,9 @@ class OneMore1Class {
 }
 
 class Third1Controller extends Controller {
+    /**
+     * @notAction
+     */
     public function dispatch1($request) {
     }
 }

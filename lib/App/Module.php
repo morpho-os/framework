@@ -4,8 +4,8 @@ namespace Morpho\App;
 class Module extends \ArrayObject {
     protected string $name;
 
-    public function __construct(string $moduleName, $meta) {
-        $this->name = $moduleName;
+    public function __construct(string $name, $meta) {
+        $this->name = $name;
         parent::__construct($meta);
     }
 

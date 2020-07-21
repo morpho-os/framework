@@ -149,7 +149,7 @@ return [
     ],
     'serviceManager' => \PHP_SAPI === 'cli' ? new CliServiceManager() : new WebServiceManager(),
     'umask'          => 0007, // This is valid for the `development` environment, change it for other environments.
-    'iniConfig'      => [
+    'iniConf'      => [
         //'display_errors' => '1',
         //'date.timezone' => 'UTC',
         //'default_charset' => 'UTF-8',

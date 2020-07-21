@@ -70,13 +70,15 @@ class FastRouter implements IHasServiceManager, IRouter {
 
     protected function routesMeta(): iterable {
         $moduleIndex = $this->serviceManager['serverModuleIndex'];
-        $modules = $moduleIndex->moduleNames();
+        $modules = function () use ($moduleIndex) {
+            foreach ($moduleIndex as $moduleName) {
+                yield $moduleIndex->module($moduleName);
+            }
+        };
+        $actionMetaProvider = new ActionMetaProvider();
         return compose(
             $this->serviceManager['routeMetaProvider'],
-            compose(
-                new ActionMetaProvider(),
-                new ControllerFileMetaProvider($moduleIndex)
-            )
+            $actionMetaProvider,
         )($modules);
     }
 

@@ -4,13 +4,13 @@ namespace Morpho\App;
 use Morpho\Ioc\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
-    protected function mkInstanceProviderService() {
-        return new InstanceProvider($this);
+    protected function mkHandlerInstanceProviderService() {
+        return new HandlerInstanceProvider($this);
     }
 
     protected function mkDispatcherService() {
         return new Dispatcher(
-            $this['instanceProvider'],
+            $this['handlerInstanceProvider'],
             $this['eventManager']
         );
     }

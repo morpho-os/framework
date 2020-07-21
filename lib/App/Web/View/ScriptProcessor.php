@@ -116,7 +116,7 @@ class ScriptProcessor extends HtmlProcessor {
         $relJsFilePath = '/' . $jsModuleId . '.js';
         $jsFilePath = Path::combine([$clientModuleDirPath, $relJsFilePath]);
         $inline = $included = [];
-        if (\is_file($jsFilePath)) {
+        if (\file_exists($jsFilePath)) {
             $included[] = [
                 'src' => $this->scriptUri($relJsFilePath),
                 '_tagName' => 'script',
@@ -124,7 +124,7 @@ class ScriptProcessor extends HtmlProcessor {
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(' . \json_encode($this->jsConf(), JSON_UNESCAPED_SLASHES) . '); });',
+                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . \json_encode($this->jsConf(), JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return [$inline, $included];

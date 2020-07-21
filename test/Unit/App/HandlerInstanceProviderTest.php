@@ -11,10 +11,10 @@ use Morpho\App\ModuleIndex;
 use Morpho\App\ServerModule;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\InstanceProvider;
+use Morpho\App\HandlerInstanceProvider;
 use Morpho\App\Web\Request;
 
-class InstanceProviderTest extends TestCase {
+class HandlerInstanceProviderTest extends TestCase {
     public function testInvoke() {
         $serviceManager = $this->createMock(IServiceManager::class);
 
@@ -35,9 +35,9 @@ class InstanceProviderTest extends TestCase {
                 return $services[$id];
             });
 
-        $instanceProvider = new InstanceProvider($serviceManager);
+        $handlerInstanceProvider = new HandlerInstanceProvider($serviceManager);
 
-        $controllerClass = __NAMESPACE__ . '\\InstanceProviderTest_TestController';
+        $controllerClass = __NAMESPACE__ . '\\HandlerInstanceProviderTest_TestController';
 
         $handler = [
             'module' => $moduleName,
@@ -49,11 +49,11 @@ class InstanceProviderTest extends TestCase {
             ->method('handler')
             ->willReturn($handler);
 
-        $instance = $instanceProvider($request);
+        $instance = $handlerInstanceProvider($request);
 
         $this->assertInstanceOf($controllerClass, $instance);
     }
 }
 
-class InstanceProviderTest_TestController {
+class HandlerInstanceProviderTest_TestController {
 }

@@ -6,6 +6,8 @@
  */
 namespace Morpho\App;
 
+use Morpho\Fs\Dir;
+
 class ServerModule extends Module {
     private ClientModule $clientModule;
 
@@ -78,6 +80,25 @@ class ServerModule extends Module {
             return $this['path']['testDirPath'];
         }
         return $this['path']['testDirPath'] = $this->dirPath() . '/' . TEST_DIR_NAME;
+    }
+
+    /**
+     * @return iterable Iterable over file paths of controllers.
+     */
+    public function controllerFilePaths(): iterable {
+        $paths = $this['path'];
+        if (isset($paths['controllerDirPath'])) {
+            $controllerDirPaths = (array)$paths['controllerDirPath'];
+        } else {
+            $libDirPath = $this->libDirPath();
+            $controllerDirPaths = [$libDirPath . '/App/Web', $libDirPath . '/App/Cli'];
+        }
+        foreach ($controllerDirPaths as $controllerDirPath) {
+            if (!\is_dir($controllerDirPath)) {
+                continue;
+            }
+            yield from Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~', true);
+        }
     }
 
     public function setClientModule(ClientModule $module) {
