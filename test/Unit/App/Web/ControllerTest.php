@@ -126,21 +126,6 @@ class ControllerTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testInvoke_CallsResetStateOfResponse() {
-        $request = $this->createMock(IRequest::class);
-        $response = $this->createMock(IResponse::class);
-        $response->expects($this->once())
-            ->method('resetState');
-        $request->expects($this->any())
-            ->method('response')
-            ->willReturn($response);
-        $request->expects($this->any())
-            ->method('handler')
-            ->willReturn(['method' => 'returnNull']);
-
-        $this->controller->__invoke($request);
-    }
-
     public function testSetParentViewResult() {
         $controller = new class extends Controller {
             public function beforeEach(): void {

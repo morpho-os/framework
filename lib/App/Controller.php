@@ -15,7 +15,6 @@ abstract class Controller implements IFn {
      * @param IRequest $request
      */
     public function __invoke($request): void {
-        $this->resetState($request);
         $this->request = $request;
         $this->beforeEach();
         $this->run($request);
@@ -51,8 +50,4 @@ abstract class Controller implements IFn {
     abstract protected function handleResult($actionResult): IResponse;
 
     abstract protected function mkNotFoundResult(): IActionResult;
-
-    protected function resetState(IRequest $request): void {
-        $request->response()->resetState();
-    }
 }

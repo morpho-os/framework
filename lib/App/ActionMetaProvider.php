@@ -29,7 +29,6 @@ class ActionMetaProvider implements IFn {
      */
     public function __invoke($modules): iterable {
         $controllerFilter = $this->controllerFilter();
-        $actionFilter = $this->actionFilter();
         foreach (it($modules) as $module) {
             /** @var \Morpho\App\ServerModule $module */
             foreach ($module->controllerFilePaths() as $controllerFilePath) {
@@ -37,34 +36,39 @@ class ActionMetaProvider implements IFn {
                     if (!$controllerFilter($rClass)) {
                         continue;
                     }
-                    $controllerMeta = [
-                        'module' => $module->name(),
-                        'filePath' => $controllerFilePath,
-                        'class' => $rClass->getName(),
-                    ];
-                    /** @noinspection PhpIncludeInspection */
-                    require_once $controllerFilePath;
-                    $actionsMeta = [];
-                    foreach ((new ReflectionClass($controllerMeta['class']))->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
-                        if (!$actionFilter($rMethod)) {
-                            continue;
-                        }
-                        $method = $rMethod->getName();
-                        $actionsMeta[$method] = [
-                            'module' => $controllerMeta['module'],
-                            'class' => $controllerMeta['class'],
-                            'filePath' => $controllerMeta['filePath'],
-                            'method' => $method,
-                        ];
-                        $docComment = $rMethod->getDocComment();
-                        if ($docComment) {
-                            $actionsMeta[$method]['docComment'] = $docComment;
-                        }
-                    }
-                    yield from \array_values($actionsMeta);
+                    yield from $this->actionMetaFromController($module, $rClass);
                 }
             }
         }
+    }
+
+    public function actionMetaFromController($module, ReflectionClass $rClass): iterable {
+        $actionFilter = $this->actionFilter();
+        $controllerMeta = [
+            'module' => $module->name(),
+            'filePath' => $rClass->getFileName(),
+            'class' => $rClass->getName(),
+        ];
+        /** @noinspection PhpIncludeInspection */
+        require_once $controllerMeta['filePath'];
+        $actionsMeta = [];
+        foreach ((new ReflectionClass($controllerMeta['class']))->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
+            if (!$actionFilter($rMethod)) {
+                continue;
+            }
+            $method = $rMethod->getName();
+            $actionsMeta[$method] = [
+                'module' => $controllerMeta['module'],
+                'class' => $controllerMeta['class'],
+                'filePath' => $controllerMeta['filePath'],
+                'method' => $method,
+            ];
+            $docComment = $rMethod->getDocComment();
+            if ($docComment) {
+                $actionsMeta[$method]['docComment'] = $docComment;
+            }
+        }
+        yield from \array_values($actionsMeta);
     }
 
     public function setControllerFilter(callable $controllerFilter) {
@@ -89,7 +93,7 @@ class ActionMetaProvider implements IFn {
         return $this;
     }
 
-    protected function actionFilter(): callable {
+    public function actionFilter(): callable {
         if (null === $this->actionFilter) {
             $baseControllerClasses = [\Morpho\App\Cli\Controller::class, \Morpho\App\Web\Controller::class];
             $ignoredMethods = [];
