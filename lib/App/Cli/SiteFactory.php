@@ -17,4 +17,8 @@ class SiteFactory extends BaseSiteFactory {
     protected function currentHostName() {
         return 'localhost';
     }
+
+    protected function isAllowedHostName(string $hostName): bool {
+        return $hostName === 'localhost';
+    }
 }

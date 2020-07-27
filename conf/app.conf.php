@@ -6,7 +6,9 @@ return [
     'serviceManager' => function (App\App $app) {
         return PHP_SAPI === 'cli' ? new App\Cli\BootServiceManager() : new App\Web\BootServiceManager();
     },
-    'baseDirPath' => $baseDirPath,
-    'baseServerModuleDirPath' => $baseDirPath . '/' . App\SERVER_MODULE_DIR_NAME,
-    'baseClientModuleDirPath' => $baseDirPath . '/' . App\CLIENT_MODULE_DIR_NAME,
+    'path' => [
+        'baseDirPath' => $baseDirPath,
+        'baseServerModuleDirPath' => $baseDirPath . '/' . App\SERVER_MODULE_DIR_NAME,
+        'baseClientModuleDirPath' => $baseDirPath . '/' . App\CLIENT_MODULE_DIR_NAME,
+    ],
 ];

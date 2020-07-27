@@ -40,21 +40,24 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
      * @return array|false
      */
     protected function hostNameToSiteModule(string $hostName) {
-        $allowedHostNames = ['localhost', 'framework', '127.0.0.1'];
-        if (in_array($hostName, $allowedHostNames, true)) {
+        if ($this->isAllowedHostName($hostName)) {
             $appConf = $this->serviceManager['app']->conf();
             $shortModuleName = self::MAIN_MODULE;
-            $moduleDirPath = $appConf['baseServerModuleDirPath'] . '/' . $shortModuleName;
+            $moduleDirPath = $appConf['path']['baseServerModuleDirPath'] . '/' . $shortModuleName;
             return [
                 'siteModule' => VENDOR . '/' . $shortModuleName,
                 'path' => [
                     'dirPath' => $moduleDirPath,
                     'confFilePath' => $moduleDirPath . '/' . CONF_DIR_NAME . '/site.conf.php',
-                    'clientModuleDirPath' => $appConf['baseClientModuleDirPath'] . '/' . $shortModuleName,
+                    'clientModuleDirPath' => $appConf['path']['baseClientModuleDirPath'] . '/' . $shortModuleName,
                 ],
             ];
         }
         return false;
+    }
+
+    protected function isAllowedHostName(string $hostName): bool {
+        return in_array($hostName, ['localhost', 'framework', '127.0.0.1'], true);
     }
 
     protected function mkSite(string $siteModuleName, \ArrayObject $siteConf, string $hostName): ISite {
