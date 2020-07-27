@@ -28,7 +28,6 @@ class CacheController extends Controller {
             ->withSuccessMessage("Routes have been rebuilt successfully");
     }
     /**
-     * @Title Rebuild events
     public function rebuildEvents() {
         $this->serviceManager['moduleManager']->rebuildEvents();
         $this->redirectToHome("Events were rebuilt successfully");

@@ -12,6 +12,13 @@ use Morpho\App\Web\Routing\RouteMetaProvider;
 use function Morpho\Base\dasherize;
 
 class RouteMetaProviderTest extends TestCase {
+    private RouteMetaProvider $routeMetaProvider;
+
+    public function setUp(): void {
+        parent::setUp();
+        $this->routeMetaProvider = new RouteMetaProvider();
+    }
+
     public function testInterface() {
         $this->assertInstanceOf(IFn::class, new RouteMetaProvider());
     }
@@ -69,168 +76,141 @@ class RouteMetaProviderTest extends TestCase {
             [
                 'module' => 'capture/group',
                 'method' => $action,
-                'class' => 'Foo\\Bar\\Web\\My\\Nested\\VerySimpleController',
+                'class'  => 'Foo\\Bar\\Web\\My\\Nested\\VerySimpleController',
             ],
         ];
-        $routeMetaProvider = new RouteMetaProvider();
-        $actual = \iterator_to_array($routeMetaProvider->__invoke($actionMetas));
+        /** @noinspection PhpParamsInspection */
+        $actual = \iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
 
         $expectedControllerPath = 'my/nested/very-simple';
         $expectedUri = '/' . explode('/', $actionMetas[0]['module'])[1] . '/' . $expectedControllerPath . (null === $expectedActionPath ? '' : '/' . $expectedActionPath);
         $this->assertEquals(
             [
                 [
-                    'module' => $actionMetas[0]['module'],
-                    'method' => $actionMetas[0]['method'],
-                    'class' => $actionMetas[0]['class'],
-                    'httpMethod' => $expectedHttpMethod,
-                    'uri' => $expectedUri,
-                    'modulePath' => explode('/', $actionMetas[0]['module'])[1],
+                    'module'         => $actionMetas[0]['module'],
+                    'method'         => $actionMetas[0]['method'],
+                    'class'          => $actionMetas[0]['class'],
+                    'httpMethod'     => $expectedHttpMethod,
+                    'uri'            => $expectedUri,
+                    'modulePath'     => explode('/', $actionMetas[0]['module'])[1],
                     'controllerPath' => $expectedControllerPath,
-                    'actionPath' => $expectedActionPath,
+                    'actionPath'     => $expectedActionPath,
                 ]
             ],
             $actual
         );
     }
 
-    public function testInvoke_DocCommentsWithMultipleHttpMethodsWithCustomPathWithoutTitle() {
+    public function testInvoke_DocCommentsWithMultipleHttpMethodsWithCustomPath() {
         $module = 'my-vendor/foo-mod';
         $method = 'doIt';
         $relUriPath = '/some/custom/$id/edit';
         $actionMetas = [
             [
-                'module' => $module,
-                'method' => $method,
+                'module'     => $module,
+                'method'     => $method,
                 'docComment' => "/** @POST|PATCH $relUriPath */",
-                'class' => 'Foo\\Bar\\Web\\MySimpleController',
+                'class'      => 'Foo\\Bar\\Web\\MySimpleController',
             ],
         ];
-        $routeMetaProvider = new RouteMetaProvider();
-        $actual = \iterator_to_array($routeMetaProvider->__invoke($actionMetas));
+        /** @noinspection PhpParamsInspection */
+        $actual = \iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
         $this->assertEquals(
             [
                 [
-                    'module' => $module,
-                    'class' => $actionMetas[0]['class'],
-                    'method' => $method,
-                    'docComment' => $actionMetas[0]['docComment'],
-                    'httpMethod' => 'POST',
-                    'uri' => $relUriPath,
-                    'modulePath' => 'foo-mod',
+                    'module'         => $module,
+                    'class'          => $actionMetas[0]['class'],
+                    'method'         => $method,
+                    'docComment'     => $actionMetas[0]['docComment'],
+                    'httpMethod'     => 'POST',
+                    'uri'            => $relUriPath,
+                    'modulePath'     => 'foo-mod',
                     'controllerPath' => 'my-simple',
-                    'actionPath' => dasherize($method),
+                    'actionPath'     => dasherize($method),
                 ],
                 [
-                    'module' => $module,
-                    'class' => $actionMetas[0]['class'],
-                    'method' => $method,
-                    'docComment' => $actionMetas[0]['docComment'],
-                    'httpMethod' => 'PATCH',
-                    'uri' => $relUriPath,
-                    'modulePath' => 'foo-mod',
+                    'module'         => $module,
+                    'class'          => $actionMetas[0]['class'],
+                    'method'         => $method,
+                    'docComment'     => $actionMetas[0]['docComment'],
+                    'httpMethod'     => 'PATCH',
+                    'uri'            => $relUriPath,
+                    'modulePath'     => 'foo-mod',
                     'controllerPath' => 'my-simple',
-                    'actionPath' => dasherize($method),
+                    'actionPath'     => dasherize($method),
                 ],
             ],
             $actual
         );
     }
 
-    public function testParseDocComments() {
-        $docComment = <<<OUT
-/**
- * @GET|POST
- */
-OUT;
-        $this->assertEquals(
+    public function dataForDocComments() {
+        yield [
+            '/**
+              * @GET|POST
+              */',
             [
-                'httpMethods' => ['GET', 'POST'],
-                'uri'     => null,
-                'title'   => null,
+                [
+                    'httpMethods' => ['GET', 'POST'],
+                    'uri'         => null,
+                ],
             ],
-            RouteMetaProvider::parseDocComment($docComment)
-        );
+        ];
 
-        // --------------
-
-        $docComment = <<<OUT
-/**
- * @GET /
- */
-OUT;
-        $this->assertEquals(
+        yield [
+            '/**
+             * @GET /
+             */',
             [
-                'httpMethods' => ['GET'],
-                'uri'     => '/',
-                'title'   => null,
+                [
+                    'httpMethods' => ['GET'],
+                    'uri'         => '/',
+                ],
             ],
-            RouteMetaProvider::parseDocComment($docComment)
-        );
+        ];
 
-        // --------------
-
-        $docComment = <<<OUT
-/**
- * @GET /some/path
- */
-OUT;
-        $this->assertEquals(
+        yield [
+            '/**
+             * @GET /some/path
+             */',
             [
-                'httpMethods' => ['GET'],
-                'uri'     => '/some/path',
-                'title'   => null,
+                [
+                    'httpMethods' => ['GET'],
+                    'uri'         => '/some/path',
+                ],
             ],
-            RouteMetaProvider::parseDocComment($docComment)
-        );
+        ];
 
-        // --------------
-
-        $docComment = <<<OUT
-/**
- * @Title Foo
- * @GET /some/path
- */
-OUT;
-        $this->assertEquals(
+        yield [
+            '/**
+              *
+              */',
             [
-                'httpMethods' => ['GET'],
-                'uri'     => '/some/path',
-                'title'   => 'Foo',
-            ],
-            RouteMetaProvider::parseDocComment($docComment)
-        );
+            ]
+        ];
 
-        // --------------
-
-        $docComment = <<<OUT
-/**
- * @Title My menu item
- */
-OUT;
-        $this->assertEquals(
+        yield [
+            '/**
+              * @GET /foo/bar
+              * @POST|PATCH /baz
+              */',
             [
-                'httpMethods' => null,
-                'uri'     => null,
-                'title'   => 'My menu item',
+                [
+                    'httpMethods' => ['GET'],
+                    'uri' => '/foo/bar',
+                ],
+                [
+                    'httpMethods' => ['POST', 'PATCH'],
+                    'uri' => '/baz',
+                ],
             ],
-            RouteMetaProvider::parseDocComment($docComment)
-        );
+        ];
+    }
 
-        // --------------
-
-        $docComment = <<<OUT
-/**
- *
- */
-OUT;
-        $this->assertEquals(
-            [
-                'httpMethods' => null,
-                'uri'     => null,
-                'title'   => null,
-            ],
-            RouteMetaProvider::parseDocComment($docComment)
-        );
+    /**
+     * @dataProvider dataForDocComments
+     */
+    public function testDocComments(string $docComment, array $expected) {
+        $this->assertSame($expected, RouteMetaProvider::parseDocComment($docComment));
     }
 }

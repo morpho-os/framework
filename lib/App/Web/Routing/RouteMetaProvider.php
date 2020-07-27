@@ -31,56 +31,18 @@ class RouteMetaProvider implements IFn {
         }
     }
 
-    public static function parseDocComment(string $docComment): array {
-        $httpMethods = $title = $uri = null;
-        if (false !== \strpos($docComment, '@')) {
-            $httpMethodsRegexpPart = '(?:' . \implode('|', Request::knownMethods()) . ')';
-            $routeRegExp = '~'
-                . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
-                (\s+(?<uri>([^*\s]+)))?                                                                   # uri    (optional)
-                ~xm';
-            if (\preg_match($routeRegExp, $docComment, $match)) {
-                $httpMethods = \explode('|', $match['httpMethod']);
-                if (!empty($match['uri'])) {
-                    $uri = $match['uri'];
-                    if ($uri[0] !== '/') {
-                        throw new \RuntimeException("Invalid annotations, URI must start with slash (/)");
-                    }
-                }
-            }
-
-            if (\preg_match('~^\s*\*\s*@Title\s+(.+)\s*$~m', $docComment, $match)) {
-                $title = \array_pop($match);
-            }
-        }
-        return [
-            'httpMethods' => $httpMethods,
-            'uri'         => $uri,
-            'title'       => $title,
-        ];
-    }
-
     protected function actionMetaToRoutesMeta(array $actionMeta): array {
-        $i = 0;
-        $routesMeta = [array_merge($actionMeta, $this->routeMeta($actionMeta))];
-        if (!empty($actionMeta['docComment'])) {
-            $docComment = self::parseDocComment($actionMeta['docComment']);
-            ['title' => $title, 'uri' => $uri, 'httpMethods' => $httpMethods] = $docComment;
-            if ($title) {
-                $routesMeta[$i]['title'] = $title;
-            }
-            if ($uri) {
-                $routesMeta[$i]['uri'] = $uri;
-            }
-            if ($httpMethods) {
-                foreach ((array)$httpMethods as $httpMethod) {
-                    if ($i > 0) {
-                        $routesMeta[$i] = $routesMeta[$i - 1];
-                    }
-                    $routesMeta[$i]['httpMethod'] = $httpMethod;
-                    $i++;
-                }
-                return $routesMeta;
+        $routeMeta = array_merge($actionMeta, $this->routeMeta($actionMeta));
+        if (empty($actionMeta['docComment'])) {
+            return [$routeMeta];
+        }
+        $parsedDocComment = self::parseDocComment($actionMeta['docComment']);
+        $routesMeta = [];
+        foreach ($parsedDocComment as $routeMeta1) {
+            $httpMethods = $routeMeta1['httpMethods'];
+            unset($routeMeta1['httpMethods']);
+            foreach ($httpMethods as $httpMethod) {
+                $routesMeta[] = array_merge($routeMeta, array_merge($routeMeta1, ['httpMethod' => $httpMethod]));
             }
         }
         return $routesMeta;
@@ -115,5 +77,33 @@ class RouteMetaProvider implements IFn {
             'controllerPath' => $controllerPath,
             'actionPath' => $actionPath,
         ];
+    }
+
+    public static function parseDocComment(string $docComment): array {
+        $parsed = [];
+        if (false !== \strpos($docComment, '@')) {
+            $httpMethodsRegexpPart = '(?:' . \implode('|', Request::knownMethods()) . ')';
+            $routeRegExp = '~'
+                . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
+                (?:\s+(?<uri>[^*\s]+))?                                                                   # uri    (optional)
+                ~xm';
+            if (\preg_match_all($routeRegExp, $docComment, $matches, \PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $httpMethods = \explode('|', $match['httpMethod']);
+                    $uri = null;
+                    if (!empty($match['uri'])) {
+                        $uri = $match['uri'];
+                        if ($uri[0] !== '/') {
+                            throw new \RuntimeException("Invalid annotations, URI must start with slash (/)");
+                        }
+                    }
+                    $parsed[] = [
+                        'httpMethods' => $httpMethods,
+                        'uri' => $uri,
+                    ];
+                }
+            }
+        }
+        return $parsed;
     }
 }
