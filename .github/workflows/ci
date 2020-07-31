@@ -17,6 +17,7 @@ showFacts() {
     ls -al "$BASE_DIR_PATH"
     id
     cat /etc/os-release
+    which -a php
     php --version
     echo --------------------------------------------------------------------------------
 }

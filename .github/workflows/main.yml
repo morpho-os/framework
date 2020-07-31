@@ -19,14 +19,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [‘7.4’, ‘8.0’]
+        php-version: [‘7.4’, ‘8.0’]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      - uses: shivammathur/setup-php@master
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@master
         with:
-          php-version: ${{ matrix.php }}
-      - name: Run CI script
-        run: .github/workflows/ci
+          php-version: ${{ matrix.php-version }}
+
+      - name: Testing PHP version
+        run: |
+          php -v
+          which -a php
+          php -r "if (strpos(phpversion(), '${{ matrix.php-version }}') === false) {throw new Exception('Wrong PHP version installed');}"
+#      - name: Run CI script
+#        run: .github/workflows/ci
+
+
