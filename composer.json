@@ -41,8 +41,7 @@
         "willdurand/negotiation": "^3.0@dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "dev-master",
-        "php-webdriver/webdriver": "dev-master"
+        "phpunit/phpunit": "dev-master"
     },
     "repositories": [
         {
