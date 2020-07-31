@@ -1,43 +1,50 @@
-# [GitHub Actions Documentation](https://help.github.com/en/actions)
-name: CI
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# https://github.com/shivammathur/test-setup-php/blob/master/.github/workflows/workflow.yml
+name: Main v2 workflow
 on:
+  repository_dispatch:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+  schedule:
+    - cron: '0 1/5 * * *'
 jobs:
-  # This workflow contains a single job called "build"
-  test:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
+  run:
+    runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
-        php-version: [‘7.4’, ‘8.0’]
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+        operating-system: [ubuntu-latest]
+        php-versions: ['7.4', '8.0']
+    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@master
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xdebug, pcov, intl, gd
+          ini-values: "post_max_size=256M, short_open_tag=On, date.timezone=UTC"
+      - name: Add Problem Matcher
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Test action side effects
+        run: php -r "if(strpos(@exec('git status'), 'nothing to commit') === false) {throw new Exception('Action has side effects');}"
 
       - name: Testing PHP version
         run: |
           php -v
-          which -a php
-          php -r "if (strpos(phpversion(), '${{ matrix.php-version }}') === false) {throw new Exception('Wrong PHP version installed');}"
-#      - name: Run CI script
-#        run: .github/workflows/ci
-
-
+          php -r "if(strpos(phpversion(), '${{ matrix.php-versions }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+      - name: Testing Composer version
+        run: php -r "if(strpos(@exec('composer -V'), 'Composer version') === false) {throw new Exception('Composer not found');}"
+      - name: Testing Extensions
+        run: |
+          php -m
+          php -r "if(! extension_loaded('mbstring')) {throw new Exception('mbstring not found');}"
+          php -r "if('${{ matrix.coverage }}'=='xdebug' && ! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
+          php -r "if('${{ matrix.coverage }}'!='none' && phpversion()>=7.1 && ! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
+          php -r "if(! extension_loaded('intl')) {throw new Exception('intl not found');}"
+          php -r "if(! extension_loaded('gd')) {throw new Exception('gd not found');}"
+      - name: Testing ini values
+        run: |
+          php -r "if(ini_get('post_max_size')!='256M') {throw new Exception('post_max_size not added');}"
+          php -r "if(ini_get('short_open_tag')!=1) {throw new Exception('short_open_tag not added');}"
+          php -r "if(ini_get('date.timezone')!='Asia/Kolkata') {throw new Exception('date.timezone not added');}"
