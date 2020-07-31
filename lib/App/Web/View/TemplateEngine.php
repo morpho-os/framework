@@ -10,13 +10,19 @@ use Morpho\Base\Pipe;
 use Morpho\Fs\File;
 
 class TemplateEngine extends Pipe {
-    protected bool $useCache = true;
     protected array $vars = [];
-    protected string $cacheDirPath;
-    //protected $uniqueFileHash = '';
+    protected string $targetDirPath;
+    private bool $forceCompile = false;
 
-    public function setCacheDirPath(string $dirPath): void {
-        $this->cacheDirPath = $dirPath;
+    public function setTargetDirPath(string $targetDirPath): void {
+        $this->targetDirPath = $targetDirPath;
+    }
+
+    public function forceCompile($flag = null): bool {
+        if (null !== $flag) {
+            return $this->forceCompile = $flag;
+        }
+        return $this->forceCompile;
     }
 
     public function tpl($__filePath, array $__vars): string {
@@ -101,39 +107,28 @@ class TemplateEngine extends Pipe {
         return $this->vars;
     }
 
-    public function useCache(bool $flag = null): bool {
-        if (null !== $flag) {
-            $this->useCache = $flag;
-        }
-        return $this->useCache;
-    }
-
     /**
+     * @param string $sourceFilePath
      * @return string Path to the compiled file.
      */
-    protected function compileFile(string $filePath): string {
-        if (!$this->cacheDirPath) {
-            throw new \RuntimeException("The property '" . \get_class($this) . "::cacheDirPath' is empty");
+    protected function compileFile(string $sourceFilePath): string {
+        if (!$this->targetDirPath) {
+            throw new \RuntimeException("The property '" . \get_class($this) . "::targetDirPath' is empty");
         }
-        //$this->uniqueFileHash = \md5($this->uniqueFileHash . '|' . $filePath);
-        $cacheFilePath = $this->cacheDirPath . '/' . md5($filePath) . '.php';
-        if (!\is_file($cacheFilePath) || !$this->useCache()) {
-            $code = File::read($filePath);
+        $targetFilePath = $this->targetDirPath . '/' . md5($sourceFilePath) . '.php';
+        if (!is_file($targetFilePath) || $this->forceCompile) {
+            $code = File::read($sourceFilePath);
             $context = new \ArrayObject([
                 'code' => $code,
                 //'vars' => [],
-                'filePath' => $filePath,
+                'filePath' => $sourceFilePath,
                 'conf' => [
                     'appendSourceInfo' => true, // @TODO: Pass compiler conf
                 ],
             ]);
             $context = $this->__invoke($context);
-            $code = $context['code'];
-            $res = \file_put_contents($cacheFilePath, $code, LOCK_EX);
-            if (false === $res) {
-                throw new \RuntimeException("Unable to write the compiled file '$cacheFilePath'");
-            }
+            File::write($targetFilePath, $context['code'], ['lock' => true]);
         }
-        return $cacheFilePath;
+        return $targetFilePath;
     }
 }

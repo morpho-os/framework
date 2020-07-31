@@ -6,64 +6,63 @@
  */
 namespace Morpho\Code\Autoloading;
 
-use function Morpho\Base\requireFile;
+use Morpho\Caching\ICache;
 use Morpho\Code\Reflection\ClassTypeDiscoverer;
-use Morpho\Fs\File;
+use function Morpho\Caching\cacheKey;
 
 class ClassTypeMapAutoloader extends Autoloader {
     protected $processor;
 
     protected $searchDirPaths;
 
-    protected $mapFilePath;
+    protected ?array $map = null;
 
-    protected $useCache = true;
+    protected ?ICache $cache;
 
-    protected $map;
+    protected string $cacheKey;
 
     /**
      * @param array|string|null $searchDirPaths
      * @param string|\Closure $processor
+     * @param ICache|null $cache
      */
-    public function __construct(string $mapFilePath = null, $searchDirPaths = null, $processor = null, bool $useCache = true) {
-        $this->mapFilePath = $mapFilePath;
+    public function __construct($searchDirPaths = null, $processor = null, ICache $cache = null) {
         $this->searchDirPaths = $searchDirPaths;
         $this->processor = $processor;
-        $this->useCache = $useCache;
+        $this->cache = $cache;
+        $this->cacheKey = cacheKey($this, __FUNCTION__);
     }
 
+    /**
+     * @param string $class
+     * @return string|false
+     */
     public function filePath(string $class) {
         if (null === $this->map) {
-            $this->map = $this->mkTypeMap();
+            $useCache = null !== $this->cache;
+            if ($useCache) {
+                if (!$this->cache->has($this->cacheKey)) {
+                    $this->map = $this->mkMap();
+                    $this->cache->set($this->cacheKey, $this->map);
+                } else {
+                    $this->map = $this->cache->get($this->cacheKey);
+                }
+            } else {
+                $this->map = $this->mkMap();
+            }
         }
         return isset($this->map[$class]) ? $this->map[$class] : false;
     }
 
-    public function clearMap() {
+    public function clearMap(): void {
         $this->map = null;
-        if (\is_file($this->mapFilePath)) {
-            File::delete($this->mapFilePath);
+        if (null !== $this->cache) {
+            $this->cache->clear();
         }
     }
 
-    public function useCache(bool $flag = null): bool {
-        if (null !== $flag) {
-            $this->useCache = $flag;
-        }
-        return $this->useCache;
-    }
-
-    protected function mkTypeMap(): array {
-        $useCache = $this->useCache;
-        if ($useCache && \is_file($this->mapFilePath)) {
-            return requireFile($this->mapFilePath);
-        }
+    protected function mkMap(): array {
         $classTypeDiscoverer = new ClassTypeDiscoverer();
-        $map = $classTypeDiscoverer->classTypesDefinedInDir($this->searchDirPaths, $this->processor, ['followLinks' => true]);
-        if ($useCache) {
-            File::write($this->mapFilePath, '<?php return ' . \var_export($map, true) . ';');
-        }
-
-        return $map;
+        return $classTypeDiscoverer->classTypesDefinedInDir($this->searchDirPaths, $this->processor, ['followLinks' => true]);
     }
 }

@@ -6,61 +6,34 @@
  */
 namespace Morpho\Test\Unit\Code\Autoloading;
 
+use Morpho\Caching\ICache;
 use Morpho\Code\Autoloading\ClassTypeMapAutoloader;
 use Morpho\Testing\TestCase;
 
 class ClassTypeMapAutoloaderTest extends TestCase {
-    public function tearDown(): void {
-        parent::tearDown();
-        $mapFilePath = $this->mapFilePath();
-        if (\is_file($mapFilePath)) {
-            \unlink($mapFilePath);
-        }
-    }
-
     public function testAutoload() {
-        $regexp = '{\.php$}si';
         $dirPath = $this->getTestDirPath();
-        $mapFilePath = $this->mapFilePath();
-        $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath, $regexp);
-
-        $this->assertFalse(\file_exists($mapFilePath));
+        $autoloader = new ClassTypeMapAutoloader($dirPath, '{\.php$}si');
 
         $class = __CLASS__ . '\\Foo';
         $this->assertFalse($autoloader->autoload($class . 'Invalid'));
         $this->assertTrue($autoloader->autoload($class));
-        $this->assertTrue(\file_exists($mapFilePath));
-
-        $autoloader->clearMap();
-
-        $this->assertFalse(\file_exists($mapFilePath));
     }
 
     public function testClearMap_ClearEmptyMapDoesNotThrowException() {
-        $autoloader = new ClassTypeMapAutoloader($this->mapFilePath(), $this->getTestDirPath());
+        $autoloader = new ClassTypeMapAutoloader($this->getTestDirPath());
         $autoloader->clearMap();
         $this->markTestAsNotRisky();
     }
 
-    public function testCaching() {
-        $mapFilePath = $this->mapFilePath();
-        $dirPath = $this->getTestDirPath();
-        $class = __CLASS__ . '\\Foo1';
+    public function testCaching_Clearing() {
+        $cache = $this->createMock(ICache::class);
 
-        $this->assertFalse(\file_exists($mapFilePath));
+        $cache->expects($this->once())
+            ->method('clear');
 
-        $autoloader = new ClassTypeMapAutoloader($mapFilePath, $dirPath);
-        $autoloader->useCache(false);
-        $this->assertTrue($autoloader->autoload($class));
+        $autoloader = new ClassTypeMapAutoloader($this->getTestDirPath(), null, $cache);
 
-        $this->assertFalse(\file_exists($mapFilePath));
-    }
-
-    public function testUseCache() {
-        $this->checkBoolAccessor([new ClassTypeMapAutoloader(null, null), 'useCache'], true);
-    }
-
-    protected function mapFilePath() {
-        return $this->tmpDirPath() . '/' . \md5(__METHOD__) . '.php';
+        $autoloader->clearMap();
     }
 }

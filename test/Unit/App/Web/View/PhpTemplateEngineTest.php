@@ -135,10 +135,6 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertEquals($newVals, $this->templateEngine->vars());
     }
 
-    public function testUseCache() {
-        $this->checkBoolAccessor([new PhpTemplateEngine($this->createMock(IServiceManager::class)), 'useCache'], true);
-    }
-
     public function testRunFileWithAbsPath() {
         $dirPath = $this->getTestDirPath();
         $this->assertEquals('<h1>Hello World!</h1>', $this->templateEngine->runFile($dirPath . '/my-file.phtml', ['who' => 'World!']));
@@ -297,8 +293,8 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     private function configureTemplateEngine(PhpTemplateEngine $templateEngine) {
-        $templateEngine->setCacheDirPath($this->tmpDirPath());
-        $templateEngine->useCache(false);
+        $templateEngine->setTargetDirPath($this->tmpDirPath());
+        $templateEngine->forceCompile(true);
     }
 
     private function mkRequest(array $serverVars = null) {

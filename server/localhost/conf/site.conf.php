@@ -101,11 +101,8 @@ return [
             'db'       => '',
             'port'     => '3306',
         ],
-        'moduleAutoloader'     => [
-            'useCache' => false,
-        ],
         'templateEngine'       => [
-            'useCache' => false,
+            'forceCompile' => false,
             /*            'forceCompileTs' => false,
                         'nodeBinDirPath' => getenv('NODE_BIN_DIR_PATH') ?: '/usr/bin',
                         'tsOptions' => [

@@ -7,6 +7,7 @@
 namespace Morpho\App\Web\Routing;
 
 use Morpho\Base\Arr;
+use Morpho\Caching\ICache;
 use function Morpho\Base\compose;
 use FastRoute\Dispatcher as IDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
@@ -16,13 +17,22 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\App\IRouter;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
-use Morpho\Fs\File;
+use function Morpho\Caching\cacheKey;
 
 class FastRouter implements IHasServiceManager, IRouter {
     protected IServiceManager $serviceManager;
 
+    protected ICache $cache;
+
+    protected string $cacheKey;
+
+    public function __construct() {
+        $this->cacheKey = cacheKey($this, __FUNCTION__);
+    }
+
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
+        $this->cache = $this->serviceManager['routerCache'];
     }
 
     public function route($request): void {
@@ -47,7 +57,6 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     public function rebuildRoutes(): void {
-        $cacheFilePath = $this->cacheFilePath();
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
         foreach ($this->routesMeta() as $routeMeta) {
             $routeMeta['uri'] = \preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
@@ -57,14 +66,14 @@ class FastRouter implements IHasServiceManager, IRouter {
             $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], Arr::only($routeMeta, ['module', 'class', 'method', 'modulePath', 'controllerPath']));
         }
         $dispatchData = $routeCollector->getData();
-        File::writePhpVar($cacheFilePath, $dispatchData, false);
+        $this->cache->set($this->cacheKey, $dispatchData);
     }
 
     protected function mkDispatcher(): IDispatcher {
-        if (!$this->cacheExists()) {
+        if (!$this->cache->has($this->cacheKey)) {
             $this->rebuildRoutes();
         }
-        $dispatchData = $this->loadDispatchData();
+        $dispatchData = $this->cache->get($this->cacheKey);
         return new GroupCountBasedDispatcher($dispatchData);
     }
 
@@ -82,22 +91,7 @@ class FastRouter implements IHasServiceManager, IRouter {
         )($modules);
     }
 
-    protected function cacheExists(): bool {
-        return \file_exists($this->cacheFilePath());
-    }
-
-    protected function loadDispatchData() {
-        return require $this->cacheFilePath();
-    }
-
     protected function conf(): array {
         return $this->serviceManager->conf()['router'];
-    }
-
-    private function cacheFilePath(): string {
-        $serviceManager = $this->serviceManager;
-        $siteModuleName = $serviceManager['site']->moduleName();
-        $cacheDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->cacheDirPath();
-        return $cacheDirPath . '/route.php';
     }
 }

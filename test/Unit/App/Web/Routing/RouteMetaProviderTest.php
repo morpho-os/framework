@@ -152,7 +152,6 @@ class RouteMetaProviderTest extends TestCase {
             [
                 [
                     'httpMethods' => ['GET', 'POST'],
-                    'uri'         => null,
                 ],
             ],
         ];

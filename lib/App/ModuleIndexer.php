@@ -7,16 +7,17 @@
 namespace Morpho\App;
 
 use Morpho\Caching\ICache;
+use function Morpho\Caching\cacheKey;
 
 class ModuleIndexer implements IModuleIndexer{
     private ICache $cache;
     private string $cacheKey;
     private iterable $moduleIt;
 
-    public function __construct(iterable $moduleIt, ICache $cache, string $cacheKey) {
+    public function __construct(iterable $moduleIt, ICache $cache) {
         $this->moduleIt = $moduleIt;
         $this->cache = $cache;
-        $this->cacheKey = $cacheKey;
+        $this->cacheKey = cacheKey($this, __FUNCTION__);
     }
 
     /**

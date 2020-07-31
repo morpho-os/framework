@@ -89,7 +89,9 @@ class RouteMetaProvider implements IFn {
                 ~xm';
             if (\preg_match_all($routeRegExp, $docComment, $matches, \PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
-                    $httpMethods = \explode('|', $match['httpMethod']);
+                    $meta = [
+                        'httpMethods' => \explode('|', $match['httpMethod']),
+                    ];
                     $uri = null;
                     if (!empty($match['uri'])) {
                         $uri = $match['uri'];
@@ -97,10 +99,10 @@ class RouteMetaProvider implements IFn {
                             throw new \RuntimeException("Invalid annotations, URI must start with slash (/)");
                         }
                     }
-                    $parsed[] = [
-                        'httpMethods' => $httpMethods,
-                        'uri' => $uri,
-                    ];
+                    if (null !== $uri) {
+                        $meta['uri'] = $uri;
+                    }
+                    $parsed[] = $meta;
                 }
             }
         }

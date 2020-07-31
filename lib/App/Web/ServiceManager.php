@@ -14,7 +14,6 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\App\Dispatcher;
 use Morpho\App\IRouter;
 use Morpho\App\ModuleIndex;
 use Morpho\App\ModuleIndexer;
@@ -51,7 +50,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkServerModuleIndexerService() {
-        return new ModuleIndexer($this['serverModuleIterator'], new VarExportFileCache($this['site']->conf()['path']['cacheDirPath']), \get_class($this) . '::' . __FUNCTION__);
+        return new ModuleIndexer($this['serverModuleIterator'], new VarExportFileCache($this->cacheDirPath() . '/module-indexer'));
     }
 
     protected function mkServerModuleIteratorService() {
@@ -80,9 +79,8 @@ class ServiceManager extends BaseServiceManager {
         $templateEngineConf = $this->conf['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
         $siteModuleName = $this['site']->moduleName();
-        $cacheDirPath = $this['serverModuleIndex']->module($siteModuleName)->cacheDirPath();
-        $templateEngine->setCacheDirPath($cacheDirPath);
-        $templateEngine->useCache($templateEngineConf['useCache']);
+        $templateEngine->setTargetDirPath($this->cacheDirPath() . '/php-template-engine');
+        $templateEngine->forceCompile($templateEngineConf['forceCompile']);
         return $templateEngine;
     }
 
@@ -105,6 +103,10 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkEventManagerService() {
         return new EventManager($this);
+    }
+
+    protected function mkRouterCacheService() {
+        return new VarExportFileCache($this->cacheDirPath() . '/router');
     }
 
     protected function mkErrorLoggerService() {
@@ -177,5 +179,9 @@ class ServiceManager extends BaseServiceManager {
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)
         );
         $logger->pushHandler($handler);
+    }
+
+    private function cacheDirPath() {
+        return $this['site']->conf()['path']['cacheDirPath'];
     }
 }

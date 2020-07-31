@@ -11,10 +11,10 @@ use Morpho\Fs\Dir;
 use Morpho\Fs\File;
 
 class ServerModuleIterator implements \IteratorAggregate {
-    private string $baseModuleDirPath;
+    private array $moduleDirPaths;
 
-    public function __construct(IServiceManager $serviceManager) {
-        $this->baseModuleDirPath = $serviceManager['app']->conf()['path']['baseServerModuleDirPath'];
+    public function __construct(iterable $moduleDirPaths) {
+        $this->moduleDirPaths = $moduleDirPaths;
     }
 
     public function getIterator() {
@@ -35,7 +35,7 @@ class ServerModuleIterator implements \IteratorAggregate {
     }
 
     protected function dirIt(): iterable {
-        return Dir::dirPaths($this->baseModuleDirPath, null, ['recursive' => false]);
+        return Dir::dirPaths($this->moduleDirPaths, null, ['recursive' => false]);
     }
 
     protected function filter(array $module): bool {

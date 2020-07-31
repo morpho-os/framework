@@ -40,4 +40,8 @@ class TemplateEngineTest extends TestCase {
         $res = $engine->run($code, ['smile' => ':)']);
         $this->assertSame('<span>:)</span>', $res);
     }
+
+    public function testForceCompileAccessor() {
+        $this->checkBoolAccessor([new TemplateEngine(), 'forceCompile'], false);
+    }
 }

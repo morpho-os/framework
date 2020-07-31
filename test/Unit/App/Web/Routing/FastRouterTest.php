@@ -9,6 +9,7 @@ namespace Morpho\Test\Unit\App\Web\Routing;
 use Morpho\App\IRequest;
 use Morpho\App\IResponse;
 use Morpho\App\Web\Routing\FastRouter;
+use Morpho\Caching\ICache;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
 use FastRoute\Dispatcher as IDispatcher;
@@ -133,6 +134,38 @@ class FastRouterTest extends TestCase {
                     ],
                 ],
             ]);
+        $cache = new class implements ICache {
+            public function get($key, $default = null) {
+            }
+
+            public function set($key, $value, $ttl = null) {
+            }
+
+            public function delete($key) {
+            }
+
+            public function clear() {
+            }
+
+            public function getMultiple($keys, $default = null) {
+            }
+
+            public function setMultiple($values, $ttl = null) {
+            }
+
+            public function deleteMultiple($keys) {
+            }
+
+            public function has($key) {
+            }
+
+            public function stats(): ?array {
+            }
+        };
+        $serviceManager->expects($this->any())
+            ->method('offsetGet')
+            ->with($this->equalTo('routerCache'))
+            ->willReturn($cache);
         $router = new class ($routeInfo) extends FastRouter {
             private $routeInfo;
 

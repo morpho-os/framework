@@ -6,7 +6,6 @@
  */
 namespace Morpho\App;
 
-use Morpho\App\ServerModuleIterator;
 use Morpho\Ioc\IServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
@@ -16,7 +15,8 @@ class ApplyingSiteConfModuleIterator extends ServerModuleIterator {
     protected array $patch;
 
     public function __construct(IServiceManager $serviceManager) {
-        parent::__construct($serviceManager);
+        $moduleDirPaths = (array) $serviceManager['app']->conf()['path']['baseServerModuleDirPath'];
+        parent::__construct($moduleDirPaths);
         $site = $serviceManager['site'];
         $siteConf = $site->conf();
         $this->enabledModules = \array_flip(\array_keys($siteConf['module']));

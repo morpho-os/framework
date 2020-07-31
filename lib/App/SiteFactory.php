@@ -31,7 +31,6 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
         }
 
         $siteConf = $this->loadExtendedSiteConf($initialSiteConf['siteModule'], $initialSiteConf);
-
         return $this->mkSite($initialSiteConf['siteModule'], $siteConf, $hostName);
     }
 
