@@ -8,14 +8,16 @@ readonly SCRIPT_FILE_NAME="$(basename "$0")"
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
 
-readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/..)
+readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/../..)
 
 showFacts() {
     echo --------------------------------------------------------------------------------
 #    env
-    ls -al "$BASE_DIR_PATH"/
+    pwd
+    ls -al "$BASE_DIR_PATH"
     id
     cat /etc/os-release
+    php --version
     echo --------------------------------------------------------------------------------
 }
 
@@ -24,7 +26,7 @@ prepareEnv() {
 
     # Create block device
     sudo mknod -m 0777 /tmp/block-dev-test b 125 1
-    sudo chown $(id -u):$(id -g) /tmp/block-dev-test
+    sudo chown "$(id -u)":"$(id -g)" /tmp/block-dev-test
 
     # To running firefox, see https://docs.travis-ci.com/user/gui-and-headless-browsers/
     export DISPLAY=:99
