@@ -1,4 +1,4 @@
-# https://github.com/shivammathur/test-setup-php/blob/master/.github/workflows/workflow.yml
+# Based on https://github.com/shivammathur/test-setup-php/blob/master/.github/workflows/workflow.yml
 name: Main workflow
 on:
   push:
@@ -9,17 +9,17 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['7.4', '8.0']
-    name: Test on ${{ matrix.operating-system }}
+        php-version: ['7.4', '8.0']
+    name: ${{ matrix.operating-system }}, ${{ matrix.php-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xdebug, pcov, intl, gd
-          ini-values: "post_max_size=256M, short_open_tag=On, date.timezone=UTC"
+          php-version: ${{ matrix.php-version }}
+          #extensions: mbstring, xdebug, pcov, intl, gd
+          #ini-values: "post_max_size=256M, short_open_tag=On, date.timezone=UTC"
 #      - name: Add Problem Matcher
 #        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 #
@@ -29,7 +29,7 @@ jobs:
       - name: Testing PHP version
         run: |
           php -v
-          php -r "if(strpos(phpversion(), '${{ matrix.php-versions }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+          php -r "if(strpos(phpversion(), '${{ matrix.php-version }}') === false) {throw new Exception('Wrong PHP version Installed');}"
 
       - name: Run CI script
-        run: bin/ci
+        run: .github/workflows/ci
