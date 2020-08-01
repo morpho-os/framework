@@ -13,53 +13,17 @@ use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 
 class AppInitializerTest extends TestCase {
-    private $umask;
     private $timezone;
 
     public function setUp(): void {
         parent::setUp();
-        $this->umask = \umask();
         $this->timezone = \ini_get('date.timezone');
 
     }
 
     public function tearDown(): void {
         parent::tearDown();
-        \umask($this->umask);
         \ini_set('date.timezone', $this->timezone);
-    }
-
-    public function dataForUmaskCanBeSetThroughSiteConf() {
-        return [
-            [
-                0027,
-            ],
-            [
-                0000,
-            ],
-            [
-                0666,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForUmaskCanBeSetThroughSiteConf
-     */
-    public function testUmaskCanBeSetThroughSiteConf(int $newUmask) {
-        $siteConf = \array_merge(
-            $this->mkSiteConf($this->getTestDirPath()),
-            [
-                'umask' => $newUmask,
-            ]
-        );
-        $serviceManager = $this->mkServiceManager($siteConf);
-        /** @noinspection PhpParamsInspection */
-        $initializer = new AppInitializer($serviceManager);
-
-        $initializer->init();
-
-        $this->assertSame($newUmask, \umask());
     }
 
     public function dataForTimezoneCanBeSetThroughSiteConf() {

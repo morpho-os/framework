@@ -9,7 +9,7 @@ namespace Morpho\App;
 use Morpho\Caching\ICache;
 use function Morpho\Caching\cacheKey;
 
-class ModuleIndexer implements IModuleIndexer{
+class ModuleIndexer implements IModuleIndexer {
     private ICache $cache;
     private string $cacheKey;
     private iterable $moduleIt;

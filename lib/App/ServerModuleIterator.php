@@ -6,12 +6,14 @@
  */
 namespace Morpho\App;
 
-use Morpho\Ioc\IServiceManager;
 use Morpho\Fs\Dir;
 use Morpho\Fs\File;
 
 class ServerModuleIterator implements \IteratorAggregate {
-    private array $moduleDirPaths;
+    /**
+     * @var iterable
+     */
+    private $moduleDirPaths;
 
     public function __construct(iterable $moduleDirPaths) {
         $this->moduleDirPaths = $moduleDirPaths;

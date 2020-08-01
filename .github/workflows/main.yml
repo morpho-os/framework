@@ -9,7 +9,8 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-version: ['7.4', '8.0']
+        #php-version: ['7.4', '8.0']
+        php-version: ['7.4']
     name: ${{ matrix.operating-system }}, php-${{ matrix.php-version }}
     steps:
       - name: Checkout
@@ -20,12 +21,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           #extensions: mbstring, xdebug, pcov, intl, gd
           #ini-values: "post_max_size=256M, short_open_tag=On, date.timezone=UTC"
-#      - name: Add Problem Matcher
-#        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
-#
-#      - name: Test action side effects
-#        run: php -r "if(strpos(@exec('git status'), 'nothing to commit') === false) {throw new Exception('Action has side effects');}"
-
       - name: Testing PHP version
         run: |
           php -v

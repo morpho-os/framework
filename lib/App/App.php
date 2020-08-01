@@ -54,13 +54,19 @@ class App extends EventManager {
         /** @var Site $site */
         $site = $bootServiceManager['site'];
 
-        $serviceManager = $site->conf()['serviceManager'];
+        $siteConf = $site->conf();
+
+        $serviceManager = $siteConf['serviceManager'];
 
         foreach ($bootServiceManager as $id => $service) {
             $serviceManager[$id] = $service;
         }
 
-        $serviceManager->setConf($site->conf()['service']);
+        $serviceManager->setConf($siteConf['service']);
+
+        if (isset($siteConf['umask'])) {
+            \umask($siteConf['umask']);
+        }
 
         /** @var AppInitializer $appInitializer */
         $appInitializer = $serviceManager['appInitializer'];

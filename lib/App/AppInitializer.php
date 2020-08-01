@@ -16,9 +16,6 @@ abstract class AppInitializer {
         if (isset($siteConf['iniConf'])) {
             $this->applyIniConf($siteConf['iniConf']);
         }
-        if (isset($siteConf['umask'])) {
-            \umask($siteConf['umask']);
-        }
     }
 
     protected function applyIniConf(array $iniConf, $parentName = null): void {

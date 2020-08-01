@@ -18,14 +18,7 @@ const STD_PIPES = [
 use Morpho\Base\Conf;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
-use Morpho\Error\DumpListener;
-use Morpho\Error\ErrorHandler;
 use Symfony\Component\Process\Process;
-
-function bootstrap(): void {
-    (new Env())->init();
-    (new ErrorHandler([new DumpListener()]))->register();
-}
 
 function showOk(): void {
     showLn("OK");

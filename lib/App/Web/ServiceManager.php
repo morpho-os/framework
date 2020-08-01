@@ -15,21 +15,17 @@ use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\App\IRouter;
-use Morpho\App\ModuleIndex;
-use Morpho\App\ModuleIndexer;
-use Morpho\Error\DumpListener;
 use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\App\Web\Logging\WebProcessor;
 use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
+use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
-use Morpho\Caching\VarExportFileCache;
+use Morpho\Error\DumpListener;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
-use Morpho\App\ApplyingSiteConfModuleIterator;
-use Morpho\App\Web\Routing\RouteMetaProvider;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
@@ -43,18 +39,6 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkAppInitializerService() {
         return new AppInitializer($this);
-    }
-
-    protected function mkServerModuleIndexService() {
-        return new ModuleIndex($this['serverModuleIndexer']);
-    }
-
-    protected function mkServerModuleIndexerService() {
-        return new ModuleIndexer($this['serverModuleIterator'], new VarExportFileCache($this->cacheDirPath() . '/module-indexer'));
-    }
-
-    protected function mkServerModuleIteratorService() {
-        return new ApplyingSiteConfModuleIterator($this);
     }
 
     protected function mkSessionService() {
@@ -106,7 +90,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkRouterCacheService() {
-        return new VarExportFileCache($this->cacheDirPath() . '/router');
+        return $this->mkCache($this->cacheDirPath() . '/router');
     }
 
     protected function mkErrorLoggerService() {
@@ -179,9 +163,5 @@ class ServiceManager extends BaseServiceManager {
             new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)
         );
         $logger->pushHandler($handler);
-    }
-
-    private function cacheDirPath() {
-        return $this['site']->conf()['path']['cacheDirPath'];
     }
 }
