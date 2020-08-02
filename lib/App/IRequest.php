@@ -18,10 +18,4 @@ interface IRequest extends IMessage {
      * @return mixed
      */
     public function args($namesOrIndexes = null);
-
-    /**
-     * @param string|int $nameOrIndex
-     * @return mixed
-     */
-    public function arg($nameOrIndex);
 }

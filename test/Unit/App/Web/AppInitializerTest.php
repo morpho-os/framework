@@ -51,7 +51,6 @@ class AppInitializerTest extends TestCase {
         );
         $serviceManager = $this->mkServiceManager($siteConf);
 
-        /** @noinspection PhpParamsInspection */
         $initializer = new AppInitializer($serviceManager);
 
         $initializer->init();

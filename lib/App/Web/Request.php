@@ -96,10 +96,6 @@ class Request extends BaseRequest {
         }
     }
 
-    public function arg($name, bool $trim = true) {
-        throw new NotImplementedException();
-    }
-
     public function data(array $source, $name = null, bool $trim = true) {
         // NB: On change sync code with query() and post()
         if (null === $name) {
