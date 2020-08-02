@@ -31,7 +31,7 @@ Documentation does not exist yet.
 
 ## CI status
 
-[![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
+[![CI status](https://github.com/morpho-os/framework/workflows/Main/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3AMain)
 
 ## License
 
