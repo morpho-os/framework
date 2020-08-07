@@ -7,6 +7,7 @@
 namespace Morpho\App\Web\Routing;
 
 use Morpho\App\ActionMetaProvider as BaseActionMetaProvider;
+use Morpho\App\Web\Controller;
 
 class ActionMetaProvider extends BaseActionMetaProvider {
     public function controllerFilter(): callable {
@@ -24,5 +25,9 @@ class ActionMetaProvider extends BaseActionMetaProvider {
             };
         }
         return $this->controllerFilter;
+    }
+
+    protected function baseControllerClasses(): array {
+        return [Controller::class];
     }
 }

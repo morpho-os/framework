@@ -13,7 +13,7 @@ use ReflectionMethod;
 use function Morpho\Base\endsWith;
 use function Morpho\Base\it;
 
-class ActionMetaProvider implements IFn {
+abstract class ActionMetaProvider implements IFn {
     protected $controllerFilter;
     protected $actionFilter;
 
@@ -31,7 +31,7 @@ class ActionMetaProvider implements IFn {
         $controllerFilter = $this->controllerFilter();
         foreach (it($modules) as $module) {
             /** @var \Morpho\App\ServerModule $module */
-            foreach ($module->controllerFilePaths() as $controllerFilePath) {
+            foreach ($module->controllerFilePaths(true) as $controllerFilePath) {
                 foreach ((new FileReflection($controllerFilePath))->classes() as $rClass) {
                     if (!$controllerFilter($rClass)) {
                         continue;
@@ -95,7 +95,7 @@ class ActionMetaProvider implements IFn {
 
     public function actionFilter(): callable {
         if (null === $this->actionFilter) {
-            $baseControllerClasses = [\Morpho\App\Cli\Controller::class, \Morpho\App\Web\Controller::class];
+            $baseControllerClasses = $this->baseControllerClasses();
             $ignoredMethods = [];
             foreach ($baseControllerClasses as $baseControllerClass) {
                 foreach ((new ReflectionClass($baseControllerClass))->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
@@ -118,8 +118,9 @@ class ActionMetaProvider implements IFn {
                 }
                 return true;
             };
-
         }
         return $this->actionFilter;
     }
+
+    abstract protected function baseControllerClasses(): array;
 }

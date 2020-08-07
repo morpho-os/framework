@@ -84,10 +84,9 @@ class FastRouter implements IHasServiceManager, IRouter {
                 yield $moduleIndex->module($moduleName);
             }
         };
-        $actionMetaProvider = new ActionMetaProvider();
         return compose(
             $this->serviceManager['routeMetaProvider'],
-            $actionMetaProvider,
+            new ActionMetaProvider(),
         )($modules);
     }
 

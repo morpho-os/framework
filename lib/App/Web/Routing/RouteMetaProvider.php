@@ -24,6 +24,8 @@ class RouteMetaProvider implements IFn {
         'delete' => ['DELETE', '$id'],   // DELETE $entityType/$entityId
     ];
 
+    private const CONTROLLER_CLASS_RE = '~(?P<controllerNs>.*?\\\\Web)\\\\(?P<controller>.*?)$~s';
+
     public function __invoke($actionMetas): iterable {
         foreach ($actionMetas as $actionMeta) {
             // 1 $actionMeta can be mapped to the >= 1 $routeMeta
@@ -53,8 +55,8 @@ class RouteMetaProvider implements IFn {
 
         $basePath = '/';
 
-        if (!\preg_match('~(?P<controllerNs>.*?\\\\(?:Web|Cli))\\\\(?P<controller>.*?)$~s', $actionMeta['class'], $match) || !endsWith($match['controller'], CONTROLLER_SUFFIX)) {
-            throw new \UnexpectedValueException();
+        if (!\preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !endsWith($match['controller'], CONTROLLER_SUFFIX)) {
+            throw new \UnexpectedValueException(print_r($actionMeta, true));
         }
         $controller = \substr($match['controller'], 0, -\strlen(CONTROLLER_SUFFIX));
         $controllerPath = \str_replace('\\', '/', dasherize($controller, '\\'));

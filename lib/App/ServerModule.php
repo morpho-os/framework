@@ -7,6 +7,7 @@
 namespace Morpho\App;
 
 use Morpho\Fs\Dir;
+use const PHP_SAPI;
 
 class ServerModule extends Module {
     private ClientModule $clientModule;
@@ -83,15 +84,20 @@ class ServerModule extends Module {
     }
 
     /**
+     * @param bool $differentiateSapi Either return only SAPI specific paths or not.
      * @return iterable Iterable over file paths of controllers.
      */
-    public function controllerFilePaths(): iterable {
+    public function controllerFilePaths(bool $differentiateSapi): iterable {
         $paths = $this['path'];
         if (isset($paths['controllerDirPath'])) {
             $controllerDirPaths = (array)$paths['controllerDirPath'];
         } else {
             $libDirPath = $this->libDirPath();
-            $controllerDirPaths = [$libDirPath . '/App/Web', $libDirPath . '/App/Cli'];
+            if ($differentiateSapi) {
+                $controllerDirPaths = PHP_SAPI === 'cli' ? [$libDirPath . '/App/Cli'] : [$libDirPath . '/App/Web'];
+            } else {
+                $controllerDirPaths = [$libDirPath . '/App/Web', $libDirPath . '/App/Cli'];
+            }
         }
         foreach ($controllerDirPaths as $controllerDirPath) {
             if (!\is_dir($controllerDirPath)) {
