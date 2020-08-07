@@ -42,7 +42,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master",
-        "php-webdriver/webdriver": "dev-master"
+        "php-webdriver/webdriver": "dev-main"
     },
     "repositories": [
         {
