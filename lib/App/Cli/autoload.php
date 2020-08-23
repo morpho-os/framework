@@ -19,6 +19,16 @@ use Morpho\Base\Conf;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
 use Symfony\Component\Process\Process;
+use Morpho\Error\DumpListener;
+use Morpho\Error\ErrorHandler;
+
+/**
+ * Useful to call from simple CLI applications, not involving the AppInitializer.
+ */
+function bootstrap(): void {
+    (new Env())->init();
+    (new ErrorHandler([new DumpListener()]))->register();
+}
 
 function showOk(): void {
     showLn("OK");
