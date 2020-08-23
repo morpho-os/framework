@@ -48,10 +48,6 @@
         {
             "type": "vcs",
             "url": "git@github.com:morpho-os/zf-fork.git"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:morpho-os/fast-route.git"
         }
     ],
     "autoload": {

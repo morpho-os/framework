@@ -12,12 +12,27 @@ use Morpho\Testing\TestCase;
 
 class VarExportFileCacheTest extends TestCase {
     public function dataForCaching() {
-        yield [['foo' => 'bar']];
-        yield [false];
-        yield [true];
-        yield [null];
-        yield ['Hello World'];
-        yield [3.14];
+        yield [
+            ['foo' => 'bar']
+        ];
+        yield [
+            false
+        ];
+        yield [
+            true
+        ];
+        yield [
+            null
+        ];
+        yield [
+            'Hello World'
+        ];
+        yield [
+            3.14
+        ];
+        yield [
+            [3 => 456, 1 => 'abc']
+        ];
     }
 
     /**
