@@ -1099,3 +1099,9 @@ function toArray(iterable $it): array {
     return $arr;
 }
 
+// https://www.php.net/manual/en/function.ucfirst.php#57298
+function ucfirst($s) {
+    $s = (string) $s;
+    $fc = mb_strtoupper(mb_substr($s, 0, 1));
+    return $fc . mb_substr($s, 1);
+}
