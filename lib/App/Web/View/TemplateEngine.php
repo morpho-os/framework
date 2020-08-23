@@ -18,14 +18,14 @@ class TemplateEngine extends Pipe {
         $this->targetDirPath = $targetDirPath;
     }
 
-    public function forceCompile($flag = null): bool {
+    public function forceCompile(bool $flag = null): bool {
         if (null !== $flag) {
             return $this->forceCompile = $flag;
         }
         return $this->forceCompile;
     }
 
-    public function tpl($__filePath, array $__vars): string {
+    public function tpl(string $__filePath, array $__vars): string {
         // NB: We can't use the Base\tpl() function as we need to preserve $this
         \extract($__vars, EXTR_SKIP);
         unset($__vars);
@@ -41,7 +41,8 @@ class TemplateEngine extends Pipe {
     }
 
     /**
-     * @param array|\ArrayObject
+     * @param string|array|\ArrayObject $context
+     * @param array $vars
      */
     public function run($context, array $__vars): string {
         if (\is_array($context)) {

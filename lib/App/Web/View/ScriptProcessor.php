@@ -12,7 +12,7 @@ use function Morpho\Base\dasherize;
 use const Morpho\App\APP_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
-    private array $scripts = [];
+    protected array $scripts = [];
 
     protected const INDEX_ATTR = 'data-index';
 
@@ -25,7 +25,8 @@ class ScriptProcessor extends HtmlProcessor {
 
     protected function containerBody($tag) {
         if (isset($tag[self::SKIP_ATTR])) {
-            return null;
+            unset($tag[self::SKIP_ATTR]);
+            return $tag;
         }
         $childScripts = $this->scripts;
         $this->scripts = [];
@@ -74,7 +75,8 @@ class ScriptProcessor extends HtmlProcessor {
 
     protected function containerScript($tag) {
         if (isset($tag[self::SKIP_ATTR])) {
-            return null;
+            unset($tag[self::SKIP_ATTR]);
+            return $tag;
         }
         if (!isset($tag['type']) || (isset($tag['type']) && $tag['type'] == 'text/javascript')) {
             $this->scripts[] = $tag;

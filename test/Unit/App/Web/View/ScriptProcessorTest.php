@@ -95,21 +95,23 @@ OUT;
         $processor = new class ($this->createMock(ServiceManager::class)) extends ScriptProcessor {
             protected function containerBody($tag) {
                 $res = parent::containerBody($tag);
-                if (null !== $res) {
-                    throw new \RuntimeException("The tag must be skipped");
+                if (isset($res['_skip'])) {
+                    throw new \RuntimeException("The _skip attribute must be removed");
                 }
+                return $res;
             }
 
             protected function containerScript($tag) {
                 $res = parent::containerScript($tag);
-                if (null !== $res) {
-                    throw new \RuntimeException("The tag must be skipped");
+                if (isset($res['_skip'])) {
+                    throw new \RuntimeException("The _skip attribute must be removed");
                 }
+                return $res;
             }
         };
 
         $html = '<' . $tag . ' _skip></' . $tag . '>';
-        $this->assertSame($html, $processor->__invoke($html));
+        $this->assertSame("<$tag></$tag>", $processor->__invoke($html));
     }
 
     public function testSkipsScriptsWithUnknownType() {

@@ -22,25 +22,21 @@ class PhpTemplateEngine extends TemplateEngine {
      */
     protected $request;
 
+    /**
+     * @var callable[]
+     */
+    protected $tasks;
+
     private ?Uri $uri = null;
 
     private array $plugins = [];
 
     private $pluginResolver;
 
-    /**
-     * @var callable[]
-     */
-    private $tasks;
-
     public function __construct(IServiceManager $serviceManager) {
         parent::__construct();
         $this->setServiceManager($serviceManager);
-        $this->tasks = [
-            new FormPersister($serviceManager),
-            new UriProcessor($serviceManager),
-            new ScriptProcessor($serviceManager),
-        ];
+        $this->init();
     }
 
     public function plugin($name) {
@@ -54,6 +50,13 @@ class PhpTemplateEngine extends TemplateEngine {
     public function pageCssId(): string {
         $handler = $this->request->handler();
         return dasherize($handler['controllerPath']) . '-' . dasherize($handler['method']);
+    }
+
+    public function jsConf(): \ArrayObject {
+        if (!isset($this->request['jsConf'])) {
+            $this->request['jsConf'] = new \ArrayObject();
+        }
+        return $this->request['jsConf'];
     }
 
     public function handler() {
@@ -155,5 +158,14 @@ class PhpTemplateEngine extends TemplateEngine {
             $plugin->setServiceManager($this->serviceManager);
         }
         return $plugin;
+    }
+
+    protected function init(): void {
+        $serviceManager = $this->serviceManager;
+        $this->tasks = [
+            new FormPersister($serviceManager),
+            new UriProcessor($serviceManager),
+            new ScriptProcessor($serviceManager),
+        ];
     }
 }
