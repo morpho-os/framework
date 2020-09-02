@@ -6,30 +6,26 @@
  */
 namespace Morpho\Test\Integration;
 
-use Morpho\Testing\BrowserTestSuite;
+use Morpho\Testing\TestSuite as BaseTestSuite;
 use Morpho\Testing\Sut;
 
-class TestSuite extends BrowserTestSuite {
+class TestSuite extends BaseTestSuite {
     protected $testCase = true; // to enable @before* and @after* annotations.
-
-    public function testFilePaths(): iterable {
-        return $this->testFilesInDir(__DIR__);
-    }
 
     /**
      * @beforeClass
      * @after
      */
     public static function beforeAll(): void {
-        $sut = Sut::instance();
-        BrowserTestSuite::startWebDriver($sut);
+//        $sut = Sut::instance();
+//        BrowserTestSuite::startWebDriver($sut);
     }
 
     /**
      * @afterClass
      */
     public static function afterAll(): void {
-        $sut = Sut::instance();
-        BrowserTestSuite::stopWebDriver($sut);
+//        $sut = Sut::instance();
+///        BrowserTestSuite::stopWebDriver($sut);
     }
 }

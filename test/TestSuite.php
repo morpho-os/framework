@@ -8,8 +8,7 @@ namespace Morpho\Test;
 
 class TestSuite extends \Morpho\Testing\TestSuite {
     public function testFilePaths(): iterable {
-        yield __DIR__ . '/Unit/TestSuite.php';
         yield __DIR__ . '/ModuleTestSuite.php';
-//        yield __DIR__ . '/Integration/TestSuite.php';
+        yield __DIR__ . '/Integration/TestSuite.php';
     }
 }

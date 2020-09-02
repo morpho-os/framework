@@ -9,16 +9,24 @@ namespace Morpho\Testing;
 use PHPUnit\Framework\TestSuite as BaseTestSuite;
 
 abstract class TestSuite extends BaseTestSuite {
-    protected $testFileRegexp = '~[^/](Test|TestSuite)\.php$~s';
+    protected $testFileRegexp = '~((Test|TestSuite)\.php|\.phpt)$~s';
 
     public static function suite() {
         $suite = new static();
         $suite->setName(get_class($suite));
-        $suite->addTestFiles($suite->testFilePaths());
+        $filePaths = $suite->testFilePaths();
+        $suite->addTestFiles($filePaths);
         return $suite;
     }
 
-    abstract public function testFilePaths(): iterable;
+    public function testFilePaths(): iterable {
+        $class = get_class($this);
+        if ($class === self::class) {
+            return [];
+        }
+        $curDirPath = dirname((new \ReflectionClass($class))->getFileName());
+        return $this->testFilesInDir($curDirPath);
+    }
 
     protected function testFilesInDir(string $dirPath) {
         return new \RegexIterator(
