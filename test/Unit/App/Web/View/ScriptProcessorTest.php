@@ -64,10 +64,11 @@ OUT;
         // processor should save child scripts
         $this->processor->__invoke($childPage);
 
+        $indexAttr = ScriptProcessor::INDEX_ATTR;
         $parentPage = <<<OUT
 <body>
 This is a
-<script src="bar/parent.js" data-index="100"></script>
+<script src="bar/parent.js" ${indexAttr}="100"></script>
 parent
 </body>
 OUT;

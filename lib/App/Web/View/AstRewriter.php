@@ -97,7 +97,9 @@ class AstRewriter extends NodeVisitorAbstract {
         $code = \file_get_contents($filePath);
         $processor = $this->processor;
         $ast = $processor->parse($code);
-        return $processor->rewrite($ast, $this->context);
+        $context = clone $this->context;
+        $context['filePath'] = $filePath;
+        return $processor->rewrite($ast, $context);
     }
 
     protected function evalExpr(Expr $expr) {

@@ -12,9 +12,9 @@ use function Morpho\Base\dasherize;
 use const Morpho\App\APP_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
-    protected array $scripts = [];
+    public const INDEX_ATTR = '_index';
 
-    protected const INDEX_ATTR = 'data-index';
+    protected array $scripts = [];
 
     private string $baseUriPath;
 
@@ -88,16 +88,30 @@ class ScriptProcessor extends HtmlProcessor {
     protected function renderScripts(array $scripts): string {
         $html = [];
         $index = 0;
+        foreach ($scripts as $key => $script) {
+            if (!isset($script[self::INDEX_ATTR])) {
+                $script[self::INDEX_ATTR] = $index;
+                $index++;
+            }
+            $script[self::INDEX_ATTR] = floatval($script[self::INDEX_ATTR]);
+            $scripts[$key] = $script;
+        }
         \usort($scripts, function ($prev, $next) use (&$index) {
-            $a = isset($prev[self::INDEX_ATTR]) ? $prev[self::INDEX_ATTR] : $index++;
-            $b = isset($next[self::INDEX_ATTR]) ? $next[self::INDEX_ATTR] : $index++;
-            if ($a === $b && isset($prev['src']) && isset($next['src'])) {
+            $a = $prev[self::INDEX_ATTR];
+            $b = $next[self::INDEX_ATTR];
+            $diff = $a - $b;
+            if (abs($diff) <= PHP_FLOAT_EPSILON && isset($prev['src']) && isset($next['src'])) {
                 // Without this sort an exact order can be unknown when indexes are equal.
                 return $prev['src'] <=> $next['src'];
             }
-            return $a <=> $b;
+            if  ($diff > PHP_FLOAT_EPSILON) {
+                return 1;
+            }
+            if ($diff >= -PHP_FLOAT_EPSILON) { // -PHP_FLOAT_EPSILON <= $diff <= PHP_FLOAT_EPSILON
+                return 0;
+            }
+            return -1; // $diff < -PHP_FLOAT_EPSILON
         });
-        //ksort($scripts, SORT_NUMERIC);
         foreach ($scripts as $tag) {
             unset($tag[self::INDEX_ATTR]);
             $html[] = $this->renderTag($tag);

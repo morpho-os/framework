@@ -165,7 +165,7 @@ function sh(string $command, array $conf = null): ICommandResult {
     if (!$showSet && $conf['capture']) {
         $conf['show'] = false;
     }
-    if ($showSet && !$conf['show'] && !$captureSet) {
+    if ($showSet && !$conf['show'] && !$captureSet) { // show === false && !isset($capture)
         $conf['capture'] = true;
     }
     $output = '';
