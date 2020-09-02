@@ -216,6 +216,23 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertEquals($expected, $this->templateEngine->runFile($this->getTestDirPath() . '/dir-file-test.phtml'));
     }
 
+    public function testResolvesDirAndFileConstants_RequireScriptFromChildDirRequiredFromParentDir() {
+        $testDirPath = $this->getTestDirPath();
+        $actual = $this->templateEngine->runFile($testDirPath . '/sub-dir/includes-from-parent-dir.phtml');
+        $expected = <<<OUT
+Begin 1
+Dir path: $testDirPath/sub-dir, file path: $testDirPath/sub-dir/includes-from-parent-dir.phtml
+Begin 2
+Begin 3
+Dir path: $testDirPath, file path: $testDirPath/dir-file-test.phtml
+End 3
+End 2
+Dir path: $testDirPath/sub-dir, file path: $testDirPath/sub-dir/includes-from-parent-dir.phtml
+End 1
+OUT;
+        $this->assertSame($expected, $actual);
+    }
+
     public function testPlugin_ReturnsTheSamePluginInstance() {
         $pluginName = 'Messenger';
         $pluginClass= TestPlugin::class;

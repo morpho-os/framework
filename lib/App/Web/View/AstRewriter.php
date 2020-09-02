@@ -38,7 +38,7 @@ class AstRewriter extends NodeVisitorAbstract {
 
     public function enterNode(Node $node) {
         if ($node instanceof DirMagicConst) {
-            return new StringScalar(\dirname($this->context['filePath']));
+            return new StringScalar(\realpath(\dirname($this->context['filePath'])));
         } elseif ($node instanceof FileMagicConst) {
             return new StringScalar($this->context['filePath']);
         }
