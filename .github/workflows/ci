@@ -25,7 +25,7 @@ showFacts() {
 installComposerPackages() {
     local -r majorPhpVer=$(php -r 'echo PHP_MAJOR_VERSION;')
     composer --version
-    composer$([[ $majorPhpVer -ge 8 ]] && echo ' --ignore-platform-reqs=php') --no-ansi --no-interaction install
+    composer$([[ $majorPhpVer -ge 8 ]] && echo ' --ignore-platform-reqs') --no-ansi --no-interaction install
     #  - composer config -g github-oauth.github.com ${COMPOSER_TOKEN} &> /dev/null
 }
 
