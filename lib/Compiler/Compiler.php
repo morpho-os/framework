@@ -6,10 +6,17 @@
  */
 namespace Morpho\Compiler;
 
+use Morpho\Base\IFn;
+use Morpho\Base\Pipe;
+
 class Compiler implements IFn {
     protected $conf;
 
-    public function __construct($conf = null) {
+    /**
+     * @param array|ArrayObject $conf
+     *     factory: IFactory
+     */
+    public function __construct($conf) {
         $this->conf = $conf;
     }
 
@@ -23,10 +30,11 @@ class Compiler implements IFn {
         return $pipe($context);
     }
 
-    protected function mkPipe($context) {
+    protected function mkPipe($context): IFn {
+        $factory = $this->conf['factory'];
         $frontEnd = $factory->mkFrontEnd();
         $middleEnd = $factory->mkMiddleEnd();
         $backEnd = $factory->mkBackEnd();
-        return (new Pipe([$frontEnd, $middleEnd, $backEnd]))($context);
+        return new Pipe([$frontEnd, $middleEnd, $backEnd]);
     }
 }
