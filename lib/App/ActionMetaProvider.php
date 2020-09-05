@@ -7,7 +7,7 @@
 namespace Morpho\App;
 
 use Morpho\Base\IFn;
-use Morpho\Code\Reflection\FileReflection;
+use Morpho\Compiler\Reflection\FileReflection;
 use ReflectionClass;
 use ReflectionMethod;
 use function Morpho\Base\endsWith;

@@ -265,9 +265,6 @@ class Debugger {
     protected function __construct() {
     }
 
-    protected function __wakeup() {
-    }
-
     protected function __clone() {
     }
 

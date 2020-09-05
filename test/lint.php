@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test;
 
-use Morpho\Code\Linting\Linter;
+use Morpho\Compiler\Linting\Linter;
 use Morpho\Fs\Path;
 use Morpho\Infra\Psr4Mapper;
 

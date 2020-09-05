@@ -12,7 +12,6 @@ use Morpho\Base\NotImplementedException;
 use function Morpho\Base\{
     fromJson, toJson
 };
-use Morpho\Code\Code;
 
 class File extends Entry {
     /**
@@ -181,7 +180,7 @@ class File extends Entry {
     }
 
     public static function writePhpVar(string $filePath, $var, bool $stripNumericKeys = true): string {
-        File::write($filePath, '<?php return ' . Code::varToStr($var, $stripNumericKeys));
+        File::write($filePath, '<?php return ' . var_export($var, true) . ';');
         return $filePath;
     }
 
