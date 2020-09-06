@@ -12,13 +12,13 @@ use Morpho\Compiler\IFactory;
 use Morpho\Base\IFn;
 
 class CompilerTest extends TestCase {
-    public function testIsFn() {
+    public function testInterface() {
         $this->assertInstanceOf(IFn::class, new Compiler([]));
     }
 
     public function testCompilation() {
         $conf = [];
-        $conf['factory'] = new class implements IFactory { 
+        $conf['factory'] = new class implements IFactory {
             public function mkFrontEnd(): callable {
                 return function ($context) {
                     $context['frontEnd'] = 'front-end run';
