@@ -6,11 +6,14 @@
  */
 namespace Morpho\Tech\Systemd;
 
+/**
+ * Incapsulates meta information (knowledge) about latest systemd version. Versions <= latest may not match the meta.
+ */
 class Meta {
     /**
-     * Returns possible binary file names from the latest systemd package. NB: Versions <= latest may not contain some of these binaries.
+     * Returns known binary file names.
      */
-    public static function possibleBins(): array {
+    public static function knownBins(): array {
         return [
             'bootctl',
             'busctl',
@@ -59,19 +62,39 @@ class Meta {
     }
 
     /**
-     * Return possible unit types, supported by the latest systemd version. Can be got with the `systemctl --type=help --no-legend --no-pager`.
+     * Return known unit types. Can be got with the `systemctl --type=help --no-legend --no-pager`.
      */
-    public static function possibleUnitTypes(): array {
+    public static function knownUnitTypes(): array {
         return (new \ReflectionClass(UnitType::class))->getConstants();
     }
 
     /**
-     * Returns useful references to Internet web pages.
+     * Returns known configuration section names. Can be got with the `/usr/lib/systemd/systemd --dump-configuration-items --no-pager | grep '^\[' | sort -u | tr -d '[]'
+     */
+    public static function knownConfSections(): array {
+        return [
+            'Automount',
+            'Install',
+            'Mount',
+            'Path',
+            'Scope',
+            'Service',
+            'Slice',
+            'Socket',
+            'Swap',
+            'Timer',
+            'Unit',
+        ];
+    }
+
+    /**
+     * Returns useful references to the web pages.
      */
     public static function refs(): array {
         return [
-            ['uri' => 'https://systemd.io/', 'text' => 'Official site'],
-            ['uri' => 'https://github.com/systemd/systemd', 'text' => 'Source code'],
+            ['text' => 'Official site', 'uri' => 'https://systemd.io/'],
+            ['text' => 'Source code', 'uri' => 'https://github.com/systemd/systemd', ],
+            ['text' => 'List of configuration directives', 'uri' => 'https://www.freedesktop.org/software/systemd/man/systemd.directives.html'],
         ];
     }
 }

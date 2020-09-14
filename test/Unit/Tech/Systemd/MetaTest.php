@@ -11,15 +11,19 @@ use Morpho\Tech\Systemd\Meta;
 use Morpho\Tech\Systemd\UnitType;
 
 class MetaTest extends TestCase {
-    public function testPossibleBins() {
-        $this->assertContains('systemctl', Meta::possibleBins());
+    public function testKnownBins() {
+        $this->assertContains('systemctl', Meta::knownBins());
     }
 
-    public function testPossibleUnitTypes() {
-        $this->assertContains(UnitType::SERVICE, Meta::possibleUnitTypes());
+    public function testKnownUnitTypes() {
+        $this->assertContains(UnitType::SERVICE, Meta::knownUnitTypes());
     }
 
     public function testRefs() {
         $this->assertIsArray(meta::refs());
+    }
+
+    public function testKnownSectionNames() {
+        $this->assertContains('Service', Meta::knownConfSections());
     }
 }
