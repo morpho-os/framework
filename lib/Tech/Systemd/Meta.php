@@ -1134,6 +1134,7 @@ class Meta {
             ['text' => 'Official site', 'uri' => 'https://systemd.io/'],
             ['text' => 'Source code', 'uri' => 'https://github.com/systemd/systemd', ],
             ['text' => 'List of configuration directives', 'uri' => 'https://www.freedesktop.org/software/systemd/man/systemd.directives.html'],
+            ['text' => 'List of man pages', 'uri' => 'https://www.freedesktop.org/software/systemd/man/index.html'],
         ];
     }
 }
