@@ -23,7 +23,11 @@ class MetaTest extends TestCase {
         $this->assertIsArray(meta::refs());
     }
 
-    public function testKnownSectionNames() {
+    public function testKnownConfSections() {
         $this->assertContains('Service', Meta::knownConfSections());
+    }
+
+    public function testKnownConfDirectives() {
+        $this->assertContains('ExecStart', Meta::knownConfDirectives()['Service']);
     }
 }
