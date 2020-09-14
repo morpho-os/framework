@@ -147,7 +147,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testLink_FullUriWithAttributes() {
-        $this->assertEquals('<a data-foo="bar" href="http://example.com/base/path/some/path?arg=val">Link text</a>', $this->templateEngine->link('http://example.com/base/path/some/path?arg=val', 'Link text', ['data-foo' => 'bar'], ['eol' => false]));
+        $this->assertEquals('<a data-foo="bar" href="http://example.com/base/path/some/path?arg=val">Link text</a>', $this->templateEngine->l('http://example.com/base/path/some/path?arg=val', 'Link text', ['data-foo' => 'bar'], ['eol' => false]));
     }
 
     public function testLink_PrependBasePath() {
@@ -156,7 +156,7 @@ class PhpTemplateEngineTest extends TestCase {
         $this->configureTemplateEngine($templateEngine);
 
         $uri = new Uri('/one/two');
-        $html = $templateEngine->link($uri, 'News');
+        $html = $templateEngine->l($uri, 'News');
         $this->assertSame('<a href="/base/path/one/two">News</a>', $html);
     }
 

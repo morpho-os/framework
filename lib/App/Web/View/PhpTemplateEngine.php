@@ -101,9 +101,10 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
     /**
+     * Renders link - HTML `a` tag.
      * @param string|Uri $uri
      */
-    public function link($uri, string $text, array $attributes = null, array $conf = null): string {
+    public function l($uri, string $text, array $attributes = null, array $conf = null): string {
         $attributes = (array) $attributes;
         $attributes['href'] = prependBasePath(function () { return $this->uri()->path()->basePath(); }, $uri)->toStr(null, false);
         return Html::tag('a', $attributes, $text, $conf);
