@@ -112,7 +112,7 @@ function escapeArgs($args): array {
  * @param int|string|iterable $args
  * @return string
  */
-function argsStr($args): string {
+function args($args): string {
     $suffix = \implode(' ', escapeArgs($args));
     return $suffix === '' ? '' : ' ' . $suffix;
 }

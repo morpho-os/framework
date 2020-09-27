@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Cli;
 use Morpho\Base\Env;
 use Morpho\Base\InvalidConfException;
 use function Morpho\App\Cli\{
-    argsStr, envVarsStr, sh, escapeArgs, proc, showOk, stylize
+    args, envVarsStr, sh, escapeArgs, proc, showOk, stylize
 };
 use Morpho\App\Cli\ProcCommandResult;
 use Morpho\Testing\TestCase;
@@ -71,22 +71,22 @@ OUT
         );
     }
 
-    public function testArgsStr() {
-        $this->assertSame(" '1'", argsStr(1));
-        $this->assertSame('', argsStr([]));
-        $this->assertEquals(" 'foo'", argsStr('foo'));
-        $this->assertEquals(" 'foo' 'bar'", argsStr(['foo', 'bar']));
+    public function testArgs() {
+        $this->assertSame(" '1'", args(1));
+        $this->assertSame('', args([]));
+        $this->assertEquals(" 'foo'", args('foo'));
+        $this->assertEquals(" 'foo' 'bar'", args(['foo', 'bar']));
         $gen = function () {
             yield 'foo';
             yield 'bar';
         };
-        $this->assertEquals(" 'foo' 'bar'", argsStr($gen()));
-        $this->assertSame(" 'foo' 'bar'", argsStr(new \ArrayObject(['foo', 'bar'])));
+        $this->assertEquals(" 'foo' 'bar'", args($gen()));
+        $this->assertSame(" 'foo' 'bar'", args(new \ArrayObject(['foo', 'bar'])));
         $gen1 = function () {
              yield 1;
              yield 2;
         };
-        $this->assertSame(" '1' '2'", argsStr($gen1()));
+        $this->assertSame(" '1' '2'", args($gen1()));
     }
 
     public function testShell_ThrowsExceptionOnInvalidConfParam() {
