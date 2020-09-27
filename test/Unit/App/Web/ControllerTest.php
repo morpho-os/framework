@@ -147,7 +147,6 @@ class ControllerTest extends TestCase {
     }
 
     protected function mkConfiguredRequest(array $serverVars = null): Request {
-        $uriChecker = new class implements IFn { public function __invoke($value) {} };
         $request = new Request(null, $serverVars);
         $response = new Response();
         $response->setBody('test');

@@ -36,7 +36,7 @@ class ApiControllerTest extends ControllerTest {
         $response = $request->response();
         $actionResult = $response['result'];
         $this->assertInstanceOf(JsonResult::class, $actionResult);
-        $this->assertSame([], $actionResult->value());
+        $this->assertSame([], $actionResult->val());
         $this->assertSame($response1, $response);
     }
 
@@ -53,7 +53,7 @@ class ApiControllerTest extends ControllerTest {
         $response = $request->response();
         $actionResult = $response['result'];
         $this->assertInstanceOf(JsonResult::class, $actionResult);
-        $this->assertSame(['foo' => 'bar'], $actionResult->value());
+        $this->assertSame(['foo' => 'bar'], $actionResult->val());
         $this->assertSame($response1, $response);
     }
 }

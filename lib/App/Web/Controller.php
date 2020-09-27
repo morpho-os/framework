@@ -23,6 +23,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
     protected $request;
 
     /**
+     * Handles any possible ActionResult by normalizing it and setting as property of the Response. Returns the Response containing it (ActionResult).
      * @param array|null|IActionResult|IResponse|string $actionResult
      */
     protected function handleResult($actionResult): IResponse {
@@ -133,6 +134,9 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return new StatusCodeResult($statusCode);
     }
 
+    /**
+     * Says the Response about redirect possibly changing it and returns it. Usually should not be called directly, instead the mk{$ActionResultType}Result() should be called.
+     */
     protected function redirect(string $uri, int $statusCode = null): IResponse {
         /** @var Response $response */
         $response = $this->request->response();

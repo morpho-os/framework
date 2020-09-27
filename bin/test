@@ -8,8 +8,8 @@ readonly baseDirPath=$(realpath -e "$SCRIPT_DIR_PATH"/..)
 readonly phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 readonly phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
 readonly testDirPath="$baseDirPath/test"
-readonly phpUnitConfigFilePath="$testDirPath/phpunit.xml"
+readonly phpUnitConfFilePath="$testDirPath/phpunit.xml"
 readonly seleniumLogFilePath="$testDirPath/selenium.log"
 export SELENIUM_VERSION=latest
 
-php -f "$phpUnitBinFilePath" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfigFilePath" "$@"
+php -f "$phpUnitBinFilePath" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfFilePath" "$@"

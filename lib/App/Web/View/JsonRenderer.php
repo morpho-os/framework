@@ -16,18 +16,9 @@ class JsonRenderer implements IFn {
     public function __invoke($request): void {
         /** @var \Morpho\App\Web\Response $response */
         $response = $request->response();
-
         $result = $response['result'];
-
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'application/json;charset=utf-8';
-/*        if ($request->isAjax()) {
-            if ($response->isRedirect()) {
-                $page['redirect'] = $response->headers()['Location'];
-                unset($response->headers()['Location']);
-                $response->setStatusCode(Response::OK_STATUS_CODE);
-            }
-        }*/
         $response->setBody(toJson($result));
     }
 }

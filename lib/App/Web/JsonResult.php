@@ -7,44 +7,27 @@
 namespace Morpho\App\Web;
 
 use Morpho\App\IActionResult;
+use Morpho\Base\Val;
 use function Morpho\Base\{fromJson, toJson};
 
-class JsonResult implements \JsonSerializable, \Serializable, IActionResult {
+class JsonResult extends Val implements \JsonSerializable, IActionResult {
     public const FORMAT = 'json';
-    /**
-     * @var mixed
-     */
-    private $value;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct($value) {
-        $this->value = $value;
+    /*
+    public function __serialize(): array {
+        $val = $this->
+        return [$this->val()];
+        return ["prop_a" => $this->prop_a];
     }
-
-    /**
-     * @return mixed
-     */
-    public function value() {
-        return $this->value;
+    public function __unserialize(array $data) {
+        $this->prop_a = $data["prop_a"];
     }
+     */
 
     /**
      * @return mixed
      */
     public function jsonSerialize() {
-        return $this->value;
-    }
-
-    public function serialize(): ?string {
-        return toJson($this->value);
-    }
-
-    /**
-     * @param string $serialized
-     */
-    public function unserialize($serialized): void {
-        $this->value = fromJson($serialized);
+        return $this->val;
     }
 }
