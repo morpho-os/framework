@@ -13,17 +13,6 @@ use function Morpho\Base\{fromJson, toJson};
 class JsonResult extends Val implements \JsonSerializable, IActionResult {
     public const FORMAT = 'json';
 
-    /*
-    public function __serialize(): array {
-        $val = $this->
-        return [$this->val()];
-        return ["prop_a" => $this->prop_a];
-    }
-    public function __unserialize(array $data) {
-        $this->prop_a = $data["prop_a"];
-    }
-     */
-
     /**
      * @return mixed
      */

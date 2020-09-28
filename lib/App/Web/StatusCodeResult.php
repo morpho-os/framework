@@ -2,17 +2,10 @@
 namespace Morpho\App\Web;
 
 use Morpho\App\IActionResult;
+use Morpho\Base\Val;
 
 /**
  * This class inspired by StatusCodeResult from .NET
  */
-class StatusCodeResult implements IActionResult {
-    /**
-     * @var int
-     */
-    public $statusCode;
-
-    public function __construct(int $statusCode) {
-        $this->statusCode = $statusCode;
-    }
+class StatusCodeResult extends Val implements IActionResult {
 }
