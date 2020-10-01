@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web\View;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\TemplateEngine;
 use Morpho\App\Web\View\Theme;
-use Morpho\App\Web\View\ViewResult;
+use Morpho\App\Web\View\HtmlResult;
 
 class ThemeTest extends TestCase {
     public function testBasePathAccessors() {
@@ -61,11 +61,11 @@ class ThemeTest extends TestCase {
 
         $theme->appendBaseDirPath($baseViewDirPath);
 
-        $view = new ViewResult($viewName, $viewVars);
-        $viewPath = $view->path();
-        $view->setPath($viewDirPath . (strlen($viewPath) ? '/' . $viewPath : ''));
+        $actionResult = new HtmlResult($viewName, $viewVars);
+        $viewPath = $actionResult->path();
+        $actionResult->setPath($viewDirPath . (strlen($viewPath) ? '/' . $viewPath : ''));
         /** @noinspection PhpParamsInspection */
-        $actual = $theme->render($view);
+        $actual = $theme->render($actionResult);
 
         $this->assertSame($expected, $actual);
     }

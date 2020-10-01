@@ -21,7 +21,7 @@ class Env extends BaseEnvironment {
             'realIp' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null,
         ];
     }
-    
+
     public static function httpVersion(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
             $protocol = $_SERVER['SERVER_PROTOCOL'];

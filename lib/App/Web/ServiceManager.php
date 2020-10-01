@@ -22,6 +22,7 @@ use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\PhpTemplateEngine;
+use Morpho\App\Web\View\HtmlRenderer;
 use Morpho\App\Web\View\Theme;
 use Morpho\Error\DumpListener;
 use Morpho\Error\LogListener;
@@ -66,6 +67,10 @@ class ServiceManager extends BaseServiceManager {
         $templateEngine->setTargetDirPath($this->cacheDirPath() . '/php-template-engine');
         $templateEngine->forceCompile($templateEngineConf['forceCompile']);
         return $templateEngine;
+    }
+
+    protected function mkHtmlRendererService() {
+        return new HtmlRenderer($this);
     }
 
     protected function mkPluginResolverService(): callable {

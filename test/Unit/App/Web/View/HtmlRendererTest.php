@@ -11,16 +11,16 @@ use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
 use Morpho\App\Web\View\HtmlRenderer;
-use Morpho\App\Web\View\ViewResult;
+use Morpho\App\Web\View\HtmlResult;
 
 class HtmlRendererTest extends TestCase {
     public function testInvoke() {
-        $page = new ViewResult('test');
-        $view = new ViewResult('edit-user', null, $page);
+        $page = new HtmlResult('test');
+        $actionResult = new HtmlResult('edit-user', null, $page);
 
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
-        $response['result'] = $view;
+        $response['result'] = $actionResult;
 
         $viewModuleName = 'foo/bar';
         $pageRendererModuleName = 'abc/test';
@@ -39,17 +39,17 @@ class HtmlRendererTest extends TestCase {
 
         $renderer = new class ($serviceManager) extends HtmlRenderer {
             public $map;
-            protected function renderView(string $moduleName, ViewResult $view): string {
+            protected function renderView(string $moduleName, HtmlResult $actionResult): string {
                 $renderer = $this->map[$moduleName];
-                return $renderer($view);
+                return $renderer($actionResult);
             }
         };
-        $renderer->map[$viewModuleName] = function (ViewResult $viewArg) use ($view): string {
-            $this->assertSame('news/edit-user', $view->path());
-            $this->assertSame($view, $viewArg);
+        $renderer->map[$viewModuleName] = function (HtmlResult $viewArg) use ($actionResult): string {
+            $this->assertSame('news/edit-user', $actionResult->path());
+            $this->assertSame($actionResult, $viewArg);
             return 'hello';
         };
-        $renderer->map[$pageRendererModuleName] = function (ViewResult $pageArg) use ($page): string {
+        $renderer->map[$pageRendererModuleName] = function (HtmlResult $pageArg) use ($page): string {
             $this->assertSame(['body' => 'hello'], $page->vars()->getArrayCopy());
             $this->assertSame($page, $pageArg);
             return 'cat';

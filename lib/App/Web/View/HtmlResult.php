@@ -8,7 +8,7 @@ namespace Morpho\App\Web\View;
 
 use Morpho\App\IActionResult;
 
-class ViewResult implements IActionResult {
+class HtmlResult implements IActionResult {
     /**
      * @var string
      */
@@ -25,14 +25,14 @@ class ViewResult implements IActionResult {
     protected $vars;
 
     /**
-     * @var ViewResult|null
+     * @var HtmlResult|null
      */
     private $parent;
 
     /**
      * @param string $path
      * @param array|null|\ArrayObject $vars
-     * @param ViewResult|null|string $parent
+     * @param HtmlResult|null|string $parent
      */
     public function __construct(string $path, $vars = null, $parent = null) {
         $this->path = $path;
@@ -72,17 +72,29 @@ class ViewResult implements IActionResult {
     }
 
     /**
-     * @param string|ViewResult $viewResult
+     * @param string|HtmlResult $viewResult
      */
     public function setParent($viewResult): void {
         $this->parent = $this->normalizeParent($viewResult);
     }
 
-    public function parent(): ?ViewResult {
+    public function parent(): ?HtmlResult {
         return $this->parent;
     }
 
-    private function normalizeParent($parent): ViewResult {
-        return is_string($parent) ? new ViewResult($parent) : $parent;
+    private function normalizeParent($parent): HtmlResult {
+        return is_string($parent) ? new HtmlResult($parent) : $parent;
+    }
+
+    public function __invoke($serviceManager) {
+        $request = $serviceManager['request'];
+        $request->response()['result'] = $this;
+        $renderer = $serviceManager['htmlRenderer'];
+        if ($request->isAjax()) {
+            $body = $renderer->renderBody($request);
+            $request->response()->setBody($body);
+        } else {
+            $renderer->__invoke($request);
+        }
     }
 }

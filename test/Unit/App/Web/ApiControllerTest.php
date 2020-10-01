@@ -2,7 +2,7 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\Controller;
-use Morpho\App\Web\JsonResult;
+use Morpho\App\Web\View\JsonResult;
 use Morpho\App\Web\ApiController;
 use Morpho\Test\Unit\App\Web\ControllerTest\TMyController;
 

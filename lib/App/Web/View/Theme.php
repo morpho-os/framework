@@ -23,7 +23,7 @@ class Theme {
         return false !== $this->absFilePath($viewPath, false);
     }*/
 
-    public function render(ViewResult $viewResult): string {
+    public function render(HtmlResult $viewResult): string {
         return $this->renderFile($viewResult->path(), $viewResult->vars());
     }
 

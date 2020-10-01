@@ -24,9 +24,9 @@ trait TMyController {
         return $this->mkResponse(null, __FUNCTION__ . 'Called');
     }
 
-    protected function returnView() {
+    protected function returnHtml() {
         $this->calledMethod = __FUNCTION__;
-        return $this->mkViewResult('test', ['foo' => 'bar']);
+        return $this->mkHtmlResult('test', ['foo' => 'bar']);
     }
 
     protected function returnArray() {

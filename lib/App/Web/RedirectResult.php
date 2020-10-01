@@ -3,24 +3,23 @@ namespace Morpho\App\Web;
 
 use Morpho\App\IActionResult;
 use Morpho\App\Web\Messages\Messenger;
+use Morpho\App\Web\View\JsonResult;
 
 class RedirectResult implements IActionResult {
-    /**
-     * @var null|string
-     */
-    public $uri;
+    public ?string $uri;
 
-    /**
-     * @var int|null
-     */
-    public $statusCode;
+    public ?int $statusCode;
 
-    protected $messenger;
+    protected Messenger $messenger;
 
-    public function __construct(?string $uri, int $statusCode = null, Messenger $messenger) {
+    public function __construct(?string $uri, int $statusCode = null) {
         $this->uri = $uri;
         $this->statusCode = $statusCode;
+    }
+
+    public function setMessenger(Messenger $messenger) {
         $this->messenger = $messenger;
+        return $this;
     }
 
     public function withSuccessMessage(string $message, array $args = null) {
@@ -41,5 +40,36 @@ class RedirectResult implements IActionResult {
     public function withErrorMessage(string $text, array $args = null) {
         $this->messenger->addErrorMessage($text, $args);
         return $this;
+    }
+
+    public function __invoke($serviceManager) {
+        $request = $serviceManager['request'];
+        $response = $request->response();
+        $response['result'] = $this;
+        $redirectUri = null;
+        $headers = $response->headers();
+        if (null !== $this->uri) {
+            $redirectUri = $this->uri;
+        } elseif (!empty($headers['Location'])) {
+            $redirectUri = $headers['Location'];
+        }
+        if (null === $redirectUri) {
+            throw new \UnexpectedValueException();
+        }
+        if ($request->isAjax()) {
+            $response->setStatusCode(200);
+
+            if (isset($headers['Location'])) {
+                unset($headers['Location']);
+            }
+
+            $actionResult = $response['result'] = new JsonResult([
+                'redirect' => $redirectUri,
+            ]);
+            $actionResult->__invoke($serviceManager);
+        } else {
+            $response->setStatusCode(null !== $this->statusCode ? $this->statusCode : 301);
+            $response->headers()['Location'] = $redirectUri;
+        }
     }
 }

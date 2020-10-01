@@ -29,8 +29,11 @@ class EventManager extends BaseEventManager {
     protected function handleActionResult(Event $event): void {
         /** @var Request $request */
         $request = $event->args['request'];
-        $actionResultHandler = $this->serviceManager['actionResultHandler'];
-        $actionResultHandler->__invoke($request);
+        $response = $request->response();
+        if (isset($response['result'])) {
+            $result = $request->response()['result'];
+            $result->__invoke($this->serviceManager);
+        }
     }
 
     protected function handleDispatchError(Event $event): void {

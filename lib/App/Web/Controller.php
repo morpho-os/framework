@@ -9,14 +9,15 @@ namespace Morpho\App\Web;
 use Morpho\App\IActionResult;
 use Morpho\App\IResponse;
 use Morpho\App\IRequest;
-use Morpho\App\Web\View\ViewResult;
+use Morpho\App\Web\View\HtmlResult;
+use Morpho\App\Web\View\JsonResult;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Controller as BaseController;
 use function Morpho\Base\dasherize;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
-    protected $parentViewResult;
+    protected $parentActionResult;
 
     protected IServiceManager $serviceManager;
 
@@ -27,37 +28,39 @@ abstract class Controller extends BaseController implements IHasServiceManager {
      * @param array|null|IActionResult|IResponse|string $actionResult
      */
     protected function handleResult($actionResult): IResponse {
-        $shouldMakeDefaultResult = \is_array($actionResult) || null === $actionResult;
         $response = null;
-        if ($shouldMakeDefaultResult) {
-            $actionResult = $this->mkDefaultResult($actionResult);
-        } elseif ($actionResult instanceof IActionResult) {
-            if ($actionResult instanceof RedirectResult) {
-                $response = $this->redirect($actionResult->uri, $actionResult->statusCode);
-            } elseif ($actionResult instanceof StatusCodeResult) {
+        if (!$actionResult instanceof IActionResult) {
+            $shouldMakeDefaultResult = \is_array($actionResult) || null === $actionResult;
+            if ($shouldMakeDefaultResult) {
+                $actionResult = $this->mkDefaultResult($actionResult);
+            }/* elseif ($actionResult instanceof IActionResult) {
+                if ($actionResult instanceof RedirectResult) {
+                    $response = $this->redirect($actionResult->uri, $actionResult->statusCode);
+                } elseif ($actionResult instanceof StatusCodeResult) {
+                    $response = $this->request->response();
+                    $response->setStatusCode($actionResult->statusCode);
+                }
+                } */ elseif ($actionResult instanceof IResponse) {
+                $response = $actionResult;
+                $actionResult = null;
+            } elseif (\is_string($actionResult)) {
                 $response = $this->request->response();
-                $response->setStatusCode($actionResult->statusCode);
+                $response->setBody($actionResult);
+            } else {
+                throw new \UnexpectedValueException();
             }
-        } elseif ($actionResult instanceof IResponse) {
-            $response = $actionResult;
-            $actionResult = null;
-        } elseif (\is_string($actionResult)) {
-            $response = $this->request->response();
-            $response->setBody($actionResult);
-        } else {
-            throw new \UnexpectedValueException();
         }
         if (null === $response) {
             $response = $this->request->response();
         }
         $response['result'] = $actionResult;
 
-        if ($this->parentViewResult) {
-            if ($response['result'] instanceof ViewResult) {
-                $response['result']->setParent($this->parentViewResult);
+        if ($this->parentActionResult) {
+            // todo Generilize by extracting an interface for the HtmlResult when > 1 classes with setParent() will be introduced
+            if ($response['result'] instanceof HtmlResult) {
+                $response['result']->setParent($this->parentActionResult);
             }
         }
-
         return $response;
     }
 
@@ -66,29 +69,29 @@ abstract class Controller extends BaseController implements IHasServiceManager {
     }
 
     /**
-     * @param string|ViewResult $parentViewResultOrPath
+     * @param string|HtmlResult $parentActionResultOrPath
      * @return void
      */
-    protected function setParentViewResult($parentViewResultOrPath): void {
-        $this->parentViewResult = $parentViewResultOrPath;
+    protected function setParentActionResult($parentActionResultOrPath): void {
+        $this->parentActionResult = $parentActionResultOrPath;
     }
 
     protected function resetState(IRequest $request): void {
         parent::resetState($request);
-        $this->parentViewResult = null;
+        $this->parentActionResult = null;
     }
 
     /**
      * @param string|null $path
      * @param array|null|\ArrayObject $vars
-     * @param ViewResult|null|string $parent
-     * @return ViewResult
+     * @param HtmlResult|null|string $parent
+     * @return HtmlResult
      */
-    protected function mkViewResult(string $path = null, $vars = null, $parent = null): ViewResult {
+    protected function mkHtmlResult(string $path = null, $vars = null, $parent = null): HtmlResult {
         if (null === $path) {
             $path = dasherize($this->request->handler()['method']);
         }
-        return new ViewResult($path, $vars, $parent);
+        return new HtmlResult($path, $vars, $parent);
     }
 
     protected function mkResponse(int $statusCode = null, string $body = null): IResponse {
@@ -115,7 +118,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
     }
 
     protected function mkDefaultResult(array $values = null): IActionResult {
-        return $this->mkViewResult(null, (array) $values);
+        return $this->mkHtmlResult(null, (array) $values);
     }
 
     /**
@@ -127,7 +130,8 @@ abstract class Controller extends BaseController implements IHasServiceManager {
     }
 
     protected function mkRedirectResult(string $uri, int $statusCode = null): RedirectResult {
-        return new RedirectResult($uri, $statusCode, $this->serviceManager['messenger']);
+        return (new RedirectResult($uri, $statusCode))
+            ->setMessenger($this->serviceManager['messenger']);
     }
 
     protected function mkStatusCodeResult(int $statusCode): StatusCodeResult {
@@ -136,15 +140,15 @@ abstract class Controller extends BaseController implements IHasServiceManager {
 
     /**
      * Says the Response about redirect possibly changing it and returns it. Usually should not be called directly, instead the mk{$ActionResultType}Result() should be called.
-     */
     protected function redirect(string $uri, int $statusCode = null): IResponse {
-        /** @var Response $response */
+        /** @var Response $response * /
         $response = $this->request->response();
         $uri = prependBasePath(function () {
             return $this->request->uri()->path()->basePath();
         }, $uri);
         return $response->redirect($uri, $statusCode);
     }
+     */
 
     protected function args($name = null, bool $trim = true) {
         return $this->request->args($name, $trim);

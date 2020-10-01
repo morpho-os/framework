@@ -23,7 +23,7 @@ class Response extends BaseResponse {
     /**
      * @var null|\ArrayObject
      */
-    private $headers;
+    protected $headers;
 
     /**
      * @var ?string
@@ -32,12 +32,15 @@ class Response extends BaseResponse {
 
     // @TODO: Move to StatusCode::OK
     public const OK_STATUS_CODE = 200;
+    public const MOVED_PERMANENTLY = 301;
     public const FOUND_STATUS_CODE = 302;
     public const NOT_MODIFIED_STATUS_CODE = 304;
     public const BAD_REQUEST_STATUS_CODE = 400;
     public const FORBIDDEN_STATUS_CODE = 403;
     public const NOT_FOUND_STATUS_CODE = 404;
+    public const METHOD_NOT_ALLOWED = 405;
     public const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
+    public const SERVICE_UNAVAILABLE_CODE = 503;
 
     public function __construct(array $input = null) {
         parent::__construct((array) $input);
@@ -101,28 +104,22 @@ class Response extends BaseResponse {
 
     public function statusCodeToReason(int $statusCode): string {
         // http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+        $codeToReason = [
+            self::OK_STATUS_CODE => 'OK',
+            self::MOVED_PERMANENTLY => 'Moved Permanently',
+            self::FOUND_STATUS_CODE => 'Found',
+            self::NOT_MODIFIED_STATUS_CODE => 'Not Modified',
+            self::BAD_REQUEST_STATUS_CODE => 'Bad Request',
+            self::FORBIDDEN_STATUS_CODE => 'Forbidden',
+            self::NOT_FOUND_STATUS_CODE => 'Not Found',
+            self::METHOD_NOT_ALLOWED => 'Method Not Allowed',
+            self::INTERNAL_SERVER_ERROR_STATUS_CODE => 'Internal Server Error',
+            self::SERVICE_UNAVAILABLE_CODE => 'Service Unavailable',
+        ];
+        if (isset($codeToReason[$statusCode])) {
+            return $codeToReason[$statusCode];
+        }
         switch ($statusCode) {
-            case self::OK_STATUS_CODE:
-                $reasonPhrase = 'OK';
-                break;
-            case self::FOUND_STATUS_CODE:
-                $reasonPhrase = 'Found';
-                break;
-            case self::NOT_MODIFIED_STATUS_CODE:
-                $reasonPhrase = 'Not Modified';
-                break;
-            case self::BAD_REQUEST_STATUS_CODE:
-                $reasonPhrase = 'Bad Request';
-                break;
-            case self::FORBIDDEN_STATUS_CODE:
-                $reasonPhrase = 'Forbidden';
-                break;
-            case self::NOT_FOUND_STATUS_CODE:
-                $reasonPhrase = 'Not Found';
-                break;
-            case self::INTERNAL_SERVER_ERROR_STATUS_CODE:
-                $reasonPhrase = 'Internal Server Error';
-                break;
             case 100:
                 $reasonPhrase = 'Continue';
                 break;
@@ -165,9 +162,6 @@ class Response extends BaseResponse {
             case 300:
                 $reasonPhrase = 'Multiple Choices';
                 break;
-            case 301:
-                $reasonPhrase = 'Moved Permanently';
-                break;
             case 303:
                 $reasonPhrase = 'See Other';
                 break;
@@ -188,9 +182,6 @@ class Response extends BaseResponse {
                 break;
             case 402:
                 $reasonPhrase = 'Payment Required';
-                break;
-            case 405:
-                $reasonPhrase = 'Method Not Allowed';
                 break;
             case 406:
                 $reasonPhrase = 'Not Acceptable';
@@ -269,9 +260,6 @@ class Response extends BaseResponse {
                 break;
             case 502:
                 $reasonPhrase = 'Bad Gateway';
-                break;
-            case 503:
-                $reasonPhrase = 'Service Unavailable';
                 break;
             case 504:
                 $reasonPhrase = 'Gateway Timeout';

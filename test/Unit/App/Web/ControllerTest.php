@@ -8,10 +8,10 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\IRequest;
 use Morpho\App\IResponse;
-use Morpho\App\Web\JsonResult;
+use Morpho\App\Web\View\JsonResult;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
-use Morpho\App\Web\View\ViewResult;
+use Morpho\App\Web\View\HtmlResult;
 use Morpho\Base\IFn;
 use Morpho\Test\Unit\App\Web\ControllerTest\TMyController;
 use Morpho\Testing\TestCase;
@@ -44,7 +44,7 @@ class ControllerTest extends TestCase {
         $this->checkMethodCalled('returnNull');
         $response = $request->response();
         $actionResult = $response['result'];
-        $this->assertInstanceOf(ViewResult::class, $actionResult);
+        $this->assertInstanceOf(HtmlResult::class, $actionResult);
         $this->assertSame('return-null', $actionResult->path());
         $this->assertSame([], $actionResult->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
@@ -60,7 +60,7 @@ class ControllerTest extends TestCase {
         $this->checkMethodCalled('returnArray');
         $response = $request->response();
         $actionResult = $response['result'];
-        $this->assertInstanceOf(ViewResult::class, $actionResult);
+        $this->assertInstanceOf(HtmlResult::class, $actionResult);
         $this->assertSame('return-array', $actionResult->path());
         $this->assertSame(['foo' => 'bar'], $actionResult->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
@@ -92,19 +92,19 @@ class ControllerTest extends TestCase {
         $this->assertSame($response1, $response);
     }
 
-    public function testInvoke_ReturnViewFromAction() {
+    public function testInvoke_ReturnHtmlFromAction() {
         $request = $this->mkConfiguredRequest();
-        $request->setHandler(['method' => 'returnView']);
+        $request->setHandler(['method' => 'returnHtml']);
         $response1 = $request->response();
 
         $this->controller->__invoke($request);
 
-        $this->checkMethodCalled('returnView');
+        $this->checkMethodCalled('returnHtml');
         $response = $request->response();
 
         $view = $response['result'];
 
-        $this->assertInstanceOf(ViewResult::class, $view);
+        $this->assertInstanceOf(HtmlResult::class, $view);
         $this->assertSame(['foo' => 'bar'], $view->vars()->getArrayCopy());
         $this->assertSame($response1, $response);
     }
@@ -126,14 +126,14 @@ class ControllerTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function testSetParentViewResult() {
+    public function testSetParentActionResult() {
         $controller = new class extends Controller {
             public function beforeEach(): void {
-                $this->setParentViewResult('some-page');
+                $this->setParentActionResult('some-page');
             }
 
             protected function doSomething() {
-                return $this->mkViewResult();
+                return $this->mkHtmlResult();
             }
         };
         $request = $this->mkConfiguredRequest(null);
@@ -141,9 +141,9 @@ class ControllerTest extends TestCase {
 
         $controller->__invoke($request);
 
-        $viewResult = $request->response()['result'];
-        $this->assertSame('some-page', $viewResult->parent()->path());
-        $this->assertSame('do-something', $viewResult->path());
+        $actionResult = $request->response()['result'];
+        $this->assertSame('some-page', $actionResult->parent()->path());
+        $this->assertSame('do-something', $actionResult->path());
     }
 
     protected function mkConfiguredRequest(array $serverVars = null): Request {

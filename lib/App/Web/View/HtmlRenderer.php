@@ -26,32 +26,32 @@ class HtmlRenderer implements IFn {
         $this->renderPage($body, $request);
     }
 
-    protected function renderBody($request): string {
+    public function renderBody($request): string {
         /** @var \Morpho\App\Web\Response $response */
         $response = $request->response();
 
-        /** @var ViewResult $view */
-        $viewResult = $response['result'];
-        if (!$viewResult instanceof ViewResult) {
+        /** @var HtmlResult $view */
+        $actionResult = $response['result'];
+        if (!$actionResult instanceof HtmlResult) {
             throw new \UnexpectedValueException();
         }
 
         $handler = $request->handler();
 
-        $viewPath = $viewResult->path();
+        $viewPath = $actionResult->path();
         if (false === strpos($viewPath, '/')) {
-            $viewResult->setPath($handler['controllerPath'] . '/' . $viewPath);
+            $actionResult->setPath($handler['controllerPath'] . '/' . $viewPath);
         }
 
-        return $this->renderView($handler['module'], $viewResult);
+        return $this->renderView($handler['module'], $actionResult);
     }
 
-    protected function renderPage(string $body, $request): void {
+    public function renderPage(string $body, $request): void {
         $response = $request->response();
 
-        $viewResult = $response['result'];
+        $actionResult = $response['result'];
 
-        $page = $viewResult->parent() ?: $this->mkPage();
+        $page = $actionResult->parent() ?: $this->mkPage();
         $page->vars()['body'] = $body;
 
         $serviceManager = $this->serviceManager;
@@ -63,17 +63,17 @@ class HtmlRenderer implements IFn {
         $response->headers()['Content-Type'] = 'text/html;charset=utf-8';
     }
 
-    protected function renderView(string $moduleName, ViewResult $viewResult): string {
+    protected function renderView(string $moduleName, HtmlResult $actionResult): string {
         $serviceManager = $this->serviceManager;
         $moduleIndex = $serviceManager['serverModuleIndex'];
         /** @var Theme $theme */
         $theme = $serviceManager['theme'];
         $viewDirPath = $moduleIndex->module($moduleName)->viewDirPath();
         $theme->appendBaseDirPath($viewDirPath);
-        return $theme->render($viewResult);
+        return $theme->render($actionResult);
     }
 
-    protected function mkPage(): ViewResult {
-        return new ViewResult('index');
+    protected function mkPage(): HtmlResult {
+        return new HtmlResult('index');
     }
 }
