@@ -12,6 +12,7 @@ use Morpho\Ioc\IHasServiceManager;
 
 class WidgetPlugin extends Plugin implements IHasServiceManager {
     private $serviceManager;
+
     public function __invoke($value) {
         throw new NotImplementedException();
         /*
@@ -66,7 +67,7 @@ class MenuWidget {
         );
         $requestUri = $this->requestUri;
         $baseUri = $this->baseUri;
-        $html = '<ul' . Html::attributes($attributes) . '>';
+        $html = '<ul' . Phptemplateengine::attributes($attributes) . '>';
         foreach ($lines as $line) {
             $html .= '<li><a'
                 . ($line['uri'] == $requestUri ? ' class="active"' : '')

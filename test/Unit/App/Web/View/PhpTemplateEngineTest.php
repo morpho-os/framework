@@ -62,7 +62,7 @@ class PhpTemplateEngineTest extends TestCase {
         $this->expectException(\RuntimeException::class, "The template variable 'foo' was not set");
         $this->templateEngine->foo;
     }
-    
+
     public function testVar_MagicMethods() {
         $templateEngine = new class ($this->templateEngine) {
             public $called;
@@ -71,22 +71,22 @@ class PhpTemplateEngineTest extends TestCase {
             public function __construct(PhpTemplateEngine $templateEngine) {
                 $this->templateEngine = $templateEngine;
             }
-            
+
             public function __set($name, $value) {
                 $this->called = [__FUNCTION__, \func_get_args()];
                 $this->templateEngine->__set($name, $value);
             }
-            
+
             public function __get($name) {
                 $this->called = [__FUNCTION__, \func_get_args()];
                 return $this->templateEngine->__get($name);
             }
-            
+
             public function __isset($name) {
                 $this->called = [__FUNCTION__, \func_get_args()];
                 return $this->templateEngine->__isset($name);
             }
-            
+
             public function __unset($name) {
                 $this->called = [__FUNCTION__, \func_get_args()];
                 $this->templateEngine->__unset($name);
@@ -294,6 +294,109 @@ OUT;
         $this->templateEngine->setServiceManager($serviceManager);
 
         $this->assertSame($handlerFn, $this->templateEngine->handler());
+    }
+
+    public function testHtmlId() {
+        $this->assertEquals('foo-1-bar-2-test', $this->templateEngine->id('foo[1][bar][2][test]'));
+        $this->assertEquals('foo-1-bar-2-test-1', $this->templateEngine->id('foo_1-bar_2[test]'));
+        $this->assertEquals('fo-o', $this->templateEngine->id('<fo>&o\\'));
+        $this->assertEquals('fo-o-1', $this->templateEngine->id('<fo>&o\\'));
+        $this->assertEquals('foo-bar', $this->templateEngine->id('FooBar'));
+        $this->assertEquals('foo-bar-1', $this->templateEngine->id('FooBar'));
+    }
+
+    public function testEncodeDecode_OnlySpecialChars() {
+        // $specialChars taken from Zend\Escaper\EscaperTest:
+        $specialChars = [
+            '\'' => '&#039;',
+            '"'  => '&quot;',
+            '<'  => '&lt;',
+            '>'  => '&gt;',
+            '&'  => '&amp;',
+        ];
+        foreach ($specialChars as $char => $expected) {
+            $encoded = $this->templateEngine->encode($char);
+            $this->assertSame($expected, $encoded);
+            $this->assertSame($char, $this->templateEngine->decode($encoded));
+        }
+    }
+
+    public function testEncodeDecode_SpecialCharsWithText() {
+        $original = '<h1>Hello</h1>';
+        $encoded = $this->templateEngine->encode($original);
+        $this->assertEquals('&lt;h1&gt;Hello&lt;/h1&gt;', $encoded);
+        $this->assertEquals($original, $this->templateEngine->decode($encoded));
+    }
+
+    public function testEmptyAttributes() {
+        $this->assertEquals('', $this->templateEngine->attributes([]));
+    }
+
+    public function testMultipleAttributes() {
+        $this->assertEquals(
+            ' data-api name="foo" id="some-id"',
+            $this->templateEngine->attributes(['data-api', 'name' => 'foo', 'id' => 'some-id'])
+        );
+    }
+
+    public function testSingleTag() {
+        $attributes = ['href' => 'foo/bar.css', 'rel' => 'stylesheet'];
+        $expected = '<link href="foo/bar.css" rel="stylesheet">';
+        $this->assertEquals(
+            $expected,
+            $this->templateEngine->tag('link', $attributes, null, ['eol' => false, 'isSingle' => true])
+        );
+        $this->assertEquals(
+            $expected,
+            $this->templateEngine->singleTag('link', $attributes, ['eol' => false])
+        );
+    }
+
+    public function testSingleTag_IsXmlConfParam() {
+        $attributes = ['bar' => 'test'];
+        $expected = '<foo bar="test" />';
+        $this->assertEquals(
+            $expected,
+            $this->templateEngine->tag('foo', $attributes, null, ['isXml' => true, 'eol' => false, 'isSingle' => true])
+        );
+        $this->assertEquals(
+            $expected,
+            $this->templateEngine->singleTag('foo', $attributes, ['isXml' => true, 'eol' => false])
+        );
+    }
+
+    public function testTag() {
+        $attributes = ['href' => 'foo/bar'];
+        $conf = ['eol' => false];
+        $this->assertEquals('<a href="foo/bar">Hello</a>', $this->templateEngine->tag('a', $attributes, 'Hello', $conf));
+    }
+
+    public function testTag_EolConfParam() {
+        $this->assertEquals("<foo></foo>", $this->templateEngine->tag('foo', [], null));
+        $this->assertEquals("<foo></foo>\n", $this->templateEngine->tag('foo', [], null, ['eol' => true]));
+    }
+
+    public function testTag_EscapeTextConfParam() {
+        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', [], '"', ['eol' => false, 'escapeText' => true]));
+        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', [], '"', ['eol' => false]));
+        $this->assertEquals('<foo>"</foo>', $this->templateEngine->tag('foo', [], '"', ['eol' => false, 'escapeText' => false]));
+    }
+
+    public function testCopyright() {
+        $curYear = \date('Y');
+        $brand = 'Mices\'s';
+
+        $startYear = $curYear - 2;
+        $this->assertEquals(
+            '© ' . $startYear . '-' . $curYear . ', Mices&#039;s',
+            $this->templateEngine->copyright($brand, $startYear)
+        );
+
+        $startYear = $curYear;
+        $this->assertEquals(
+            '© ' . $startYear . ', Mices&#039;s',
+            $this->templateEngine->copyright($brand, $startYear)
+        );
     }
 
     private function mkServiceManager($services = null): ServiceManager {

@@ -77,6 +77,7 @@ class ServiceManager extends BaseServiceManager {
         return function (string $pluginName): string {
             $known = [
                 'Messenger' => __NAMESPACE__ . '\\View\\MessengerPlugin',
+                'Html' => __NAMESPACE__ . '\\View\\Html',
             ];
             return $known[$pluginName];
         };

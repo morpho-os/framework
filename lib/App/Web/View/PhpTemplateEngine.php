@@ -6,13 +6,12 @@
  */
 namespace Morpho\App\Web\View;
 
-use function Morpho\Base\dasherize;
-use function Morpho\Base\toJson;
-use Morpho\Ioc\IHasServiceManager;
-use function Morpho\App\Web\prependBasePath;
-use Morpho\Ioc\IServiceManager;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Uri\Uri;
+use Morpho\Base\Conf;
+use Morpho\Ioc\{IHasServiceManager, IServiceManager};
+use function Morpho\App\Web\prependBasePath;
+use function Morpho\Base\{toJson, dasherize, deleteDups};
 
 class PhpTemplateEngine extends TemplateEngine {
     protected IServiceManager $serviceManager;
@@ -107,7 +106,7 @@ class PhpTemplateEngine extends TemplateEngine {
     public function l($uri, string $text, array $attributes = null, array $conf = null): string {
         $attributes = (array) $attributes;
         $attributes['href'] = prependBasePath(function () { return $this->uri()->path()->basePath(); }, $uri)->toStr(null, false);
-        return Html::tag('a', $attributes, $text, $conf);
+        return $this->tag('a', $attributes, $text, $conf);
     }
 
     public function copyright(string $brand, $startYear = null): string {
@@ -117,7 +116,7 @@ class PhpTemplateEngine extends TemplateEngine {
         } else {
             $range = intval($startYear) . '-' . $currentYear;
         }
-        return '© ' . $range . ', ' . Html::encode($brand);
+        return '© ' . $range . ', ' . $this->encode($brand);
     }
 
     public function __call($pluginName, array $args) {
@@ -145,8 +144,137 @@ class PhpTemplateEngine extends TemplateEngine {
         ]);
     }
 
-    public function e($s): string {
-        return Html::encode($s);
+    public static function id(string $id): string {
+        static $htmlIds = [];
+        $id = dasherize(deleteDups(\preg_replace('/[^\w-]/s', '-', (string)$id), '-'));
+        if (isset($htmlIds[$id])) {
+            $id .= '-' . $htmlIds[$id]++;
+        } else {
+            $htmlIds[$id] = 1;
+        }
+        return e($id);
+    }
+
+    public static function encode($text): string {
+        return \htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Inverts result that can be obtained with escapeHtml().
+     */
+    public static function decode($text): string {
+        return \htmlspecialchars_decode($text, ENT_QUOTES);
+    }
+
+    public function openTag(string $tagName, array $attributes = [], bool $isXml = false): string {
+        return '<'
+            . $this->encode($tagName)
+            . $this->attributes($attributes)
+            . ($isXml ? ' />' : '>');
+    }
+
+    public function closeTag(string $name): string {
+        return '</' . $this->encode($name) . '>';
+    }
+
+    /**
+     * The source was found in Drupal-7.
+     */
+    public function attributes(array $attributes): string {
+        foreach ($attributes as $attribute => &$data) {
+            if (!\is_numeric($attribute)) {
+                $data = \implode(' ', (array)$data);
+                $data = $attribute . '="' . $this->encode($data) . '"';
+            }
+        }
+
+        return $attributes ? ' ' . \implode(' ', $attributes) : '';
+    }
+
+    public function singleTag(string $tagName, array $attributes = null, array $conf = []): string {
+        $conf['isSingle'] = true;
+        return $this->tag($tagName, $attributes, null, $conf);
+    }
+
+    public function tag(string $tagName, array $attributes = null, string $text = null, array $conf = null): string {
+        $conf = Conf::check(
+            [
+                'escapeText' => true,
+                'isSingle'   => false,
+                'isXml'      => false,
+                'eol'        => false,
+            ],
+            (array)$conf
+        );
+        $output = $this->openTag($tagName, (array)$attributes, $conf['isXml']);
+        if (!$conf['isSingle']) {
+            $output .= $conf['escapeText'] ? $this->encode($text) : $text;
+            $output .= $this->closeTag($tagName);
+        }
+        if ($conf['eol']) {
+            $output .= "\n";
+        }
+        return $output;
+    }
+
+    public function select(array $attributes = null, $options): string {
+        $attributes = (array) $attributes;
+        if (!isset($attributes['id']) && isset($attributes['name'])) {
+            $attributes['id'] = $this->id($attributes['name']);
+        }
+        $html = $this->openTag('select', $attributes);
+        $html .= $this->options($options, ['value' => null] + $attributes);
+        $html .= '</select>';
+        return $html;
+    }
+
+    /**
+     * @param array|\Traversable $options
+     * @param array|\Traversable|scalar|null $selectedOption
+     */
+    public function options($options, $selectedOption = null): string {
+        $html = '';
+        if (null === $selectedOption || \is_scalar($selectedOption)) {
+            $defaultValue = (string) $selectedOption;
+            foreach ($options as $value => $text) {
+                $value = (string) $value;
+                $selected = $value === $defaultValue ? ' selected' : '';
+                $html .= '<option value="' . $this->encode($value) . $selected . '">' . $this->encode($text) . '</option>';
+            }
+            return $html;
+        }
+        if (!\is_array($selectedOption) && !$selectedOption instanceof \Traversable) {
+            throw new \UnexpectedValueException();
+        }
+        $newOptions = [];
+        foreach ($options as $value => $text) {
+            $newOptions[(string) $value] = $text;
+        }
+        $selectedOptions = [];
+        foreach ($selectedOption as $val) {
+            $val = (string) $val;
+            $selectedOptions[$val] = true;
+        }
+        foreach ($newOptions as $value => $text) {
+            $selected = isset($selectedOptions[$value]) ? ' selected' : '';
+            $html .= '<option value="' . $this->encode($value) . $selected . '">' . $this->encode($text) . '</option>';
+        }
+        return $html;
+    }
+
+    public function hidden(string $name, $value, array $attributes = null): string {
+        return $this->singleTag(
+            'input',
+            [
+                'name'  => $name,
+                'value' => $value,
+                'type'  => 'hidden',
+            ] + (array)$attributes
+        );
+    }
+
+    public function httpMethodField(string $method = null, array $attributes = null): string {
+        return $this->hidden('_method', $method, $attributes);
     }
 
     protected function mkPlugin(string $name) {

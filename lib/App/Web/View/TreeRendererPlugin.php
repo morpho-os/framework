@@ -40,7 +40,7 @@ class TreeRendererPlugin extends Plugin {
     public function internalNodeRenderer(): callable {
         if (null === $this->internalNodeRenderer) {
             $this->internalNodeRenderer = function (array $node, string $renderedChildren): string {
-                return '<li class="tree__node tree__node-internal">' . Html::encode($node['label'])
+                return '<li class="tree__node tree__node-internal">' . PhpTemplateEngine::encode($node['label'])
                     //. $this->renderCheckbox($name, true)
                     . $renderedChildren
                     . '</li>';
@@ -58,7 +58,7 @@ class TreeRendererPlugin extends Plugin {
         if (null === $this->leafNodeRenderer) {
             $this->leafNodeRenderer = function (array $node): string {
                 return '<li class="tree__node tree__node-leaf">'
-                    . Html::encode($node['label'])//$this->renderCheckbox($node['label'], false)
+                    . PhpTemplateEngine::encode($node['label'])//$this->renderCheckbox($node['label'], false)
                     . '</li>';
             };
         }
@@ -87,7 +87,7 @@ class TreeRendererPlugin extends Plugin {
             $parents[] = $name;
             return \implode('___', \array_map([$this, 'escapeHtml'], $parents));
         };
-        return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . Html::encode($name);
+        return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . PhpTemplateEngine::encode($name);
     }
 */
 }

@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web;
 
+use function Morpho\Base\e;
 use Morpho\App\Web\View\Html;
 use Morpho\Error\ErrorHandler as BaseErrorHandler;
 
@@ -38,7 +39,7 @@ class ErrorHandler extends BaseErrorHandler {
                 //ob_end_flush();
                 \ob_end_clean();
             }
-            echo Html::encode($message) . '.';
+            echo e($message) . '.';
         };
     }
 }

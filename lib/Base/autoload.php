@@ -102,18 +102,6 @@ function showLn(...$messages) {
     }
 }
 
-function htmlId($id): string {
-    static $htmlIds = [];
-    $id = dasherize(deleteDups(\preg_replace('/[^\w-]/s', '-', (string)$id), '-'));
-    if (isset($htmlIds[$id])) {
-        $id .= '-' . $htmlIds[$id]++;
-    } else {
-        $htmlIds[$id] = 1;
-    }
-
-    return $id;
-}
-
 /**
  * Generates unique name within single HTTP request.
  */
