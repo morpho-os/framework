@@ -144,7 +144,7 @@ class PhpTemplateEngine extends TemplateEngine {
         ]);
     }
 
-    public static function id(string $id): string {
+    public function id(string $id): string {
         static $htmlIds = [];
         $id = dasherize(deleteDups(\preg_replace('/[^\w-]/s', '-', (string)$id), '-'));
         if (isset($htmlIds[$id])) {
@@ -152,11 +152,11 @@ class PhpTemplateEngine extends TemplateEngine {
         } else {
             $htmlIds[$id] = 1;
         }
-        return e($id);
+        return $this->encode($id);
     }
 
     public static function encode($text): string {
-        return \htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+        return \htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
     }
 
     /**

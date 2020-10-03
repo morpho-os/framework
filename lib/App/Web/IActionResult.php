@@ -4,12 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\App;
+namespace Morpho\App\Web;
 
-use Morpho\Base\IFn;
+use Morpho\App\IActionResult as IBaseActionResult;
 
-/**
- * The idea behind the IActionResult was found in .NET.
- */
-interface IActionResult extends IFn {
+interface IActionResult extends IBaseActionResult {
+    public function allowAjax(bool $flag = null): bool;
 }

@@ -6,9 +6,12 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\App\IActionResult;
+use Morpho\App\Web\IActionResult;
+use Morpho\App\Web\TActionResult;
 
 class HtmlResult implements IActionResult {
+    use TActionResult;
+
     /**
      * @var string
      */
@@ -82,19 +85,19 @@ class HtmlResult implements IActionResult {
         return $this->parent;
     }
 
-    private function normalizeParent($parent): HtmlResult {
-        return is_string($parent) ? new HtmlResult($parent) : $parent;
-    }
-
     public function __invoke($serviceManager) {
         $request = $serviceManager['request'];
         $request->response()['result'] = $this;
         $renderer = $serviceManager['htmlRenderer'];
-        if ($request->isAjax()) {
+        if ($this->allowAjax() && $request->isAjax()) {
             $body = $renderer->renderBody($request);
             $request->response()->setBody($body);
         } else {
             $renderer->__invoke($request);
         }
+    }
+
+    private function normalizeParent($parent): HtmlResult {
+        return is_string($parent) ? new HtmlResult($parent) : $parent;
     }
 }

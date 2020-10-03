@@ -8,16 +8,19 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\StatusCodeResult;
 use Morpho\App\Web\View\JsonResult;
-use Morpho\Testing\TestCase;
+use Morpho\App\Web\IActionResult;
 
-class StatusCodeResultTest extends TestCase {
-    use TActionResultTest;
+class StatusCodeResultTest extends ActionResultTest {
+    public function dataForInvoke_Ajax() {
+        yield [404, 'Not Found'];
+        yield [403, 'Forbidden'];
+    }
 
-    /*
-    public function testInvoke_Ajax() {
-        $statusCode = 404;
-        $actionResult = new StatusCodeResult(404);
-
+    /**
+     * @dataProvider dataForInvoke_Ajax
+     */
+    public function testInvoke_Ajax(int $statusCode, string $expectedReason) {
+        $actionResult = new StatusCodeResult($statusCode);
         $response = $this->mkResponse([], false);
         $request = $this->mkRequest($response, true);
         $serviceManager = [
@@ -26,15 +29,15 @@ class StatusCodeResultTest extends TestCase {
                 $passedResult = $request->response()['result'];
             },
         ];
+        $actionResult->allowAjax(true);
 
         $actionResult->__invoke($serviceManager);
 
         $this->assertIsObject($response['result']);
         $this->assertSame($statusCode, $response->statusCode());
         $this->assertInstanceOf(JsonResult::class, $passedResult);
-        $this->assertSame(['err' => 'Not Found'], $passedResult->val());
+        $this->assertSame(['reason' => $expectedReason], $passedResult->val());
     }
-     */
 
     public function testInvoke_NotAjax() {
         $statusCode = 404;
@@ -63,5 +66,9 @@ class StatusCodeResultTest extends TestCase {
         $this->assertFalse($request->isHandled());
         $this->assertSame($statusCode, $response->statusCode());
         $this->assertSame($notFoundHandler, $request->handler());
+    }
+
+    protected function mkActionResult(): IActionResult {
+        return new StatusCodeResult(200);
     }
 }

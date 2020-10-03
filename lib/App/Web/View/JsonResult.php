@@ -6,11 +6,14 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\App\IActionResult;
+use Morpho\App\Web\IActionResult;
+use Morpho\App\Web\TActionResult;
 use Morpho\Base\Val;
 use function Morpho\Base\{fromJson, toJson};
 
 class JsonResult extends Val implements \JsonSerializable, IActionResult {
+    use TActionResult;
+
     /**
      * @return mixed
      */

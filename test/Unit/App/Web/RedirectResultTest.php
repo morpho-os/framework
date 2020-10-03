@@ -8,11 +8,9 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\RedirectResult;
 use Morpho\App\Web\View\JsonResult;
-use Morpho\Testing\TestCase;
+use Morpho\App\Web\IActionResult;
 
-class RedirectResultTest extends TestCase {
-    use TActionResultTest;
-
+class RedirectResultTest extends ActionResultTest {
     public function dataForInvoke() {
         $redirectUri = 'http://localhost/foo/bar?one=1&two=2';
         yield [
@@ -41,6 +39,7 @@ class RedirectResultTest extends TestCase {
                 $passedResult = $request->response()['result'];
             },
         ];
+        $actionResult->allowAjax(true);
 
         $actionResult->__invoke($serviceManager);
 
@@ -70,5 +69,9 @@ class RedirectResultTest extends TestCase {
         $this->assertSame($statusCode, $response->statusCode());
         $this->assertSame('', $response->body());
         $this->assertSame(['Location' => $redirectUri], $response->headers()->getArrayCopy());
+    }
+
+    protected function mkActionResult(): IActionResult {
+        return new RedirectResult('http://localhost');
     }
 }

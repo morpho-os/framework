@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web;
 
-use Morpho\App\IActionResult;
 use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\View\JsonResult;
 
 class RedirectResult implements IActionResult {
+    use TActionResult;
+
     public ?string $uri;
 
     public ?int $statusCode;
@@ -56,7 +57,7 @@ class RedirectResult implements IActionResult {
         if (null === $redirectUri) {
             throw new \UnexpectedValueException();
         }
-        if ($request->isAjax()) {
+        if ($this->allowAjax() && $request->isAjax()) {
             $response->setStatusCode(200);
 
             if (isset($headers['Location'])) {

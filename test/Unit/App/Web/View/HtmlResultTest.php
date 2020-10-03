@@ -6,14 +6,12 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
-use Morpho\Test\Unit\App\Web\TActionResultTest;
+use Morpho\Test\Unit\App\Web\ActionResultTest;
 use Morpho\App\Web\View\HtmlResult;
 use Morpho\App\Web\View\HtmlRenderer;
-use Morpho\Testing\TestCase;
+use Morpho\App\Web\IActionResult;
 
-class HtmlResultTest extends TestCase {
-    use TActionResultTest;
-
+class HtmlResultTest extends ActionResultTest {
     public function testInvoke_NotAjax() {
         $response = $this->mkResponse([], false);
         $request = $this->mkRequest($response, false);
@@ -46,6 +44,7 @@ class HtmlResultTest extends TestCase {
             'htmlRenderer' => $renderer,
         ];
         $actionResult = new HtmlResult('foo');
+        $actionResult->allowAjax(true);
 
         $actionResult->__invoke($serviceManager);
 
@@ -66,5 +65,9 @@ class HtmlResultTest extends TestCase {
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($view->setPath($dirPath));
         $this->assertSame($dirPath, $view->path());
+    }
+
+    protected function mkActionResult(): IActionResult {
+        return new HtmlResult('foo');
     }
 }

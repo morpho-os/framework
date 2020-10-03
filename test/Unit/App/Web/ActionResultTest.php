@@ -8,16 +8,28 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Response;
+use Morpho\App\Web\IActionResult;
+use Morpho\Testing\TestCase;
 
-trait TActionResultTest {
-    private function mkRequest($response, bool $isAjax) {
+abstract class ActionResultTest extends TestCase {
+    public function testInterface() {
+        $this->assertInstanceOf(IActionResult::class, $this->mkActionResult());
+    }
+
+    public function testAllowAjax() {
+        $this->checkBoolAccessor([$this->mkActionResult(), 'allowAjax'], false);
+    }
+
+    protected abstract function mkActionResult(): IActionResult;
+
+    protected function mkRequest($response, bool $isAjax) {
         $request = new Request();
         $request->isAjax($isAjax);
         $request->setResponse($response);
         return $request;
     }
 
-    private function mkResponse(array $headers, ?bool $isRedirect) {
+    protected function mkResponse(array $headers, ?bool $isRedirect) {
         $response = new class ($headers, $isRedirect) extends Response {
             private ?bool $isRedirect;
             public function __construct(array $headers, ?bool $isRedirect) {
@@ -27,5 +39,9 @@ trait TActionResultTest {
             }
         };
         return $response;
+    }
+
+    public function isRedirect(): bool {
+        return $this->isRedirect;
     }
 }

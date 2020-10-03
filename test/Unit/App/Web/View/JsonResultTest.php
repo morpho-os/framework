@@ -6,13 +6,11 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
-use Morpho\Test\Unit\App\Web\TActionResultTest;
+use Morpho\Test\Unit\App\Web\ActionResultTest;
 use Morpho\App\Web\View\JsonResult;
-use Morpho\Testing\TestCase;
+use Morpho\App\Web\IActionResult;
 
-class JsonResultTest extends TestCase {
-    use TActionResultTest;
-
+class JsonResultTest extends ActionResultTest {
     public function testJsonSerialize_SerializesRecursiveIfValIsJsonSerializable() {
         $val = new class implements \JsonSerializable {
             public $jsonSerializeCalled;
@@ -52,5 +50,9 @@ class JsonResultTest extends TestCase {
 
         $this->assertTrue($called);
         $this->assertIsObject($response['result']);
+    }
+
+    protected function mkActionResult(): IActionResult {
+        return new JsonResult('foo');
     }
 }
