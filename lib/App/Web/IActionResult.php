@@ -9,5 +9,8 @@ namespace Morpho\App\Web;
 use Morpho\App\IActionResult as IBaseActionResult;
 
 interface IActionResult extends IBaseActionResult {
-    public function allowAjax(bool $flag = null): bool;
+    /**
+     * @return bool|IActionResult Returns IActionResult only when $flag !== null, returns bool otherwise.
+     */
+    public function allowAjax(bool $flag = null);
 }

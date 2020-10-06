@@ -81,11 +81,6 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         $this->parentActionResult = null;
     }
 
-    protected function allowAjax(IActionResult $actionResult): IActionResult {
-        $actionResult->allowAjax(true);
-        return $actionResult;
-    }
-
     /**
      * @param string|null $path
      * @param array|null|\ArrayObject $vars

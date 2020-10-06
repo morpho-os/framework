@@ -9,9 +9,13 @@ namespace Morpho\App\Web;
 trait TActionResult {
     private bool $allowAjax = false;
 
-    public function allowAjax(bool $flag = null): bool {
+    /**
+     * @return bool|self
+     */
+    public function allowAjax(bool $flag = null) {
         if ($flag !== null) {
             $this->allowAjax = $flag;
+            return $this;
         }
         return $this->allowAjax;
     }

@@ -16,8 +16,19 @@ abstract class ActionResultTest extends TestCase {
         $this->assertInstanceOf(IActionResult::class, $this->mkActionResult());
     }
 
-    public function testAllowAjax() {
-        $this->checkBoolAccessor([$this->mkActionResult(), 'allowAjax'], false);
+    public function dataForAllowAjax() {
+        yield [true];
+        yield [false];
+    }
+
+    /**
+     * @dataProvider dataForAllowAjax
+     */
+    public function testAllowAjax(bool $val) {
+        $actionResult = $this->mkActionResult();
+        $this->assertFalse($actionResult->allowAjax());
+        $this->assertSame($actionResult, $actionResult->allowAjax($val));
+        $this->assertSame($val, $actionResult->allowAjax());
     }
 
     protected abstract function mkActionResult(): IActionResult;
