@@ -9,6 +9,7 @@ namespace Morpho\Test\Unit\Tech\Systemd;
 use Morpho\Testing\TestCase;
 use Morpho\Tech\Systemd\Meta;
 use Morpho\Tech\Systemd\UnitType;
+use Morpho\Tech\Systemd\ActivationType;
 
 class MetaTest extends TestCase {
     public function testKnownBins() {
@@ -29,5 +30,9 @@ class MetaTest extends TestCase {
 
     public function testKnownConfDirectives() {
         $this->assertContains('ExecStart', Meta::knownConfDirectives()['Service']);
+    }
+
+    public function testKnownActivationType() {
+        $this->assertContains(ActivationType::BOOT, Meta::knownActivationTypes());
     }
 }
