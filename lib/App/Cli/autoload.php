@@ -201,7 +201,7 @@ function sh(string $command, array $conf = null): ICommandResult {
     return new ShellCommandResult($command, $exitCode, $output, '');
 }
 
-function shSu(string $command, array $conf = null): ICommandResult {
+function sudo(string $command, array $conf = null): ICommandResult {
     return sh('sudo bash -c "' . $command . '"', $conf);
 }
 
