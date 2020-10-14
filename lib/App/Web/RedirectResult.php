@@ -1,48 +1,26 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\App\Web;
 
-use Morpho\App\Web\Messages\Messenger;
+use Morpho\App\Web\Messages\TWithMessenger;
 use Morpho\App\Web\View\JsonResult;
 
 class RedirectResult implements IActionResult {
     use TActionResult;
+    use TWithMessenger;
 
     public ?string $uri;
 
     public ?int $statusCode;
 
-    protected Messenger $messenger;
-
     public function __construct(?string $uri, int $statusCode = null) {
         $this->uri = $uri;
         $this->statusCode = $statusCode;
     }
-
-    public function setMessenger(Messenger $messenger) {
-        $this->messenger = $messenger;
-        return $this;
-    }
-
-    public function withSuccessMessage(string $message, array $args = null) {
-        $this->messenger->addSuccessMessage($message, $args);
-        return $this;
-    }
-
-    public function withInfoMessage(string $text, array $args = null) {
-        $this->messenger->addInfoMessage($text, $args);
-        return $this;
-    }
-
-    public function withWarningMessage(string $text, array $args = null) {
-        $this->messenger->addWarningMessage($text, $args);
-        return $this;
-    }
-
-    public function withErrorMessage(string $text, array $args = null) {
-        $this->messenger->addErrorMessage($text, $args);
-        return $this;
-    }
-
     public function __invoke($serviceManager) {
         $request = $serviceManager['request'];
         $response = $request->response();
@@ -58,6 +36,9 @@ class RedirectResult implements IActionResult {
             throw new \UnexpectedValueException();
         }
         if ($this->allowAjax() && $request->isAjax()) {
+            // todo: render messages as json
+            $this->messenger->clearMessages();
+
             $response->setStatusCode(200);
 
             if (isset($headers['Location'])) {

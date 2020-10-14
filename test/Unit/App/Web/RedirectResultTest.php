@@ -9,6 +9,7 @@ namespace Morpho\Test\Unit\App\Web;
 use Morpho\App\Web\RedirectResult;
 use Morpho\App\Web\View\JsonResult;
 use Morpho\App\Web\IActionResult;
+use Morpho\App\Web\Messages\Messenger;
 
 class RedirectResultTest extends ActionResultTest {
     public function dataForInvoke() {
@@ -40,6 +41,10 @@ class RedirectResultTest extends ActionResultTest {
             },
         ];
         $actionResult->allowAjax(true);
+        $messenger = $this->createMock(Messenger::class);
+        $messenger->expects($this->once())
+                  ->method('clearMessages');
+        $actionResult->setMessenger($messenger);
 
         $actionResult->__invoke($serviceManager);
 
