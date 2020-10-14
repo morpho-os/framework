@@ -6,13 +6,7 @@
  */
 namespace Morpho\Fs;
 
-use Symfony\Component\Finder\Finder;
-
 abstract class Entry {
-    public static function find(): Finder {
-        return new Finder();
-    }
-
     public static function copy(string $srcPath, string $destPath): string {
         return \is_dir($srcPath)
             ? Dir::copy($srcPath, $destPath)

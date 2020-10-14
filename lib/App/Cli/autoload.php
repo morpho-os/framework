@@ -18,7 +18,6 @@ const STD_PIPES = [
 use Morpho\Base\Conf;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
-use Symfony\Component\Process\Process;
 use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
 
@@ -220,25 +219,6 @@ function rawSh(string $cmd, $env = null) {
     }
     \pcntl_waitpid($pid, $status);
     return \pcntl_wexitstatus($status);
-}
-
-/**
- * @param array|string $command
- * @param array|null $conf
- * @return ICommandResult
- */
-function proc($command, array $conf = null): ICommandResult {
-    $conf = Conf::check([
-        'check' => true,
-        // @TODO: tee: buffer and display output
-        //'capture' => false, // @TODO
-    ], (array) $conf);
-    $process = is_array($command) ? new Process($command) : Process::fromShellCommandline($command);
-    $exitCode = $process->run();
-    if ($conf['check']) {
-        checkExitCode($exitCode);
-    }
-    return new ProcCommandResult($process, $exitCode);
 }
 
 function checkExitCode(int $exitCode, string $errMessage = null): int {
