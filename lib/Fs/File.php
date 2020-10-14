@@ -171,7 +171,7 @@ class File extends Entry {
             throw new Exception("The file path is empty");
         }
         Dir::create(Path::dirPath($filePath));
-        $result = @\file_put_contents($filePath, $content, static::filePutContentsConfToFlags((array)$conf), $conf['context']);
+        $result = \file_put_contents($filePath, $content, static::filePutContentsConfToFlags((array)$conf), $conf['context'] ?? null);
         if (false === $result) {
             throw new Exception("Unable to write to the file '$filePath'");
         }
@@ -180,8 +180,7 @@ class File extends Entry {
     }
 
     public static function writePhpVar(string $filePath, $var, bool $stripNumericKeys = true): string {
-        File::write($filePath, '<?php return ' . var_export($var, true) . ';');
-        return $filePath;
+        return File::write($filePath, '<?php return ' . var_export($var, true) . ';');
     }
 
     /**
