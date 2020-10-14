@@ -1126,15 +1126,20 @@ class Meta {
         ];
     }
 
+    public static function knownActivationTypes(): array {
+         return (new \ReflectionClass(ActivationType::class))->getConstants();
+    }
+
     /**
      * Returns useful references to the web pages.
      */
     public static function refs(): array {
         return [
             ['text' => 'Official site', 'uri' => 'https://systemd.io/'],
-            ['text' => 'Source code', 'uri' => 'https://github.com/systemd/systemd', ],
-            ['text' => 'List of configuration directives', 'uri' => 'https://www.freedesktop.org/software/systemd/man/systemd.directives.html'],
+            ['text' => 'Source code', 'uri' => 'https://github.com/systemd/systemd'],
+            ['text' => 'Lennart Poettering\'s blog', 'uri' => 'http://0pointer.de/blog/'],
             ['text' => 'List of man pages', 'uri' => 'https://www.freedesktop.org/software/systemd/man/index.html'],
+            ['text' => 'List of configuration directives', 'uri' => 'https://www.freedesktop.org/software/systemd/man/systemd.directives.html'],
         ];
     }
 }
