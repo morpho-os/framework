@@ -263,14 +263,15 @@ class PhpTemplateEngine extends TemplateEngine {
     }
 
     public function hidden(string $name, $value, array $attributes = null): string {
-        return $this->singleTag(
-            'input',
-            [
-                'name'  => $name,
-                'value' => $value,
-                'type'  => 'hidden',
-            ] + (array)$attributes
-        );
+        $attributes = [
+            'name'  => $name,
+            'value' => $value,
+            'type' => 'hidden',
+        ] + (array)$attributes;
+        if (!isset($attributes['id'])) {
+            $attributes['id'] = $this->id($attributes['name']);
+        }
+        return $this->singleTag('input', $attributes);
     }
 
     public function httpMethodField(string $method = null, array $attributes = null): string {
