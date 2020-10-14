@@ -21,8 +21,9 @@ use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\App\Web\Session\Session;
-use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\HtmlRenderer;
+use Morpho\App\Web\View\JsonRenderer;
+use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\App\Web\View\Theme;
 use Morpho\Error\DumpListener;
 use Morpho\Error\LogListener;
@@ -158,6 +159,10 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkActionResultHandlerService() {
         return new ActionResultHandler($this);
+    }
+
+    protected function mkJsonRendererService() {
+        return new JsonRenderer();
     }
 
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {
