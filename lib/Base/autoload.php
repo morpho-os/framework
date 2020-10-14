@@ -110,9 +110,9 @@ function uniqueName(): string {
     return 'unique' . $uniqueInt++;
 }
 
-function words($s): array {
+function words($s, int $limit = -1): array {
     $s = (string) $s;
-    return \preg_split('~\\s+~s', \trim($s), -1, \PREG_SPLIT_NO_EMPTY);
+    return \preg_split('~\\s+~s', \trim($s), $limit, \PREG_SPLIT_NO_EMPTY);
 }
 
 /**
@@ -969,6 +969,43 @@ function last($list, string $separator = null) {
 }
 
 /**
+ * For abcd returns bcd
+ */
+function tail($list, string $separator = null) {
+    if (\is_array($list)) {
+        if (!\count($list)) {
+            throw new \RuntimeException('Empty list');
+        }
+        \array_shift($list);
+        return $list;
+    } elseif (\is_string($list)) {
+        if ($list === '') {
+            throw new \RuntimeException('Empty list');
+        }
+        // @TODO, mb_substr()
+        $pos = \strpos($list, $separator);
+        return false === $pos
+            ? ''
+            : \substr($list, $pos + 1);
+    } else {
+        $empty = true;
+        $gen = function () use ($list, &$empty) {
+            foreach ($list as $v) {
+                if ($empty) {
+                    $empty = false;
+                } else {
+                    yield $v;
+                }
+            }
+            if ($empty) {
+                throw new \RuntimeException('Empty list');
+            }
+        };
+        return $gen();
+    }
+}
+
+/**
  * @return string|\Generator|array
  */
 function map(callable $fn, $iter) {
@@ -1031,43 +1068,6 @@ function reduce(callable $fn, $iter, $initial = null) {
         $acc = $fn($acc, $value, $key);
     }
     return $acc;
-}
-
-/**
- * For abcd returns bcd
- */
-function tail($list, string $separator = null) {
-    if (\is_array($list)) {
-        if (!\count($list)) {
-            throw new \RuntimeException('Empty list');
-        }
-        \array_shift($list);
-        return $list;
-    } elseif (\is_string($list)) {
-        if ($list === '') {
-            throw new \RuntimeException('Empty list');
-        }
-        // @TODO, mb_substr()
-        $pos = \strpos($list, $separator);
-        return false === $pos
-            ? ''
-            : \substr($list, $pos + 1);
-    } else {
-        $empty = true;
-        $gen = function () use ($list, &$empty) {
-            foreach ($list as $v) {
-                if ($empty) {
-                    $empty = false;
-                } else {
-                    yield $v;
-                }
-            }
-            if ($empty) {
-                throw new \RuntimeException('Empty list');
-            }
-        };
-        return $gen();
-    }
 }
 
 function toArray(iterable $it): array {

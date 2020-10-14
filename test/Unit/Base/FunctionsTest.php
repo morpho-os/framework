@@ -845,6 +845,9 @@ class FunctionsTest extends TestCase {
         $this->assertSame(['bar'], words('bar'));
         $this->assertSame(['bar', '123'], words('bar    123   '));
         $this->assertSame(['123'], words(123));
+
+        $this->assertSame(['foo'], words('foo', 2));
+        $this->assertSame(['foo', 'bar baz'], words('foo bar baz', 2));
     }
 
     public function testUcfirst() {
