@@ -77,12 +77,15 @@ prepareEnv() {
 
 runTests() {
     set +e
-    if ! bin/test; then
+    bin/test
+    local -r exitCode=$?
+    set -e
+    if [[ $exitCode -ne 0 ]]; then
         echo --------------------------------------------------------------------------------
         echo 'server/localhost/log/*'
         sudo sh -c "cat $BASE_DIR_PATH/server/localhost/log/*"
+        exit $exitCode
     fi
-    set -e
     php test/lint.php
 }
 
