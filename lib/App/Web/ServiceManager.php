@@ -70,8 +70,21 @@ class ServiceManager extends BaseServiceManager {
         return $templateEngine;
     }
 
-    protected function mkHtmlRendererService() {
-        return new HtmlRenderer($this);
+    protected function mkActionResultRendererService() {
+        return new ActionResultRenderer(function ($format) {
+            if ($format === ContentFormat::HTML) {
+                return new HtmlRenderer(
+                    $this['request'],
+                    $this['theme'],
+                    $this['serverModuleIndex'],
+                    $this->conf()['view']['pageRenderer'],
+                );
+            } elseif ($format === ContentFormat::JSON) {
+                return new JsonRenderer($this['request']);
+            }
+            // todo: add XML
+            throw new \UnexpectedValueException();
+        });
     }
 
     protected function mkPluginResolverService(): callable {
@@ -133,10 +146,6 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
-    protected function mkContentNegotiatorService() {
-        return new ContentNegotiator();
-    }
-
     protected function mkDispatchErrorHandlerService() {
         $dispatchErrorHandler = new DispatchErrorHandler();
         $conf = $this->conf()['dispatchErrorHandler'];
@@ -159,10 +168,6 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkActionResultHandlerService() {
         return new ActionResultHandler($this);
-    }
-
-    protected function mkJsonRendererService() {
-        return new JsonRenderer();
     }
 
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {

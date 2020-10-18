@@ -6,23 +6,11 @@
  */
 namespace Morpho\Base;
 
-abstract class Val {
+class Ok extends Result {
     /**
-     * @var mixed
+     * @param mixed $val
      */
-    protected $val;
-
-    /**
-     * @param mixed $value
-     */
-    public function __construct($val) {
-        $this->val = $val;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function val() {
-        return $this->val;
+    public function __construct($val = true) {
+        parent::__construct($val);
     }
 }

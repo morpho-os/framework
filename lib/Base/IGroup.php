@@ -4,12 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\App;
-
-use Morpho\Base\IFn;
+namespace Morpho\Base;
 
 /**
- * The idea behind the IActionResult was found in .NET.
+ * [Group](https://github.com/fantasyland/static-land/blob/master/docs/spec.md#group)
  */
-interface IActionResult extends IFn {
+interface IGroup extends IMonoid {
 }

@@ -7,73 +7,69 @@
 namespace Morpho\App\Web\View;
 
 use Morpho\Base\IFn;
-use Morpho\Ioc\IServiceManager;
 use Morpho\App\Web\Request;
+use Morpho\App\Web\ActionResult;
 use function Morpho\Base\dasherize;
 
 class HtmlRenderer implements IFn {
-    protected $serviceManager;
+    private $request;
 
-    public function __construct(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
+    private $theme;
+
+    private $moduleIndex;
+
+    private string $pageRenderingModule;
+
+    public function __construct($request, $theme, $moduleIndex, string $pageRenderingModule) {
+        $this->request = $request;
+        $this->theme = $theme;
+        $this->moduleIndex = $moduleIndex;
+        $this->pageRenderingModule = $pageRenderingModule;
     }
 
-    /**
-     * @param Request $request
-     */
-    public function __invoke($request): void {
-        $body = $this->renderBody($request);
-        $this->renderPage($body, $request);
-    }
-
-    public function renderBody($request): string {
-        /** @var \Morpho\App\Web\Response $response */
-        $response = $request->response();
-
-        /** @var HtmlResult $view */
-        $actionResult = $response['result'];
-        if (!$actionResult instanceof HtmlResult) {
-            throw new \UnexpectedValueException();
+    public function __invoke($actionResult): void {
+        $request = $this->request;
+        if ($actionResult->allowAjax() && $request->isAjax()) {
+            $html = $this->renderBody($actionResult);
+        } else {
+            $body = $this->renderBody($actionResult);
+            $html = $this->renderPage($actionResult->page() ?: $this->mkPage(), $body);
         }
-
-        $handler = $request->handler();
-
-        $viewPath = $actionResult->path();
-        if (false === strpos($viewPath, '/')) {
-            $actionResult->setPath($handler['controllerPath'] . '/' . $viewPath);
-        }
-
-        return $this->renderView($handler['module'], $actionResult);
-    }
-
-    public function renderPage(string $body, $request): void {
         $response = $request->response();
-
-        $actionResult = $response['result'];
-
-        $page = $actionResult->parent() ?: $this->mkPage();
-        $page->vars()['body'] = $body;
-
-        $serviceManager = $this->serviceManager;
-        $moduleName = $serviceManager->conf()['view']['pageRenderer'];
-        $renderedPage = $this->renderView($moduleName, $page);
-
-        $response->setBody($renderedPage);
+        $response->setBody($html);
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'text/html;charset=utf-8';
     }
 
-    protected function renderView(string $moduleName, HtmlResult $actionResult): string {
-        $serviceManager = $this->serviceManager;
-        $moduleIndex = $serviceManager['serverModuleIndex'];
-        /** @var Theme $theme */
-        $theme = $serviceManager['theme'];
-        $viewDirPath = $moduleIndex->module($moduleName)->viewDirPath();
-        $theme->appendBaseDirPath($viewDirPath);
+    public function renderBody($actionResult): string {
+        $request = $this->request;
+        $response = $request->response();
+
+        $handler = $request->handler();
+
+        $viewPath = $actionResult->path();
+        if (null === $viewPath) {
+            $viewPath = dasherize($handler['method']);
+        }
+        if (false === strpos($viewPath, '/')) {
+            $actionResult->setPath($handler['controllerPath'] . '/' . $viewPath);
+        }
+        return $this->renderView($handler['module'], $actionResult);
+    }
+
+    public function renderPage($page, string $body): string {
+        $page['body'] = $body;
+        return $this->renderView($this->pageRenderingModule, $page);
+    }
+
+    protected function renderView(string $moduleName, $actionResult): string {
+        $viewDirPath = $this->moduleIndex->module($moduleName)->viewDirPath();
+        $theme = $this->theme;
+        $theme->addBaseDirPath($viewDirPath);
         return $theme->render($actionResult);
     }
 
-    protected function mkPage(): HtmlResult {
-        return new HtmlResult('index');
+    protected function mkPage(): ActionResult {
+        return (new ActionResult())->setPath('index');
     }
 }

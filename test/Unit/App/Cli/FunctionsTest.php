@@ -180,27 +180,4 @@ OUT
 
         $this->assertEquals("$question? (y/n): Invalid choice, please type y or n\ntrue", $out);
     }
-
-    public function testProc() {
-        $cmd = 'ls -al ' . \escapeshellarg(__DIR__);
-        $result = proc($cmd);
-        $this->assertInstanceOf(ProcCommandResult::class, $result);
-        $this->assertSame($cmd, $result->command());
-        $checkStdOut = function ($stdOut) {
-            $this->assertStringContainsString(".\n", $stdOut);
-            $this->assertStringContainsString("..\n", $stdOut);
-            $this->assertStringContainsString(\basename(__FILE__), $stdOut);
-        };
-        $checkStdOut($result->out());
-        $this->assertSame(0, $result->exitCode());
-        $this->assertFalse($result->isError());
-        $lines = \iterator_to_array($result->lines());
-        $this->assertTrue(\count($lines) > 0);
-        $checkStdOut(\implode("\n", $lines));
-    }
-
-    public function testProc_CheckExit() {
-        $this->expectException(\RuntimeException::class, 'Command returned non-zero exit code: ');
-        proc('invalidcmd123_asnani2i2');
-    }
 }

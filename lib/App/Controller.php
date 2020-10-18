@@ -27,8 +27,9 @@ abstract class Controller implements IFn {
         // @todo: ensure that is is safe to pass ...$args
         //$args = $handler['args'];
         $actionResult = $this->$methodName(/*...array_values($args)*/);
-        //$this->request->response()['result'] = $actionResult;
-        $response = $this->handleResult($actionResult);
+        $result = $this->handleResult($actionResult);
+        $response = $this->request->response();
+        $response['result'] = $result;
         $this->request->setResponse($response);
     }
 
@@ -45,9 +46,7 @@ abstract class Controller implements IFn {
     }
 
     /**
-     * @param array|null|IActionResult|IResponse|string $actionResult
+     * @param mixed
      */
-    abstract protected function handleResult($actionResult): IResponse;
-
-    abstract protected function mkNotFoundResult(): IActionResult;
+    abstract protected function handleResult($actionResult);
 }

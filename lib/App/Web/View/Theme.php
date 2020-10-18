@@ -23,11 +23,11 @@ class Theme {
         return false !== $this->absFilePath($viewPath, false);
     }*/
 
-    public function render(HtmlResult $viewResult): string {
-        return $this->renderFile($viewResult->path(), $viewResult->vars());
+    public function render($actionResult): string {
+        return $this->renderFile($actionResult->path(), $actionResult->getArrayCopy());
     }
 
-    public function appendBaseDirPath(string $dirPath): void {
+    public function addBaseDirPath(string $dirPath): void {
         $baseDirPaths = $this->baseDirPaths;
         $key = \array_search($dirPath, $baseDirPaths);
         if (false !== $key) {
@@ -36,11 +36,11 @@ class Theme {
         $baseDirPaths[] = $dirPath;
         $this->baseDirPaths = \array_values($baseDirPaths);
     }
-    
+
     public function baseDirPaths(): array {
         return $this->baseDirPaths;
     }
-    
+
     public function clearBaseDirPaths(): void {
         $this->baseDirPaths = [];
     }

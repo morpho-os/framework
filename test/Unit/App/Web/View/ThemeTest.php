@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web\View;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\TemplateEngine;
 use Morpho\App\Web\View\Theme;
-use Morpho\App\Web\View\HtmlResult;
+use Morpho\App\Web\ActionResult;
 
 class ThemeTest extends TestCase {
     public function testBasePathAccessors() {
@@ -21,16 +21,16 @@ class ThemeTest extends TestCase {
         $baseDirPath1 = $this->getTestDirPath() . '/foo';
         $baseDirPath2 = $this->getTestDirPath() . '/bar';
 
-        $theme->appendBaseDirPath($baseDirPath1);
+        $theme->addBaseDirPath($baseDirPath1);
 
         $this->assertEquals([$baseDirPath1], $theme->baseDirPaths());
 
-        $theme->appendBaseDirPath($baseDirPath2);
+        $theme->addBaseDirPath($baseDirPath2);
 
         $this->assertEquals([$baseDirPath1, $baseDirPath2], $theme->baseDirPaths());
 
         // Append the same path twice, it must be placed at the end to render it in FIFO order.
-        $theme->appendBaseDirPath($baseDirPath1);
+        $theme->addBaseDirPath($baseDirPath1);
 
         $this->assertEquals([$baseDirPath2, $baseDirPath1], $theme->baseDirPaths());
 
@@ -53,17 +53,16 @@ class ThemeTest extends TestCase {
 
         $templateEngine = $this->createMock(TemplateEngine::class);
         $templateEngine->method('runFile')
-            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars))
+            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars->getArrayCopy()))
             ->willReturn($expected);
 
         /** @noinspection PhpParamsInspection */
         $theme = new Theme($templateEngine);
 
-        $theme->appendBaseDirPath($baseViewDirPath);
+        $theme->addBaseDirPath($baseViewDirPath);
 
-        $actionResult = new HtmlResult($viewName, $viewVars);
-        $viewPath = $actionResult->path();
-        $actionResult->setPath($viewDirPath . (strlen($viewPath) ? '/' . $viewPath : ''));
+        $actionResult = (new ActionResult($viewVars));
+        $actionResult->setPath($viewDirPath . '/' . $viewName);
         /** @noinspection PhpParamsInspection */
         $actual = $theme->render($actionResult);
 

@@ -6,30 +6,38 @@
  */
 namespace Morpho\App\Web\Messages;
 
-trait TWithMessenger {
+trait THasMessenger {
     protected Messenger $messenger;
 
-    public function setMessenger(Messenger $messenger) {
+    public function setMessenger(Messenger $messenger): self {
         $this->messenger = $messenger;
         return $this;
     }
 
-    public function withSuccessMessage(string $message, array $args = null) {
+    public function messenger(): Messenger {
+        return $this->messenger;
+    }
+
+    public function clearMessages() {
+        $this->messenger->clearMessages();
+    }
+
+    public function addSuccessMessage(string $message, array $args = null): self {
         $this->messenger->addSuccessMessage($message, $args);
         return $this;
     }
 
-    public function withInfoMessage(string $text, array $args = null) {
+    public function addInfoMessage(string $text, array $args = null): self {
         $this->messenger->addInfoMessage($text, $args);
         return $this;
     }
 
-    public function withWarningMessage(string $text, array $args = null) {
+    public function addWarningMessage(string $text, array $args = null): self {
         $this->messenger->addWarningMessage($text, $args);
         return $this;
     }
 
-    public function withErrorMessage(string $text, array $args = null) {
+    public function addErrorMessage(string $text, array $args = null): self {
         $this->messenger->addErrorMessage($text, $args);
         return $this;
     }

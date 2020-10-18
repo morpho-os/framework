@@ -10,15 +10,15 @@ use Morpho\Base\IFn;
 use function Morpho\Base\toJson;
 
 class JsonRenderer implements IFn {
-    /**
-     * @param \Morpho\App\Web\Request $request
-     */
-    public function __invoke($request): void {
-        /** @var \Morpho\App\Web\Response $response */
-        $response = $request->response();
-        $result = $response['result'];
+    public function __construct($request) {
+        $this->request = $request;
+    }
+
+    public function __invoke($actionResult): void {
+        $actionResult->clearMessages();
+        $response = $this->request->response();
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'application/json;charset=utf-8';
-        $response->setBody(toJson($result));
+        $response->setBody(toJson($actionResult->getArrayCopy()));
     }
 }

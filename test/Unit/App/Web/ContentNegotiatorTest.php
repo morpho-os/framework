@@ -8,6 +8,7 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\ContentNegotiator;
+use Morpho\App\Web\ContentFormat;
 use Morpho\App\Web\Request;
 
 class ContentNegotiatorTest extends TestCase {
@@ -15,34 +16,34 @@ class ContentNegotiatorTest extends TestCase {
         $mediaRanges = $this->mediaRanges();
         yield [
             $this->mkAcceptHeaderVal([
-                $mediaRanges[ContentNegotiator::JSON_FORMAT],
-                $mediaRanges[ContentNegotiator::HTML_FORMAT],
-                $mediaRanges[ContentNegotiator::XML_FORMAT],
-                $mediaRanges[ContentNegotiator::ANY_FORMAT],
+                $mediaRanges[ContentFormat::JSON],
+                $mediaRanges[ContentFormat::HTML],
+                $mediaRanges[ContentFormat::XML],
+                $mediaRanges[ContentFormat::ANY],
             ]),
-            ContentNegotiator::HTML_FORMAT,// Default priority is choosing HTML
+            ContentFormat::HTML,// Default priority is choosing HTML
         ];
         yield [
             $this->mkAcceptHeaderVal([
-                $mediaRanges[ContentNegotiator::ANY_FORMAT],
-                $mediaRanges[ContentNegotiator::XML_FORMAT],
-                $mediaRanges[ContentNegotiator::JSON_FORMAT],
+                $mediaRanges[ContentFormat::ANY],
+                $mediaRanges[ContentFormat::XML],
+                $mediaRanges[ContentFormat::JSON],
             ]),
-            ContentNegotiator::JSON_FORMAT,
+            ContentFormat::JSON,
         ];
         yield [
             $this->mkAcceptHeaderVal([
-                $mediaRanges[ContentNegotiator::JSON_FORMAT],
+                $mediaRanges[ContentFormat::JSON],
             ]),
-            ContentNegotiator::JSON_FORMAT,
+            ContentFormat::JSON,
         ];
         yield [
             '   ',
-            ContentNegotiator::HTML_FORMAT,
+            ContentFormat::HTML,
         ];
         yield [
             '',
-            ContentNegotiator::HTML_FORMAT,
+            ContentFormat::HTML,
         ];
     }
 
@@ -66,7 +67,7 @@ class ContentNegotiatorTest extends TestCase {
 
         $format = $negotiator->__invoke($request);
 
-        $this->assertSame(ContentNegotiator::HTML_FORMAT, $format);
+        $this->assertSame(ContentFormat::HTML, $format);
     }
 
     private function mkAcceptHeaderVal(array $mediaRanges): string {
@@ -79,10 +80,10 @@ class ContentNegotiatorTest extends TestCase {
 
     private function mediaRanges(): array {
         return [
-            ContentNegotiator::JSON_FORMAT => ['application/json'],
-            ContentNegotiator::HTML_FORMAT => ['text/html', 'application/xhtml+xml'],
-            ContentNegotiator::XML_FORMAT => ['application/xml;q=0.9'],
-            ContentNegotiator::ANY_FORMAT => ['*/*;q=0.8'],
+            ContentFormat::JSON => ['application/json'],
+            ContentFormat::HTML => ['text/html', 'application/xhtml+xml'],
+            ContentFormat::XML => ['application/xml;q=0.9'],
+            ContentFormat::ANY => ['*/*;q=0.8'],
         ];
     }
 }
