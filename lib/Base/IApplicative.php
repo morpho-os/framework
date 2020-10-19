@@ -6,8 +6,9 @@
  */
 namespace Morpho\Base;
 
-/**
- * [Applicative](https://github.com/fantasyland/static-land/blob/master/docs/spec.md#applicative)
- */
-interface IApplicative extends IApply {
+interface IApplicative extends IFunctor {
+    /**
+     * @param $functor: IFunctor<A => B> => IApplicative<B>
+     */
+    public function apply($functor): IApplicative;
 }

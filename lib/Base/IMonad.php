@@ -6,9 +6,9 @@
  */
 namespace Morpho\Base;
 
-/**
- * [Monad](https://github.com/fantasyland/static-land/blob/master/docs/spec.md#monad)
- * It does not have return()/unit()/op() method as for OOP, unit is the same as calling constructor.
- */
-interface IMonad extends IApplicative, IChain {
+interface IMonad extends IApplicative {
+    /**
+     * @param $fn: A => IMonad<A>
+     */
+    public function bind(callable $fn): IMonad;
 }

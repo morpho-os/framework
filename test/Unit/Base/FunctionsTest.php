@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{endsWith, formatFloat, hasPrefix, hasSuffix, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, startsWith, formatBytes, words, ucfirst};
+use function Morpho\Base\{endsWith, formatFloat, hasPrefix, hasSuffix, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, startsWith, formatBytes, words, ucfirst, indent, unindent};
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
 
@@ -854,6 +854,26 @@ class FunctionsTest extends TestCase {
         $this->assertSame('', ucfirst(''));
         $this->assertSame('Foo', ucfirst('foo'));
         $this->assertSame('Тест', ucfirst('тест'));
+    }
+
+    public function testIndent_Uindent() {
+        $orig = <<<OUT
+begin
+        Bar
+            baz
+    Some text
+end
+OUT;
+        $expected = <<<OUT
+    begin
+            Bar
+                baz
+        Some text
+    end
+OUT;
+        $actual = indent($orig);
+        $this->assertSame($expected, $actual);
+        $this->assertSame($orig, unindent($actual));
     }
 
     private function assertCommon($fn) {

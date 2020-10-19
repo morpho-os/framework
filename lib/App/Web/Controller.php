@@ -20,18 +20,6 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         $this->serviceManager = $serviceManager;
     }
 
-    protected function result($vars = []) {
-        return (new ActionResult($vars))
-            ->setMessenger($this->messenger());
-    }
-
-    protected function handleResult($actionResult) {
-        if (!$actionResult instanceof ActionResult) {
-            return $this->result($actionResult);
-        }
-        return $actionResult;
-    }
-
     protected function redirect(string $uri = null, int $statusCode = null) {
         $this->request->response()->redirect($uri, $statusCode);
         return $this->result();
@@ -58,5 +46,29 @@ abstract class Controller extends BaseController implements IHasServiceManager {
 
     protected function messenger(): Messages\Messenger {
         return $this->serviceManager['messenger'];
+    }
+
+    protected function ok($data = null): ActionResult {
+        return $this->result(['result' => 'ok', 'data' => $data])
+                    ->allowAjax(true)
+                    ->setFormats('json');
+    }
+
+    protected function err($data = null): ActionResult {
+        return $this->result(['result' => 'err', 'data' => $data])
+                    ->allowAjax(true)
+                    ->setFormats('json');
+    }
+
+    protected function result($vars = []) {
+        return (new ActionResult($vars))
+            ->setMessenger($this->messenger());
+    }
+
+    protected function handleResult($actionResult) {
+        if (!$actionResult instanceof ActionResult) {
+            return $this->result($actionResult);
+        }
+        return $actionResult;
     }
 }

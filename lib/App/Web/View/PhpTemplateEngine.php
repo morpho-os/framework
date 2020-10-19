@@ -116,7 +116,7 @@ class PhpTemplateEngine extends TemplateEngine {
         } else {
             $range = intval($startYear) . '-' . $currentYear;
         }
-        return '© ' . $range . ', ' . $this->encode($brand);
+        return '© ' . $range . ', ' . $this->e($brand);
     }
 
     public function __call($pluginName, array $args) {
@@ -152,29 +152,18 @@ class PhpTemplateEngine extends TemplateEngine {
         } else {
             $htmlIds[$id] = 1;
         }
-        return $this->encode($id);
+        return $this->e($id);
     }
 
-    public static function encode($text): string {
-        return \htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
+    public static function e($text): string {
+        return \htmlspecialchars((string) $text, ENT_QUOTES);
     }
 
     /**
-     * Inverts result that can be obtained with escapeHtml().
+     * Opposite to e().
      */
-    public static function decode($text): string {
-        return \htmlspecialchars_decode($text, ENT_QUOTES);
-    }
-
-    public function openTag(string $tagName, array $attributes = [], bool $isXml = false): string {
-        return '<'
-            . $this->encode($tagName)
-            . $this->attributes($attributes)
-            . ($isXml ? ' />' : '>');
-    }
-
-    public function closeTag(string $name): string {
-        return '</' . $this->encode($name) . '>';
+    public static function de($text): string {
+        return \htmlspecialchars_decode((string) $text, ENT_QUOTES);
     }
 
     /**
@@ -184,15 +173,26 @@ class PhpTemplateEngine extends TemplateEngine {
         foreach ($attributes as $attribute => &$data) {
             if (!\is_numeric($attribute)) {
                 $data = \implode(' ', (array)$data);
-                $data = $attribute . '="' . $this->encode($data) . '"';
+                $data = $attribute . '="' . $this->e($data) . '"';
             }
         }
 
         return $attributes ? ' ' . \implode(' ', $attributes) : '';
     }
 
-    public function singleTag(string $tagName, array $attributes = null, array $conf = []): string {
-        $conf['isSingle'] = true;
+    public function openTag(string $tagName, array $attributes = [], bool $isXml = false): string {
+        return '<'
+            . $this->e($tagName)
+            . $this->attributes($attributes)
+            . ($isXml ? ' />' : '>');
+    }
+
+    public function closeTag(string $name): string {
+        return '</' . $this->e($name) . '>';
+    }
+
+    public function tag1(string $tagName, array $attributes = null, array $conf = []): string {
+        $conf['single'] = true;
         return $this->tag($tagName, $attributes, null, $conf);
     }
 
@@ -200,15 +200,15 @@ class PhpTemplateEngine extends TemplateEngine {
         $conf = Conf::check(
             [
                 'escapeText' => true,
-                'isSingle'   => false,
+                'single'   => false,
                 'isXml'      => false,
                 'eol'        => false,
             ],
             (array)$conf
         );
         $output = $this->openTag($tagName, (array)$attributes, $conf['isXml']);
-        if (!$conf['isSingle']) {
-            $output .= $conf['escapeText'] ? $this->encode($text) : $text;
+        if (!$conf['single']) {
+            $output .= $conf['escapeText'] ? $this->e($text) : $text;
             $output .= $this->closeTag($tagName);
         }
         if ($conf['eol']) {
@@ -239,7 +239,7 @@ class PhpTemplateEngine extends TemplateEngine {
             foreach ($options as $value => $text) {
                 $value = (string) $value;
                 $selected = $value === $defaultValue ? ' selected' : '';
-                $html .= '<option value="' . $this->encode($value) . $selected . '">' . $this->encode($text) . '</option>';
+                $html .= '<option value="' . $this->e($value) . $selected . '">' . $this->e($text) . '</option>';
             }
             return $html;
         }
@@ -257,7 +257,7 @@ class PhpTemplateEngine extends TemplateEngine {
         }
         foreach ($newOptions as $value => $text) {
             $selected = isset($selectedOptions[$value]) ? ' selected' : '';
-            $html .= '<option value="' . $this->encode($value) . $selected . '">' . $this->encode($text) . '</option>';
+            $html .= '<option value="' . $this->e($value) . $selected . '">' . $this->e($text) . '</option>';
         }
         return $html;
     }
@@ -271,7 +271,7 @@ class PhpTemplateEngine extends TemplateEngine {
         if (!isset($attributes['id'])) {
             $attributes['id'] = $this->id($attributes['name']);
         }
-        return $this->singleTag('input', $attributes);
+        return $this->tag1('input', $attributes);
     }
 
     public function httpMethodField(string $method = null, array $attributes = null): string {

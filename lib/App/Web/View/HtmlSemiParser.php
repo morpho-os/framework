@@ -277,7 +277,7 @@ class HtmlSemiParser implements IFn {
             if ($name == '_text' || $name == '_tagName' || $name == '_orig') {
                 continue;
             }
-            $attrStr .= ' ' . PhpTemplateEngine::encode($name);
+            $attrStr .= ' ' . PhpTemplateEngine::e($name);
             if ($value !== null) {
                 $attrStr .= '="' . $this->encodeAttrValue($value) . '"';
             }
@@ -307,12 +307,12 @@ class HtmlSemiParser implements IFn {
                 if (\preg_match('~^(?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?>$~six', $group)) { // ignore PHP code
                     $value .= $group;
                 } else {
-                    $value .= PhpTemplateEngine::encode($group);
+                    $value .= PhpTemplateEngine::e($group);
                 }
             }
             return $value;
         } else {
-            return PhpTemplateEngine::encode($attrValue);
+            return PhpTemplateEngine::e($attrValue);
         }
     }
 

@@ -6,8 +6,8 @@
  */
 namespace Morpho\Base;
 
-/**
- * [Group](https://github.com/fantasyland/static-land/blob/master/docs/spec.md#group)
- */
-interface IGroup extends IMonoid {
+trait TApplicative {
+    public static function of(): IApplicative {
+        return new static();
+    }
 }

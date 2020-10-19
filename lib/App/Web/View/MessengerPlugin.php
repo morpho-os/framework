@@ -56,7 +56,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
 
     protected function renderMessageOfType(array $message, string $type): string {
         $text = format(
-            \nl2br(PhpTemplateEngine::encode($message['text'])),
+            \nl2br(PhpTemplateEngine::e($message['text'])),
             $message['args'],
             function ($arg) { return $arg; }
         );

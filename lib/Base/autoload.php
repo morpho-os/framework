@@ -22,7 +22,9 @@ const RESOURCE_TYPE = 'resource';
 const TRIM_CHARS = " \t\n\r\x00\x0B";
 const EOL_RE      = '(?>\r\n|\n|\r)';
 const EOL_FULL_RE = '~' . EOL_RE . '~s';
-const INDENT = '    ';
+
+const INDENT_SIZE = 4;
+define(__NAMESPACE__ . '\\INDENT', str_repeat(' ', INDENT_SIZE));
 
 const SHORTEN_TAIL = '...';
 const SHORTEN_LENGTH = 30;
@@ -33,8 +35,12 @@ const EPS = 0.00001;
 
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
-function e($s): string {
-    return \htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+function e($text): string {
+    return \htmlspecialchars((string) $text, ENT_QUOTES);
+}
+
+function de($text): string {
+    return \htmlspecialchars_decode((string) $text, ENT_QUOTES);
 }
 
 function evalFn($valOrFn) {
@@ -1087,9 +1093,30 @@ function toArray(iterable $it): array {
     return $arr;
 }
 
-// https://www.php.net/manual/en/function.ucfirst.php#57298
+/**
+ * ucfirst() working for UTF-8
+ * https://www.php.net/manual/en/function.ucfirst.php#57298
+ */
 function ucfirst($s) {
     $s = (string) $s;
     $fc = mb_strtoupper(mb_substr($s, 0, 1));
     return $fc . mb_substr($s, 1);
+}
+
+/**
+ * Opposite to unindent();
+ * @param string $text
+ * @param int $indent Number of spaces
+ */
+function indent($text, int $indent = INDENT_SIZE): string {
+    return preg_replace('~^~m', str_repeat(' ', $indent), (string) $text);
+}
+
+/**
+ * Opposite to indent()
+ * @param string $text
+ * @param int $indent Number of spaces
+ */
+function unindent($text, int $indent = INDENT_SIZE): string {
+    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string) $text);
 }

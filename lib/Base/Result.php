@@ -10,10 +10,7 @@ namespace Morpho\Base;
  * Useful for monadic error-handling code which can be composed. Inspired by F#, Haskell and Rust.
  */
 abstract class Result extends Monad {
-    /**
-     * @param callable $fn: (mixed $val) => Result
-     */
-    public function chain(callable $fn): Result {
+    public function bind(callable $fn): Result {
         if ($this instanceof Err) {
             return $this;
         }
@@ -21,5 +18,11 @@ abstract class Result extends Monad {
             return $fn($this->val);
         }
         throw new \UnexpectedValueException();
+    }
+
+    public function apply($functor): Result {
+        return $functor->map(function ($fn) {
+            return $fn($this->val);
+        });
     }
 }

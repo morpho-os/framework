@@ -6,13 +6,10 @@
  */
 namespace Morpho\Base;
 
-/**
- * [Functor](https://github.com/fantasyland/static-land/blob/master/docs/spec.md#functor)
- */
 interface IFunctor extends IContainer {
     /**
      * @param callable $fn: A => B
-     *     Function can return any value which must be wrapped in IFunctor container.
+     *     The $fn can return any value which will be wrapped in IFunctor container by the map() implementation.
      */
     public function map(callable $fn): IFunctor;
 }

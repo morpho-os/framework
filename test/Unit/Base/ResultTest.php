@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Testing\TestCase;
-use Morpho\Base\{Result, Ok, Err, IContainer, IMonad, IFunctor, IChain, IApplicative, IApply};
+use Morpho\Base\{Result, Ok, Err, IFunctor, IMonad, Container};
 
 class ResultTest extends TestCase {
     public function dataForInterface() {
@@ -18,18 +18,14 @@ class ResultTest extends TestCase {
      * @dataProvider dataForInterface
      */
     public function testInterface($instance) {
-        $this->assertInstanceOf(IFunctor::class, $instance);
-        $this->assertInstanceOf(IApply::class, $instance);
-        $this->assertInstanceOf(IChain::class, $instance);
-        $this->assertInstanceOf(IApplicative::class, $instance);
         $this->assertInstanceOf(IMonad::class, $instance);
         $this->assertInstanceOf(Result::class, $instance);
     }
 
-    public function testChain_Ok() {
+    public function testBind_Ok() {
         $ok1Val = 'foo';
         $ok2Val = 'bar';
-        $res = (new Ok($ok1Val))->chain(function ($val) use (&$captured, $ok2Val) {
+        $res = (new Ok($ok1Val))->bind(function ($val) use (&$captured, $ok2Val) {
             $captured = $val;
             return new Ok($ok2Val);
         });
@@ -37,10 +33,10 @@ class ResultTest extends TestCase {
         $this->assertEquals(new Ok($ok2Val), $res);
     }
 
-    public function testChain_Err() {
+    public function testBind_Err() {
         $okVal = 'foo';
         $errVal = 'bar';
-        $res = (new Ok($okVal))->chain(function ($val) use (&$captured, $errVal) {
+        $res = (new Ok($okVal))->bind(function ($val) use (&$captured, $errVal) {
             $captured = $val;
             return new Err($errVal);
         });
@@ -101,9 +97,9 @@ class ResultTest extends TestCase {
         };
 
         $validateRequest = function (Result $reqResult) use ($validateName, $validateEmail, $expected): Result {
-            return $reqResult->chain($validateName)
-                             ->chain($validateEmail)
-                             ->chain(function ($val) use ($expected) {
+            return $reqResult->bind($validateName)
+                             ->bind($validateEmail)
+                             ->bind(function ($val) use ($expected) {
                                  if ($expected instanceof Err) {
                                      throw new \RuntimeException("Must not be called");
                                  }
@@ -123,31 +119,31 @@ class ResultTest extends TestCase {
     }
 
     public function testMonadLaws_LeftIdentity() {
-        // M.chain(f, M.of(a)) ≡ f(a)
+        // M.bind(f, M.of(a)) ≡ f(a)
         $fn = function ($v) {
             return new Ok($v);
         };
         $val = 'abc';
         $this->assertEquals(
             $fn($val),
-            (new Ok($val))->chain($fn),
+            (new Ok($val))->bind($fn),
         );
     }
 
     public function testMonadLaws_RightIdentity() {
-        // M.chain(M.of, u) ≡ u
+        // M.bind(M.of, u) ≡ u
         $fn = function ($v) {
             return new Ok($v);
         };
         $this->assertEquals(
             new Ok('abc'),
-            (new Ok('abc'))->chain($fn)
+            (new Ok('abc'))->bind($fn)
         );
     }
 
     public function testMonadLaws_Associativity() {
-        // chain: <a, b>(a => T<b>, T<a>) => T<b>
-        // M.chain(g, M.chain(f, u)) ≡ M.chain(x => M.chain(g, f(x)), u)
+        // bind: <a, b>(a => T<b>, T<a>) => T<b>
+        // M.bind(g, M.bind(f, u)) ≡ M.bind(x => M.bind(g, f(x)), u)
         $f = function ($v) {
             return new Ok($v * 4);
         };
@@ -156,14 +152,23 @@ class ResultTest extends TestCase {
         };
 
         $this->assertEquals(
-            (new Ok(5))->chain(fn ($x) => $f($x)->chain($g)),
-            (new Ok(5))->chain($f)->chain($g)
+            (new Ok(5))->bind(fn ($x) => $f($x)->bind($g)),
+            (new Ok(5))->bind($f)->bind($g)
         );
     }
 
+    // Functor
     public function testMap() {
-        $res = (new Ok(2))->map(fn ($val)=> $val - 3);
+        $res = (new Ok(2))->map(fn ($val) => $val - 3);
         $this->assertInstanceOf(IFunctor::class, $res);
         $this->assertSame(-1, $res->val());
+    }
+
+    // Applicative
+    public function testApply() {
+        $fn = fn ($v) => $v - 2;
+        $res = (new Ok(5))->apply(new Ok($fn));
+        $this->assertInstanceOf(Ok::class, $res);
+        $this->assertSame(3, $res->val());
     }
 }

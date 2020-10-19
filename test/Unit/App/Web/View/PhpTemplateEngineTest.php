@@ -315,17 +315,17 @@ OUT;
             '&'  => '&amp;',
         ];
         foreach ($specialChars as $char => $expected) {
-            $encoded = $this->templateEngine->encode($char);
+            $encoded = $this->templateEngine->e($char);
             $this->assertSame($expected, $encoded);
-            $this->assertSame($char, $this->templateEngine->decode($encoded));
+            $this->assertSame($char, $this->templateEngine->de($encoded));
         }
     }
 
     public function testEncodeDecode_SpecialCharsWithText() {
         $original = '<h1>Hello</h1>';
-        $encoded = $this->templateEngine->encode($original);
+        $encoded = $this->templateEngine->e($original);
         $this->assertEquals('&lt;h1&gt;Hello&lt;/h1&gt;', $encoded);
-        $this->assertEquals($original, $this->templateEngine->decode($encoded));
+        $this->assertEquals($original, $this->templateEngine->de($encoded));
     }
 
     public function testEmptyAttributes() {
@@ -339,29 +339,29 @@ OUT;
         );
     }
 
-    public function testSingleTag() {
+    public function testTag1() {
         $attributes = ['href' => 'foo/bar.css', 'rel' => 'stylesheet'];
         $expected = '<link href="foo/bar.css" rel="stylesheet">';
         $this->assertEquals(
             $expected,
-            $this->templateEngine->tag('link', $attributes, null, ['eol' => false, 'isSingle' => true])
+            $this->templateEngine->tag('link', $attributes, null, ['eol' => false, 'single' => true])
         );
         $this->assertEquals(
             $expected,
-            $this->templateEngine->singleTag('link', $attributes, ['eol' => false])
+            $this->templateEngine->tag1('link', $attributes, ['eol' => false])
         );
     }
 
-    public function testSingleTag_IsXmlConfParam() {
+    public function testTag1_IsXmlConfParam() {
         $attributes = ['bar' => 'test'];
         $expected = '<foo bar="test" />';
         $this->assertEquals(
             $expected,
-            $this->templateEngine->tag('foo', $attributes, null, ['isXml' => true, 'eol' => false, 'isSingle' => true])
+            $this->templateEngine->tag('foo', $attributes, null, ['isXml' => true, 'eol' => false, 'single' => true])
         );
         $this->assertEquals(
             $expected,
-            $this->templateEngine->singleTag('foo', $attributes, ['isXml' => true, 'eol' => false])
+            $this->templateEngine->tag1('foo', $attributes, ['isXml' => true, 'eol' => false])
         );
     }
 
