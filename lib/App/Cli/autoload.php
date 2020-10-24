@@ -201,7 +201,7 @@ function sh(string $command, array $conf = null): ICommandResult {
 }
 
 function sudo(string $command, array $conf = null): ICommandResult {
-    return sh('sudo bash -c "' . $command . '"', $conf);
+    return sh('sudo bash -c "' . str_replace('"', '\\"', $command) . '"', $conf);
 }
 
 /**

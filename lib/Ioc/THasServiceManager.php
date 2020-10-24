@@ -12,6 +12,9 @@ trait THasServiceManager {
      */
     protected $serviceManager;
 
+    /**
+     * @notCommand
+     */
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
     }

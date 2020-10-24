@@ -9,7 +9,6 @@ namespace Morpho\Fs;
 use DirectoryIterator;
 use Morpho\Base\Conf;
 use Morpho\Base\Env;
-use Morpho\Error\ErrorHandler;
 use InvalidArgumentException;
 
 class Dir extends Entry {
@@ -405,7 +404,9 @@ class Dir extends Entry {
             return $dirPath;
         }
 
-        ErrorHandler::checkError(@\mkdir($dirPath, $mode, $recursive), "Unable to create the directory '$dirPath' with mode: $mode");
+        if (!\mkdir($dirPath, $mode, $recursive)) {
+            throw new \RuntimeException("Unable to create the directory '$dirPath' with mode: $mode");
+        }
 
         return $dirPath;
     }
@@ -475,7 +476,10 @@ class Dir extends Entry {
             }
             $entryPath = $entry->getPathname();
             if (\is_link($entryPath)) {
-                @\unlink($entryPath);
+                if (!\unlink($entryPath)) {
+                    throw new \RuntimeException("The symlink '$entryPath' can not be deleted");
+                }
+                clearstatcache(true, $entryPath);
                 continue;
             }
             if ($entry->isDir()) {
@@ -492,12 +496,18 @@ class Dir extends Entry {
                 }
             } else {
                 if (null === $predicate || (null !== $predicate && $predicate($entryPath, false))) {
-                    ErrorHandler::checkError(@\unlink($entryPath), "The file '$entryPath' can not be deleted, check permissions");
+                    if (!unlink($entryPath)) {
+                        throw new \RuntimException("The file '$entryPath' can not be deleted, check permissions");
+                    }
+                    clearstatcache(true, $entryPath);
                 }
             }
         }
         if (null === $predicate || (null !== $predicate && $predicate($absPath, true))) {
-            ErrorHandler::checkError(@\rmdir($absPath), "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
+            if (!rmdir($absPath)) {
+                throw new \RuntimeException("Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
+            }
+            clearstatcache(true, $absPath);
         }
     }
 

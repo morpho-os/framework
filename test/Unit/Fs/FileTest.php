@@ -13,6 +13,10 @@ use Morpho\Fs\FileNotFoundException;
 use Morpho\Testing\TestCase;
 
 class FileTest extends TestCase {
+    public function setUp(): void {
+        parent::setUp();
+    }
+
     public function testInheritance() {
         $this->assertEquals(Entry::class, \get_parent_class(File::class));
     }
@@ -72,8 +76,18 @@ class FileTest extends TestCase {
     }
 
     public function testDeleteNonExistentFileThrowsException() {
-        $this->expectException(FileNotFoundException::class);
-        File::delete($this->tmpDirPath() . '/' . \md5(\uniqid()) . '.php');
+        $nonExistingFilePath = $this->tmpDirPath() . '/' . \md5(\uniqid()) . '.php';
+        $exceptionMessage = 'testDeleteNonExistentFileThrowsExceptionOK';
+        $this->expectException(\RuntimeException::class, $exceptionMessage);
+        set_error_handler(function ($severity, $message, $filePath, $lineNo) use ($nonExistingFilePath, $exceptionMessage) {
+            if (!(\error_reporting() & $severity)) {
+                return;
+            }
+            if ($severity === E_WARNING && $message === "unlink($nonExistingFilePath): No such file or directory") {
+                throw new \RuntimeException($exceptionMessage);
+            }
+        });
+        File::delete($nonExistingFilePath);
     }
 
     public function testTruncate() {

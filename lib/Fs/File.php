@@ -203,9 +203,9 @@ class File extends Entry {
         }
         \fclose($handle);
     }
-    
+
     public static function isEmpty(string $filePath): bool {
-        \clearstatcache();
+        \clearstatcache(true, $filePath);
         return \filesize($filePath) === 0;
     }
 
@@ -219,11 +219,12 @@ class File extends Entry {
             }
             return;
         }
-        if (!@\unlink($filePath)) {
+        if (!\unlink($filePath)) {
             throw new FileNotFoundException($filePath);
         }
+        clearstatcache(true, $filePath);
     }
-    
+
     public static function deleteIfExists(string $filePath): void {
         if (\is_file($filePath)) {
             self::delete($filePath);
@@ -297,7 +298,7 @@ class File extends Entry {
             $res = $fn($tmpFilePath);
         } finally {
             if (\is_file($tmpFilePath)) {
-                \unlink($tmpFilePath);
+                self::delete($tmpFilePath);
             }
         }
         return $res;
