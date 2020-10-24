@@ -7,7 +7,7 @@
 namespace Morpho\Testing;
 
 use Morpho\Base\NotImplementedException;
-use function Morpho\Base\startsWith;
+use function Morpho\Base\hasPrefix;
 use Morpho\Fs\IFs;
 use Morpho\Fs\Stat;
 
@@ -301,7 +301,7 @@ class Vfs implements IFs {
 
     public static function stripUriPrefix(string $uri): string {
         $prefix = self::prefixUri();
-        if (!startsWith($uri, $prefix)) {
+        if (!hasPrefix($uri, $prefix)) {
             throw new \UnexpectedValueException();
         }
         $uri = \substr($uri, \strlen($prefix));
@@ -328,7 +328,7 @@ class Vfs implements IFs {
     }
 
     protected function checkUri(string $uri): void {
-        if (!startsWith($uri, self::URI_PREFIX)) {
+        if (!hasPrefix($uri, self::URI_PREFIX)) {
             throw new \RuntimeException('Invalid URI');
         }
         if (\preg_match('~^(' . self::SCHEME . '://[^/]|://$)~si', $uri)) {

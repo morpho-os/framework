@@ -23,6 +23,7 @@ const TRIM_CHARS = " \t\n\r\x00\x0B";
 const EOL_RE      = '(?>\r\n|\n|\r)';
 const EOL_FULL_RE = '~' . EOL_RE . '~s';
 
+// Size in spaces
 const INDENT_SIZE = 4;
 define(__NAMESPACE__ . '\\INDENT', str_repeat(' ', INDENT_SIZE));
 
@@ -366,18 +367,30 @@ function fromJson(string $json, bool $objectsToArrays = true) {
     return $res;
 }
 
-function endsWith(string $string, string $suffix): bool {
+function hasSuffix(string $string, string $suffix): bool {
     if ($suffix === '') {
         return true;
     }
     return \substr($string, -\strlen($suffix)) === $suffix;
 }
 
-function startsWith(string $string, string $prefix): bool {
+function hasPrefix(string $string, string $prefix): bool {
     if ($prefix === '') {
         return true;
     }
     return 0 === \strpos($string, $prefix);
+}
+
+function hasPrefixFn(string $prefix): Closure {
+    return function ($s) use ($prefix) {
+        return hasPrefix($s, $prefix);
+    };
+}
+
+function hasSuffixFn(string $suffix): Closure {
+    return function ($s) use ($suffix) {
+        return hasSuffix($s, $suffix);
+    };
 }
 
 /**
@@ -470,8 +483,8 @@ function capture(callable $fn): string {
     return \ob_get_clean();
 }
 
-function tpl($__filePath, array $__vars): string {
-    \extract($__vars, EXTR_SKIP);
+function tpl($__filePath, array $__vars = null): string {
+    \extract((array) $__vars, EXTR_SKIP);
     unset($__vars);
     \ob_start();
     try {
@@ -550,17 +563,6 @@ function not(callable $predicateFn): Closure {
     };
 }
 
-function hasPrefix(string $prefix): Closure {
-    return function ($s) use ($prefix) {
-        return startsWith($s, $prefix);
-    };
-}
-
-function hasSuffix(string $suffix): Closure {
-    return function ($s) use ($suffix) {
-        return endsWith($s, $suffix);
-    };
-}
 
 function partial(callable $fn, ...$args1): Closure {
     return function (...$args2) use ($fn, $args1) {

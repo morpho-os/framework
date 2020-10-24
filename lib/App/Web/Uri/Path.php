@@ -7,7 +7,7 @@
 namespace Morpho\App\Web\Uri;
 
 use function Morpho\Base\endsWith;
-use function Morpho\Base\startsWith;
+use function Morpho\Base\hasPrefix;
 use function Morpho\Base\contains;
 use Morpho\App\Path as BasePath;
 
@@ -29,8 +29,8 @@ class Path extends BasePath implements IUriComponent {
         return $this->path;
     }
 
-    public function startsWith(string $path): bool {
-        return startsWith($this->path, $path);
+    public function hasPrefix(string $path): bool {
+        return hasPrefix($this->path, $path);
     }
 
     public function endsWith(string $path): bool {
@@ -42,7 +42,7 @@ class Path extends BasePath implements IUriComponent {
     }
 
     public function setBasePath(string $basePath): void {
-        if (!$this->startsWith($basePath)) {
+        if (!$this->hasPrefix($basePath)) {
             throw new \RuntimeException('The base path is not begging of the path');
         }
         $this->basePath = $basePath;

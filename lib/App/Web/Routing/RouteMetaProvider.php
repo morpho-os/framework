@@ -9,7 +9,7 @@ namespace Morpho\App\Web\Routing;
 use Morpho\Base\IFn;
 use Morpho\App\Web\Request;
 use Morpho\Fs\Path;
-use function Morpho\Base\{dasherize, endsWith, last};
+use function Morpho\Base\{dasherize, hasSuffix, last};
 use const Morpho\App\CONTROLLER_SUFFIX;
 
 class RouteMetaProvider implements IFn {
@@ -55,7 +55,7 @@ class RouteMetaProvider implements IFn {
 
         $basePath = '/';
 
-        if (!\preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !endsWith($match['controller'], CONTROLLER_SUFFIX)) {
+        if (!\preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !hasSuffix($match['controller'], CONTROLLER_SUFFIX)) {
             throw new \UnexpectedValueException(print_r($actionMeta, true));
         }
         $controller = \substr($match['controller'], 0, -\strlen(CONTROLLER_SUFFIX));

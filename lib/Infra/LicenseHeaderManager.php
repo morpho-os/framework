@@ -8,7 +8,7 @@ namespace Morpho\Infra;
 
 use const Morpho\Base\EOL_FULL_RE;
 use function Morpho\Base\contains;
-use function Morpho\Base\startsWith;
+use function Morpho\Base\hasPrefix;
 
 class LicenseHeaderManager {
     public function updateLicenseHeader(string $filePath, string $licenseText): void {
@@ -29,10 +29,10 @@ class LicenseHeaderManager {
             $fileLines = $fileText === '' ? [] : \preg_split(EOL_FULL_RE, $fileText);
             $startIndex = 0;
             if (\count($fileLines)) {
-                if (startsWith($fileLines[$startIndex], '#!')) {
+                if (hasPrefix($fileLines[$startIndex], '#!')) {
                     $startIndex++;
                 }
-                if (startsWith($fileLines[$startIndex], '<?php')) {
+                if (hasPrefix($fileLines[$startIndex], '<?php')) {
                     $startIndex++;
                 }
             }

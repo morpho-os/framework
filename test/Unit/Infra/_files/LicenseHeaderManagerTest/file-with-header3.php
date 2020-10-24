@@ -11,4 +11,3 @@ namespace Morpho\Test\Unit\Infra;
 use const Morpho\Base\EOL_FULL_RE;
 use function Morpho\Base\contains;
 use Morpho\Base\NotImplementedException;
-use function Morpho\Base\startsWith;

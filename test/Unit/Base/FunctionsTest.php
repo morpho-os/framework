@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{endsWith, formatFloat, hasPrefix, hasSuffix, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, startsWith, formatBytes, words, ucfirst, indent, unindent};
+use function Morpho\Base\{hasSuffix, hasSuffixFn, hasPrefix, hasPrefixFn, formatFloat, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, formatBytes, words, ucfirst, indent, unindent};
 use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
 use RuntimeException;
 
@@ -77,7 +77,7 @@ class FunctionsTest extends TestCase {
         $this->assertSame('abc', waitUntilTimeout(fn () => 'abc', 1000));
     }
 
-    public function dataForStartsWith() {
+    public function dataForHasPrefix() {
         return [
             [
                 true, '', '',
@@ -107,13 +107,13 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForStartsWith
+     * @dataProvider dataForHasPrefix
      */
-    public function testStartsWith($expected, $s, $prefix) {
-        $this->assertSame($expected, startsWith($s, $prefix));
+    public function testHasPrefix($expected, $s, $prefix) {
+        $this->assertSame($expected, hasPrefix($s, $prefix));
     }
 
-    public function dataForEndsWith() {
+    public function dataForHasSuffix() {
         return [
             [
                 true, '', '',
@@ -146,25 +146,25 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForEndsWith
+     * @dataProvider dataForHasSuffix
      */
-    public function testEndsWith($expected, $s, $suffix) {
-        $this->assertSame($expected, endsWith($s, $suffix));
+    public function testHasSuffix($expected, $s, $suffix) {
+        $this->assertSame($expected, hasSuffix($s, $suffix));
     }
 
     /**
-     * @dataProvider dataForStartsWith
+     * @dataProvider dataForHasPrefix
      */
-    public function testHasPrefix($expected, $s, $prefix) {
-        $fn = hasPrefix($prefix);
+    public function testHasPrefixFn($expected, $s, $prefix) {
+        $fn = hasPrefixFn($prefix);
         $this->assertSame($expected, $fn($s));
     }
 
     /**
-     * @dataProvider dataForEndsWith
+     * @dataProvider dataForHasSuffix
      */
-    public function testHasSuffix($expected, $s, $suffix) {
-        $fn = hasSuffix($suffix);
+    public function testHasSuffixFn($expected, $s, $suffix) {
+        $fn = hasSuffixFn($suffix);
         $this->assertSame($expected, $fn($s));
     }
 

@@ -10,7 +10,7 @@ use Morpho\Base\IFn;
 use Morpho\Compiler\Reflection\FileReflection;
 use ReflectionClass;
 use ReflectionMethod;
-use function Morpho\Base\endsWith;
+use function Morpho\Base\hasSuffix;
 use function Morpho\Base\it;
 
 abstract class ActionMetaProvider implements IFn {
@@ -82,7 +82,7 @@ abstract class ActionMetaProvider implements IFn {
                 if ($rClass->isAbstract()) {
                     return false;
                 }
-                return endsWith($rClass->getName(), CONTROLLER_SUFFIX);
+                return hasSuffix($rClass->getName(), CONTROLLER_SUFFIX);
             };
         }
         return $this->controllerFilter;
