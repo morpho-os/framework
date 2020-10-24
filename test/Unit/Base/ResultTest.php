@@ -112,14 +112,13 @@ class ResultTest extends TestCase {
     }
 
     public function testVal() {
-        $this->assertTrue((new Ok())->val());
-        $this->assertFalse((new Err())->val());
+        $this->assertSame(OK::VAL, (new Ok())->val());
+        $this->assertSame(Err::VAL, (new Err())->val());
         $this->assertSame(3, (new Ok(3))->val());
         $this->assertSame(4, (new Err(4))->val());
     }
 
     public function testMonadLaws_LeftIdentity() {
-        // M.bind(f, M.of(a)) ≡ f(a)
         $fn = function ($v) {
             return new Ok($v);
         };
@@ -131,7 +130,6 @@ class ResultTest extends TestCase {
     }
 
     public function testMonadLaws_RightIdentity() {
-        // M.bind(M.of, u) ≡ u
         $fn = function ($v) {
             return new Ok($v);
         };
@@ -142,8 +140,6 @@ class ResultTest extends TestCase {
     }
 
     public function testMonadLaws_Associativity() {
-        // bind: <a, b>(a => T<b>, T<a>) => T<b>
-        // M.bind(g, M.bind(f, u)) ≡ M.bind(x => M.bind(g, f(x)), u)
         $f = function ($v) {
             return new Ok($v * 4);
         };

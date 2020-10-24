@@ -48,14 +48,14 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->serviceManager['messenger'];
     }
 
-    protected function ok($data = null): ActionResult {
-        return $this->result(['result' => 'ok', 'data' => $data])
+    protected function ok($data = true): ActionResult {
+        return $this->result(['ok' => $data])
                     ->allowAjax(true)
-                    ->setFormats('json');
+                    ->setFormats(['json']);
     }
 
-    protected function err($data = null): ActionResult {
-        return $this->result(['result' => 'err', 'data' => $data])
+    protected function err($data = true): ActionResult {
+        return $this->result(['err' => $data])
                     ->allowAjax(true)
                     ->setFormats('json');
     }

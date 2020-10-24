@@ -6,6 +6,9 @@
  */
 namespace Morpho\Base;
 
+/**
+ * IMonad<A>
+ */
 interface IMonad extends IApplicative {
     /**
      * @param $fn: A => IMonad<A>

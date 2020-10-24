@@ -10,5 +10,5 @@ interface IApplicative extends IFunctor {
     /**
      * @param $functor: IFunctor<A => B> => IApplicative<B>
      */
-    public function apply($functor): IApplicative;
+    public function apply(IFunctor $functor): IApplicative;
 }

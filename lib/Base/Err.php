@@ -7,10 +7,12 @@
 namespace Morpho\Base;
 
 class Err extends Result {
+    public const VAL = 'err';
+
     /**
      * @param mixed $val
      */
-    public function __construct($val = false) {
+    public function __construct($val = self::VAL) {
         parent::__construct($val);
     }
 }

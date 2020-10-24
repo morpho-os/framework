@@ -20,7 +20,7 @@ abstract class Result extends Monad {
         throw new \UnexpectedValueException();
     }
 
-    public function apply($functor): Result {
+    public function apply(IFunctor $functor): Result {
         return $functor->map(function ($fn) {
             return $fn($this->val);
         });

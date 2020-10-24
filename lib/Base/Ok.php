@@ -7,10 +7,11 @@
 namespace Morpho\Base;
 
 class Ok extends Result {
+    public const VAL = 'ok';
     /**
      * @param mixed $val
      */
-    public function __construct($val = true) {
+    public function __construct($val = self::VAL) {
         parent::__construct($val);
     }
 }
