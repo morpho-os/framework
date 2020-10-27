@@ -6,7 +6,12 @@
  */
 namespace Morpho\App\Web;
 
+use ArrayObject;
 use Morpho\App\Response as BaseResponse;
+use RuntimeException;
+use function header;
+use function intval;
+use function is_string;
 
 /**
  * This class based on \Zend\Http\PhpEnvironment\Response class.
@@ -15,20 +20,15 @@ use Morpho\App\Response as BaseResponse;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Response extends BaseResponse {
-    /**
-     * @var int
-     */
-    protected $statusCode = self::OK_STATUS_CODE;
+    protected int $statusCode = self::OK_STATUS_CODE;
 
-    /**
-     * @var null|\ArrayObject
-     */
-    protected $headers;
+    protected ?ArrayObject $headers;
 
-    /**
-     * @var ?string
-     */
-    private $statusLine;
+    private ?string $statusLine = null;
+
+    private array $formats;
+
+    private bool $allowAjax = false;
 
     // @TODO: Move to StatusCode::OK
     public const OK_STATUS_CODE = 200;
@@ -44,16 +44,52 @@ class Response extends BaseResponse {
 
     public function __construct(array $input = null) {
         parent::__construct((array) $input);
-        $this->headers = new \ArrayObject();
+        $this->headers = new ArrayObject();
+        $this->formats = [
+            ContentFormat::HTML,
+            // ContentFormat::JSON,
+            // ContentFormat::XML,
+            // ContentFormat::TEXT => false,
+            // ContentFormat::BIN => false,
+        ];
+    }
+
+    /**
+     * @param bool|null $flag
+     * @return bool|self
+     */
+    public function allowAjax(bool $flag = null) {
+        if ($flag !== null) {
+            $this->allowAjax = $flag;
+            return $this;
+        }
+        return $this->allowAjax;
+    }
+
+    public function setFormats(array $formats): self {
+        $this->formats = $formats;
+        return $this;
+    }
+
+    public function formats(): array {
+        return $this->formats;
     }
 
     /**
      * @param string|Uri\Uri $uri
+     * @param int|null $statusCode
+     * @return Response
      */
     public function redirect($uri, int $statusCode = null): self {
-        $this->headers()->offsetSet('Location', \is_string($uri) ? $uri : $uri->toStr(null, true));
+        $this->headers()->offsetSet('Location', is_string($uri) ? $uri : $uri->toStr(null, true));
         $this->setStatusCode($statusCode ?: self::FOUND_STATUS_CODE);
         return $this;
+    }
+
+    public function isRedirect(): bool {
+        $statusCode = $this->statusCode;
+        return isset($this->headers()['Location'])
+            && 300 <= $statusCode && $statusCode < 400;
     }
 
     public function setStatusLine(string $statusLine): void {
@@ -67,7 +103,7 @@ class Response extends BaseResponse {
         return $this->statusLine;
     }
 
-    public function headers(): \ArrayObject {
+    public function headers(): ArrayObject {
         return $this->headers;
     }
 
@@ -79,12 +115,6 @@ class Response extends BaseResponse {
 
     public function resetStatusCode(): void {
         $this->statusCode = self::OK_STATUS_CODE;
-    }
-
-    public function isRedirect(): bool {
-        $statusCode = $this->statusCode;
-        return isset($this->headers()['Location'])
-            && 300 <= $statusCode && $statusCode < 400;
     }
 
     public function isSuccess(): bool {
@@ -99,7 +129,7 @@ class Response extends BaseResponse {
     }
 
     public function statusCodeToStatusLine(int $statusCode): string {
-        return Env::httpVersion() . ' ' . \intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
+        return Env::httpVersion() . ' ' . intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
     }
 
     public function statusCodeToReason(int $statusCode): string {
@@ -119,194 +149,67 @@ class Response extends BaseResponse {
         if (isset($codeToReason[$statusCode])) {
             return $codeToReason[$statusCode];
         }
-        switch ($statusCode) {
-            case 100:
-                $reasonPhrase = 'Continue';
-                break;
-            case 101:
-                $reasonPhrase = 'Switching Protocols';
-                break;
-            case 102:
-                $reasonPhrase = 'Processing';
-                break;
-            case 103:
-                $reasonPhrase = 'Early Hints';
-                break;
-            case 201:
-                $reasonPhrase = 'Created';
-                break;
-            case 202:
-                $reasonPhrase = 'Accepted';
-                break;
-            case 203:
-                $reasonPhrase = 'Non-Authoritative Information';
-                break;
-            case 204:
-                $reasonPhrase = 'No Content';
-                break;
-            case 205:
-                $reasonPhrase = 'Reset Content';
-                break;
-            case 206:
-                $reasonPhrase = 'Partial Content';
-                break;
-            case 207:
-                $reasonPhrase = 'Multi-Status';
-                break;
-            case 208:
-                $reasonPhrase = 'Already Reported';
-                break;
-            case 226:
-                $reasonPhrase = 'IM Used';
-                break;
-            case 300:
-                $reasonPhrase = 'Multiple Choices';
-                break;
-            case 303:
-                $reasonPhrase = 'See Other';
-                break;
-            case 305:
-                $reasonPhrase = 'Use Proxy';
-                break;
-            case 306:
-                $reasonPhrase = '(Unused)';
-                break;
-            case 307:
-                $reasonPhrase = 'Temporary Redirect';
-                break;
-            case 308:
-                $reasonPhrase = 'Permanent Redirect';
-                break;
-            case 401:
-                $reasonPhrase = 'Unauthorized';
-                break;
-            case 402:
-                $reasonPhrase = 'Payment Required';
-                break;
-            case 406:
-                $reasonPhrase = 'Not Acceptable';
-                break;
-            case 407:
-                $reasonPhrase = 'Proxy Authentication Required';
-                break;
-            case 408:
-                $reasonPhrase = 'Request Timeout';
-                break;
-            case 409:
-                $reasonPhrase = 'Conflict';
-                break;
-            case 410:
-                $reasonPhrase = 'Gone';
-                break;
-            case 411:
-                $reasonPhrase = 'Length Required';
-                break;
-            case 412:
-                $reasonPhrase = 'Precondition Failed';
-                break;
-            case 413:
-                $reasonPhrase = 'Payload Too Large';
-                break;
-            case 414:
-                $reasonPhrase = 'URI Too Long';
-                break;
-            case 415:
-                $reasonPhrase = 'Unsupported Media Type';
-                break;
-            case 416:
-                $reasonPhrase = 'Range Not Satisfiable';
-                break;
-            case 417:
-                $reasonPhrase = 'Expectation Failed';
-                break;
-            case 421:
-                $reasonPhrase = 'Misdirected Request';
-                break;
-            case 422:
-                $reasonPhrase = 'Unprocessable Entity';
-                break;
-            case 423:
-                $reasonPhrase = 'Locked';
-                break;
-            case 424:
-                $reasonPhrase = 'Failed Dependency';
-                break;
-            case 425:
-                $reasonPhrase = 'Unassigned';
-                break;
-            case 426:
-                $reasonPhrase = 'Upgrade Required';
-                break;
-            case 427:
-                $reasonPhrase = 'Unassigned';
-                break;
-            case 428:
-                $reasonPhrase = 'Precondition Required';
-                break;
-            case 429:
-                $reasonPhrase = 'Too Many Requests';
-                break;
-            case 430:
-                $reasonPhrase = 'Unassigned';
-                break;
-            case 431:
-                $reasonPhrase = 'Request Header Fields Too Large';
-                break;
-            case 451:
-                $reasonPhrase = 'Unavailable For Legal Reasons';
-                break;
-            case 501:
-                $reasonPhrase = 'Not Implemented';
-                break;
-            case 502:
-                $reasonPhrase = 'Bad Gateway';
-                break;
-            case 504:
-                $reasonPhrase = 'Gateway Timeout';
-                break;
-            case 505:
-                $reasonPhrase = 'HTTP Version Not Supported';
-                break;
-            case 506:
-                $reasonPhrase = 'Variant Also Negotiates';
-                break;
-            case 507:
-                $reasonPhrase = 'Insufficient Storage';
-                break;
-            case 508:
-                $reasonPhrase = 'Loop Detected';
-                break;
-            case 509:
-                $reasonPhrase = 'Unassigned';
-                break;
-            case 510:
-                $reasonPhrase = 'Not Extended';
-                break;
-            case 511:
-                $reasonPhrase = 'Network Authentication Required';
-                break;
-            default:
-                if (104 <= $statusCode && $statusCode <= 199) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (209 <= $statusCode && $statusCode <= 225) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (227 <= $statusCode && $statusCode <= 299) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (309 <= $statusCode && $statusCode <= 399) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (418 <= $statusCode && $statusCode <= 420) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (432 <= $statusCode && $statusCode <= 450) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (452 <= $statusCode && $statusCode <= 499) {
-                    $reasonPhrase = 'Unassigned';
-                } elseif (512 <= $statusCode && $statusCode <= 599) {
-                    $reasonPhrase = 'Unassigned';
-                } else {
-                    throw new \RuntimeException("Unable to map the status code to the reason phrase");
-                }
+        $codeToReason = [
+            100 => 'Continue',
+            101 => 'Switching Protocols',
+            102 => 'Processing',
+            103 => 'Early Hints',
+            201 => 'Created',
+            202 => 'Accepted',
+            203 => 'Non-Authoritative Information',
+            204 => 'No Content',
+            205 => 'Reset Content',
+            206 => 'Partial Content',
+            207 => 'Multi-Status',
+            208 => 'Already Reported',
+            226 => 'IM Used',
+            300 => 'Multiple Choices',
+            303 => 'See Other',
+            305 => 'Use Proxy',
+            306 => '(Unused)',
+            307 => 'Temporary Redirect',
+            308 => 'Permanent Redirect',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            406 => 'Not Acceptable',
+            407 => 'Proxy Authentication Required',
+            408 => 'Request Timeout',
+            409 => 'Conflict',
+            410 => 'Gone',
+            411 => 'Length Required',
+            412 => 'Precondition Failed',
+            413 => 'Payload Too Large',
+            414 => 'URI Too Long',
+            415 => 'Unsupported Media Type',
+            416 => 'Range Not Satisfiable',
+            417 => 'Expectation Failed',
+            421 => 'Misdirected Request',
+            422 => 'Unprocessable Entity',
+            423 => 'Locked',
+            424 => 'Failed Dependency',
+            425 => 'Unassigned',
+            426 => 'Upgrade Required',
+            428 => 'Precondition Required',
+            429 => 'Too Many Requests',
+            431 => 'Request Header Fields Too Large',
+            451 => 'Unavailable For Legal Reasons',
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            504 => 'Gateway Timeout',
+            505 => 'HTTP Version Not Supported',
+            506 => 'Variant Also Negotiates',
+            507 => 'Insufficient Storage',
+            508 => 'Loop Detected',
+            510 => 'Not Extended',
+            511 => 'Network Authentication Required',
+        ];
+        if (isset($codeToReason[$statusCode])) {
+            return $codeToReason[$statusCode];
         }
-        return $reasonPhrase;
+        if ($statusCode === 509 || $statusCode === 430 || $statusCode === 427 || (104 <= $statusCode && $statusCode <= 199) || (209 <= $statusCode && $statusCode <= 225) || (227 <= $statusCode && $statusCode <= 299) || (309 <= $statusCode && $statusCode <= 399) || (418 <= $statusCode && $statusCode <= 420) || (432 <= $statusCode && $statusCode <= 450) || (452 <= $statusCode && $statusCode <= 499) || (512 <= $statusCode && $statusCode <= 599)) {
+            return 'Unassigned';
+        }
+        throw new RuntimeException("Unable to map the status code to the reason phrase");
     }
 
     protected function sendStatusLine(): void {
@@ -321,6 +224,6 @@ class Response extends BaseResponse {
     }
 
     protected function sendHeader(string $value): void {
-        \header($value);
+        header($value);
     }
 }

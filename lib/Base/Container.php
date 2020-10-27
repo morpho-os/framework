@@ -13,7 +13,7 @@ abstract class Container implements IContainer {
     protected $val;
 
     /**
-     * @param mixed $value
+     * @param mixed $val
      */
     public function __construct($val) {
         $this->val = $val;

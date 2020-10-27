@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Testing\TestCase;
-use Morpho\Base\{Result, Ok, Err, IFunctor, IMonad, Container};
+use Morpho\Base\{Result, Ok, Err, IFunctor, IMonad};
 
 class ResultTest extends TestCase {
     public function dataForInterface() {
@@ -166,5 +166,10 @@ class ResultTest extends TestCase {
         $res = (new Ok(5))->apply(new Ok($fn));
         $this->assertInstanceOf(Ok::class, $res);
         $this->assertSame(3, $res->val());
+    }
+    
+    public function testIsOk() {
+        $this->assertTrue((new Ok())->isOk());
+        $this->assertFalse((new Err())->isOk());
     }
 }

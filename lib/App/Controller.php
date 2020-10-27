@@ -12,13 +12,15 @@ abstract class Controller implements IFn {
     protected $request;
 
     /**
-     * @param IRequest $request
+     * @param $request
+     * @return IRequest
      */
-    public function __invoke($request): void {
+    public function __invoke($request) {
         $this->request = $request;
         $this->beforeEach();
         $this->run($request);
         $this->afterEach();
+        return $request;
     }
 
     protected function run($request): void {
@@ -30,7 +32,6 @@ abstract class Controller implements IFn {
         $result = $this->handleResult($actionResult);
         $response = $this->request->response();
         $response['result'] = $result;
-        $this->request->setResponse($response);
     }
 
     /**
@@ -45,8 +46,7 @@ abstract class Controller implements IFn {
     protected function afterEach(): void {
     }
 
-    /**
-     * @param mixed
-     */
-    abstract protected function handleResult($actionResult);
+    protected function handleResult($actionResult) {
+        return $actionResult;
+    }
 }

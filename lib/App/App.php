@@ -6,20 +6,25 @@
  */
 namespace Morpho\App;
 
+use ArrayObject;
 use Morpho\Base\Env;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
 use Morpho\Error\ErrorHandler;
 use Morpho\Ioc\IServiceManager;
+use Throwable;
+use function addslashes;
+use function error_log;
+use function umask;
 
 class App extends EventManager {
-    protected \ArrayObject $conf;
+    protected ArrayObject $conf;
 
-    public function __construct(\ArrayObject $conf = null) {
-        $this->setConf($conf ?: new \ArrayObject([]));
+    public function __construct(ArrayObject $conf = null) {
+        $this->setConf($conf ?: new ArrayObject([]));
     }
 
-    public static function main(\ArrayObject $conf = null): int {
+    public static function main(ArrayObject $conf = null): int {
         try {
             $app = new static($conf);
             $response = $app->run();
@@ -27,7 +32,7 @@ class App extends EventManager {
             $event = new Event('exit', ['exitCode'=> $exitCode, 'response' => $response]);
             $app->trigger($event);
             return $event->args['exitCode'];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if (Env::boolIniVal('display_errors')) {
                 echo $e;
             }
@@ -65,7 +70,7 @@ class App extends EventManager {
         $serviceManager->setConf($siteConf['service']);
 
         if (isset($siteConf['umask'])) {
-            \umask($siteConf['umask']);
+            umask($siteConf['umask']);
         }
 
         /** @var AppInitializer $appInitializer */
@@ -75,18 +80,18 @@ class App extends EventManager {
         return $serviceManager;
     }
 
-    public function setConf(\ArrayObject $conf): void {
+    public function setConf(ArrayObject $conf): void {
         $this->conf = $conf;
     }
 
-    public function conf(): \ArrayObject {
+    public function conf(): ArrayObject {
         return $this->conf;
     }
 
-    protected static function logErrorFallback(\Throwable $e): void {
+    protected static function logErrorFallback(Throwable $e): void {
         if (ErrorHandler::isErrorLogEnabled()) {
             // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
-            \error_log(\addslashes((string) $e));
+            error_log(addslashes((string) $e));
         }
     }
 }

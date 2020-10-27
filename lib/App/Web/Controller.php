@@ -6,7 +6,10 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\IResponse;
+use ArrayObject;
+use Morpho\Base\Result;
+use Morpho\Base\Ok;
+use Morpho\Base\Err;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Controller as BaseController;
@@ -22,7 +25,6 @@ abstract class Controller extends BaseController implements IHasServiceManager {
 
     protected function redirect(string $uri = null, int $statusCode = null) {
         $this->request->response()->redirect($uri, $statusCode);
-        return $this->result();
     }
 
     protected function args($name = null, bool $trim = true) {
@@ -37,9 +39,9 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->request->post($name, $trim);
     }
 
-    protected function jsConf(): \ArrayObject {
+    protected function jsConf(): ArrayObject {
         if (!isset($this->request['jsConf'])) {
-            $this->request['jsConf'] = new \ArrayObject();
+            $this->request['jsConf'] = new ArrayObject();
         }
         return $this->request['jsConf'];
     }
@@ -48,26 +50,24 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->serviceManager['messenger'];
     }
 
-    protected function ok($data = true): ActionResult {
-        return $this->result(['ok' => $data])
-                    ->allowAjax(true)
-                    ->setFormats(['json']);
+    protected function ok($data = true): Result {
+        return new Ok($data);
     }
 
-    protected function err($data = true): ActionResult {
-        return $this->result(['err' => $data])
-                    ->allowAjax(true)
-                    ->setFormats('json');
-    }
-
-    protected function result($vars = []) {
-        return (new ActionResult($vars))
-            ->setMessenger($this->messenger());
+    protected function err($data = true): Result {
+        return new Err($data);
     }
 
     protected function handleResult($actionResult) {
-        if (!$actionResult instanceof ActionResult) {
-            return $this->result($actionResult);
+        if ($actionResult instanceof Result) {
+            if ($actionResult instanceof Ok) {
+                $actionResult = ['ok' => $actionResult->val()];
+            } elseif ($actionResult instanceof Err) {
+                $actionResult = ['err' => $actionResult->val()];
+            }
+            $response = $this->request->response();
+            $response->allowAjax(true)
+                ->setFormats([ContentFormat::JSON]);
         }
         return $actionResult;
     }

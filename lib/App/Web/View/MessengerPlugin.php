@@ -45,7 +45,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
 
     protected function renderMessagesOfType(iterable $messages, string $type) {
         $renderedMessages = [];
-        $cssClass = $this->messageTypeToCssClass($type);
+        #$cssClass = $this->messageTypeToCssClass($type);
         foreach ($messages as $message) {
             $renderedMessages[] = $this->renderMessageOfType($message, $type);
         }
@@ -70,10 +70,10 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
 
     protected function messageTypeToCssClass(string $type): string {
         $type2CssClass = [
-            \Morpho\App\Web\Messages\Messenger::ERROR => 'danger',
-            \Morpho\App\Web\Messages\Messenger::INFO => 'info',
-            \Morpho\App\Web\Messages\Messenger::SUCCESS => 'success',
-            \Morpho\App\Web\Messages\Messenger::WARNING => 'warning',
+            Messenger::ERROR => 'danger',
+            Messenger::INFO => 'info',
+            Messenger::SUCCESS => 'success',
+            Messenger::WARNING => 'warning',
         ];
         return $type2CssClass[$type] ?? dasherize($type);
     }

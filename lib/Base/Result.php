@@ -6,6 +6,8 @@
  */
 namespace Morpho\Base;
 
+use UnexpectedValueException;
+
 /**
  * Useful for monadic error-handling code which can be composed. Inspired by F#, Haskell and Rust.
  */
@@ -17,7 +19,7 @@ abstract class Result extends Monad {
         if ($this instanceof Ok) {
             return $fn($this->val);
         }
-        throw new \UnexpectedValueException();
+        throw new UnexpectedValueException();
     }
 
     public function apply(IFunctor $functor): Result {
@@ -25,4 +27,6 @@ abstract class Result extends Monad {
             return $fn($this->val);
         });
     }
+
+    abstract public function isOk(): bool;
 }

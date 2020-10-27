@@ -6,10 +6,13 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
+use ArrayObject;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\TemplateEngine;
 use Morpho\App\Web\View\Theme;
-use Morpho\App\Web\ActionResult;
+use function dirname;
+use function mkdir;
+use function touch;
 
 class ThemeTest extends TestCase {
     public function testBasePathAccessors() {
@@ -45,15 +48,15 @@ class ThemeTest extends TestCase {
         $viewName = 'bar';
 
         $viewAbsFilePath = $baseViewDirPath . '/' . $viewDirPath . '/' . $viewName . Theme::VIEW_FILE_EXT;
-        \mkdir(\dirname($viewAbsFilePath), 0777, true);
-        \touch($viewAbsFilePath);
+        mkdir(dirname($viewAbsFilePath), 0777, true);
+        touch($viewAbsFilePath);
 
         $expected = 'abcdefg123';
-        $viewVars = new \ArrayObject(['k' => 'v']);
+        $actionResult = ['k' => 'v', '_path' => $viewDirPath . '/' . $viewName];
 
         $templateEngine = $this->createMock(TemplateEngine::class);
         $templateEngine->method('runFile')
-            ->with($this->equalTo($viewAbsFilePath), $this->equalTo($viewVars->getArrayCopy()))
+            ->with($this->identicalTo($viewAbsFilePath), $this->identicalTo($actionResult))
             ->willReturn($expected);
 
         /** @noinspection PhpParamsInspection */
@@ -61,8 +64,6 @@ class ThemeTest extends TestCase {
 
         $theme->addBaseDirPath($baseViewDirPath);
 
-        $actionResult = (new ActionResult($viewVars));
-        $actionResult->setPath($viewDirPath . '/' . $viewName);
         /** @noinspection PhpParamsInspection */
         $actual = $theme->render($actionResult);
 

@@ -7,15 +7,9 @@
 namespace Morpho\App;
 
 abstract class Response extends Message implements IResponse {
-    /**
-     * @var string
-     */
-    protected $body = '';
+    protected string $body = '';
 
-    /**
-     * @var int
-     */
-    protected $statusCode = 0;
+    protected int $statusCode = 0;
 
     /**
      * @param string

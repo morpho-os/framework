@@ -13,51 +13,15 @@ use Morpho\App\Web\View\HtmlRenderer;
 use Morpho\App\Web\View\Theme;
 use Morpho\App\ModuleIndex;
 use Morpho\App\ServerModule;
-use Morpho\App\Web\ActionResult;
+use UnexpectedValueException;
 
 class HtmlRendererTest extends TestCase {
     public function testInvoke() {
-        /*
-        $page = (new ActionResult())->setPath('test');
-        $actionResult = (new ActionResult())
-            ->setPath('edit-user')
-            ->setPage($page);
-         */
-
-        $actionResult = new ActionResult();
-
         $response = new Response();
         $response->setStatusCode(Response::OK_STATUS_CODE);
-        $response['result'] = $actionResult;
+        $response['result'] = [];
 
         $pageRenderingModule = 'abc/test';
-/*
-        $request = new Request();
-        $request->setHandler();
-        $request->setResponse($response);
-
-        $renderer = new class ($request, $theme, $moduleIndex, $pageRenderingModuleName) extends HtmlRenderer {
-            public $map;
-            protected function renderView(string $moduleName, $actionResult): string {
-                $renderer = $this->map[$moduleName];
-                return $renderer($actionResult);
-            }
-        };
-        $renderer->map[$viewModuleName] = function ($viewArg) use ($actionResult): string {
-            $this->assertSame('news/edit-user', $actionResult->path());
-            $this->assertSame($actionResult, $viewArg);
-            return 'hello';
-        };
-        $renderer->map[$pageRenderingModuleName] = function ($pageArg) use ($page): string {
-            $this->assertSame(['body' => 'hello'], $page->getArrayCopy());
-            $this->assertSame($page, $pageArg);
-            return 'cat';
-        };
-
-        $renderer->__invoke($request);
-
-         */
-
         $bodyRenderingModule = 'foo/bar';
 
         $request = $this->createMock(Request::class);
@@ -76,13 +40,13 @@ class HtmlRendererTest extends TestCase {
         $theme->expects($this->exactly(2))
               ->method('render')
               ->will($this->returnCallback(function ($actionResult) {
-                  if ($actionResult->path() === 'news/edit-user') {
+                  if ($actionResult['_path'] === 'news/edit-user') {
                       return 'This is a body text.';
                   }
-                  if ($actionResult->path() === 'index') {
+                  if ($actionResult['_path'] === 'index') {
                       return 'This is a <main>' . $actionResult['body'] . '</main> page text.';
                   }
-                  throw new \UneexpectedValueException();
+                  throw new UnexpectedValueException();
               }));
 
         $moduleIndex = $this->createMock(ModuleIndex::class);
@@ -94,12 +58,12 @@ class HtmlRendererTest extends TestCase {
                         } elseif ($moduleName == $pageRenderingModule) {
                             return $this->createMock(ServerModule::class);
                         }
-                        throw new \UneexpectedValueException();
+                        throw new UnexpectedValueException();
                     }));
 
-        $renderer = new HtmlRenderer($request, $theme, $moduleIndex, $pageRenderingModule);
+        $renderer = new HtmlRenderer($theme, $moduleIndex, $pageRenderingModule);
 
-        $renderer->__invoke($actionResult);
+        $renderer->__invoke($request);
 
         $this->assertSame('This is a <main>This is a body text.</main> page text.', $response->body());
         $this->assertSame(['Content-Type' => 'text/html;charset=utf-8'], $response->headers()->getArrayCopy());

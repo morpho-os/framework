@@ -10,6 +10,8 @@ use Morpho\Base\IFn;
 use Morpho\Compiler\Reflection\FileReflection;
 use ReflectionClass;
 use ReflectionMethod;
+use function array_values;
+use function in_array;
 use function Morpho\Base\hasSuffix;
 use function Morpho\Base\it;
 
@@ -68,7 +70,7 @@ abstract class ActionMetaProvider implements IFn {
                 $actionsMeta[$method]['docComment'] = $docComment;
             }
         }
-        yield from \array_values($actionsMeta);
+        yield from array_values($actionsMeta);
     }
 
     public function setControllerFilter(callable $controllerFilter) {
@@ -78,7 +80,7 @@ abstract class ActionMetaProvider implements IFn {
 
     public function controllerFilter(): callable {
         if (null === $this->controllerFilter) {
-            $this->controllerFilter = function (\ReflectionClass $rClass): bool {
+            $this->controllerFilter = function (ReflectionClass $rClass): bool {
                 if ($rClass->isAbstract()) {
                     return false;
                 }
@@ -102,9 +104,9 @@ abstract class ActionMetaProvider implements IFn {
                     $ignoredMethods[] = $rMethod->getName();
                 }
             }
-            $this->actionFilter = function (\ReflectionMethod $rMethod) use ($ignoredMethods): bool {
+            $this->actionFilter = function (ReflectionMethod $rMethod) use ($ignoredMethods): bool {
                 $method = $rMethod->getName();
-                if (\in_array($method, $ignoredMethods)) {
+                if (in_array($method, $ignoredMethods)) {
                     return false;
                 }
                 if (!preg_match('~^[a-z]~si', $method)) {

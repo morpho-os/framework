@@ -15,4 +15,8 @@ class Err extends Result {
     public function __construct($val = self::VAL) {
         parent::__construct($val);
     }
+
+    public function isOk(): bool {
+        return false;
+    }
 }

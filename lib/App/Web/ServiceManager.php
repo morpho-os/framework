@@ -74,13 +74,12 @@ class ServiceManager extends BaseServiceManager {
         return new ActionResultRenderer(function ($format) {
             if ($format === ContentFormat::HTML) {
                 return new HtmlRenderer(
-                    $this['request'],
                     $this['theme'],
                     $this['serverModuleIndex'],
                     $this->conf()['view']['pageRenderer'],
                 );
             } elseif ($format === ContentFormat::JSON) {
-                return new JsonRenderer($this['request']);
+                return new JsonRenderer();
             }
             // todo: add XML
             throw new \UnexpectedValueException();

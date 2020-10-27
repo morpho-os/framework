@@ -10,9 +10,9 @@ use Morpho\Base\IFn;
 use Negotiation\Negotiator;
 
 class ContentNegotiator implements IFn {
-    protected $priorities = ['text/html', 'application/json'/*, 'application/xml;q=0.5'*/];
+    protected array $priorities = ['text/html', 'application/json'/*, 'application/xml;q=0.5'*/];
 
-    protected $defaultFormat = 'html';
+    protected string $defaultFormat = 'html';
 
     /**
      * @param Request $request
