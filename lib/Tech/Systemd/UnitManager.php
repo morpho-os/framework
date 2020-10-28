@@ -1,0 +1,44 @@
+<?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+namespace Morpho\Tech\Systemd;
+
+use Morpho\App\Cli\ICommandResult;
+use UnexpectedValueException;
+use function Morpho\App\Cli\sh;
+
+class UnitManager {
+    protected string $unitType;
+    protected string $unitName;
+    private string $unitFilePath;
+
+    public function __construct(string $unitType, string $unitName, string $unitFilePath) {
+        if (!in_array($unitType, Meta::knownUnitTypes(), true)) {
+            throw new UnexpectedValueException();
+        }
+        $this->unitType = $unitType;
+        $this->unitName = $unitName;
+        $this->unitFilePath = $unitFilePath;
+    }
+
+    public function enable(bool $canFail, bool $start) {
+        $this->sh('systemctl enable ' . ($start ? ' --now' : '') . ' ' . escapeshellarg($this->unitFilePath), ['check' => !$canFail]);
+    }
+
+    public function disable(bool $canFail, bool $stop): self {
+        $this->sh('systemctl disable' . ($stop ? ' --now' : '') . ' ' . escapeshellarg($this->unitName . '.' . $this->unitType), ['check' => !$canFail]);
+        return $this;
+    }
+
+    public function stop(bool $canFail): self {
+        $this->sh('systemctl stop ' . escapeshellarg($this->unitName . '.' . $this->unitType), ['check' => !$canFail]);
+        return $this;
+    }
+
+    protected function sh(string $cmd, array $conf = null): ICommandResult {
+        return sh($cmd, $conf);
+    }
+}
