@@ -6,5 +6,7 @@
  */
 namespace Morpho\Fs;
 
-class Exception extends \RuntimeException {
+use RuntimeException;
+
+class Exception extends RuntimeException {
 }

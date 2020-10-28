@@ -6,9 +6,12 @@
  */
 namespace Morpho\Fs;
 
+use function is_dir;
+use function is_iterable;
+
 abstract class Entry {
     public static function copy(string $srcPath, string $destPath): string {
-        return \is_dir($srcPath)
+        return is_dir($srcPath)
             ? Dir::copy($srcPath, $destPath)
             : File::copy($srcPath, $destPath);
     }
@@ -17,13 +20,13 @@ abstract class Entry {
      * @param iterable|string $entryPath
      */
     public static function delete($entryPath): void {
-        if (\is_iterable($entryPath)) {
+        if (is_iterable($entryPath)) {
             foreach ($entryPath as $path) {
                 static::delete($path);
             }
             return;
         }
-        if (\is_dir($entryPath)) {
+        if (is_dir($entryPath)) {
             Dir::delete($entryPath);
         } else {
             File::delete($entryPath);
