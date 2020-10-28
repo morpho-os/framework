@@ -6,7 +6,7 @@
  */
 namespace Morpho\Compiler;
 
-interface IFactory {
+interface IComponentFactory {
     public function mkFrontEnd(): callable;
     public function mkMiddleEnd(): callable;
     public function mkBackEnd(): callable;

@@ -6,7 +6,7 @@
  */
 namespace Morpho\Compiler;
 
-class Factory implements IFactory {
+class ComponentFactory implements IComponentFactory {
     public function mkFrontEnd(): callable {
         return function ($context) {
             return $context;

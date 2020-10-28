@@ -10,14 +10,14 @@ use Morpho\Base\IFn;
 use Morpho\Base\Pipe;
 
 class Compiler implements IFn {
-    protected $conf;
+    protected array $conf;
 
     /**
-     * @param array|ArrayObject $conf
+     * @param array|\ArrayObject|null $conf
      *     factory: IFactory
      */
-    public function __construct($conf) {
-        $this->conf = $conf;
+    public function __construct($conf = null) {
+        $this->conf = (array) $conf;
     }
 
     public function conf() {
@@ -31,10 +31,26 @@ class Compiler implements IFn {
     }
 
     protected function mkPipe($context): IFn {
-        $factory = $this->conf['factory'];
-        $frontEnd = $factory->mkFrontEnd();
-        $middleEnd = $factory->mkMiddleEnd();
-        $backEnd = $factory->mkBackEnd();
-        return new Pipe([$frontEnd, $middleEnd, $backEnd]);
+        $factory = $this->mkFactory();
+        return new Pipe([$factory->mkFrontEnd(), $factory->mkMiddleEnd(), $factory->mkBackEnd()]);
+    }
+
+    protected function mkFactory(): IComponentFactory {
+        if (isset($this->conf['factory'])) {
+            return $this->conf['factory'];
+        }
+        return new class implements IComponentFactory {
+            public function mkFrontEnd(): callable {
+                return fn ($context) => $context;
+            }
+
+            public function mkMiddleEnd(): callable {
+                return fn ($context) => $context;
+            }
+
+            public function mkBackEnd(): callable {
+                return fn ($context) => $context;
+            }
+        };
     }
 }
