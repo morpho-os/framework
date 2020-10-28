@@ -33,14 +33,18 @@
         "morpho-os/zf-fork": "dev-master",
         "monolog/monolog": "dev-master",
         "nikic/fast-route": "dev-master",
-        "nikic/php-parser": "dev-master",
+        "nikic/php-parser": "4.10.2",
         "psr/log": "dev-master",
         "psr/simple-cache": "^1.0@dev",
         "willdurand/negotiation": "^3.0@dev"
     },
     "require-dev": {
+        "ext-ast": "*",
         "phpunit/phpunit": "dev-master",
-        "php-webdriver/webdriver": "dev-main"
+        "php-webdriver/webdriver": "dev-main",
+        "phpstan/phpstan": "^0.12.0@dev",
+        "vimeo/psalm": "dev-master",
+        "phan/phan": "dev-master"
     },
     "repositories": [
         {

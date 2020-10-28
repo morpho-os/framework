@@ -7,7 +7,6 @@
 
 # Composer's files:
 /vendor/
-composer.lock
 
 # Generated files:
 cache/*
