@@ -19,9 +19,9 @@ function main(): void {
         return Path::combine($baseDirPath, $relDirPath);
     };
     $fqNs = function ($ns) {
-        return 'Morpho\\' . \trim($ns, '\\') . '\\';
+        return 'Morpho\\' . (null === $ns ? '' : \trim($ns, '\\') . '\\');
     };
-    $mappers[] = new Psr4Mapper('Morpho\\', $absDirPath('lib'), Linter::phpFilePaths());
+    $mappers[] = new Psr4Mapper($fqNs(null), $absDirPath('lib'), Linter::phpFilePaths());
     $mappers[] = new Psr4Mapper($fqNs('Test'), $absDirPath('test'), Linter::testFilePaths(true));
     // @TODO: Add modules
     exit((int)!Linter::checkModule($baseDirPath, $mappers));

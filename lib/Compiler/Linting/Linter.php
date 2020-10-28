@@ -27,31 +27,37 @@ class Linter {
         if (null === $lint) {
             $lint = [FileChecker::class, 'checkFile'];
         }
-        $valid = true;
         if ($metaFileErrors) {
             showErrorLn('Errors found:');
             showErrorLn(\print_r($metaFileErrors, TRUE));
             $valid = false;
         } else {
             showOk();
-            foreach ($psr4MapperListIt as $psr4Mapper) {
-                $mappingErrors = [];
-                /** @var \Morpho\Infra\IPsr4Mapper $psr4Mapper */
-                showLn('Checking files in ' . wrapQ($psr4Mapper->baseDirPath() . ' (namespace ' . wrapQ($psr4Mapper->nsPrefix()) . ')...'));
-                foreach ($psr4Mapper->filePaths() as $filePath) {
-                    $sourceFile = new SourceFile($filePath);
-                    $sourceFile->setNsToDirPathMap([
-                        $psr4Mapper->nsPrefix() => $psr4Mapper->baseDirPath(),
-                    ]);
-                    $checkFileErrors = $lint($sourceFile);
-                    $mappingErrors = \array_merge($mappingErrors, $checkFileErrors);
-                }
-                if (!$mappingErrors) {
-                    showOk();
-                } else {
-                    self::showErrors($mappingErrors);
-                    $valid = false;
-                }
+            $valid = self::checkNamespaces($psr4MapperListIt, $lint);
+
+        }
+        return $valid;
+    }
+
+    private static function checkNamespaces(iterable $psr4MapperListIt, callable $lint) {
+        $valid = true;
+        foreach ($psr4MapperListIt as $psr4Mapper) {
+            $mappingErrors = [];
+            /** @var \Morpho\Infra\IPsr4Mapper $psr4Mapper */
+            showLn('Checking files in ' . wrapQ($psr4Mapper->baseDirPath() . ' (namespace ' . wrapQ($psr4Mapper->nsPrefix()) . ')...'));
+            foreach ($psr4Mapper->filePaths() as $filePath) {
+                $sourceFile = new SourceFile($filePath);
+                $sourceFile->setNsToDirPathMap([
+                    $psr4Mapper->nsPrefix() => $psr4Mapper->baseDirPath(),
+                ]);
+                $checkFileErrors = $lint($sourceFile);
+                $mappingErrors = \array_merge($mappingErrors, $checkFileErrors);
+            }
+            if (!$mappingErrors) {
+                showOk();
+            } else {
+                self::showErrors($mappingErrors);
+                $valid = false;
             }
         }
         return $valid;

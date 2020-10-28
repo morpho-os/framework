@@ -6,9 +6,13 @@
  */
 namespace Morpho\Network;
 
+use UnexpectedValueException;
+use function strrpos;
+use function substr;
+
 class TcpAddress {
-    protected $host;
-    protected $port;
+    protected string $host;
+    protected ?int $port;
 
     public function __construct(string $host, ?int $port) {
         $this->host = $host;
@@ -16,19 +20,19 @@ class TcpAddress {
     }
 
     public static function parse(string $address): self {
-        $pos = \strrpos($address, ':');
+        $pos = strrpos($address, ':');
         if (false === $pos) {
             return new static($address, null);
         }
-        $host = \substr($address, 0, $pos);
-        $port = \substr($address, $pos + 1);
+        $host = substr($address, 0, $pos);
+        $port = substr($address, $pos + 1);
         return new static($host, (int)$port);
     }
 
     public static function check(TcpAddress $address): TcpAddress {
         if (!$address->host() || !$address->port()) {
             if (!$address->port() != 0) {
-                throw new \UnexpectedValueException();
+                throw new UnexpectedValueException();
             }
         }
         return $address;

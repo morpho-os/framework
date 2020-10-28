@@ -6,24 +6,28 @@
  */
 namespace Morpho\Db\Sql;
 
-class Result extends \PDOStatement implements \Countable {
+use Countable;
+use PDO;
+use PDOStatement;
+
+class Result extends PDOStatement implements Countable {
     // Override the constructor to fix the "PDOException: SQLSTATE[HY000]: General error: user-supplied statement does not accept constructor arguments in ..."
     protected function __construct() {
     }
 
     public function rows(): array {
-        return $this->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * @return array|false
      */
     public function row() {
-        return $this->fetch(\PDO::FETCH_ASSOC);
+        return $this->fetch(PDO::FETCH_ASSOC);
     }
 
     public function column(): array {
-        return $this->fetchAll(\PDO::FETCH_COLUMN);
+        return $this->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
@@ -38,7 +42,7 @@ class Result extends \PDOStatement implements \Countable {
     }
 
     public function map(): array {
-        return $this->fetchAll(\PDO::FETCH_KEY_PAIR);
+        return $this->fetchAll(PDO::FETCH_KEY_PAIR);
     }
 
     /**
@@ -47,7 +51,7 @@ class Result extends \PDOStatement implements \Countable {
     public function count() {
         // @TODO: replace with iterator_count() ?
         $i = 0;
-        foreach ($this as $v) {
+        foreach ($this as $_) {
             $i++;
         }
         return $i;
