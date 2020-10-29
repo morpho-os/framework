@@ -9,8 +9,7 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{hasSuffix, hasSuffixFn, hasPrefix, hasPrefixFn, formatFloat, it, last, lastPos, lines, memoize, not, op, setProps, suffix, fromJson, partial, compose, prefix, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, typeOf, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, formatBytes, words, ucfirst, indent, unindent};
-use const Morpho\Base\{INT_TYPE, FLOAT_TYPE, BOOL_TYPE, STRING_TYPE, NULL_TYPE, ARRAY_TYPE, RESOURCE_TYPE};
+use function Morpho\Base\{formatFloat, it, last, lastPos, lines, memoize, not, op, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, formatBytes, words, ucfirst, indent, unindent};
 use RuntimeException;
 
 class FunctionsTest extends TestCase {
@@ -77,97 +76,6 @@ class FunctionsTest extends TestCase {
         $this->assertSame('abc', waitUntilTimeout(fn () => 'abc', 1000));
     }
 
-    public function dataForHasPrefix() {
-        return [
-            [
-                true, '', '',
-            ],
-            [
-                false, '', 'foo',
-            ],
-            [
-                true, 'foo', '',
-            ],
-            [
-                true, 'foo', 'foo',
-            ],
-            [
-                false, 'foo', 'foob',
-            ],
-            [
-                true, 'foo', 'fo',
-            ],
-            [
-                true, 'Привет', 'При'
-            ],
-            [
-                false, 'Привет', 'при'
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForHasPrefix
-     */
-    public function testHasPrefix($expected, $s, $prefix) {
-        $this->assertSame($expected, hasPrefix($s, $prefix));
-    }
-
-    public function dataForHasSuffix() {
-        return [
-            [
-                true, '', '',
-            ],
-            [
-                false, '', 'foo',
-            ],
-            [
-                true, 'foo', '',
-            ],
-            [
-                true, 'abc', 'c',
-            ],
-            [
-                true, 'abc', 'bc',
-            ],
-            [
-                true, 'abc', 'abc',
-            ],
-            [
-                false, 'abc', 'eabc',
-            ],
-            [
-                false, 'Привет', 'Вет'
-            ],
-            [
-                true, 'Привет', 'вет'
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForHasSuffix
-     */
-    public function testHasSuffix($expected, $s, $suffix) {
-        $this->assertSame($expected, hasSuffix($s, $suffix));
-    }
-
-    /**
-     * @dataProvider dataForHasPrefix
-     */
-    public function testHasPrefixFn($expected, $s, $prefix) {
-        $fn = hasPrefixFn($prefix);
-        $this->assertSame($expected, $fn($s));
-    }
-
-    /**
-     * @dataProvider dataForHasSuffix
-     */
-    public function testHasSuffixFn($expected, $s, $suffix) {
-        $fn = hasSuffixFn($suffix);
-        $this->assertSame($expected, $fn($s));
-    }
-
     public function testNot() {
         $fn = not(function (...$args) use (&$calledWithArgs) {
             $calledWithArgs = $args;
@@ -175,64 +83,6 @@ class FunctionsTest extends TestCase {
         });
         $this->assertFalse($fn('foo', 'bar'));
         $this->assertEquals(['foo', 'bar'], $calledWithArgs);
-    }
-
-    public function dataForTypeOf() {
-        $filePath = \tempnam($this->tmpDirPath(), __FUNCTION__);
-        $this->tmpHandle = $fp = \fopen($filePath, 'r');
-        return [
-            [
-                INT_TYPE,
-                5,
-            ],
-            [
-                FLOAT_TYPE,
-                3.14
-            ],
-            [
-                BOOL_TYPE,
-                true,
-            ],
-            [
-                STRING_TYPE,
-                "Hello",
-            ],
-            [
-                NULL_TYPE,
-                null,
-            ],
-            [
-                ARRAY_TYPE,
-                [],
-            ],
-            [
-                RESOURCE_TYPE,
-                $fp,
-            ],
-            [
-                'Closure',
-                function () {},
-            ],
-            [
-                'stdClass',
-                new \stdClass,
-            ],
-            [
-                \ArrayObject::class,
-                new \ArrayObject(),
-            ],
-            [
-                \Morpho\Base\DateTime::class,
-                new \Morpho\Base\DateTime,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForTypeOf
-     */
-    public function testTypeOf($expected, $actual) {
-        $this->assertEquals($expected, typeOf($actual));
     }
 
     public function testToAndFromJson() {
@@ -415,14 +265,6 @@ class FunctionsTest extends TestCase {
     public function testTitleize() {
         $this->assertEquals('V&quot;&quot;v Pe Te Adam Bob Camel Ized.', titleize('v""v pe_te Adam bob camelIzed.'));
         $this->assertEquals('V""v pe te Adam bob camel ized.', titleize('v""v pe_te Adam bob camelIzed.', false, false));
-    }
-
-    public function testPrefix() {
-        $this->assertEquals(['prefixfoo', 'prefixbar', 'prefixbaz'], \array_map(prefix('prefix'), ['foo', 'bar', 'baz']));
-    }
-
-    public function testSuffix() {
-        $this->assertEquals(['foosuffix', 'barsuffix', 'bazsuffix'], \array_map(suffix('suffix'), ['foo', 'bar', 'baz']));
     }
 
     public function testPartial() {

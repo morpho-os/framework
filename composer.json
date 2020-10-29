@@ -36,7 +36,8 @@
         "nikic/php-parser": "4.10.2",
         "psr/log": "dev-master",
         "psr/simple-cache": "^1.0@dev",
-        "willdurand/negotiation": "^3.0@dev"
+        "willdurand/negotiation": "^3.0@dev",
+        "symfony/polyfill-php80": "1.21.x-dev"
     },
     "require-dev": {
         "ext-ast": "*",

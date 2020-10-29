@@ -7,7 +7,7 @@
 namespace Morpho\Debug;
 
 use Morpho\Base\NotImplementedException;
-use function Morpho\Base\{typeOf, capture};
+use function Morpho\Base\capture;
 
 /**
  * Utility class to debug any PHP application.
@@ -32,7 +32,7 @@ class Debugger {
     private $exitCode = 0;
 
     public function type($obj): void {
-        $this->dump(typeOf($obj));
+        $this->dump(get_debug_type($obj));
     }
     
     public function dump(): void {

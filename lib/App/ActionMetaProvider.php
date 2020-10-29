@@ -12,7 +12,6 @@ use ReflectionClass;
 use ReflectionMethod;
 use function array_values;
 use function in_array;
-use function Morpho\Base\hasSuffix;
 use function Morpho\Base\it;
 
 abstract class ActionMetaProvider implements IFn {
@@ -84,7 +83,7 @@ abstract class ActionMetaProvider implements IFn {
                 if ($rClass->isAbstract()) {
                     return false;
                 }
-                return hasSuffix($rClass->getName(), CONTROLLER_SUFFIX);
+                return str_ends_with($rClass->getName(), CONTROLLER_SUFFIX);
             };
         }
         return $this->controllerFilter;

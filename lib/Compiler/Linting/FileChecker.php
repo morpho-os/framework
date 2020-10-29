@@ -8,7 +8,6 @@ namespace Morpho\Compiler\Linting;
 
 use function Morpho\Base\init;
 use function Morpho\Base\last;
-use function Morpho\Base\hasPrefix;
 use Morpho\Compiler\Reflection\ClassTypeDiscoverer;
 use Morpho\Compiler\Reflection\FileReflection;
 use Morpho\Fs\Path;
@@ -46,7 +45,7 @@ class FileChecker {
                     throw new \UnexpectedValueException('The library directory path must be absolute');
                 }
             }
-            if (hasPrefix($sourceFile->filePath(), $libDirPath)) {
+            if (str_starts_with($sourceFile->filePath(), $libDirPath)) {
                 $nsPrefix = \rtrim($nsPrefix, '\\');
                 $nsSuffix = \str_replace('/', '\\', \substr($sourceFile->filePath(), \strlen($libDirPath) + 1));
                 $ns = $nsPrefix . '\\' . $nsSuffix;

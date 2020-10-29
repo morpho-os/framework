@@ -9,7 +9,6 @@ namespace Morpho\App\Web\Uri;
 use Morpho\Base\Conf;
 use function Morpho\Base\all;
 use function Morpho\Base\lastPos;
-use function Morpho\Base\hasPrefix;
 
 /**
  * Implements the [RFC 3986](https://tools.ietf.org/html/rfc3986)
@@ -197,7 +196,7 @@ class Uri {
                     }
                 } else {
                     $relUriPath = $relUri->path()->toStr(false);
-                    if (hasPrefix($relUriPath, '/')) {
+                    if (str_starts_with($relUriPath, '/')) {
                         $targetUri->setPath(Path::removeDotSegments($relUriPath));
                     } else {
                         // 5.2.3. Merge Paths.

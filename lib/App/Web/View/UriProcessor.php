@@ -6,7 +6,6 @@
  */
 namespace Morpho\App\Web\View;
 
-use function Morpho\Base\hasPrefix;
 use Morpho\Fs\Path;
 
 class UriProcessor extends HtmlProcessor {
@@ -30,7 +29,7 @@ class UriProcessor extends HtmlProcessor {
         if (isset($tag[self::SKIP_ATTR])) {
             return $tag;
         }
-        if (isset($tag[$attrName]) && !hasPrefix($tag[$attrName], '<?')) {
+        if (isset($tag[$attrName]) && !str_starts_with($tag[$attrName], '<?')) {
             $uriStr = $tag[$attrName];
             if (isset($uriStr[0]) && $uriStr[0] === '/') {
                 if (isset($uriStr[1]) && $uriStr[1] === '/') {

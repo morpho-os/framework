@@ -9,22 +9,73 @@ namespace Morpho\Base;
 use Closure;
 use RuntimeException;
 use Throwable;
-use UnexpectedValueException;
 
-const INT_TYPE      = 'int';
-const FLOAT_TYPE    = 'float';
-const BOOL_TYPE     = 'bool';
-const STRING_TYPE   = 'string';
-const NULL_TYPE     = 'null';
-const ARRAY_TYPE    = 'array';
-const RESOURCE_TYPE = 'resource';
+/*
+PHP types can be used in:
+* Property definition
+* Formal parameter type hint
+* Return type hint
+* Class name or interface name
+
+E.g.:
+    class TUserDefined {
+        public TProperty $foo;
+    }
+    function foo(TParam $bar): TReturn {
+        ...
+    }
+Where the `TUserDefined`, `TProperty`, `TParam` and `TReturn` defined as:
+    TProperty:
+        Can be used in class definition as property type hint.
+        int | float | bool | string | array | object | iterable | self | parent | static (as modifier) | user
+    
+    TParam
+        Can be used in function definition as formal parameter type hint.
+        property | callable
+    
+    TReturn
+        Can be used in function definition as return type hint.
+        param | void
+    
+    TScalar
+        Scalar type.
+        int | float | bool | string | null
+    
+    TSpecial
+        Special type.
+        resource
+
+    TUserDefined
+        User-defined type.
+        ClassName | InterfaceName
+    
+    ClassName
+        Any class name.
+    
+    InterfaceName
+        Any interface name.
+*/
+const INT_TYPE      = 'int';         // TScalar, TParam, TReturn, TProperty
+const FLOAT_TYPE    = 'float';       // TScalar, TParam, TReturn, TProperty
+const BOOL_TYPE     = 'bool';        // TScalar, TParam, TReturn, TProperty
+const STRING_TYPE   = 'string';      // TScalar, TParam, TReturn, TProperty
+const NULL_TYPE     = 'null';        // TScalar
+const ARRAY_TYPE    = 'array';       // TParam, TReturn, TProperty
+const RESOURCE_TYPE = 'resource';    // TSpecial
+const OBJECT_TYPE   = 'object';      // TParam, TReturn, TProperty
+const ITERABLE_TYPE = 'iterable';    // TParam, TReturn, TProperty
+const CALLABLE_TYPE = 'callable';    // TParam, TReturn
+const SELF_TYPE     = 'self';        // TParam, TReturn, TProperty
+const PUBLIC_TYPE   = 'parent';      // TParam, TReturn, TProperty
+const STATIC_TYPE   = 'static';      // TParam, TReturn ([>= 8.0](https://wiki.php.net/rfc/static_return_type)), TProperty (as modifier)
+const VOID_TYPE     = 'void';        // TReturn
+// const CLASS_OR_INTERFACE = '...'; // TParam, TReturn, TProperty, TUserDefined
 
 const TRIM_CHARS = " \t\n\r\x00\x0B";
 const EOL_RE      = '(?>\r\n|\n|\r)';
 const EOL_FULL_RE = '~' . EOL_RE . '~s';
 
-// Size in spaces
-const INDENT_SIZE = 4;
+const INDENT_SIZE = 4; // size in spaces
 define(__NAMESPACE__ . '\\INDENT', str_repeat(' ', INDENT_SIZE));
 
 const SHORTEN_TAIL = '...';
@@ -367,32 +418,6 @@ function fromJson(string $json, bool $objectsToArrays = true) {
     return $res;
 }
 
-function hasSuffix(string $string, string $suffix): bool {
-    if ($suffix === '') {
-        return true;
-    }
-    return \substr($string, -\strlen($suffix)) === $suffix;
-}
-
-function hasPrefix(string $string, string $prefix): bool {
-    if ($prefix === '') {
-        return true;
-    }
-    return 0 === \strpos($string, $prefix);
-}
-
-function hasPrefixFn(string $prefix): Closure {
-    return function ($s) use ($prefix) {
-        return hasPrefix($s, $prefix);
-    };
-}
-
-function hasSuffixFn(string $suffix): Closure {
-    return function ($s) use ($suffix) {
-        return hasSuffix($s, $suffix);
-    };
-}
-
 /**
  * Sets properties of the object $instance using values from $props
  * @param object $instance
@@ -441,36 +466,6 @@ function lines(string $text): array {
 
 // @TODO: implement nonEmptyLines()
 
-function typeOf($val): string {
-    if (\is_object($val)) {
-        return \get_class($val);
-    }
-    $type = \gettype($val);
-    // @TODO: add void, iterable, callable??
-    switch (\strtolower($type)) {
-        case 'int':
-        case 'integer':
-            return INT_TYPE;
-        case 'float':
-        case 'double':
-        case 'real':
-            return FLOAT_TYPE;
-        case 'bool':
-        case 'boolean':
-            return BOOL_TYPE;
-        case 'string':
-            return STRING_TYPE;
-        case 'null':
-            return NULL_TYPE;
-        case 'array':
-            return ARRAY_TYPE;
-        case 'resource':
-            return RESOURCE_TYPE;
-        default:
-            throw new UnexpectedValueException("Unexpected value of type: '$type'");
-    }
-}
-
 function capture(callable $fn): string {
     \ob_start();
     try {
@@ -495,18 +490,6 @@ function tpl($__filePath, array $__vars = null): string {
         throw $e;
     }
     return \trim(\ob_get_clean());
-}
-
-function prefix(string $prefix): Closure {
-    return function (string $s) use ($prefix) {
-        return $prefix . $s;
-    };
-}
-
-function suffix(string $suffix): Closure {
-    return function (string $s) use ($suffix) {
-        return $s . $suffix;
-    };
 }
 
 /**
@@ -728,11 +711,6 @@ function any(callable $predicate, iterable $list): bool {
         }
     }
     return false;
-}
-
-function append(array $it, string $suffix) {
-    // @TODO: iterable
-    return \array_map(suffix($suffix), $it);
 }
 
 function apply(callable $fn, $iter): void {
@@ -1036,11 +1014,6 @@ function map(callable $fn, $iter) {
             yield $k => $fn($v, $k);
         }
     })();
-}
-
-function prepend(array $it, string $prefix): array {
-    // @TODO: iterable
-    return \array_map(prefix($prefix), $it);
 }
 
 /**

@@ -6,7 +6,11 @@
  */
 namespace Morpho\Test\Unit\Caching;
 
-use function Morpho\Base\typeOf;
+use ArrayIterator;
+use RuntimeException;
+use stdClass;
+use function get_debug_type;
+use function is_object;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\Testing\TestCase;
 
@@ -46,7 +50,7 @@ class VarExportFileCacheTest extends TestCase {
         $this->assertNull($cache->get($key));
         $this->assertSame('abc', $cache->get($key, 'abc'));
         $this->assertTrue($cache->set('my-val', $data));
-        if (\is_object($data)) {
+        if (is_object($data)) {
             $this->assertEquals($data, $cache->get($key));
         } else {
             $this->assertSame($data, $cache->get($key));
@@ -54,12 +58,12 @@ class VarExportFileCacheTest extends TestCase {
         $this->assertTrue($cache->delete($key));
         $this->assertFalse($cache->has($key));
         $this->assertNull($cache->get($key));
-        $def = new \stdClass();
+        $def = new stdClass();
         $this->assertSame($def, $cache->get($key, $def));
     }
 
     public function dataForThrowsExceptionOnNotSupportedDataType() {
-        yield [new \ArrayIterator([])];
+        yield [new ArrayIterator([])];
         yield [STDIN];
     }
 
@@ -68,7 +72,7 @@ class VarExportFileCacheTest extends TestCase {
      */
     public function testThrowsExceptionOnNotSupportedDataType($data) {
         $cache = new VarExportFileCache($this->createTmpDir());
-        $this->expectException(\RuntimeException::class, 'Only arrays and scalars are supported by this class, but $data has type ' . typeOf($data));
+        $this->expectException(RuntimeException::class, 'Only arrays and scalars are supported by this class, but $data has type ' . get_debug_type($data));
         $cache->set('foo', $data);
     }
 }
