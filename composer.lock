@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f5efafdf8df4fc45d74f8a231ab5246",
+    "content-hash": "8fa743030cd75b96f08dbadbc6d96d2a",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -1933,12 +1933,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "033aea881af4c05115d0ab6714b0a01df28605b2"
+                "reference": "9ccbe2a2f5d99ae1d73d59e56db197b178cbdb9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/033aea881af4c05115d0ab6714b0a01df28605b2",
-                "reference": "033aea881af4c05115d0ab6714b0a01df28605b2",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9ccbe2a2f5d99ae1d73d59e56db197b178cbdb9c",
+                "reference": "9ccbe2a2f5d99ae1d73d59e56db197b178cbdb9c",
                 "shasum": ""
             },
             "require": {
@@ -1981,7 +1981,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-28T19:55:31+00:00"
+            "time": "2020-10-28T22:01:44+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -4238,8 +4238,6 @@
         "ext-spl": "*",
         "ext-tokenizer": "*"
     },
-    "platform-dev": {
-        "ext-ast": "*"
-    },
+    "platform-dev": [],
     "plugin-api-version": "1.1.0"
 }
