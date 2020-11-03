@@ -18,13 +18,10 @@ class Collation {
      *     suffix = "_ci" - case insensitive
      *               "_cs" - case sensitive
      *               "_bin" - binary; character comparisons are based on code of chars (encoding)
-     * @var string
      */
-    private $name;
-    /**
-     * @var string
-     */
-    private $charsetName;
+    private string $name;
+
+    private string $charsetName;
 
     public function __construct(string $name, string $charsetName) {
         $this->name = $name;

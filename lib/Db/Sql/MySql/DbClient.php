@@ -11,6 +11,14 @@ use Morpho\Db\Sql\DbClient as BaseDbClient;
 use Morpho\Db\Sql\ReplaceQuery;
 use Morpho\Db\Sql\Schema as BaseSchema;
 use Morpho\Db\Sql\GeneralQuery as BaseGeneralQuery;
+use PDO;
+use function array_keys;
+use function array_merge;
+use function array_values;
+use function count;
+use function implode;
+use function ltrim;
+use function str_repeat;
 
 class DbClient extends BaseDbClient {
     public const DEFAULT_HOST = '127.0.0.1';
@@ -44,13 +52,13 @@ class DbClient extends BaseDbClient {
         $keys = null;
         foreach ($rows as $row) {
             if (null === $keys) {
-                $keys = \array_keys($row);
+                $keys = array_keys($row);
             }
-            $args = \array_merge($args, \array_values($row));
+            $args = array_merge($args, array_values($row));
         }
         $query = $this->query();
-        $valuesClause = ', (' . \implode(', ', $query->positionalPlaceholders($keys)) . ')';
-        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . \implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . \ltrim(\str_repeat($valuesClause, \count($rows)), ', ');
+        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
+        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
         $this->eval($sql, $args);
     }
 
@@ -58,7 +66,7 @@ class DbClient extends BaseDbClient {
         return new ReplaceQuery($this);
     }
 
-    protected function mkPdo($conf, $pdoConf): \PDO {
+    protected function mkPdo($conf, $pdoConf): PDO {
         $conf = Conf::check([
             'host' => self::DEFAULT_HOST,
             'port' => self::DEFAULT_PORT,
@@ -72,6 +80,6 @@ class DbClient extends BaseDbClient {
             ? 'unix_socket=' . $conf['sockFilePath']
             : "host={$conf['host']};port={$conf['port']}";
         $dsn = self::MYSQL_DRIVER . ":$transportStr;dbname={$conf['db']};charset={$conf['charset']}";
-        return new \PDO($dsn, $conf['user'], $conf['password'], $pdoConf);
+        return new PDO($dsn, $conf['user'], $conf['password'], $pdoConf);
     }
 }

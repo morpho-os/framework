@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\Db\Sql\MySql;
 
+use Countable;
 use Morpho\Db\Sql\IQuery;
 use Morpho\Db\Sql\MySql\DbClient;
 use Morpho\Db\Sql\DbClient as BaseDbClient;
@@ -13,6 +14,9 @@ use Morpho\Db\Sql\MySql\Schema;
 use Morpho\Db\Sql\Query;
 use Morpho\Db\Sql\Result;
 use Morpho\Test\Unit\Db\Sql\DbClientTest as BaseDbClientTest;
+use PDO;
+use PDOException;
+use function count;
 
 class DbClientTest extends BaseDbClientTest {
     private BaseDbClient $db;
@@ -24,9 +28,22 @@ class DbClientTest extends BaseDbClientTest {
         $schema->deleteAllTables();
     }
 
-    public function testDbName() {
+    public function testCanSwitchDb() {
+        // As there is no global state and db connection is
         $dbConf = $this->dbConf();
-        $this->assertSame($dbConf['db'], $this->db->dbName());
+        $curDbName = $this->db->dbName();
+
+        $this->assertSame($dbConf['db'], $curDbName);
+        $newDbName = 'mysql';
+        $this->assertNotSame($newDbName, $curDbName);
+
+        $this->assertIsInt($this->db->useDb($newDbName));
+
+        $this->assertSame($newDbName, $this->db->dbName());
+
+        $this->assertIsInt($this->db->useDb($curDbName));
+
+        $this->assertSame($curDbName, $this->db->dbName());
     }
 
     public function testConnect_UsesMySqlByDefault() {
@@ -39,7 +56,7 @@ class DbClientTest extends BaseDbClientTest {
 
     public function testConnection() {
         $connection = $this->db->pdo();
-        $this->assertInstanceOf(\PDO::class, $connection);
+        $this->assertInstanceOf(PDO::class, $connection);
         $this->assertSame($connection, $this->db->pdo());
     }
 
@@ -96,13 +113,7 @@ SQL
     }
 
     public function testInsertRows_PreservesTypes() {
-        $this->db->eval("CREATE TABLE cars (
-            name varchar(20),
-            color varchar(20),
-            country varchar(20),
-            type1 int,
-            type2 enum('US', 'Japan')
-        )");
+        $this->createCarsTable();
         $rows = [
             ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
             ['name' => 'Mazda RX4', 'color' => 'yellow', 'country' => 'JP', 'type1' => 2, 'type2' => 'Japan'],
@@ -153,7 +164,7 @@ SQL
     }
 
     public function testEval_ThrowsExceptionOnInvalidSql() {
-        $this->expectException(\PDOException::class, 'SQLSTATE[42000]: Syntax error or access violation');
+        $this->expectException(PDOException::class, 'SQLSTATE[42000]: Syntax error or access violation');
         $this->db->eval('invalid sql');
     }
 
@@ -162,8 +173,8 @@ SQL
         $this->assertInstanceOf(Result::class, $res);
 
         $checkRes = function ($res, $expectedCount) {
-            $this->assertInstanceOf(\Countable::class, $res);
-            $this->assertSame($expectedCount, \count($res));
+            $this->assertInstanceOf(Countable::class, $res);
+            $this->assertSame($expectedCount, count($res));
         };
 
         $checkRes($res, 1);
@@ -183,11 +194,22 @@ SQL
         $this->markTestIncomplete();
     }
 
+    public function testEval_InsertQuery() {
+        $this->createCarsTable();
+        $row = ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'];
+        $allRows = fn () => $this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
+        $this->assertSame([], $allRows());
+        $result = $this->db->eval($this->db->mkInsertQuery()->table('cars')->row($row)->build());
+        $this->assertInstanceOf(Result::class, $result);
+        $this->assertSame(1, $result->rowCount());
+        $this->assertSame([$row], $allRows());
+    }
+
     public function testConnect_PdoInstanceArgument() {
         $dbConf = $this->dbConf();
         $dsn = 'mysql:dbname=;' . $dbConf['host'];
-        $pdo = new \PDO($dsn, $dbConf['user'], $dbConf['password']);
-        $connection = \Morpho\Db\Sql\DbClient::connect($pdo);
+        $pdo = new PDO($dsn, $dbConf['user'], $dbConf['password']);
+        $connection = BaseDbClient::connect($pdo);
         $this->assertInstanceOf(DbClient::class, $connection);
     }
 
@@ -229,5 +251,15 @@ CREATE TABLE test (
 )
 SQL
         );
+    }
+
+    private function createCarsTable(): void {
+        $this->db->eval("CREATE TABLE cars (
+            name varchar(20),
+            color varchar(20),
+            country varchar(20),
+            type1 int,
+            type2 enum('US', 'Japan')
+        )");
     }
 }

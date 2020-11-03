@@ -6,6 +6,8 @@
  */
 namespace Morpho\Db\Sql\MySql;
 
+use ArrayObject;
+
 /**
  * https://dev.mysql.com/doc/refman/en/charset-general.html
  * Map<Char, Encoding>
@@ -19,5 +21,5 @@ namespace Morpho\Db\Sql\MySql;
  *             A, B, C, D - symbols/characters taken from some finite set (alphabet)
  *             0, 1, 2, 3 - encoding/codes of characters for the A,B,a,b respectively, i.e. 0 for A, 1 for B etc.
  */
-abstract class Charset extends \ArrayObject {
+abstract class Charset extends ArrayObject {
 }
