@@ -6,21 +6,26 @@
  */
 namespace Morpho\Error;
 
+use Morpho\Debug\Debugger;
+use Throwable;
+use function htmlspecialchars;
+use function print_r;
+
 class DumpListener {
     const FAILURE_EXIT_CODE = 1;
 
     /**
-     * @param \Throwable $exception
+     * @param Throwable $exception
      */
     public function __invoke($exception): void {
         $exAsString = $exception->__toString();
         if (class_exists('Morpho\\Debug\\Debugger')) {
-            \Morpho\Debug\Debugger::instance()
+            Debugger::instance()
                 ->dumpWithExitCode($exAsString, self::FAILURE_EXIT_CODE);
         } else {
             $message = PHP_SAPI == 'cli'
                 ? $exAsString
-                : '<pre>' . \print_r(\htmlspecialchars($exAsString, ENT_QUOTES), true) . '</pre>';
+                : '<pre>' . print_r(htmlspecialchars($exAsString, ENT_QUOTES), true) . '</pre>';
             echo $message;
         }
         exit(self::FAILURE_EXIT_CODE);

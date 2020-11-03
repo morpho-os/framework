@@ -6,19 +6,31 @@
  */
 namespace Morpho\Test\Unit\App\Cli;
 
+use ArrayObject;
 use Morpho\Base\Env;
 use Morpho\Base\InvalidConfException;
+use RuntimeException;
 use function Morpho\App\Cli\{
-    arg, envVarsStr, sh, escapeArgs, proc, showOk, stylize
+    arg, envVarsStr, sh, escapeArgs, showOk, stylize
 };
-use Morpho\App\Cli\ProcCommandResult;
 use Morpho\Testing\TestCase;
+use function basename;
+use function escapeshellarg;
+use function fclose;
+use function file_put_contents;
+use function fwrite;
+use function md5;
+use function ob_get_clean;
+use function ob_start;
+use function proc_close;
+use function proc_open;
+use function stream_get_contents;
 
 class FunctionsTest extends TestCase {
     public function testShowOk() {
-        \ob_start();
+        ob_start();
         showOk();
-        $this->assertEquals("OK\n", \ob_get_clean());
+        $this->assertEquals("OK\n", ob_get_clean());
     }
 
     public function dataForWriteErrorAndWriteErrorLn() {
@@ -38,7 +50,7 @@ class FunctionsTest extends TestCase {
 
         $tmpFilePath = $this->createTmpFile();
         $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
-        \file_put_contents($tmpFilePath, <<<OUT
+        file_put_contents($tmpFilePath, <<<OUT
 <?php
 require "$autoloadFilePath";
 echo \\Morpho\\App\\Cli\\$fn("$error");
@@ -48,12 +60,12 @@ OUT
         $fdSpec = [
             2 => ["pipe", "w"],  // stdout is a pipe that the child will write to
         ];
-        $process = \proc_open('php ' . \escapeshellarg($tmpFilePath), $fdSpec, $pipes);
+        $process = proc_open('php ' . escapeshellarg($tmpFilePath), $fdSpec, $pipes);
 
-        $out = \stream_get_contents($pipes[2]);
-        \fclose($pipes[2]);
+        $out = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
 
-        \proc_close($process);
+        proc_close($process);
 
         $this->assertEquals($expectedMessage, $out);
     }
@@ -72,8 +84,9 @@ OUT
     }
 
     public function testArg() {
-        $this->assertSame(" '1'", arg(1));
+        $this->assertSame('', arg(''));
         $this->assertSame('', arg([]));
+        $this->assertSame(" '1'", arg(1));
         $this->assertEquals(" 'foo'", arg('foo'));
         $this->assertEquals(" 'foo' 'bar'", arg(['foo', 'bar']));
         $gen = function () {
@@ -81,7 +94,7 @@ OUT
             yield 'bar';
         };
         $this->assertEquals(" 'foo' 'bar'", arg($gen()));
-        $this->assertSame(" 'foo' 'bar'", arg(new \ArrayObject(['foo', 'bar'])));
+        $this->assertSame(" 'foo' 'bar'", arg(new ArrayObject(['foo', 'bar'])));
         $gen1 = function () {
              yield 1;
              yield 2;
@@ -105,18 +118,18 @@ OUT
      * @dataProvider dataForShell_CaptureAndShowConfOptions
      */
     public function testShell_CaptureAndShowConfOptions(bool $capture, bool $show) {
-        $cmd = 'ls '  . \escapeshellarg(__DIR__);
-        \ob_start();
+        $cmd = 'ls '  . escapeshellarg(__DIR__);
+        ob_start();
         $result = sh($cmd, ['capture' => $capture, 'show' => $show]);
-        $this->assertStringContainsString($show ? \basename(__FILE__) : '', \ob_get_clean());
+        $this->assertStringContainsString($show ? basename(__FILE__) : '', ob_get_clean());
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
-        $this->assertStringContainsString($capture ? \basename(__FILE__) : '', (string)$result);
+        $this->assertStringContainsString($capture ? basename(__FILE__) : '', (string)$result);
     }
 
     public function testShell_CheckExitConfParam() {
         $exitCode = 134;
-        $this->expectException(\RuntimeException::class, "Command returned non-zero exit code: $exitCode");
+        $this->expectException(RuntimeException::class, "Command returned non-zero exit code: $exitCode");
         sh('php -r "exit(' . $exitCode . ');"');
     }
 
@@ -128,7 +141,7 @@ OUT
     }
 
     public function testShell_EnvVarsConfParam() {
-        $var = 'v' . \md5(__METHOD__);
+        $var = 'v' . md5(__METHOD__);
         $val = 'hello';
         $this->assertSame($val . "\n", sh('echo $' . $var, ['envVars' => [$var => $val], 'capture' => true, 'show' => false])->out());
     }
@@ -139,7 +152,7 @@ OUT
     }
 
     public function testEnvVarsStr_ThrowsExceptionForInvalidVarName() {
-        $this->expectException(\RuntimeException::class, 'Invalid variable name');
+        $this->expectException(RuntimeException::class, 'Invalid variable name');
         envVarsStr(['&']);
     }
 
@@ -155,7 +168,7 @@ OUT
         $tmpFilePath = $this->createTmpFile();
         $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         $question = "Do you want to play";
-        \file_put_contents($tmpFilePath, <<<OUT
+        file_put_contents($tmpFilePath, <<<OUT
 <?php
 require "$autoloadFilePath";
 echo json_encode(\\Morpho\\App\\Cli\\askYesNo("$question"));
@@ -166,17 +179,17 @@ OUT
             0 => ["pipe", "r"],  // stdin is a pipe that the child will read from
             1 => ["pipe", "w"],  // stdout is a pipe that the child will write to
         ];
-        $process = \proc_open('php ' . \escapeshellarg($tmpFilePath), $fdSpec, $pipes);
+        $process = proc_open('php ' . escapeshellarg($tmpFilePath), $fdSpec, $pipes);
 
-        \fwrite($pipes[0], "what\ny\n");
+        fwrite($pipes[0], "what\ny\n");
 
-        $out = \stream_get_contents($pipes[1]);
+        $out = stream_get_contents($pipes[1]);
 
         foreach ($pipes as $pipe) {
-            \fclose($pipe);
+            fclose($pipe);
         }
 
-        \proc_close($process);
+        proc_close($process);
 
         $this->assertEquals("$question? (y/n): Invalid choice, please type y or n\ntrue", $out);
     }

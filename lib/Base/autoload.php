@@ -6,9 +6,62 @@
  */
 namespace Morpho\Base;
 
+use ArrayObject;
 use Closure;
+use Generator;
+use InvalidArgumentException;
+use IteratorAggregate;
 use RuntimeException;
 use Throwable;
+use UnexpectedValueException;
+use function array_fill_keys;
+use function array_key_exists;
+use function array_merge;
+use function array_pop;
+use function array_shift;
+use function array_slice;
+use function array_values;
+use function count;
+use function extract;
+use function floatval;
+use function func_num_args;
+use function get_object_vars;
+use function htmlspecialchars;
+use function htmlspecialchars_decode;
+use function in_array;
+use function is_array;
+use function is_iterable;
+use function is_numeric;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function lcfirst;
+use function md5;
+use function number_format;
+use function ob_end_clean;
+use function ob_get_clean;
+use function ob_start;
+use function ord;
+use function pow;
+use function preg_match;
+use function preg_quote;
+use function preg_replace;
+use function preg_replace_callback;
+use function preg_split;
+use function round;
+use function sprintf;
+use function str_replace;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function strtolower;
+use function strtoupper;
+use function strtr;
+use function substr;
+use function trim;
+use function ucwords;
+use function usleep;
+use const PREG_SPLIT_NO_EMPTY;
 
 /*
 PHP types can be used in:
@@ -25,17 +78,17 @@ E.g.:
         ...
     }
 Where the `TUserDefined`, `TProperty`, `TParam` and `TReturn` defined as:
-    TProperty:
+    TProperty
         Can be used in class definition as property type hint.
-        int | float | bool | string | array | object | iterable | self | parent | static (as modifier) | user
+        int | float | bool | string | array | object | iterable | self | parent | static (as modifier) | TUserDefined
     
     TParam
         Can be used in function definition as formal parameter type hint.
-        property | callable
+        TProperty | callable
     
     TReturn
         Can be used in function definition as return type hint.
-        param | void
+        TParam | void
     
     TScalar
         Scalar type.
@@ -69,6 +122,7 @@ const SELF_TYPE     = 'self';        // TParam, TReturn, TProperty
 const PUBLIC_TYPE   = 'parent';      // TParam, TReturn, TProperty
 const STATIC_TYPE   = 'static';      // TParam, TReturn ([>= 8.0](https://wiki.php.net/rfc/static_return_type)), TProperty (as modifier)
 const VOID_TYPE     = 'void';        // TReturn
+const MIXED_TYPE    = 'mixed';       // @todo
 // const CLASS_OR_INTERFACE = '...'; // TParam, TReturn, TProperty, TUserDefined
 
 const TRIM_CHARS = " \t\n\r\x00\x0B";
@@ -88,15 +142,15 @@ const EPS = 0.00001;
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
 function e($text): string {
-    return \htmlspecialchars((string) $text, ENT_QUOTES);
+    return htmlspecialchars((string) $text, ENT_QUOTES);
 }
 
 function de($text): string {
-    return \htmlspecialchars_decode((string) $text, ENT_QUOTES);
+    return htmlspecialchars_decode((string) $text, ENT_QUOTES);
 }
 
 function evalFn($valOrFn) {
-    if ($valOrFn instanceof \Closure) { // should be more fast then is_callable()
+    if ($valOrFn instanceof Closure) { // should be more fast then is_callable()
         return $valOrFn();
     }
     if (is_callable($valOrFn)) {
@@ -120,13 +174,13 @@ function using(IDisposable $disposable, $val = null) {
 }
 
 function unpackArgs(array $args): array {
-    return \count($args) === 1 && \is_array($args[0])
+    return count($args) === 1 && is_array($args[0])
         ? $args[0]
         : $args;
 }
 
 function wrap($string, string $wrapper) {
-    if (\is_array($string)) {
+    if (is_array($string)) {
         $r = [];
         foreach ($string as $k => $s) {
             $r[$k] = $wrapper . $s . $wrapper;
@@ -141,7 +195,7 @@ function wrapQ($string) {
 }
 
 function showLn(...$messages) {
-    if (!\count($messages)) {
+    if (!count($messages)) {
         echo "\n";
     } else {
         foreach ($messages as $message) {
@@ -149,7 +203,7 @@ function showLn(...$messages) {
                 foreach ($message() as $msg) {
                     echo $msg . "\n";
                 }
-            } elseif (\is_iterable($message)) {
+            } elseif (is_iterable($message)) {
                 foreach ($message as $msg) {
                     echo $msg . "\n";
                 }
@@ -170,7 +224,7 @@ function uniqueName(): string {
 
 function words($s, int $limit = -1): array {
     $s = (string) $s;
-    return \preg_split('~\\s+~s', \trim($s), $limit, \PREG_SPLIT_NO_EMPTY);
+    return preg_split('~\\s+~s', trim($s), $limit, PREG_SPLIT_NO_EMPTY);
 }
 
 /**
@@ -185,11 +239,11 @@ function dasherize(string $string, string $additionalChars = '', bool $trim = tr
     $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
-    $result = \strtolower(
-        \preg_replace(
+    $result = strtolower(
+        preg_replace(
             $search,
             $replace,
-            \str_replace(
+            str_replace(
                 ['_', ' '],
                 '-',
                 $string
@@ -215,11 +269,11 @@ function dasherize(string $string, string $additionalChars = '', bool $trim = tr
 function underscore($string, bool $trim = true) {
     $string = sanitize($string, '-_ ', false);
     $string = deleteDups($string, '- ');
-    $result = \strtolower(
-        \preg_replace(
+    $result = strtolower(
+        preg_replace(
             '~([a-z])([A-Z])~s',
             '$1_$2',
-            \str_replace(
+            str_replace(
                 ['-', ' '],
                 '_',
                 $string
@@ -244,19 +298,19 @@ function underscore($string, bool $trim = true) {
  * @return string
  */
 function classify($string, bool $toFqName = false): string {
-    $string = sanitize(\str_replace('/', '\\', $string), '-_\\ ');
-    if (false !== \strpos($string, '\\')) {
-        $string = \preg_replace_callback(
+    $string = sanitize(str_replace('/', '\\', $string), '-_\\ ');
+    if (false !== strpos($string, '\\')) {
+        $string = preg_replace_callback(
             '{\\\\(\w)}si',
             function ($match) {
-                return '\\' . \strtoupper($match[1]);
+                return '\\' . strtoupper($match[1]);
             },
             $string
         );
     }
-    $string = \str_replace(['-', '_'], ' ', $string);
-    $string = \ucwords($string);
-    $string = \str_replace(' ', '', $string);
+    $string = str_replace(['-', '_'], ' ', $string);
+    $string = ucwords($string);
+    $string = str_replace(' ', '', $string);
     if ($toFqName) {
         return '\\' . $string;
     }
@@ -275,11 +329,11 @@ function classify($string, bool $toFqName = false): string {
  */
 function camelize($string, bool $upperCaseFirstChar = false): string {
     $string = sanitize($string, '-_ ');
-    $string = \str_replace(['-', '_'], ' ', $string);
-    $string = \ucwords($string);
-    $string = \str_replace(' ', '', $string);
+    $string = str_replace(['-', '_'], ' ', $string);
+    $string = ucwords($string);
+    $string = str_replace(' ', '', $string);
     if (!$upperCaseFirstChar) {
-        return \lcfirst($string);
+        return lcfirst($string);
     }
     return $string;
 }
@@ -290,12 +344,12 @@ function camelize($string, bool $upperCaseFirstChar = false): string {
  * By default applies e() to escape of HTML special characters.
  */
 function humanize($string, bool $escape = true) {
-    $result = \preg_replace_callback(
+    $result = preg_replace_callback(
         '/([a-z])([A-Z])/s',
         function ($m) {
-            return $m[1] . ' ' . \strtolower($m[2]);
+            return $m[1] . ' ' . strtolower($m[2]);
         },
-        \str_replace('_', ' ', $string)
+        str_replace('_', ' ', $string)
     );
     if ($escape) {
         $result = e($result);
@@ -319,15 +373,15 @@ function humanize($string, bool $escape = true) {
 function titleize($string, bool $ucwords = true, bool $escape = true): string {
     $result = humanize($string, $escape);
     if ($ucwords) {
-        return \ucwords($result);
+        return ucwords($result);
     }
 
     return \ucfirst($result);
 }
 
 function sanitize(string $string, string $allowedCharacters, bool $deleteDups = true) {
-    $regexp = '/[^a-zA-Z0-9' . \preg_quote($allowedCharacters, '/') . ']/s';
-    $result = \preg_replace($regexp, '', $string);
+    $regexp = '/[^a-zA-Z0-9' . preg_quote($allowedCharacters, '/') . ']/s';
+    $result = preg_replace($regexp, '', $string);
     if ($deleteDups) {
         $result = deleteDups($result, $allowedCharacters);
     }
@@ -345,13 +399,13 @@ function sanitize(string $string, string $allowedCharacters, bool $deleteDups = 
  * @return string|array
  */
 function trimMore($string, $charlist = null) {
-    if (\is_array($string)) {
+    if (is_array($string)) {
         foreach ($string as $k => $v) {
             $string[$k] = trimMore($v, $charlist);
         }
         return $string;
     }
-    return \trim((string)$string, $charlist . TRIM_CHARS);
+    return trim((string)$string, $charlist . TRIM_CHARS);
 }
 
 /**
@@ -364,9 +418,9 @@ function trimMore($string, $charlist = null) {
  */
 function deleteDups($string, $chars, bool $isCharClass = true) {
     $regExp = $isCharClass
-        ? '/([' . \preg_quote((string)$chars, '/') . '])+/si'
+        ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
         : "/($chars)+/si";
-    return \preg_replace($regExp, '\1', (string)$string);
+    return preg_replace($regExp, '\1', (string)$string);
 }
 
 function format($string, array $args, callable $filterFn): string {
@@ -374,17 +428,17 @@ function format($string, array $args, callable $filterFn): string {
     foreach ($args as $key => $value) {
         $fromToMap['{' . $key . '}'] = $filterFn($value);
     }
-    return \strtr($string, $fromToMap);
+    return strtr($string, $fromToMap);
 }
 
 function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): string {
-    if (\strlen($text) <= $length) {
+    if (strlen($text) <= $length) {
         return $text;
     }
     if (null === $tail) {
         $tail = SHORTEN_TAIL;
     }
-    return \substr($text, 0, $length - \strlen($tail)) . $tail;
+    return substr($text, 0, $length - strlen($tail)) . $tail;
 }
 
 function normalizeEols(string $s): string {
@@ -402,7 +456,7 @@ function normalizeEols(string $s): string {
  * @return string
  */
 function toJson($val, $conf = null): string {
-    return \json_encode($val, $conf ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    return json_encode($val, $conf ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 /**
@@ -411,7 +465,7 @@ function toJson($val, $conf = null): string {
  * @return mixed
  */
 function fromJson(string $json, bool $objectsToArrays = true) {
-    $res = \json_decode($json, $objectsToArrays);
+    $res = json_decode($json, $objectsToArrays);
     if (null === $res) {
         throw new RuntimeException("Invalid JSON or too deep data");
     }
@@ -426,10 +480,10 @@ function fromJson(string $json, bool $objectsToArrays = true) {
  */
 function setProps(object $instance, iterable $props): object {
     $assignProps = function ($props) {
-        $knownProps = \array_fill_keys(array_keys(\get_object_vars($this)), true);
+        $knownProps = array_fill_keys(array_keys(get_object_vars($this)), true);
         foreach ($props as $name => $value) {
             if (!isset($knownProps[$name])) {
-                throw new \UnexpectedValueException("Unknown property '$name'");
+                throw new UnexpectedValueException("Unknown property '$name'");
             }
             $this->$name = $value;
         }
@@ -461,42 +515,42 @@ function lines(string $text): array {
 /*    if ($text === '') {
         return [];
     }*/
-    return \preg_split(EOL_FULL_RE, $text);
+    return preg_split(EOL_FULL_RE, $text);
 }
 
 // @TODO: implement nonEmptyLines()
 
 function capture(callable $fn): string {
-    \ob_start();
+    ob_start();
     try {
         $fn();
     } catch (Throwable $e) {
         // Don't output any result in case of Error
-        \ob_end_clean();
+        ob_end_clean();
         throw $e;
     }
-    return \ob_get_clean();
+    return ob_get_clean();
 }
 
 function tpl($__filePath, array $__vars = null): string {
-    \extract((array) $__vars, EXTR_SKIP);
+    extract((array) $__vars, EXTR_SKIP);
     unset($__vars);
-    \ob_start();
+    ob_start();
     try {
         require $__filePath;
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         // Don't output any result in case of Error
-        \ob_end_clean();
+        ob_end_clean();
         throw $e;
     }
-    return \trim(\ob_get_clean());
+    return trim(ob_get_clean());
 }
 
 /**
  * Modified version of the operator() from the https://github.com/nikic/iter
  * @Copyright (c) 2013 by Nikita Popov.
  */
-function op($operator, $arg = null): \Closure {
+function op($operator, $arg = null): Closure {
     $functions = [
         'instanceof' => function ($a, $b) { return $a instanceof $b; },
         '*'          => function ($a, $b) { return $a * $b; },
@@ -520,16 +574,16 @@ function op($operator, $arg = null): \Closure {
         '|'          => function ($a, $b) { return $a | $b; },
         '&&'         => function ($a, $b) { return $a && $b; },
         '||'         => function ($a, $b) { return $a || $b; },
-        '**'         => function ($a, $b) { return \pow($a, $b); },
+        '**'         => function ($a, $b) { return pow($a, $b); },
         '<=>'        => function ($a, $b) { return $a == $b ? 0 : ($a < $b ? -1 : 1); },
     ];
 
     if (!isset($functions[$operator])) {
-        throw new \InvalidArgumentException("Unknown operator \"$operator\"");
+        throw new InvalidArgumentException("Unknown operator \"$operator\"");
     }
 
     $fn = $functions[$operator];
-    if (\func_num_args() === 1) {
+    if (func_num_args() === 1) {
         // Return a function which expects 2 arguments.
         return $fn;
     } else {
@@ -549,7 +603,7 @@ function not(callable $predicateFn): Closure {
 
 function partial(callable $fn, ...$args1): Closure {
     return function (...$args2) use ($fn, $args1) {
-        return $fn(...\array_merge($args1, $args2));
+        return $fn(...array_merge($args1, $args2));
     };
 }
 
@@ -575,11 +629,11 @@ function requireFile(string $__filePath, bool $__once = false) {
 // @TODO: Move to Byte??, merge with Converter
 
 function formatBytes(string $bytes, string $format = null): string {
-    $n = \strlen($bytes);
+    $n = strlen($bytes);
     $s = '';
     $format = $format ?: '\x%02x';
     for ($i = 0; $i < $n; $i++) {
-        $s .= \sprintf($format, \ord($bytes[$i]));
+        $s .= sprintf($format, ord($bytes[$i]));
     }
     return $s;
 }
@@ -588,8 +642,8 @@ function formatFloat($val): string {
     if (empty($val)) {
         $val = 0;
     }
-    $val = \str_replace(',', '.', $val);
-    return \number_format(\round(\floatval($val), 2), 2, '.', ' ');
+    $val = str_replace(',', '.', $val);
+    return number_format(round(floatval($val), 2), 2, '.', ' ');
 }
 
 function hash($var): string {
@@ -604,7 +658,7 @@ function equals($a, $b) {
 /**
  * @TODO: This method can't reliable say when a function is called with different arguments.
  */
-function memoize(callable $fn): \Closure {
+function memoize(callable $fn): Closure {
     return function (...$args) use ($fn) {
         static $memo = [];
 /*
@@ -617,8 +671,8 @@ function memoize(callable $fn): \Closure {
         });
 */
         // @TODO: avoid overwritting different functions called with the same arguments.
-        $hash = \md5(\json_encode($args)); // NB: \md5() can cause collisions
-        if (\array_key_exists($hash, $memo)) {
+        $hash = md5(json_encode($args)); // NB: \md5() can cause collisions
+        if (array_key_exists($hash, $memo)) {
             return $memo[$hash];
         }
         return $memo[$hash] = $fn(...$args);
@@ -637,9 +691,9 @@ function waitUntilNoOfAttempts(callable $predicate, int $waitIntervalMicroSec = 
         if ($res) {
             return $res;
         }
-        \usleep($waitIntervalMicroSec);
+        usleep($waitIntervalMicroSec);
     }
-    throw new \RuntimeException('The number of attempts has been reached');
+    throw new RuntimeException('The number of attempts has been reached');
 }
 
 /**
@@ -654,7 +708,7 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
         }
         $time += microtime(true);
         if ($time >= $timeoutMicroSec) {
-            throw new \RuntimeException('The timeout has been reached');
+            throw new RuntimeException('The timeout has been reached');
         }
         usleep($timeoutMicroSec);
     }
@@ -662,23 +716,23 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
 
 /**
  * Makes passed object true iterable so that foreach loop would work.
- * @param \IteratorAggregate|\iterable|\Closure If \Closure then must return \Generator
+ * @param IteratorAggregate|iterable|Closure If \Closure then must return \Generator
  * @return iterable
  */
 function it($it): iterable {
-    if ($it instanceof \IteratorAggregate) {
+    if ($it instanceof IteratorAggregate) {
         return $it->getIterator();
     }
-    if (\is_iterable($it)) {
+    if (is_iterable($it)) {
         return $it;
     }
-    if ($it instanceof \Closure) {
+    if ($it instanceof Closure) {
         $gen = $it();
-        if ($gen instanceof \Generator) {
+        if ($gen instanceof Generator) {
             return $gen;
         }
     }
-    throw new \UnexpectedValueException();
+    throw new UnexpectedValueException();
 }
 
 // ----------------------------------------------------------------------------
@@ -690,7 +744,7 @@ function it($it): iterable {
  * @param string|iterable $iter
  */
 function all(callable $predicate, $iter): bool {
-    if (\is_string($iter)) {
+    if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
         }
@@ -714,7 +768,7 @@ function any(callable $predicate, iterable $list): bool {
 }
 
 function apply(callable $fn, $iter): void {
-    if (\is_string($iter)) {
+    if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
         }
@@ -752,14 +806,14 @@ function chain(...$iterables): iterable {
  * @param mixed $needle
  */
 function contains($haystack, $needle): bool {
-    if (\is_string($haystack)) {
+    if (is_string($haystack)) {
         if ($needle === '') {
             return true;
         }
         //mb_strpos() ??
-        return false !== \strpos($haystack, $needle);
-    } elseif (\is_array($haystack)) {
-        return \in_array($needle, $haystack, true);
+        return false !== strpos($haystack, $needle);
+    } elseif (is_array($haystack)) {
+        return in_array($needle, $haystack, true);
     } else {
         // @TODO: iterable
         throw new NotImplementedException();
@@ -768,30 +822,30 @@ function contains($haystack, $needle): bool {
 
 /**
  * @param string|iterable $iter
- * @return string|\Generator|array
+ * @return string|Generator|array
  *     string if $list : string
  *     array if $list : array
  *     Generator otherwise
  */
 function filter(callable $predicate, $iter) {
-    if (\is_string($iter)) {
+    if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
         }
         return '';
     }
-    if (\is_array($iter)) {
+    if (is_array($iter)) {
         $res = [];
         $numericKeys = true;
         foreach ($iter as $k => $v) {
-            if ($numericKeys && !\is_numeric($k)) {
+            if ($numericKeys && !is_numeric($k)) {
                 $numericKeys = false;
             }
             if ($predicate($v, $k)) {
                 $res[$k] = $v;
             }
         }
-        return $numericKeys ? \array_values($res) : $res;
+        return $numericKeys ? array_values($res) : $res;
     } else {
         return (function () use ($predicate, $iter) {
             foreach ($iter as $k => $v) {
@@ -820,16 +874,16 @@ function filter(callable $predicate, $iter) {
  * @param callable $fn Mapping function: iterable function(mixed $value)
  * @param iterable|string $iter Iterable to be mapped over
  *
- * @return string|\Generator|array
+ * @return string|Generator|array
  */
 function flatMap(callable $fn, $iter) {
-    if (\is_string($iter)) {
+    if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
         }
         return '';
     }
-    if (\is_array($iter)) {
+    if (is_array($iter)) {
         $newArr = [];
         foreach ($iter as $value) {
             foreach ($fn($value) as $k => $v) {
@@ -852,23 +906,23 @@ function flatMap(callable $fn, $iter) {
  * For abcd returns a
  */
 function head($list, string $separator = null) {
-    if (\is_array($list)) {
-        if (!\count($list)) {
-            throw new \RuntimeException('Empty list');
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new RuntimeException('Empty list');
         }
-        return \array_shift($list);
-    } elseif (\is_string($list)) {
+        return array_shift($list);
+    } elseif (is_string($list)) {
         if ($list === '') {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         // @TODO, mb_substr()
         if (null === $separator) {
-            return \substr($list, 0, 1);
+            return substr($list, 0, 1);
         }
-        $pos = \strpos($list, $separator);
+        $pos = strpos($list, $separator);
         return false === $pos
             ? $list
-            : \substr($list, 0, $pos);
+            : substr($list, 0, $pos);
     } else {
         $empty = true;
         $head = null;
@@ -878,7 +932,7 @@ function head($list, string $separator = null) {
             break;
         }
         if ($empty) {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         return $head;
     }
@@ -888,14 +942,14 @@ function head($list, string $separator = null) {
  * For abcd returns abc
  */
 function init($list, string $separator = null) {
-    if (\is_array($list)) {
-        if (!\count($list)) {
-            throw new \RuntimeException('Empty list');
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new RuntimeException('Empty list');
         }
-        return \array_slice($list, 0, -1, true);
-    } elseif (\is_string($list)) {
+        return array_slice($list, 0, -1, true);
+    } elseif (is_string($list)) {
         if ($list === '') {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         /*
         $parts = explode($separator, $list);
@@ -903,17 +957,17 @@ function init($list, string $separator = null) {
         return \implode('\\', $parts);
         */
         // @TODO, mb_substr()
-        $pos = \strrpos($list, $separator);
+        $pos = strrpos($list, $separator);
         return false === $pos
             ? ''
-            : \substr($list, 0, $pos);
+            : substr($list, 0, $pos);
     } else {
         $empty = true;
         foreach ($list as $_) {
             $empty = false;
         }
         if ($empty) {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         throw new NotImplementedException();
     }
@@ -923,23 +977,23 @@ function init($list, string $separator = null) {
  * For abcd returns d
  */
 function last($list, string $separator = null) {
-    if (\is_array($list)) {
-        if (!\count($list)) {
-            throw new \RuntimeException('Empty list');
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new RuntimeException('Empty list');
         }
-        return \array_pop($list);
-    } elseif (\is_string($list)) {
+        return array_pop($list);
+    } elseif (is_string($list)) {
         if ($list === '') {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         // @TODO, mb_substr()
         if (null === $separator) {
-            return \substr($list, -1);
+            return substr($list, -1);
         }
-        $pos = \strrpos($list, $separator);
+        $pos = strrpos($list, $separator);
         return false === $pos
             ? $list
-            : \substr($list, $pos + 1);
+            : substr($list, $pos + 1);
     } else {
         $empty = true;
         $last = null;
@@ -948,7 +1002,7 @@ function last($list, string $separator = null) {
             $last = $v;
         }
         if ($empty) {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         return $last;
     }
@@ -958,21 +1012,21 @@ function last($list, string $separator = null) {
  * For abcd returns bcd
  */
 function tail($list, string $separator = null) {
-    if (\is_array($list)) {
-        if (!\count($list)) {
-            throw new \RuntimeException('Empty list');
+    if (is_array($list)) {
+        if (!count($list)) {
+            throw new RuntimeException('Empty list');
         }
-        \array_shift($list);
+        array_shift($list);
         return $list;
-    } elseif (\is_string($list)) {
+    } elseif (is_string($list)) {
         if ($list === '') {
-            throw new \RuntimeException('Empty list');
+            throw new RuntimeException('Empty list');
         }
         // @TODO, mb_substr()
-        $pos = \strpos($list, $separator);
+        $pos = strpos($list, $separator);
         return false === $pos
             ? ''
-            : \substr($list, $pos + 1);
+            : substr($list, $pos + 1);
     } else {
         $empty = true;
         $gen = function () use ($list, &$empty) {
@@ -984,7 +1038,7 @@ function tail($list, string $separator = null) {
                 }
             }
             if ($empty) {
-                throw new \RuntimeException('Empty list');
+                throw new RuntimeException('Empty list');
             }
         };
         return $gen();
@@ -992,16 +1046,16 @@ function tail($list, string $separator = null) {
 }
 
 /**
- * @return string|\Generator|array
+ * @return string|Generator|array
  */
 function map(callable $fn, $iter) {
-    if (\is_string($iter)) {
+    if (is_string($iter)) {
         if ($iter !== '') {
             throw new NotImplementedException();
         }
         return '';
     }
-    if (\is_array($iter)) {
+    if (is_array($iter)) {
         $newArr = [];
         foreach ($iter as $k => $v) {
             $newArr[$k] = $fn($v, $k);
@@ -1040,7 +1094,7 @@ function map(callable $fn, $iter) {
  * @return mixed Result of the reduction.
  */
 function reduce(callable $fn, $iter, $initial = null) {
-    if (\is_string($iter)) {
+    if (is_string($iter)) {
         // @TODO:  array mb_split ( string $pattern , string $string [, int $limit = -1 ] )
         throw new NotImplementedException();
     }
@@ -1052,13 +1106,13 @@ function reduce(callable $fn, $iter, $initial = null) {
 }
 
 function toArray(iterable $it): array {
-    if ($it instanceof \ArrayObject) {
+    if ($it instanceof ArrayObject) {
         return $it->getArrayCopy();
     }
     $arr = [];
     $i = 0;
     foreach ($it as $key => $value) {
-        if (\preg_match('~^\d+$~s', (string)$key)) {
+        if (preg_match('~^\d+$~s', (string)$key)) {
             $arr[$i] = $value;
             $i++;
         } else {
@@ -1069,8 +1123,7 @@ function toArray(iterable $it): array {
 }
 
 /**
- * ucfirst() working for UTF-8
- * https://www.php.net/manual/en/function.ucfirst.php#57298
+ * ucfirst() working for UTF-8, https://www.php.net/manual/en/function.ucfirst.php#57298
  */
 function ucfirst($s) {
     $s = (string) $s;

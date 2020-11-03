@@ -112,6 +112,9 @@ function escapeArgs($args): array {
  * @return string
  */
 function arg($args): string {
+    if ($args === '') {
+        return '';
+    }
     $suffix = \implode(' ', escapeArgs($args));
     return $suffix === '' ? '' : ' ' . $suffix;
 }
