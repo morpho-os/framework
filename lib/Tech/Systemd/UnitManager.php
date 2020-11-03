@@ -21,11 +21,14 @@ class UnitManager {
         }
         $this->unitType = $unitType;
         $this->unitName = $unitName;
+        if (!str_ends_with($unitFilePath, '.' . $unitType)) {
+            throw new \UnexpectedValueException("The unit file must end with the '." . $unitType . "' extension");
+        }
         $this->unitFilePath = $unitFilePath;
     }
 
     public function enable(bool $canFail, bool $start) {
-        $this->sh('systemctl enable ' . ($start ? ' --now' : '') . ' ' . escapeshellarg($this->unitFilePath), ['check' => !$canFail]);
+        $this->sh('systemctl enable' . ($start ? ' --now' : '') . ' ' . escapeshellarg($this->unitFilePath), ['check' => !$canFail]);
     }
 
     public function disable(bool $canFail, bool $stop): self {
