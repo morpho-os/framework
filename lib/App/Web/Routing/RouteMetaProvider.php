@@ -14,14 +14,14 @@ use const Morpho\App\CONTROLLER_SUFFIX;
 
 class RouteMetaProvider implements IFn {
     protected array $restActions = [
-        'index'  => ['GET', null],       // GET    $entityType
-        'list'   => ['GET', 'list'],     // GET    $entityType/list
-        'new'    => ['GET', 'new'],      // GET    $entityType/new
-        'create' => ['POST', null],      // POST   $entityType
-        'show'   => ['GET', '$id'],      // GET    $entityType/$entityId
-        'edit'   => ['GET', '$id/edit'], // GET    $entityType/$entityId/edit
-        'update' => ['PATCH', '$id'],    // PATCH  $entityType/$entityId
-        'delete' => ['DELETE', '$id'],   // DELETE $entityType/$entityId
+        'index'  => ['GET', null],        // GET    $entityType
+        'list'   => ['GET', 'list'],      // GET    $entityType/list
+        'new'    => ['GET', 'new'],       // GET    $entityType/new
+        'create' => ['POST', null],       // POST   $entityType
+        'show'   => ['GET', '{id}'],      // GET    $entityType/$entityId
+        'edit'   => ['GET', '{id}/edit'], // GET    $entityType/$entityId/edit
+        'update' => ['PATCH', '{id}'],    // PATCH  $entityType/$entityId
+        'delete' => ['DELETE', '{id}'],   // DELETE $entityType/$entityId
     ];
 
     private const CONTROLLER_CLASS_RE = '~(?P<controllerNs>.*?\\\\Web)\\\\(?P<controller>.*?)$~s';

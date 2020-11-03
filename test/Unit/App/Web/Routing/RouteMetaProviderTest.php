@@ -48,22 +48,22 @@ class RouteMetaProviderTest extends TestCase {
             [
                 'show',
                 'GET',
-                '$id',
+                '{id}',
             ],
             [
                 'edit',
                 'GET',
-                '$id/edit',
+                '{id}/edit',
             ],
             [
                 'update',
                 'PATCH',
-                '$id',
+                '{id}',
             ],
             [
                 'delete',
                 'DELETE',
-                '$id',
+                '{id}',
             ],
         ];
     }
@@ -104,7 +104,7 @@ class RouteMetaProviderTest extends TestCase {
     public function testInvoke_DocCommentsWithMultipleHttpMethodsWithCustomPath() {
         $module = 'my-vendor/foo-mod';
         $method = 'doIt';
-        $relUriPath = '/some/custom/$id/edit';
+        $relUriPath = '/some/custom/{id}/edit';
         $actionMetas = [
             [
                 'module'     => $module,

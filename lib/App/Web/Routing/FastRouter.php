@@ -59,10 +59,12 @@ class FastRouter implements IHasServiceManager, IRouter {
     public function rebuildRoutes(): void {
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
         foreach ($this->routesMeta() as $routeMeta) {
+            /*
             $routeMeta['uri'] = \preg_replace_callback('~\$[a-z_][a-z_0-9]*~si', function ($matches) {
                 $var = \array_pop($matches);
                 return '{' . \str_replace('$', '', $var) . ':[^/]+}';
             }, $routeMeta['uri']);
+            */
             $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], Arr::only($routeMeta, ['module', 'class', 'method', 'modulePath', 'controllerPath']));
         }
         $dispatchData = $routeCollector->getData();

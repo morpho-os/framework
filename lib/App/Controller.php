@@ -30,8 +30,10 @@ abstract class Controller implements IFn {
         //$args = $handler['args'];
         $actionResult = $this->$methodName(/*...array_values($args)*/);
         $result = $this->handleResult($actionResult);
-        $response = $this->request->response();
-        $response['result'] = $result;
+        if (!$result instanceof IResponse) {
+            $response = $this->request->response();
+            $response['result'] = $result;
+        }
     }
 
     /**

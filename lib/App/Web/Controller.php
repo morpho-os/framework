@@ -24,7 +24,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
     }
 
     protected function redirect(string $uri = null, int $statusCode = null) {
-        $this->request->response()->redirect($uri, $statusCode);
+        return $this->request->response()->redirect($uri, $statusCode);
     }
 
     protected function args($name = null, bool $trim = true) {
