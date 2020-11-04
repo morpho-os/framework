@@ -7,7 +7,7 @@
 
 namespace Morpho\Testing;
 
-use Morpho\Db\Sql\DbClient;
+use Morpho\Tech\Sql\DbClient;
 use Morpho\Fs\Dir;
 
 trait TDbTestCase {
