@@ -4,32 +4,61 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
-use Countable;
-use Morpho\Tech\Sql\IQuery;
-use Morpho\Tech\Sql\MySql\DbClient;
-use Morpho\Tech\Sql\DbClient as BaseDbClient;
-use Morpho\Tech\Sql\MySql\Schema;
-use Morpho\Tech\Sql\Query;
+use Morpho\Tech\Sql\DeleteQuery;
+use Morpho\Tech\Sql\IDbClient;
+use Morpho\Tech\Sql\InsertQuery;
+use Morpho\Tech\Sql\ReplaceQuery;
 use Morpho\Tech\Sql\Result;
-use Morpho\Test\Unit\Tech\Sql\DbClientTest as BaseDbClientTest;
+use Morpho\Tech\Sql\SelectQuery;
+use Morpho\Tech\Sql\UpdateQuery;
+use Morpho\Testing\DbTestCase;
 use PDO;
-use PDOException;
-use function count;
+use function Morpho\Tech\Sql\mkDbClient;
 
-class DbClientTest extends BaseDbClientTest {
-    private BaseDbClient $db;
+class DbClientTest extends DbTestCase {
+    private $db;
+    private PDO $pdo;
 
     public function setUp(): void {
         parent::setUp();
-        $this->db = $this->mkDbClient();
-        $schema = new Schema($this->db);
-        $schema->deleteAllTables();
+        $this->pdo = $this->mkPdo();
+        $this->db = mkDbClient($this->pdo);
+        foreach ($this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) as $tableName) {
+            $this->pdo->exec('DROP TABLE ' . $tableName);
+        }
+        $this->createTestTables();
+    }
+
+    public function testInterface() {
+        $this->assertInstanceOf(IDbClient::class, $this->db);
+    }
+
+    public function testPdo() {
+        $this->assertInstanceOf(PDO::class, $this->db->pdo());
+    }
+
+    public function testEval_NamedPlaceholders() {
+        $result = $this->db->eval('SELECT * FROM cars WHERE color = :color', ['color' => 'red']);
+        $this->assertInstanceOf(Result::class, $result);
+        $rows = $result->rows();
+        $this->assertSame([['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
+    }
+
+    public function testEval_PositionalPlaceholders() {
+        $result = $this->db->eval('SELECT * FROM cars WHERE color = ?', ['red']);
+        $this->assertInstanceOf(Result::class, $result);
+        $rows = $result->rows();
+        $this->assertSame([['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
+    }
+
+    public function testExec() {
+        $this->assertSame(3, $this->db->exec('DELETE FROM cars'));
     }
 
     public function testCanSwitchDb() {
-        // As there is no global state and db connection is
         $dbConf = $this->dbConf();
         $curDbName = $this->db->dbName();
 
@@ -37,229 +66,96 @@ class DbClientTest extends BaseDbClientTest {
         $newDbName = 'mysql';
         $this->assertNotSame($newDbName, $curDbName);
 
-        $this->assertIsInt($this->db->useDb($newDbName));
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertNull($this->db->useDb($newDbName));
 
         $this->assertSame($newDbName, $this->db->dbName());
 
-        $this->assertIsInt($this->db->useDb($curDbName));
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $this->assertNull($this->db->useDb($curDbName));
 
         $this->assertSame($curDbName, $this->db->dbName());
     }
 
-    public function testConnect_UsesMySqlByDefault() {
-        $dbConf = $this->dbConf();
-        $this->assertInstanceOf(DbClient::class, DbClient::connect([
-            'user' => $dbConf['user'],
-            'password' => $dbConf['password'],
-        ]));
-    }
-
-    public function testConnection() {
-        $connection = $this->db->pdo();
-        $this->assertInstanceOf(PDO::class, $connection);
-        $this->assertSame($connection, $this->db->pdo());
-    }
-
-    public function testLastInsertId_ForNonAutoincrementCol() {
+    public function testLastInsertId_NonAutoincrementCol() {
         $this->db->eval(<<<SQL
 CREATE TABLE foo (
-    some varchar(255)
-)
-SQL
-        );
-        $this->db->insertRow('foo', ['some' => 'test']);
-        $this->assertEquals('0', $this->db->lastInsertId());
-        $this->assertEquals('0', $this->db->lastInsertId('some'));
-    }
-
-    public function testLastInsertId_ForAutoincrementCol() {
-        $this->db->eval(<<<SQL
-CREATE TABLE test (
-    foo int PRIMARY KEY AUTO_INCREMENT,
     bar varchar(255)
 )
 SQL
         );
-        $this->db->insertRow('test', ['bar' => 'test']);
-        $this->assertEquals('1', $this->db->lastInsertId());
-        $this->assertEquals('1', $this->db->lastInsertId('foo'));
+        $this->db->eval('INSERT INTO foo VALUES (?)', ['test']);
+
+        $this->assertEquals('0', $this->db->lastInsertId());
+        $this->assertEquals('0', $this->db->lastInsertId('bar'));
     }
 
-    public function testSelectField() {
-        $this->createTestTableWithData();
-        $this->assertEquals('some value', $this->db->select("foo FROM test")->field());
-    }
-
-    public function testUpdateRows_WhereConditionArray() {
-        $this->setTestDataForUpdateRows();
-        $this->db->updateRows('test', ['foo' => 'second row changed'], ['foo' => 'second row']);
-        $this->assertSecondRowChanged();
-    }
-
-    public function testUpdateRows_WhereConditionString_NoWhereConditionArgs() {
-        $this->setTestDataForUpdateRows();
-        $this->db->updateRows('test', ['foo' => 'second row changed'], "foo = 'second row'");
-        $this->assertSecondRowChanged();
-    }
-
-    public function testUpdateRows_WhereConditionString_WithWhereConditionArgs() {
-        $this->setTestDataForUpdateRows();
-        $this->db->updateRows('test', ['foo' => 'second row changed'], "foo = ?", ['second row']);
-        $this->assertSecondRowChanged();
-    }
-
-    public function testDriverName() {
-        $this->assertEquals(DbClient::MYSQL_DRIVER, $this->db->driverName());
-    }
-
-    public function testInsertRows_PreservesTypes() {
-        $this->createCarsTable();
-        $rows = [
-            ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
-            ['name' => 'Mazda RX4', 'color' => 'yellow', 'country' => 'JP', 'type1' => 2, 'type2' => 'Japan'],
-        ];
-        $this->db->insertRows('cars', $rows);
-        $this->assertSame($rows, $this->db->select('* FROM cars ORDER BY name')->rows());
-    }
-
-    public function dataForMkQueryOperations() {
-        return [
-            [
-                'select'
-            ],
-            [
-                'insert'
-            ],
-            [
-                'update'
-            ],
-            [
-                'delete'
-            ],
-            [
-                'replace'
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForMkQueryOperations
-     */
-    public function testMkQueryOperations($op) {
-        $method = 'mk' . $op . 'Query';
-        $query = $this->db->$method();
-        $this->assertNotSame($query, $this->db->$method());
-        $this->assertInstanceOf(Query::class, $query);
-        $this->assertInstanceOf(IQuery::class, $query);
-    }
-
-    public function testQuery_ReturnsTheSameInstance() {
-        $this->assertSame($this->db->query(), $this->db->query());
-    }
-
-    public function testSchema_ReturnsNotUniqueInstance() {
-        $schema = $this->db->schema();
-        $this->assertSame($schema, $this->db->schema());
-        $this->assertInstanceOf(Schema::class, $schema);
-    }
-
-    public function testEval_ThrowsExceptionOnInvalidSql() {
-        $this->expectException(PDOException::class, 'SQLSTATE[42000]: Syntax error or access violation');
-        $this->db->eval('invalid sql');
-    }
-
-    public function testEval_Result() {
-        $res = $this->db->eval('SELECT 1');
-        $this->assertInstanceOf(Result::class, $res);
-
-        $checkRes = function ($res, $expectedCount) {
-            $this->assertInstanceOf(Countable::class, $res);
-            $this->assertSame($expectedCount, count($res));
-        };
-
-        $checkRes($res, 1);
-
-        $this->createTestTable();
-        $this->db->insertRow('test', ['foo' => 'first row']);
-        $this->db->insertRow('test', ['foo' => 'second row']);
-        $res = $this->db->eval('SELECT * FROM test');
-        $checkRes($res, 2);
-    }
-
-    public function testEval_WhereClauseWithLike() {
-        $this->markTestIncomplete();
-    }
-
-    public function testEval_HandlingArgsWithQuotes() {
-        $this->markTestIncomplete();
-    }
-
-    public function testEval_InsertQuery() {
-        $this->createCarsTable();
-        $row = ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'];
-        $allRows = fn () => $this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
-        $this->assertSame([], $allRows());
-        $result = $this->db->eval($this->db->mkInsertQuery()->table('cars')->row($row)->build());
-        $this->assertInstanceOf(Result::class, $result);
-        $this->assertSame(1, $result->rowCount());
-        $this->assertSame([$row], $allRows());
-    }
-
-    public function testConnect_PdoInstanceArgument() {
-        $dbConf = $this->dbConf();
-        $dsn = 'mysql:dbname=;' . $dbConf['host'];
-        $pdo = new PDO($dsn, $dbConf['user'], $dbConf['password']);
-        $connection = BaseDbClient::connect($pdo);
-        $this->assertInstanceOf(DbClient::class, $connection);
-    }
-
-    public function testUpdateRows_ArgsIsMap() {
-        $this->createTestTable();
-        $this->db->insertRow('test', ['foo' => 'bar']);
-        $this->db->updateRows('test', ['foo' => '123'], ['foo' => 'bar']);
-        $this->assertSame([['foo' => '123']], $this->db->select('foo FROM test')->rows());
-    }
-
-    private function setTestDataForUpdateRows() {
-        $this->createTestTable();
-        $this->db->insertRow('test', ['foo' => 'first row']);
-        $this->db->insertRow('test', ['foo' => 'second row']);
-        $this->db->insertRow('test', ['foo' => 'third row']);
-    }
-
-    private function assertSecondRowChanged() {
-        $this->assertEquals(
-            [
-                ['foo' => 'first row'],
-                ['foo' => 'second row changed'],
-                ['foo' => 'third row'],
-            ],
-            $this->db->select('foo FROM test')->rows()
-        );
-    }
-
-    private function createTestTableWithData() {
-        $this->createTestTable();
-        $this->db->insertRow('test', ['foo' => 'some value']);
-    }
-
-    private function createTestTable() {
+    public function testLastInsertId_AutoincrementCol() {
         $this->db->eval(<<<SQL
-CREATE TABLE test (
-    id int PRIMARY KEY AUTO_INCREMENT,
-    foo varchar(255)
+CREATE TABLE foo (
+    baz int PRIMARY KEY AUTO_INCREMENT,
+    bar varchar(255)
 )
 SQL
         );
+        $this->db->eval('INSERT INTO foo (bar) VALUES (?)', ['test']);
+        $this->assertEquals('1', $this->db->lastInsertId());
+        $this->assertEquals('1', $this->db->lastInsertId('baz'));
     }
 
-    private function createCarsTable(): void {
-        $this->db->eval("CREATE TABLE cars (
+    public function testDriverName() {
+        $driverName = $this->db->driverName();
+        $this->assertNotEmpty($driverName);
+        $this->assertEquals($this->dbConf()['driver'], $driverName);
+    }
+
+    public function testInsertQuery() {
+        $query = $this->db->insert();
+        $this->assertInstanceOf(InsertQuery::class, $query);
+        $this->assertNotSame($query, $this->db->insert());
+    }
+
+    public function testSelectQuery() {
+        $query = $this->db->select();
+        $this->assertInstanceOf(SelectQuery::class, $query);
+        $this->assertNotSame($query, $this->db->select());
+    }
+
+    public function testUpdateQuery() {
+        $query = $this->db->update();
+        $this->assertInstanceOf(UpdateQuery::class, $query);
+        $this->assertNotSame($query, $this->db->update());
+    }
+
+    public function testDeleteQuery() {
+        $query = $this->db->delete();
+        $this->assertInstanceOf(DeleteQuery::class, $query);
+        $this->assertNotSame($query, $this->db->delete());
+    }
+
+    public function testReplaceQuery() {
+        $query = $this->db->replace();
+        $this->assertInstanceOf(ReplaceQuery::class, $query);
+        $this->assertNotSame($query, $this->db->replace());
+    }
+
+    private function createTestTables() {
+        $this->pdo->query('DROP TABLE IF EXISTS cars');
+        $this->pdo->query("CREATE TABLE cars (
             name varchar(20),
             color varchar(20),
             country varchar(20),
             type1 int,
-            type2 enum('US', 'Japan')
+            type2 enum('US', 'Japan', 'EU')
         )");
+        $rows = [
+            ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
+            ['name' => 'Mazda 6', 'color' => 'green', 'country' => 'JP', 'type1' => 2, 'type2' => 'Japan'],
+            ['name' => 'Mazda CX-3', 'color' => 'green', 'country' => 'JP', 'type1' => 2, 'type2' => 'EU'],
+        ];
+        foreach ($rows as $row) {
+            $sql = 'INSERT INTO cars (name, color, country, type1, type2) VALUES (:name, :color, :country, :type1, :type2)';
+            $this->pdo->prepare($sql)->execute($row);
+        }
     }
 }

@@ -8,17 +8,7 @@ namespace Morpho\Tech\Sql\MySql;
 
 use Morpho\Base\Conf;
 use Morpho\Tech\Sql\DbClient as BaseDbClient;
-use Morpho\Tech\Sql\ReplaceQuery;
-use Morpho\Tech\Sql\Schema as BaseSchema;
-use Morpho\Tech\Sql\GeneralQuery as BaseGeneralQuery;
 use PDO;
-use function array_keys;
-use function array_merge;
-use function array_values;
-use function count;
-use function implode;
-use function ltrim;
-use function str_repeat;
 
 class DbClient extends BaseDbClient {
     public const DEFAULT_HOST = '127.0.0.1';
@@ -28,58 +18,47 @@ class DbClient extends BaseDbClient {
     public const DEFAULT_CHARSET = 'utf8';
     public const DEFAULT_DB = '';
 
-    private $schema;
-
-    private $query;
-
-    public function query(): BaseGeneralQuery {
-        if (null === $this->query) {
-            $this->query = new GeneralQuery();
+    protected function connect($confOrPdo): \PDO {
+        if (is_array($confOrPdo)) {
+            $conf = Conf::check([
+                'host' => self::DEFAULT_HOST,
+                'port' => self::DEFAULT_PORT,
+                'user' => self::DEFAULT_USER,
+                'db' => self::DEFAULT_DB,
+                'password' => self::DEFAULT_PASSWORD,
+                'charset' => self::DEFAULT_CHARSET,
+                'sockFilePath' => null,
+                'pdoConf' => null,
+            ], $confOrPdo);
+            $transportStr = null !== $conf['sockFilePath']
+                ? 'unix_socket=' . $conf['sockFilePath']
+                : "host={$conf['host']};port={$conf['port']}";
+            $dsn = "mysql:$transportStr;dbname={$conf['db']};charset={$conf['charset']}";
+            $pdoConf = $conf['pdoConf'] ?? null;
+            $pdo = new PDO($dsn, $conf['user'], $conf['password']);
+        } else {
+            $pdo = $confOrPdo;
+            $pdoConf = null;
         }
-        return $this->query;
-    }
-
-    public function schema(): BaseSchema {
-        if (null === $this->schema) {
-            $this->schema = new Schema($this);
+        if (null === $pdoConf) {
+            $pdoConf = $this->pdoConf;
         }
-        return $this->schema;
-    }
-
-    // @TODO: Move to Query
-    public function insertRows(string $tableName, array $rows, array $conf = null): void {
-        $args = [];
-        $keys = null;
-        foreach ($rows as $row) {
-            if (null === $keys) {
-                $keys = array_keys($row);
-            }
-            $args = array_merge($args, array_values($row));
+        foreach ($pdoConf as $name => $val) {
+            $pdo->setAttribute($name, $val);
         }
-        $query = $this->query();
-        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
-        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
-        $this->eval($sql, $args);
+        return $pdo;
     }
 
-    public function mkReplaceQuery(): ReplaceQuery {
-        return new ReplaceQuery($this);
+    public function dbName(): ?string {
+        return $this->eval('SELECT DATABASE()')->field();
     }
 
-    protected function mkPdo($conf, $pdoConf): PDO {
-        $conf = Conf::check([
-            'host' => self::DEFAULT_HOST,
-            'port' => self::DEFAULT_PORT,
-            'user' => self::DEFAULT_USER,
-            'db' => self::DEFAULT_DB,
-            'password' => self::DEFAULT_PASSWORD,
-            'charset' => self::DEFAULT_CHARSET,
-            'sockFilePath' => null,
-        ], $conf);
-        $transportStr = null !== $conf['sockFilePath']
-            ? 'unix_socket=' . $conf['sockFilePath']
-            : "host={$conf['host']};port={$conf['port']}";
-        $dsn = self::MYSQL_DRIVER . ":$transportStr;dbname={$conf['db']};charset={$conf['charset']}";
-        return new PDO($dsn, $conf['user'], $conf['password'], $pdoConf);
+    public function useDb(string $dbName): void {
+        $this->exec('USE ' . $this->quoteIdentifier($dbName));
+    }
+
+    protected function quoteIdentifier(string $identifier): string {
+        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+        return '`' . $identifier . '`';
     }
 }

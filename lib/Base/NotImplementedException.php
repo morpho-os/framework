@@ -6,7 +6,7 @@
  */
 namespace Morpho\Base;
 
-use Exception;
+use RuntimeException;
 
-class NotImplementedException extends Exception {
+class NotImplementedException extends RuntimeException {
 }

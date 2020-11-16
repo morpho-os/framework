@@ -10,6 +10,7 @@ namespace Morpho\Tech\Sql;
  * This class uses some ideas from https://github.com/doctrine/dbal/blob/master/lib/Doctrine/DBAL/Query/QueryBuilder.php
  */
 class SelectQuery extends Query {
+    /*
     protected const COLUMNS = 'columns';
     protected const FROM = 'from';
     protected const WHERE = 'where';
@@ -65,4 +66,5 @@ class SelectQuery extends Query {
             $args
         ];
     }
+    */
 }

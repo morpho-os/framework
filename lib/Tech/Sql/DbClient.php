@@ -1,23 +1,11 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of morpho-os/framework
- * It is distributed under the 'Apache License Version 2.0' license.
- * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
- */
 namespace Morpho\Tech\Sql;
 
-use Exception;
-use Morpho\Base\Conf;
 use PDO;
-use PDOStatement;
-use UnexpectedValueException;
-use function array_keys;
-use function array_merge;
-use function array_values;
-use function implode;
+use Throwable;
 
 /**
- * @method PDOStatement prepare($statement, array $driver_options = array())
+ * @method \PDOStatement prepare($statement, array $driver_options = array())
  * @method bool beginTransaction()
  * @method bool commit()
  * @method bool rollBack()
@@ -26,15 +14,10 @@ use function implode;
  * @method array errorInfo()
  * @method mixed getAttribute($attribute) {}
  */
-abstract class DbClient {
-    protected $connection;
+abstract class DbClient implements IDbClient {
+    protected PDO $conn;
 
-    public const DEFAULT_DRIVER = 'mysql';
-
-    public const MYSQL_DRIVER  = 'mysql';
-    public const SQLITE_DRIVER = 'sqlite';
-
-    protected static array $pdoConf = [
+    protected array $pdoConf = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_STATEMENT_CLASS => [__NAMESPACE__ . '\\Result', []],
@@ -43,198 +26,78 @@ abstract class DbClient {
     ];
 
     /**
-     * @param Conf|array|PDO $confOrPdo
+     * DbClient constructor.
+     * @param PDO|array $confOrPdo
      */
-    protected function __construct($confOrPdo) {
-        if ($confOrPdo instanceof PDO) {
-            self::setPdoAttributes($confOrPdo, static::$pdoConf);
-            $this->connection = $confOrPdo;
-        } else {
-            $this->connection = $this->mkPdo($confOrPdo, $confOrPdo['pdoConf'] ?? static::$pdoConf);
-        }
-    }
-
-    /**
-     * @param Conf|array|PDO|null $confOrPdo
-     */
-    public static function connect($confOrPdo = null): self {
-        if ($confOrPdo instanceof PDO) {
-            $driverName = $confOrPdo->getAttribute(PDO::ATTR_DRIVER_NAME);
-        } else {
-            $confOrPdo = (array) $confOrPdo;
-            if (!isset($confOrPdo['driver'])) {
-                $confOrPdo['driver'] = self::DEFAULT_DRIVER;
-            }
-            $driverName = $confOrPdo['driver'];
-            unset($confOrPdo['driver']);
-        }
-        switch ($driverName) {
-            case self::MYSQL_DRIVER:
-                $db = new MySql\DbClient($confOrPdo);
-                break;
-            case self::SQLITE_DRIVER:
-                $db = new Sqlite\DbClient($confOrPdo);
-                break;
-            default:
-                throw new UnexpectedValueException();
-        }
-        return $db;
+    public function __construct($confOrPdo) {
+        $this->conn = $this->connect($confOrPdo);
     }
 
     public function pdo(): PDO {
-        return $this->connection;
+        return $this->conn;
     }
 
-    public static function setPdoAttributes(PDO $connection, array $pdoConf): void {
-        foreach ($pdoConf as $name => $value) {
-            $connection->setAttribute($name, $value);
-        }
-    }
-
-    /**
-     * @return mixed|false
-     */
-    public function dbName() {
-        return $this->eval($this->query()->dbName())->field();
-    }
-
-    /**
-     * Returns number of rows modified.
-     * @param string $dbName
-     * @return int
-     */
-    public function useDb(string $dbName): int {
-        return $this->exec($this->query()->useDb($dbName));
-    }
-
-    abstract public function query(): GeneralQuery;
-
-    public function mkSelectQuery(): SelectQuery {
-        return new SelectQuery($this);
-    }
-
-    public function mkInsertQuery(): InsertQuery {
+    public function insert(): InsertQuery {
         return new InsertQuery($this);
     }
 
-    public function mkUpdateQuery(): UpdateQuery {
+    public function select(): SelectQuery {
+        return new SelectQuery($this);
+    }
+
+    public function update(): UpdateQuery {
         return new UpdateQuery($this);
     }
 
-    public function mkDeleteQuery(): DeleteQuery {
+    public function delete(): DeleteQuery {
         return new DeleteQuery($this);
     }
 
-    abstract public function mkReplaceQuery(): ReplaceQuery;
-
-    // For SELECT use prepare feature.
-    public function quote($val, int $type = PDO::PARAM_STR): string {
-        return $this->connection->quote($val, $type);
-    }
-
-    public function quoteIdentifier($id): string {
-        return $this->query()->quoteIdentifier($id);
-    }
-
-    abstract public function schema(): Schema;
-
-    public function select(string $sql, array $args = null): Result {
-        return $this->eval('SELECT ' . $sql, $args);
-    }
-
-    public function lastInsertId(string $seqName = null): string {
-        return $this->connection->lastInsertId($seqName);
-    }
-
-    public function insertRow(string $tableName, array $row): void {
-        // @TODO: Use InsertQuery
-        $query = $this->query();
-        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . '(';
-        $sql .= implode(', ', $query->quoteIdentifiers(array_keys($row))) . ') VALUES (' . implode(', ', $query->positionalPlaceholders($row)) . ')';
-        $this->eval($sql, $row);
-    }
-
-    abstract public function insertRows(string $tableName, array $rows): void;
-
-    /**
-     * @param array|string $whereCondition
-     * @param array|null $whereConditionArgs
-     */
-    public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): void {
-        // @TODO: use DeleteQuery
-        $query = $this->query();
-        [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
-        $sql = 'DELETE FROM ' . $query->quoteIdentifier($tableName)
-            . $whereSql;
-        /*$stmt = */$this->eval($sql, $whereArgs);
-        //return $stmt->rowCount();
-    }
-
-    /**
-     * @param array|string $whereCondition
-     * @param array|null $whereConditionArgs
-     */
-    public function updateRows(string $tableName, array $row, $whereCondition, array $whereConditionArgs = null): void {
-        // @TODO: Use UpdateQuery
-        $query = $this->query();
-        $sql = 'UPDATE ' . $query->quoteIdentifier($tableName)
-            . ' SET ' . implode(', ', $query->namedPlaceholders($row));
-        $args = array_values($row);
-        if (null !== $whereCondition) {
-            [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
-            if ($whereSql !== '') {
-                $sql .= $whereSql;
-                $args = array_merge($args, $whereArgs);
-            }
-        }
-        $this->eval($sql, $args);
+    public function replace(): ReplaceQuery {
+        return new ReplaceQuery($this);
     }
 
     public function exec(string $sql): int {
-        return $this->connection->exec($sql);
+        return $this->conn->exec($sql);
     }
 
-    /**
-     * @param string|array $sql
-     * @param array|null $args
-     * @return Result
-     */
-    public function eval($sql, array $args = null): Result {
-        if (is_array($sql)) {
-            [$sql, $args] = $sql;
-        }
+    public function eval(string $sql, array $args = null): Result {
         /** @var $stmt Result */
         if ($args) {
-            $stmt = $this->connection->prepare($sql);
-            $stmt->execute(array_values($args));
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute($args);
         } else {
-            $stmt = $this->connection->query($sql);
+            $stmt = $this->conn->query($sql);
         }
         return $stmt;
     }
 
+    public function lastInsertId(string $name = null): string {
+        return $this->conn->lastInsertId($name);
+    }
+
+    /**
+     * @param callable $transaction
+     * @return mixed
+     */
     public function transaction(callable $transaction) {
-        $this->connection->beginTransaction();
+        $this->conn->beginTransaction();
         try {
             $result = $transaction($this);
-            $this->connection->commit();
-        } catch (Exception $e) {
-            $this->connection->rollBack();
+            $this->conn->commit();
+        } catch (Throwable $e) {
+            $this->conn->rollBack();
             throw $e;
         }
         return $result;
     }
 
     public function inTransaction(): bool {
-        return $this->connection->inTransaction();
+        return $this->conn->inTransaction();
     }
 
     public function driverName(): string {
-        return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
-    }
-
-    public function __call(string $method, array $args) {
-        return $this->connection->$method(...$args);
+        return $this->conn->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
 
     public static function availableDrivers(): array {
@@ -242,11 +105,20 @@ abstract class DbClient {
     }
 
     /**
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public function __call(string $method, array $args) {
+        return $this->conn->$method(...$args);
+    }
+
+    /**
      * See [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512)
      * @param callable $fn
      * @return mixed
      */
-    public function doWithEmulatedPrepares(callable $fn) {
+    public function withEmulatedPrepares(callable $fn) {
         $emulatePrepares = $this->getAttribute(PDO::ATTR_EMULATE_PREPARES);
         if (!$emulatePrepares) {
             $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
@@ -258,5 +130,7 @@ abstract class DbClient {
         return $result;
     }
 
-    abstract protected function mkPdo($conf, $pdoConf): PDO;
+    abstract protected function connect($confOrPdo): PDO;
+
+    abstract protected function quoteIdentifier(string $identifier): string;
 }

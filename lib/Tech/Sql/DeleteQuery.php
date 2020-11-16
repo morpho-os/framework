@@ -9,7 +9,7 @@ namespace Morpho\Tech\Sql;
 use Morpho\Base\NotImplementedException;
 
 class DeleteQuery extends Query {
-    public function build(): array {
-        throw new NotImplementedException();
-    }
+//    public function build(): array {
+//        throw new NotImplementedException();
+//    }
 }

@@ -22,11 +22,11 @@ abstract class DbPager extends Pager implements IHasServiceManager {
     protected function itemList($offset, $pageSize): iterable {
         $offset = \intval($offset);
         $pageSize = \intval($pageSize);
-        return $this->db()->select('* FROM (' . $this->sqlQuery() . ") AS t LIMIT $offset, $pageSize");
+        return $this->db()->eval('SELECT * FROM (' . $this->sqlQuery() . ") AS t LIMIT $offset, $pageSize");
     }
 
     protected function calculateTotalItemsCount(): int {
-        return $this->db()->select('COUNT(*) FROM (' . $this->sqlQuery() . ') AS t')->field();
+        return $this->db()->eval('SELECT COUNT(*) FROM (' . $this->sqlQuery() . ') AS t')->field();
     }
 
     protected function db() {

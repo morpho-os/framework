@@ -54,7 +54,7 @@ class MenuWidget {
         if (null === $attributes) {
             $attributes = ['class' => 'dropdown-menu'];
         }
-        $lines = $this->db->select(
+        $lines = $this->db->eval(
             'SELECT r.uri, mi.title
             FROM menu_item mi
             INNER JOIN menu m

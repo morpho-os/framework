@@ -109,13 +109,13 @@ abstract class TestCase extends BaseTestCase {
         return \sys_get_temp_dir();
     }
 
-/*    protected function namespace($useFqn = false) {
+    protected function ns(): string {
         $class = get_class($this);
-        return ($useFqn ? '\\' : '') . \substr($class, 0, strrpos($class, '\\'));
-    }*/
+        return substr($class, 0, strrpos($class, '\\'));
+    }
 
     protected function assertIntString($val): void {
-        $this->assertRegExp('~^[-+]?\d+$~si', $val, "The value is not either an integer or an integer string");
+        $this->assertMatchesRegularExpression('~^[-+]?\d+$~si', $val, "The value is not either an integer or an integer string");
     }
 
     protected function assertHtmlEquals($expected, $actual, $message = ''): void {

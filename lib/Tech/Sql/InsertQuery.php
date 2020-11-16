@@ -7,6 +7,7 @@
 namespace Morpho\Tech\Sql;
 
 class InsertQuery extends Query {
+/*{
     protected const TABLE = 'table';
     protected const ROW = 'row';
 
@@ -30,4 +31,5 @@ class InsertQuery extends Query {
         $args = \array_values($row);
         return [$sql, $args];
     }
+*/
 }

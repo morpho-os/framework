@@ -31,17 +31,17 @@ class Result extends PDOStatement implements Countable {
     }
 
     /**
-     * @return mixed|false Returns false if the value is not found, and other non-false value otherwise.
+     * @return mixed|false Returns false if the value is not found, and other non-false scalar otherwise.
      */
     public function field() {
         return $this->fetchColumn(0);
     }
 
-    public function boolVal() {
+    public function bool(): bool {
         return (bool) $this->field();
     }
 
-    public function map(): array {
+    public function dict(): array {
         return $this->fetchAll(PDO::FETCH_KEY_PAIR);
     }
 
