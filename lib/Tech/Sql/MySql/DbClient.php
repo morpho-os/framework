@@ -8,6 +8,8 @@ namespace Morpho\Tech\Sql\MySql;
 
 use Morpho\Base\Conf;
 use Morpho\Tech\Sql\DbClient as BaseDbClient;
+use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\ISchema;
 use PDO;
 
 class DbClient extends BaseDbClient {
@@ -17,6 +19,30 @@ class DbClient extends BaseDbClient {
     public const DEFAULT_PASSWORD = '';
     public const DEFAULT_CHARSET = 'utf8';
     public const DEFAULT_DB = '';
+
+    protected string $quote = '`';
+
+    private ?ISchema $schema = null;
+
+    public function insert(array $spec = null): IQuery {
+        return new InsertQuery($this, $spec);
+    }
+
+    public function select(array $spec = null): IQuery {
+        return new SelectQuery($this, $spec);
+    }
+
+    public function update(array $spec = null): IQuery {
+        return new UpdateQuery($this, $spec);
+    }
+
+    public function delete(array $spec = null): IQuery {
+        return new DeleteQuery($this, $spec);
+    }
+
+    public function replace(array $spec = null): IQuery {
+        return new ReplaceQuery($this, $spec);
+    }
 
     protected function connect($confOrPdo): \PDO {
         if (is_array($confOrPdo)) {
@@ -53,12 +79,15 @@ class DbClient extends BaseDbClient {
         return $this->eval('SELECT DATABASE()')->field();
     }
 
-    public function useDb(string $dbName): void {
-        $this->exec('USE ' . $this->quoteIdentifier($dbName));
+    public function useDb(string $dbName): self {
+        $this->exec('USE ' . $this->quoteIdentifiers($dbName));
+        return $this;
     }
 
-    protected function quoteIdentifier(string $identifier): string {
-        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
-        return '`' . $identifier . '`';
+    public function schema(): ISchema {
+        if (null === $this->schema) {
+            $this->schema = new Schema($this);
+        }
+        return $this->schema;
     }
 }

@@ -4,34 +4,15 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
-use Morpho\Tech\Sql\DeleteQuery;
 use Morpho\Tech\Sql\IDbClient;
-use Morpho\Tech\Sql\InsertQuery;
-use Morpho\Tech\Sql\ReplaceQuery;
+use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\ISchema;
 use Morpho\Tech\Sql\Result;
-use Morpho\Tech\Sql\SelectQuery;
-use Morpho\Tech\Sql\UpdateQuery;
-use Morpho\Testing\DbTestCase;
 use PDO;
-use function Morpho\Tech\Sql\mkDbClient;
 
 class DbClientTest extends DbTestCase {
-    private $db;
-    private PDO $pdo;
-
-    public function setUp(): void {
-        parent::setUp();
-        $this->pdo = $this->mkPdo();
-        $this->db = mkDbClient($this->pdo);
-        foreach ($this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) as $tableName) {
-            $this->pdo->exec('DROP TABLE ' . $tableName);
-        }
-        $this->createTestTables();
-    }
-
     public function testInterface() {
         $this->assertInstanceOf(IDbClient::class, $this->db);
     }
@@ -66,13 +47,11 @@ class DbClientTest extends DbTestCase {
         $newDbName = 'mysql';
         $this->assertNotSame($newDbName, $curDbName);
 
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($this->db->useDb($newDbName));
+        $this->assertSame($this->db, $this->db->useDb($newDbName));
 
         $this->assertSame($newDbName, $this->db->dbName());
 
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertNull($this->db->useDb($curDbName));
+        $this->assertSame($this->db, $this->db->useDb($curDbName));
 
         $this->assertSame($curDbName, $this->db->dbName());
     }
@@ -109,53 +88,38 @@ SQL
         $this->assertEquals($this->dbConf()['driver'], $driverName);
     }
 
-    public function testInsertQuery() {
-        $query = $this->db->insert();
-        $this->assertInstanceOf(InsertQuery::class, $query);
-        $this->assertNotSame($query, $this->db->insert());
-    }
-
-    public function testSelectQuery() {
-        $query = $this->db->select();
-        $this->assertInstanceOf(SelectQuery::class, $query);
-        $this->assertNotSame($query, $this->db->select());
-    }
-
-    public function testUpdateQuery() {
-        $query = $this->db->update();
-        $this->assertInstanceOf(UpdateQuery::class, $query);
-        $this->assertNotSame($query, $this->db->update());
-    }
-
-    public function testDeleteQuery() {
-        $query = $this->db->delete();
-        $this->assertInstanceOf(DeleteQuery::class, $query);
-        $this->assertNotSame($query, $this->db->delete());
-    }
-
-    public function testReplaceQuery() {
-        $query = $this->db->replace();
-        $this->assertInstanceOf(ReplaceQuery::class, $query);
-        $this->assertNotSame($query, $this->db->replace());
-    }
-
-    private function createTestTables() {
-        $this->pdo->query('DROP TABLE IF EXISTS cars');
-        $this->pdo->query("CREATE TABLE cars (
-            name varchar(20),
-            color varchar(20),
-            country varchar(20),
-            type1 int,
-            type2 enum('US', 'Japan', 'EU')
-        )");
-        $rows = [
-            ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
-            ['name' => 'Mazda 6', 'color' => 'green', 'country' => 'JP', 'type1' => 2, 'type2' => 'Japan'],
-            ['name' => 'Mazda CX-3', 'color' => 'green', 'country' => 'JP', 'type1' => 2, 'type2' => 'EU'],
-        ];
-        foreach ($rows as $row) {
-            $sql = 'INSERT INTO cars (name, color, country, type1, type2) VALUES (:name, :color, :country, :type1, :type2)';
-            $this->pdo->prepare($sql)->execute($row);
+    public function testQueries() {
+        foreach (['insert', 'select', 'update', 'delete', 'replace'] as $method) {
+            $query = $this->db->$method();
+            $this->assertInstanceOf(IQuery::class, $query);
+            $this->assertNotSame($query, $this->db->$method());
         }
+    }
+
+    public function testQuoteIdentifers() {
+        $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifiers('foo.bar'));
+        $this->assertSame('`foo`', $this->db->quoteIdentifiers('foo'));
+
+        $this->assertSame(['`foo`.`bar`'], $this->db->quoteIdentifiers(['foo.bar']));
+        $this->assertSame(['`foo`'], $this->db->quoteIdentifiers(['foo']));
+    }
+
+    public function testPositionalArgs() {
+        $this->assertSame([], $this->db->positionalArgs([]));
+        $this->assertSame(['?', '?'], $this->db->positionalArgs(['foo', 'bar']));
+        $this->assertSame(['?', '?'], $this->db->positionalArgs(['foo' => 123, 'bar' => 456]));
+    }
+
+    public function testNameValArgs() {
+        $this->assertSame([], $this->db->positionalArgs([]));
+        $this->assertSame(['`foo` = ?', '`bar` = ?'], $this->db->nameValArgs(['foo' => 123, 'bar' => 456]));
+    }
+
+    public function testSchema() {
+        $this->assertInstanceOf(ISchema::class, $this->db->schema());
+    }
+
+    protected function createFixtures($db): void {
+        $this->createCarsTable(true);
     }
 }

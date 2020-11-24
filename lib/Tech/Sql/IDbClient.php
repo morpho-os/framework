@@ -11,15 +11,17 @@ use PDO;
 interface IDbClient {
     public function pdo(): PDO;
 
-    public function insert(): InsertQuery;
+    public function expr($expr): Expr;
 
-    public function select(): SelectQuery;
+    public function insert(array $spec = null): IQuery;
 
-    public function update(): UpdateQuery;
+    public function select(array $spec = null): IQuery;
 
-    public function delete(): DeleteQuery;
+    public function update(array $spec = null): IQuery;
 
-    public function replace(): ReplaceQuery;
+    public function delete(array $spec = null): IQuery;
+
+    public function replace(array $spec = null): IQuery;
 
     public function exec(string $sql): int;
 
@@ -35,18 +37,42 @@ interface IDbClient {
 
     public function inTransaction(): bool;
 
+    public function schema(): ISchema;
+
+    /**
+     * @return string|null
+     */
     public function dbName(): ?string;
 
-    public function useDb(string $dbName): void;
+    public function useDb(string $dbName): self;
 
     public function driverName(): string;
 
-    public static function availableDrivers(): array;
+    public function availableDrivers(): array;
 
+    /**
+     * @param string|array $identifiers
+     * @return string|array
+     */
+    public function quoteIdentifiers($identifiers);
+
+    public function positionalArgs(array $args): array;
+
+    // [':foo = ?', ':bar = ?']
+    //public function namedArgs(array $args): array;
+
+    public function nameValArgs(array $args): array;
+/*
+    public function commaSep(array $exprs): string;
+
+    public function logicalOr(array $exprs): string;
+
+    public function logicalAnd(array $exprs): string;
+*/
     /**
      * See [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512)
      * @param callable $fn
      * @return mixed
      */
-    public function withEmulatedPrepares(callable $fn);
+    public function usingEmulatedPrepares(callable $fn);
 }

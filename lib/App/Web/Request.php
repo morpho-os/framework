@@ -6,12 +6,32 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\Base\NotImplementedException;
-use function Morpho\Base\trimMore;
+use ArrayObject;
 use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 use Morpho\App\Web\Uri;
-use ArrayObject;
+use function Morpho\Base\trimMore;
+use function array_fill_keys;
+use function array_flip;
+use function array_intersect_key;
+use function array_values;
+use function dirname;
+use function in_array;
+use function intval;
+use function is_array;
+use function is_string;
+use function ltrim;
+use function preg_match;
+use function preg_replace;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function strtolower;
+use function strtoupper;
+use function strtr;
+use function substr;
+use function ucfirst;
+use function ucwords;
 
 /**
  * Some methods in this class based on \Zend\Http\PhpEnvironment\Request class.
@@ -22,27 +42,18 @@ use ArrayObject;
 class Request extends BaseRequest {
     protected ?ArrayObject $headers = null;
 
-    /**
-     * @var ?string
-     */
-    protected $originalMethod;
+    protected ?string $originalMethod = null;
 
     /**
      * @var string|false
      */
     protected $overwrittenMethod;
 
-    /**
-     * @var ?bool
-     */
-    protected $isAjax;
+    protected ?bool $isAjax = null;
 
     private ?array $serverVars;
 
-    /**
-     * @var ?Uri
-     */
-    private $uri;
+    private ?Uri\Uri $uri = null;
 
     private static array $methods = [
         /*
@@ -101,9 +112,9 @@ class Request extends BaseRequest {
         if (null === $name) {
             return $trim ? trimMore($source) : $source;
         }
-        if (\is_array($name)) {
-            $data = \array_intersect_key($source, \array_flip(\array_values($name)));
-            $data += \array_fill_keys($name, null);
+        if (is_array($name)) {
+            $data = array_intersect_key($source, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
             return $trim ? trimMore($data) : $data;
         }
         if ($trim) {
@@ -136,9 +147,9 @@ class Request extends BaseRequest {
         if (null === $name) {
             return $trim ? trimMore($_POST) : $_POST;
         }
-        if (\is_array($name)) {
-            $data = \array_intersect_key($_POST, \array_flip(\array_values($name)));
-            $data += \array_fill_keys($name, null);
+        if (is_array($name)) {
+            $data = array_intersect_key($_POST, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
             return $trim ? trimMore($data) : $data;
         }
         if ($trim) {
@@ -160,9 +171,9 @@ class Request extends BaseRequest {
         if (null === $name) {
             return $trim ? trimMore($_GET) : $_GET;
         }
-        if (\is_array($name)) {
-            $data = \array_intersect_key($_GET, \array_flip(\array_values($name)));
-            $data += \array_fill_keys($name, null);
+        if (is_array($name)) {
+            $data = array_intersect_key($_GET, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
             return $trim ? trimMore($data) : $data;
         }
         if ($trim) {
@@ -202,7 +213,7 @@ class Request extends BaseRequest {
      * @param string $method
      */
     public function setMethod(string $method): void {
-        $this->originalMethod = \strtoupper($method);
+        $this->originalMethod = strtoupper($method);
         $this->overwrittenMethod = null;
     }
 
@@ -249,7 +260,7 @@ class Request extends BaseRequest {
     }*/
 
     public function isKnownMethod($method): bool {
-        return \is_string($method) && \in_array($method, self::$methods, true);
+        return is_string($method) && in_array($method, self::$methods, true);
     }
 
     public static function knownMethods(): array {
@@ -259,7 +270,7 @@ class Request extends BaseRequest {
     /**
      * Note: Returned headers can contain user input and therefore can be not safe in some scenarious.
      */
-    public function headers(): \ArrayObject {
+    public function headers(): ArrayObject {
         if (null === $this->headers) {
             $this->initHeaders();
         }
@@ -274,10 +285,8 @@ class Request extends BaseRequest {
         return $this->trustedProxyIps;
     }
 
-    /**
-     * @return bool
-
-    public function acceptsJson()
+    /*
+    public function acceptsJson(): bool
      * {
      * $header = $this->getHeaders()->get('ACCEPT');
      * return false !== $header && false !== stripos($header->getFieldValue(), 'application/json');
@@ -291,22 +300,22 @@ class Request extends BaseRequest {
     protected function initHeaders(): void {
         $headers = [];
         foreach ($this->serverVars ?: $_SERVER as $key => $value) {
-            if (\strpos($key, 'HTTP_') === 0) {
-                if (\strpos($key, 'HTTP_COOKIE') === 0) {
+            if (strpos($key, 'HTTP_') === 0) {
+                if (strpos($key, 'HTTP_COOKIE') === 0) {
                     // Cookies are handled using the $_COOKIE superglobal
                     continue;
                 }
-                $name = \strtr(\substr($key, 5), '_', ' ');
-                $name = \strtr(\ucwords(\strtolower($name)), ' ', '-');
-            } elseif (\strpos($key, 'CONTENT_') === 0) {
-                $name = \substr($key, 8); // Content-
-                $name = 'Content-' . (($name == 'MD5') ? $name : \ucfirst(\strtolower($name)));
+                $name = strtr(substr($key, 5), '_', ' ');
+                $name = strtr(ucwords(strtolower($name)), ' ', '-');
+            } elseif (strpos($key, 'CONTENT_') === 0) {
+                $name = substr($key, 8); // Content-
+                $name = 'Content-' . (($name == 'MD5') ? $name : ucfirst(strtolower($name)));
             } else {
                 continue;
             }
             $headers[$name] = $value;
         }
-        $this->headers = new \ArrayObject($headers);
+        $this->headers = new ArrayObject($headers);
     }
 
     /**
@@ -316,10 +325,10 @@ class Request extends BaseRequest {
     protected function isSecure(): bool {
         $https = $this->serverVar('HTTPS');
         if ($https) {
-            return 'off' !== \strtolower($https);
+            return 'off' !== strtolower($https);
         }
         if ($this->isFromTrustedProxy()) {
-            return \in_array(\strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')), ['https', 'on', 'ssl', '1'], true);
+            return in_array(strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')), ['https', 'on', 'ssl', '1'], true);
         }
         return false;
     }
@@ -364,8 +373,8 @@ class Request extends BaseRequest {
             $host = $this->headers()->offsetGet('Host');
 
             // works for regname, IPv4 & IPv6
-            if (\preg_match('~\:(\d+)$~', $host, $matches)) {
-                $host = \substr($host, 0, -1 * (\strlen($matches[1]) + 1));
+            if (preg_match('~\:(\d+)$~', $host, $matches)) {
+                $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
                 $port = (int)$matches[1];
             }
 
@@ -385,16 +394,16 @@ class Request extends BaseRequest {
         $serverName = $this->serverVar('SERVER_NAME');
         if (!$host && $serverName) {
             $host = $serverName;
-            $port = \intval($this->serverVar('SERVER_PORT', -1));
+            $port = intval($this->serverVar('SERVER_PORT', -1));
             if ($port < 1) {
                 $port = null;
             } else {
                 // Check for missinterpreted IPv6-Address
                 // Reported at least for Safari on Windows
                 $serverAddr = $this->serverVar('SERVER_ADDR');
-                if (isset($serverAddr) && \preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
+                if (isset($serverAddr) && preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
                     $host = '[' . $serverAddr . ']';
-                    if ($port . ']' == \substr($host, \strrpos($host, ':') + 1)) {
+                    if ($port . ']' == substr($host, strrpos($host, ':') + 1)) {
                         // The last digit of the IPv6-Address has been taken as port
                         // Unset the port so the default port can be used
                         $port = null;
@@ -409,8 +418,8 @@ class Request extends BaseRequest {
         $requestUri = $this->serverVar('REQUEST_URI');
 
         $normalizeUri = function ($requestUri) {
-            if (($qpos = \strpos($requestUri, '?')) !== false) {
-                return \substr($requestUri, 0, $qpos);
+            if (($qpos = strpos($requestUri, '?')) !== false) {
+                return substr($requestUri, 0, $qpos);
             }
             return $requestUri;
         };
@@ -436,7 +445,7 @@ class Request extends BaseRequest {
         }
 
         if ($requestUri !== null) {
-            return $normalizeUri(\preg_replace('#^[^/:]+://[^/]+#', '', $requestUri));
+            return $normalizeUri(preg_replace('#^[^/:]+://[^/]+#', '', $requestUri));
         }
 
         // IIS 5.0, PHP as CGI.
@@ -457,7 +466,7 @@ class Request extends BaseRequest {
         if ('' === $scriptName) {
             return '/';
         }
-        $basePath = \ltrim(Uri\Path::normalize(\dirname($scriptName)), '/');
+        $basePath = ltrim(Uri\Path::normalize(dirname($scriptName)), '/');
 /*        if (!Uri::validatePath($basePath)) {
             throw new BadRequestException();
         }*/
@@ -465,7 +474,7 @@ class Request extends BaseRequest {
     }
 
     protected function isFromTrustedProxy(): bool {
-        return null !== $this->trustedProxyIps && \in_array($this->serverVar('REMOTE_ADDR'), $this->trustedProxyIps, true);
+        return null !== $this->trustedProxyIps && in_array($this->serverVar('REMOTE_ADDR'), $this->trustedProxyIps, true);
     }
 
     /**
@@ -481,7 +490,7 @@ class Request extends BaseRequest {
     protected function detectOriginalMethod(): ?string {
         $httpMethod = $this->serverVar('REQUEST_METHOD');
         if (null !== $httpMethod) {
-            $httpMethod = \strtoupper((string)$httpMethod);
+            $httpMethod = strtoupper((string)$httpMethod);
             if ($this->isKnownMethod($httpMethod)) {
                 return $httpMethod;
             }
@@ -503,7 +512,7 @@ class Request extends BaseRequest {
             unset($_POST['_method']);
         }
         if (null !== $overwrittenMethod) {
-            $overwrittenMethod = \strtoupper($overwrittenMethod);
+            $overwrittenMethod = strtoupper($overwrittenMethod);
             if ($this->isKnownMethod($overwrittenMethod)) {
                 return $overwrittenMethod;
             }

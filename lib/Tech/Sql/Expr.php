@@ -6,10 +6,7 @@
  */
 namespace Morpho\Tech\Sql;
 
-use Morpho\Base\NotImplementedException;
+use Morpho\Base\Container;
 
-class DeleteQuery extends Query {
-//    public function build(): array {
-//        throw new NotImplementedException();
-//    }
+class Expr extends Container {
 }

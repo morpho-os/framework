@@ -122,7 +122,7 @@ const SELF_TYPE     = 'self';        // TParam, TReturn, TProperty
 const PUBLIC_TYPE   = 'parent';      // TParam, TReturn, TProperty
 const STATIC_TYPE   = 'static';      // TParam, TReturn ([>= 8.0](https://wiki.php.net/rfc/static_return_type)), TProperty (as modifier)
 const VOID_TYPE     = 'void';        // TReturn
-const MIXED_TYPE    = 'mixed';       // @todo
+const MIXED_TYPE    = 'mixed';       // @todo: PHP >= 8
 // const CLASS_OR_INTERFACE = '...'; // TParam, TReturn, TProperty, TUserDefined
 
 const TRIM_CHARS = " \t\n\r\x00\x0B";
@@ -1106,6 +1106,9 @@ function reduce(callable $fn, $iter, $initial = null) {
 }
 
 function toArray(iterable $it): array {
+    if (is_array($it)) {
+        return $it;
+    }
     if ($it instanceof ArrayObject) {
         return $it->getArrayCopy();
     }

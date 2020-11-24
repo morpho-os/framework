@@ -1,11 +1,18 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Tech\Sql;
 
 use PDO;
+use PDOStatement;
 use Throwable;
+use function implode;
 
 /**
- * @method \PDOStatement prepare($statement, array $driver_options = array())
+ * @method PDOStatement prepare($statement, array $driver_options = array())
  * @method bool beginTransaction()
  * @method bool commit()
  * @method bool rollBack()
@@ -25,6 +32,8 @@ abstract class DbClient implements IDbClient {
         PDO::ATTR_STRINGIFY_FETCHES => false,
     ];
 
+    protected string $quote;
+
     /**
      * DbClient constructor.
      * @param PDO|array $confOrPdo
@@ -35,26 +44,6 @@ abstract class DbClient implements IDbClient {
 
     public function pdo(): PDO {
         return $this->conn;
-    }
-
-    public function insert(): InsertQuery {
-        return new InsertQuery($this);
-    }
-
-    public function select(): SelectQuery {
-        return new SelectQuery($this);
-    }
-
-    public function update(): UpdateQuery {
-        return new UpdateQuery($this);
-    }
-
-    public function delete(): DeleteQuery {
-        return new DeleteQuery($this);
-    }
-
-    public function replace(): ReplaceQuery {
-        return new ReplaceQuery($this);
     }
 
     public function exec(string $sql): int {
@@ -74,6 +63,10 @@ abstract class DbClient implements IDbClient {
 
     public function lastInsertId(string $name = null): string {
         return $this->conn->lastInsertId($name);
+    }
+
+    public function expr($expr): Expr {
+        return new Expr($expr);
     }
 
     /**
@@ -100,7 +93,7 @@ abstract class DbClient implements IDbClient {
         return $this->conn->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
 
-    public static function availableDrivers(): array {
+    public function availableDrivers(): array {
         return PDO::getAvailableDrivers();
     }
 
@@ -114,16 +107,54 @@ abstract class DbClient implements IDbClient {
     }
 
     /**
+     * @param array|string $identifiers
+     * @return array|string string
+     */
+    public function quoteIdentifiers($identifiers) {
+        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+        $quoteIdentifier = function (string $identifiers): string {
+            $quoted = [];
+            foreach (explode('.', $identifiers) as $identifier) {
+                $quoted[] = $this->quote . $identifier . $this->quote;
+            }
+            return implode('.', $quoted);
+        };
+        if (!is_array($identifiers)) {
+            return $quoteIdentifier($identifiers);
+        }
+        $ids = [];
+        foreach ($identifiers as $identifier) {
+            $ids[] = $quoteIdentifier($identifier);
+        }
+        return $ids;
+    }
+
+    public function positionalArgs(array $args): array {
+        return array_fill(0, count($args), '?');
+    }
+
+    public function nameValArgs(array $args): array {
+        $placeholders = [];
+        foreach ($args as $name => $val) {
+            $placeholders[] = $this->quoteIdentifiers($name) . ' = ?';
+        }
+        return $placeholders;
+    }
+
+    /**
      * See [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512)
      * @param callable $fn
      * @return mixed
      */
-    public function withEmulatedPrepares(callable $fn) {
+    public function usingEmulatedPrepares(callable $fn) {
         $emulatePrepares = $this->getAttribute(PDO::ATTR_EMULATE_PREPARES);
         if (!$emulatePrepares) {
             $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-            $result = $fn($this);
-            $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, $emulatePrepares);
+            try {
+                $result = $fn($this);
+            } finally {
+                $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, $emulatePrepares);
+            }
         } else {
             $result = $fn($this);
         }
@@ -131,6 +162,4 @@ abstract class DbClient implements IDbClient {
     }
 
     abstract protected function connect($confOrPdo): PDO;
-
-    abstract protected function quoteIdentifier(string $identifier): string;
 }
