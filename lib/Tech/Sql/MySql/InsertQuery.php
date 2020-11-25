@@ -31,7 +31,7 @@ class InsertQuery implements IQuery {
     public function args(): array {
         $args = [];
         foreach ($this->rows as $row) {
-            $args = array_merge($args, $row);
+            $args = array_merge($args, array_values($row));
         }
         return $args;
     }
@@ -69,7 +69,7 @@ class InsertQuery implements IQuery {
             throw new NotImplementedException();
         }
         $row = $this->rows[0]; // todo: support multiple rows
-        return 'INSERT INTO ' . $this->db->quoteIdentifiers($this->tableName)
-            . ' (' . \implode(', ', $this->db->quoteIdentifiers(\array_keys($row))) . ') VALUES (' . \implode(', ', $this->db->positionalArgs($row)) . ')';
+        return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tableName)
+            . ' (' . \implode(', ', $this->db->quoteIdentifier(\array_keys($row))) . ') VALUES (' . \implode(', ', $this->db->positionalArgs($row)) . ')';
     }
 }

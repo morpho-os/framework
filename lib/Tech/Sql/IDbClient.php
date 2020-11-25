@@ -54,7 +54,7 @@ interface IDbClient {
      * @param string|array $identifiers
      * @return string|array
      */
-    public function quoteIdentifiers($identifiers);
+    public function quoteIdentifier($identifiers);
 
     public function positionalArgs(array $args): array;
 

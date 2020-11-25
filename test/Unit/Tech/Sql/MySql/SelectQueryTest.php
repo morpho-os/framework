@@ -7,29 +7,35 @@
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
 use Morpho\Tech\Sql\MySql\SelectQuery;
+use UnexpectedValueException;
 
 class SelectQueryTest extends DbTestCase {
     use TUsingNorthwind;
 
+    private SelectQuery $select;
+
+    public function setUp(): void {
+        parent::setUp();
+        $this->select = new SelectQuery($this->db);
+    }
+
     public function testWithoutFromColumns() {
-        $select = new SelectQuery($this->db);
         $columns = "MICROSECOND('2019-12-31 23:59:59.000010'), NOW()";
-        $this->assertSame("SELECT " . $columns, (string) $select->columns($select->expr($columns)));
+        $this->assertSqlEquals("SELECT " . $columns, (string) $this->select->columns($this->select->expr($columns)));
     }
 
     public function testWithFromColumns() {
-        $select = new SelectQuery($this->db);
-        $this->assertSame("SELECT * FROM `cars`", (string) $select->from('cars'));
+        $this->assertSqlEquals("SELECT * FROM `cars`", (string) $this->select->from('cars'));
     }
 
     public function testCompleteSelect() {
-        $select = new SelectQuery($this->db);
-        $select->columns(['customers.id'])
+        $this->select->columns(['customers.id'])
             ->from(
-                $select->expr('customers INNER JOIN orders ON customers.id = orders.customer_id')
+                $this->select->expr('customers INNER JOIN orders ON customers.id = orders.customer_id')
             );
-        $this->assertSame('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $select->__toString());
+        $this->assertSqlEquals('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $this->select);
             /*
+            todo
             ->where()
             ->groupBy()
             ->having()
@@ -46,5 +52,12 @@ class SelectQueryTest extends DbTestCase {
         //);
     }
 
+    public function testWhereClause_OnlyCondition_ValidArg() {
+        $this->assertSqlEquals("SELECT * WHERE `foo` = 'abc' AND `bar` = 'efg'", $this->select->where(['foo' => 'abc', 'bar' => 'efg']));
+    }
 
+    public function testWhereClause_OnlyCondition_InvalidArg() {
+        $this->expectException(UnexpectedValueException::class);
+        $this->select->where(['foo', 'bar']);
+    }
 }

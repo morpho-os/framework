@@ -8,7 +8,9 @@ namespace Morpho\Tech\Sql;
 
 use PDO;
 use PDOStatement;
+use RuntimeException;
 use Throwable;
+use UnexpectedValueException;
 use function implode;
 
 /**
@@ -54,7 +56,10 @@ abstract class DbClient implements IDbClient {
         /** @var $stmt Result */
         if ($args) {
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute($args);
+            $result = $stmt->execute($args);
+            if (false === $result) {
+                throw new RuntimeException("SQL query failed");
+            }
         } else {
             $stmt = $this->conn->query($sql);
         }
@@ -110,7 +115,7 @@ abstract class DbClient implements IDbClient {
      * @param array|string $identifiers
      * @return array|string string
      */
-    public function quoteIdentifiers($identifiers) {
+    public function quoteIdentifier($identifiers) {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
         $quoteIdentifier = function (string $identifiers): string {
             $quoted = [];
@@ -136,7 +141,10 @@ abstract class DbClient implements IDbClient {
     public function nameValArgs(array $args): array {
         $placeholders = [];
         foreach ($args as $name => $val) {
-            $placeholders[] = $this->quoteIdentifiers($name) . ' = ?';
+            if (!is_string($name)) {
+                throw new UnexpectedValueException();
+            }
+            $placeholders[] = $this->quoteIdentifier($name) . ' = ?';
         }
         return $placeholders;
     }

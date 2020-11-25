@@ -7,12 +7,19 @@
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
 use Morpho\Tech\Sql\MySql\InsertQuery;
+use Morpho\Tech\Sql\Result;
 
 class InsertQueryTest extends DbTestCase {
     public function testInsertQuery() {
         $insert = new InsertQuery($this->db);
-        $insert->into('cars')->row(['color' => 'green', 'name' => 'Honda']);
-        $rows = $this->pdo->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
+
+        $selectAllRows = fn () =>$this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
+        $this->assertSame([], $selectAllRows());
+
+        $insert = $insert->into('cars')->row(['color' => 'green', 'name' => 'Honda']);
+        $result = $insert->eval();
+        $this->assertInstanceOf(Result::class, $result);
+
 
         $this->assertSame([[
             'name' => 'Honda',
@@ -20,14 +27,7 @@ class InsertQueryTest extends DbTestCase {
             'country' => null,
             'type1' => null,
             'type2' => null,
-        ]], $rows);
-/*
-name varchar(20),
-color varchar(20),
-country varchar(20),
-type1 int,
-type2 enum('US', 'Japan', 'EU')
- */
+        ]], $selectAllRows());
     }
 
     protected function createFixtures($db): void {

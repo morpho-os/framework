@@ -80,7 +80,7 @@ class DbClient extends BaseDbClient {
     }
 
     public function useDb(string $dbName): self {
-        $this->exec('USE ' . $this->quoteIdentifiers($dbName));
+        $this->exec('USE ' . $this->quoteIdentifier($dbName));
         return $this;
     }
 

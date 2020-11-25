@@ -181,8 +181,8 @@ abstract class TestCase extends BaseTestCase {
         return \defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
-    public function expectException(string $exception, $message = '', $code = null): void {
-        parent::expectException($exception);
+    public function expectException(string $exceptionClass, $message = '', $code = null): void {
+        parent::expectException($exceptionClass);
         if ($message !== null && $message !== '') {
             $this->expectExceptionMessage($message);
         }

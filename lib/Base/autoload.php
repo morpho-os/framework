@@ -1105,7 +1105,7 @@ function reduce(callable $fn, $iter, $initial = null) {
     return $acc;
 }
 
-function toArray(iterable $it): array {
+function toArr(iterable $it): array {
     if (is_array($it)) {
         return $it;
     }

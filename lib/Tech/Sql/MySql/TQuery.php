@@ -33,12 +33,17 @@ trait TQuery {
         throw new NotImplementedException(__METHOD__);
     }
 
+    /**
+     * This method is for debugging only and should not be run on the server as SQL injection is possible, use eval() instead.
+     * It is useful to see how the full SQL query will look like with placeholders substituded with arguments.
+     * @return string
+     */
     public function __toString(): string {
         $sql = $this->sql();
         $args = $this->args();
         if ($args) {
             // todo: replace named args like foo = :foo AND bar = :bar
-            $sql = preg_replace_callback('~\?~s', function ($match) use ($args): string {
+            $sql = preg_replace_callback('~\?~s', function ($match) use (&$args): string {
                 $val = array_shift($args);
                 if (is_string($val)) {
                     return $this->db->pdo()->quote($val);

@@ -25,10 +25,4 @@ class Stack extends SplStack {
         $this->pop();
         $this->push($value);
     }
-
-    /**
-     * Works like pop() but doesn't remove an item.
-    public function peek() {
-        return $this->top();
-    }*/
 }

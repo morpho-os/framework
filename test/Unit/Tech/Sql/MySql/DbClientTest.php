@@ -11,6 +11,7 @@ use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\ISchema;
 use Morpho\Tech\Sql\Result;
 use PDO;
+use PDOException;
 
 class DbClientTest extends DbTestCase {
     public function testInterface() {
@@ -21,8 +22,13 @@ class DbClientTest extends DbTestCase {
         $this->assertInstanceOf(PDO::class, $this->db->pdo());
     }
 
+    public function testEval_ThrowsExceptionOnInvalidSql() {
+        $this->expectException(PDOException::class, 'Column not found');
+        $this->db->eval('SELECT invalid syntax');
+    }
+
     public function testEval_NamedPlaceholders() {
-        $result = $this->db->eval('SELECT * FROM cars WHERE color = :color', ['color' => 'red']);
+        $result = $this->db->eval('SELECT * FROM cars WHERE color = :color AND name = :name', ['name' => 'Comaro', 'color' => 'red']);
         $this->assertInstanceOf(Result::class, $result);
         $rows = $result->rows();
         $this->assertSame([['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
@@ -96,12 +102,12 @@ SQL
         }
     }
 
-    public function testQuoteIdentifers() {
-        $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifiers('foo.bar'));
-        $this->assertSame('`foo`', $this->db->quoteIdentifiers('foo'));
+    public function testQuoteIdentifer() {
+        $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifier('foo.bar'));
+        $this->assertSame('`foo`', $this->db->quoteIdentifier('foo'));
 
-        $this->assertSame(['`foo`.`bar`'], $this->db->quoteIdentifiers(['foo.bar']));
-        $this->assertSame(['`foo`'], $this->db->quoteIdentifiers(['foo']));
+        $this->assertSame(['`foo`.`bar`'], $this->db->quoteIdentifier(['foo.bar']));
+        $this->assertSame(['`foo`'], $this->db->quoteIdentifier(['foo']));
     }
 
     public function testPositionalArgs() {

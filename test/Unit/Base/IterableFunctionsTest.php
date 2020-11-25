@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use function Morpho\Base\{
-    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArray
+    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArr
 };
 use Morpho\Testing\TestCase;
 
@@ -746,7 +746,7 @@ class IterableFunctionsTest extends TestCase {
 
     /** @dataProvider dataForEmptyList */
     public function testToArray_EmptyList($v) {
-        $this->assertSame([], toArray($v));
+        $this->assertSame([], toArr($v));
     }
 
     /* * @dataProvider dataForString */
@@ -771,7 +771,7 @@ class IterableFunctionsTest extends TestCase {
             'baz' => 'c'
         ];
         $iter = new \ArrayIterator($arr);
-        $this->assertSame($arr, toArray($iter));
+        $this->assertSame($arr, toArr($iter));
     }
 
     public function testToArray_Iterator_NumericKeys() {
@@ -781,7 +781,7 @@ class IterableFunctionsTest extends TestCase {
             'c'
         ];
         $iter = new \ArrayIterator($arr);
-        $this->assertSame($arr, toArray($iter));
+        $this->assertSame($arr, toArr($iter));
     }
 
     /* * @dataProvider dataForIterator_StringKeys */
@@ -807,8 +807,8 @@ class IterableFunctionsTest extends TestCase {
      */
     public function testChain() {
         $chained = chain(\range(1, 3), \range(4, 6), \range(7, 9));
-        $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8, 9], toArray($chained));
-        $this->assertSame([], toArray(chain()));
+        $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8, 9], toArr($chained));
+        $this->assertSame([], toArr(chain()));
     }
 
     public function dataForHeadAndLast_Array() {
@@ -905,7 +905,7 @@ class IterableFunctionsTest extends TestCase {
             $this->assertSame([], $res);
         } else {
             $this->assertInstanceOf(\Generator::class, $res);
-            $this->assertSame([], toArray($res));
+            $this->assertSame([], toArr($res));
         }
     }
 }

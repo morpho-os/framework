@@ -8,17 +8,14 @@ namespace Morpho\Tech\Sql\MySql;
 
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
+use UnexpectedValueException;
 
 class SelectQuery implements IQuery {
     use TQuery;
 
     protected array $columns = [];
     protected array $from = [];
-    protected array $where = [
-        'AND' => [],
-        'OR' => [],
-        //'NOT' => [],
-    ];
+    protected array $where = [];
     protected array $groupBy = [];
     protected array $having = [];
     protected array $window = [];
@@ -39,38 +36,37 @@ class SelectQuery implements IQuery {
     }
 
     public function sql(): string {
-        $sql = 'SELECT';
-        $hasFrom = count($this->from);
+        $sql = ['SELECT'];
+
         $columns = [];
         if ($this->columns) {
             foreach ($this->columns as $column) {
                 if (is_array($column)) {
-                    $columns = array_merge($columns, $this->db->quoteIdentifiers($column));
+                    $columns = array_merge($columns, $this->db->quoteIdentifier($column));
                 } elseif ($column === '*') {
                     $columns[] = $column;
                 } else {
                     $columns[] = $column instanceof Expr
                         ? $column->val()
-                        : $this->db->quoteIdentifiers($column);
+                        : $this->db->quoteIdentifier($column);
                 }
             }
         }
+        $hasFrom = count($this->from);
         if ($columns) {
-            $sql .= ' ' . implode(', ', $columns);
-        } elseif ($hasFrom) {
-            $sql .= ' *';
+            $sql[] = implode(', ', $columns);
+        } elseif ($hasFrom || $this->where) {
+            $sql[] = '*';
         }
+
         if ($hasFrom) {
-            $sql .= ' FROM ';
+            $sql[] = 'FROM';
             foreach ($this->from as $from) {
-                $sql .= $from instanceof Expr ? $from->val() : $this->db->quoteIdentifiers($from);
+                $sql[] = $from instanceof Expr ? $from->val() : $this->db->quoteIdentifier($from);
             }
         }
-        if ($this->where['AND']) {
-            $sql .= ' WHERE ' . implode(' AND ', $this->where['AND']);
-        }
-        if ($this->where['OR']) {
-            $sql .= ' WHERE ' . implode(' OR ', $this->where['AND']);
+        if ($this->where) {
+            $sql[] = 'WHERE ' . implode(' AND ', $this->where);
         }
         /*
 
@@ -117,16 +113,25 @@ class SelectQuery implements IQuery {
           | INTO var_name [, var_name] ...
         }
          */
-        return $sql;
+        return implode("\n", $sql);
     }
 
     public function args(): array {
         return $this->args;
     }
 
-    public function where($condition, array $args): self {
-        $this->where['AND'][] = $condition;
-        $this->args = array_merge($this->args, $args);
+    public function where($condition, array $args = null): self {
+        if (null === $args) {
+            if (!is_array($condition)) {
+                throw new UnexpectedValueException();
+            }
+            // If args are not specified then $condition contains arguments
+            $this->where[] = implode(' AND ', $this->db->nameValArgs($condition));
+            $this->args = array_merge($this->args, array_values($condition));
+        } else {
+            $this->where[] = $condition;
+            $this->args = array_merge($this->args, $args);
+        }
         return $this;
     }
         /*
