@@ -59,10 +59,8 @@
         "files": [
             "lib/Base/autoload.php",
             "lib/Tech/autoload.php",
-            "lib/Debug/autoload.php",
             "lib/Error/autoload.php",
             "lib/App/autoload.php",
-            "lib/Compiler/autoload.php",
             "lib/Caching/autoload.php"
         ]
     },

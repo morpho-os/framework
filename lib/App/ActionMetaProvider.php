@@ -7,7 +7,7 @@
 namespace Morpho\App;
 
 use Morpho\Base\IFn;
-use Morpho\Compiler\Reflection\FileReflection;
+use Morpho\Tech\Php\Reflection\FileReflection;
 use ReflectionClass;
 use ReflectionMethod;
 use function array_values;

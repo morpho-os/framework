@@ -7,7 +7,6 @@
 namespace Morpho\Compiler;
 
 class CompiledLangFactory implements IComponentFactory {
-
     public function mkFrontEnd(): callable {
         // TODO: Implement mkFrontEnd() method.
     }

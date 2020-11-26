@@ -4,4 +4,12 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Compiler;
+namespace Morpho\Test\Unit\Tech\Php\Reflection;
+
+use Morpho\Tech\Php\Reflection\TokenStrategy;
+
+class TokenStrategyTest extends DiscoverStrategyTest {
+    protected function mkDiscoverStrategy() {
+        return new TokenStrategy();
+    }
+}
