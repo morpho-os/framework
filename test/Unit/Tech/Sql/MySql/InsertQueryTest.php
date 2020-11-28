@@ -16,7 +16,7 @@ class InsertQueryTest extends DbTestCase {
         $selectAllRows = fn () =>$this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
         $this->assertSame([], $selectAllRows());
 
-        $insert = $insert->into('cars')->row(['color' => 'green', 'name' => 'Honda']);
+        $insert = $insert->table('cars')->row(['color' => 'green', 'name' => 'Honda']);
         $result = $insert->eval();
         $this->assertInstanceOf(Result::class, $result);
 

@@ -58,7 +58,7 @@ abstract class DbClient implements IDbClient {
             $stmt = $this->conn->prepare($sql);
             $result = $stmt->execute($args);
             if (false === $result) {
-                throw new RuntimeException("SQL query failed");
+                throw new RuntimeException("SQL query failed, check the arguments");
             }
         } else {
             $stmt = $this->conn->query($sql);

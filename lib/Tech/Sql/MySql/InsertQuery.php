@@ -12,14 +12,7 @@ use Morpho\Tech\Sql\IQuery;
 class InsertQuery implements IQuery {
     use TQuery;
 
-    protected string $tableName;
-
     protected array $rows = [];
-
-    public function into(string $tableName): self {
-        $this->tableName = $tableName;
-        return $this;
-    }
 
     public function row(array $row): self {
         $this->rows[] = $row;
@@ -69,7 +62,7 @@ class InsertQuery implements IQuery {
             throw new NotImplementedException();
         }
         $row = $this->rows[0]; // todo: support multiple rows
-        return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tableName)
+        return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tables[0])
             . ' (' . \implode(', ', $this->db->quoteIdentifier(\array_keys($row))) . ') VALUES (' . \implode(', ', $this->db->positionalArgs($row)) . ')';
     }
 }

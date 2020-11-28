@@ -28,17 +28,18 @@ class DbClientTest extends DbTestCase {
     }
 
     public function testEval_NamedPlaceholders() {
-        $result = $this->db->eval('SELECT * FROM cars WHERE color = :color AND name = :name', ['name' => 'Comaro', 'color' => 'red']);
+        $modelName = "Chevrolet Camaro";
+        $result = $this->db->eval('SELECT * FROM cars WHERE color = :color AND name = :name', ['name' => $modelName, 'color' => 'red']);
         $this->assertInstanceOf(Result::class, $result);
         $rows = $result->rows();
-        $this->assertSame([['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
+        $this->assertSame([['name' => $modelName, 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
     }
 
     public function testEval_PositionalPlaceholders() {
         $result = $this->db->eval('SELECT * FROM cars WHERE color = ?', ['red']);
         $this->assertInstanceOf(Result::class, $result);
         $rows = $result->rows();
-        $this->assertSame([['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
+        $this->assertSame([['name' => "Chevrolet Camaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US']], $rows);
     }
 
     public function testExec() {

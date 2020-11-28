@@ -10,9 +10,16 @@ use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IDbClient;
 use Morpho\Tech\Sql\Result;
+use UnexpectedValueException;
 
 trait TQuery {
     protected IDbClient $db;
+
+    protected array $tables = [];
+
+    protected array $where = [];
+
+    protected array $args = [];
 
     public function __construct(IDbClient $db, array $spec = null) {
         $this->db = $db;
@@ -21,8 +28,31 @@ trait TQuery {
         }
     }
 
+    /**
+     * @param array|string $tableName
+     */
+    public function table($tableName): self {
+        $this->tables[] = $tableName;
+        return $this;
+    }
+
     public function expr($expr): Expr {
         return $this->db->expr($expr);
+    }
+
+    public function where($condition, array $args = null): self {
+        if (null === $args) {
+            if (!is_array($condition)) {
+                throw new UnexpectedValueException();
+            }
+            // If args are not specified then $condition contains arguments
+            $this->where[] = implode(' AND ', $this->db->nameValArgs($condition));
+            $this->args = array_merge($this->args, array_values($condition));
+        } else {
+            $this->where[] = $condition;
+            $this->args = array_merge($this->args, $args);
+        }
+        return $this;
     }
 
     public function eval(): Result {
@@ -56,5 +86,23 @@ trait TQuery {
 
     abstract public function sql(): string;
 
-    abstract public function args(): array;
+    public function args(): array {
+        return $this->args;
+    }
+
+    protected function tableRefSql(): string {
+        // https://mariadb.com/kb/en/join-syntax/
+        $sql = [];
+        foreach ($this->tables as $from) {
+            $sql[] = $from instanceof Expr ? $from->val() : $this->db->quoteIdentifier($from);
+        }
+        return implode(', ', $sql);
+    }
+
+    protected function whereClauseSql(): ?string {
+        if ($this->where) {
+            return 'WHERE ' . implode(' AND ', $this->where);
+        }
+        return null;
+    }
 }

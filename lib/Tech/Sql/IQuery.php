@@ -9,11 +9,18 @@ namespace Morpho\Tech\Sql;
 use Stringable;
 
 interface IQuery extends Stringable {
+    /**
+     * @param array|string $tableName
+     */
+    public function table($tableName): self;
+
     public function expr($expr): Expr;
 
     public function sql(): string;
 
     public function args(): array;
+
+    public function where($condition, array $args = null): self;
 
     public function eval(): Result;
 

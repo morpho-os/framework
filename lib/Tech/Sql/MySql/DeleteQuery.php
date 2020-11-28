@@ -6,6 +6,7 @@
  */
 namespace Morpho\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
 
 class DeleteQuery implements IQuery {
@@ -13,25 +14,37 @@ class DeleteQuery implements IQuery {
 //    public function build(): array {
 //        throw new NotImplementedException();
 //    }
+
 /*
     /**
      * @param string $tableName
      * @param array|string $whereCondition
      * @param array|null $whereConditionArgs
     public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): void {
-        // @TODO: use DeleteQuery
-        $query = $this->query();
-        [$whereSql, $whereArgs] = $query->whereClause($whereCondition, $whereConditionArgs);
-        $sql = 'DELETE FROM ' . $query->quoteIdentifier($tableName) . $whereSql;
-        /*$stmt = *$this->eval($sql, $whereArgs);
-        //return $stmt->rowCount();
+
     }
  */
     public function sql(): string {
-        // TODO: Implement sql() method.
-    }
+        $sql = ['DELETE', 'FROM', $this->tableRefSql()];
+/*
+DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    tbl_name[.*] [, tbl_name[.*]] ...
+    FROM table_references
+    [WHERE where_condition]
 
-    public function args(): array {
-        // TODO: Implement args() method.
+Or:
+
+DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    FROM tbl_name[.*] [, tbl_name[.*]] ...
+    USING table_references
+    [WHERE where_condition]
+
+ */
+        $whereClauseSql = $this->whereClauseSql();
+        if (null !== $whereClauseSql) {
+            $sql[] = $whereClauseSql;
+        }
+
+        return implode("\n", $sql);
     }
 }

@@ -31,7 +31,7 @@ class DbTestCase extends BaseDbTestCase {
         )");
         if ($addData) {
             $rows = [
-                ['name' => "Comaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
+                ['name' => "Chevrolet Camaro", 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
                 ['name' => 'Mazda 6', 'color' => 'green', 'country' => 'JP', 'type1' => 2, 'type2' => 'Japan'],
                 ['name' => 'Mazda CX-3', 'color' => 'green', 'country' => 'JP', 'type1' => 2, 'type2' => 'EU'],
             ];

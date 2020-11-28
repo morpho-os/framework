@@ -8,14 +8,12 @@ namespace Morpho\Tech\Sql\MySql;
 
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
-use UnexpectedValueException;
 
 class SelectQuery implements IQuery {
     use TQuery;
 
     protected array $columns = [];
     protected array $from = [];
-    protected array $where = [];
     protected array $groupBy = [];
     protected array $having = [];
     protected array $window = [];
@@ -23,15 +21,12 @@ class SelectQuery implements IQuery {
     protected array $limit = [];
     protected array $offset = [];
 
-    protected array $args = [];
-
     public function columns($columns): self {
-        $this->columns[] = $columns;
-        return $this;
-    }
-
-    public function from($tableReference): self {
-        $this->from[] = $tableReference;
+        if (is_array($columns)) {
+            $this->columns = array_merge($this->columns, $columns);
+        } else {
+            $this->columns[] = $columns;
+        }
         return $this;
     }
 
@@ -52,7 +47,7 @@ class SelectQuery implements IQuery {
                 }
             }
         }
-        $hasFrom = count($this->from);
+        $hasFrom = count($this->tables);
         if ($columns) {
             $sql[] = implode(', ', $columns);
         } elseif ($hasFrom || $this->where) {
@@ -61,13 +56,13 @@ class SelectQuery implements IQuery {
 
         if ($hasFrom) {
             $sql[] = 'FROM';
-            foreach ($this->from as $from) {
-                $sql[] = $from instanceof Expr ? $from->val() : $this->db->quoteIdentifier($from);
-            }
+            $sql[] = $this->tableRefSql();
         }
-        if ($this->where) {
-            $sql[] = 'WHERE ' . implode(' AND ', $this->where);
+        $whereClauseSql = $this->whereClauseSql();
+        if (null !== $whereClauseSql) {
+            $sql[] = $whereClauseSql;
         }
+
         /*
 
                                       SELECT
@@ -116,24 +111,7 @@ class SelectQuery implements IQuery {
         return implode("\n", $sql);
     }
 
-    public function args(): array {
-        return $this->args;
-    }
 
-    public function where($condition, array $args = null): self {
-        if (null === $args) {
-            if (!is_array($condition)) {
-                throw new UnexpectedValueException();
-            }
-            // If args are not specified then $condition contains arguments
-            $this->where[] = implode(' AND ', $this->db->nameValArgs($condition));
-            $this->args = array_merge($this->args, array_values($condition));
-        } else {
-            $this->where[] = $condition;
-            $this->args = array_merge($this->args, $args);
-        }
-        return $this;
-    }
         /*
 
     public function innerJoin($table) {

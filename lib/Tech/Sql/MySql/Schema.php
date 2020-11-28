@@ -36,7 +36,7 @@ class Schema extends BaseSchema {
     public function dbExists(string $dbName): bool {
         return $this->db->select()
                 ->columns($this->db->expr(1))
-                ->from('INFORMATION_SCHEMA.SCHEMATA')
+                ->table('INFORMATION_SCHEMA.SCHEMATA')
                 ->where('SCHEMA_NAME = ?', [$dbName])
                 ->eval()
                 ->bool();
