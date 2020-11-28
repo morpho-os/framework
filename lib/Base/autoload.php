@@ -63,68 +63,6 @@ use function ucwords;
 use function usleep;
 use const PREG_SPLIT_NO_EMPTY;
 
-/*
-PHP types can be used in:
-* Property definition
-* Formal parameter type hint
-* Return type hint
-* Class name or interface name
-
-E.g.:
-    class TUserDefined {
-        public TProperty $foo;
-    }
-    function foo(TParam $bar): TReturn {
-        ...
-    }
-Where the `TUserDefined`, `TProperty`, `TParam` and `TReturn` defined as:
-    TProperty
-        Can be used in class definition as property type hint.
-        int | float | bool | string | array | object | iterable | self | parent | static (as modifier) | TUserDefined
-    
-    TParam
-        Can be used in function definition as formal parameter type hint.
-        TProperty | callable
-    
-    TReturn
-        Can be used in function definition as return type hint.
-        TParam | void
-    
-    TScalar
-        Scalar type.
-        int | float | bool | string | null
-    
-    TSpecial
-        Special type.
-        resource
-
-    TUserDefined
-        User-defined type.
-        ClassName | InterfaceName
-    
-    ClassName
-        Any class name.
-    
-    InterfaceName
-        Any interface name.
-*/
-const INT_TYPE      = 'int';         // TScalar, TParam, TReturn, TProperty
-const FLOAT_TYPE    = 'float';       // TScalar, TParam, TReturn, TProperty
-const BOOL_TYPE     = 'bool';        // TScalar, TParam, TReturn, TProperty
-const STRING_TYPE   = 'string';      // TScalar, TParam, TReturn, TProperty
-const NULL_TYPE     = 'null';        // TScalar
-const ARRAY_TYPE    = 'array';       // TParam, TReturn, TProperty
-const RESOURCE_TYPE = 'resource';    // TSpecial
-const OBJECT_TYPE   = 'object';      // TParam, TReturn, TProperty
-const ITERABLE_TYPE = 'iterable';    // TParam, TReturn, TProperty
-const CALLABLE_TYPE = 'callable';    // TParam, TReturn
-const SELF_TYPE     = 'self';        // TParam, TReturn, TProperty
-const PUBLIC_TYPE   = 'parent';      // TParam, TReturn, TProperty
-const STATIC_TYPE   = 'static';      // TParam, TReturn ([>= 8.0](https://wiki.php.net/rfc/static_return_type)), TProperty (as modifier)
-const VOID_TYPE     = 'void';        // TReturn
-const MIXED_TYPE    = 'mixed';       // @todo: PHP >= 8
-// const CLASS_OR_INTERFACE = '...'; // TParam, TReturn, TProperty, TUserDefined
-
 const TRIM_CHARS = " \t\n\r\x00\x0B";
 const EOL_RE      = '(?>\r\n|\n|\r)';
 const EOL_FULL_RE = '~' . EOL_RE . '~s';
