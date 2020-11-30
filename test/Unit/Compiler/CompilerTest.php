@@ -6,82 +6,69 @@
  */
 namespace Morpho\Test\Unit\Compiler;
 
-use Morpho\Compiler\CompiledLangFactory;
-use Morpho\Compiler\InterpretedLangFactory;
-use Morpho\Testing\TestCase;
+use ArrayObject;
+use Morpho\Base\Pipe;
 use Morpho\Compiler\Compiler;
-use Morpho\Compiler\IComponentFactory;
-use Morpho\Base\IFn;
+use Morpho\Testing\TestCase;
 
 class CompilerTest extends TestCase {
-    public function testInterface() {
-        $this->assertInstanceOf(IFn::class, new Compiler([]));
-    }
-
-    public function testShouldAllowDoNothing() {
-        $context = ['foo' => 'bar'];
-        $this->assertSame($context['foo'], (new Compiler())->__invoke($context)['foo']);
-    }
-
-    public function testCustomComponents() {
-        $conf = [];
-        $conf['factory'] = new class implements IComponentFactory {
-            public function mkFrontEnd(): callable {
-                return function ($context) {
-                    $context['frontEnd'] = 'front-end run';
-                    return $context;
-                };
-            }
-
-            public function mkBackEnd(): callable {
-                return function ($context) {
-                    $context['backEnd'] = 'back-end run';
-                    return $context;
-                };
-            }
-
-            public function mkMiddleEnd(): callable {
-                return function ($context) {
-                    $context['middleEnd'] = 'middle-end run';
-                    return $context;
-                };
-            }
+    public function testCustomPhases() {
+        $frontEnd = function ($v) {
+            $v['frontEnd'] = 'front-end ok';
+            return $v;
         };
-        $compiler = new Compiler($conf);
-        $context = [];
-        $context = $compiler($context);
-        $this->assertCount(4, $context);
-        $this->assertSame('front-end run', $context['frontEnd']);
-        $this->assertSame('middle-end run', $context['middleEnd']);
-        $this->assertSame('back-end run', $context['backEnd']);
-        $this->assertSame($compiler, $context['compiler']);
+        $middleEnd = function ($v) {
+            $v['middleEnd'] = 'middle-end ok';
+            return $v;
+        };
+        $backEnd = function ($v) {
+            $v['backEnd'] = 'back-end ok';
+            $v['target'] = $v['source'];
+            return $v;
+        };
+        $compiler = new Compiler([
+            'frontEnd' => $frontEnd,
+            'middleEnd' => $middleEnd,
+            'backEnd' => $backEnd,
+        ]);
+
+        $this->assertInstanceOf(Pipe::class, $compiler);
+
+        $this->assertSame($frontEnd, $compiler->frontEnd());
+        $this->assertSame($middleEnd, $compiler->middleEnd());
+        $this->assertSame($backEnd, $compiler->backEnd());
+
+        $source = '';
+        $context = new ArrayObject([
+            'source' => $source,
+        ]);
+
+        $result = $compiler($context);
+
+        $this->assertSame($result, $context);
+        $this->assertSame($source, $result['source']);
+        $this->assertSame($source, $result['target']); // should not be changed
+        $this->assertSame('front-end ok', $context['frontEnd']);
+        $this->assertSame('middle-end ok', $context['middleEnd']);
+        $this->assertSame('back-end ok', $context['backEnd']);
     }
-    
-    public function testCompiledLangPhases() {
-        $conf = [
-            'factory' => new class extends CompiledLangFactory {
 
-            },
-        ];
-        $compiler = new Compiler($conf);
-        $context = [];
+    public function testDefaultPhases() {
+        $compiler = new Compiler();
 
-        //$result = $compiler->__invoke($context);
+        $frontEnd = $compiler->frontEnd();
+        $this->assertIsCallable($frontEnd);
 
-        $this->markTestIncomplete();
-    }
-    
-    public function testInterpretedLangPhases() {
-        $conf = [
-            'factory' => new class extends InterpretedLangFactory {
+        $middleEnd = $compiler->middleEnd();
+        $this->assertIsCallable($middleEnd);
+        $this->assertNotSame($frontEnd, $middleEnd);
 
-            },
-        ];
-        $compiler = new Compiler($conf);
-        $context = [];
+        $backEnd = $compiler->backEnd();
+        $this->assertIsCallable($backEnd);
+        $this->assertNotSame($frontEnd, $backEnd);
+        $this->assertNotSame($middleEnd, $backEnd);
 
-        //$result = $compiler->__invoke($context);
-
-        $this->markTestIncomplete();
+        $context['source'] = '';
+        $this->assertSame($context, $compiler($context));
     }
 }

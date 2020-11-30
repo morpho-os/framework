@@ -6,24 +6,22 @@
  */
 namespace Morpho\Base;
 
+use ArrayObject;
+
 /**
- * Pipe/Pipeline is sequence of phases/stages, where each phase is callable with the type:
- *     (mixed $value): mixed
+ * Pipe/Pipeline: (Phase/Stage)[]
+ * Stage: mixed => mixed
  */
-class Pipe extends \ArrayObject implements IFn {
-    public function __invoke($value) {
-        foreach ($this as $task) {
-            $value = $this->runTask($task, $value);
+class Pipe extends ArrayObject implements IFn {
+    public function __invoke($val) {
+        foreach ($this as $fn) {
+            $val = $fn($val);
         }
-        return $value;
+        return $val;
     }
 
-    public function append($value): self {
-        parent::append($value);
+    public function append($fn): self {
+        parent::append($fn);
         return $this;
-    }
-
-    protected function runTask(callable $task, $value) {
-        return $task($value);
     }
 }
