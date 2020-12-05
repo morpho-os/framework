@@ -28,11 +28,11 @@ abstract class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkServerModuleIteratorService() {
-        return new ApplyingSiteConfModuleIterator($this);
+        return new ServerModuleIterator($this['site']);
     }
 
     protected function cacheDirPath() {
-        return $this['site']->conf()['path']['cacheDirPath'];
+        return $this['site']->conf()['paths']['cacheDirPath'];
     }
 
     protected function mkCache($conf): ICache {

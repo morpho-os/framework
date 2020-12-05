@@ -11,19 +11,22 @@ use Morpho\App\Web\AppInitializer;
 use Morpho\Error\IErrorHandler;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
+use UnexpectedValueException;
+use function ini_get;
+use function ini_set;
 
 class AppInitializerTest extends TestCase {
-    private $timezone;
+    private string $timezone;
 
     public function setUp(): void {
         parent::setUp();
-        $this->timezone = \ini_get('date.timezone');
+        $this->timezone = ini_get('date.timezone');
 
     }
 
     public function tearDown(): void {
         parent::tearDown();
-        \ini_set('date.timezone', $this->timezone);
+        ini_set('date.timezone', $this->timezone);
     }
 
     public function dataForTimezoneCanBeSetThroughSiteConf() {
@@ -41,37 +44,24 @@ class AppInitializerTest extends TestCase {
      * @dataProvider dataForTimezoneCanBeSetThroughSiteConf
      */
     public function testTimezoneCanBeSetThroughSiteConf(string $timeZone) {
-        $siteConf = \array_merge(
-            $this->mkSiteConf($this->getTestDirPath()),
-            [
-                'iniConf' => [
-                    'date.timezone' => $timeZone
-                ],
-            ]
-        );
+        $siteConf = [
+            'iniConf' => [
+                'date.timezone' => $timeZone
+            ],
+        ];
         $serviceManager = $this->mkServiceManager($siteConf);
 
         $initializer = new AppInitializer($serviceManager);
 
         $initializer->init();
 
-        $this->assertSame($timeZone, \ini_get('date.timezone'));
-    }
-
-    private function mkSiteConf(string $cacheDirPath): array {
-        return [
-            'path' => [
-                'cacheDirPath' => $cacheDirPath,
-            ],
-            'module' => [],
-            'service' => [],
-        ];
+        $this->assertSame($timeZone, ini_get('date.timezone'));
     }
 
     private function mkServiceManager($siteConf) {
         $serviceManager = $this->createMock(ServiceManager::class);
         $site = $this->createConfiguredMock(Site::class, [
-            'conf' => new \ArrayObject($siteConf),
+            'conf' => $siteConf,
         ]);
         $errorHandler = $this->createMock(IErrorHandler::class);
         $serviceManager->expects($this->any())
@@ -83,7 +73,7 @@ class AppInitializerTest extends TestCase {
                 if ($id === 'errorHandler') {
                     return $errorHandler;
                 }
-                throw new \UnexpectedValueException($id);
+                throw new UnexpectedValueException($id);
             }));
         return $serviceManager;
     }

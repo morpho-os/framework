@@ -24,7 +24,7 @@ abstract class Type {
         function foo(TParam $bar): TReturn {
             ...
         }
-    Where:
+    where:
         TClassOrInterface: ClassName | InterfaceName
             Any class and interface name.
 

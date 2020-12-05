@@ -7,11 +7,15 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\ISite;
+use Morpho\Ioc\IServiceManager;
+use UnexpectedValueException;
+use function strtolower;
 use const Morpho\App\CLIENT_MODULE_DIR_NAME;
 use const Morpho\App\CONF_DIR_NAME;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\SiteFactory;
 use Morpho\App\Web\BadRequestException;
+use const Morpho\App\SITE_CONF_FILE_NAME;
 
 class SiteFactoryTest extends TestCase {
     private string $classLoaderRegisteredKey;
@@ -79,7 +83,7 @@ class SiteFactoryTest extends TestCase {
     public function testCurrentHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
         $siteFactory = $this->mkSiteFactory();
-        $this->assertSame(\strtolower($expected), $siteFactory->currentHostName());
+        $this->assertSame(strtolower($expected), $siteFactory->currentHostName());
     }
 
     public function dataForCurrentHostName_InvalidIps() {
@@ -119,57 +123,82 @@ class SiteFactoryTest extends TestCase {
     }
 
     public function dataForInvoke_ValidHost() {
-        yield [
-            'hostName' => 'foo.bar.com',
-            'moduleName' => 'test/example',
-            'siteDirPath' => $this->getTestDirPath() . '/example',
-            'siteConf' => ['abc' => 123],
+        $common = [
+            'paths' => [
+                'clientModuleDirPath' => $this->getTestDirPath(),
+                'serverModuleDirPath' => $this->getTestDirPath(),
+            ],
         ];
         yield [
+            'siteName' => 'bar',
+            'hostName' => 'foo.bar.com',
+            'moduleName' => 'test/example',
+            'moduleDirPath' => $this->getTestDirPath() . '/example',
+            'siteConf' => array_merge($common, ['modules' => ['abc' => [123]]]),
+        ];
+        yield [
+            'siteName' => 'foo',
             'hostName' => 'some-name',
             'moduleName' => 'foo/bar',
-            'siteDirPath' => $this->getTestDirPath() . '/my-site',
-            'siteConf' => ['hello' => 'world'],
+            'moduleDirPath' => $this->getTestDirPath() . '/my-site',
+            'siteConf' => array_merge($common, ['modules' => ['hello' => ['world']]]),
         ];
     }
 
     /**
      * @dataProvider dataForInvoke_ValidHost
      */
-    public function testInvoke_ValidHost(string $hostName, string $moduleName, string $moduleDirPath, array $siteConf) {
+    public function testInvoke_ValidHost(string $siteName, string $hostName, string $moduleName, string $moduleDirPath, array $siteConf) {
         $_SERVER['HTTP_HOST'] = $hostName;
 
-        $siteFactoryConf = [
-            'moduleName' => $moduleName,
-            'moduleDirPath' => $moduleDirPath,
-            'siteConf' => $siteConf,
-            'clientModuleDirPath' => $moduleDirPath . '/' . CLIENT_MODULE_DIR_NAME,
-            'confFilePath' => $moduleDirPath . '/' . CONF_DIR_NAME . '/site.conf.php',
-        ];
-        $siteFactory = new class ($siteFactoryConf) extends SiteFactory {
-            private array $conf;
-            public function __construct(array $conf) {
-                $this->conf = $conf;
-            }
+        $siteConfFilePath = $moduleDirPath . '/' . CONF_DIR_NAME . '/' . SITE_CONF_FILE_NAME;
 
-            protected function hostNameToSiteModule(string $hostName) {
-                if (!in_array($hostName, ['foo.bar.com', 'some-name'], true)) {
-                    return false;
-                }
+        $app = new class ($siteName, $hostName, $moduleName, $moduleDirPath, $siteConfFilePath) {
+            private $hostName;
+            private $moduleName;
+            private $moduleDirPath;
+            private $siteConfFilePath;
+
+            public function __construct($siteName, $hostName, $moduleName, $moduleDirPath, $siteConfFilePath) {
+                $this->siteName = $siteName;
+                $this->hostName = $hostName;
+                $this->moduleName = $moduleName;
+                $this->moduleDirPath = $moduleDirPath;
+                $this->siteConfFilePath = $siteConfFilePath;
+            }
+            public function conf(): array {
                 return [
-                    'siteModule' => $this->conf['moduleName'],
-                    'path' => [
-                        'dirPath' => $this->conf['moduleDirPath'],
-                        'confFilePath' => $this->conf['confFilePath'],
-                        'clientModuleDirPath' => $this->conf['clientModuleDirPath'],
+                    'sites' => [
+                        $this->siteName => [
+                            'hosts' => [$this->hostName],
+                            'module' => [
+                                'name' => $this->moduleName,
+                                'paths' => [
+                                    'dirPath' => $this->moduleDirPath,
+                                    'confFilePath' => $this->siteConfFilePath,
+                                ],
+                            ],
+                        ],
                     ],
                 ];
             }
+        };
+        $serviceManager = $this->mkConfiguredServiceManager($app);
+
+        $siteFactory = new class ($siteConfFilePath, $siteConf) extends SiteFactory {
+            public function __construct(string $siteConfFilePath, array $siteConf) {
+                $this->siteConfFilePath = $siteConfFilePath;
+                $this->siteConf = $siteConf;
+            }
 
             protected function loadConfFile(string $confFilePath): array {
-                return $this->conf['siteConf'];
+                if ($confFilePath === $this->siteConfFilePath) {
+                    return $this->siteConf;
+                }
+                throw new UnexpectedValueException();
             }
         };
+        $siteFactory->setServiceManager($serviceManager);
 
         $site = $siteFactory->__invoke();
 
@@ -180,32 +209,30 @@ class SiteFactoryTest extends TestCase {
 
         $this->assertTrue($GLOBALS[__CLASS__ . 'Registered']);
 
-        $expectedSiteConf = new \ArrayObject(\array_merge($siteConf, [
-            'path' => [
-                'dirPath' => $moduleDirPath,
-                'clientModuleDirPath' => $siteFactoryConf['clientModuleDirPath'],
-                'confFilePath' => $siteFactoryConf['confFilePath'],
-            ],
-            'module' => [
-                $moduleName => [],
-            ],
-            'siteModule' => $moduleName,
-        ]));
-        $this->assertEquals($expectedSiteConf, $site->conf());
+        $this->assertSame($siteName, $site->name());
+        $this->assertSame($moduleName, $site->moduleName());
+        $this->assertSame($hostName, $site->hostName());
     }
 
     public function testInvoke_InvalidHost() {
         $siteFactory = new SiteFactory();
 
+        $app = new class {
+            public function conf() {
+                return [
+                    'sites' => [],
+                ];
+            }
+        };
+        $serviceManager = $this->mkConfiguredServiceManager($app);
+
+        $siteFactory->setServiceManager($serviceManager);
         $hostName = 'abc';
-        $appConf = [
-            'siteConfProvider' => function ($hostName) {
-            },
-        ];
         $_SERVER['HTTP_HOST'] = $hostName;
 
         $this->expectException(BadRequestException::class, 'Invalid host or site');
-        $siteFactory->__invoke($appConf);
+
+        $siteFactory->__invoke();
     }
 
     private function mkSiteFactory() {
@@ -214,5 +241,14 @@ class SiteFactoryTest extends TestCase {
                 return parent::currentHostName();
             }
         };
+    }
+
+    private function mkConfiguredServiceManager($app) {
+        $serviceManager = $this->createMock(IServiceManager::class);
+        $serviceManager->expects($this->any())
+            ->method('offsetGet')
+            ->with('app')
+            ->willReturn($app);
+        return $serviceManager;
     }
 }

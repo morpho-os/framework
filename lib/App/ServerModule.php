@@ -7,6 +7,7 @@
 namespace Morpho\App;
 
 use Morpho\Fs\Dir;
+use function is_dir;
 use const PHP_SAPI;
 
 class ServerModule extends Module {
@@ -21,66 +22,66 @@ class ServerModule extends Module {
     }
 
     public function rcDirPath(): string {
-        if (isset($this['path']['rcDirPath'])) {
-            return $this['path']['rcDirPath'];
+        if (isset($this['paths']['rcDirPath'])) {
+            return $this['paths']['rcDirPath'];
         }
-        return $this['path']['rcDirPath'] = $this->dirPath() . '/' . RC_DIR_NAME;
+        return $this['paths']['rcDirPath'] = $this->dirPath() . '/' . RC_DIR_NAME;
     }
 
     public function binDirPath(): string {
-        if (isset($this['path']['binDirPath'])) {
-            return $this['path']['binDirPath'];
+        if (isset($this['paths']['binDirPath'])) {
+            return $this['paths']['binDirPath'];
         }
-        return $this['path']['binDirPath'] = $this->dirPath() . '/' . BIN_DIR_NAME;
+        return $this['paths']['binDirPath'] = $this->dirPath() . '/' . BIN_DIR_NAME;
     }
 
     public function logDirPath(): string {
-        if (isset($this['path']['logDirPath'])) {
-            return $this['path']['logDirPath'];
+        if (isset($this['paths']['logDirPath'])) {
+            return $this['paths']['logDirPath'];
         }
-        return $this['path']['logDirPath'] = $this->dirPath() . '/' . LOG_DIR_NAME;
+        return $this['paths']['logDirPath'] = $this->dirPath() . '/' . LOG_DIR_NAME;
     }
 
     public function cacheDirPath(): string {
-        if (isset($this['path']['cacheDirPath'])) {
-            return $this['path']['cacheDirPath'];
+        if (isset($this['paths']['cacheDirPath'])) {
+            return $this['paths']['cacheDirPath'];
         }
-        return $this['path']['cacheDirPath'] = $this->dirPath() . '/' . CACHE_DIR_NAME;
+        return $this['paths']['cacheDirPath'] = $this->dirPath() . '/' . CACHE_DIR_NAME;
     }
 
     public function viewDirPath(): string {
-        if (isset($this['path']['viewDirPath'])) {
-            return $this['path']['viewDirPath'];
+        if (isset($this['paths']['viewDirPath'])) {
+            return $this['paths']['viewDirPath'];
         }
-        return $this['path']['viewDirPath'] = $this->dirPath() . '/' . VIEW_DIR_NAME;
+        return $this['paths']['viewDirPath'] = $this->dirPath() . '/' . VIEW_DIR_NAME;
     }
 
     public function libDirPath(): string {
-        if (isset($this['path']['libDirPath'])) {
-            return $this['path']['libDirPath'];
+        if (isset($this['paths']['libDirPath'])) {
+            return $this['paths']['libDirPath'];
         }
-        return $this['path']['libDirPath'] = $this->dirPath() . '/' . LIB_DIR_NAME;
+        return $this['paths']['libDirPath'] = $this->dirPath() . '/' . LIB_DIR_NAME;
     }
 
     public function confDirPath(): string {
-        if (isset($this['path']['confDirPath'])) {
-            return $this['path']['confDirPath'];
+        if (isset($this['paths']['confDirPath'])) {
+            return $this['paths']['confDirPath'];
         }
-        return $this['path']['confDirPath'] = $this->dirPath() . '/' . CONF_DIR_NAME;
+        return $this['paths']['confDirPath'] = $this->dirPath() . '/' . CONF_DIR_NAME;
     }
 
     public function tmpDirPath(): string {
-        if (isset($this['path']['tmpDirPath'])) {
-            return $this['path']['tmpDirPath'];
+        if (isset($this['paths']['tmpDirPath'])) {
+            return $this['paths']['tmpDirPath'];
         }
-        return $this['path']['tmpDirPath'] = $this->dirPath() . '/' . TMP_DIR_NAME;
+        return $this['paths']['tmpDirPath'] = $this->dirPath() . '/' . TMP_DIR_NAME;
     }
 
     public function testDirPath(): string {
-        if (isset($this['path']['testDirPath'])) {
-            return $this['path']['testDirPath'];
+        if (isset($this['paths']['testDirPath'])) {
+            return $this['paths']['testDirPath'];
         }
-        return $this['path']['testDirPath'] = $this->dirPath() . '/' . TEST_DIR_NAME;
+        return $this['paths']['testDirPath'] = $this->dirPath() . '/' . TEST_DIR_NAME;
     }
 
     /**
@@ -88,7 +89,7 @@ class ServerModule extends Module {
      * @return iterable Iterable over file paths of controllers.
      */
     public function controllerFilePaths(bool $differentiateSapi): iterable {
-        $paths = $this['path'];
+        $paths = $this['paths'];
         if (isset($paths['controllerDirPath'])) {
             $controllerDirPaths = (array)$paths['controllerDirPath'];
         } else {
@@ -100,7 +101,7 @@ class ServerModule extends Module {
             }
         }
         foreach ($controllerDirPaths as $controllerDirPath) {
-            if (!\is_dir($controllerDirPath)) {
+            if (!is_dir($controllerDirPath)) {
                 continue;
             }
             yield from Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~', true);
@@ -113,7 +114,14 @@ class ServerModule extends Module {
 
     public function clientModule(): ClientModule {
         if (!isset($this->clientModule)) {
-            $this->clientModule = new ClientModule($this->name, ['path' => ['dirPath' => $this['path']['clientModuleDirPath']]]);
+            $this->clientModule = new ClientModule(
+                $this->name,
+                [
+                    'paths' => [
+                        'dirPath' => $this['paths']['clientModuleDirPath']
+                    ]
+                ],
+            );
         }
         return $this->clientModule;
     }

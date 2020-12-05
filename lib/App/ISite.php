@@ -8,10 +8,22 @@ namespace Morpho\App;
 
 use Morpho\Base\IFn;
 
+/**
+ * site: {conf, module[]}
+ */
 interface ISite extends IFn {
-    public function conf(): \ArrayObject;
+    /**
+     * Returns site's name.
+     */
+    public function name(): string;
+
+    public function conf(): array;
 
     public function moduleName(): string;
 
     public function hostName(): ?string;
+
+    public function moduleConf(string $moduleName): array;
+
+    public function serverModuleDirPaths(): iterable;
 }

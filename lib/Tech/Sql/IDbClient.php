@@ -13,15 +13,15 @@ interface IDbClient {
 
     public function expr($expr): Expr;
 
-    public function insert(array $spec = null): IQuery;
+    public function insert($spec = null): IQuery;
 
-    public function select(array $spec = null): IQuery;
+    public function select($spec = null): IQuery;
 
-    public function update(array $spec = null): IQuery;
+    public function update($spec = null): IQuery;
 
-    public function delete(array $spec = null): IQuery;
+    public function delete($spec = null): IQuery;
 
-    public function replace(array $spec = null): IQuery;
+    public function replace($spec = null): IQuery;
 
     public function exec(string $sql): int;
 

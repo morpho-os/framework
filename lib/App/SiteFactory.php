@@ -5,66 +5,38 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\App;
+
 use Morpho\Base\IFn;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
+use RuntimeException;
 use Zend\Stdlib\ArrayUtils;
+use function is_file;
+use function Morpho\Base\last;
 
 abstract class SiteFactory implements IFn, IHasServiceManager {
-    protected IServiceManager $serviceManager;
-
-    private const MAIN_MODULE = 'localhost';
+    protected array $appConf;
 
     public function setServiceManager(IServiceManager $serviceManager): void {
-        $this->serviceManager = $serviceManager;
+        $this->appConf = $serviceManager['app']->conf();
     }
 
     public function __invoke($_ = null): ISite {
         $hostName = $this->currentHostName();
-        if (!$hostName) {
-            $this->throwInvalidSiteError();
+        foreach ($this->appConf['sites'] as $siteName => $siteConf) {
+            if (in_array($hostName, $siteConf['hosts'], true)) {
+                return $this->mkSite($siteName, $siteConf, $hostName);
+            }
         }
+        $this->throwInvalidSiteError();
+    }
 
-        $initialSiteConf = $this->hostNameToSiteModule($hostName);
-        if (false === $initialSiteConf) {
-            $this->throwInvalidSiteError();
-        }
-
-        $siteConf = $this->loadExtendedSiteConf($initialSiteConf['siteModule'], $initialSiteConf);
-        return $this->mkSite($initialSiteConf['siteModule'], $siteConf, $hostName);
+    protected function mkSite(string $siteName, array $siteConf, string $hostName): ISite {
+        return new Site($siteName, $siteConf['module']['name'], $this->loadExtendedSiteConf($siteConf), $hostName);
     }
 
     /**
-     * @param string $hostName
-     * @return array|false
-     */
-    protected function hostNameToSiteModule(string $hostName) {
-        if ($this->isAllowedHostName($hostName)) {
-            $appConf = $this->serviceManager['app']->conf();
-            $shortModuleName = self::MAIN_MODULE;
-            $moduleDirPath = $appConf['path']['baseServerModuleDirPath'] . '/' . $shortModuleName;
-            return [
-                'siteModule' => VENDOR . '/' . $shortModuleName,
-                'path' => [
-                    'dirPath' => $moduleDirPath,
-                    'confFilePath' => $moduleDirPath . '/' . CONF_DIR_NAME . '/site.conf.php',
-                    'clientModuleDirPath' => $appConf['path']['baseClientModuleDirPath'] . '/' . $shortModuleName,
-                ],
-            ];
-        }
-        return false;
-    }
-
-    protected function isAllowedHostName(string $hostName): bool {
-        return in_array($hostName, ['localhost', 'framework', '127.0.0.1'], true);
-    }
-
-    protected function mkSite(string $siteModuleName, \ArrayObject $siteConf, string $hostName): ISite {
-        return new Site($siteModuleName, $siteConf, $hostName);
-    }
-
-    /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     abstract protected function throwInvalidSiteError(): void;
 
@@ -73,31 +45,35 @@ abstract class SiteFactory implements IFn, IHasServiceManager {
      */
     abstract protected function currentHostName();
 
-    protected function loadExtendedSiteConf(string $siteModuleName, array $initialSiteConf): \ArrayObject {
-        require $initialSiteConf['path']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
+    protected function loadExtendedSiteConf(array $basicSiteConf): array {
+        $siteModuleConf = $basicSiteConf['module'];
 
-        $confFilePath = $initialSiteConf['path']['confFilePath'];
-        $extendedSiteConf = ArrayUtils::merge($initialSiteConf, $this->loadConfFile($confFilePath));
+        // Site's config file can use site module's classes so enable autoloading for it.
+        require $siteModuleConf['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
+        $extendedSiteConf = $this->loadConfFile($siteModuleConf['paths']['confFilePath']);
 
-        if (!isset($extendedSiteConf['module'])) {
-            $extendedSiteConf['module'] = [];
-        }
-        $newModules = [$siteModuleName => []]; // Store the site conf as first item
-        foreach ($extendedSiteConf['module'] as $name => $moduleConf) {
-            if (\is_numeric($name)) {
-                $newModules[$moduleConf] = [];
-            } else {
-                $newModules[$name] = $moduleConf;
+        $siteModuleName = $siteModuleConf['name'];
+        unset($siteModuleConf['name']);
+
+        $normalizedModulesConf = [];
+        foreach (ArrayUtils::merge([$siteModuleName => $siteModuleConf], $extendedSiteConf['modules']) as $moduleName => $moduleConf) {
+            $shortModuleName = last($moduleName, '/');
+            if (!isset($moduleConf['paths']['dirPath'])) {
+                $moduleConf['paths']['dirPath'] = $extendedSiteConf['paths']['serverModuleDirPath'] . '/' . $shortModuleName;
             }
+            if (!isset($moduleConf['paths']['clientModuleDirPath'])) {
+                $moduleConf['paths']['clientModuleDirPath'] = $extendedSiteConf['paths']['clientModuleDirPath'] . '/' . $shortModuleName;
+            }
+            $normalizedModulesConf[$moduleName] = $moduleConf;
         }
-        $extendedSiteConf['module'] = $newModules;
+        $extendedSiteConf['modules'] = $normalizedModulesConf;
 
-        return new \ArrayObject($extendedSiteConf);
+        return $extendedSiteConf;
     }
 
     protected function loadConfFile(string $filePath): array {
-        if (!\is_file($filePath)) {
-            throw new \RuntimeException("Configuration file does not exist");
+        if (!is_file($filePath)) {
+            throw new RuntimeException("Configuration file does not exist");
         }
         return require $filePath;
     }

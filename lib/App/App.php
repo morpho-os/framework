@@ -6,7 +6,6 @@
  */
 namespace Morpho\App;
 
-use ArrayObject;
 use Morpho\Base\Env;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
@@ -18,13 +17,13 @@ use function error_log;
 use function umask;
 
 class App extends EventManager {
-    protected ArrayObject $conf;
+    protected array $conf;
 
-    public function __construct(ArrayObject $conf = null) {
-        $this->setConf($conf ?: new ArrayObject([]));
+    public function __construct($conf = null) {
+        $this->setConf($conf ?: []);
     }
 
-    public static function main(ArrayObject $conf = null): int {
+    public static function main($conf = null): int {
         try {
             $app = new static($conf);
             $response = $app->run();
@@ -67,7 +66,7 @@ class App extends EventManager {
             $serviceManager[$id] = $service;
         }
 
-        $serviceManager->setConf($siteConf['service']);
+        $serviceManager->setConf($siteConf['services']);
 
         if (isset($siteConf['umask'])) {
             umask($siteConf['umask']);
@@ -80,11 +79,11 @@ class App extends EventManager {
         return $serviceManager;
     }
 
-    public function setConf(ArrayObject $conf): void {
+    public function setConf($conf): void {
         $this->conf = $conf;
     }
 
-    public function conf(): ArrayObject {
+    public function conf() {
         return $this->conf;
     }
 

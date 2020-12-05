@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
-
 use Morpho\App\Cli\ServiceManager as CliServiceManager;
 use Morpho\App\Web\ServiceManager as WebServiceManager;
-use const Morpho\App\CACHE_DIR_NAME;
-use const Morpho\App\VENDOR;
+use const Morpho\App\{CLIENT_MODULE_DIR_NAME, SERVER_MODULE_DIR_NAME, VENDOR, CACHE_DIR_NAME};
 
-$thisModuleDirPath = \dirname(__DIR__);
+$thisModuleDirPath = dirname(__DIR__);
 $siteModuleName = VENDOR . '/localhost';
+$baseDirPath = dirname(dirname($thisModuleDirPath));
 
 /*$errorHandlers = (function () use ($siteModuleName) {
     $handlers = [];
@@ -79,14 +78,16 @@ $errorHandlers = [
 ];
 
 return [
-    'path'           => [
+    'paths'           => [
         'cacheDirPath' => $thisModuleDirPath . '/' . CACHE_DIR_NAME,
+        'clientModuleDirPath' => $baseDirPath . '/' . CLIENT_MODULE_DIR_NAME,
+        'serverModuleDirPath' => $baseDirPath . '/' . SERVER_MODULE_DIR_NAME,
     ],
-    'module'         => [
+    'modules'         => [
 //        $vendor . '/system',
 //        VENDOR . '/user',
     ],
-    'service'        => [
+    'services'        => [
         'router'               => [
             'handlers' => [
                 'notFound'         => $errorHandlers['notFound']['handler'],
@@ -144,7 +145,7 @@ return [
             $errorHandlers['uncaught']['httpCode']         => $errorHandlers['uncaught']['handler'],
         ],
     ],
-    'serviceManager' => \PHP_SAPI === 'cli' ? new CliServiceManager() : new WebServiceManager(),
+    'serviceManager' => PHP_SAPI === 'cli' ? new CliServiceManager() : new WebServiceManager(),
     'umask'          => 0007, // This is valid for the `development` environment, change it for other environments.
     'iniConf'      => [
         //'display_errors' => '1',

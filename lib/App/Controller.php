@@ -18,12 +18,12 @@ abstract class Controller implements IFn {
     public function __invoke($request) {
         $this->request = $request;
         $this->beforeEach();
-        $this->run($request);
+        $this->runAction($request);
         $this->afterEach();
         return $request;
     }
 
-    protected function run($request): void {
+    protected function runAction($request): void {
         $handler = $request->handler();
         $methodName = $handler['method'];
         // @todo: ensure that is is safe to pass ...$args

@@ -165,10 +165,6 @@ class ServiceManager extends BaseServiceManager {
         return new ErrorHandler($listeners);
     }
 
-    protected function mkActionResultHandlerService() {
-        return new ActionResultHandler($this);
-    }
-
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {
         $moduleIndex = $this['serverModuleIndex'];
         $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';

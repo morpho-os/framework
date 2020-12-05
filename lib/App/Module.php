@@ -14,6 +14,6 @@ class Module extends \ArrayObject {
     }
 
     public function dirPath(): string {
-        return $this['path']['dirPath'];
+        return $this['paths']['dirPath'];
     }
 }

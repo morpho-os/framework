@@ -11,13 +11,13 @@ use Morpho\Testing\TestCase;
 class AppTest extends TestCase {
     public function testConfAccessors() {
         $app = new App();
-        $this->assertEquals(new \ArrayObject([]), $app->conf());
+        $this->assertEquals([], $app->conf());
 
-        $newConf = new \ArrayObject(['foo' => 'bar']);
+        $newConf = ['foo' => 'bar'];
         $app = new App($newConf);
         $this->assertSame($newConf, $app->conf());
 
-        $newConf = new \ArrayObject(['color' => 'orange']);
+        $newConf = ['color' => 'orange'];
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($app->setConf($newConf));
         $this->assertSame($newConf, $app->conf());

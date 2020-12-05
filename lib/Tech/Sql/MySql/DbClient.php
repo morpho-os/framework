@@ -24,23 +24,23 @@ class DbClient extends BaseDbClient {
 
     private ?ISchema $schema = null;
 
-    public function insert(array $spec = null): IQuery {
+    public function insert($spec = null): IQuery {
         return new InsertQuery($this, $spec);
     }
 
-    public function select(array $spec = null): IQuery {
+    public function select($spec = null): IQuery {
         return new SelectQuery($this, $spec);
     }
 
-    public function update(array $spec = null): IQuery {
+    public function update($spec = null): IQuery {
         return new UpdateQuery($this, $spec);
     }
 
-    public function delete(array $spec = null): IQuery {
+    public function delete($spec = null): IQuery {
         return new DeleteQuery($this, $spec);
     }
 
-    public function replace(array $spec = null): IQuery {
+    public function replace($spec = null): IQuery {
         return new ReplaceQuery($this, $spec);
     }
 

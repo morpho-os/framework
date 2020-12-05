@@ -6,7 +6,7 @@
  */
 namespace Morpho\Error;
 
-use Morpho\Debug\Debugger;
+use Morpho\Tech\Php\Debug\Debugger;
 use Throwable;
 use function htmlspecialchars;
 use function print_r;
@@ -14,12 +14,9 @@ use function print_r;
 class DumpListener {
     const FAILURE_EXIT_CODE = 1;
 
-    /**
-     * @param Throwable $exception
-     */
-    public function __invoke($exception): void {
+    public function __invoke(Throwable $exception): void {
         $exAsString = $exception->__toString();
-        if (class_exists('Morpho\\Debug\\Debugger')) {
+        if (class_exists('Morpho\\Tech\\Php\\Debug\\Debugger')) {
             Debugger::instance()
                 ->dumpWithExitCode($exAsString, self::FAILURE_EXIT_CODE);
         } else {

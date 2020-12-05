@@ -6,24 +6,33 @@
  */
 namespace Morpho\App;
 
+use Throwable;
+
 class Site implements ISite {
+    protected string $name;
+
     protected string $moduleName;
 
-    protected \ArrayObject $conf;
+    protected array $conf;
 
     private string $hostName;
 
-    public function __construct(string $moduleName, \ArrayObject $conf, string $hostName) {
+    public function __construct(string $name, string $moduleName, array $conf, string $hostName) {
+        $this->name = $name;
         $this->moduleName = $moduleName;
         $this->conf = $conf;
         $this->hostName = $hostName;
+    }
+
+    public function name(): string {
+        return $this->name;
     }
 
     public function moduleName(): string {
         return $this->moduleName;
     }
 
-    public function conf(): \ArrayObject {
+    public function conf(): array {
         return $this->conf;
     }
 
@@ -31,9 +40,21 @@ class Site implements ISite {
         return $this->hostName;
     }
 
+    public function serverModuleDirPaths(): iterable {
+        $moduleDirPaths = [];
+        foreach ($this->conf['modules'] as $name => $conf) {
+            $moduleDirPaths[] = $conf['paths']['dirPath'];
+        }
+        return $moduleDirPaths;
+    }
+
+    public function moduleConf(string $moduleName): array {
+        return $this->conf['modules'][$moduleName];
+    }
+
     /**
      * @param ServiceManager $serviceManager
-     * @return \Morpho\App\IResponse|false
+     * @return IResponse|false
      */
     public function __invoke($serviceManager) {
         try {
@@ -44,7 +65,7 @@ class Site implements ISite {
             $response = $request->response();
             $response->send();
             return $response;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $errorHandler = $serviceManager['errorHandler'];
             $errorHandler->handleException($e);
             //$this->trigger(new Event('error', ['exception' => $e]));

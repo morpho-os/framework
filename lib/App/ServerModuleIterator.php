@@ -6,38 +6,32 @@
  */
 namespace Morpho\App;
 
-use Morpho\Fs\Dir;
+use IteratorAggregate;
 use Morpho\Fs\File;
+use function is_file;
+use function trim;
 
-class ServerModuleIterator implements \IteratorAggregate {
-    /**
-     * @var iterable
-     */
-    private $moduleDirPaths;
+class ServerModuleIterator implements IteratorAggregate {
+    private ISite $site;
 
-    public function __construct(iterable $moduleDirPaths) {
-        $this->moduleDirPaths = $moduleDirPaths;
+    public function __construct(ISite $site) {
+        $this->site = $site;
     }
 
     public function getIterator() {
-        foreach ($this->dirIt() as $moduleDirPath) {
+        foreach ($this->site->serverModuleDirPaths() as $moduleDirPath) {
             $metaFilePath = $moduleDirPath . '/' . META_FILE_NAME;
-            if (!\is_file($metaFilePath)) {
+            if (!is_file($metaFilePath)) {
                 continue;
             }
             $module = File::readJson($metaFilePath);
-            $module['path'] = [
-                'dirPath' => $moduleDirPath,
-            ];
+            $moduleConf = $this->site->moduleConf($module['name']);
+            $module['paths'] = array_merge($moduleConf['paths'], ['dirPath' => $moduleDirPath]);
             if (!$this->filter($module)) {
                 continue;
             }
             yield $this->map($module);
         }
-    }
-
-    protected function dirIt(): iterable {
-        return Dir::dirPaths($this->moduleDirPaths, null, ['recursive' => false]);
     }
 
     protected function filter(array $module): bool {
@@ -47,13 +41,14 @@ class ServerModuleIterator implements \IteratorAggregate {
     protected function map(array $module): array {
         $namespaces = [];
         foreach ($module['autoload']['psr-4'] ?? [] as $key => $value) {
-            $namespaces[\trim($key, '\\/')] = \trim($value, '\\/');
+            $namespaces[trim($key, '\\/')] = trim($value, '\\/');
         }
         $moduleName = $module['name'];
         return [
             'name' => $moduleName,
-            'path' => $module['path'],
+            'paths' => $module['paths'],
             'namespace' => $namespaces,
+            'weight' => 0,
         ];
     }
 }
