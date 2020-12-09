@@ -6,6 +6,7 @@
  */
 namespace Morpho\Tech\Sql\MySql;
 
+use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
 
@@ -13,7 +14,7 @@ class SelectQuery implements IQuery {
     use TQuery;
 
     protected array $columns = [];
-    protected array $from = [];
+    protected array $join = [];
     protected array $groupBy = [];
     protected array $having = [];
     protected array $window = [];
@@ -58,70 +59,46 @@ class SelectQuery implements IQuery {
             $sql[] = 'FROM';
             $sql[] = $this->tableRefSql();
         }
+        foreach ($this->join as $join) {
+            $sql[] = $join[0] . ' JOIN ' . $join[1];
+        }
         $whereClauseSql = $this->whereClauseSql();
         if (null !== $whereClauseSql) {
             $sql[] = $whereClauseSql;
         }
+/*
 
-        /*
+SELECT
+    [ALL | DISTINCT | DISTINCTROW ]
+    [HIGH_PRIORITY]
+    [STRAIGHT_JOIN]
+    [SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]
+    [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
+    select_expr [, select_expr] ...
+    [into_option]
+    [FROM table_references
+      [PARTITION partition_list]]
+    [WHERE where_condition]
+    [GROUP BY {col_name | expr | position}
+      [ASC | DESC], ... [WITH ROLLUP]]
+    [HAVING where_condition]
+    [ORDER BY {col_name | expr | position}
+      [ASC | DESC], ...]
+    [LIMIT {[offset,] row_count | row_count OFFSET offset}]
+    [PROCEDURE procedure_name(argument_list)]
+    [into_option]
+    [FOR UPDATE | LOCK IN SHARE MODE]
 
-                                      SELECT
-                                      select_options
-                                      select_item_list
-                                      into_clause
-                                      from
-                                      where
-                                      group
-                                      having
-                                      windows
-
-
-        SELECT
-            [ALL | DISTINCT | DISTINCTROW ]
-            [HIGH_PRIORITY]
-            [STRAIGHT_JOIN]
-            [SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]
-            [SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
-            select_expr [, select_expr] ...
-            [into_option]
-               [PARTITION partition_list]]
-            [WHERE where_condition]
-            [GROUP BY {col_name | expr | position}, ... [WITH ROLLUP]]
-            [HAVING where_condition]
-            [WINDOW window_name AS (window_spec)
-                [, window_name AS (window_spec)] ...]
-            [ORDER BY {col_name | expr | position}
-              [ASC | DESC], ... [WITH ROLLUP]]
-            [LIMIT {[offset,] row_count | row_count OFFSET offset}]
-            [into_option]
-            [FOR {UPDATE | SHARE}
-                [OF tbl_name [, tbl_name] ...]
-                [NOWAIT | SKIP LOCKED]
-              | LOCK IN SHARE MODE]
-            [into_option]
-
-        into_option: {
-            INTO OUTFILE 'file_name'
-                [CHARACTER SET charset_name]
-                export_options
-          | INTO DUMPFILE 'file_name'
-          | INTO var_name [, var_name] ...
-        }
-         */
-        return implode("\n", $sql);
-    }
-
-
-        /*
-
-    public function innerJoin($table) {
-table_references:
-    escaped_table_reference [, escaped_table_reference] ...
-
-escaped_table_reference: {
-    table_reference
-  | { OJ table_reference }
+into_option: {
+    INTO OUTFILE 'file_name'
+        [CHARACTER SET charset_name]
+        export_options
+  | INTO DUMPFILE 'file_name'
+  | INTO var_name [, var_name] ...
 }
+
+
+
 
 table_reference: {
     table_factor
@@ -163,5 +140,52 @@ index_list:
     index_name [, index_name] ...
 
     }
-     */
+
+SELECT
+select_options
+select_item_list
+into_clause
+from table_reference
+where
+group
+having
+windows
+*/
+        return implode("\n", $sql);
+    }
+
+    public function into() {
+        throw new NotImplementedException();
+    }
+
+    public function leftJoin(string $join): self {
+        $this->join[] = ['LEFT', $join];
+        return $this;
+    }
+
+    public function innerJoin($join): self {
+        $this->join[] = ['INNER', $join];
+        return $this;
+    }
+
+    public function rightJoin(string $join): self {
+        $this->join[] = ['RIGHT', $join];
+        return $this;
+    }
+
+    public function groupBy() {
+        throw new NotImplementedException();
+    }
+
+    public function having() {
+        throw new NotImplementedException();
+    }
+
+    public function orderBy() {
+        throw new NotImplementedException();
+    }
+
+    public function limit() {
+        throw new NotImplementedException();
+    }
 }

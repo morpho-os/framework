@@ -93,8 +93,12 @@ trait TQuery {
     protected function tableRefSql(): string {
         // https://mariadb.com/kb/en/join-syntax/
         $sql = [];
-        foreach ($this->tables as $from) {
-            $sql[] = $from instanceof Expr ? $from->val() : $this->db->quoteIdentifier($from);
+        foreach ($this->tables as $table) {
+            if ($table instanceof Expr) {
+                $sql[] = $table->val();
+            } else {
+                $sql[] = is_array($table) ? implode(', ', $this->db->quoteIdentifier($table)) : $this->db->quoteIdentifier($table);
+            }
         }
         return implode(', ', $sql);
     }

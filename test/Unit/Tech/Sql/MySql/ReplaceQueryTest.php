@@ -8,4 +8,7 @@
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
 class ReplaceQueryTest extends DbTestCase {
+    public function testQuery() {
+        $this->markTestIncomplete();
+    }
 }

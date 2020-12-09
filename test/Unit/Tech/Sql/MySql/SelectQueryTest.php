@@ -46,10 +46,32 @@ class SelectQueryTest extends DbTestCase {
             ->for()
             ->__toString();
             */
+    }
 
-        //        ->eval()
-                //->rows()
-        //);
+    public function dataForJoin() {
+        yield ['INNER'];
+        yield ['LEFT'];
+        yield ['RIGHT'];
+    }
+
+    /**
+     * @dataProvider dataForJoin
+     */
+    public function testJoin($joinType) {
+        $columns = 'task AS t.*, tL.startedAt, tL.endedAt, tL.exitCode';
+        $join = 'taskLaunch tL ON t.id = tL.taskId';
+        $query = $this->query->table(['task', 'taskLaunch'])
+            ->columns($this->query->expr($columns));
+        $joinToMethod = [
+            'INNER' => 'innerJoin',
+            'LEFT' => 'leftJoin',
+            'RIGHT' => 'rightJoin',
+        ];
+        $method = $joinToMethod[$joinType];
+        $sql = $query->$method($join)
+            ->where(['foo' => 'bar'])
+            ->__toString();
+        $this->assertSqlEquals("SELECT $columns FROM `task`, `taskLaunch` $joinType JOIN $join WHERE `foo` = 'bar'", $sql);
     }
 
     public function testWhereClause_OnlyCondition_ValidArg() {
