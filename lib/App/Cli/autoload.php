@@ -16,10 +16,28 @@ const STD_PIPES = [
 ];
 
 use Morpho\Base\Conf;
+use RuntimeException;
+use UnexpectedValueException;
+use function count;
+use function escapeshellarg;
+use function fgets;
+use function fwrite;
+use function implode;
+use function is_int;
+use function is_string;
 use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
 use Morpho\Error\DumpListener;
 use Morpho\Error\ErrorHandler;
+use function passthru;
+use function pcntl_exec;
+use function pcntl_fork;
+use function pcntl_waitpid;
+use function pcntl_wexitstatus;
+use function preg_match;
+use function strtolower;
+use function substr;
+use function trim;
 
 /**
  * Useful to call from simple CLI applications, not involving the AppInitializer.
@@ -48,7 +66,7 @@ function errorLn(string $errMessage = null, int $exitCode = null): void {
 }
 
 function showError(string $errMessage): void {
-    \fwrite(STDERR, $errMessage);
+    fwrite(STDERR, $errMessage);
 }
 
 function showErrorLn(string $errMessage = null): void {
@@ -82,7 +100,7 @@ function stylize(string $text, $codes): string {
     // \033 is ASCII-code of the ESC.
     static $escapeSeqPrefix = "\033[";
     static $escapeSeqSuffix = "\033[0m";
-    $textStyle = \implode(';', (array) $codes) . 'm';
+    $textStyle = implode(';', (array) $codes) . 'm';
     return $escapeSeqPrefix
         . $textStyle
         . $text
@@ -93,16 +111,16 @@ function stylize(string $text, $codes): string {
  * @param int|string|iterable $args
  * @return array
  */
-function escapeArgs($args): array {
+function escapeArg($args): array {
     if (!is_iterable($args)) {
-        if (\is_string($args) || \is_int($args)) {
-            return [\escapeshellarg((string) $args)];
+        if (is_string($args) || is_int($args)) {
+            return [escapeshellarg((string) $args)];
         }
-        throw new \UnexpectedValueException();
+        throw new UnexpectedValueException();
     }
     $res = [];
     foreach ($args as $arg) {
-        $res[] = \escapeshellarg((string) $arg);
+        $res[] = escapeshellarg((string) $arg);
     }
     return $res;
 }
@@ -115,22 +133,22 @@ function arg($args): string {
     if ($args === '') {
         return '';
     }
-    $suffix = \implode(' ', escapeArgs($args));
+    $suffix = implode(' ', escapeArg($args));
     return $suffix === '' ? '' : ' ' . $suffix;
 }
 
 function envVarsStr(array $envVars): string {
-    if (!\count($envVars)) {
+    if (!count($envVars)) {
         return '';
     }
     $str = '';
     foreach ($envVars as $name => $value) {
-        if (!\preg_match('~^[a-z][a-z0-9_]*$~si', (string)$name)) {
-            throw new \RuntimeException('Invalid variable name');
+        if (!preg_match('~^[a-z][a-z0-9_]*$~si', (string)$name)) {
+            throw new RuntimeException('Invalid variable name');
         }
-        $str .= ' ' . $name . '=' . \escapeshellarg($value);
+        $str .= ' ' . $name . '=' . escapeshellarg($value);
     }
-    return \substr($str, 1);
+    return substr($str, 1);
 }
 
 function mkdir(string $args, array $conf = null): ICommandResult {
@@ -175,9 +193,10 @@ function sh(string $command, array $conf = null): ICommandResult {
     if ($conf['envVars']) {
         $command = envVarsStr($conf['envVars']) . ';' . $command;
     }
+    // todo: replace capture() (and ob_*() calls) with an variable
     if ($conf['capture']) {
         $output = capture(function () use ($command, &$exitCode) {
-            \passthru($command, $exitCode);
+            passthru($command, $exitCode);
         });
         if ($conf['show']) {
             // Capture and show
@@ -185,12 +204,12 @@ function sh(string $command, array $conf = null): ICommandResult {
         }
     } else {
         if ($conf['show']) {
-            // Don't capture, but show
-            \passthru($command, $exitCode);
+            // Don't capture, show
+            passthru($command, $exitCode);
         } else {
             // Don't capture, don't show => we are capturing to avoid displaying the result, but don't save the output.
             capture(function () use ($command, &$exitCode) {
-                \passthru($command, $exitCode);
+                passthru($command, $exitCode);
             });
         }
     }
@@ -212,21 +231,21 @@ function sudo(string $command, array $conf = null): ICommandResult {
  * @param string $cmd
  */
 function rawSh(string $cmd, $env = null) {
-    $pid = \pcntl_fork();
+    $pid = pcntl_fork();
     if ($pid < 0) {
-        throw new \RuntimeException('fork failed');
+        throw new RuntimeException('fork failed');
     }
     if ($pid == 0) {
-        \pcntl_exec('/bin/sh', ['-c', $cmd], $env ?? []); // @TODO: pass $_ENV?
+        pcntl_exec('/bin/sh', ['-c', $cmd], $env ?? []); // @TODO: pass $_ENV?
         exit(127);
     }
-    \pcntl_waitpid($pid, $status);
-    return \pcntl_wexitstatus($status);
+    pcntl_waitpid($pid, $status);
+    return pcntl_wexitstatus($status);
 }
 
 function checkExitCode(int $exitCode, string $errMessage = null): int {
     if ($exitCode !== 0) {
-        throw new \RuntimeException("Command returned non-zero exit code: " . (int) $exitCode . (null !== $errMessage ? '. ' . $errMessage : ''));
+        throw new RuntimeException("Command returned non-zero exit code: " . (int) $exitCode . (null !== $errMessage ? '. ' . $errMessage : ''));
     }
     return $exitCode;
 }
@@ -239,18 +258,18 @@ function checkResult(ICommandResult $result) {
 
 function ask(string $question, bool $trim = true): string {
     echo $question;
-    $result = \fgets(STDIN);
+    $result = fgets(STDIN);
     // \fgets() returns false on Ctrl-D
     if (false === $result) {
         $result = '';
     }
-    return $trim ? \trim($result) : $result;
+    return $trim ? trim($result) : $result;
 }
 
 function askYesNo(string $question): bool {
     echo $question . "? (y/n): ";
     do {
-        $answer = \strtolower(\trim(\fgets(STDIN)));
+        $answer = strtolower(trim(fgets(STDIN)));
         if ($answer === 'y') {
             return true;
         } elseif ($answer === 'n') {

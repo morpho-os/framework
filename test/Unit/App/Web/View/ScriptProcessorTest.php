@@ -182,7 +182,9 @@ alert("OK");
 <script src="bar/second.js"></script>
 is a child
 OUT;
+
         $processor->__invoke($childPage);
+
         $this->assertMatchesRegularExpression(
             '~^<body>\s*<script src="foo/first.js"></script>\s*<script src="bar/second.js"></script>\s*<script src="/blog/app/cat/tail.js"></script>\s*<script>\s*alert\("OK"\);\s*</script>\s*</body>$~s',
             $processor->__invoke('<body></body>')
@@ -193,19 +195,20 @@ OUT;
         $request = new Request();
         $request->setHandler($handler);
 
-        $siteModuleName = 'random/example';
+        $shortSiteModuleName = 'example';
+        $fullSiteModuleName = 'random/' . $shortSiteModuleName;
         $site = $this->createConfiguredMock(Site::class, [
-            'moduleName' => $siteModuleName,
+            'moduleName' => $fullSiteModuleName,
         ]);
 
-        $clientModuleDirPath = $this->getTestDirPath() . '/' . CLIENT_MODULE_DIR_NAME;
+        $clientModuleDirPath = $this->getTestDirPath() . '/' . CLIENT_MODULE_DIR_NAME . '/' . $shortSiteModuleName;
         $clientModule = $this->createConfiguredMock(ClientModule::class, ['dirPath' => $clientModuleDirPath]);
 
         $module = $this->createConfiguredMock(ServerModule::class, ['clientModule' => $clientModule]);
         $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())
             ->method('module')
-            ->with($siteModuleName)
+            ->with($fullSiteModuleName)
             ->willReturn($module);
         $services = [
             'request' => $request,

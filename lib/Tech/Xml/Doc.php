@@ -8,9 +8,20 @@ namespace Morpho\Tech\Xml;
 
 use DOMDocument;
 
+use DOMXPath;
+use InvalidArgumentException;
 use Morpho\Base\InvalidConfException;
 use Morpho\Fs\File;
+use RuntimeException;
+use function array_diff_key;
+use function call_user_func_array;
+use function count;
+use function is_file;
+use function is_readable;
+use function libxml_use_internal_errors;
 use function Morpho\Base\e;
+use function substr;
+use function trim;
 
 /**
  * @method XPathResult select(string $xPath, $contextNode = null)
@@ -38,15 +49,15 @@ class Doc extends DOMDocument {
     ];
 
     public static function parseFile(string $filePath, array $conf = null): Doc {
-        if (!\is_file($filePath) || !\is_readable($filePath)) {
-            throw new \InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new InvalidArgumentException("Unable to load DOM document from the file '$filePath'");
         }
         $source = File::read($filePath, ['removeBom' => true]);
         return self::parse($source, $conf);
     }
 
     public static function parse(string $source, array $conf = null): Doc {
-        $source = \trim($source);
+        $source = trim($source);
 
         $conf = (array) $conf;
         $fixEncoding = $conf['fixEncoding'] ?? false;
@@ -54,9 +65,9 @@ class Doc extends DOMDocument {
 
         $doc = self::mk($conf);
 
-        \libxml_use_internal_errors(true);
+        libxml_use_internal_errors(true);
 
-        if (\substr($source, 0, 5) == '<?xml') {
+        if (substr($source, 0, 5) == '<?xml') {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
@@ -66,10 +77,10 @@ class Doc extends DOMDocument {
             $result = $doc->loadHTML($source);
         }
 
-        \libxml_use_internal_errors(false);
+        libxml_use_internal_errors(false);
 
         if (!$result) {
-            throw new \RuntimeException('Unable to load document.');
+            throw new RuntimeException('Unable to load document.');
         }
 
         return $doc;
@@ -77,8 +88,8 @@ class Doc extends DOMDocument {
 
     public static function mk(array $conf = null): Doc {
         $conf = (array) $conf;
-        $invalidConf = \array_diff_key($conf, self::CREATE_CONFIG_PARAMS);
-        if (\count($invalidConf)) {
+        $invalidConf = array_diff_key($conf, self::CREATE_CONFIG_PARAMS);
+        if (count($invalidConf)) {
             throw new InvalidConfException($invalidConf);
         }
 
@@ -97,7 +108,7 @@ class Doc extends DOMDocument {
     }
 
     public function __call($method, $args) {
-        return \call_user_func_array([$this->xPath(), $method], $args);
+        return call_user_func_array([$this->xPath(), $method], $args);
     }
 
     public function xPath(): XPathQuery {
@@ -108,7 +119,7 @@ class Doc extends DOMDocument {
     }
 
     public function namespaces() {
-        $xpath = new \DOMXPath($this);
+        $xpath = new DOMXPath($this);
         foreach ($xpath->query("namespace::*", $this->documentElement) as $node) {
             yield $node->localName => $node->nodeValue;
         }

@@ -7,43 +7,33 @@
 namespace Morpho\App;
 
 use Morpho\Base\IFn;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
 use RuntimeException;
 use Zend\Stdlib\ArrayUtils;
 use function is_file;
 use function Morpho\Base\last;
 
-abstract class SiteFactory implements IFn, IHasServiceManager {
+class SiteFactory implements IFn {
+    protected IHostNameValidator $hostNameValidator;
     protected array $appConf;
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
-        $this->appConf = $serviceManager['app']->conf();
+    public function __construct(IHostNameValidator $hostNameValidator, array $appConf) {
+        $this->hostNameValidator = $hostNameValidator;
+        $this->appConf = $appConf;
     }
 
     public function __invoke($_ = null): ISite {
-        $hostName = $this->currentHostName();
+        $hostName = $this->hostNameValidator->currentHostName();
         foreach ($this->appConf['sites'] as $siteName => $siteConf) {
-            if (in_array($hostName, $siteConf['hosts'], true)) {
+            if ($this->hostNameValidator->isValid($hostName)) {
                 return $this->mkSite($siteName, $siteConf, $hostName);
             }
         }
-        $this->throwInvalidSiteError();
+        $this->hostNameValidator->throwInvalidSiteError();
     }
 
     protected function mkSite(string $siteName, array $siteConf, string $hostName): ISite {
         return new Site($siteName, $siteConf['module']['name'], $this->loadExtendedSiteConf($siteConf), $hostName);
     }
-
-    /**
-     * @throws RuntimeException
-     */
-    abstract protected function throwInvalidSiteError(): void;
-
-    /**
-     * @return string|false
-     */
-    abstract protected function currentHostName();
 
     protected function loadExtendedSiteConf(array $basicSiteConf): array {
         $siteModuleConf = $basicSiteConf['module'];

@@ -4,11 +4,14 @@ use const Morpho\App\{CONF_DIR_NAME, SERVER_MODULE_DIR_NAME, VENDOR, SITE_CONF_F
 
 $baseDirPath = realpath(__DIR__ . '/..');
 return [
-    'serviceManager' => function (App\App $app) {
-     },
+    'siteFactory' => function (App\App $app) {
+        $hostNameValidator = PHP_SAPI === 'cli'
+            ? new App\Cli\HostNameValidator(['localhost'], 'localhost')
+            : new App\Web\HostNameValidator(['framework', 'localhost', '127.0.0.1']);
+        return new App\SiteFactory($hostNameValidator, $app->conf());
+    },
     'sites' => [
         'localhost' => [
-            'hosts' => ['localhost', 'framework', '127.0.0.1'],
             'module' => [
                 'name' => VENDOR . '/localhost',
                 'paths' => [

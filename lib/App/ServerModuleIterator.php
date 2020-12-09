@@ -24,13 +24,13 @@ class ServerModuleIterator implements IteratorAggregate {
             if (!is_file($metaFilePath)) {
                 continue;
             }
-            $module = File::readJson($metaFilePath);
-            $moduleConf = $this->site->moduleConf($module['name']);
-            $module['paths'] = array_merge($moduleConf['paths'], ['dirPath' => $moduleDirPath]);
-            if (!$this->filter($module)) {
+            $metaFileModuleConf = File::readJson($metaFilePath);
+            $moduleConf = $this->site->moduleConf($metaFileModuleConf['name']);
+            $metaFileModuleConf['paths'] = array_merge($moduleConf['paths'], ['dirPath' => $moduleDirPath]);
+            if (!$this->filter($metaFileModuleConf)) {
                 continue;
             }
-            yield $this->map($module);
+            yield $this->map($metaFileModuleConf);
         }
     }
 

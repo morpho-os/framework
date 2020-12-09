@@ -6,13 +6,19 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\App\SiteFactory as BaseSiteFactory;
+use Morpho\App\IHostNameValidator;
 
-class SiteFactory extends BaseSiteFactory {
+class HostNameValidator implements IHostNameValidator {
+    private array $allowedHostNames;
+
+    public function __construct(array $allowedHostNames) {
+        $this->allowedHostNames = $allowedHostNames;
+    }
+
     /**
      * @return string|false
      */
-    protected function currentHostName() {
+    public function currentHostName() {
         // Use the `Host` header field-value, see https://tools.ietf.org/html/rfc3986#section-3.2.2
         $host = $_SERVER['HTTP_HOST'] ?? null;
 
@@ -47,7 +53,11 @@ class SiteFactory extends BaseSiteFactory {
     /**
      * @throws \RuntimeException
      */
-    protected function throwInvalidSiteError(): void {
+    public function throwInvalidSiteError(): void {
         throw new BadRequestException("Invalid host or site");
+    }
+
+    public function isValid($hostName): bool {
+        return in_array($hostName, $this->allowedHostNames, true);
     }
 }

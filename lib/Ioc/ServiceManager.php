@@ -6,12 +6,22 @@
  */
 namespace Morpho\Ioc;
 
+use ArrayObject;
+use Exception;
+use RuntimeException;
+use Throwable;
+use function array_keys;
+use function implode;
+use function method_exists;
+use function sprintf;
+use function strtolower;
+
 /**
  * Implements IoC pattern and allows to use two approaches to manage dependencies:
  *     1) DI/Dependency Injection - inject/push dependent objects to the objects but not inject self
  *     2) Service Locator - inject/push self to the object and allow to pull from self
  */
-class ServiceManager extends \ArrayObject implements IServiceManager {
+class ServiceManager extends ArrayObject implements IServiceManager {
     protected const FACTORY_METHOD_PREFIX = 'mk';
     protected const FACTORY_METHOD_SUFFIX = 'Service';
 
@@ -34,7 +44,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
      */
     public function offsetGet($id) {
         // Resolve alias:
-        $id = \strtolower($id);
+        $id = strtolower($id);
         while (isset($this->aliases[$id])) {
             $id = $this->aliases[$id];
         }
@@ -43,18 +53,18 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
         }
 
         if (isset($this->loading[$id])) {
-            throw new \RuntimeException(
-                \sprintf(
+            throw new RuntimeException(
+                sprintf(
                     "Circular reference detected for the service '%s', path: '%s'",
                     $id,
-                    \implode(' -> ', \array_keys($this->loading)) . ' -> ' . $id
+                    implode(' -> ', array_keys($this->loading)) . ' -> ' . $id
                 )
             );
         }
         $this->loading[$id] = true;
         try {
             $this[$id] = $service = $this->mkService($id);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             unset($this->loading[$id]);
             throw $e;
         }
@@ -64,7 +74,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
     }
 
     public function offsetSet($id, $service): void {
-        parent::offsetSet(\strtolower($id), $service);
+        parent::offsetSet(strtolower($id), $service);
         if ($service instanceof IHasServiceManager) {
             $service->setServiceManager($this);
         }
@@ -72,7 +82,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
 
     public function offsetExists($id): bool {
         // Resolve alias:
-        $id = \strtolower($id);
+        $id = strtolower($id);
 
         while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
             $id = $this->aliases[$id];
@@ -83,11 +93,11 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
         }
 
         $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
-        return \method_exists($this, $method);
+        return method_exists($this, $method);
     }
 
     public function offsetUnset($id): void {
-        parent::offsetUnset(\strtolower($id));
+        parent::offsetUnset(strtolower($id));
     }
 
     public function setConf($conf): void {
@@ -121,7 +131,7 @@ class ServiceManager extends \ArrayObject implements IServiceManager {
      */
     protected function mkService(string $id) {
         $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
-        if (\method_exists($this, $method)) {
+        if (method_exists($this, $method)) {
             $this->beforeCreate($id);
             $service = $this->$method();
             $this->afterCreate($id, $service);

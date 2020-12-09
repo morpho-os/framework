@@ -6,7 +6,9 @@
  */
 namespace Morpho\Ioc;
 
-interface IServiceManager extends \ArrayAccess {
+use ArrayAccess;
+
+interface IServiceManager extends ArrayAccess {
     public function setConf($conf): void;
 
     public function conf();

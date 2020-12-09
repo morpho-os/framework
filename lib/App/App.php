@@ -50,22 +50,15 @@ class App extends EventManager {
     }
 
     public function init(): IServiceManager {
-        /** @var ServiceManager $serviceManager */
-        $bootServiceManager = $this->conf['serviceManager']($this);
-
-        $bootServiceManager['app'] = $this;
-
-        /** @var Site $site */
-        $site = $bootServiceManager['site'];
+        /** @var SiteFactory $siteFactory */
+        $siteFactory = $this->conf['siteFactory']($this);
+        $site = $siteFactory->__invoke();
 
         $siteConf = $site->conf();
 
         $serviceManager = $siteConf['serviceManager'];
-
-        foreach ($bootServiceManager as $id => $service) {
-            $serviceManager[$id] = $service;
-        }
-
+        $serviceManager['app'] = $this;
+        $serviceManager['site'] = $site;
         $serviceManager->setConf($siteConf['services']);
 
         if (isset($siteConf['umask'])) {

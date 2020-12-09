@@ -8,7 +8,14 @@ namespace Morpho\App\Web\View;
 
 use Morpho\Fs\Path;
 use Morpho\Ioc\IServiceManager;
+use function array_merge;
+use function array_reduce;
+use function count;
+use function file_exists;
+use function implode;
+use function json_encode;
 use function Morpho\Base\dasherize;
+use function usort;
 use const Morpho\App\APP_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
@@ -33,7 +40,7 @@ class ScriptProcessor extends HtmlProcessor {
         $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
 
         $splitScripts = function ($scripts) {
-            return \array_reduce($scripts, function ($acc, $tag) {
+            return array_reduce($scripts, function ($acc, $tag) {
                 if (isset($tag['src'])) {
                     $acc[1][] = $tag;
                 } else {
@@ -55,12 +62,12 @@ class ScriptProcessor extends HtmlProcessor {
         //     3. action-script included
         //     4. main-page-script inline
         //     5. child-page-script inline (has higher priority) | action-script inline
-        $scripts = \array_merge(
+        $scripts = array_merge(
             $mainPageScripts[1],
             $childPageScripts[1],
             $actionScripts[1],
             $mainPageScripts[0],
-            \count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
+            count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
         );
         $changed = $this->changeBodyScripts($scripts);
         if (null !== $changed) {
@@ -96,7 +103,7 @@ class ScriptProcessor extends HtmlProcessor {
             $script[self::INDEX_ATTR] = floatval($script[self::INDEX_ATTR]);
             $scripts[$key] = $script;
         }
-        \usort($scripts, function ($prev, $next) use (&$index) {
+        usort($scripts, function ($prev, $next) use (&$index) {
             $a = $prev[self::INDEX_ATTR];
             $b = $next[self::INDEX_ATTR];
             $diff = $a - $b;
@@ -116,7 +123,7 @@ class ScriptProcessor extends HtmlProcessor {
             unset($tag[self::INDEX_ATTR]);
             $html[] = $this->renderTag($tag);
         }
-        return \implode("\n", $html);
+        return implode("\n", $html);
     }
 
     /**
@@ -125,14 +132,16 @@ class ScriptProcessor extends HtmlProcessor {
     private function actionScripts(): array {
         $handler = $this->request()->handler();
         $serviceManager = $this->serviceManager;
-        $siteModuleName = $serviceManager['site']->moduleName();
-        $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
-        // @TODO: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
         $jsModuleId = $handler['modulePath'] . '/' . APP_DIR_NAME . '/' . $handler['controllerPath'] . '/' . dasherize($handler['method']);
         $relJsFilePath = '/' . $jsModuleId . '.js';
-        $jsFilePath = Path::combine([$clientModuleDirPath, $relJsFilePath]);
+        $siteModuleName = $serviceManager['site']->moduleName();
+        $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
+        $absJsFilePath = Path::combine([dirname($clientModuleDirPath), $relJsFilePath]);
+        // @todo: support base path
+        // @todo: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
         $inline = $included = [];
-        if (\file_exists($jsFilePath)) {
+        if (file_exists($absJsFilePath)) {
+            $jsConf = $this->jsConf();
             $included[] = [
                 'src' => $this->scriptUri($relJsFilePath),
                 '_tagName' => 'script',
@@ -140,7 +149,7 @@ class ScriptProcessor extends HtmlProcessor {
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . \json_encode($this->jsConf(), JSON_UNESCAPED_SLASHES) . '); });',
+                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return [$inline, $included];

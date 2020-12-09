@@ -11,7 +11,7 @@ use Morpho\Base\Env;
 use Morpho\Base\InvalidConfException;
 use RuntimeException;
 use function Morpho\App\Cli\{
-    arg, envVarsStr, sh, escapeArgs, showOk, stylize
+    arg, envVarsStr, sh, escapeArg, showOk, stylize
 };
 use Morpho\Testing\TestCase;
 use function basename;
@@ -76,10 +76,10 @@ OUT
         $this->assertEquals("\033[" . $magenta . "m$text\033[0m", stylize($text, $magenta));
     }
 
-    public function testEscapeArgs() {
+    public function testEscapeArg() {
         $this->assertEquals(
             ["'foo'\\''bar'", "'test/'"],
-            escapeArgs(["foo'bar", 'test/'])
+            escapeArg(["foo'bar", 'test/'])
         );
     }
 
