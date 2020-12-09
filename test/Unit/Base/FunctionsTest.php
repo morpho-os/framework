@@ -6,11 +6,26 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use ArrayIterator;
+use Closure;
+use Generator;
+use IteratorAggregate;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use function Morpho\Base\{formatFloat, it, last, lastPos, lines, memoize, not, op, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNoOfAttempts, waitUntilTimeout, wrapQ, formatBytes, words, ucfirst, indent, unindent};
+use SplStack;
+use stdClass;
+use UnexpectedValueException;
+use function call_user_func;
+use function count;
+use function fclose;
+use function file_put_contents;
+use function Morpho\Base\{formatFloat, it, last, lastPos, lines, memoize, not, op, qq, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNoOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent};
 use RuntimeException;
+use function get_class_methods;
+use function ob_get_clean;
+use function ob_start;
+use function property_exists;
 
 class FunctionsTest extends TestCase {
     private $tmpHandle;
@@ -18,7 +33,7 @@ class FunctionsTest extends TestCase {
     public function tearDown(): void {
         parent::tearDown();
         if (isset($this->tmpHandle)) {
-            \fclose($this->tmpHandle);
+            fclose($this->tmpHandle);
         }
     }
 
@@ -93,7 +108,7 @@ class FunctionsTest extends TestCase {
         $this->assertIsString($json);
         $this->assertNotEmpty($json);
         $v1 = fromJson($json);
-        $this->assertCount(\count($v), $v1);
+        $this->assertCount(count($v), $v1);
         $this->assertEquals($v['foo'], $v1['foo']);
         $this->assertEquals((array) $v[1], $v1[1]);
     }
@@ -109,21 +124,21 @@ class FunctionsTest extends TestCase {
     }
 
     public function testShowLn_NoArgsWritesSingleLine() {
-        \ob_start();
+        ob_start();
         showLn();
-        $this->assertEquals("\n", \ob_get_clean());
+        $this->assertEquals("\n", ob_get_clean());
     }
 
     public function testShowLn_SingleArg() {
-        \ob_start();
+        ob_start();
         showLn("Printed");
-        $this->assertEquals("Printed\n", \ob_get_clean());
+        $this->assertEquals("Printed\n", ob_get_clean());
     }
 
     public function testShowLn_MultipleArgs() {
-        \ob_start();
+        ob_start();
         showLn("bee", "ant");
-        $this->assertEquals("bee\nant\n", \ob_get_clean());
+        $this->assertEquals("bee\nant\n", ob_get_clean());
     }
 
     public function testShowLn_ClosureGeneratorArg() {
@@ -132,16 +147,16 @@ class FunctionsTest extends TestCase {
                 yield $v;
             }
         };
-        \ob_start();
+        ob_start();
         showLn($gen);
-        $this->assertEquals("foo\nbar\nbaz\n", \ob_get_clean());
+        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
     }
 
     public function testShowLn_IterableArg() {
-        $val = new \ArrayIterator(['foo', 'bar', 'baz']);
-        \ob_start();
+        $val = new ArrayIterator(['foo', 'bar', 'baz']);
+        ob_start();
         showLn($val);
-        $this->assertEquals("foo\nbar\nbaz\n", \ob_get_clean());
+        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
     }
 
     public function testShorten() {
@@ -330,37 +345,26 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function dataForWrapQ() {
-        return [
-            ["'Hello'", 'Hello'],
-            [
-                [
-                    "'foo'",
-                    "'bar'",
-                ],
-                [
-                    'foo',
-                    'bar'
-                ],
-            ],
-            [
-                [
-                    'a' => "'foo'",
-                    'b' => "'bar'",
-                ],
-                [
-                    'a' => 'foo',
-                    'b' => 'bar',
-                ],
-            ],
-        ];
+    public function dataForQ() {
+        return $this->dataForQ_("'");
     }
 
     /**
-     * @dataProvider dataForWrapQ
+     * @dataProvider dataForQ
      */
     public function testWrapQ($expected, $actual) {
-        $this->assertSame($expected, wrapQ($actual));
+        $this->assertSame($expected, q($actual));
+    }
+
+    public function dataForQQ() {
+        return $this->dataForQ_('"');
+    }
+
+    /**
+     * @dataProvider dataForQQ
+     */
+    public function testQQ($expected, $actual) {
+        $this->assertSame($expected, qq($actual));
     }
 
     public function testFormatBytes() {
@@ -448,7 +452,7 @@ class FunctionsTest extends TestCase {
     public function testTpl() {
         $code = '<?php echo "Hello $world";';
         $filePath = $this->createTmpFile();
-        \file_put_contents($filePath, $code);
+        file_put_contents($filePath, $code);
         $this->assertSame(
             'Hello World!',
             tpl($filePath, ['world' => 'World!'])
@@ -461,7 +465,7 @@ class FunctionsTest extends TestCase {
      */
     public function dataForOp() {
         return [
-            ['instanceof', new \stdClass, 'stdClass', true],
+            ['instanceof', new stdClass, 'stdClass', true],
             ['*', 3, 2, 6],
             ['/', 3, 2, 1.5],
             ['%', 3, 2, 1],
@@ -486,8 +490,8 @@ class FunctionsTest extends TestCase {
             ['**', 2, 4, 16],
             ['<=>', [0 => 1, 1 => 0], [1 => 0, 0 => 1], 0],
             ['<=>', '2e1', '1e10', -1],
-            ['<=>', new \stdClass(), new \SplStack(), 1],
-            ['<=>', new \SplStack(), new \stdClass(), 1],
+            ['<=>', new stdClass(), new SplStack(), 1],
+            ['<=>', new SplStack(), new stdClass(), 1],
         ];
     }
 
@@ -532,14 +536,14 @@ class FunctionsTest extends TestCase {
             }
 
             public function __invoke($value) {
-                throw new \RuntimeException('Some error');
+                throw new RuntimeException('Some error');
             }
         };
         $val = 'bar';
         try {
             using($disposable, $val);
             $this->fail();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertSame('Some error', $e->getMessage());
         }
         $this->assertNull($disposable->invokeArgs);
@@ -590,7 +594,7 @@ class FunctionsTest extends TestCase {
         $this->assertSame($conf['publicBaz'], $instance->publicBaz);
         $this->assertSame($conf['protectedBar'], $instance->protectedBar());
         $this->assertSame($conf['privateFoo'], $instance->privateFoo());
-        $this->assertSame(['__construct', 'protectedBar', 'privateFoo'], \get_class_methods($instance));
+        $this->assertSame(['__construct', 'protectedBar', 'privateFoo'], get_class_methods($instance));
     }
 
     public function testSetProps_NotDeclaredProperty() {
@@ -612,15 +616,15 @@ class FunctionsTest extends TestCase {
         try {
             $instance->setProps($conf);
             $this->fail();
-        } catch (\UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             $this->assertStringContainsString("Unknown property 'notDeclared'", $e->getMessage());
         }
-        $this->assertFalse(\property_exists($instance, 'notDeclared'));
+        $this->assertFalse(property_exists($instance, 'notDeclared'));
     }
 
     public function dataForIt_ValidCases() {
-        $it = new \ArrayIterator(['foo', 'bar']);
-        $itAggr = new class($it) implements \IteratorAggregate {
+        $it = new ArrayIterator(['foo', 'bar']);
+        $itAggr = new class($it) implements IteratorAggregate {
             public $it;
 
             public function __construct($it) {
@@ -637,7 +641,7 @@ class FunctionsTest extends TestCase {
         ];
         yield [
             function ($actual) {
-                $this->assertInstanceOf(\Generator::class, $actual);
+                $this->assertInstanceOf(Generator::class, $actual);
             },
             function () {
                 yield 'foo';
@@ -658,7 +662,7 @@ class FunctionsTest extends TestCase {
      * @dataProvider dataForIt_ValidCases
      */
     public function testIt_ValidCases($expected, $it) {
-        if ($expected instanceof \Closure) {
+        if ($expected instanceof Closure) {
             $expected(it($it));
         } else {
             $this->assertSame($expected, it($it));
@@ -674,7 +678,7 @@ class FunctionsTest extends TestCase {
      * @dataProvider dataForIt_InvalidCases
      */
     public function testIt_InvalidCases($it) {
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         it($it);
     }
 
@@ -720,7 +724,44 @@ OUT;
 
     private function assertCommon($fn) {
         $fn = 'Morpho\Base\\' . $fn;
-        $this->assertEquals('foobar', \call_user_func($fn, 'foobar'));
-        $this->assertEquals('foobar', \call_user_func($fn, "&\tf\no<>o\x00`bar"));
+        $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
+        $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
+    }
+
+    private function dataForQ_(string $quote) {
+        return [
+            [
+                "$quote$quote",
+                '',
+            ],
+            [
+                "{$quote}123{$quote}",
+                123,
+            ],
+            [
+                "{$quote}Hello{$quote}",
+                'Hello'
+            ],
+            [
+                [
+                    "{$quote}foo{$quote}",
+                    "{$quote}bar{$quote}",
+                ],
+                [
+                    'foo',
+                    'bar'
+                ],
+            ],
+            [
+                [
+                    'a' => "{$quote}foo{$quote}",
+                    'b' => "{$quote}bar{$quote}",
+                ],
+                [
+                    'a' => 'foo',
+                    'b' => 'bar',
+                ],
+            ],
+        ];
     }
 }

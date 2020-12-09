@@ -7,7 +7,7 @@
 namespace Morpho\Tech\Php\Linting;
 
 use function Morpho\Base\showLn;
-use function Morpho\Base\wrapQ;
+use function Morpho\Base\q;
 use function Morpho\App\Cli\showErrorLn;
 use function Morpho\App\Cli\showOk;
 use Morpho\Fs\Dir;
@@ -44,7 +44,7 @@ class Linter {
         foreach ($psr4MapperListIt as $psr4Mapper) {
             $mappingErrors = [];
             /** @var \Morpho\Infra\IPsr4Mapper $psr4Mapper */
-            showLn('Checking files in ' . wrapQ($psr4Mapper->baseDirPath() . ' (namespace ' . wrapQ($psr4Mapper->nsPrefix()) . ')...'));
+            showLn('Checking files in ' . q($psr4Mapper->baseDirPath() . ' (namespace ' . q($psr4Mapper->nsPrefix()) . ')...'));
             foreach ($psr4Mapper->filePaths() as $filePath) {
                 $sourceFile = new SourceFile($filePath);
                 $sourceFile->setNsToDirPathMap([

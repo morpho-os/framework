@@ -128,8 +128,12 @@ function wrap($string, string $wrapper) {
     return $wrapper . $string . $wrapper;
 }
 
-function wrapQ($string) {
+function q($string) {
     return wrap($string, "'");
+}
+
+function qq($string) {
+    return wrap($string, '"');
 }
 
 function showLn(...$messages) {
