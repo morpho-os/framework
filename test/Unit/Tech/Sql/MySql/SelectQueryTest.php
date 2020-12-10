@@ -6,13 +6,12 @@
  */
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\MySql\SelectQuery;
 use UnexpectedValueException;
 
-class SelectQueryTest extends DbTestCase {
+class SelectQueryTest extends QueryTest {
     use TUsingNorthwind;
-
-    private SelectQuery $query;
 
     public function setUp(): void {
         parent::setUp();
@@ -81,5 +80,13 @@ class SelectQueryTest extends DbTestCase {
     public function testWhereClause_OnlyCondition_InvalidArg() {
         $this->expectException(UnexpectedValueException::class);
         $this->query->where(['foo', 'bar']);
+    }
+
+    public function testTableRef() {
+        $this->checkTableRef();
+    }
+
+    protected function mkQuery(): IQuery {
+        return new SelectQuery($this->db);
     }
 }

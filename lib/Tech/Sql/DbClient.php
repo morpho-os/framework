@@ -134,6 +134,11 @@ abstract class DbClient implements IDbClient {
         return $ids;
     }
 
+    public function quoteIdentifierStr($identifiers): string {
+        $result = $this->quoteIdentifier($identifiers);
+        return is_array($result) ? implode(', ', $result) : $result;
+    }
+
     public function positionalArgs(array $args): array {
         return array_fill(0, count($args), '?');
     }

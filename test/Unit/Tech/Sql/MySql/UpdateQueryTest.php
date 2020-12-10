@@ -6,9 +6,11 @@
  */
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\MySql\UpdateQuery;
 use Morpho\Tech\Sql\Result;
 
-class UpdateQueryTest extends DbTestCase {
+class UpdateQueryTest extends QueryTest {
     public function setUp(): void {
         parent::setUp();
         $this->createCarsTable(true);
@@ -38,5 +40,13 @@ class UpdateQueryTest extends DbTestCase {
         $this->assertSame([
             ['name' => $modelName, 'color' => $newColor, 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
         ], $selectRows());
+    }
+
+    public function testTableRef() {
+        $this->checkTableRef();
+    }
+
+    protected function mkQuery(): IQuery {
+        return new UpdateQuery($this->db);
     }
 }

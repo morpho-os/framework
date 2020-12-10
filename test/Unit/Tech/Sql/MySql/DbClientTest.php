@@ -111,6 +111,14 @@ SQL
         $this->assertSame(['`foo`'], $this->db->quoteIdentifier(['foo']));
     }
 
+    public function testQuoteIdentifierStr() {
+        $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifierStr('foo.bar'));
+        $this->assertSame('`foo`', $this->db->quoteIdentifierStr('foo'));
+        $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifierStr(['foo.bar']));
+        $this->assertSame('`foo`', $this->db->quoteIdentifierStr(['foo']));
+        $this->assertSame('`foo`.`bar`, `test`', $this->db->quoteIdentifierStr(['foo.bar', 'test']));
+    }
+
     public function testPositionalArgs() {
         $this->assertSame([], $this->db->positionalArgs([]));
         $this->assertSame(['?', '?'], $this->db->positionalArgs(['foo', 'bar']));

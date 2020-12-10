@@ -6,7 +6,6 @@
  */
 namespace Morpho\Tech\Sql\MySql;
 
-use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
 
 class DeleteQuery implements IQuery {
@@ -25,7 +24,7 @@ class DeleteQuery implements IQuery {
     }
  */
     public function sql(): string {
-        $sql = ['DELETE', 'FROM', $this->tableRefSql()];
+        $sql = ['DELETE', 'FROM', $this->db->quoteIdentifierStr($this->tables)];
 /*
 DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
     tbl_name[.*] [, tbl_name[.*]] ...

@@ -59,7 +59,7 @@ class InsertQuery implements IQuery {
 */
     public function sql(): string {
         if (count($this->rows) > 1) {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Inserting > 1 rows in one query is not implemented yet");
         }
         $row = $this->rows[0]; // todo: support multiple rows
         return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tables[0])

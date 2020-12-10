@@ -56,6 +56,11 @@ interface IDbClient {
      */
     public function quoteIdentifier($identifiers);
 
+    /**
+     * Returns SQL-query for quoted identifiers. If an array has been provided, then separates them with comma.
+     */
+    public function quoteIdentifierStr($identifiers): string;
+
     public function positionalArgs(array $args): array;
 
     // [':foo = ?', ':bar = ?']

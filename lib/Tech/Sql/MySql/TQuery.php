@@ -11,6 +11,7 @@ use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IDbClient;
 use Morpho\Tech\Sql\Result;
 use UnexpectedValueException;
+use function preg_match;
 
 trait TQuery {
     protected IDbClient $db;
@@ -45,7 +46,7 @@ trait TQuery {
             if (!is_array($condition)) {
                 throw new UnexpectedValueException();
             }
-            // If args are not specified then $condition contains arguments
+            // $args not specified => $condition contains arguments
             $this->where[] = implode(' AND ', $this->db->nameValArgs($condition));
             $this->args = array_merge($this->args, array_values($condition));
         } else {
@@ -75,10 +76,7 @@ trait TQuery {
             // todo: replace named args like foo = :foo AND bar = :bar
             $sql = preg_replace_callback('~\?~s', function ($match) use (&$args): string {
                 $val = array_shift($args);
-                if (is_string($val)) {
-                    return $this->db->pdo()->quote($val);
-                }
-                throw new NotImplementedException();
+                return $this->db->pdo()->quote((string) $val);
             }, $sql);
         }
         return $sql;
@@ -96,8 +94,18 @@ trait TQuery {
         foreach ($this->tables as $table) {
             if ($table instanceof Expr) {
                 $sql[] = $table->val();
+            } elseif (is_array($table)) {
+                $tables = [];
+                foreach ($table as $name => $alias) {
+                    if (is_int($name) || preg_match('~^\d+$~', $name)) {
+                        $tables[] = $this->db->quoteIdentifier($alias); // alias is table name
+                    } else {
+                        $tables[] = $this->db->quoteIdentifier($name) . ' AS ' . $this->db->quoteIdentifier($alias);
+                    }
+                }
+                $sql[] = implode(', ', $tables);
             } else {
-                $sql[] = is_array($table) ? implode(', ', $this->db->quoteIdentifier($table)) : $this->db->quoteIdentifier($table);
+                $sql[] = $this->db->quoteIdentifier($table);
             }
         }
         return implode(', ', $sql);

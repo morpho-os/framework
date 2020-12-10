@@ -7,18 +7,14 @@
 
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\MySql\DeleteQuery;
+use PDO;
 
-class DeleteQueryTest extends DbTestCase {
-    /**
-     * @var DeleteQuery
-     */
-    private DeleteQuery $query;
-
+class DeleteQueryTest extends QueryTest {
     public function setUp(): void {
         parent::setUp();
         $this->createCarsTable(true);
-        $this->query = new DeleteQuery($this->db);
     }
 
     public function testWithoutWhereClause() {
@@ -41,6 +37,10 @@ class DeleteQueryTest extends DbTestCase {
 
     private function selectAllRows() {
         $stmt = $this->pdo->query('SELECT * FROM cars');
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    protected function mkQuery(): IQuery {
+        return new DeleteQuery($this->db);
     }
 }

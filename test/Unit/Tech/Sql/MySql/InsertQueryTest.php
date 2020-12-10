@@ -6,11 +6,12 @@
  */
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\MySql\InsertQuery;
 use Morpho\Tech\Sql\Result;
 
-class InsertQueryTest extends DbTestCase {
-    public function testInsertQuery() {
+class InsertQueryTest extends QueryTest {
+    public function testQuery() {
         $insert = new InsertQuery($this->db);
 
         $selectAllRows = fn () =>$this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
@@ -32,5 +33,9 @@ class InsertQueryTest extends DbTestCase {
 
     protected function createFixtures($db): void {
         $this->createCarsTable(false);
+    }
+
+    protected function mkQuery(): IQuery {
+        return new InsertQuery($this->db);
     }
 }

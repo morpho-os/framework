@@ -7,8 +7,15 @@
 
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
-class ReplaceQueryTest extends DbTestCase {
+use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\MySql\ReplaceQuery;
+
+class ReplaceQueryTest extends QueryTest {
     public function testQuery() {
         $this->markTestIncomplete();
+    }
+
+    protected function mkQuery(): IQuery {
+        return new ReplaceQuery($this->db);
     }
 }
