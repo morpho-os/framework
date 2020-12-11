@@ -42,7 +42,8 @@ class DbTestCase extends BaseDbTestCase {
         }
     }
 
-    protected function assertSqlEquals(string $expectedSql, $actualSql) {
-        $this->assertSame($expectedSql, str_replace("\n", ' ', $actualSql));
+    protected function assertSqlEquals(string $expectedSql, string $actualSql): void {
+        $normalize = fn ($sql) => preg_replace('~\s+~s', ' ', $sql);
+        $this->assertSame($normalize($expectedSql), $normalize($actualSql));
     }
 }

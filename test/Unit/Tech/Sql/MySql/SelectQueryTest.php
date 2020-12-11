@@ -27,24 +27,35 @@ class SelectQueryTest extends QueryTest {
         $this->assertSqlEquals("SELECT * FROM `cars`", (string) $this->query->table('cars'));
     }
 
-    public function testCompleteSelect() {
+    public function testQuery1() {
         $this->query->columns(['customers.id'])
             ->table(
                 $this->query->expr('customers INNER JOIN orders ON customers.id = orders.customer_id')
             );
-        $this->assertSqlEquals('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $this->query);
-            /*
-            todo
-            ->where()
-            ->groupBy()
-            ->having()
-            ->window()
-            ->orderBy()
-            ->limit()
-            ->offset()
-            ->for()
-            ->__toString();
-            */
+        $this->assertSqlEquals('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $this->query->__toString());
+    }
+
+    public function testQuery2() {
+        $columns = 't.*, tL.startedAt, tL.endedAt, tL.exitCode';
+        $join = 'taskLaunch tL ON t.id = tL.taskId';
+        $numOfRows = 10;
+        $offset = 5;
+        $sql = (string) $this->query->table(['task' => 't'])
+            ->columns($this->db->expr($columns))
+            ->leftJoin($join)
+            ->where(['t.id' => 123])
+            ->groupBy('t.id')
+            ->having('MAX(tL.endedAt)')
+            ->orderBy('t.id')
+            ->limit($numOfRows, $offset);
+        $this->assertSqlEquals("SELECT $columns
+            FROM `task` AS `t`
+            LEFT JOIN $join
+            WHERE `t`.`id` = '123'
+            GROUP BY `t`.`id`
+            HAVING MAX(tL.endedAt)
+            ORDER BY `t`.`id`
+            LIMIT $offset, $numOfRows", $sql);
     }
 
     public function dataForJoin() {
@@ -74,7 +85,7 @@ class SelectQueryTest extends QueryTest {
     }
 
     public function testWhereClause_OnlyCondition_ValidArg() {
-        $this->assertSqlEquals("SELECT * WHERE `foo` = 'abc' AND `bar` = 'efg'", $this->query->where(['foo' => 'abc', 'bar' => 'efg']));
+        $this->assertSqlEquals("SELECT * WHERE `foo` = 'abc' AND `bar` = 'efg'", $this->query->where(['foo' => 'abc', 'bar' => 'efg'])->__toString());
     }
 
     public function testWhereClause_OnlyCondition_InvalidArg() {
