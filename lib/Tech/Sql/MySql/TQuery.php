@@ -43,12 +43,13 @@ trait TQuery {
 
     public function where($condition, array $args = null): self {
         if (null === $args) {
-            if (!is_array($condition)) {
-                throw new UnexpectedValueException();
-            }
             // $args not specified => $condition contains arguments
-            $this->where[] = implode(' AND ', $this->db->nameValArgs($condition));
-            $this->args = array_merge($this->args, array_values($condition));
+            if (is_array($condition)) {
+                $this->where[] = implode(' AND ', $this->db->nameValArgs($condition));
+                $this->args = array_merge($this->args, array_values($condition));
+            } else {
+                $this->where[] = (string) $condition;
+            }
         } else {
             $this->where[] = $condition;
             $this->args = array_merge($this->args, $args);
@@ -88,7 +89,7 @@ trait TQuery {
         return $this->args;
     }
 
-    protected function tableRefSql(): string {
+    protected function tableRefStr(): string {
         // https://mariadb.com/kb/en/join-syntax/
         $sql = [];
         foreach ($this->tables as $table) {
@@ -111,10 +112,7 @@ trait TQuery {
         return implode(', ', $sql);
     }
 
-    protected function whereClauseSql(): ?string {
-        if ($this->where) {
-            return 'WHERE ' . implode(' AND ', $this->where);
-        }
-        return null;
+    protected function whereStr(): string {
+        return 'WHERE ' . implode(' AND ', $this->where);
     }
 }

@@ -47,22 +47,20 @@ class SelectQuery implements IQuery {
                 }
             }
         }
-        $hasFrom = count($this->tables);
-        if ($columns) {
-            $sql[] = 'SELECT ' . implode(', ', $columns);
-        } elseif ($hasFrom || $this->where) {
-            $sql[] = 'SELECT *';
-        }
+        $sql[] = 'SELECT ' .
+            ($columns
+                ? implode(', ', $columns)
+                : '*');
 
-        if ($hasFrom) {
-            $sql[] = 'FROM ' . $this->tableRefSql();
+        if ($this->tables) {
+            $sql[] = 'FROM ' . $this->tableRefStr();
         }
         foreach ($this->join as $join) {
             $sql[] = $join[0] . ' JOIN ' . $join[1];
         }
-        $whereClauseSql = $this->whereClauseSql();
-        if (null !== $whereClauseSql) {
-            $sql[] = $whereClauseSql;
+
+        if ($this->where) {
+            $sql[] = $this->whereStr();
         }
 
         if ($this->groupBy) {

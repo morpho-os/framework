@@ -34,16 +34,11 @@ class UpdateQuery implements IQuery {
           [ORDER BY ...]
           [LIMIT row_count]
         */
-        $sql = ['UPDATE'];
-        $tableRefSql = $this->tableRefSql();
-        if ($tableRefSql) {
-            $sql[] = $tableRefSql;
-        }
+        $sql = ['UPDATE', $this->tableRefStr()];
         $sql[] = 'SET';
         $sql[] = implode(', ', $this->db->nameValArgs($this->columns));
-        $whereClauseSql = $this->whereClauseSql();
-        if (null !== $whereClauseSql) {
-            $sql[] = $whereClauseSql;
+        if ($this->where) {
+            $sql[] = $this->whereStr();
         }
         return implode("\n", $sql);
     }

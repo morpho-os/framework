@@ -74,6 +74,23 @@ abstract class DbClient implements IDbClient {
         return new Expr($expr);
     }
 
+    public function where($condition, array $args = null): array {
+        $where = [];
+        if (null === $args) {
+            // $args not specified => $condition contains arguments
+            if (is_array($condition)) {
+                $where[] = implode(' AND ', $this->nameValArgs($condition));
+                $args = array_values($condition);
+            } else {
+                $where[] = (string) $condition;
+                $args = [];
+            }
+        } else {
+            $where[] = $condition;
+        }
+        return ['WHERE ' . implode(' AND ', $where), $args];
+    }
+
     /**
      * @param callable $transaction
      * @return mixed
@@ -117,7 +134,10 @@ abstract class DbClient implements IDbClient {
      */
     public function quoteIdentifier($identifiers) {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
-        $quoteIdentifier = function (string $identifiers): string {
+        $quoteIdentifier = function ($identifiers): string {
+            if ($identifiers instanceof Expr) {
+                return $identifiers->val();
+            }
             $quoted = [];
             foreach (explode('.', $identifiers) as $identifier) {
                 $quoted[] = $this->quote . $identifier . $this->quote;

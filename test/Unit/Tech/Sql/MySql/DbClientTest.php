@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IDbClient;
 use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\ISchema;
@@ -104,19 +105,27 @@ SQL
     }
 
     public function testQuoteIdentifer() {
+        // Scalars
         $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifier('foo.bar'));
         $this->assertSame('`foo`', $this->db->quoteIdentifier('foo'));
-
+        $this->assertSame('foo', $this->db->quoteIdentifier(new Expr('foo')));
+        // Arrays
         $this->assertSame(['`foo`.`bar`'], $this->db->quoteIdentifier(['foo.bar']));
         $this->assertSame(['`foo`'], $this->db->quoteIdentifier(['foo']));
+        $this->assertSame(['foo', 'bar'], $this->db->quoteIdentifier([new Expr('foo'), new Expr('bar')]));
     }
 
     public function testQuoteIdentifierStr() {
+        // Scalars
         $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifierStr('foo.bar'));
         $this->assertSame('`foo`', $this->db->quoteIdentifierStr('foo'));
+        $this->assertSame('foo', $this->db->quoteIdentifierStr(new Expr('foo')));
+
+        // Arrays
         $this->assertSame('`foo`.`bar`', $this->db->quoteIdentifierStr(['foo.bar']));
         $this->assertSame('`foo`', $this->db->quoteIdentifierStr(['foo']));
         $this->assertSame('`foo`.`bar`, `test`', $this->db->quoteIdentifierStr(['foo.bar', 'test']));
+        $this->assertSame('foo, bar', $this->db->quoteIdentifierStr([new Expr('foo'), new Expr('bar')]));
     }
 
     public function testPositionalArgs() {
@@ -132,6 +141,16 @@ SQL
 
     public function testSchema() {
         $this->assertInstanceOf(ISchema::class, $this->db->schema());
+    }
+
+    public function testWhere() {
+        $where = $this->db->where('1');
+        $this->assertSame('WHERE 1', $where[0]);
+        $this->assertSame([], $where[1]);
+
+        $where = $this->db->where(['foo' => 'bar']);
+        $this->assertSame('WHERE `foo` = ?', $where[0]);
+        $this->assertSame(['bar'], $where[1]);
     }
 
     protected function createFixtures($db): void {

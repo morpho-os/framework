@@ -13,6 +13,8 @@ interface IDbClient {
 
     public function expr($expr): Expr;
 
+    public function where($condition, array $args = null): array;
+
     public function insert($spec = null): IQuery;
 
     public function select($spec = null): IQuery;

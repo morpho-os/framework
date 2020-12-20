@@ -39,11 +39,9 @@ DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
     [WHERE where_condition]
 
  */
-        $whereClauseSql = $this->whereClauseSql();
-        if (null !== $whereClauseSql) {
-            $sql[] = $whereClauseSql;
+        if ($this->where) {
+            $sql[] = $this->whereStr();
         }
-
         return implode("\n", $sql);
     }
 }

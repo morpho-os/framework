@@ -18,16 +18,16 @@ class SelectQueryTest extends QueryTest {
         $this->query = new SelectQuery($this->db);
     }
 
-    public function testWithoutTable() {
+    public function testOnlyColumns_ExprArg() {
         $columns = "MICROSECOND('2019-12-31 23:59:59.000010'), NOW()";
         $this->assertSqlEquals("SELECT " . $columns, (string) $this->query->columns($this->query->expr($columns)));
     }
 
-    public function testWithTable() {
+    public function testOnlyTable() {
         $this->assertSqlEquals("SELECT * FROM `cars`", (string) $this->query->table('cars'));
     }
 
-    public function testQuery1() {
+    public function testColumns_ExprInTable() {
         $this->query->columns(['customers.id'])
             ->table(
                 $this->query->expr('customers INNER JOIN orders ON customers.id = orders.customer_id')
@@ -35,7 +35,7 @@ class SelectQueryTest extends QueryTest {
         $this->assertSqlEquals('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $this->query->__toString());
     }
 
-    public function testQuery2() {
+    public function testCompleteQuery() {
         $columns = 't.*, tL.startedAt, tL.endedAt, tL.exitCode';
         $join = 'taskLaunch tL ON t.id = tL.taskId';
         $numOfRows = 10;
@@ -56,6 +56,10 @@ class SelectQueryTest extends QueryTest {
             HAVING MAX(tL.endedAt)
             ORDER BY `t`.`id`
             LIMIT $offset, $numOfRows", $sql);
+    }
+
+    public function testOnlyOrderBy_ExprArg() {
+        $this->assertSqlEquals('SELECT * ORDER BY tL.endedAt DESC', $this->query->orderBy($this->db->expr('tL.endedAt DESC'))->sql());
     }
 
     public function dataForJoin() {
@@ -91,6 +95,10 @@ class SelectQueryTest extends QueryTest {
     public function testWhereClause_OnlyCondition_InvalidArg() {
         $this->expectException(UnexpectedValueException::class);
         $this->query->where(['foo', 'bar']);
+    }
+
+    public function testWhereClause_String() {
+        $this->assertSqlEquals('SELECT * WHERE 1', $this->query->where('1')->__toString());
     }
 
     public function testTableRef() {
