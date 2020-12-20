@@ -20,7 +20,7 @@ use function call_user_func;
 use function count;
 use function fclose;
 use function file_put_contents;
-use function Morpho\Base\{formatFloat, it, last, lastPos, lines, memoize, not, op, qq, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNoOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent};
+use function Morpho\Base\{formatFloat, it, last, lastPos, lines, memoize, not, op, qq, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent};
 use RuntimeException;
 use function get_class_methods;
 use function ob_get_clean;
@@ -68,7 +68,7 @@ class FunctionsTest extends TestCase {
             return false;
         };
 
-        $this->assertSame('abc', waitUntilNoOfAttempts($predicate, 0));
+        $this->assertSame('abc', waitUntilNumOfAttempts($predicate, 0));
         $this->assertEquals(4, $called);
     }
 
@@ -79,7 +79,7 @@ class FunctionsTest extends TestCase {
             return false;
         };
         $this->expectException(RuntimeException::class, 'The number of attempts has been reached');
-        waitUntilNoOfAttempts($predicate, 0);
+        waitUntilNumOfAttempts($predicate, 0);
     }
 
     public function testWaitUntilTimeout_Timeout() {

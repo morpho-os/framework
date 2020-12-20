@@ -112,8 +112,8 @@ class ResultTest extends TestCase {
     }
 
     public function testVal() {
-        $this->assertSame(OK::VAL, (new Ok())->val());
-        $this->assertSame(Err::VAL, (new Err())->val());
+        $this->assertNull((new Ok())->val());
+        $this->assertNull((new Err())->val());
         $this->assertSame(3, (new Ok(3))->val());
         $this->assertSame(4, (new Err(4))->val());
     }
@@ -171,5 +171,17 @@ class ResultTest extends TestCase {
     public function testIsOk() {
         $this->assertTrue((new Ok())->isOk());
         $this->assertFalse((new Err())->isOk());
+    }
+
+    public function testJsonSerialization() {
+        $val = ['foo' => 'bar'];
+
+        $result = new Ok($val);
+        $this->assertInstanceOf(\JsonSerializable::class, $result);
+        $this->assertJsonStringEqualsJsonString(json_encode(['ok' => $val]), json_encode($result));
+
+        $result = new Err($val);
+        $this->assertInstanceOf(\JsonSerializable::class, $result);
+        $this->assertJsonStringEqualsJsonString(json_encode(['err' => $val]), json_encode($result));
     }
 }

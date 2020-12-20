@@ -624,11 +624,11 @@ function memoize(callable $fn): Closure {
 /**
  * @return mixed The truthy result from the predicate
  */
-function waitUntilNoOfAttempts(callable $predicate, int $waitIntervalMicroSec = null, int $noOfAttempts = 30) {
+function waitUntilNumOfAttempts(callable $predicate, int $waitIntervalMicroSec = null, int $numOfAttempts = 30) {
     if (null === $waitIntervalMicroSec) {
         $waitIntervalMicroSec = WAIT_INTERVAL_MICRO_SEC;
     }
-    for ($i = 0; $i < $noOfAttempts; $i++) {
+    for ($i = 0; $i < $numOfAttempts; $i++) {
         $res = $predicate();
         if ($res) {
             return $res;

@@ -7,15 +7,18 @@
 namespace Morpho\Base;
 
 class Ok extends Result {
-    public const VAL = 'ok';
     /**
      * @param mixed $val
      */
-    public function __construct($val = self::VAL) {
+    public function __construct($val = null) {
         parent::__construct($val);
     }
 
     public function isOk(): bool {
         return true;
+    }
+
+    public function jsonSerialize() {
+        return ['ok' => $this->val];
     }
 }

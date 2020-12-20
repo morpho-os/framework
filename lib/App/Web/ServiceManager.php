@@ -64,7 +64,6 @@ class ServiceManager extends BaseServiceManager {
     protected function mkTemplateEngineService() {
         $templateEngineConf = $this->conf['templateEngine'];
         $templateEngine = new PhpTemplateEngine($this);
-        $siteModuleName = $this['site']->moduleName();
         $templateEngine->setTargetDirPath($this->cacheDirPath() . '/php-template-engine');
         $templateEngine->forceCompile($templateEngineConf['forceCompile']);
         return $templateEngine;

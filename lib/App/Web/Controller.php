@@ -50,21 +50,16 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->serviceManager['messenger'];
     }
 
-    protected function ok($data = true): Result {
-        return new Ok($data);
+    protected function ok($val = null): Result {
+        return new Ok($val);
     }
 
-    protected function err($data = true): Result {
-        return new Err($data);
+    protected function err($val = null): Result {
+        return new Err($val);
     }
 
     protected function handleResult($actionResult) {
         if ($actionResult instanceof Result) {
-            if ($actionResult instanceof Ok) {
-                $actionResult = ['ok' => $actionResult->val()];
-            } elseif ($actionResult instanceof Err) {
-                $actionResult = ['err' => $actionResult->val()];
-            }
             $response = $this->request->response();
             $response->allowAjax(true)
                 ->setFormats([ContentFormat::JSON]);

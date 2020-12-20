@@ -30,14 +30,15 @@
         "ext-session": "*",
         "ext-spl": "*",
         "ext-tokenizer": "*",
+        "ext-iconv": "*",
         "morpho-os/zf-fork": "dev-master",
-        "monolog/monolog": "dev-master",
+        "monolog/monolog": "dev-main",
         "nikic/fast-route": "dev-master",
-        "nikic/php-parser": "4.10.2",
+        "nikic/php-parser": "4.10.4",
         "psr/log": "dev-master",
         "psr/simple-cache": "^1.0@dev",
         "willdurand/negotiation": "^3.0@dev",
-        "symfony/polyfill-php80": "1.21.x-dev"
+        "symfony/polyfill-php80": "^1.21.x-dev"
     },
     "require-dev": {
         "phpunit/phpunit": "dev-master",

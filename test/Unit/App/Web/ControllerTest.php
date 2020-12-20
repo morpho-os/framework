@@ -56,7 +56,7 @@ class ControllerTest extends TestCase {
 
         $this->assertTrue($controller->called);
         $result = $request->response()['result'];
-        $this->assertSame(['ok' => $val], $result);
+        $this->assertEquals(new Ok($val), $result);
         $this->assertTrue($response->allowAjax());
         $this->assertSame([ContentFormat::JSON], $response->formats());
     }

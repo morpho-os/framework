@@ -12,8 +12,8 @@ namespace Morpho\Base;
  */
 interface IFn {
     /**
-     * @param mixed $value
+     * @param mixed $val
      * @return mixed
      */
-    public function __invoke($value);
+    public function __invoke($val);
 }
