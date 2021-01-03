@@ -20,7 +20,12 @@ interface IQuery extends Stringable {
 
     public function args(): array;
 
-    public function where($condition, array $args = null): self;
+    /**
+     * @param $condition
+     * @param null|array|string|int $args If not null will be casted to array
+     * @return $this
+     */
+    public function where($condition, $args = null): self;
 
     public function eval(): Result;
 

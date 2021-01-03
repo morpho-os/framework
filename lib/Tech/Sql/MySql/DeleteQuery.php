@@ -6,10 +6,7 @@
  */
 namespace Morpho\Tech\Sql\MySql;
 
-use Morpho\Tech\Sql\IQuery;
-
-class DeleteQuery implements IQuery {
-    use TQuery;
+class DeleteQuery extends Query {
 //    public function build(): array {
 //        throw new NotImplementedException();
 //    }

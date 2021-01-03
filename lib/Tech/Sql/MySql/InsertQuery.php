@@ -7,11 +7,8 @@
 namespace Morpho\Tech\Sql\MySql;
 
 use Morpho\Base\NotImplementedException;
-use Morpho\Tech\Sql\IQuery;
 
-class InsertQuery implements IQuery {
-    use TQuery;
-
+class InsertQuery extends Query {
     protected array $rows = [];
 
     public function row(array $row): self {

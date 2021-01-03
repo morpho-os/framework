@@ -6,10 +6,7 @@
  */
 namespace Morpho\Tech\Sql\MySql;
 
-use Morpho\Tech\Sql\IQuery;
-
-class ReplaceQuery implements IQuery {
-    use TQuery;
+class ReplaceQuery extends Query {
 /*    public function build(): array {
         throw new NotImplementedException();
     }*/

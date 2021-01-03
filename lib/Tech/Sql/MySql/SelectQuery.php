@@ -8,11 +8,8 @@ namespace Morpho\Tech\Sql\MySql;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
-use Morpho\Tech\Sql\IQuery;
 
-class SelectQuery implements IQuery {
-    use TQuery;
-
+class SelectQuery extends Query {
     protected array $columns = [];
     protected array $join = [];
     protected array $groupBy = [];
@@ -21,6 +18,10 @@ class SelectQuery implements IQuery {
     protected array $orderBy = [];
     protected ?array $limit = null;
 
+    /**
+     * @param array|string $columns
+     * @return $this
+     */
     public function columns($columns): self {
         if (is_array($columns)) {
             $this->columns = array_merge($this->columns, $columns);

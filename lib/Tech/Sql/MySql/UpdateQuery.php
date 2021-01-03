@@ -6,11 +6,7 @@
  */
 namespace Morpho\Tech\Sql\MySql;
 
-use Morpho\Tech\Sql\IQuery;
-
-class UpdateQuery implements IQuery {
-    use TQuery;
-
+class UpdateQuery extends Query {
     protected array $tables = [];
     protected array $columns = [];
 

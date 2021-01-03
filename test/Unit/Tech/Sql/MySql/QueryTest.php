@@ -15,6 +15,10 @@ abstract class QueryTest extends DbTestCase {
         parent::setUp();
         $this->query = $this->mkQuery();
     }
+    
+    public function testInterface() {
+        $this->assertInstanceOf(IQuery::class, $this->query);
+    }
 
     protected function checkTableRef() {
         $sql = $this->query->table(['abc' => 'someAlias', 'interTable', 'def' => 'anotherAlias'])->__toString();

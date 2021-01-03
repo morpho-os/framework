@@ -9,11 +9,10 @@ namespace Morpho\Tech\Sql\MySql;
 use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IDbClient;
+use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\Result;
-use UnexpectedValueException;
-use function preg_match;
 
-trait TQuery {
+abstract class Query implements IQuery {
     protected IDbClient $db;
 
     protected array $tables = [];
@@ -41,7 +40,7 @@ trait TQuery {
         return $this->db->expr($expr);
     }
 
-    public function where($condition, array $args = null): self {
+    public function where($condition, $args = null): self {
         if (null === $args) {
             // $args not specified => $condition contains arguments
             if (is_array($condition)) {
@@ -52,7 +51,7 @@ trait TQuery {
             }
         } else {
             $this->where[] = $condition;
-            $this->args = array_merge($this->args, $args);
+            $this->args = array_merge($this->args, (array) $args);
         }
         return $this;
     }
