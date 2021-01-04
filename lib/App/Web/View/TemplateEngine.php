@@ -6,8 +6,20 @@
  */
 namespace Morpho\App\Web\View;
 
+use ArrayObject;
 use Morpho\Base\Pipe;
 use Morpho\Fs\File;
+use RuntimeException;
+use Throwable;
+use function array_merge;
+use function extract;
+use function get_class;
+use function is_array;
+use function is_string;
+use function ob_end_clean;
+use function ob_get_clean;
+use function ob_start;
+use function trim;
 
 class TemplateEngine extends Pipe {
     protected array $vars = [];
@@ -27,28 +39,28 @@ class TemplateEngine extends Pipe {
 
     public function tpl(string $__filePath, array $__vars): string {
         // NB: We can't use the Base\tpl() function as we need to preserve $this
-        \extract($__vars, EXTR_SKIP);
+        extract($__vars, EXTR_SKIP);
         unset($__vars);
-        \ob_start();
+        ob_start();
         try {
             require $__filePath;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Don't output any result in case of Error
-            \ob_end_clean();
+            ob_end_clean();
             throw $e;
         }
-        return \trim(\ob_get_clean());
+        return trim(ob_get_clean());
     }
 
     /**
-     * @param string|array|\ArrayObject $context
+     * @param string|array|ArrayObject $context
      * @param array $vars
      */
     public function run($context, array $__vars): string {
-        if (\is_array($context)) {
-            $context = new \ArrayObject($context);
-        } elseif (\is_string($context)) {
-            $context = new \ArrayObject(['code' => $context]);
+        if (is_array($context)) {
+            $context = new ArrayObject($context);
+        } elseif (is_string($context)) {
+            $context = new ArrayObject(['code' => $context]);
         }
         //$context['vars'] = $__vars;
         // 1. Compile
@@ -57,24 +69,24 @@ class TemplateEngine extends Pipe {
         $__code = $context['code'];
         //$__vars = $context['vars'];
         unset($context);
-        \extract($__vars, EXTR_SKIP);
-        \ob_start();
+        extract($__vars, EXTR_SKIP);
+        ob_start();
         try {
             eval('?>' . $__code);
-        } catch (\Throwable $e) {
-            \ob_end_clean();
+        } catch (Throwable $e) {
+            ob_end_clean();
             throw $e;
         }
-        return \trim(\ob_get_clean());
+        return trim(ob_get_clean());
     }
 
     /**
      * Compiles and renders the $filePath.
-     * @param array|\ArrayObject $vars
+     * @param array|ArrayObject $vars
      */
     public function runFile(string $filePath, $vars = []): string {
         $filePath = $this->compileFile($filePath);
-        return $this->tpl($filePath, \is_array($vars) ? $vars : $vars->getArrayCopy());
+        return $this->tpl($filePath, is_array($vars) ? $vars : $vars->getArrayCopy());
     }
 
     public function __set(string $varName, $value): void {
@@ -83,7 +95,7 @@ class TemplateEngine extends Pipe {
 
     public function __get(string $varName) {
         if (!isset($this->vars[$varName])) {
-            throw new \RuntimeException("The template variable '$varName' was not set.");
+            throw new RuntimeException("The template variable '$varName' was not set.");
         }
         return $this->vars[$varName];
     }
@@ -97,7 +109,7 @@ class TemplateEngine extends Pipe {
     }
 
     public function mergeVars(array $vars): void {
-        $this->vars = \array_merge($this->vars, $vars);
+        $this->vars = array_merge($this->vars, $vars);
     }
 
     public function setVars(array $vars): void {
@@ -114,12 +126,12 @@ class TemplateEngine extends Pipe {
      */
     protected function compileFile(string $sourceFilePath): string {
         if (!$this->targetDirPath) {
-            throw new \RuntimeException("The property '" . \get_class($this) . "::targetDirPath' is empty");
+            throw new RuntimeException("The property '" . get_class($this) . "::targetDirPath' is empty");
         }
         $targetFilePath = $this->targetDirPath . '/' . md5($sourceFilePath) . '.php';
         if (!is_file($targetFilePath) || $this->forceCompile) {
             $code = File::read($sourceFilePath);
-            $context = new \ArrayObject([
+            $context = new ArrayObject([
                 'code' => $code,
                 //'vars' => [],
                 'filePath' => $sourceFilePath,

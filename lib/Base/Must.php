@@ -10,13 +10,19 @@ namespace Morpho\Base;
 use InvalidArgumentException;
 use OutOfRangeException;
 use RuntimeException;
+use function array_diff_key;
+use function array_flip;
+use function array_intersect_key;
+use function array_keys;
+use function count;
+use function implode;
 
 class Must {
     /**
      * @return mixed
      */
     public static function beNotEmpty(...$args) {
-        $n = \count($args);
+        $n = count($args);
         if (!$n) {
             throw new InvalidArgumentException("Empty arguments");
         }
@@ -30,7 +36,7 @@ class Must {
      * @return mixed
      */
     public static function beEmpty(...$args) {
-        $n = \count($args);
+        $n = count($args);
         if (!$n) {
             throw new InvalidArgumentException("Empty arguments");
         }
@@ -41,15 +47,15 @@ class Must {
     }
 
     public static function haveOnlyKeys(array $arr, array $allowedKeys): void {
-        $diff = \array_diff_key($arr, \array_flip($allowedKeys));
-        if (\count($diff)) {
-            throw new RuntimeException('Not allowed items are present: ' . shorten(\implode(', ', \array_keys($diff)), 80));
+        $diff = array_diff_key($arr, array_flip($allowedKeys));
+        if (count($diff)) {
+            throw new RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
         }
     }
 
     public static function haveKeys(array $arr, array $requiredKeys): void {
-        $intersection = \array_intersect_key(\array_flip($requiredKeys), $arr);
-        if (\count($intersection) != \count($requiredKeys)) {
+        $intersection = array_intersect_key(array_flip($requiredKeys), $arr);
+        if (count($intersection) != count($requiredKeys)) {
             throw new RuntimeException("Required items are missing");
         }
     }
@@ -60,12 +66,22 @@ class Must {
         }
     }
 
-    public static function beNull($value): void {
-        self::beTrue($value === null);
+    /**
+     * @param $val
+     * @return mixed
+     */
+    public static function beNull($val) {
+        self::beTrue($val === null);
+        return $val;
     }
 
-    public static function beNotNull($value): void {
-        self::beTrue($value !== null);
+    /**
+     * @param $val
+     * @return mixed
+     */
+    public static function beNotNull($val) {
+        self::beTrue($val !== null);
+        return $val;
     }
 
     public static function beTrue($result, string $errMessage = null): void {

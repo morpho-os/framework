@@ -14,7 +14,6 @@ use function count;
 use function file_exists;
 use function implode;
 use function json_encode;
-use function Morpho\Base\dasherize;
 use function usort;
 use const Morpho\App\APP_DIR_NAME;
 
@@ -130,14 +129,12 @@ class ScriptProcessor extends HtmlProcessor {
      * Includes a file for controller's action.
      */
     private function actionScripts(): array {
-        $handler = $this->request()->handler();
+        $jsModuleId = $this->request()->handler()['modulePath'] . '/' . APP_DIR_NAME . '/' . $this->request()->response()['result']['_path'];
+        $relJsFilePath = Path::combine($this->baseUriPath, $jsModuleId . '.js');
         $serviceManager = $this->serviceManager;
-        $jsModuleId = $handler['modulePath'] . '/' . APP_DIR_NAME . '/' . $handler['controllerPath'] . '/' . dasherize($handler['method']);
-        $relJsFilePath = '/' . $jsModuleId . '.js';
         $siteModuleName = $serviceManager['site']->moduleName();
         $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
         $absJsFilePath = Path::combine([dirname($clientModuleDirPath), $relJsFilePath]);
-        // @todo: support base path
         // @todo: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
         $inline = $included = [];
         if (file_exists($absJsFilePath)) {

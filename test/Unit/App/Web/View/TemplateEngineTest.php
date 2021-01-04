@@ -23,14 +23,14 @@ class TemplateEngineTest extends TestCase {
         );
     }
 
-    public function testRun_WithoutElements() {
+    public function testRun_WithoutPipeSteps() {
         $engine = new TemplateEngine();
         $code = '<?php echo "Hello $world";';
         $res = $engine->run($code, ['world' => 'World!']);
         $this->assertSame('Hello World!', $res);
     }
 
-    public function testRun_WithElements() {
+    public function testRun_WithPipeSteps() {
         $engine = new TemplateEngine();
         $code = '<?php echo ??;';
         $engine->append(function ($context) {

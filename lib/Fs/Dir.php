@@ -182,11 +182,11 @@ class Dir extends Entry {
 
     /**
      * @param string|iterable $dirPath
-     * @param string|Closure $processor
+     * @param string|Closure|null $processor
      * @param array|bool|null $conf
      * @return Generator
      */
-    public static function baseNames($dirPath, $processor, $conf = null): Generator {
+    public static function names($dirPath, $processor = null, $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
@@ -249,7 +249,7 @@ class Dir extends Entry {
             throw new LogicException("The 'recursive' conf param must be false");
         }
         $conf['type'] = Stat::DIR;
-        return self::baseNames($dirPath, $processor, $conf);
+        return self::names($dirPath, $processor, $conf);
     }
 
     /**
@@ -289,7 +289,7 @@ class Dir extends Entry {
     public static function fileNames($dirPath, $processor = null, $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::FILE;
-        return self::baseNames($dirPath, $processor, $conf);
+        return self::names($dirPath, $processor, $conf);
     }
 
     public static function linkPaths(string $dirPath, callable $filter): Generator {
