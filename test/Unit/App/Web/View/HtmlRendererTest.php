@@ -6,66 +6,55 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
+use ArrayObject;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Request;
-use Morpho\App\Web\Response;
 use Morpho\App\Web\View\HtmlRenderer;
-use Morpho\App\Web\View\Theme;
-use Morpho\App\ModuleIndex;
-use Morpho\App\ServerModule;
-use UnexpectedValueException;
 
 class HtmlRendererTest extends TestCase {
     public function testInvoke() {
-        $response = new Response();
-        $response->setStatusCode(Response::OK_STATUS_CODE);
-        $response['result'] = [];
+        $response = new class extends ArrayObject {
+            private $body;
+            public function __construct() {
+                parent::__construct();
+                $this->headers = new ArrayObject();
+            }
+            public function headers() {
+                return $this->headers;
+            }
+            public function body() {
+                return $this->body;
+            }
+            public function setBody($body) {
+                $this->body = $body;
+            }
+        };
+        $request = new class ($response) {
+            private $response;
+            public function __construct($response) {
+                $this->response = $response;
+            }
+            public function response() {
+                return $this->response;
+            }
 
-        $pageRenderingModule = 'abc/test';
-        $bodyRenderingModule = 'foo/bar';
+        };
+        $htmlSample = 'This is a <main>This is a body text.</main> page text.';
+        $renderer = new class (new class {}, new class {}, 'foo/bar', $htmlSample) extends HtmlRenderer {
+            private $htmlSample;
 
-        $request = $this->createMock(Request::class);
-        $request->expects($this->any())
-                ->method('handler')
-                ->willReturn([
-                    'module' => $bodyRenderingModule,
-                    'controllerPath' => 'news',
-                    'method' => 'editUser',
-                ]);
-        $request->expects($this->any())
-                ->method('response')
-                ->willReturn($response);
+            public function __construct($templateEngine, $moduleIndex, string $pageRenderingModule, string $htmlSample) {
+                parent::__construct($templateEngine, $moduleIndex, $pageRenderingModule);
+                $this->htmlSample = $htmlSample;
+            }
 
-        $theme = $this->createMock(Theme::class);
-        $theme->expects($this->exactly(2))
-              ->method('render')
-              ->will($this->returnCallback(function ($actionResult) {
-                  if ($actionResult['_path'] === 'news/edit-user') {
-                      return 'This is a body text.';
-                  }
-                  if ($actionResult['_path'] === 'index') {
-                      return 'This is a <main>' . $actionResult['body'] . '</main> page text.';
-                  }
-                  throw new UnexpectedValueException();
-              }));
-
-        $moduleIndex = $this->createMock(ModuleIndex::class);
-        $moduleIndex->expects($this->any())
-                    ->method('module')
-                    ->will($this->returnCallback(function ($moduleName) use ($bodyRenderingModule, $pageRenderingModule) {
-                        if ($moduleName == $bodyRenderingModule) {
-                            return $this->createMock(ServerModule::class);
-                        } elseif ($moduleName == $pageRenderingModule) {
-                            return $this->createMock(ServerModule::class);
-                        }
-                        throw new UnexpectedValueException();
-                    }));
-
-        $renderer = new HtmlRenderer($theme, $moduleIndex, $pageRenderingModule);
+            protected function renderHtml($request) {
+                return $this->htmlSample;
+            }
+        };
 
         $renderer->__invoke($request);
 
-        $this->assertSame('This is a <main>This is a body text.</main> page text.', $response->body());
+        $this->assertSame($htmlSample, $response->body());
         $this->assertSame(['Content-Type' => 'text/html;charset=utf-8'], $response->headers()->getArrayCopy());
     }
 }

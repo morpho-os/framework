@@ -10,7 +10,6 @@ use Morpho\Base\IFn;
 use RuntimeException;
 use Zend\Stdlib\ArrayUtils;
 use function is_file;
-use function Morpho\Base\last;
 
 class SiteFactory implements IFn {
     protected IHostNameValidator $hostNameValidator;
@@ -37,28 +36,12 @@ class SiteFactory implements IFn {
 
     protected function loadExtendedSiteConf(array $basicSiteConf): array {
         $siteModuleConf = $basicSiteConf['module'];
-
         // Site's config file can use site module's classes so enable autoloading for it.
         require $siteModuleConf['paths']['dirPath'] . '/' . VENDOR_DIR_NAME . '/autoload.php';
         $extendedSiteConf = $this->loadConfFile($siteModuleConf['paths']['confFilePath']);
-
         $siteModuleName = $siteModuleConf['name'];
         unset($siteModuleConf['name']);
-
-        $normalizedModulesConf = [];
-        foreach (ArrayUtils::merge([$siteModuleName => $siteModuleConf], $extendedSiteConf['modules']) as $moduleName => $moduleConf) {
-            $shortModuleName = last($moduleName, '/');
-            if (!isset($moduleConf['paths']['dirPath'])) {
-                $moduleConf['paths']['dirPath'] = $extendedSiteConf['paths']['serverModuleDirPath'] . '/' . $shortModuleName;
-            }
-            if (!isset($moduleConf['paths']['clientModuleDirPath'])) {
-                $moduleConf['paths']['clientModuleDirPath'] = $extendedSiteConf['paths']['clientModuleDirPath'] . '/' . $shortModuleName;
-            }
-            $normalizedModulesConf[$moduleName] = $moduleConf;
-        }
-        $extendedSiteConf['modules'] = $normalizedModulesConf;
-
-        return $extendedSiteConf;
+        return ArrayUtils::merge([$siteModuleName => $siteModuleConf], $extendedSiteConf) ;
     }
 
     protected function loadConfFile(string $filePath): array {

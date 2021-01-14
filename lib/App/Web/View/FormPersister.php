@@ -13,11 +13,11 @@ namespace Morpho\App\Web\View;
  */
 class FormPersister extends HtmlProcessor {
     const DEFAULT_METHOD = 'post';
-    private $fp_autoindexes;
+    private $fpAutoIndexes;
 
-    public function __invoke($html) {
-        $this->fp_autoindexes = [];
-        return parent::__invoke($html);
+    public function __invoke($context) {
+        $this->fpAutoIndexes = [];
+        return parent::__invoke($context);
     }
 
     protected function tagForm($tag) {
@@ -25,12 +25,11 @@ class FormPersister extends HtmlProcessor {
             $tag['method'] = self::DEFAULT_METHOD;
         }
         if (!isset($tag['action'])) {
-            $request = $this->request();
 /*            if (strtolower($tag['method']) === 'get') {
                 $tag['action'] = $request->path();
             } else {
                 */
-            $tag['action'] = $request->uri()->toStr(null, false);
+            $tag['action'] = $this->request->uri()->toStr(null, false);
         }
         return $tag;
     }

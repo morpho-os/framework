@@ -8,6 +8,8 @@ namespace Morpho\App;
 
 use Morpho\Base\Event;
 use Morpho\Base\IEventManager;
+use RuntimeException;
+use Throwable;
 
 class Dispatcher {
     protected int $maxNoOfDispatchIterations = 20;
@@ -27,7 +29,7 @@ class Dispatcher {
             $request->isHandled(false);
 
             if ($i >= $this->maxNoOfDispatchIterations) {
-                throw new \RuntimeException("Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times");
+                throw new RuntimeException("Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times");
             }
             try {
                 $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));
@@ -37,7 +39,7 @@ class Dispatcher {
                 $request->isHandled(true);
 
                 $this->eventManager->trigger(new Event('afterDispatch', ['request' => $request]));
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->eventManager->trigger(new Event('dispatchError', ['request' => $request, 'exception' => $e]));
             }
             $i++;

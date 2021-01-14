@@ -6,25 +6,13 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\Ioc\IServiceManager;
-use Morpho\App\Web\Request;
-
 abstract class HtmlProcessor extends HtmlSemiParser {
     protected const SKIP_ATTR = '_skip';
 
-    protected $serviceManager;
+    protected $request;
 
-    private $request;
-
-    public function __construct(IServiceManager $serviceManager) {
-        $this->serviceManager = $serviceManager;
+    public function __construct($request) {
         parent::__construct();
-    }
-
-    protected function request(): Request {
-        if (null === $this->request) {
-            $this->request = $this->serviceManager['request'];
-        }
-        return $this->request;
+        $this->request = $request;
     }
 }

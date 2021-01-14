@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\Base\IFn;
+use Morpho\App\Web\Uri\Uri;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
 
@@ -18,7 +18,7 @@ class RequestTest extends TestCase {
 
     public function setUp(): void {
         parent::setUp();
-        $this->request = $this->mkRequest();
+        $this->request = new Request();
     }
 
     public function testResponse_ReturnsTheSameInstance() {
@@ -86,9 +86,9 @@ class RequestTest extends TestCase {
         ];
         if ($useGlobalServerVar) {
             $_SERVER = $serverVars;
-            $request = $this->mkRequest(null);
+            $request = new Request();
         } else {
-            $request = $this->mkRequest($serverVars);
+            $request = new Request($serverVars);
         }
         $this->assertSame($expectedHeaders, $request->headers()->getArrayCopy());
     }
@@ -206,12 +206,85 @@ class RequestTest extends TestCase {
 
     public function testUriInitialization_BasePath() {
         $basePath = '/foo/bar/baz';
-        $request = $this->mkRequest([
+        $request = new Request([
             'REQUEST_URI' => $basePath . '/index.php/one/two',
             'SCRIPT_NAME' => $basePath . '/index.php'
         ]);
         $uri = $request->uri();
         $this->assertSame($basePath, $uri->path()->basePath());
+    }
+
+    public function dataForPrependUriWithBasePath() {
+        yield [
+            '',
+            null,
+            '',
+            '',
+        ];
+        yield [
+            '/',
+            '/',
+            '/',
+            '/',
+        ];
+        yield [
+            '',
+            null,
+            '/',
+            '',
+        ];
+        yield [
+            '/foo/bar/baz/abc?test=123&redirect=' . \rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza') . '#toc',
+            '/foo/bar',
+            '/foo/bar',
+            '/baz/abc?test=123&redirect=' . \rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza') . '#toc',
+        ];
+        yield [
+            '/foo/bar/abc/def/ghi',
+            '/foo/bar',
+            '/foo/bar',
+            '/abc/def/ghi', // starts with `/` => prepend
+        ];
+        yield [
+            'abc/def/ghi',
+            null,
+            '/foo/bar',
+            'abc/def/ghi', // doesn't start with `/` => don't prepend
+        ];
+        yield [
+            '/foo/bar',
+            '/foo/bar',
+            '/foo/bar',
+            '/', // starts with '/` => prepend
+        ];
+        yield [
+            '/foo/bar',
+            '/',
+            '/',
+            '/foo/bar', // starts with '/` => prepend
+        ];
+        yield [
+            '/foo/bar',
+            '/',
+            '/',
+            '/foo/bar', // starts with '/` => prepend
+        ];
+    }
+
+    /**
+     * @dataProvider dataForPrependUriWithBasePath
+     */
+    public function testPrependUriWithBasePath($expectedUri, $expectedBasePath, $basePath, $uriToPrepend) {
+        $fullRequestUri = 'http://localhost/foo/bar/baz';
+        $uri = new Uri($fullRequestUri);
+        $uri->path()->setBasePath($basePath);
+        $this->request->setUri($uri);
+        $this->assertSame($basePath, $this->request->uri()->path()->basePath());
+
+        $prepended = $this->request->prependUriWithBasePath($uriToPrepend);
+
+        $this->assertSame($expectedBasePath, $prepended->path()->basePath());
+        $this->assertSame($expectedUri, $prepended->toStr(null, false));
     }
 
     public function dataForUriInitialization_Scheme() {
@@ -234,7 +307,7 @@ class RequestTest extends TestCase {
     public function testUriInitialization_Scheme($isHttps, $serverVars) {
         $trustedProxyIp = '127.0.0.2';
         $serverVars['REMOTE_ADDR'] = $trustedProxyIp;
-        $request = $this->mkRequest($serverVars);
+        $request = new Request($serverVars);
         $request->setTrustedProxyIps([$trustedProxyIp]);
         if ($isHttps) {
             $this->assertSame('https', $request->uri()->scheme());
@@ -244,7 +317,7 @@ class RequestTest extends TestCase {
     }
 
     public function testUriInitialization_Query() {
-        $request = $this->mkRequest([
+        $request = new Request([
             'REQUEST_URI' => '/',
             'SCRIPT_NAME' => '/index.php',
             'QUERY_STRING' => '',
@@ -255,17 +328,16 @@ class RequestTest extends TestCase {
     }
     
     public function testData() {
-        $request = $this->mkRequest();
         $this->assertSame(
             ['bar' => 'baz'],
-            $request->data(['foo' => ['bar' => ' baz  ']], 'foo')
+            $this->request->data(['foo' => ['bar' => ' baz  ']], 'foo')
         );
     }
     
     public function testMappingPostToPatch() {
         $data = ['foo' => 'bar', 'baz' => 'abc'];
         $_POST = \array_merge($data, ['_method' => \Zend\Http\Request::METHOD_PATCH]);
-        $request = $this->mkRequest();
+        $request = new Request();
         $this->assertTrue($request->isPatchMethod());
         $this->assertSame($data, $request->patch());
     }
@@ -309,20 +381,8 @@ class RequestTest extends TestCase {
     }
 
     private function checkHttpMethod(array $serverVars, string $httpMethod): void {
-        $request = $this->mkRequest($serverVars);
+        $request = new Request($serverVars);
         $this->assertSame($httpMethod, $request->method());
         $this->assertTrue($request->{'is' . $httpMethod . 'Method'}());
-    }
-
-    private function mkRequest(array $serverVars = null) {
-        return new Request(
-            null,
-            $serverVars,
-            new class implements IFn {
-                public function __invoke($value) {
-                    return true;
-                }
-            }
-        );
     }
 }

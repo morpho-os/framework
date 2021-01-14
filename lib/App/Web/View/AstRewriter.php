@@ -20,25 +20,24 @@ use PhpParser\Node\Expr\ConstFetch as ConstFetchExpr;
 use PhpParser\Comment\Doc as DocComment;
 use PhpParser\Node\Expr;
 use PhpParser\NodeVisitorAbstract;
+use function array_merge;
+use function dirname;
+use function file_get_contents;
+use function realpath;
 
 class AstRewriter extends NodeVisitorAbstract {
-    /**
-     * @var \ArrayAccess
-     */
-    private $context;
-    /**
-     * @var Processor
-     */
-    private $processor;
+    private array $context;
+    private PhpProcessor $processor;
+    private $appendSourceInfo = true;
 
-    public function __construct(Processor $processor, \ArrayAccess $context) {
+    public function __construct(PhpProcessor $processor, array $context) {
         $this->processor = $processor;
         $this->context = $context;
     }
 
     public function enterNode(Node $node) {
         if ($node instanceof DirMagicConst) {
-            return new StringScalar(\realpath(\dirname($this->context['filePath'])));
+            return new StringScalar(realpath(dirname($this->context['filePath'])));
         } elseif ($node instanceof FileMagicConst) {
             return new StringScalar($this->context['filePath']);
         }
@@ -79,12 +78,12 @@ class AstRewriter extends NodeVisitorAbstract {
     }
 
     public function beforeTraverse(array $nodes): void {
-        if (!empty($this->context['conf']['appendSourceInfo']) && \count($nodes)) {
+        if ($this->appendSourceInfo && isset($this->context['filePath']) && $nodes) {
             $node = $nodes[0];
             $commentText = "Source file: '{$this->context['filePath']}'";
             $node->setAttribute(
                 'comments',
-                \array_merge(
+                array_merge(
                     [new DocComment("/**\n * $commentText\n */")],
                     (array)$node->getAttribute('comments')
                 )
@@ -94,10 +93,9 @@ class AstRewriter extends NodeVisitorAbstract {
 
     protected function evalRequire(Expr $expr): array {
         $filePath = $this->evalExpr($expr);
-        $code = \file_get_contents($filePath);
+        $code = file_get_contents($filePath);
         $processor = $this->processor;
         $ast = $processor->parse($code);
-        $context = clone $this->context;
         $context['filePath'] = $filePath;
         return $processor->rewrite($ast, $context);
     }

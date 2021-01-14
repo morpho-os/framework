@@ -12,7 +12,7 @@ use Morpho\Error\WarningException;
 class PhpErrorExceptionTest extends TestCase {
     public function testToString() {
         $e = new WarningException("My message", 0, E_WARNING);
-        $expectedRegexp = "/^Morpho\\\\Error\\\\WarningException \(E_WARNING\): My message/si";
-        $this->assertMatchesRegularExpression($expectedRegexp, $e->__toString());
+        $re = "/^Morpho\\\\Error\\\\WarningException \(E_WARNING\): My message/si";
+        $this->assertMatchesRegularExpression($re, $e->__toString());
     }
 }

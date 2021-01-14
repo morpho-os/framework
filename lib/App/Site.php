@@ -7,20 +7,21 @@
 namespace Morpho\App;
 
 use Throwable;
+use function Morpho\Base\last;
 
 class Site implements ISite {
     protected string $name;
 
     protected string $moduleName;
 
-    protected array $conf;
+    protected array $allModulesConf;
 
     private string $hostName;
 
-    public function __construct(string $name, string $moduleName, array $conf, string $hostName) {
+    public function __construct(string $name, string $moduleName, array $allModulesConf, string $hostName) {
         $this->name = $name;
         $this->moduleName = $moduleName;
-        $this->conf = $conf;
+        $this->allModulesConf = $allModulesConf;
         $this->hostName = $hostName;
     }
 
@@ -33,7 +34,7 @@ class Site implements ISite {
     }
 
     public function conf(): array {
-        return $this->conf;
+        return $this->allModulesConf[$this->moduleName];
     }
 
     public function hostName(): string {
@@ -42,14 +43,14 @@ class Site implements ISite {
 
     public function serverModuleDirPaths(): iterable {
         $moduleDirPaths = [];
-        foreach ($this->conf['modules'] as $name => $conf) {
-            $moduleDirPaths[] = $conf['paths']['dirPath'];
+        foreach ($this->allModulesConf as $moduleName => $moduleConf) {
+            $moduleDirPaths[] = $moduleConf['paths']['dirPath'];
         }
         return $moduleDirPaths;
     }
 
     public function moduleConf(string $moduleName): array {
-        return $this->conf['modules'][$moduleName];
+        return $this->allModulesConf[$moduleName];
     }
 
     /**

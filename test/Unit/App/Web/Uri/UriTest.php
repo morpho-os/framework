@@ -81,6 +81,7 @@ class UriTest extends TestCase {
         $this->assertTrue($authority->isNull());
 
         $newAuthority = new Authority('example.com');
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertVoid($uri->setAuthority($newAuthority));
         $this->assertSame($newAuthority, $uri->authority());
     }
@@ -91,10 +92,12 @@ class UriTest extends TestCase {
         $this->assertEquals(new Path(''), $uri->path());
 
         $path = '/foo/bar';
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertVoid($uri->setPath($path));
         $this->assertEquals(new Path($path), $uri->path());
 
         $path = new Path($path);
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertVoid($uri->setPath($path));
         $this->assertSame($path, $uri->path());
     }
@@ -107,6 +110,7 @@ class UriTest extends TestCase {
         $this->assertTrue($query->isNull());
 
         $newQuery = new Query('foo=bar&test=123');
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($uri->setQuery($newQuery));
         $this->assertSame($newQuery, $uri->query());
     }

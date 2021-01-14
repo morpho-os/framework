@@ -6,14 +6,14 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\Fs\Path;
-use Morpho\Ioc\IServiceManager;
+use Morpho\App\ISite;
 use function array_merge;
 use function array_reduce;
 use function count;
 use function file_exists;
 use function implode;
 use function json_encode;
+use function Morpho\Base\last;
 use function usort;
 use const Morpho\App\APP_DIR_NAME;
 
@@ -22,11 +22,11 @@ class ScriptProcessor extends HtmlProcessor {
 
     protected array $scripts = [];
 
-    private string $baseUriPath;
+    private ISite $site;
 
-    public function __construct(IServiceManager $serviceManager) {
-        parent::__construct($serviceManager);
-        $this->baseUriPath = '/'; // @todo
+    public function __construct($request, ISite $site) {
+        parent::__construct($request);
+        $this->site = $site;
     }
 
     protected function containerBody($tag) {
@@ -51,7 +51,8 @@ class ScriptProcessor extends HtmlProcessor {
 
         $mainPageScripts = $splitScripts($this->scripts);
         $childPageScripts = $splitScripts($childScripts);
-        $actionScripts = $this->actionScripts();
+
+        $actionScripts = $this->actionScripts($this->request['view']);
 
         // script = (included | inline)
         // script = (main-page-script | child-page-script | action-script)
@@ -68,10 +69,6 @@ class ScriptProcessor extends HtmlProcessor {
             $mainPageScripts[0],
             count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
         );
-        $changed = $this->changeBodyScripts($scripts);
-        if (null !== $changed) {
-            $scripts = $changed;
-        }
         $html .= $this->renderScripts($scripts);
 
         $tag['_text'] = $html;
@@ -102,7 +99,7 @@ class ScriptProcessor extends HtmlProcessor {
             $script[self::INDEX_ATTR] = floatval($script[self::INDEX_ATTR]);
             $scripts[$key] = $script;
         }
-        usort($scripts, function ($prev, $next) use (&$index) {
+        usort($scripts, function ($prev, $next) {
             $a = $prev[self::INDEX_ATTR];
             $b = $next[self::INDEX_ATTR];
             $diff = $a - $b;
@@ -119,6 +116,9 @@ class ScriptProcessor extends HtmlProcessor {
             return -1; // $diff < -PHP_FLOAT_EPSILON
         });
         foreach ($scripts as $tag) {
+            if (isset($tag['src'])) {
+                $tag['src'] = $this->request->prependUriWithBasePath($tag['src'])->toStr(null, false);
+            }
             unset($tag[self::INDEX_ATTR]);
             $html[] = $this->renderTag($tag);
         }
@@ -128,44 +128,33 @@ class ScriptProcessor extends HtmlProcessor {
     /**
      * Includes a file for controller's action.
      */
-    private function actionScripts(): array {
-        $jsModuleId = $this->request()->handler()['modulePath'] . '/' . APP_DIR_NAME . '/' . $this->request()->response()['result']['_path'];
-        $relJsFilePath = Path::combine($this->baseUriPath, $jsModuleId . '.js');
-        $serviceManager = $this->serviceManager;
-        $siteModuleName = $serviceManager['site']->moduleName();
-        $clientModuleDirPath = $serviceManager['serverModuleIndex']->module($siteModuleName)->clientModule()->dirPath();
-        $absJsFilePath = Path::combine([dirname($clientModuleDirPath), $relJsFilePath]);
-        // @todo: Add automatic compilation of ts: tsc --emitDecoratorMetadata --experimentalDecorators --forceConsistentCasingInFileNames --inlineSourceMap --jsx preserve --lib es5,es2015,dom --module amd --moduleResolution node --noEmitHelpers --noEmitOnError --strict --noImplicitReturns --preserveConstEnums --removeComments --target es2015 action.ts
+    private function actionScripts(string $jsModuleId): array {
+        $siteConf = $this->site->conf();
+        $shortModuleName = last($this->site->moduleName(), '/');
+        $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
+        $relFilePath = $fullJsModuleId . '.js';
+        $jsFilePath = $siteConf['paths']['clientModuleDirPath'] . '/' . $relFilePath;
         $inline = $included = [];
-        if (file_exists($absJsFilePath)) {
+        if (file_exists($jsFilePath)) {
             $jsConf = $this->jsConf();
             $included[] = [
-                'src' => $this->scriptUri($relJsFilePath),
+                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
                 '_tagName' => 'script',
                 '_text' => '',
             ];
             $inline[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $jsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
+                '_text' => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return [$inline, $included];
     }
 
     protected function jsConf(): array {
-        $request = $this->request();
+        $request = $this->request;
         if (isset($request['jsConf'])) {
             return (array) $request['jsConf'];
         }
         return [];
-    }
-
-    protected function changeBodyScripts(array $scripts): ?array {
-        // Do nothing
-        return null;
-    }
-
-    private function scriptUri(string $relJsFilePath): string {
-        return Path::combine($this->baseUriPath, $relJsFilePath);
     }
 }

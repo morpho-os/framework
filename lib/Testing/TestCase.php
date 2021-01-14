@@ -174,7 +174,7 @@ abstract class TestCase extends BaseTestCase {
         $this->assertFalse($callback(), 'Returns the previous value that was set: false');
     }
 
-    protected function checkAccessors(callable $getter, $initialValue, $newValue): void {
+    protected function checkAccessors(callable $getter, $initialValue, $newValue, $getterReturningVal = null): void {
         if (!isset($getter[1]) || !is_string($getter[1])) {
             throw new InvalidArgumentException();
         }
@@ -184,7 +184,7 @@ abstract class TestCase extends BaseTestCase {
             $this->assertSame($initialValue, $getter());
         }
         [$object, $methodName] = $getter;
-        $this->assertNull($object->{'set' . $methodName}($newValue));
+        $this->assertSame($getterReturningVal, $object->{'set' . $methodName}($newValue));
         $this->assertSame($newValue, $object->$methodName());
     }
 

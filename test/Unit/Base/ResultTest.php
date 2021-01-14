@@ -25,10 +25,11 @@ class ResultTest extends TestCase {
     public function testBind_Ok() {
         $ok1Val = 'foo';
         $ok2Val = 'bar';
-        $res = (new Ok($ok1Val))->bind(function ($val) use (&$captured, $ok2Val) {
-            $captured = $val;
-            return new Ok($ok2Val);
-        });
+        $res = (new Ok($ok1Val))
+            ->bind(function ($val) use (&$captured, $ok2Val) {
+                $captured = $val;
+                return new Ok($ok2Val);
+            });
         $this->assertSame($ok1Val, $captured);
         $this->assertEquals(new Ok($ok2Val), $res);
     }

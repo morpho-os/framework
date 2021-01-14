@@ -6,56 +6,56 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use Countable;
+use Iterator;
 use Morpho\Base\IFn;
 use Morpho\Base\Pipe;
 use Morpho\Testing\TestCase;
 
 class PipeTest extends TestCase {
     public function testInterface() {
-        $pipe = new Pipe();
-        $this->assertInstanceOf(\ArrayObject::class, $pipe);
-        $this->assertInstanceOf(IFn::class, $pipe);
-    }
-
-    public function testOverloadIteratorAggregate() {
         $pipe = new class extends Pipe {
-            public function getIterator() {
-                return new \ArrayIterator(['foo', 'bar', 'baz']);
+            public function current(): callable {
+            }
+
+            public function count(): int {
+                return 0;
             }
         };
-        $this->assertEquals(['foo', 'bar', 'baz'], \iterator_to_array($pipe));
+        $this->assertInstanceOf(IFn::class, $pipe);
+        $this->assertInstanceOf(Iterator::class, $pipe);
+        $this->assertInstanceOf(Countable::class, $pipe);
     }
 
-    public function testAppendFluentInterface() {
-        $pipe = new Pipe();
-        $pipe->append('foo')
-            ->append('bar');
-        $this->assertEquals(['foo', 'bar'], \iterator_to_array($pipe));
-    }
+    public function testIterator() {
+        $phases = [
+            0 => fn () => null,
+            1 => fn () => null,
+        ];
+        $pipe = new class ($phases) extends Pipe {
+            private array $phases;
+            public function __construct($phases) {
+                $this->phases = $phases;
+            }
+            public function current(): callable {
+                return $this->phases[$this->index];
+            }
 
-    public function testClosureAndIFnAsTasks() {
-        $val = null;
-        $closure = function ($v) use (&$val)  {
-            $val = $v;
-            return $v;
-        };
-        $ifnImpl = new class implements IFn {
-            public $val;
-            public function __invoke($value) {
-                $this->val = $value;
-                return $value;
+            public function valid(): bool {
+                return isset($this->phases[$this->index]);
+            }
+
+            public function count(): int {
+                return count($this->phases);
             }
         };
-        $pipe = new Pipe([
-            $ifnImpl,
-            $closure,
-        ]);
-
-        $testVal = '123';
-
-        $this->assertSame($testVal, $pipe->__invoke($testVal));
-
-        $this->assertSame($testVal, $ifnImpl->val);
-        $this->assertSame($testVal, $val);
+        $i = 0;
+        foreach ($pipe as $key => $val) {
+            $this->assertSame($phases[$key], $val);
+            $i++;
+        }
+        $this->assertCount(2, $pipe);
+        $this->assertSame(2, $pipe->count());
+        $this->assertSame(2, $i);
     }
 }

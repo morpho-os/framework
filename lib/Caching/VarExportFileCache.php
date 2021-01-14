@@ -6,7 +6,6 @@
  */
 namespace Morpho\Caching;
 
-
 class VarExportFileCache extends PhpFileCache {
     protected function save(string $key, $data, $lifeTime = 0): bool {
         if (!\is_array($data) && !\is_scalar($data) && $data !== null) {

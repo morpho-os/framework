@@ -10,6 +10,7 @@ use ArrayObject;
 use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 use Morpho\App\Web\Uri;
+use Morpho\Fs\Path;
 use function Morpho\Base\trimMore;
 use function array_fill_keys;
 use function array_flip;
@@ -71,8 +72,8 @@ class Request extends BaseRequest {
 
     private ?array $trustedProxyIps = null;
 
-    public function __construct($params = null, ?array $serverVars = null) {
-        parent::__construct(null !== $params ? $params : []);
+    public function __construct(?array $serverVars = null) {
+        parent::__construct([]);
         $this->serverVars = $serverVars;
         $method = $this->detectOriginalMethod();
         $this->originalMethod = null !== $method ? $method : \Zend\Http\Request::METHOD_GET;
@@ -209,6 +210,24 @@ class Request extends BaseRequest {
     }
 
     /**
+     * @param string $uri
+     */
+    public function prependUriWithBasePath(string $uri): Uri\Uri {
+        $uri = new Uri\Uri($uri);
+        $basePath = $this->uri()->path()->basePath();
+        if ($uri->authority()->isNull() && $uri->scheme() === '') {
+            $path = $uri->path();
+            if (!$path->isRel()) {
+                $uriStr = Path::combine($basePath, $uri->toStr(null, false));
+                $uri = new Uri\Uri($uriStr);
+                $uri->path()->setBasePath($basePath);
+                return $uri;
+            }
+        }
+        return $uri;
+    }
+
+    /**
      * NB: $method must not be taken from user input.
      * @param string $method
      */
@@ -299,7 +318,7 @@ class Request extends BaseRequest {
 
     protected function initHeaders(): void {
         $headers = [];
-        foreach ($this->serverVars ?: $_SERVER as $key => $value) {
+        foreach (($this->serverVars ?: $_SERVER) as $key => $value) {
             if (strpos($key, 'HTTP_') === 0) {
                 if (strpos($key, 'HTTP_COOKIE') === 0) {
                     // Cookies are handled using the $_COOKIE superglobal
@@ -349,7 +368,6 @@ class Request extends BaseRequest {
         $uri->setAuthority($authority);
 
         $detectedPath = Uri\Path::normalize($this->detectPath());
-
         $basePath = $this->detectBasePath($detectedPath);
         $path = new Uri\Path($detectedPath);
         $path->setBasePath($basePath);

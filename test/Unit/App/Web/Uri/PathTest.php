@@ -53,13 +53,12 @@ class PathTest extends TestCase {
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($path->setBasePath($basePathStr));
         $this->assertSame($basePathStr, $path->basePath());
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertSame($relPathStr, $path->relPath());
     }
 
     public function testThrowsExIfPathDoesNotStartWithBasePath() {
         $path = new Path('/foo/bar/baz');
-        $this->expectException(\RuntimeException::class, 'The base path is not begging of the path');
+        $this->expectException(\RuntimeException::class, 'The base path is not at beginning of the path');
         $path->setBasePath('/base/path');
     }
 

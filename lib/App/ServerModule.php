@@ -11,8 +11,6 @@ use function is_dir;
 use const PHP_SAPI;
 
 class ServerModule extends Module {
-    private ClientModule $clientModule;
-
     public function autoloadFilePath(): string {
         return $this->vendorDirPath() . '/' . AUTOLOAD_FILE_NAME;
     }
@@ -47,6 +45,10 @@ class ServerModule extends Module {
             return $this['paths']['cacheDirPath'];
         }
         return $this['paths']['cacheDirPath'] = $this->dirPath() . '/' . CACHE_DIR_NAME;
+    }
+
+    public function compiledTemplatesDirPath(): string {
+        return $this->cacheDirPath() . '/template-engine';
     }
 
     public function viewDirPath(): string {
@@ -106,23 +108,5 @@ class ServerModule extends Module {
             }
             yield from Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~', true);
         }
-    }
-
-    public function setClientModule(ClientModule $module) {
-        $this->clientModule = $module;
-    }
-
-    public function clientModule(): ClientModule {
-        if (!isset($this->clientModule)) {
-            $this->clientModule = new ClientModule(
-                $this->name,
-                [
-                    'paths' => [
-                        'dirPath' => $this['paths']['clientModuleDirPath']
-                    ]
-                ],
-            );
-        }
-        return $this->clientModule;
     }
 }

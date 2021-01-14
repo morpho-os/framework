@@ -58,6 +58,16 @@ class FunctionsTest extends TestCase {
         $this->assertSame(['one', 'two', ''], lines("one{$sep}two$sep"));
     }
 
+    public function testLines_AcceptsIterable() {
+        $lines = ['', 'foo'];
+        $this->assertSame($lines, lines($lines));
+
+        $gen = (function () {
+            yield 'foo';
+        })();
+        $this->assertSame($gen, lines($gen));
+    }
+
     public function testWaitUntilNoOfAttempts_PredicateReturnsTrueOnSomeIteration() {
         $called = 0;
         $predicate = function () use (&$called) {

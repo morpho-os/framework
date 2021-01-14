@@ -12,31 +12,21 @@ use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 
-class Processor implements IFn {
-    /**
-     * @param \ArrayAccess|array $context
-     */
+class PhpProcessor implements IFn {
     public function __invoke($context) {
-        $code = $context['code'];
-
-        $ast = $this->parse($code);
-
-        unset($context['code']);
-
+        $ast = $this->parse($context['program']);
         $ast = $this->rewrite($ast, $context);
-
-        $context['code'] = $this->pp($ast);
-
+        $context['program'] = $this->prettyPrint($ast);
         return $context;
     }
 
-    public function rewrite(array $ast, \ArrayAccess $context): array {
+    public function rewrite(array $ast, $context): array {
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new AstRewriter($this, $context));
         return $traverser->traverse($ast);
     }
 
-    public function pp(array $ast): string {
+    public function prettyPrint(array $ast): string {
         return (new PrettyPrinter())->prettyPrintFile($ast);
     }
 

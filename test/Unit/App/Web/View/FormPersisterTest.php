@@ -6,7 +6,6 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
-use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Uri\Uri;
@@ -20,7 +19,6 @@ class FormPersisterTest extends TestCase {
 
     public function setUp(): void {
         parent::setUp();
-        $serviceManager = new ServiceManager();
         $request = $this->createMock(Request::class);
         $uri = $this->createMock(Uri::class);
         $uri->expects($this->any())
@@ -29,8 +27,7 @@ class FormPersisterTest extends TestCase {
         $request->expects($this->any())
             ->method('uri')
             ->willReturn($uri);
-        $serviceManager['request'] = $request;
-        $this->formPersister = new FormPersister($serviceManager);
+        $this->formPersister = new FormPersister($request);
     }
 
     public function testInvoke_FormWithoutAction_DefaultMethod_AddsRequestUri() {

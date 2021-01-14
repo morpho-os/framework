@@ -9,10 +9,17 @@ namespace Morpho\Test\Unit\Compiler;
 use ArrayObject;
 use Morpho\Base\Pipe;
 use Morpho\Compiler\Compiler;
+use Morpho\Compiler\ICompiler;
 use Morpho\Testing\TestCase;
 
 class CompilerTest extends TestCase {
-    public function testCustomPhases() {
+    public function testInterface() {
+        $compiler = new Compiler();
+        $this->assertInstanceOf(ICompiler::class, $compiler);
+        $this->assertInstanceOf(Pipe::class, $compiler);
+    }
+
+    public function testCustomPhasesViaConstructorConf() {
         $frontEnd = function ($v) {
             $v['frontEnd'] = 'front-end ok';
             return $v;
@@ -26,13 +33,13 @@ class CompilerTest extends TestCase {
             $v['target'] = $v['source'];
             return $v;
         };
-        $compiler = new Compiler([
+
+        $conf = [
             'frontEnd' => $frontEnd,
             'middleEnd' => $middleEnd,
             'backEnd' => $backEnd,
-        ]);
-
-        $this->assertInstanceOf(Pipe::class, $compiler);
+        ];
+        $compiler = new Compiler($conf);
 
         $this->assertSame($frontEnd, $compiler->frontEnd());
         $this->assertSame($middleEnd, $compiler->middleEnd());
@@ -51,6 +58,32 @@ class CompilerTest extends TestCase {
         $this->assertSame('front-end ok', $context['frontEnd']);
         $this->assertSame('middle-end ok', $context['middleEnd']);
         $this->assertSame('back-end ok', $context['backEnd']);
+    }
+
+    public function dataForPhasesAccessors() {
+        yield [
+            'frontEnd',
+            'middleEnd',
+            'backEnd',
+        ];
+    }
+
+    /**
+     * @dataProvider dataForPhasesAccessors
+     */
+    public function testPhasesAccessors(string $method) {
+        $compiler = new Compiler();
+        $oldPhase = $compiler->$method();
+        $this->assertIsCallable($oldPhase);
+        $newPhase = fn () => null;
+        $this->assertSame($compiler, $compiler->{'set' . $method}($newPhase));
+        $this->assertSame($newPhase, $compiler->$method());
+        $this->assertNotSame($newPhase, $oldPhase);
+    }
+
+    public function testConfAccessors() {
+        $compiler = new Compiler();
+        $this->checkAccessors([$compiler, 'conf'], [], ['foo' => 'bar'], $compiler);
     }
 
     public function testDefaultPhases() {

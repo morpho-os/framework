@@ -6,13 +6,16 @@
  */
 namespace Morpho\Base;
 
-use ArrayObject;
-
 /**
- * Pipe/Pipeline: (Phase/Stage)[]
- * Stage: mixed => mixed
+ * Pipe: Phase[], where Phase is IFn.
  */
-class Pipe extends ArrayObject implements IFn {
+abstract class Pipe implements IPipe {
+    protected int $index = 0;
+
+    /**
+     * @param mixed $val
+     * @return mixed
+     */
     public function __invoke($val) {
         foreach ($this as $fn) {
             $val = $fn($val);
@@ -20,8 +23,29 @@ class Pipe extends ArrayObject implements IFn {
         return $val;
     }
 
-    public function append($fn): self {
-        parent::append($fn);
-        return $this;
+    /**
+     * Returns current phase
+     */
+    abstract public function current(): callable;
+
+    public function next(): void {
+        ++$this->index;
     }
+
+    /**
+     * @return int|string
+     */
+    public function key() {
+        return $this->index;
+    }
+
+    public function valid(): bool {
+        return $this->index >= 0 && $this->index < $this->count();
+    }
+
+    public function rewind(): void {
+        $this->index = 0;
+    }
+
+    abstract public function count(): int;
 }

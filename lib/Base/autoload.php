@@ -451,9 +451,13 @@ function lastPos(string $haystack, string $needle, int $offset = 0) {
 }
 
 /**
- * Inspired by the lines function in Haskell.
+ * The name is taken from the `lines` function in Haskell.
+ * @param string|iterable $text
  */
-function lines(string $text): array {
+function lines($text): iterable {
+    if (is_iterable($text)) {
+        return $text;
+    }
 /*    if ($text === '') {
         return [];
     }*/
@@ -529,7 +533,7 @@ function op($operator, $arg = null): Closure {
         // Return a function which expects 2 arguments.
         return $fn;
     } else {
-        // Capture the first argument of the binary operator, return a function which expect the second one (currying).
+        // Capture the first argument of the binary operator, return a function which expect the second one (partial application and currying).
         return function($a) use ($fn, $arg) {
             return $fn($a, $arg);
         };

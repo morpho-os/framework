@@ -5,7 +5,34 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\App\Web\View;
+
 use Morpho\Base\IFn;
+use RuntimeException;
+use function array_key_exists;
+use function array_keys;
+use function array_push;
+use function array_unshift;
+use function array_values;
+use function call_user_func;
+use function count;
+use function get_class_methods;
+use function getmypid;
+use function ini_get;
+use function ini_set;
+use function is_array;
+use function join;
+use function md5;
+use function microtime;
+use function preg_match;
+use function preg_match_all;
+use function preg_replace_callback;
+use function preg_split;
+use function rtrim;
+use function str_replace;
+use function strlen;
+use function strpos;
+use function strtolower;
+use function substr;
 
 /**
  * This class is changed version of HTML_SemiParser class originally written by Dmitry Koterov:
@@ -47,7 +74,7 @@ class HtmlSemiParser implements IFn {
 
         // Generate unique hash.
         static $num = 0;
-        $this->replaceHash = \md5(\microtime() . ' ' . ++$num . ' ' . \getmypid());
+        $this->replaceHash = md5(microtime() . ' ' . ++$num . ' ' . getmypid());
     }
 
     /**
@@ -75,14 +102,14 @@ class HtmlSemiParser implements IFn {
      *                               reconstructed automatically by that array.
      */
     public function attachTagHandler(string $tagName, callable $handler, bool $atFront = false)/*: void */ {
-        $tagName = \strtolower($tagName);
+        $tagName = strtolower($tagName);
         if (!isset($this->tagHandlers[$tagName])) {
             $this->tagHandlers[$tagName] = [];
         }
         if (!$atFront) {
-            \array_push($this->tagHandlers[$tagName], $handler);
+            array_push($this->tagHandlers[$tagName], $handler);
         } else {
-            \array_unshift($this->tagHandlers[$tagName], $handler);
+            array_unshift($this->tagHandlers[$tagName], $handler);
         }
     }
 
@@ -93,37 +120,37 @@ class HtmlSemiParser implements IFn {
      * bodies saved in "_text" attribute.
      */
     public function attachContainerHandler(string $tagName, callable $handler, bool $atFront = false)/*: void */ {
-        $tagName = \strtolower($tagName);
+        $tagName = strtolower($tagName);
         if (!isset($this->containerHandlers[$tagName])) {
             $this->containerHandlers[$tagName] = [];
         }
         if (!$atFront) {
-            \array_push($this->containerHandlers[$tagName], $handler);
+            array_push($this->containerHandlers[$tagName], $handler);
         } else {
-            \array_unshift($this->containerHandlers[$tagName], $handler);
+            array_unshift($this->containerHandlers[$tagName], $handler);
         }
     }
 
     public function attachHandlersFrom($obj, bool $atFront = false) {
-        foreach (\get_class_methods($obj) as $method) {
-            if (0 === \strpos($method, $this->tagHandlerPrefix)) {
+        foreach (get_class_methods($obj) as $method) {
+            if (0 === strpos($method, $this->tagHandlerPrefix)) {
                 $this->attachTagHandler(
-                    \substr($method, \strlen($this->tagHandlerPrefix)),
+                    substr($method, strlen($this->tagHandlerPrefix)),
                     [$obj, $method],
                     $atFront
                 );
-            } elseif (0 === \strpos($method, $this->containerHandlerPrefix)) {
+            } elseif (0 === strpos($method, $this->containerHandlerPrefix)) {
                 $this->attachContainerHandler(
-                    \substr($method, \strlen($this->containerHandlerPrefix)),
+                    substr($method, strlen($this->containerHandlerPrefix)),
                     [$obj, $method],
                     $atFront
                 );
             // Check the selfAdd to avoid infinite call of the preprocessTags, as it is already defined here.
             } elseif (!$this->selfAdd && $method === 'preprocessTags') {
                 if (!$atFront) {
-                    \array_push($this->tagsPreprocessors, [$obj, $method]);
+                    array_push($this->tagsPreprocessors, [$obj, $method]);
                 } else {
-                    \array_unshift($this->tagsPreprocessors, [$obj, $method]);
+                    array_unshift($this->tagsPreprocessors, [$obj, $method]);
                 }
             }
         }
@@ -133,40 +160,44 @@ class HtmlSemiParser implements IFn {
     /**
      * Processes a HTML string and calls all attached handlers.
      *
-     * @param string $html
-     * @return string Text after all replacements.
+     * @param array|string $html
+     * @return array
      */
     public function __invoke($html) {
+        if (is_array($html)) { // html is context?
+            $html['program'] = $this->__invoke($html['program']);
+            return $html;
+        }
         $reTagIn = $this->tagRe;
 
         // Remove ignored container bodies from the string.
         $this->spIgnored = [];
         if ($this->skipIgnoredTags && $this->ignoredTags) {
-            $reIgnoredNames = \join("|", $this->ignoredTags);
+            $reIgnoredNames = join("|", $this->ignoredTags);
             $reIgnored = "{(<($reIgnoredNames) (?> \\s+ $reTagIn)? >) (.*?) (</\\2>)}six";
             // Note that we MUST increase backtrack_limit, else error
             // PREG_BACKTRACK_LIMIT_ERROR will be generated on large SELECTs
             // (see preg_last_error() in PHP5).
-            $oldLimit = \ini_get('pcre.backtrack_limit');
-            \ini_set('pcre.backtrack_limit', 1024 * 1024 * 10);
-            $html = \preg_replace_callback(
+            $oldLimit = ini_get('pcre.backtrack_limit');
+            ini_set('pcre.backtrack_limit', strval(1024 * 1024 * 10));
+            $html = preg_replace_callback(
                 $reIgnored,
                 [$this, "ignoredTagsToHash"],
                 $html
             );
-            \ini_set('pcre.backtrack_limit', $oldLimit);
+            ini_set('pcre.backtrack_limit', $oldLimit);
         }
         $sp_ignored = [
             $this->spIgnored,
-            \array_keys($this->spIgnored),
-            \array_values($this->spIgnored),
+            array_keys($this->spIgnored),
+            array_values($this->spIgnored),
         ];
         unset($this->spIgnored);
 
         // Replace tags and containers.
-        $hashlen = \strlen($this->replaceHash) + 10;
-        $reTagNames = \join("|", \array_keys($this->tagHandlers));
-        $reConNames = \join("|", \array_keys($this->containerHandlers));
+        $hashlen = strlen($this->replaceHash) + 10;
+        $reTagNames = join("|", array_keys($this->tagHandlers));
+        $reConNames = join("|", array_keys($this->containerHandlers));
         $infos = [];
         // (? >...) [without space] is much faster than (?:...) in this case.
         if ($this->tagHandlers) {
@@ -177,10 +208,10 @@ class HtmlSemiParser implements IFn {
         }
         foreach ($infos as $src => $re) {
             // Split buffer into tags.
-            $chunks = \preg_split($re, $html, 0, PREG_SPLIT_DELIM_CAPTURE);
+            $chunks = preg_split($re, $html, 0, PREG_SPLIT_DELIM_CAPTURE);
             $textParts = [$chunks[0]]; // unparsed text parts
             $foundTags = []; // found tags
-            for ($i = 1, $n = \count($chunks); $i < $n; $i += 5) {
+            for ($i = 1, $n = count($chunks); $i < $n; $i += 5) {
                 // $i points to sequential tag (or container) subchain.
                 $originalTagText = $chunks[$i];
                 $tagName = $chunks[$i + 1];
@@ -193,17 +224,17 @@ class HtmlSemiParser implements IFn {
                 $tag['_orig'] = $originalTagText;
                 $tag['_tagName'] = $tagName;
                 if ($src == "containerHandlers") {
-                    if (\strlen($containerBody) < $hashlen && isset($sp_ignored[0][$containerBody])) {
+                    if (strlen($containerBody) < $hashlen && isset($sp_ignored[0][$containerBody])) {
                         // Maybe it is temporarily removed content - place back!
                         // Fast solution working in most cases (key-based hash lookup
                         // is much faster than str_replace() below).
                         $containerBody = $sp_ignored[0][$containerBody];
                     } else {
                         // We must pass unmangled content to container processors!
-                        $containerBody = \str_replace($sp_ignored[1], $sp_ignored[2], $containerBody);
+                        $containerBody = str_replace($sp_ignored[1], $sp_ignored[2], $containerBody);
                     }
                     $tag['_text'] = $containerBody;
-                } elseif (\substr($attribsString, -1) == '/') {
+                } elseif (substr($attribsString, -1) == '/') {
                     $tag['_text'] = null;
                 }
                 $foundTags[] = $tag;
@@ -213,18 +244,18 @@ class HtmlSemiParser implements IFn {
             // Save original tags.
             $origTags = $foundTags;
 
-            if (\count($this->tagsPreprocessors)) {
+            if (count($this->tagsPreprocessors)) {
                 $foundTags = $this->preprocessTags($foundTags);
             }
 
             // Process all found tags and join the buffer.
             $html = $textParts[0];
-            for ($i = 0, $n = \count($foundTags); $i < $n; $i++) {
+            for ($i = 0, $n = count($foundTags); $i < $n; $i++) {
                 $tag = $this->runHandlersForTag($foundTags[$i]);
                 if (false === $tag) {
                     // Remove tag.
-                    $html = \rtrim($html);
-                } elseif (!\is_array($tag)) {
+                    $html = rtrim($html);
+                } elseif (!is_array($tag)) {
                     // String representation.
                     $html .= $tag;
                 } else {
@@ -250,7 +281,7 @@ class HtmlSemiParser implements IFn {
         }
 
         // Return temporarily removed containers back.
-        $html = \str_replace($sp_ignored[1], $sp_ignored[2], $html);
+        $html = str_replace($sp_ignored[1], $sp_ignored[2], $html);
 
         return $html;
     }
@@ -284,11 +315,11 @@ class HtmlSemiParser implements IFn {
         }
         if (empty($attr['_tagName'])) {
             // Return empty string? When this case can occur?
-            throw new \RuntimeException('Tag name is empty');
+            throw new RuntimeException('Tag name is empty');
             //$attr['_tagName'] = '???';
         }
 
-        if (!\array_key_exists('_text', $attr)) { // do not use isset()!
+        if (!array_key_exists('_text', $attr)) { // do not use isset()!
             $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}>";
         } elseif ($attr['_text'] === null) {
             $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}" . ($this->isHtml5 ? '>' : ' />');
@@ -299,12 +330,12 @@ class HtmlSemiParser implements IFn {
     }
 
     protected function encodeAttrValue(string $attrValue): string {
-        if (false !== \strpos($attrValue, '<?')) {
+        if (false !== strpos($attrValue, '<?')) {
             // Modified RE from https://github.com/nikic/PHP-Parser/blob/master/grammar/rebuildParsers.php#L34
-            $groups = \preg_split('~(?P<php> (?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?> )~six', $attrValue, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+            $groups = preg_split('~(?P<php> (?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?> )~six', $attrValue, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
             $value = '';
             foreach ($groups as $group) {
-                if (\preg_match('~^(?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?>$~six', $group)) { // ignore PHP code
+                if (preg_match('~^(?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?>$~six', $group)) { // ignore PHP code
                     $value .= $group;
                 } else {
                     $value .= PhpTemplateEngine::e($group);
@@ -345,15 +376,15 @@ class HtmlSemiParser implements IFn {
      * @return mixed Handled tag.
      */
     protected function runHandlersForTag(array $tag) {
-        $tagName = \strtolower($tag['_tagName']);
+        $tagName = strtolower($tag['_tagName']);
         // Processing tag or container?
         $handlers = $this->handlersOfTag($tagName, isset($tag['_text']));
         // Use all handlers from right to left.
-        for ($i = \count($handlers) - 1; $i >= 0; $i--) {
+        for ($i = count($handlers) - 1; $i >= 0; $i--) {
             $handler = $handlers[$i];
-            $result = \call_user_func($handler, $tag, $tagName);
+            $result = call_user_func($handler, $tag, $tagName);
             if (null !== $result) {
-                if (!\is_array($result)) {
+                if (!is_array($result)) {
                     return $result;
                 }
                 $tag = $result;
@@ -372,19 +403,19 @@ class HtmlSemiParser implements IFn {
     protected function parseAttributes(string $attribs): array {
         $preg = '/([-\w:]+) \s* ( = \s* (?> ("[^"]*" | \'[^\']*\' | \S*) ) )?/sx';
         $regs = null;
-        \preg_match_all($preg, $attribs, $regs);
+        preg_match_all($preg, $attribs, $regs);
         $names = $regs[1];
         $checks = $regs[2];
         $values = $regs[3];
         $tag = [];
-        for ($i = 0, $c = \count($names); $i < $c; $i++) {
-            $name = \strtolower($names[$i]);
+        for ($i = 0, $c = count($names); $i < $c; $i++) {
+            $name = strtolower($names[$i]);
             if (empty($checks[$i])) {
                 $value = $name;
             } else {
                 $value = $values[$i];
                 if ($value[0] == '"' || $value[0] == "'") {
-                    $value = \substr($value, 1, -1);
+                    $value = substr($value, 1, -1);
                 }
             }
             $tag[$name] = $value;

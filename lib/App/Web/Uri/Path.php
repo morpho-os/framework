@@ -6,8 +6,11 @@
  */
 namespace Morpho\App\Web\Uri;
 
+use RuntimeException;
 use function Morpho\Base\contains;
 use Morpho\App\Path as BasePath;
+use function rawurlencode;
+use function str_replace;
 
 class Path extends BasePath implements IUriComponent {
     protected ?string $basePath = null;
@@ -22,7 +25,7 @@ class Path extends BasePath implements IUriComponent {
 
     public function toStr(bool $encode = false): string {
         if ($encode) {
-            return \str_replace('%2F', '/', \rawurlencode($this->path));
+            return str_replace('%2F', '/', rawurlencode($this->path));
         }
         return $this->path;
     }
@@ -41,7 +44,7 @@ class Path extends BasePath implements IUriComponent {
 
     public function setBasePath(string $basePath): void {
         if (!$this->startsWith($basePath)) {
-            throw new \RuntimeException('The base path is not begging of the path');
+            throw new RuntimeException('The base path is not at beginning of the path');
         }
         $this->basePath = $basePath;
     }

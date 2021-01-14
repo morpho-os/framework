@@ -7,8 +7,13 @@
 namespace Morpho\App\Web\Uri;
 
 use Morpho\Base\Conf;
+use Morpho\Fs\Path as FsPath;
+use function array_fill_keys;
+use function is_string;
+use function mb_substr;
 use function Morpho\Base\all;
 use function Morpho\Base\lastPos;
+use function rawurlencode;
 
 /**
  * Implements the [RFC 3986](https://tools.ietf.org/html/rfc3986)
@@ -82,7 +87,7 @@ class Uri {
      * @param Authority|string $authority
      */
     public function setAuthority($authority): void {
-        if (\is_string($authority)) {
+        if (is_string($authority)) {
             $authority = new Authority($authority);
         }
         $this->authority = $authority;
@@ -99,7 +104,7 @@ class Uri {
      * @param Path|string $path
      */
     public function setPath($path): void {
-        if (\is_string($path)) {
+        if (is_string($path)) {
             $path = new Path($path);
         }
         $this->path = $path;
@@ -116,7 +121,7 @@ class Uri {
      * @param Query|string $query
      */
     public function setQuery($query): void {
-        if (\is_string($query)) {
+        if (is_string($query)) {
             $query = new Query($query);
         }
         $this->query = $query;
@@ -154,10 +159,10 @@ class Uri {
      * @param string|Uri $relUri
      */
     public static function resolveRelUri($baseUri, $relUri): Uri {
-        if (\is_string($baseUri)) {
+        if (is_string($baseUri)) {
             $baseUri = self::parse($baseUri);
         }
-        if (\is_string($relUri)) {
+        if (is_string($relUri)) {
             $relUri = self::parse($relUri);
         }
 
@@ -209,7 +214,7 @@ class Uri {
                             if (false === $rPos) {
                                 $targetPath = $relUriPath;
                             } else {
-                                $targetPath = \mb_substr($basePath, 0, $rPos + 1) . $relUri->path()->toStr(false);
+                                $targetPath = mb_substr($basePath, 0, $rPos + 1) . $relUri->path()->toStr(false);
                             }
                         }
                         $targetPath = Path::removeDotSegments($targetPath);
@@ -228,7 +233,7 @@ class Uri {
 
     public function toStr(?array $parts, bool $encode): string {
         if (null !== $parts) {
-            $conf = \array_fill_keys($parts, true);
+            $conf = array_fill_keys($parts, true);
             $conf = Conf::check([
                 'scheme' => false,
                 'authority' => false,
@@ -260,9 +265,9 @@ class Uri {
             $scheme = $this->scheme();
             if ($scheme !== '') {
                 if ($shouldReturnOnly('scheme')) {
-                    return $encode ? \rawurlencode($scheme) : $scheme;
+                    return $encode ? rawurlencode($scheme) : $scheme;
                 }
-                $uriStr .= ($encode ? \rawurlencode($scheme) : $scheme) . ':';
+                $uriStr .= ($encode ? rawurlencode($scheme) : $scheme) . ':';
             }
         }
 
@@ -294,9 +299,9 @@ class Uri {
             $fragment = $this->fragment();
             if (null !== $fragment) {
                 if ($shouldReturnOnly('fragment')) {
-                    return $encode ? \rawurlencode($fragment) : $fragment;
+                    return $encode ? rawurlencode($fragment) : $fragment;
                 }
-                $uriStr .= '#' . ($encode ? \rawurlencode($fragment) : $fragment);
+                $uriStr .= '#' . ($encode ? rawurlencode($fragment) : $fragment);
             }
         }
 

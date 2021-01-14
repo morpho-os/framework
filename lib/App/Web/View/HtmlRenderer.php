@@ -7,42 +7,23 @@
 namespace Morpho\App\Web\View;
 
 use Morpho\Base\IFn;
-use function Morpho\Base\dasherize;
 
 class HtmlRenderer implements IFn {
-    private $theme;
+    private $templateEngine;
 
     private $moduleIndex;
 
     private string $pageRenderingModule;
 
-    public function __construct($theme, $moduleIndex, string $pageRenderingModule) {
-        $this->theme = $theme;
+    public function __construct($templateEngine, $moduleIndex, string $pageRenderingModule) {
+        $this->templateEngine = $templateEngine;
         $this->moduleIndex = $moduleIndex;
         $this->pageRenderingModule = $pageRenderingModule;
     }
 
     public function __invoke($request) {
         $response = $request->response();
-
-        $actionResult = $response['result'];
-
-        $handler = $request->handler();
-
-        if (!isset($actionResult['_path'])) {
-            $actionResult['_path'] = dasherize($handler['method']);
-        }
-        if (false === strpos($actionResult['_path'], '/')) {
-            $actionResult['_path'] = $handler['controllerPath'] . '/' . $actionResult['_path'];
-        }
-
-        $html = $this->renderView($handler['module'], $actionResult);
-
-        if (!$response->allowAjax() || !$request->isAjax()) {
-            $page = $actionResult['_parent'] ?? ['_path' => 'index'];
-            $page['body'] = $html;
-            $html = $this->renderView($this->pageRenderingModule, $page);
-        }
+        $html = $this->renderHtml($request);
 
         $response->setBody($html);
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
@@ -51,10 +32,41 @@ class HtmlRenderer implements IFn {
         return $request;
     }
 
-    protected function renderView(string $moduleName, $actionResult): string {
-        $viewDirPath = $this->moduleIndex->module($moduleName)->viewDirPath();
-        $theme = $this->theme;
-        $theme->addBaseDirPath($viewDirPath);
-        return $theme->render($actionResult);
+    protected function renderHtml($request) {
+        $response = $request->response();
+        $handler = $request->handler();
+
+        $actionResult = $response['result'];
+
+        $handlerModule = $this->moduleIndex->module($handler['module']);
+
+        $this->templateEngine->setBaseTargetDirPath($handlerModule->compiledTemplatesDirPath());
+
+        $this->templateEngine
+            ->addBaseSourceDirPath($handlerModule->viewDirPath())
+            ->addBaseSourceDirPath($this->moduleIndex->module($this->pageRenderingModule)->viewDirPath());
+
+        // Save view in request to access it during page rendering.
+        $request['view'] = $actionResult['_view'];
+        /*
+        //$actionResult['_handler'] = $handler;
+
+        if (!isset($actionResult['_view'])) {
+            $actionResult['_view'] = dasherize($handler['method']);
+        }
+        if (false === strpos($actionResult['_view'], '/')) {
+            $actionResult['_view'] = $handler['controllerPath'] . '/' . $actionResult['_view'];
+        }
+        $actionResult['_module'] = $handler['module'];
+        */
+
+        $html = $this->templateEngine->__invoke($actionResult);
+        if (!$response->allowAjax() || !$request->isAjax()) {
+            $page = $actionResult['_parentView'] ?? ['_view' => 'index'];
+            $page['body'] = $html;
+            $html = $this->templateEngine->__invoke($page);
+        }
+
+        return $html;
     }
 }

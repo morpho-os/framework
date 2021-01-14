@@ -24,10 +24,11 @@ use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\HtmlRenderer;
 use Morpho\App\Web\View\JsonRenderer;
 use Morpho\App\Web\View\PhpTemplateEngine;
-use Morpho\App\Web\View\Theme;
 use Morpho\Error\DumpListener;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
+use Morpho\Ioc\IHasServiceManager;
+use UnexpectedValueException;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
@@ -48,7 +49,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkRequestService() {
-        return new Request(null, null);
+        return new Request();
     }
 
     protected function mkDebugLoggerService() {
@@ -57,41 +58,42 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
-    protected function mkThemeService() {
-        return new Theme($this['templateEngine']);
-    }
-
     protected function mkTemplateEngineService() {
-        $templateEngineConf = $this->conf['templateEngine'];
-        $templateEngine = new PhpTemplateEngine($this);
-        $templateEngine->setTargetDirPath($this->cacheDirPath() . '/php-template-engine');
-        $templateEngine->forceCompile($templateEngineConf['forceCompile']);
-        return $templateEngine;
+        $conf = $this->conf['templateEngine'];
+        if (!isset($conf['pluginFactory'])) {
+            $conf['pluginFactory'] = function ($pluginName) {
+                $knownPlugins = [
+                    'Messenger' => __NAMESPACE__ . '\\View\\MessengerPlugin',
+                ];
+                if (isset($knownPlugins[$pluginName])) {
+                    $plugin = new $knownPlugins[$pluginName]();
+                    if ($plugin instanceof IHasServiceManager) {
+                        $plugin->setServiceManager($this);
+                    }
+                    return $plugin;
+                }
+                throw new UnexpectedValueException("Unknown plugin: " . $pluginName);
+            };
+        }
+        $conf['request'] = $this['request'];
+        $conf['site'] = $this['site'];
+        return new PhpTemplateEngine($conf);
     }
 
     protected function mkActionResultRendererService() {
         return new ActionResultRenderer(function ($format) {
             if ($format === ContentFormat::HTML) {
                 return new HtmlRenderer(
-                    $this['theme'],
+                    $this['templateEngine'],
                     $this['serverModuleIndex'],
-                    $this->conf()['view']['pageRenderer'],
+                    $this->conf()['view']['pageRenderingModule'],
                 );
             } elseif ($format === ContentFormat::JSON) {
                 return new JsonRenderer();
             }
             // todo: add XML
-            throw new \UnexpectedValueException();
+            throw new UnexpectedValueException();
         });
-    }
-
-    protected function mkPluginResolverService(): callable {
-        return function (string $pluginName): string {
-            $known = [
-                'Messenger' => __NAMESPACE__ . '\\View\\MessengerPlugin',
-            ];
-            return $known[$pluginName];
-        };
     }
 
 /*    protected function mkAutoloaderService() {
