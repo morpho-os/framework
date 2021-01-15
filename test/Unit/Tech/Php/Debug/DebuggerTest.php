@@ -9,6 +9,8 @@ namespace Morpho\Test\Unit\Tech\Php\Debug;
 use Morpho\Tech\Php\Debug\Debugger;
 use Morpho\Testing\TestCase;
 use Morpho\Base\Env;
+use function ob_get_clean;
+use function ob_start;
 
 class DebuggerTest extends TestCase {
     /**
@@ -28,14 +30,14 @@ class DebuggerTest extends TestCase {
     public function testVarToStr() {
         $this->checkXdebug();
 
-        \ob_start();
+        ob_start();
 ?>
 
 array(1) {
   ["foo"] => string(3) "bar"
 }
 <?php
-        $expected = \ob_get_clean();
+        $expected = ob_get_clean();
         $this->assertEquals($expected, $this->debugger->varToStr(['foo' => 'bar']));
     }
 
@@ -44,12 +46,12 @@ array(1) {
     }
 
     public function testCalledAt() {
-        \ob_start();
+        ob_start();
 ?>
 
 Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
 <?php
-        $expected = \ob_get_clean();
+        $expected = ob_get_clean();
         $this->assertEquals($expected, $this->debugger->calledAt());
     }
 

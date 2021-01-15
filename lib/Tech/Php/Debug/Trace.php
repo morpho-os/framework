@@ -6,30 +6,34 @@
  */
 namespace Morpho\Tech\Php\Debug;
 
+use function debug_backtrace;
+use function dirname;
+use function implode;
+
 class Trace {
     protected $frames = [];
 
     public function __construct() {
-        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $this->frames = [];
         foreach ($trace as $frame) {
-            if (isset($frame['file']) && \dirname($frame['file']) == __DIR__) {
+            if (isset($frame['file']) && dirname($frame['file']) == __DIR__) {
                 continue;
             }
             $this->frames[] = $this->normalizeFrame($frame);
         }
     }
 
-    public function __toString() {
+    public function __toString(): string {
         $lines = [];
         foreach ($this->frames as $index => $frame) {
             $lines[] = '#' . $index . ' ' . $frame;
         }
 
-        return \implode("\n", $lines);
+        return implode("\n", $lines);
     }
 
-    public function toArray() {
+    public function toArr(): array {
         return $this->frames;
     }
 

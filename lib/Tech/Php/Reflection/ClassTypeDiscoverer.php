@@ -12,22 +12,30 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser\Php7 as Parser;
 use PhpParser\Lexer;
+use ReflectionClass;
+use RuntimeException;
+use function array_filter;
+use function array_merge;
+use function get_declared_classes;
+use function get_declared_interfaces;
+use function get_declared_traits;
+use function substr;
 
 class ClassTypeDiscoverer {
     private $discoverStrategy;
 
     public static function definedClassTypes(): array {
-        return \array_merge(
+        return array_merge(
             self::definedClasses(),
-            \get_declared_interfaces(),
-            \get_declared_traits()
+            get_declared_interfaces(),
+            get_declared_traits()
         );
     }
     
     public static function definedClasses(): array {
-        return \array_filter(\get_declared_classes(), function ($class) {
+        return array_filter(get_declared_classes(), function ($class) {
             // Skip anonymous classes.
-            return 'class@anonymous' !== \substr($class, 0, 15);
+            return 'class@anonymous' !== substr($class, 0, 15);
         });
     }
 
@@ -39,7 +47,7 @@ class ClassTypeDiscoverer {
         foreach ($filePaths as $filePath) {
             foreach ($discoverStrategy->classTypesDefinedInFile($filePath) as $classType) {
                 if (isset($map[$classType])) {
-                    throw new \RuntimeException("Cannot redeclare the class|interface|trait '$classType' in '$filePath'");
+                    throw new RuntimeException("Cannot redeclare the class|interface|trait '$classType' in '$filePath'");
                 }
                 $map[$classType] = $filePath;
             }
@@ -64,7 +72,7 @@ class ClassTypeDiscoverer {
     }
 
     public static function classTypeFilePath(string $classType): string {
-        return (new \ReflectionClass($classType))->getFileName();
+        return (new ReflectionClass($classType))->getFileName();
     }
     
     public static function fileDependsFromClassTypes(string $filePath, bool $excludeStdClasses = true): array {

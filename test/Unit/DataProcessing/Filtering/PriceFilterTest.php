@@ -6,14 +6,12 @@
  */
 namespace Morpho\Test\Unit\DataProcessing\Filtering;
 
+use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
 use Morpho\DataProcessing\Filtering\PriceFilter;
 
 class PriceFilterTest extends TestCase {
-    /**
-     * @var \Morpho\Base\IFn
-     */
-    private $filter;
+    private IFn $filter;
 
     public function setUp(): void {
         parent::setUp();

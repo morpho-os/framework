@@ -87,7 +87,7 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         );
     }
 
-    public function toArray(): array {
+    public function toArr(): array {
         return $_SESSION[self::KEY][$this->storageKey];
     }
 

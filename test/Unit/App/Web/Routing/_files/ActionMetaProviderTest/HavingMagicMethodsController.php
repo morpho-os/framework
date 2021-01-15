@@ -3,77 +3,62 @@ namespace Morpho\Test\Unit\App\Web\Routing\ActionMetaProviderTest;
 
 class HavingMagicMethodsController {
     public function __construct() {
-
     }
+
     public function __destruct() {
-
     }
 
-    public function __call($method, $args) {
-
+    public function __call(string $name, array $arguments): mixed {
     }
 
-    public static function __callStatic($method, $args) {
+    public static function __callStatic(string $name, array $arguments): mixed {
+    }
 
+    public function __clone(): void {
+    }
+
+    public function __debugInfo(): ?array {
+    }
+
+    public function __get(string $name): mixed {
+    }
+
+    public function __invoke(mixed $arguments): mixed {
+    }
+
+    public function __isset(string $name): bool {
+    }
+
+    public function __serialize(): array {
     }
 
     public function playMe() {
 
     }
 
-    public function __get($name) {
+    public function __set(string $name, mixed $value): void {
+    }
 
+    public static function __set_state(array $properties): object {
     }
 
     public function _mustBeSkipped() {
 
     }
 
-    public function __set($name, $val) {
-
+    public function __sleep(): array {
     }
 
-    public function __isset($name) {
-
+    public function __unserialize(array $data): void {
     }
 
-    public function __unset($name) {
-
+    public function __unset(string $name): void {
     }
 
-    public function __sleep() {
-
+    public function __wakeup(): void {
     }
 
-    public function __wakeup() {
-
-    }
-
-    public function __serialize() {
-
-    }
-
-    public function __unserialize() {
-
-    }
-
-    public function __toString() {
-        return 'abc';
-    }
-
-    public function __invoke() {
-
-    }
-
-    public function __set_state() {
-
-    }
-
-    public function __clone() {
-
-    }
-
-    public function __debugInfo() {
+    public function __toString(): string {
 
     }
 }

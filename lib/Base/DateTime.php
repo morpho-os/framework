@@ -160,7 +160,7 @@ class DateTime extends DateTimeImmutable {
         return (new static())->setTimestamp($timestamp);
     }
     
-    public function __toString() {
+    public function __toString(): string {
         return $this->mySqlDateTime();
     }
 }

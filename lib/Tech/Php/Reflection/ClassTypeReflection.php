@@ -7,6 +7,7 @@
 namespace Morpho\Tech\Php\Reflection;
 
 use ReflectionClass as BaseClassReflection;
+use function array_reverse;
 
 class ClassTypeReflection extends BaseClassReflection {
     public function parentClasses(bool $appendSelf = true): array {
@@ -15,7 +16,7 @@ class ClassTypeReflection extends BaseClassReflection {
         while ($rClass = $rClass->getParentClass()) {
             $rClasses[] = $rClass;
         }
-        $rClasses = \array_reverse($rClasses);
+        $rClasses = array_reverse($rClasses);
         if ($appendSelf) {
             $rClasses[]= $this;
         }

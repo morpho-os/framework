@@ -59,9 +59,9 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         $this->restorePreviousIniSettings();
     }
 
-    public function handleError($severity, $message, $filePath, $lineNo, $context): void {
+    public function handleError($severity, $message, $filePath, $lineNo): void {
         if ($severity & error_reporting()) {
-            $exception = self::errorToException($severity, $message, $filePath, $lineNo, $context);
+            $exception = self::errorToException($severity, $message, $filePath, $lineNo);
             throw $exception;
         }
     }
@@ -79,10 +79,10 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
             && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_PARSE])
         ) {
             $this->handleException(
-                self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null)
+                self::errorToException($error['type'], $error['message'], $error['file'], $error['line'])
             );
             if ($this->exitOnFatalError) {
-                exit();
+                exit(1);
             }
         }
     }
@@ -106,17 +106,14 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
             $error = error_get_last();
             if ($error) {
                 error_clear_last();
-                throw self::errorToException($error['type'], $error['message'], $error['file'], $error['line'], null);
+                throw self::errorToException($error['type'], $error['message'], $error['file'], $error['line']);
             } else {
                 throw new RuntimeException($msg);
             }
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public static function trackErrors(callable $fn) {
+    public static function trackErrors(callable $fn): mixed {
         $handler = function ($severity, $message, $filePath, $lineNo) {
             if (!(error_reporting() & $severity)) {
                 return;
@@ -129,7 +126,7 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         return $res;
     }
 
-    public static function errorToException($severity, $message, $filePath, $lineNo, $context): \ErrorException {
+    public static function errorToException($severity, $message, $filePath, $lineNo): \ErrorException {
         $class = self::exceptionClass($severity);
         return new $class($message, 0, $severity, $filePath, $lineNo);
     }

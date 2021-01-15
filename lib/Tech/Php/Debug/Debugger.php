@@ -269,8 +269,8 @@ class Debugger {
     }
 
     protected function findCallerFrame() {
-        // @TODO: Move isIgnoredFrame to Trace::ignoreFrame(), then call Trace::toArray()
-        $trace = (new Trace())->toArray();
+        // @TODO: Move isIgnoredFrame to Trace::ignoreFrame(), then call Trace::toArr()
+        $trace = (new Trace())->toArr();
         do {
             $frame = \array_shift($trace);
         } while ($frame && (!isset($frame['line']) || $this->isIgnoredFrame($frame)));

@@ -9,7 +9,7 @@ namespace Morpho\Base;
 use ArrayIterator as BaseArrayIterator;
 
 class ArrayIterator extends BaseArrayIterator {
-    public function toArray(): array {
+    public function toArr(): array {
         return $this->getArrayCopy();
     }
 

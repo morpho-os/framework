@@ -6,13 +6,18 @@
  */
 namespace Morpho\Tech\Php\Reflection;
 
+use function array_diff;
+use function array_values;
 use function Morpho\Base\requireFile;
 
 class DiffStrategy implements IDiscoverStrategy {
+    /**
+     * @todo: fix breakage of the order, use some heuristic like regular expressions to find out the actual order and then fix the result
+     */
     public function classTypesDefinedInFile(string $filePath): array {
         $pre = ClassTypeDiscoverer::definedClassTypes();
         requireFile($filePath);
         $post = ClassTypeDiscoverer::definedClassTypes();
-        return \array_values(\array_diff($post, $pre));
+        return array_values(array_diff($post, $pre));
     }
 }

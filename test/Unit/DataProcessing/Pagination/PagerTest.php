@@ -69,13 +69,13 @@ class PagerTest extends TestCase {
         $this->pager->setPageSize(2);
         $items = \range(0, $totalItemsCount - 1);
         $this->pager->setItems($items);
-        $this->assertEquals([6], $this->pager->mkPageByNumber(4)->toArray());
-        $this->assertEquals([4, 5], $this->pager->mkPageByNumber(3)->toArray());
-        $this->assertEquals([0, 1], $this->pager->mkPageByNumber(1)->toArray());
+        $this->assertEquals([6], $this->pager->mkPageByNumber(4)->toArr());
+        $this->assertEquals([4, 5], $this->pager->mkPageByNumber(3)->toArr());
+        $this->assertEquals([0, 1], $this->pager->mkPageByNumber(1)->toArr());
 
         // check bounds
-        $this->assertEquals([], $this->pager->mkPageByNumber(5)->toArray());
-        $this->assertEquals([0, 1], $this->pager->mkPageByNumber(-1)->toArray());
+        $this->assertEquals([], $this->pager->mkPageByNumber(5)->toArr());
+        $this->assertEquals([0, 1], $this->pager->mkPageByNumber(-1)->toArr());
     }
 
     public function testIterator() {
@@ -88,30 +88,30 @@ class PagerTest extends TestCase {
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(1, $this->pager->key());
         $this->assertInstanceOf(Page::class, $this->pager->current());
-        $this->assertEquals([1, 2], $this->pager->current()->toArray());
+        $this->assertEquals([1, 2], $this->pager->current()->toArr());
 
         $this->assertNull($this->pager->next());
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(2, $this->pager->key());
-        $this->assertEquals([3, 4], $this->pager->current()->toArray());
+        $this->assertEquals([3, 4], $this->pager->current()->toArr());
 
         $this->assertNull($this->pager->next());
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(3, $this->pager->key());
-        $this->assertEquals([5, 6], $this->pager->current()->toArray());
+        $this->assertEquals([5, 6], $this->pager->current()->toArr());
 
         $this->assertNull($this->pager->next());
 
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(4, $this->pager->key());
-        $this->assertEquals([7], $this->pager->current()->toArray());
+        $this->assertEquals([7], $this->pager->current()->toArr());
 
         $this->assertNull($this->pager->next());
 
         $this->assertFalse($this->pager->valid());
         $this->assertEquals(4, $this->pager->key());
-        $this->assertEquals([7], $this->pager->current()->toArray());
+        $this->assertEquals([7], $this->pager->current()->toArr());
     }
 }

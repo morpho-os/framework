@@ -5,7 +5,28 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Error;
+use Exception;
 use Morpho\Base\IFn;
+use Throwable;
+use function chmod;
+use function error_clear_last;
+use function error_get_last;
+use function file_exists;
+use function file_put_contents;
+use function filemtime;
+use function get_class;
+use function glob;
+use function is_dir;
+use function join;
+use function md5;
+use function mkdir;
+use function mt_rand;
+use function rtrim;
+use function str_replace;
+use function strtolower;
+use function sys_get_temp_dir;
+use function time;
+use function unlink;
 
 /**
  * Basic idea and code was found at:
@@ -35,7 +56,7 @@ class NoDupsListener implements IFn {
     }
 
     /**
-     * @param \Throwable $exception
+     * @param Throwable $exception
      */
     public function __invoke($exception): void {
         $id = $this->lockId($exception);
@@ -51,19 +72,19 @@ class NoDupsListener implements IFn {
 
     protected function touch($id, $errFilePath, $errLine) {
         $filePath = $this->lockFilePath($id);
-        \file_put_contents($filePath, "$errFilePath:$errLine");
-        @\chmod($filePath, 0666);
+        file_put_contents($filePath, "$errFilePath:$errLine");
+        @chmod($filePath, 0666);
         $this->gc();
     }
 
-    protected function lockId(\Throwable $e): string {
+    protected function lockId(Throwable $e): string {
         $file = $e->getFile();
         $line = $e->getLine();
-        $id = \md5(
-            \join(
+        $id = md5(
+            join(
                 ':',
                 [
-                    \get_class($e),
+                    get_class($e),
                     $file,
                     $line,
                 ]
@@ -73,24 +94,24 @@ class NoDupsListener implements IFn {
     }
 
     protected function defaultLockFileDirPath() {
-        return \sys_get_temp_dir();
+        return sys_get_temp_dir();
     }
 
     protected function initLockFileDir(string $dirPath): string {
-        $dirPath = \rtrim($dirPath, '\\/') . "/" . \strtolower(\str_replace('\\', '-', \get_class($this)));
-        if (!@\is_dir($dirPath)) {
-            if (!@\mkdir($dirPath, 0777, true)) {
-                $error = \error_get_last();
-                \error_clear_last();
-                throw new \Exception("Unable to create directory '{$dirPath}': {$error['message']}");
+        $dirPath = rtrim($dirPath, '\\/') . "/" . strtolower(str_replace('\\', '-', get_class($this)));
+        if (!@is_dir($dirPath)) {
+            if (!@mkdir($dirPath, 0777, true)) {
+                $error = error_get_last();
+                error_clear_last();
+                throw new Exception("Unable to create directory '{$dirPath}': {$error['message']}");
             }
         }
         return $dirPath;
     }
 
-    protected function isLockExpired($id, \Throwable $exception) {
+    protected function isLockExpired($id, Throwable $exception) {
         $filePath = $this->lockFilePath($id);
-        return !\file_exists($filePath) || (\filemtime($filePath) < \time() - $this->period);
+        return !file_exists($filePath) || (filemtime($filePath) < time() - $this->period);
     }
 
     protected function lockFilePath($id) {
@@ -98,12 +119,12 @@ class NoDupsListener implements IFn {
     }
 
     protected function gc() {
-        if ($this->gcExecuted || \mt_rand(0, 10000) >= $this->gcProbability() * 10000) {
+        if ($this->gcExecuted || mt_rand(0, 10000) >= $this->gcProbability() * 10000) {
             return;
         }
-        foreach (\glob("{$this->lockFileDirPath}/*" . self::ERROR_FILE_EXT) as $filePath) {
-            if (\filemtime($filePath) <= \time() - $this->period * 2) {
-                @\unlink($filePath);
+        foreach (glob("{$this->lockFileDirPath}/*" . self::ERROR_FILE_EXT) as $filePath) {
+            if (filemtime($filePath) <= time() - $this->period * 2) {
+                @unlink($filePath);
             }
         }
         $this->gcExecuted = true;

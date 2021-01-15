@@ -7,5 +7,5 @@
 namespace Morpho\App;
 
 interface IMessage extends \IteratorAggregate, \ArrayAccess, \Serializable, \Countable {
-    public function exchangeArray($input);
+    public function exchangeArray(object|array $arr);
 }

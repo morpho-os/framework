@@ -54,7 +54,7 @@ class TcpAddress {
         return $this->port;
     }
 
-    public function __toString() {
+    public function __toString(): string {
         return $this->host . (null !== $this->port ? ':' . $this->port : '');
     }
 }

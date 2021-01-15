@@ -7,13 +7,19 @@
 namespace Morpho\DataProcessing\Filtering;
 
 use Morpho\Base\IFn;
+use function floatval;
+use function is_scalar;
+use function preg_match;
+use function preg_replace;
+use function str_replace;
+use function strlen;
 
 class PriceFilter implements IFn {
     public function __invoke($value) {
-        if (!\is_scalar($value)) {
+        if (!is_scalar($value)) {
             return null;
         }
-        $value = \str_replace(',', '.', $value);
+        $value = str_replace(',', '.', (string) $value);
         $search = [
             '{\.+}si',
             '{[^-\d.]}si',
@@ -22,16 +28,16 @@ class PriceFilter implements IFn {
             '.',
             '',
         ];
-        $value = \preg_replace($search, $replace, $value);
-        if (!\strlen($value) || !self::isFloat($value)) {
+        $value = preg_replace($search, $replace, $value);
+        if (!strlen($value) || !self::isFloat($value)) {
             return null;
         }
 
-        return \floatval($value);
+        return floatval($value);
     }
 
     private static function isFloat($value) {
         // @TODO: ['+'|'-'] [digit* '.'] digit+ [('e'|'E') ['+'|'-'] digit+]
-        return (bool)\preg_match('{^[-+]?[0-9]+(?:\.[0-9]*)?$}is', $value);
+        return (bool)preg_match('{^[-+]?[0-9]+(?:\.[0-9]*)?$}is', $value);
     }
 }

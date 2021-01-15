@@ -6,12 +6,16 @@
  */
 namespace Morpho\Test\Unit\Error;
 
+use ErrorException;
 use Morpho\Error\ErrorHandler;
 use Morpho\Error\ExceptionHandler;
 use Morpho\Error\HandlerManager;
 use Morpho\Error\IErrorHandler;
-use Morpho\Error\NoticeException;
+use Morpho\Error\WarningException;
 use RuntimeException;
+use function ini_get;
+use function ini_set;
+use function trigger_error;
 
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
@@ -20,12 +24,12 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function setUp(): void {
         parent::setUp();
-        $this->oldErrorLevel = \ini_get('display_errors');
+        $this->oldErrorLevel = ini_get('display_errors');
     }
 
     public function tearDown(): void {
         parent::tearDown();
-        \ini_set('display_errors', $this->oldErrorLevel);
+        ini_set('display_errors', $this->oldErrorLevel);
     }
 
     public function testInterface() {
@@ -36,7 +40,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function testCheckError_ThrowsErrorExceptionWhenErrorGetLastIsSet() {
         @$undefVar;
-        $this->expectException(NoticeException::class, 'Undefined variable: undefVar');
+        $this->expectException(WarningException::class, 'Undefined variable $undefVar');
         ErrorHandler::checkError(false, "Op failed");
     }
     
@@ -85,21 +89,21 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function testRegisterAndUnregister() {
         $errorHandler = $this->mkErrorHandler();
-        $oldDisplayErrors = \ini_get('display_errors');
-        $oldDisplayStartupErrors = \ini_get('display_startup_errors');
+        $oldDisplayErrors = ini_get('display_errors');
+        $oldDisplayStartupErrors = ini_get('display_startup_errors');
         $this->assertNull($errorHandler->register());
         $expected = [$errorHandler, 'handleError'];
         $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::ERROR));
         $expected = [$errorHandler, 'handleException'];
         $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
-        $this->assertEquals(0, \ini_get('display_errors'));
-        $this->assertEquals(0, \ini_get('display_startup_errors'));
+        $this->assertEquals(0, ini_get('display_errors'));
+        $this->assertEquals(0, ini_get('display_startup_errors'));
 
         $errorHandler->unregister();
         $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
         $this->assertEquals($this->prevExceptionHandler, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
-        $this->assertEquals($oldDisplayErrors, \ini_get('display_errors'));
-        $this->assertEquals($oldDisplayStartupErrors, \ini_get('display_startup_errors'));
+        $this->assertEquals($oldDisplayErrors, ini_get('display_errors'));
+        $this->assertEquals($oldDisplayStartupErrors, ini_get('display_startup_errors'));
     }
 
     public function testRegisterAsFatalErrorHandler() {
@@ -139,9 +143,9 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $errorHandler->register();
 
         try {
-            \trigger_error("My message", $severity);
+            trigger_error("My message", $severity);
             $this->fail();
-        } catch (\ErrorException $ex) {
+        } catch (ErrorException $ex) {
             $this->assertInstanceOf('Morpho\\Error\\' . $expectedErrorClass, $ex);
         }
         $this->assertEquals(__LINE__ - 5, $ex->getLine());

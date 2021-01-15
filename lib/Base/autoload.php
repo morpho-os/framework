@@ -588,7 +588,7 @@ function formatFloat($val): string {
     if (empty($val)) {
         $val = 0;
     }
-    $val = str_replace(',', '.', $val);
+    $val = str_replace(',', '.', (string) $val);
     return number_format(round(floatval($val), 2), 2, '.', ' ');
 }
 

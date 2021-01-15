@@ -6,8 +6,12 @@
  */
 namespace Morpho\Error;
 
+use function get_class;
+use function preg_quote;
+use function preg_replace;
+
 class PhpErrorException extends \ErrorException {
-    public function __toString() {
+    public function __toString(): string {
         $s = parent::__toString();
         $severity = $this->getSeverity();
         $levels = [
@@ -28,7 +32,7 @@ class PhpErrorException extends \ErrorException {
             E_USER_DEPRECATED   => 'E_USER_DEPRECATED',
         ];
 
-        return \preg_replace('/^(' . \preg_quote(\get_class($this), '/') . ')/si', '\1 (' . $levels[$severity] . ')', $s);
+        return preg_replace('/^(' . preg_quote(get_class($this), '/') . ')/si', '\1 (' . $levels[$severity] . ')', $s);
     }
 }
 

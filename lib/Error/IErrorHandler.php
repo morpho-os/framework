@@ -7,7 +7,7 @@
 namespace Morpho\Error;
 
 interface IErrorHandler extends IExceptionHandler {
-    public function handleError($level, $message, $filePath, $line, $context): void;
+    public function handleError($level, $message, $filePath, $line): void;
 
     public function handleFatalError(): void;
 }

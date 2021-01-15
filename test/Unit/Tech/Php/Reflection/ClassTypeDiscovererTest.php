@@ -10,6 +10,8 @@ use Morpho\Tech\Php\Reflection\IDiscoverStrategy;
 use Morpho\Tech\Php\Reflection\TokenStrategy;
 use Morpho\Testing\TestCase;
 use Morpho\Tech\Php\Reflection\ClassTypeDiscoverer;
+use function get_class;
+use function str_replace;
 
 class ClassTypeDiscovererTest extends TestCase {
     /**
@@ -23,7 +25,11 @@ class ClassTypeDiscovererTest extends TestCase {
     }
 
     public function testClassTypesDefinedInDir_UsingDefaultStrategy() {
-        $this->assertEquals(\str_replace('\\', '/', __FILE__), $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__)[__CLASS__]);
+        $classTypes = $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__);
+        $this->assertEquals(
+            str_replace('\\', '/', __FILE__),
+            $classTypes[__CLASS__]
+        );
     }
 
     public function testDefaultStrategy() {
@@ -35,7 +41,7 @@ class ClassTypeDiscovererTest extends TestCase {
         $discoverStrategy->expects($this->atLeastOnce())
             ->method('classTypesDefinedInFile')
             ->will($this->returnValue([]));
-        $this->assertInstanceOf(\get_class($this->classTypeDiscoverer), $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy));
+        $this->assertInstanceOf(get_class($this->classTypeDiscoverer), $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy));
         $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__);
     }
 
@@ -64,7 +70,7 @@ class ClassTypeDiscovererTest extends TestCase {
 
     public function testTypeFilePath_ThrowsExceptionOnNonExistingType() {
         $class = self::class . 'NonExisting';
-        $this->expectException('ReflectionException', "Class $class does not exist");
+        $this->expectException('ReflectionException', "Class \"$class\" does not exist");
         ClassTypeDiscoverer::classTypeFilePath($class);
     }
 

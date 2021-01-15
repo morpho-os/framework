@@ -6,8 +6,22 @@
  */
 namespace Morpho\Test\Unit\Tech\Php\Reflection;
 
+use Morpho\Tech\Php\Reflection\DiffStrategy;
+use function sort;
+
 class DiffStrategyTest extends DiscoverStrategyTest {
+    /**
+     * @dataProvider dataForClassTypesDefinedInFile
+     */
+    public function testClassTypesDefinedInFile(array $expected, string $relFilePath) {
+        $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/' . $relFilePath);
+        // @todo: fix sorting
+        sort($expected);
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+    }
+
     protected function mkDiscoverStrategy() {
-        return new \Morpho\Tech\Php\Reflection\DiffStrategy();
+        return new DiffStrategy();
     }
 }

@@ -7,6 +7,8 @@
 namespace Morpho\Error;
 
 use ArrayObject;
+use LogicException;
+use Throwable;
 
 class ExceptionHandler implements IExceptionHandler {
     private bool $registered = false;
@@ -26,7 +28,7 @@ class ExceptionHandler implements IExceptionHandler {
 
     public function register(): void {
         if ($this->registered) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         HandlerManager::registerHandler(HandlerManager::EXCEPTION, [$this, 'handleException']);
         $this->registered = true;
@@ -34,12 +36,12 @@ class ExceptionHandler implements IExceptionHandler {
 
     public function unregister(): void {
         if (!$this->registered) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         HandlerManager::unregisterHandler(HandlerManager::EXCEPTION, [$this, 'handleException']);
     }
 
-    public function handleException(\Throwable $e): void {
+    public function handleException(Throwable $e): void {
         foreach ($this->listeners as $listener) {
             $listener($e);
         }

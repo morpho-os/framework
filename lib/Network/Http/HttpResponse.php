@@ -32,7 +32,7 @@ class HttpResponse {
         throw new NotImplementedException();
     }
 
-    public function __toString() {
+    public function __toString(): string {
         return $this->response->getBody();
     }
 }

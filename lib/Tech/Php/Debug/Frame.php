@@ -35,7 +35,7 @@ class Frame implements \ArrayAccess {
         unset($this->$offset);
     }
 
-    public function __toString() {
+    public function __toString(): string {
         $filePath = isset($this->filePath) ? $this->filePath : 'unknown';
         $line = isset($this->line) ? $this->line : 'unknown';
         $function = isset($this->function) ? $this->function : 'unknown';
