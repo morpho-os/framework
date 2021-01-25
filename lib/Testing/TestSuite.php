@@ -9,7 +9,7 @@ namespace Morpho\Testing;
 use PHPUnit\Framework\TestSuite as BaseTestSuite;
 
 abstract class TestSuite extends BaseTestSuite {
-    protected $testFileRegexp = '~((Test|TestSuite)\.php|\.phpt)$~s';
+    protected string $testFileRegexp = '~((Test|TestSuite)\.php|\.phpt)$~s';
 
     public static function suite() {
         $suite = new static();

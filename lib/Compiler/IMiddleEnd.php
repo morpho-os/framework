@@ -4,16 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Base;
+namespace Morpho\Compiler;
 
-abstract class Container implements IContainer {
-    protected mixed $val;
-
-    public function __construct(mixed $val) {
-        $this->val = $val;
-    }
-
-    public function val(): mixed {
-        return $this->val;
-    }
+interface IMiddleEnd extends ICompilerPhase {
 }

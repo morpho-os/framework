@@ -58,16 +58,16 @@ class Request extends BaseRequest {
 
     private static array $methods = [
         /*
-        self::CONNECT_METHOD,
+        HttpMethod::CONNECT,
         */
-        \Zend\Http\Request::METHOD_DELETE,
-        \Zend\Http\Request::METHOD_GET,
-        //self::HEAD_METHOD,
-        //self::OPTIONS_METHOD,
-        \Zend\Http\Request::METHOD_POST,
-        \Zend\Http\Request::METHOD_PATCH,
-        //self::PUT_METHOD,
-        //self::TRACE_METHOD,
+        HttpMethod::DELETE,
+        HttpMethod::GET,
+        //HttpMethod::HEAD,
+        //HttpMethod::OPTIONS,
+        HttpMethod::POST,
+        HttpMethod::PATCH,
+        //HttpMethod::PUT,
+        //HttpMethod::TRACE,
     ];
 
     private ?array $trustedProxyIps = null;
@@ -76,7 +76,7 @@ class Request extends BaseRequest {
         parent::__construct([]);
         $this->serverVars = $serverVars;
         $method = $this->detectOriginalMethod();
-        $this->originalMethod = null !== $method ? $method : \Zend\Http\Request::METHOD_GET;
+        $this->originalMethod = null !== $method ? $method : HttpMethod::GET;
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
     }
 
@@ -97,11 +97,11 @@ class Request extends BaseRequest {
     public function args($names = null, bool $trim = true) {
         $method = $this->method();
         switch ($method) {
-            case \Zend\Http\Request::METHOD_GET:
+            case HttpMethod::GET:
                 return $this->query($names, $trim);
-            case \Zend\Http\Request::METHOD_POST:
+            case HttpMethod::POST:
                 return $this->post($names, $trim);
-            case \Zend\Http\Request::METHOD_PATCH:
+            case HttpMethod::PATCH:
                 return $this->patch($names, $trim);
             default:
                 throw new BadRequestException();
@@ -132,7 +132,7 @@ class Request extends BaseRequest {
      * @return mixed @TODO Specify concrete types.
      */
     public function patch($name = null, bool $trim = true) {
-        if ($this->overwrittenMethod === \Zend\Http\Request::METHOD_PATCH) {
+        if ($this->overwrittenMethod === HttpMethod::PATCH) {
             return $this->post($name, $trim);
         }
         // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
@@ -247,11 +247,11 @@ class Request extends BaseRequest {
     }*/
 
     public function isDeleteMethod(): bool {
-        return $this->method() === \Zend\Http\Request::METHOD_DELETE;
+        return $this->method() === HttpMethod::DELETE;
     }
 
     public function isGetMethod(): bool {
-        return $this->method() === \Zend\Http\Request::METHOD_GET;
+        return $this->method() === HttpMethod::GET;
     }
 
 /*    public function isHeadMethod(): bool {
@@ -263,11 +263,11 @@ class Request extends BaseRequest {
     }*/
 
     public function isPatchMethod(): bool {
-        return $this->method() === \Zend\Http\Request::METHOD_PATCH;
+        return $this->method() === HttpMethod::PATCH;
     }
 
     public function isPostMethod(): bool {
-        return $this->method() === \Zend\Http\Request::METHOD_POST;
+        return $this->method() === HttpMethod::POST;
     }
 
 /*    public function isPutMethod(): bool {

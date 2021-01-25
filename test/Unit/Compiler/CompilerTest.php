@@ -9,14 +9,40 @@ namespace Morpho\Test\Unit\Compiler;
 use ArrayObject;
 use Morpho\Base\Pipe;
 use Morpho\Compiler\Compiler;
+use Morpho\Compiler\IBackEnd;
 use Morpho\Compiler\ICompiler;
+use Morpho\Compiler\ICompilerPhase;
+use Morpho\Compiler\IFrontEnd;
+use Morpho\Compiler\IInterpreter;
+use Morpho\Compiler\IMiddleEnd;
+use Morpho\Compiler\IProgram;
+use Morpho\Compiler\ITranslationUnit;
+use Morpho\Compiler\ITranslator;
 use Morpho\Testing\TestCase;
 
 class CompilerTest extends TestCase {
-    public function testInterface() {
+    public function testCompilerInterface() {
         $compiler = new Compiler();
+        $this->assertInstanceOf(ITranslator::class, $compiler);
         $this->assertInstanceOf(ICompiler::class, $compiler);
         $this->assertInstanceOf(Pipe::class, $compiler);
+        $this->assertInstanceOf(ICompilerPhase::class, new class implements IFrontEnd {
+            public function __invoke($val) {
+            }
+        });
+        $this->assertInstanceOf(ICompilerPhase::class, new class implements IMiddleEnd {
+            public function __invoke($val) {
+            }
+        });
+        $this->assertInstanceOf(ICompilerPhase::class, new class implements IBackEnd {
+            public function __invoke($val) {
+            }
+        });
+        $this->assertInstanceOf(ITranslator::class, new class implements IInterpreter {
+            public function __invoke($val) {
+            }
+        });
+        $this->assertInstanceOf(ITranslationUnit::class, new class implements IProgram {});
     }
 
     public function testCustomPhasesViaConstructorConf() {

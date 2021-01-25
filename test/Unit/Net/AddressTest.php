@@ -4,9 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Network;
+namespace Morpho\Test\Unit\Net;
 
-use Morpho\Network\TcpAddress;
+use Morpho\Net\TcpAddress;
 use Morpho\Testing\TestCase;
 
 class AddressTest extends TestCase {

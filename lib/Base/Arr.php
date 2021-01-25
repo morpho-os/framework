@@ -23,29 +23,29 @@ use function json_encode;
 use function md5;
 
 class Arr {
-    public static function only(array $dataSource, array $keys, $createMissingItems = true): array {
+    public static function only(array $arr, array $keys, $createMissingItems = true): array {
         if ($createMissingItems) {
-            $items = [];
+            $newArr = [];
             foreach ($keys as $key) {
-                $items[$key] = isset($dataSource[$key]) ? $dataSource[$key] : null;
+                $newArr[$key] = isset($arr[$key]) ? $arr[$key] : null;
             }
-            return $items;
+            return $newArr;
         }
-        return array_intersect_key($dataSource, array_flip(array_values($keys)));
+        return array_intersect_key($arr, array_flip(array_values($keys)));
     }
 
-    public static function require(array $items, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
-        $requiredItems = [];
+    public static function require(array $arr, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
+        $newArr = [];
         foreach ($requiredKeys as $key) {
-            if (!isset($items[$key]) && !array_key_exists($key, $items)) {
+            if (!isset($arr[$key]) && !array_key_exists($key, $arr)) {
                 throw new UnexpectedValueException("Missing the required item with the key " . $key);
             }
-            if ($checkForEmptiness && !$items[$key]) {
+            if ($checkForEmptiness && !$arr[$key]) {
                 throw new UnexpectedValueException("The item '$key' is empty");
             }
-            $requiredItems[$key] = $items[$key];
+            $newArr[$key] = $arr[$key];
         }
-        return $returnOnlyRequired ? $requiredItems : $items;
+        return $returnOnlyRequired ? $newArr : $arr;
     }
 
     /**
@@ -64,17 +64,17 @@ class Arr {
      * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
      * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
      */
-    public static function symmetricDiff(array $a, array $b): array {
-        $diffA = array_diff($a, $b);
-        $diffB = array_diff($b, $a);
+    public static function symmetricDiff(array $arrA, array $arrB): array {
+        $diffA = array_diff($arrA, $arrB);
+        $diffB = array_diff($arrB, $arrA);
         return self::union($diffA, $diffB);
     }
 
-    public static function cartesianProduct(array $a, array $b) {
+    public static function cartesianProduct(array $arrA, array $arrB) {
         // @TODO: work for iterable
         $res = [];
-        foreach ($a as $v1) {
-            foreach ($b as $v2) {
+        foreach ($arrA as $v1) {
+            foreach ($arrB as $v2) {
                 $res[] = [$v1, $v2];
             }
         }
@@ -118,16 +118,16 @@ class Arr {
         return $subsets;
     }
 
-    public static function isSubset(array $a, array $b): bool {
-        return self::intersect($a, $b) == $b;
+    public static function isSubset(array $arrA, array $arrB): bool {
+        return self::intersect($arrA, $arrB) == $arrB;
     }
 
     /**
      * Compares sets not strictly. Each element of each array must be scalar.
      * @return bool
      */
-    public static function setsEqual(array $a, array $b): bool {
-        return count($a) === count($b) && count(array_diff($a, $b)) === 0;
+    public static function setsEqual(array $arrA, array $arrB): bool {
+        return count($arrA) === count($arrB) && count(array_diff($arrA, $arrB)) === 0;
     }
 
     public static function flatten(array $arr): array {
@@ -196,5 +196,31 @@ class Arr {
 
     public static function hash(array $arr): string {
         return md5(json_encode($arr));
+    }
+
+    /**
+     * Modified \Zend\Stdlib\ArrayUtils::merge() from the http://github.com/zendframework/zf2
+     *
+     * Merge two arrays together.
+     *
+     * If an integer key exists in both arrays and preserveNumericKeys is false, the value
+     * from the second array will be appended to the first array. If both values are arrays, they
+     * are merged together, else the value of the second array overwrites the one of the first array.
+     */
+    public static function merge(array $arrA, array $arrB, bool $preserveNumericKeys = false): array {
+        foreach ($arrB as $key => $value) {
+            if (isset($arrA[$key]) || array_key_exists($key, $arrA)) {
+                if (!$preserveNumericKeys && is_int($key)) {
+                    $arrA[] = $value;
+                } elseif (is_array($value) && is_array($arrA[$key])) {
+                    $arrA[$key] = static::merge($arrA[$key], $value, $preserveNumericKeys);
+                } else {
+                    $arrA[$key] = $value;
+                }
+            } else {
+                $arrA[$key] = $value;
+            }
+        }
+        return $arrA;
     }
 }

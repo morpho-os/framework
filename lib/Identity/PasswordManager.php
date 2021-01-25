@@ -7,7 +7,7 @@
 
 namespace Morpho\Identity;
 
-use Zend\Math\Rand;
+use Morpho\Base\Rand;
 
 class PasswordManager {
     public const PASSWORD_LENGTH = 24;
@@ -52,7 +52,7 @@ class PasswordManager {
                 $chars
             );
         }
-        return Rand::getString($length, $chars);
+        return Rand::randStr($length, $chars);
     }
 
     public static function isOutdatedHash(string $passwordHash): bool {

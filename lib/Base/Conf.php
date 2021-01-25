@@ -6,7 +6,11 @@
  */
 namespace Morpho\Base;
 
-use Zend\Stdlib\ArrayUtils;
+use function array_diff_key;
+use function array_flip;
+use function array_keys;
+use function array_merge;
+use function count;
 
 class Conf extends \ArrayObject implements IConf {
     protected $default;
@@ -30,14 +34,14 @@ class Conf extends \ArrayObject implements IConf {
      * @return array
      */
     public static function check(array $defaultConf, ?array $conf): array {
-        if (null === $conf || \count($conf) === 0) {
+        if (null === $conf || count($conf) === 0) {
             return $defaultConf;
         }
-        $diff = \array_diff_key($conf, \array_flip(\array_keys($defaultConf)));
-        if (\count($diff)) {
+        $diff = array_diff_key($conf, array_flip(array_keys($defaultConf)));
+        if (count($diff)) {
             throw new InvalidConfException($diff);
         }
-        return \array_merge($defaultConf, $conf);
+        return array_merge($defaultConf, $conf);
     }
 
     /**
@@ -50,9 +54,9 @@ class Conf extends \ArrayObject implements IConf {
             $conf = $conf->getArrayCopy();
         }
         if ($recursive) {
-            $this->exchangeArray(ArrayUtils::merge($this->getArrayCopy(), $conf));
+            $this->exchangeArray(Arr::merge($this->getArrayCopy(), $conf));
         } else {
-            $this->exchangeArray(\array_merge($this->getArrayCopy(), $conf));
+            $this->exchangeArray(array_merge($this->getArrayCopy(), $conf));
         }
         return $this;
     }

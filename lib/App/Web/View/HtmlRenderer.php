@@ -7,6 +7,7 @@
 namespace Morpho\App\Web\View;
 
 use Morpho\Base\IFn;
+use function Morpho\Base\dasherize;
 
 class HtmlRenderer implements IFn {
     private $templateEngine;
@@ -46,17 +47,18 @@ class HtmlRenderer implements IFn {
             ->addBaseSourceDirPath($handlerModule->viewDirPath())
             ->addBaseSourceDirPath($this->moduleIndex->module($this->pageRenderingModule)->viewDirPath());
 
-        // Save view in request to access it during page rendering.
-        $request['view'] = $actionResult['_view'];
-        /*
-        //$actionResult['_handler'] = $handler;
-
         if (!isset($actionResult['_view'])) {
             $actionResult['_view'] = dasherize($handler['method']);
         }
         if (false === strpos($actionResult['_view'], '/')) {
             $actionResult['_view'] = $handler['controllerPath'] . '/' . $actionResult['_view'];
         }
+
+        // Save view in request to access it during page rendering.
+        $request['view'] = $actionResult['_view'];
+
+        /*
+        $actionResult['_handler'] = $handler;
         $actionResult['_module'] = $handler['module'];
         */
 

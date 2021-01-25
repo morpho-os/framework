@@ -20,7 +20,6 @@
         "php-64bit": ">=8.0",
         "ext-date": "*",
         "ext-dom": "*",
-        "ext-json": "*",
         "ext-libxml": "*",
         "ext-pcntl": "*",
         "ext-pcre": "*",
@@ -31,7 +30,6 @@
         "ext-spl": "*",
         "ext-tokenizer": "*",
         "ext-iconv": "*",
-        "morpho-os/zf-fork": "dev-master",
         "monolog/monolog": "dev-main",
         "nikic/fast-route": "dev-master",
         "nikic/php-parser": "4.10.4",
@@ -46,12 +44,6 @@
         "vimeo/psalm": "dev-master",
         "phan/phan": "dev-master"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:morpho-os/zf-fork.git"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Morpho\\": "lib/"
@@ -63,6 +55,11 @@
             "lib/App/autoload.php",
             "lib/Caching/autoload.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Morpho\\Test\\": "test"
+        }
     },
     "config": {
         "bin-dir": "bin",

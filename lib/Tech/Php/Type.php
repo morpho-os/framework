@@ -17,7 +17,7 @@ abstract class Type {
     * Return type hint
     * Class name or interface name
 
-    E.g.:
+    E.g. (using TypeScript's type notation):
         class TClassOrInterface {
             public TProperty $foo;
         }
@@ -28,9 +28,10 @@ abstract class Type {
         TClassOrInterface: ClassName | InterfaceName
             Any class and interface name.
 
-        TProperty: int | float | bool | string | array | object | iterable | self | parent | mixed | TClassOrInterface | TUnion
+        TProperty: int | float | bool | string | array | object | iterable | self | parent | mixed | TClassOrInterface | TUnion | TNullable
             Can be used in class definition as property type hint.
-            todo: How to deal with `null` in `mixed` for TProperty?
+            object: contains TClassOrInterface
+            mixed: contains null, but null can't e used as standalone type hint here
 
         TParam: TProperty | static | callable
             Can be used in function definition as formal parameter type hint.
@@ -41,14 +42,15 @@ abstract class Type {
         TScalar: int | float | bool | string | null
             Scalar type.
 
-        TUnion: TScalar | array | object | ...todo: clarify types which can be used in union
+        TUnion: TPropery
             Types which can be used in union, e.g. `int | bool`.
+            todo: clarify types which can be used in union (`void` can't be used)
 
-        TNullable: int | float | bool | string | array | object | TClassOrInterface
+        TNullable: ?int | ?float | ?bool | ?string | ?array | ?object | ?TClassOrInterface
             Some types can be nullable, i.e. null is valid value for the type, e.g. ?string = null
 
-        TSpecial: resource
-            Special type, used only in PHP documentation.
+        TSpecial: resource | TScalar
+            Special type, used only in PHP documentation or in some functions, e.g. is_scalar9).
 
         mixed
             Means any type, the same as disabling type checking?

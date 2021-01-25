@@ -1,6 +1,6 @@
 <phpunit bootstrap="./bootstrap.php" colors="false" verbose="true" beStrictAboutTestsThatDoNotTestAnything="true" failOnRisky="true" failOnWarning="true">
     <testsuites>
-        <testsuite name="Morpho Test Suite">
+        <testsuite name="morpho-os/framework">
             <file>TestSuite.php</file>
         </testsuite>
     </testsuites>

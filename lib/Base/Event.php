@@ -12,6 +12,7 @@ class Event extends \ArrayObject {
     public array $args;
 
     public function __construct(string $name, array $args = []) {
+        parent::__construct();
         $this->name = $name;
         $this->args = $args;
     }

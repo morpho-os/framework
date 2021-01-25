@@ -5,7 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 
-namespace Morpho\Network\Http;
+namespace Morpho\Net\Http;
 
 use function Morpho\Base\fromJson;
 use function Morpho\App\Cli\sh;

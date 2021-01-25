@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Network;
+namespace Morpho\Net;
 
 interface IServer {
     /**

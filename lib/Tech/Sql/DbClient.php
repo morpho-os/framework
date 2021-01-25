@@ -93,12 +93,14 @@ abstract class DbClient implements IDbClient {
 
     /**
      * @param callable $transaction
+     * @param mixed ...$args
      * @return mixed
+     * @throws Throwable
      */
-    public function transaction(callable $transaction) {
+    public function transaction(callable $transaction, ...$args) {
         $this->conn->beginTransaction();
         try {
-            $result = $transaction($this);
+            $result = $transaction($this, ...$args);
             $this->conn->commit();
         } catch (Throwable $e) {
             $this->conn->rollBack();

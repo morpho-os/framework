@@ -6,14 +6,11 @@
  */
 namespace Morpho\Base;
 
-abstract class Container implements IContainer {
-    protected mixed $val;
+use ReflectionClass;
 
-    public function __construct(mixed $val) {
-        $this->val = $val;
-    }
-
-    public function val(): mixed {
-        return $this->val;
+abstract class Enum {
+    public static function members(): array {
+        $rClass = new ReflectionClass(static::class);
+        return $rClass->getConstants();
     }
 }

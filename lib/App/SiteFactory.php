@@ -6,9 +6,9 @@
  */
 namespace Morpho\App;
 
+use Morpho\Base\Arr;
 use Morpho\Base\IFn;
 use RuntimeException;
-use Zend\Stdlib\ArrayUtils;
 use function is_file;
 
 class SiteFactory implements IFn {
@@ -41,7 +41,7 @@ class SiteFactory implements IFn {
         $extendedSiteConf = $this->loadConfFile($siteModuleConf['paths']['confFilePath']);
         $siteModuleName = $siteModuleConf['name'];
         unset($siteModuleConf['name']);
-        return ArrayUtils::merge([$siteModuleName => $siteModuleConf], $extendedSiteConf) ;
+        return Arr::merge([$siteModuleName => $siteModuleConf], $extendedSiteConf) ;
     }
 
     protected function loadConfFile(string $filePath): array {

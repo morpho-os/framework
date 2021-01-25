@@ -6,8 +6,39 @@
  */
 namespace Morpho\Tech\Php\Debug;
 
+use ErrorException;
+use Exception;
+use Generator;
 use Morpho\Base\NotImplementedException;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionObject;
+use function array_pop;
+use function array_shift;
+use function bin2hex;
+use function error_reporting;
+use function file_put_contents;
+use function filesize;
+use function func_get_arg;
+use function func_num_args;
+use function htmlspecialchars;
+use function ini_get;
+use function is_null;
+use function is_object;
+use function ltrim;
 use function Morpho\Base\capture;
+use function preg_match;
+use function preg_replace;
+use function preg_replace_callback;
+use function rtrim;
+use function sort;
+use function str_repeat;
+use function str_replace;
+use function stristr;
+use function substr_count;
+use function trim;
+use function var_dump;
+use function var_export;
 
 /**
  * Utility class to debug any PHP application.
@@ -36,10 +67,10 @@ class Debugger {
     }
     
     public function dump(): void {
-        $argsCount = \func_num_args();
+        $argsCount = func_num_args();
         $output = '';
         for ($i = 0; $i < $argsCount; $i++) {
-            $var = \func_get_arg($i);
+            $var = func_get_arg($i);
             $output .= $this->varToStr($var);
         }
         $output .= $this->calledAt();
@@ -51,7 +82,7 @@ class Debugger {
     }
 
     public function dumpWithExitCode(...$args): void {
-        $this->setExitCode(\array_pop($args))
+        $this->setExitCode(array_pop($args))
             ->dump(...$args);
     }
 
@@ -78,13 +109,13 @@ class Debugger {
      */
     public function methods($object, $filter = null, $regexp = null, $sort = false) {
         if (null === $filter) {
-            $filter = \ReflectionMethod::IS_PUBLIC;
+            $filter = ReflectionMethod::IS_PUBLIC;
         }
-        $r = \is_object($object) ? new \ReflectionObject($object) : new \ReflectionClass($object);
+        $r = is_object($object) ? new ReflectionObject($object) : new ReflectionClass($object);
         $methods = [];
         foreach ($r->getMethods($filter) as $method) {
             if (null !== $regexp) {
-                if (!\preg_match($regexp, $method->getName())) {
+                if (!preg_match($regexp, $method->getName())) {
                     continue;
                 }
             }
@@ -92,16 +123,16 @@ class Debugger {
             $methods[] = $method->getName() . '()';
         }
         if ($sort) {
-            \sort($methods);
+            sort($methods);
         }
         $this->dump($methods);
     }
 
     public function varDump() {
-        $argsCount = \func_num_args();
+        $argsCount = func_num_args();
         $output = '';
         for ($i = 0; $i < $argsCount; $i++) {
-            $var = \func_get_arg($i);
+            $var = func_get_arg($i);
             $output .= $this->varToStr($var);
         }
         $output .= $this->calledAt();
@@ -136,24 +167,24 @@ class Debugger {
         $content = capture(function () use ($args) {
             $this->varDump(...$args);
         });
-        if (@\filesize($filePath) == 0) {
-            $content = \ltrim($content);
+        if (@filesize($filePath) == 0) {
+            $content = ltrim($content);
         }
-        $result = @\file_put_contents($filePath, $content, FILE_APPEND);
+        $result = @file_put_contents($filePath, $content, FILE_APPEND);
         $this->isHtmlMode = $oldHtmlMode;
         return $result !== false;
     }
 
     public function varToStr($var, bool $fixOutput = true): string {
-        $output = \trim(capture(function () use ($var) {
-            if ($var instanceof \Generator) {
-                \var_dump("\\Generator which yields the values:\n" . $this->describeGen($var));
+        $output = trim(capture(function () use ($var) {
+            if ($var instanceof Generator) {
+                var_dump("\\Generator which yields the values:\n" . $this->describeGen($var));
             } else {
-                \var_dump($var);
+                var_dump($var);
             }
         }));
         if ($fixOutput) {
-            $output = \preg_replace('~]=>\\n\s*~si', '] => ', $output);
+            $output = preg_replace('~]=>\\n\s*~si', '] => ', $output);
         }
         return $this->formatLine($output);
     }
@@ -214,7 +245,7 @@ class Debugger {
                 $this->isHtmlMode = false;
             } else {
                 $acceptsHtml = isset($_SERVER['HTTP_ACCEPT'])
-                    && false !== \stristr($_SERVER['HTTP_ACCEPT'], 'text/html');
+                    && false !== stristr($_SERVER['HTTP_ACCEPT'], 'text/html');
                 $this->isHtmlMode = $acceptsHtml && !$this->isPhpFormatEnabled();
             }
         }
@@ -230,7 +261,7 @@ class Debugger {
     public function dumpBytes(...$args): void {
         $output = '';
         foreach ($args as $arg) {
-            $bytesFormatted = \bin2hex($arg);
+            $bytesFormatted = bin2hex($arg);
             $output .= $this->varToStr($bytesFormatted);
         }
         $output .= $this->calledAt();
@@ -272,7 +303,7 @@ class Debugger {
         // @TODO: Move isIgnoredFrame to Trace::ignoreFrame(), then call Trace::toArr()
         $trace = (new Trace())->toArr();
         do {
-            $frame = \array_shift($trace);
+            $frame = array_shift($trace);
         } while ($frame && (!isset($frame['line']) || $this->isIgnoredFrame($frame)));
 
         return $frame;
@@ -287,7 +318,7 @@ class Debugger {
     protected function isIgnoredFrame(Frame $frame) {
         foreach ($this->ignoredFrames as $frameToIgnore) {
             if ($frame['filePath'] == $frameToIgnore['filePath']
-                && (\is_null($frameToIgnore['line']) || $frame['line'] == $frameToIgnore['line'])
+                && (is_null($frameToIgnore['line']) || $frame['line'] == $frameToIgnore['line'])
             ) {
                 return true;
             }
@@ -310,11 +341,11 @@ class Debugger {
         if (!$this->isHtmlMode()) {
             return "\n$line\n";
         }
-        return '<pre>' . \htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE) . '</pre>';
+        return '<pre>' . htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE) . '</pre>';
     }
 
     protected function formatHtml($output, $wrapOutput = true) {
-        $output = \str_replace(
+        $output = str_replace(
             '<pre>',
             '<pre style="margin: 1.5em; padding: 0; font-weight: bold; color: #333;">',
             $output
@@ -343,20 +374,20 @@ window.onload = function () {
     </div>
 </div>
 OUT;
-            return \str_replace(['{{output}}'], $output, $html);
+            return str_replace(['{{output}}'], $output, $html);
         }
 
         return $output;
     }
 
     protected function isPhpFormatEnabled(): bool {
-        return \ini_get('html_errors')
-            && \ini_get('xdebug.default_enable')
-            && \ini_get('xdebug.overload_var_dump');
+        return ini_get('html_errors')
+            && ini_get('xdebug.default_enable')
+            && ini_get('xdebug.overload_var_dump');
     }
 
     protected function errorHandler($level, $message, $filePath, $line, $context) {
-        if ($level & \error_reporting()) {
+        if ($level & error_reporting()) {
             try {
                 // @TODO: Sync with PHP 7.
                 $types = [
@@ -378,18 +409,18 @@ OUT;
                 $message = $types[$level] . ': ' . $message;
 
                 // Hack to get informative backtrace.
-                throw new \ErrorException($message, 0, $level, $filePath, $line);
-            } catch (\Exception $e) {
+                throw new ErrorException($message, 0, $level, $filePath, $line);
+            } catch (Exception $e) {
                 $this->dump($e->__toString());
             }
         }
     }
 
-    protected function describeGen(\Generator $val): string {
+    protected function describeGen(Generator $val): string {
         $out = '';
         $i = 0;
         foreach ($val as $key => $value) {
-            $out .= rtrim($this->describeVal($key), ';') . ' => ' . \rtrim($this->describeVal($value)) . "\n";
+            $out .= rtrim($this->describeVal($key), ';') . ' => ' . rtrim($this->describeVal($value)) . "\n";
             if ($i > 100) {
                 $out .= "...\n";
                 break;
@@ -401,7 +432,7 @@ OUT;
     }
 
     protected function describeVal($val, bool $stripNumericKeys = true): string {
-        $res = \preg_replace(
+        $res = preg_replace(
                 [
                     '~=>\s+array~si',
                     '~array \(~si',
@@ -410,17 +441,17 @@ OUT;
                     '=> array',
                     'array(',
                 ],
-                \var_export($val, true)
+                var_export($val, true)
             ) . ';';
         if ($stripNumericKeys) {
-            $res = \preg_replace('~^(\s+)\d+.*=> ~mi', '\\1', $res);
+            $res = preg_replace('~^(\s+)\d+.*=> ~mi', '\\1', $res);
         }
         // Reindent code: replace 2 spaces -> 4 spaces.
-        $res = \preg_replace_callback(
+        $res = preg_replace_callback(
             '~^\s+~m',
             function ($match) {
-                $count = \substr_count($match[0], '  ');
-                return \str_repeat('  ', $count * 2);
+                $count = substr_count($match[0], '  ');
+                return str_repeat('  ', $count * 2);
             },
             $res
         );

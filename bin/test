@@ -9,7 +9,5 @@ readonly phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 readonly phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
 readonly testDirPath="$baseDirPath/test"
 readonly phpUnitConfFilePath="$testDirPath/phpunit.xml"
-readonly seleniumLogFilePath="$testDirPath/selenium.log"
-export SELENIUM_VERSION=latest
 
 php -f "$phpUnitBinFilePath" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfFilePath" "$@"
