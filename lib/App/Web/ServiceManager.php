@@ -17,12 +17,12 @@ use Monolog\Processor\MemoryUsageProcessor;
 use Morpho\App\IRouter;
 use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\App\Web\Logging\WebProcessor;
-use Morpho\App\Web\Messages\Messenger;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\HtmlRenderer;
 use Morpho\App\Web\View\JsonRenderer;
+use Morpho\App\Web\View\Messenger;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\Error\DumpListener;
 use Morpho\Error\LogListener;
@@ -85,7 +85,7 @@ class ServiceManager extends BaseServiceManager {
             if ($format === ContentFormat::HTML) {
                 return new HtmlRenderer(
                     $this['templateEngine'],
-                    $this['serverModuleIndex'],
+                    $this['backendModuleIndex'],
                     $this->conf()['view']['pageRenderingModule'],
                 );
             } elseif ($format === ContentFormat::JSON) {
@@ -167,7 +167,7 @@ class ServiceManager extends BaseServiceManager {
     }
 
     private function appendLogFileWriter(Logger $logger, int $logLevel): void {
-        $moduleIndex = $this['serverModuleIndex'];
+        $moduleIndex = $this['backendModuleIndex'];
         $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(

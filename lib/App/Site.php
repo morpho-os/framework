@@ -7,7 +7,6 @@
 namespace Morpho\App;
 
 use Throwable;
-use function Morpho\Base\last;
 
 class Site implements ISite {
     protected string $name;
@@ -41,7 +40,7 @@ class Site implements ISite {
         return $this->hostName;
     }
 
-    public function serverModuleDirPaths(): iterable {
+    public function backendModuleDirPath(): iterable {
         $moduleDirPaths = [];
         foreach ($this->allModulesConf as $moduleName => $moduleConf) {
             $moduleDirPaths[] = $moduleConf['paths']['dirPath'];

@@ -12,6 +12,13 @@ use Morpho\Testing\TestCase;
 use Morpho\Testing\Vfs;
 
 class FileCheckerTest extends TestCase {
+    private FileChecker $fileChecker;
+
+    public function setUp(): void {
+        parent::setUp();
+        $this->fileChecker = new FileChecker();
+    }
+
     public function testCheckNamespaces_NsNotFound() {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());
         $classFileUri = $moduleDirUri . '/test/bar';
@@ -20,7 +27,7 @@ class FileCheckerTest extends TestCase {
             __NAMESPACE__ . '\\Foo\\Bar' => $moduleDirUri . '/shelf/book/',
         ]);
 
-        $errors = FileChecker::checkNamespaces($sourceFile);
+        $errors = $this->fileChecker->checkNamespaces($sourceFile);
 
         $this->assertSame([FileChecker::NS_NOT_FOUND], $errors);
     }
@@ -42,7 +49,7 @@ OUT;
             $nsPrefix => $libDirPath,
         ]);
 
-        $errors = FileChecker::checkNamespaces($sourceFile);
+        $errors = $this->fileChecker->checkNamespaces($sourceFile);
 
         $this->assertSame(['invalidNs' => $nsPrefix . '\\Some'], $errors);
     }
@@ -66,7 +73,7 @@ OUT;
             $nsPrefix . '\\' => $libDirPath,
         ]);
 
-        $errors = FileChecker::checkNamespaces($sourceFile);
+        $errors = $this->fileChecker->checkNamespaces($sourceFile);
 
         $this->assertSame([], $errors);
     }
@@ -91,7 +98,7 @@ OUT;
             $nsPrefix . '\\' => $libDirPath,
         ]);
 
-        $errors = FileChecker::checkClassTypes($sourceFile);
+        $errors = $this->fileChecker->checkClassTypes($sourceFile);
 
         $this->assertSame($nsPrefix . '\\Red\\Green\\Blue', $errors[FileChecker::INVALID_CLASS]);
     }
@@ -116,7 +123,7 @@ OUT;
             $nsPrefix . '\\' => $libDirPath,
         ]);
 
-        $errors = FileChecker::checkClassTypes($sourceFile);
+        $errors = $this->fileChecker->checkClassTypes($sourceFile);
 
         $this->assertSame([], $errors);
     }

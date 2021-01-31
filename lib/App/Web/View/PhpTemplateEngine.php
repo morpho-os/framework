@@ -154,20 +154,25 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->evalPhpFile($targetAbsFilePath, $context);
     }
 
+    public function compile($sourceCode): string {
+        $context = parent::__invoke(['program' => $sourceCode]);
+        return $context['program'];
+    }
+
     /**
-     * @param string $code
+     * @param string $sourceCode
      * @param array $__vars
      * @return string
      */
-    public function eval(string $code, array $__vars): string {
+    public function eval(string $sourceCode, array $__vars): string {
         // 1. Compile to PHP
-        $__code = parent::__invoke(['program' => $code]);
-        unset($code);
+        $__code = $this->compile($sourceCode);
+        unset($sourceCode);
         extract($__vars, EXTR_SKIP);
         unset($__vars);
         ob_start();
         try {
-            eval('?>' . $__code['program']);
+            eval('?>' . $__code);
         } catch (Throwable $e) {
             // Don't output any result in case of Error
             ob_end_clean();
@@ -222,7 +227,7 @@ class PhpTemplateEngine extends ArrPipe {
         if (!isset($attributes['id'])) {
             $attributes['id'] = $this->htmlId($attributes['name']);
         }
-        return $this->tag('input', $attributes);
+        return $this->tag1('input', $attributes);
     }
 
     public function selectField(array $attributes = null, $options): string {

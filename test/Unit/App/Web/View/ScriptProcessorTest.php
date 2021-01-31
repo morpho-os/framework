@@ -11,7 +11,7 @@ use Morpho\App\ISite;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\ScriptProcessor;
 use RuntimeException;
-use const Morpho\App\CLIENT_MODULE_DIR_NAME;
+use const Morpho\App\FRONTEND_MODULE_DIR_NAME;
 
 class ScriptProcessorTest extends TestCase {
     private ScriptProcessor $processor;
@@ -246,7 +246,7 @@ OUT;
         $site->method('conf')
             ->willReturn([
                 'paths' => [
-                    'clientModuleDirPath' => $this->getTestDirPath() . '/' . CLIENT_MODULE_DIR_NAME,
+                    'frontendModuleDirPath' => $this->getTestDirPath() . '/' . FRONTEND_MODULE_DIR_NAME,
                     'baseUriPath' => $this->baseUriPath,
                 ],
             ]);

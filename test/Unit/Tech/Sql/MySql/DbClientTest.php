@@ -153,6 +153,14 @@ SQL
         $this->assertSame(['bar'], $where[1]);
     }
 
+    public function testTransaction() {
+        $fn = function () {
+            return func_get_args();
+        };
+        $ret = $this->db->transaction($fn, 'test', 'bar');
+        $this->assertSame([$this->db, 'test', 'bar'], $ret);
+    }
+
     protected function createFixtures($db): void {
         $this->createCarsTable(true);
     }

@@ -6,9 +6,11 @@
  */
 namespace Morpho\Test\Unit\App\Cli;
 
+use IteratorAggregate;
 use Morpho\App\Cli\ICommandResult;
 use Morpho\Testing\TestCase;
 use Morpho\App\Cli\ShellCommandResult;
+use function iterator_to_array;
 
 class ShellCommandResultTest extends TestCase {
     public function testLines_DefaultArgs() {
@@ -30,12 +32,12 @@ OUT
                 'Second line',
                 'Third line'
             ],
-            \iterator_to_array($res->lines())
+            iterator_to_array($res->lines())
         );
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(\IteratorAggregate::class, new ShellCommandResult('foo', 0, '', ''));
+        $this->assertInstanceOf(IteratorAggregate::class, new ShellCommandResult('foo', 0, '', ''));
         $this->assertInstanceOf(ICommandResult::class, new ShellCommandResult('foo', 0, '', ''));
     }
 }

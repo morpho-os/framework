@@ -25,5 +25,5 @@ interface ISite extends IFn {
 
     public function moduleConf(string $moduleName): array;
 
-    public function serverModuleDirPaths(): iterable;
+    public function backendModuleDirPath(): iterable;
 }

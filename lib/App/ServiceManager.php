@@ -19,16 +19,16 @@ abstract class ServiceManager extends BaseServiceManager {
 
     abstract protected function mkEventManagerService();
 
-    protected function mkServerModuleIndexService() {
-        return new ModuleIndex($this['serverModuleIndexer']);
+    protected function mkBackendModuleIndexService() {
+        return new ModuleIndex($this['backendModuleIndexer']);
     }
 
-    protected function mkServerModuleIndexerService() {
-        return new ModuleIndexer($this['serverModuleIterator'], $this->mkCache($this->cacheDirPath() . '/module-indexer'));
+    protected function mkBackendModuleIndexerService() {
+        return new ModuleIndexer($this['backendModuleIterator'], $this->mkCache($this->cacheDirPath() . '/module-indexer'));
     }
 
-    protected function mkServerModuleIteratorService() {
-        return new ServerModuleIterator($this['site']);
+    protected function mkBackendModuleIteratorService() {
+        return new BackendModuleIterator($this['site']);
     }
 
     protected function cacheDirPath() {

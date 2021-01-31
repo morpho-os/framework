@@ -135,16 +135,16 @@ class Response extends BaseResponse {
     public function statusCodeToReason(int $statusCode): string {
         // http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
         $codeToReason = [
-            self::OK_STATUS_CODE => 'OK',
-            self::MOVED_PERMANENTLY => 'Moved Permanently',
-            self::FOUND_STATUS_CODE => 'Found',
-            self::NOT_MODIFIED_STATUS_CODE => 'Not Modified',
-            self::BAD_REQUEST_STATUS_CODE => 'Bad Request',
-            self::FORBIDDEN_STATUS_CODE => 'Forbidden',
-            self::NOT_FOUND_STATUS_CODE => 'Not Found',
-            self::METHOD_NOT_ALLOWED => 'Method Not Allowed',
+            self::OK_STATUS_CODE                    => 'OK',
+            self::MOVED_PERMANENTLY                 => 'Moved Permanently',
+            self::FOUND_STATUS_CODE                 => 'Found',
+            self::NOT_MODIFIED_STATUS_CODE          => 'Not Modified',
+            self::BAD_REQUEST_STATUS_CODE           => 'Bad Request',
+            self::FORBIDDEN_STATUS_CODE             => 'Forbidden',
+            self::NOT_FOUND_STATUS_CODE             => 'Not Found',
+            self::METHOD_NOT_ALLOWED                => 'Method Not Allowed',
             self::INTERNAL_SERVER_ERROR_STATUS_CODE => 'Internal Server Error',
-            self::SERVICE_UNAVAILABLE_CODE => 'Service Unavailable',
+            self::SERVICE_UNAVAILABLE_CODE          => 'Service Unavailable',
         ];
         if (isset($codeToReason[$statusCode])) {
             return $codeToReason[$statusCode];

@@ -6,11 +6,16 @@
  */
 namespace Morpho\Tech\Php\Linting;
 
+use Closure;
+use Morpho\Infra\IPsr4Mapper;
+use function array_merge;
 use function Morpho\Base\showLn;
 use function Morpho\Base\q;
 use function Morpho\App\Cli\showErrorLn;
 use function Morpho\App\Cli\showOk;
 use Morpho\Fs\Dir;
+use function preg_match;
+use function print_r;
 
 class Linter {
     /**
@@ -21,29 +26,29 @@ class Linter {
      * @return bool
      *     true on success, false otherwise
      */
-    public static function checkModule(string $composerFileDirPath, iterable $psr4MapperListIt, callable $lint = null): bool {
+    public function checkModule(string $composerFileDirPath, iterable $psr4MapperListIt, callable $lint = null): bool {
         showLn("Checking '$composerFileDirPath/composer.json'...");
         $metaFileErrors = ModuleChecker::checkMetaFile($composerFileDirPath . '/composer.json');
         if (null === $lint) {
-            $lint = [FileChecker::class, 'checkFile'];
+            $lint = [new FileChecker(), 'checkFile'];
         }
         if ($metaFileErrors) {
             showErrorLn('Errors found:');
-            showErrorLn(\print_r($metaFileErrors, TRUE));
+            showErrorLn(print_r($metaFileErrors, TRUE));
             $valid = false;
         } else {
             showOk();
-            $valid = self::checkNamespaces($psr4MapperListIt, $lint);
+            $valid = $this->checkNamespaces($psr4MapperListIt, $lint);
 
         }
         return $valid;
     }
 
-    private static function checkNamespaces(iterable $psr4MapperListIt, callable $lint) {
+    private function checkNamespaces(iterable $psr4MapperListIt, callable $lint) {
         $valid = true;
         foreach ($psr4MapperListIt as $psr4Mapper) {
             $mappingErrors = [];
-            /** @var \Morpho\Infra\IPsr4Mapper $psr4Mapper */
+            /** @var IPsr4Mapper $psr4Mapper */
             showLn('Checking files in ' . q($psr4Mapper->baseDirPath() . ' (namespace ' . q($psr4Mapper->nsPrefix()) . ')...'));
             foreach ($psr4Mapper->filePaths() as $filePath) {
                 $sourceFile = new SourceFile($filePath);
@@ -51,34 +56,34 @@ class Linter {
                     $psr4Mapper->nsPrefix() => $psr4Mapper->baseDirPath(),
                 ]);
                 $checkFileErrors = $lint($sourceFile);
-                $mappingErrors = \array_merge($mappingErrors, $checkFileErrors);
+                $mappingErrors = array_merge($mappingErrors, $checkFileErrors);
             }
             if (!$mappingErrors) {
                 showOk();
             } else {
-                self::showErrors($mappingErrors);
+                $this->showErrors($mappingErrors);
                 $valid = false;
             }
         }
         return $valid;
     }
 
-    public static function phpFilePaths(bool $recursive = true): \Closure {
+    public static function phpFilePaths(bool $recursive = true): Closure {
         return function (string $ns, string $baseDirPath) use ($recursive): iterable {
             return Dir::filePaths($baseDirPath, '~\.php$~', true);
         };
     }
 
-    public static function testFilePaths(bool $recursive): \Closure {
+    public static function testFilePaths(bool $recursive): Closure {
         return function (string $ns, string $baseDirPath) use ($recursive): iterable {
             return Dir::filePaths($baseDirPath, function ($filePath) {
-                return (bool) \preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
+                return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
             }, $recursive);
         };
     }
 
-    private static function showErrors(array $mappingErrors): void {
+    private function showErrors(array $mappingErrors): void {
         showLn('Errors found:');
-        showLn(\print_r($mappingErrors, true));
+        showLn(print_r($mappingErrors, true));
     }
 }

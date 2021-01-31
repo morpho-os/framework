@@ -32,11 +32,11 @@ class ShellCommandResult extends CommandResult {
         return $this->command;
     }
 
-    public function out(): string {
+    public function stdOut(): string {
         return $this->stdOut;
     }
 
-    public function err(): string {
+    public function stdErr(): string {
         return $this->stdErr;
     }
 }

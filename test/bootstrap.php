@@ -17,7 +17,7 @@ use Morpho\Testing\Sut;
     $classLoader->addPsr4(__NAMESPACE__ . '\\', __DIR__);
     */
 
-    foreach (Sut::instance()->serverModuleDirIt() as $moduleDirPath) {
+    foreach (Sut::instance()->backendModuleIterator() as $moduleDirPath) {
         $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
         if (\is_file($autoloadFilePath)) {
             require $autoloadFilePath;

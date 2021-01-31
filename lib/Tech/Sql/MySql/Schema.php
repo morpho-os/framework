@@ -63,8 +63,10 @@ class Schema extends BaseSchema {
     /**
      * @param iterable $tableNames Each table name should not contain user input (SQL injection is possible).
      */
-    public function deleteTables(iterable $tableNames): void {
-        $this->db->exec('SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS ' . implode(', ', $this->db->quoteIdentifier(toArr($tableNames))) . '; SET FOREIGN_KEY_CHECKS=1');
+    public function deleteTables(array $tableNames): void {
+        if ($tableNames) {
+            $this->db->exec('SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS ' . implode(', ', $this->db->quoteIdentifier(toArr($tableNames))) . '; SET FOREIGN_KEY_CHECKS=1');
+        }
     }
 /*
     public function renameDatabase(string $oldName, string $newName): void {

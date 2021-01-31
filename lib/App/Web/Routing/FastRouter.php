@@ -80,7 +80,7 @@ class FastRouter implements IHasServiceManager, IRouter {
     }
 
     protected function routesMeta(): iterable {
-        $moduleIndex = $this->serviceManager['serverModuleIndex'];
+        $moduleIndex = $this->serviceManager['backendModuleIndex'];
         $modules = function () use ($moduleIndex) {
             foreach ($moduleIndex as $moduleName) {
                 yield $moduleIndex->module($moduleName);

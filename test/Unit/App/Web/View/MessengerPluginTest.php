@@ -8,10 +8,10 @@ namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Messages\Messenger;
-use Morpho\App\Web\Messages\IMessageStorage;
+use Morpho\App\Web\View\Messenger;
+use Morpho\App\Web\View\IMessageStorage;
 use Morpho\App\Web\View\MessengerPlugin;
-use Morpho\Base\ArrayIterator;
+use Morpho\Base\ArrIterator;
 
 class MessengerPluginTest extends TestCase {
     /**
@@ -63,5 +63,5 @@ OUT;
     }
 }
 
-class MessageStorage extends ArrayIterator implements IMessageStorage {
+class MessageStorage extends ArrIterator implements IMessageStorage {
 }

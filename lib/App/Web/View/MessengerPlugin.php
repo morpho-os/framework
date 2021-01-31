@@ -6,7 +6,6 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\App\Web\Messages\Messenger;
 use function Morpho\Base\{
     dasherize, format
 };
@@ -70,8 +69,8 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
 
     protected function messageTypeToCssClass(string $type): string {
         $type2CssClass = [
-            Messenger::ERROR => 'danger',
-            Messenger::INFO => 'info',
+            Messenger::ERROR   => 'danger',
+            Messenger::INFO    => 'info',
             Messenger::SUCCESS => 'success',
             Messenger::WARNING => 'warning',
         ];

@@ -17,5 +17,5 @@ interface ISchema {
 
     public function deleteAllTables(): void;
 
-    public function deleteTables(iterable $tableNames): void;
+    public function deleteTables(array $tableNames): void;
 }

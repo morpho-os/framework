@@ -24,14 +24,14 @@ abstract class ActionMetaProvider implements IFn {
     }
 
     /**
-     * @param iterable|\Closure $modules Iterable over ServerModule or \Closure returning \Generator
+     * @param iterable|\Closure $modules Iterable over BackendModule or \Closure returning \Generator
      * @return iterable Iterable over action meta
      * @throws \ReflectionException
      */
     public function __invoke($modules): iterable {
         $controllerFilter = $this->controllerFilter();
         foreach (it($modules) as $module) {
-            /** @var \Morpho\App\ServerModule $module */
+            /** @var \Morpho\App\BackendModule $module */
             foreach ($module->controllerFilePaths(true) as $controllerFilePath) {
                 foreach ((new FileReflection($controllerFilePath))->classes() as $rClass) {
                     if (!$controllerFilter($rClass)) {

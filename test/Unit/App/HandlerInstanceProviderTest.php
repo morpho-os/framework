@@ -6,9 +6,8 @@
  */
 namespace Morpho\Test\Unit\App;
 
-use const Morpho\App\CONTROLLER_SUFFIX;
 use Morpho\App\ModuleIndex;
-use Morpho\App\ServerModule;
+use Morpho\App\BackendModule;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\HandlerInstanceProvider;
@@ -19,7 +18,7 @@ class HandlerInstanceProviderTest extends TestCase {
         $serviceManager = $this->createMock(IServiceManager::class);
 
         $moduleName = 'foo/bar';
-        $module = $this->createConfiguredMock(ServerModule::class, ['name' => $moduleName, 'autoloadFilePath' => __FILE__]);
+        $module = $this->createConfiguredMock(BackendModule::class, ['name' => $moduleName, 'autoloadFilePath' => __FILE__]);
 
         $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())
@@ -27,7 +26,7 @@ class HandlerInstanceProviderTest extends TestCase {
             ->with($moduleName)
             ->willReturn($module);
         $services = [
-            'serverModuleIndex' => $moduleIndex,
+            'backendModuleIndex' => $moduleIndex,
         ];
         $serviceManager->expects($this->any())
             ->method('offsetGet')

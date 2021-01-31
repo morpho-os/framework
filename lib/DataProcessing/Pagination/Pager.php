@@ -6,31 +6,27 @@
  */
 namespace Morpho\DataProcessing\Pagination;
 
-class Pager implements \Iterator, \Countable {
+use Countable;
+use Iterator;
+use function array_slice;
+use function ceil;
+use function count;
+use function intval;
+use function max;
+
+class Pager implements Iterator, Countable {
     protected $items = [];
 
-    /**
-     * @var int
-     */
-    protected $pageSize = 20;
+    protected int $pageSize = 20;
 
-    /**
-     * @var int
-     */
-    protected $currentPageNumber = 1;
+    protected int $currentPageNumber = 1;
 
-    /**
-     * @var bool
-     */
-    private $isValid = false;
+    private bool $isValid = false;
 
-    /**
-     * @var ?int
-     */
-    private $totalItemsCount;
+    private ?int $totalItemsCount = null;
 
     public function setCurrentPageNumber(int $pageNumber): void {
-        $pageNumber = \intval($pageNumber);
+        $pageNumber = intval($pageNumber);
         $totalPagesCount = $this->totalPagesCount();
         if ($pageNumber > $totalPagesCount) {
             $pageNumber = $totalPagesCount;
@@ -50,11 +46,11 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function totalPagesCount(): int {
-        return (int)\ceil($this->totalItemsCount() / $this->pageSize());
+        return (int)ceil($this->totalItemsCount() / $this->pageSize());
     }
 
     public function setPageSize(int $pageSize): void {
-        $this->pageSize = \max(\intval($pageSize), 1);
+        $this->pageSize = max(intval($pageSize), 1);
         $this->totalItemsCount = null;
     }
 
@@ -67,7 +63,7 @@ class Pager implements \Iterator, \Countable {
     }
 
     public function mkPageByNumber(int $pageNumber): Page {
-        $pageNumber = \max(\intval($pageNumber), 1);
+        $pageNumber = max(intval($pageNumber), 1);
         $pageSize = $this->pageSize();
         $offset = ($pageNumber - 1) * $pageSize;
         return $this->mkPage(
@@ -119,7 +115,7 @@ class Pager implements \Iterator, \Countable {
     }
 
     protected function calculateTotalItemsCount(): int {
-        return \count($this->items);
+        return count($this->items);
     }
 
     /**
@@ -130,6 +126,6 @@ class Pager implements \Iterator, \Countable {
     }
 
     protected function items(int $offset, int $pageSize): array {
-        return \array_slice($this->items, $offset, $pageSize);
+        return array_slice($this->items, $offset, $pageSize);
     }
 }

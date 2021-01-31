@@ -465,7 +465,7 @@ class Dir extends Entry {
      * @param callable $fn
      * @return mixed
      */
-    public static function doIn(string $otherDirPath, callable $fn) {
+    public static function in(string $otherDirPath, callable $fn) {
         $curDirPath = getcwd();
         try {
             chdir($otherDirPath);

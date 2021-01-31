@@ -133,7 +133,7 @@ class ScriptProcessor extends HtmlProcessor {
         $shortModuleName = last($this->site->moduleName(), '/');
         $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
         $relFilePath = $fullJsModuleId . '.js';
-        $jsFilePath = $siteConf['paths']['clientModuleDirPath'] . '/' . $relFilePath;
+        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
         $inline = $included = [];
         if (file_exists($jsFilePath)) {
             $jsConf = $this->jsConf();

@@ -6,6 +6,9 @@
  */
 namespace Morpho\App\Cli;
 
+use Generator;
+use function preg_split;
+use function trim;
 use const Morpho\Base\EOL_FULL_RE;
 
 abstract class CommandResult implements ICommandResult {
@@ -28,13 +31,13 @@ abstract class CommandResult implements ICommandResult {
     }
 
     // @TODO: Unify with #152.
-    public function lines($noEmptyLines = true, bool $trimLines = true): \Generator {
+    public function lines($noEmptyLines = true, bool $trimLines = true): Generator {
         /*if (!is_bool($noEmptyLines) && is_callable($noEmptyLines)) {
             $filter = $noEmptyLines;
         }*/
-        foreach (\preg_split(EOL_FULL_RE, $this->out(), -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
+        foreach (preg_split(EOL_FULL_RE, $this->stdOut(), -1, $noEmptyLines ? PREG_SPLIT_NO_EMPTY : 0) as $line) {
             if ($trimLines) {
-                $line = \trim($line);
+                $line = trim($line);
             }
             if ($noEmptyLines && $line === '') {
                 continue;
@@ -44,6 +47,6 @@ abstract class CommandResult implements ICommandResult {
     }
 
     public function __toString(): string {
-        return (string) $this->out();
+        return (string) $this->stdOut();
     }
 }

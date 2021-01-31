@@ -13,17 +13,22 @@ namespace Morpho\App;
 //}
 
 use Morpho\Fs\Path;
+use RuntimeException;
+use function explode;
+use function implode;
+use function is_file;
+
 const VENDOR = 'morpho-os';
 
 const APP_DIR_NAME = 'app';
 const BIN_DIR_NAME = 'bin';
 const CACHE_DIR_NAME = 'cache';
-const CLIENT_MODULE_DIR_NAME = 'client';
+const FRONTEND_MODULE_DIR_NAME = 'frontend';
 const CONF_DIR_NAME = 'conf';
 const LIB_DIR_NAME = 'lib';
 const LOG_DIR_NAME = 'log';
 const RC_DIR_NAME = 'rc';
-const SERVER_MODULE_DIR_NAME = 'server';
+const BACKEND_MODULE_DIR_NAME = 'backend';
 const TEST_DIR_NAME = 'test';
 const TMP_DIR_NAME = 'tmp';
 const VENDOR_DIR_NAME = 'vendor';
@@ -48,17 +53,17 @@ function moduleDirPath(string $dirPath, bool $throwEx = true) {
     $baseDirPath = false;
     do {
         $path = $dirPath . '/vendor/composer/ClassLoader.php';
-        if (\is_file($path)) {
+        if (is_file($path)) {
             $baseDirPath = $dirPath;
             break;
         } else {
-            $chunks = \explode(DIRECTORY_SEPARATOR, $dirPath, -1);
-            $dirPath = \implode(DIRECTORY_SEPARATOR, $chunks);
+            $chunks = explode(DIRECTORY_SEPARATOR, $dirPath, -1);
+            $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
         }
     } while ($chunks);
     if (false === $baseDirPath) {
         if ($throwEx) {
-            throw new \RuntimeException("Unable to detect the base directory of a module");
+            throw new RuntimeException("Unable to detect the base directory of a module");
         }
         return false;
     }

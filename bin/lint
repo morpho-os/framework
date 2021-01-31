@@ -1,7 +1,32 @@
-#!/usr/bin/env bash
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+namespace Morpho\Test;
 
-set -euo pipefail
+use Morpho\Tech\Php\Linting\Linter;
+use Morpho\Fs\Path;
+use Morpho\Tech\Php\Psr4Mapper;
 
-SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+require __DIR__ . '/../vendor/autoload.php';
 
-php $SCRIPT_DIR_PATH/../test/lint.php
+function main(): void {
+    $baseDirPath = \realpath(__DIR__ . '/..');
+    $mappers = [];
+    $absDirPath = function (string $relDirPath) use ($baseDirPath) {
+        return Path::combine($baseDirPath, $relDirPath);
+    };
+    $fqNs = function ($ns) {
+        return 'Morpho\\' . (null === $ns ? '' : \trim($ns, '\\') . '\\');
+    };
+    $mappers[] = new Psr4Mapper($fqNs(null), $absDirPath('lib'), Linter::phpFilePaths());
+    $mappers[] = new Psr4Mapper($fqNs('Test'), $absDirPath('test'), Linter::testFilePaths(true));
+    // @TODO: Add modules
+    $result = (new Linter())->checkModule($baseDirPath, $mappers);
+    exit((int)!$result);
+}
+
+main();

@@ -33,9 +33,10 @@ interface IDbClient {
 
     /**
      * @param callable $transaction
+     * @param mixed ...$args
      * @return mixed
      */
-    public function transaction(callable $transaction);
+    public function transaction(callable $transaction, ...$args);
 
     public function inTransaction(): bool;
 

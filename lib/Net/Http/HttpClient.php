@@ -6,6 +6,10 @@
  */
 namespace Morpho\Net\Http;
 
+use function basename;
+use function escapeshellarg;
+use function getcwd;
+use function is_dir;
 use function Morpho\App\Cli\sh;
 
 class HttpClient {
@@ -14,13 +18,13 @@ class HttpClient {
      */
     public static function download(string $uri, string $destPath = null): string {
         if (null === $destPath) {
-            $destPath = \getcwd() . '/' . \basename($uri);
-        } elseif (\is_dir($destPath)) {
-            $destPath .= '/' . \basename($uri);
+            $destPath = getcwd() . '/' . basename($uri);
+        } elseif (is_dir($destPath)) {
+            $destPath .= '/' . basename($uri);
         }
         // @TODO: Implement without call of the external tool.
         // @TODO: use curl, wget or fetch, see the `man parallel`
-        sh('curl --progress-bar -L -o ' . \escapeshellarg($destPath) . ' ' . \escapeshellarg($uri), ['show' => true]);
+        sh('curl --progress-bar -L -o ' . escapeshellarg($destPath) . ' ' . escapeshellarg($uri), ['show' => true]);
         return $destPath;
     }
 

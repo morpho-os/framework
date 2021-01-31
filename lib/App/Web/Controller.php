@@ -9,7 +9,7 @@ namespace Morpho\App\Web;
 use ArrayObject;
 use Morpho\Base\Result;
 use Morpho\Base\Ok;
-use Morpho\Base\Err;
+use Morpho\Base\Error;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Controller as BaseController;
@@ -46,7 +46,7 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->request['jsConf'];
     }
 
-    protected function messenger(): Messages\Messenger {
+    protected function messenger(): View\Messenger {
         return $this->serviceManager['messenger'];
     }
 
@@ -54,8 +54,8 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return new Ok($val);
     }
 
-    protected function err($val = null): Result {
-        return new Err($val);
+    protected function error($val = null): Result {
+        return new Error($val);
     }
 
     protected function handleResult($actionResult) {

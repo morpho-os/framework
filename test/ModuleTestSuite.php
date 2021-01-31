@@ -12,7 +12,7 @@ use Morpho\Testing\Sut;
 class ModuleTestSuite extends \Morpho\Testing\TestSuite {
     public function testFilePaths(): iterable {
         $sut = Sut::instance();
-        foreach ($sut->serverModuleDirIt() as $dirPath) {
+        foreach ($sut->backendModuleIterator() as $dirPath) {
             $testDirPath = $dirPath. '/' . TEST_DIR_NAME;
             if (\is_dir($testDirPath)) {
                 foreach ($this->testFilesInDir($testDirPath) as $file) {

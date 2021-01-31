@@ -252,7 +252,7 @@ function checkExitCode(int $exitCode, string $errMessage = null): int {
 
 function checkResult(ICommandResult $result) {
     if ($result->isError()) {
-        errorLn($result->err() . ' Exit code: ' . $result->exitCode());
+        errorLn($result->error() . ' Exit code: ' . $result->exitCode());
     }
 }
 

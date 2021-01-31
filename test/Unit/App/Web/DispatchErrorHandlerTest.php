@@ -7,7 +7,6 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Monolog\Logger;
-use Morpho\Base\IFn;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\DispatchErrorHandler;
@@ -30,12 +29,11 @@ class DispatchErrorHandlerTest extends TestCase {
         $exception = new \RuntimeException('Uncaught test');
         //yield [, true];
         $dispatchErrorHandler = new DispatchErrorHandler();
-        $request = $this->mkRequest();
+        $request = new Request();
         $request->isHandled(true);
         $exceptionMessage = $exception->getMessage();
         $dispatchErrorHandler->throwErrors(true);
         $serviceManager = $this->mkServiceManagerWithLogger(true, $exception, 1);
-        /** @noinspection PhpParamsInspection */
         $dispatchErrorHandler->setServiceManager($serviceManager);
         try {
             $dispatchErrorHandler->handleException($exception, $request);
@@ -49,7 +47,7 @@ class DispatchErrorHandlerTest extends TestCase {
     }
 
     private function checkHandlesTheSameErrorOccurredTwice(DispatchErrorHandler $dispatchErrorHandler, array $expectedHandler, \Throwable $exception, int $expectedStatusCode, bool $mustLogError) {
-        $request = $this->mkRequest();
+        $request = new Request();
         $request->isHandled(true);
 
         $serviceManager = $this->mkServiceManagerWithLogger($mustLogError, $exception, 2);
@@ -89,13 +87,5 @@ class DispatchErrorHandlerTest extends TestCase {
             ->with('errorLogger')
             ->willReturn($errorLogger);
         return $serviceManager;
-    }
-
-    private function mkRequest(array $serverVars = null) {
-        return new Request(
-            null,
-            $serverVars,
-            new class implements IFn { public function __invoke($value) {} }
-        );
     }
 }

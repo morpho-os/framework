@@ -6,7 +6,7 @@
  */
 namespace Morpho\DataProcessing\Pagination;
 
-use Morpho\Base\ArrayIterator;
+use Morpho\Base\ArrIterator;
 
-class Page extends ArrayIterator {
+class Page extends ArrIterator {
 }

@@ -9,8 +9,16 @@ namespace Morpho\Base;
 use ReflectionClass;
 
 abstract class Enum {
+    /**
+     * Returns members of the enum - public constants.
+     */
     public static function members(): array {
-        $rClass = new ReflectionClass(static::class);
-        return $rClass->getConstants();
+        $members = [];
+        foreach ((new ReflectionClass(static::class))->getReflectionConstants() as $rConst) {
+            if ($rConst->isPublic()) {
+                $members[$rConst->getName()] = $rConst->getValue();
+            }
+        }
+        return $members;
     }
 }

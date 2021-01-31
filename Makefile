@@ -1,5 +1,5 @@
-serverModuleDirPath = $(CURDIR)/server
-clientModuleDirPath = $(CURDIR)/client
+backendModuleDirPath = $(CURDIR)/server
+frontendModuleDirPath = $(CURDIR)/client
 errorOpts = --stop-on-error --stop-on-failure --stop-on-warning
 defectOpts = --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete
 
@@ -58,8 +58,8 @@ lint:
 
 clear: clean
 clean:
-	sudo sh -c 'rm -rf test/Integration/*.log $(serverModuleDirPath)/localhost/{log,cache}/*'
-	find $(clientModuleDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.css' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -delete
+	sudo sh -c 'rm -rf test/Integration/*.log $(backendModuleDirPath)/localhost/{log,cache}/*'
+	find $(frontendModuleDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.css' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -delete
 
 update:
 	composer update

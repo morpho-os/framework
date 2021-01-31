@@ -18,7 +18,7 @@ class HandlerInstanceProvider implements IFn {
     private IServiceManager $serviceManager;
 
     public function __construct(IServiceManager $serviceManager) {
-        $this->moduleIndex = $serviceManager['serverModuleIndex'];
+        $this->moduleIndex = $serviceManager['backendModuleIndex'];
         $this->serviceManager = $serviceManager;
     }
 

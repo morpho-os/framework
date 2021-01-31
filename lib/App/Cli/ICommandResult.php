@@ -9,9 +9,9 @@ namespace Morpho\App\Cli;
 interface ICommandResult extends \IteratorAggregate {
     public function command(): string;
 
-    public function out(): string;
+    public function stdOut(): string;
 
-    public function err(): string;
+    public function stdErr(): string;
 
     public function exitCode(): int;
 

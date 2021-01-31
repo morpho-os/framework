@@ -45,7 +45,7 @@ class ModuleIndex implements \IteratorAggregate {
     }
 
     protected function mkModule(string $moduleName, $meta): Module {
-        return new ServerModule($moduleName, $meta);
+        return new BackendModule($moduleName, $meta);
     }
 
     private function init(): void {
