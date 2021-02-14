@@ -4,17 +4,18 @@
 
 set -euo pipefail
 
-readonly SCRIPT_FILE_NAME="$(basename "$0")"
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
 
-readonly BASE_DIR_PATH=$(realpath -e "$SCRIPT_DIR_PATH"/../..)
+readonly baseDirPath=$(realpath -e "$SCRIPT_DIR_PATH"/../..)
+readonly backendDirPath=$baseDirPath/backend
+readonly frontendDirPath=$baseDirPath/frontend
+readonly testDb=test
 
 showFacts() {
     echo --------------------------------------------------------------------------------
 #    env
     pwd
-    ls -al "$BASE_DIR_PATH"
+    ls -al "$baseDirPath"
     id
     cat /etc/os-release
     which -a php
@@ -42,7 +43,7 @@ prepareEnv() {
     /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
 
     sudo npm install -g typescript@next sass
-    pushd client > /dev/null
+    pushd "$frontendDirPath" > /dev/null
     npm install
     popd > /dev/null
 
@@ -55,7 +56,7 @@ prepareEnv() {
     # Catch all
     server_name _;
 
-    root $BASE_DIR_PATH/client;
+    root $frontendDirPath;
     index index.php;
     try_files \$uri /index.php?\$args;
 
@@ -64,13 +65,13 @@ prepareEnv() {
         fastcgi_pass unix:/run/php/php7.4-fpm.sock;
     }
 }" | sudo tee > /dev/null /etc/nginx/sites-enabled/default
-    sudo chown -R www-data:www-data "$BASE_DIR_PATH"/client "$BASE_DIR_PATH"/server/localhost/{log,cache}
+    sudo chown -R www-data:www-data "$frontendDirPath" "$backendDirPath"/localhost/{log,cache}
     sudo systemctl restart nginx
 
     installComposerPackages
 
     sudo systemctl restart mysql
-    export MORPHO_TEST_DB_USER=root MORPHO_TEST_DB_PASSWORD=root MORPHO_TEST_DB_DB=test
+    export MORPHO_TEST_DB_USER=root MORPHO_TEST_DB_PASSWORD=root MORPHO_TEST_DB_DB="$testDb"
     mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "DROP DATABASE IF EXISTS $MORPHO_TEST_DB_DB; CREATE DATABASE $MORPHO_TEST_DB_DB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci"
     mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "SHOW DATABASES"
 }
@@ -82,8 +83,8 @@ runTests() {
     set -e
     if [[ $exitCode -ne 0 ]]; then
         echo --------------------------------------------------------------------------------
-        echo 'server/localhost/log/*'
-        sudo sh -c "cat $BASE_DIR_PATH/server/localhost/log/*"
+        echo '$backendDirPath/localhost/log/*'
+        sudo sh -c "cat $backendDirPath/localhost/log/*"
         exit $exitCode
     fi
     php test/lint.php

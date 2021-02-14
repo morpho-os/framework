@@ -81,7 +81,7 @@ abstract class Env {
     /**
      * Returns true if the ini-value looks like bool.
      */
-    public static function isBoolIniVal(int|string $value): bool {
+    public static function isBoolIniVal(int|string|float|bool $value): bool {
         return in_array(strtolower((string)$value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
