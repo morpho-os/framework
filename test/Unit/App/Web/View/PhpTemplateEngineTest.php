@@ -87,6 +87,131 @@ class PhpTemplateEngineTest extends TestCase {
         $this->checkBoolAccessor([$this->templateEngine, 'forceCompile'], false);
     }
 
+    public function testSelectField_Empty() {
+        $this->assertHtmlEquals("<select></select>", $this->templateEngine->selectField([]));
+    }
+
+    public function testSelectField_IndexedArrOptions_WithoutSelectedOption() {
+        $options = ['foo', 'bar'];
+        $html = $this->templateEngine->selectField($options);
+        $this->assertHtmlEquals('<select><option value="0">foo</option><option value="1">bar</option></select>', $html);
+    }
+
+    public function testSelectField_IndexedArrOptions_WithSingleSelectedOption() {
+        $options = ['foo', 'bar'];
+        $html = $this->templateEngine->selectField($options, 1);
+        $this->assertHtmlEquals('<select><option value="0">foo</option><option value="1" selected>bar</option></select>', $html);
+    }
+
+    public function testSelectField_IndexedArrOptions_WithMultipleSelectedOptions() {
+        $options = ['foo', 'bar'];
+        $html = $this->templateEngine->selectField($options, [0, 1]);
+        $this->assertHtmlEquals('<select><option value="0" selected>foo</option><option value="1" selected>bar</option></select>', $html);
+    }
+
+    public function testSelectField_AddsIdAttribIfNotSpecifiedFromNameAttrib() {
+        $html = $this->templateEngine->selectField(null, null, ['name' => 'task[id]']);
+        $this->assertHtmlEquals('<select name="task[id]" id="task-id"></select>', $html);
+    }
+
+    public function testTag() {
+        $this->assertSame('<foo bar="baz">hello</foo>' . "\n", $this->templateEngine->tag('foo', 'hello', ['bar' => 'baz']));
+    }
+
+    public function testTag_EolConfParam() {
+        $this->assertEquals("<foo></foo>\n", $this->templateEngine->tag('foo'));
+        $this->assertEquals("<foo></foo>\n", $this->templateEngine->tag('foo', null, null, ['eol' => true]));
+        $this->assertEquals("<foo></foo>", $this->templateEngine->tag('foo', null, null, ['eol' => false]));
+    }
+
+    public function testTag_EscapeTextConfParam() {
+        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escapeText' => true]));
+        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false]));
+        $this->assertEquals('<foo>"</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escapeText' => false]));
+    }
+
+    public function testTag1_MultipleAttributes() {
+        $attributes = ['href' => 'foo/bar.css', 'rel' => 'stylesheet'];
+        $expected = '<link href="foo/bar.css" rel="stylesheet">';
+        $this->assertEquals(
+            $expected,
+            $this->templateEngine->tag('link', null, $attributes, ['eol' => false, 'single' => true])
+        );
+        $this->assertEquals(
+            $expected,
+            $this->templateEngine->tag1('link', $attributes, ['eol' => false])
+        );
+    }
+
+    public function testTag1_Html5() {
+        $this->assertSame('<foo bar="baz">' . "\n", $this->templateEngine->tag1('foo', ['bar' => 'baz']));
+        $this->assertSame('<foo bar="baz">' . "\n", $this->templateEngine->tag1('foo', ['bar' => 'baz'], ['xml' => false]));
+    }
+
+    public function testTag1_Xml() {
+        $this->assertSame('<foo bar="baz" />' . "\n", $this->templateEngine->tag1('foo', ['bar' => 'baz'], ['xml' => true]));
+    }
+
+    public function testHtmlId() {
+        $this->assertEquals('foo-1-bar-2-test', $this->templateEngine->htmlId('foo[1][bar][2][test]'));
+        $this->assertEquals('foo-1-bar-2-test-1', $this->templateEngine->htmlId('foo_1-bar_2[test]'));
+        $this->assertEquals('fo-o', $this->templateEngine->htmlId('<fo>&o\\'));
+        $this->assertEquals('fo-o-1', $this->templateEngine->htmlId('<fo>&o\\'));
+        $this->assertEquals('foo-bar', $this->templateEngine->htmlId('FooBar'));
+        $this->assertEquals('foo-bar-1', $this->templateEngine->htmlId('FooBar'));
+    }
+
+    public function testEmptyAttributes() {
+        $this->assertEquals('', $this->templateEngine->attributes([]));
+    }
+
+    public function testMultipleAttributes() {
+        $this->assertEquals(
+            ' data-api name="foo" id="some-id"',
+            $this->templateEngine->attributes(['data-api', 'name' => 'foo', 'id' => 'some-id'])
+        );
+    }
+
+    public function testCopyright() {
+        $curYear = \date('Y');
+        $brand = 'Mices\'s';
+
+        $startYear = $curYear - 2;
+        $this->assertEquals(
+            '© ' . $startYear . '-' . $curYear . ', Mices&#039;s',
+            $this->templateEngine->copyright($brand, $startYear)
+        );
+
+        $startYear = $curYear;
+        $this->assertEquals(
+            '© ' . $startYear . ', Mices&#039;s',
+            $this->templateEngine->copyright($brand, $startYear)
+        );
+    }
+
+    public function testEncodeDecode_SpecialCharsWithText() {
+        $original = '<h1>Hello</h1>';
+        $encoded = $this->templateEngine->e($original);
+        $this->assertEquals('&lt;h1&gt;Hello&lt;/h1&gt;', $encoded);
+        $this->assertEquals($original, $this->templateEngine->de($encoded));
+    }
+
+    public function testEncodeDecode_OnlySpecialChars() {
+        // $specialChars taken from Zend\Escaper\EscaperTest:
+        $specialChars = [
+            '\'' => '&#039;',
+            '"'  => '&quot;',
+            '<'  => '&lt;',
+            '>'  => '&gt;',
+            '&'  => '&amp;',
+        ];
+        foreach ($specialChars as $char => $expected) {
+            $encoded = $this->templateEngine->e($char);
+            $this->assertSame($expected, $encoded);
+            $this->assertSame($char, $this->templateEngine->de($encoded));
+        }
+    }
+
     private function templateEngineConf(): array {
         return [
             'request' => null,

@@ -7,12 +7,12 @@
 namespace Morpho\Test\Unit\Base;
 
 use Morpho\Testing\TestCase;
-use Morpho\Base\{Result, Ok, Error, IFunctor, IMonad};
+use Morpho\Base\{Result, Ok, Err, IFunctor, IMonad};
 
 class ResultTest extends TestCase {
     public function dataForInterface() {
         yield [new Ok()];
-        yield [new Error()];
+        yield [new Err()];
     }
     /**
      * @dataProvider dataForInterface
@@ -39,10 +39,10 @@ class ResultTest extends TestCase {
         $errVal = 'bar';
         $res = (new Ok($okVal))->bind(function ($val) use (&$captured, $errVal) {
             $captured = $val;
-            return new Error($errVal);
+            return new Err($errVal);
         });
         $this->assertSame($okVal, $captured);
-        $this->assertEquals(new Error($errVal), $res);
+        $this->assertEquals(new Err($errVal), $res);
     }
 
     public function dataForComposition() {
@@ -61,7 +61,7 @@ class ResultTest extends TestCase {
         ];
         yield [
             $req,
-            new Error('No email from localhost is allowed.'),
+            new Err('No email from localhost is allowed.'),
         ];
     }
 
@@ -73,26 +73,26 @@ class ResultTest extends TestCase {
 
         $validateName = function ($req): Result {
             if ($req['name'] === null) {
-                return new Error('No name found.');
+                return new Err('No name found.');
             }
             if ($req['name'] === '') {
-                return new Error('Name is empty.');
+                return new Err('Name is empty.');
             }
             if ($req['name'] === 'bananas') {
-                return new Error('Bananas is not a name.');
+                return new Err('Bananas is not a name.');
             }
             return new Ok($req);
         };
 
         $validateEmail = function ($req) {
             if ($req['email'] === null) {
-                return new Error('No email found.');
+                return new Err('No email found.');
             }
             if ($req['email'] === '') {
-                return new Error('Email is empty.');
+                return new Err('Email is empty.');
             }
             if (\substr($req['email'], -\strlen('localhost')) === 'localhost') {
-                return new Error("No email from localhost is allowed.");
+                return new Err("No email from localhost is allowed.");
             }
             return new Ok($req);
         };
@@ -101,7 +101,7 @@ class ResultTest extends TestCase {
             return $reqResult->bind($validateName)
                              ->bind($validateEmail)
                              ->bind(function ($val) use ($expected) {
-                                 if ($expected instanceof Error) {
+                                 if ($expected instanceof Err) {
                                      throw new \RuntimeException("Must not be called");
                                  }
                                  return new Ok($val);
@@ -114,9 +114,9 @@ class ResultTest extends TestCase {
 
     public function testVal() {
         $this->assertNull((new Ok())->val());
-        $this->assertNull((new Error())->val());
+        $this->assertNull((new Err())->val());
         $this->assertSame(3, (new Ok(3))->val());
-        $this->assertSame(4, (new Error(4))->val());
+        $this->assertSame(4, (new Err(4))->val());
     }
 
     public function testMonadLaws_LeftIdentity() {
@@ -171,7 +171,7 @@ class ResultTest extends TestCase {
     
     public function testIsOk() {
         $this->assertTrue((new Ok())->isOk());
-        $this->assertFalse((new Error())->isOk());
+        $this->assertFalse((new Err())->isOk());
     }
 
     public function testJsonSerialization() {
@@ -181,8 +181,8 @@ class ResultTest extends TestCase {
         $this->assertInstanceOf(\JsonSerializable::class, $result);
         $this->assertJsonStringEqualsJsonString(json_encode(['ok' => $val]), json_encode($result));
 
-        $result = new Error($val);
+        $result = new Err($val);
         $this->assertInstanceOf(\JsonSerializable::class, $result);
-        $this->assertJsonStringEqualsJsonString(json_encode(['error' => $val]), json_encode($result));
+        $this->assertJsonStringEqualsJsonString(json_encode(['err' => $val]), json_encode($result));
     }
 }

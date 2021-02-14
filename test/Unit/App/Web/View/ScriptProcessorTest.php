@@ -103,7 +103,7 @@ OUT;
      */
     public function testSkipAttribute($tag) {
         $processor = new class ($this->mkRequestStub('foo'), $this->mkSiteStub('abc/efg')) extends ScriptProcessor {
-            protected function containerBody($tag) {
+            protected function containerBody(array $tag): null|array|bool {
                 $res = parent::containerBody($tag);
                 if (isset($res['_skip'])) {
                     throw new RuntimeException("The _skip attribute must be removed");
@@ -111,7 +111,7 @@ OUT;
                 return $res;
             }
 
-            protected function containerScript($tag) {
+            protected function containerScript(array $tag): null|array|bool {
                 $res = parent::containerScript($tag);
                 if (isset($res['_skip'])) {
                     throw new RuntimeException("The _skip attribute must be removed");

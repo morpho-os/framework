@@ -47,6 +47,10 @@ class ArrPipe implements IPipe {
         return $this->phases;
     }
 
+    public function phase(string|int $key): mixed {
+        return $this->phases[$key];
+    }
+
     public function current(): callable {
         return current($this->phases);
     }

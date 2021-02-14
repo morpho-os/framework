@@ -32,11 +32,32 @@ class ArrPipeTest extends TestCase {
             },
         ];
         $pipe = new ArrPipe($phases);
+
         $this->assertCount(2, $pipe->phases());
         $context = ['counter' => 0];
 
         $context = $pipe->__invoke($context);
 
         $this->assertSame(2, $context['counter']);
+    }
+
+    public function testPhase() {
+        $bar = function ($context) {
+            $context['counter']++;
+            return $context;
+        };
+        $phases = [
+            'foo' => function ($context) {
+                $context['counter']++;
+                return $context;
+            },
+            'bar' => $bar,
+            'baz' => function ($context) {
+                $context['counter']++;
+                return $context;
+            },
+        ];
+        $pipe = new ArrPipe($phases);
+        $this->assertSame($bar, $pipe->phase('bar'));
     }
 }

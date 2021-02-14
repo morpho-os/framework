@@ -23,6 +23,7 @@ use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\HtmlRenderer;
 use Morpho\App\Web\View\JsonRenderer;
 use Morpho\App\Web\View\Messenger;
+use Morpho\App\Web\View\MessengerPlugin;
 use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\Error\DumpListener;
 use Morpho\Error\LogListener;
@@ -63,7 +64,7 @@ class ServiceManager extends BaseServiceManager {
         if (!isset($conf['pluginFactory'])) {
             $conf['pluginFactory'] = function ($pluginName) {
                 $knownPlugins = [
-                    'Messenger' => __NAMESPACE__ . '\\View\\MessengerPlugin',
+                    'Messenger' => MessengerPlugin::class,
                 ];
                 if (isset($knownPlugins[$pluginName])) {
                     $plugin = new $knownPlugins[$pluginName]();

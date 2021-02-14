@@ -28,11 +28,11 @@ abstract class Env {
         return self::boolIniVal('xdebug.default_enable');
     }
 
-    public static function x64Arch(): bool {
+    public static function isX64Arch(): bool {
         return PHP_INT_SIZE === 8;
     }
 
-    public static function x32Arch(): bool {
+    public static function isX32Arch(): bool {
         return PHP_INT_SIZE === 4;
     }
 
@@ -79,10 +79,9 @@ abstract class Env {
     }
 
     /**
-     * @param int|string $value
      * Returns true if the ini-value looks like bool.
      */
-    public static function isBoolLikeIniVal($value): bool {
+    public static function isBoolIniVal(int|string $value): bool {
         return in_array(strtolower((string)$value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
@@ -100,6 +99,7 @@ abstract class Env {
     public static function init(): void {
         error_reporting(E_ALL | E_STRICT);
         //ini_set('display_errors', '0');
+        setlocale(LC_ALL, ''); // to fix at least escapeshellarg() to awork with UTF-8.
         ini_set('date.timezone', self::TIMEZONE);
         ini_set('default_charset', self::ENCODING);
     }

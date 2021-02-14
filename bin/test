@@ -3,11 +3,18 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_FILE_NAME="$(basename "$0")"
+readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
 
 readonly baseDirPath=$(realpath -e "$SCRIPT_DIR_PATH"/..)
-readonly phpUnitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
-readonly phpUnitBinFilePath="$phpUnitBinDirPath/phpunit"
+readonly phpunitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
+readonly phpunitBinFilePath="$phpunitBinDirPath/phpunit"
 readonly testDirPath="$baseDirPath/test"
-readonly phpUnitConfFilePath="$testDirPath/phpunit.xml"
+readonly phpunitConfFilePath="$testDirPath/phpunit.xml"
+readonly seleniumLogFilePath="$testDirPath/selenium.log"
+export SELENIUM_VERSION=latest
 
-php -f "$phpUnitBinFilePath" -- --fail-on-warning --fail-on-risky $([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml") -c "$phpUnitConfFilePath" "$@"
+readonly phpunit="php -f ""$phpunitBinFilePath"" -- -c ""$phpunitConfFilePath"$([[ -n "${MORPHO_CI-}" ]] && echo "--debug --log-junit $testDirPath/result/test.xml")
+
+#$phpunit --stop-on-warning --stop-on-failure --stop-on-error --stop-on-skipped --stop-on-incomplete --stop-on-risky --fail-on-incomplete --fail-on-risky --fail-on-skipped --fail-on-warning "$@"
+$phpunit --stop-on-warning --stop-on-failure --stop-on-error --stop-on-risky --fail-on-risky --fail-on-skipped --fail-on-warning "$@"

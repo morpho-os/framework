@@ -14,7 +14,7 @@ use UnexpectedValueException;
  */
 abstract class Result extends Monad implements JsonSerializable {
     public function bind(callable $fn): Result {
-        if ($this instanceof Error) {
+        if ($this instanceof Err) {
             return $this;
         }
         if ($this instanceof Ok) {

@@ -7,6 +7,7 @@
 namespace Morpho\App\Web\View;
 
 use Morpho\App\ISite;
+use Morpho\Base\Event;
 use function array_merge;
 use function array_reduce;
 use function count;
@@ -29,66 +30,32 @@ class ScriptProcessor extends HtmlProcessor {
         $this->site = $site;
     }
 
-    protected function containerBody($tag) {
-        if (isset($tag[self::SKIP_ATTR])) {
-            unset($tag[self::SKIP_ATTR]);
-            return $tag;
+    /**
+     * Includes a file for controller's action.
+     */
+    public function actionScripts(string $jsModuleId): array {
+        $siteConf = $this->site->conf();
+        $shortModuleName = last($this->site->moduleName(), '/');
+        $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
+        $relFilePath = $fullJsModuleId . '.js';
+        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
+        $inline = $included = [];
+        if (file_exists($jsFilePath)) {
+            $jsConf = $this->jsConf();
+            $included[] = [
+                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
+                '_tagName' => 'script',
+                '_text' => '',
+            ];
+            $inline[] = [
+                '_tagName' => 'script',
+                '_text' => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
+            ];
         }
-        $childScripts = $this->scripts;
-        $this->scripts = [];
-        $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
-
-        $splitScripts = function ($scripts) {
-            return array_reduce($scripts, function ($acc, $tag) {
-                if (isset($tag['src'])) {
-                    $acc[1][] = $tag;
-                } else {
-                    $acc[0][] = $tag;
-                }
-                return $acc;
-            }, [[], []]);
-        };
-
-        $mainPageScripts = $splitScripts($this->scripts);
-        $childPageScripts = $splitScripts($childScripts);
-
-        $actionScripts = $this->actionScripts($this->request['view']);
-
-        // script = (included | inline)
-        // script = (main-page-script | child-page-script | action-script)
-        // order:
-        //     1. main-page-script included
-        //     2. child-page-script included
-        //     3. action-script included
-        //     4. main-page-script inline
-        //     5. child-page-script inline (has higher priority) | action-script inline
-        $scripts = array_merge(
-            $mainPageScripts[1],
-            $childPageScripts[1],
-            $actionScripts[1],
-            $mainPageScripts[0],
-            count($childPageScripts[0]) ? $childPageScripts[0] : $actionScripts[0]
-        );
-        $html .= $this->renderScripts($scripts);
-
-        $tag['_text'] = $html;
-
-        return $tag;
+        return [$inline, $included];
     }
 
-    protected function containerScript($tag) {
-        if (isset($tag[self::SKIP_ATTR])) {
-            unset($tag[self::SKIP_ATTR]);
-            return $tag;
-        }
-        if (!isset($tag['type']) || (isset($tag['type']) && $tag['type'] == 'text/javascript')) {
-            $this->scripts[] = $tag;
-            return false;  // remove the original tag, we will add it later.
-        }
-        return null;
-    }
-
-    protected function renderScripts(array $scripts): string {
+    public function renderScripts(array $scripts): string {
         $html = [];
         $index = 0;
         foreach ($scripts as $key => $script) {
@@ -125,29 +92,61 @@ class ScriptProcessor extends HtmlProcessor {
         return implode("\n", $html);
     }
 
-    /**
-     * Includes a file for controller's action.
-     */
-    private function actionScripts(string $jsModuleId): array {
-        $siteConf = $this->site->conf();
-        $shortModuleName = last($this->site->moduleName(), '/');
-        $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
-        $relFilePath = $fullJsModuleId . '.js';
-        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
-        $inline = $included = [];
-        if (file_exists($jsFilePath)) {
-            $jsConf = $this->jsConf();
-            $included[] = [
-                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
-                '_tagName' => 'script',
-                '_text' => '',
-            ];
-            $inline[] = [
-                '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
-            ];
+    protected function containerBody(array $tag): null|array|bool {
+        if (isset($tag[self::SKIP_ATTR])) {
+            unset($tag[self::SKIP_ATTR]);
+            return $tag;
         }
-        return [$inline, $included];
+        $childScripts = $this->scripts;
+        $this->scripts = [];
+        $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
+
+        $splitScripts = function ($scripts) {
+            return array_reduce($scripts, function ($acc, $tag) {
+                if (isset($tag['src'])) {
+                    $acc[1][] = $tag;
+                } else {
+                    $acc[0][] = $tag;
+                }
+                return $acc;
+            }, [[], []]);
+        };
+
+        $mainPageScripts = $splitScripts($this->scripts);
+        $childPageScripts = $splitScripts($childScripts);
+
+        $actionScripts = $this->actionScripts($this->request['view']);
+
+        // script: included | inline
+        // script: main-page-script | child-page-script | action-script
+        $scripts = array_merge(
+            $mainPageScripts[1],         // 1. main-page-script included
+            $childPageScripts[1],        // 2. child-page-script included
+            $actionScripts[1],           // 3. action-script included
+            $mainPageScripts[0],         // 4. main-page-script inline
+            count($childPageScripts[0])  // 5. child-page-script inline (has higher priority) | action-script inline
+                ? $childPageScripts[0]
+                : $actionScripts[0]
+        );
+
+        $event = new Event('changeScripts', $scripts);
+        $this->trigger($event);
+
+        $html .= $this->renderScripts($event->args);
+        $tag['_text'] = $html;
+        return $tag;
+    }
+
+    protected function containerScript(array $tag): null|array|bool {
+        if (isset($tag[self::SKIP_ATTR])) {
+            unset($tag[self::SKIP_ATTR]);
+            return $tag;
+        }
+        if (!isset($tag['type']) || (isset($tag['type']) && $tag['type'] == 'text/javascript')) {
+            $this->scripts[] = $tag;
+            return false;  // remove the original tag, we will add it later.
+        }
+        return null;
     }
 
     protected function jsConf(): array {

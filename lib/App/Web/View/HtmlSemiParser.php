@@ -6,6 +6,7 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\Base\EventManager;
 use Morpho\Base\IFn;
 use RuntimeException;
 use function array_key_exists;
@@ -39,7 +40,7 @@ use function substr;
  * http://forum.dklab.ru/users/DmitryKoterov/, original code was found at:
  * https://github.com/DmitryKoterov/html_formpersister
  */
-class HtmlSemiParser implements IFn {
+class HtmlSemiParser extends EventManager implements IFn {
     protected $tagHandlerPrefix = 'tag';
     protected $containerHandlerPrefix = 'container';
 

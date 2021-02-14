@@ -129,20 +129,20 @@ class EnvTest extends TestCase {
     }
 
     public function testIsBoolLikeIniVal() {
-        $this->assertFalse(Env::isBoolLikeIniVal('abc'));
-        $this->assertFalse(Env::isBoolLikeIniVal('100M'));
-        $this->assertFalse(Env::isBoolLikeIniVal('01'));
-        $this->assertFalse(Env::isBoolLikeIniVal('10'));
-        $this->assertFalse(Env::isBoolLikeIniVal(10));
-        $this->assertFalse(Env::isBoolLikeIniVal('2'));
-        $this->assertFalse(Env::isBoolLikeIniVal('-1'));
-        $this->assertFalse(Env::isBoolLikeIniVal(-1));
-        $this->assertFalse(Env::isBoolLikeIniVal(2));
-        $this->assertFalse(Env::isBoolLikeIniVal('90.58333'));
-        $this->assertFalse(Env::isBoolLikeIniVal(90.58333));
-        $this->assertFalse(Env::isBoolLikeIniVal('&'));
+        $this->assertFalse(Env::isBoolIniVal('abc'));
+        $this->assertFalse(Env::isBoolIniVal('100M'));
+        $this->assertFalse(Env::isBoolIniVal('01'));
+        $this->assertFalse(Env::isBoolIniVal('10'));
+        $this->assertFalse(Env::isBoolIniVal(10));
+        $this->assertFalse(Env::isBoolIniVal('2'));
+        $this->assertFalse(Env::isBoolIniVal('-1'));
+        $this->assertFalse(Env::isBoolIniVal(-1));
+        $this->assertFalse(Env::isBoolIniVal(2));
+        $this->assertFalse(Env::isBoolIniVal('90.58333'));
+        $this->assertFalse(Env::isBoolIniVal(90.58333));
+        $this->assertFalse(Env::isBoolIniVal('&'));
         foreach (['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0] as $v) {
-            $this->assertTrue(Env::isBoolLikeIniVal($v));
+            $this->assertTrue(Env::isBoolIniVal($v));
         }
     }
 

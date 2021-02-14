@@ -6,7 +6,7 @@
  */
 namespace Morpho\Base;
 
-class Error extends Result {
+class Err extends Result {
     public function __construct(mixed $val = null) {
         parent::__construct($val);
     }
@@ -16,6 +16,6 @@ class Error extends Result {
     }
 
     public function jsonSerialize() {
-        return ['error' => $this->val];
+        return ['err' => $this->val];
     }
 }
