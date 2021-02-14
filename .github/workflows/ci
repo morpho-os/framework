@@ -89,7 +89,7 @@ runTests() {
         fi
         exit $exitCode
     fi
-    php test/lint.php
+    php "$baseDirPath"/bin/lint
 }
 
 deployResults() {
