@@ -82,9 +82,11 @@ runTests() {
     local -r exitCode=$?
     set -e
     if [[ $exitCode -ne 0 ]]; then
-        echo --------------------------------------------------------------------------------
-        echo '$backendDirPath/localhost/log/*'
-        sudo sh -c "cat $backendDirPath/localhost/log/*"
+        if [[ -d $backendDirPath/localhost/log ]]; then
+            echo --------------------------------------------------------------------------------
+            echo "$backendDirPath/localhost/log/*"
+            sudo sh -c "cat $backendDirPath/localhost/log/*"
+        fi
         exit $exitCode
     fi
     php test/lint.php
