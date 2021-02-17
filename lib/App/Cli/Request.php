@@ -10,16 +10,13 @@ use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 
 class Request extends BaseRequest {
-    /**
-     * @var array
-     */
-    protected $args;
+    protected ?array $args = null;
 
     public function setArgs(array $args): void {
         $this->args = $args;
     }
 
-    public function args($namesOrIndexes = null) {
+    public function args(?array $namesOrIndexes = null): mixed {
         if (null === $this->args) {
             $this->args = $_SERVER['argv'];
         }

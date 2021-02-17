@@ -116,7 +116,7 @@ class FastRouterTest extends TestCase {
             public function response(): IResponse {
             }
 
-            public function args($namesOrIndexes = null) {
+            public function args($namesOrIndexes = null): mixed {
             }
 
             public function arg($nameOrIndex) {

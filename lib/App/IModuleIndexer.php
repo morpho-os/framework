@@ -6,12 +6,10 @@
  */
 namespace Morpho\App;
 
+use ArrayAccess;
+
 interface IModuleIndexer {
-    /**
-     * Indexes all modules and returns the index. Can cache the result.
-     * @return array|\ArrayAccess
-     */
-    public function index();
+    public function index(): array|ArrayAccess;
 
     /**
      * Clears the internal state and cache so that the next call of the index() will build a new index.

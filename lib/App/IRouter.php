@@ -7,5 +7,5 @@
 namespace Morpho\App;
 
 interface IRouter {
-    public function route($request): void;
+    public function route(IRequest $request): void;
 }

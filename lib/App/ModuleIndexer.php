@@ -24,9 +24,8 @@ class ModuleIndexer implements IModuleIndexer {
 
     /**
      * Indexes all modules and returns the index. Can cache the result.
-     * @return array|ArrayAccess
      */
-    public function index() {
+    public function index(): array|ArrayAccess {
         $cacheKey = $this->cacheKey;
         $index = $this->cache->get($cacheKey);
         if (null !== $index) {

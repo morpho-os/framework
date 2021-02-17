@@ -6,13 +6,18 @@
  */
 namespace Morpho\App;
 
+use ArrayAccess;
+use IteratorAggregate;
+use RuntimeException;
+use function array_keys;
+
 /**
  * Index of all known modules.
  */
-class ModuleIndex implements \IteratorAggregate {
-    private $index;
+class ModuleIndex implements IteratorAggregate {
+    private array|ArrayAccess|null $index = null;
     private IModuleIndexer $indexer;
-    private $loaded;
+    private ?array $loaded = [];
 
     public function __construct(IModuleIndexer $indexer) {
         $this->indexer = $indexer;
@@ -20,7 +25,7 @@ class ModuleIndex implements \IteratorAggregate {
 
     public function moduleNames(): iterable {
         $this->init();
-        return \array_keys($this->index);
+        return array_keys($this->index);
     }
 
     public function moduleExists(string $moduleName): bool {
@@ -31,7 +36,7 @@ class ModuleIndex implements \IteratorAggregate {
     public function module(string $moduleName): Module {
         $this->init();
         if (!isset($this->index[$moduleName])) {
-            throw new \RuntimeException("The module '$moduleName' was not found in index");
+            throw new RuntimeException("The module '$moduleName' was not found in index");
         }
         if (isset($this->loaded[$moduleName])) {
             return $this->loaded[$moduleName];

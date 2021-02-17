@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 namespace Morpho\App;
 
-class Module extends \ArrayObject {
+use ArrayObject;
+
+class Module extends ArrayObject {
     protected string $name;
 
     public function __construct(string $name, $meta) {

@@ -117,7 +117,7 @@ class JsonRendererTest extends TestCase {
                 // TODO: Implement setResponse() method.
             }
 
-            public function args($namesOrIndexes = null) {
+            public function args($namesOrIndexes = null): mixed {
                 // TODO: Implement args() method.
             }
         };

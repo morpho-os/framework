@@ -12,10 +12,5 @@ interface IRequest extends IMessage {
 
     public function response(): IResponse;
 
-    /**
-     * @param array|null $namesOrIndexes
-     *     null | int[] | string[]
-     * @return mixed
-     */
-    public function args($namesOrIndexes = null);
+    public function args(?array $namesOrIndexes = null): mixed;
 }

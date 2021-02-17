@@ -45,10 +45,7 @@ class Request extends BaseRequest {
 
     protected ?string $originalMethod = null;
 
-    /**
-     * @var string|false
-     */
-    protected $overwrittenMethod;
+    protected string|bool|null $overwrittenMethod;
 
     protected ?bool $isAjax = null;
 
@@ -94,7 +91,7 @@ class Request extends BaseRequest {
      *     - connect()
      *     - propfind()
      */
-    public function args($names = null, bool $trim = true) {
+    public function args(?array $names = null, bool $trim = true): mixed {
         $method = $this->method();
         switch ($method) {
             case HttpMethod::GET:
@@ -108,7 +105,7 @@ class Request extends BaseRequest {
         }
     }
 
-    public function data(array $source, $name = null, bool $trim = true) {
+    public function data(array $source, $name = null, bool $trim = true): mixed {
         // NB: On change sync code with query() and post()
         if (null === $name) {
             return $trim ? trimMore($source) : $source;
@@ -167,7 +164,7 @@ class Request extends BaseRequest {
         return isset($_GET[$name]);
     }
 
-    public function query($name = null, bool $trim = true) {
+    public function query($name = null, bool $trim = true): mixed {
         // NB: On change sync with data() and post()
         if (null === $name) {
             return $trim ? trimMore($_GET) : $_GET;
@@ -209,9 +206,6 @@ class Request extends BaseRequest {
         $this->uri = $uri;
     }
 
-    /**
-     * @param string $uri
-     */
     public function prependUriWithBasePath(string $uri): Uri\Uri {
         $uri = new Uri\Uri($uri);
         $basePath = $this->uri()->path()->basePath();
@@ -495,10 +489,7 @@ class Request extends BaseRequest {
         return null !== $this->trustedProxyIps && in_array($this->serverVar('REMOTE_ADDR'), $this->trustedProxyIps, true);
     }
 
-    /**
-     * @return mixed
-     */
-    protected function serverVar(string $name, $default = null) {
+    protected function serverVar(string $name, $default = null): mixed {
         if (null !== $this->serverVars) {
             return $this->serverVars[$name] ?? $default;
         }

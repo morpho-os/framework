@@ -22,11 +22,11 @@ class RequestTest extends MessageTest {
                 throw new NotImplementedException(__METHOD__);
             }
 
-            public function arg($nameOrIndex) {
+            public function arg(string|int $nameOrIndex) {
                 throw new NotImplementedException(__METHOD__);
             }
 
-            public function args($namesOrIndexes = null) {
+            public function args($namesOrIndexes = null): mixed {
                 throw new NotImplementedException(__METHOD__);
             }
         };
