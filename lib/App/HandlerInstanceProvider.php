@@ -22,7 +22,7 @@ class HandlerInstanceProvider implements IFn {
         $this->serviceManager = $serviceManager;
     }
 
-    public function __invoke($request) {
+    public function __invoke(mixed $request): mixed {
         $handler = $request->handler();
 
         $module = $this->moduleIndex->module($handler['module']);

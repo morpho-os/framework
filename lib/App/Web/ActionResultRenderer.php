@@ -17,7 +17,7 @@ class ActionResultRenderer implements IFn {
         $this->rendererFactory = $rendererFactory;
     }
 
-    public function __invoke($request) {
+    public function __invoke(mixed $request): mixed {
         $response = $request->response();
         if (!$response->isRedirect()) {
             $formats = $response->formats();
@@ -39,6 +39,7 @@ class ActionResultRenderer implements IFn {
                 }
             }
         }
+        return null;
     }
 
     public function setContentNegotiator($contentNegotiator) {

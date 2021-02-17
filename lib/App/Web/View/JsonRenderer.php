@@ -6,11 +6,12 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\App\IRequest;
 use Morpho\Base\IFn;
 use function Morpho\Base\toJson;
 
 class JsonRenderer implements IFn {
-    public function __invoke($request) {
+    public function __invoke(mixed $request): IRequest {
         $response = $request->response();
         // https://tools.ietf.org/html/rfc7231#section-3.1.1
         $response->headers()['Content-Type'] = 'application/json;charset=utf-8';

@@ -119,8 +119,8 @@ class ArrTest extends TestCase {
     public function testSetsEqual($a, $b, $expected) {
         $this->assertEquals($expected, Arr::setsEqual($a, $b));
     }
-    
-    public function testUnset_Cases() {
+
+    public function testUnset_WeirdCases() {
         $this->assertEquals([], Arr::unset([], 'some'));
         $this->assertEquals([], Arr::unset([], null));
     }
@@ -137,6 +137,12 @@ class ArrTest extends TestCase {
         $this->assertEquals(['one', 'two'], \array_values(Arr::unset(['one', 'two'], 'some')));
 
         $this->assertEquals(['one'], \array_values(Arr::unset(['one', 'two'], 'two')));
+    }
+
+    public function testUnsetMulti() {
+        $foo = $orig = ['abc', 'def', 'ghi'];
+        $this->assertSame(['abc'], Arr::unsetMulti($foo, ['def', 'ghi']));
+        $this->assertSame($orig, $foo);
     }
 
     public function testToKeyed() {
@@ -241,9 +247,10 @@ class ArrTest extends TestCase {
     }
 
     public function testUnion() {
-        // {numeric keys, string keys, mixed keys}
-        $this->assertEquals(['foo' => 'kiwi'], Arr::union(['foo' => 'apple'], ['foo' => 'kiwi']));
-        $this->markTestIncomplete();
+        // todo: mixed keys: numeric, string
+        $this->assertSame(['foo' => 'kiwi'], Arr::union(['foo' => 'apple'], ['foo' => 'kiwi']));
+        $this->assertSame(['foo', 'bar', 'baz'], Arr::union(['foo', 'bar'], ['baz']));
+        $this->assertSame(['foo', 'bar', 'baz'], Arr::union(['foo', 'bar'], ['baz', 'foo']));
     }
 
     public function dataForSymmetricDiff() {

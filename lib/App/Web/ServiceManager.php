@@ -136,9 +136,9 @@ class ServiceManager extends BaseServiceManager {
             $this->appendLogFileWriter($logger, Logger::DEBUG);
         }
 
-/*        if ($conf['debugWriter']) {
+ /*       if ($conf['debugWriter']) {
             $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
-                protected function write(array $record) {
+                protected function write(array $record): void {
                     d($record['message']);
                 }
             });

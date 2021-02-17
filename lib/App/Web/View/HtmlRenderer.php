@@ -6,6 +6,7 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\App\IRequest;
 use Morpho\Base\IFn;
 use function Morpho\Base\dasherize;
 
@@ -22,7 +23,7 @@ class HtmlRenderer implements IFn {
         $this->pageRenderingModule = $pageRenderingModule;
     }
 
-    public function __invoke($request) {
+    public function __invoke(mixed $request): IRequest {
         $response = $request->response();
         $html = $this->renderHtml($request);
 

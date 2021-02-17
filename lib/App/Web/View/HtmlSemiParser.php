@@ -164,7 +164,7 @@ class HtmlSemiParser extends EventManager implements IFn {
      * @param array|string $html
      * @return array
      */
-    public function __invoke($html) {
+    public function __invoke(mixed $html): mixed {
         if (is_array($html)) { // html is context?
             $html['program'] = $this->__invoke($html['program']);
             return $html;

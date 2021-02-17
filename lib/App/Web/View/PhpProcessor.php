@@ -13,7 +13,7 @@ use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 
 class PhpProcessor implements IFn {
-    public function __invoke($context) {
+    public function __invoke(mixed $context): mixed {
         $ast = $this->parse($context['program']);
         $ast = $this->rewrite($ast, $context);
         $context['program'] = $this->prettyPrint($ast);

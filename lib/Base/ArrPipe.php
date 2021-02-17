@@ -13,11 +13,7 @@ class ArrPipe implements IPipe {
         $this->phases = (array) $phases;
     }
 
-    /**
-     * @param mixed $val
-     * @return mixed
-     */
-    public function __invoke($val) {
+    public function __invoke(mixed $val): mixed {
         foreach ($this as $fn) {
             $val = $fn($val);
         }

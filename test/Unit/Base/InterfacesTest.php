@@ -8,13 +8,15 @@ namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
+use function func_get_args;
 
 class InterfacesTest extends TestCase {
     public function testIFn() {
         $obj = new class implements IFn {
             public $calledWith;
-            public function __invoke($value) {
-                $this->calledWith = \func_get_args();
+            public function __invoke(mixed $value): mixed {
+                $this->calledWith = func_get_args();
+                return null;
             }
         };
         $obj(['foo', 'bar', 'baz']);

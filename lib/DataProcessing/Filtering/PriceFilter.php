@@ -15,7 +15,7 @@ use function str_replace;
 use function strlen;
 
 class PriceFilter implements IFn {
-    public function __invoke($value) {
+    public function __invoke(mixed $value): mixed {
         if (!is_scalar($value)) {
             return null;
         }

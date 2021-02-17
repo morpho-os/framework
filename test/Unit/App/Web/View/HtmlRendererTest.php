@@ -7,12 +7,14 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use ArrayObject;
+use Morpho\App\IRequest;
+use Morpho\App\IResponse;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\HtmlRenderer;
 
 class HtmlRendererTest extends TestCase {
     public function testInvoke() {
-        $response = new class extends ArrayObject {
+        $response = new class extends ArrayObject implements IResponse {
             private $body;
             public function __construct() {
                 parent::__construct();
@@ -21,23 +23,35 @@ class HtmlRendererTest extends TestCase {
             public function headers() {
                 return $this->headers;
             }
-            public function body() {
+            public function body(): string {
                 return $this->body;
             }
-            public function setBody($body) {
+
+            public function setBody(string $body): void {
                 $this->body = $body;
             }
-        };
-        $request = new class ($response) {
-            private $response;
-            public function __construct($response) {
-                $this->response = $response;
-            }
-            public function response() {
-                return $this->response;
+
+            public function isBodyEmpty(): bool {
+                // TODO: Implement isBodyEmpty() method.
             }
 
+            public function send(): void {
+                // TODO: Implement send() method.
+            }
+
+            public function setStatusCode(int $statusCode): void {
+                // TODO: Implement setStatusCode() method.
+            }
+
+            public function statusCode(): int {
+                // TODO: Implement statusCode() method.
+            }
+
+            public function resetState(): void {
+                // TODO: Implement resetState() method.
+            }
         };
+        $request = $this->createConfiguredMock(IRequest::class, ['response' => $response]);
         $htmlSample = 'This is a <main>This is a body text.</main> page text.';
         $renderer = new class (new class {}, new class {}, 'foo/bar', $htmlSample) extends HtmlRenderer {
             private $htmlSample;

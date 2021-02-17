@@ -7,9 +7,11 @@
 namespace Morpho\Tech\Php\Reflection;
 
 use Morpho\Base\IFn;
+use function array_diff;
+use function array_values;
 
 class StdClassTypeFilter implements IFn {
-    public static $stdClasses = [
+    public static array $stdClasses = [
         'AppendIterator',
         'ArithmeticError',
         'ArrayAccess',
@@ -178,9 +180,9 @@ class StdClassTypeFilter implements IFn {
         'stdClass',
     ];
     
-    public function __invoke($classTypes) {
-        return \array_values(
-            \array_diff(
+    public function __invoke(mixed $classTypes): array {
+        return array_values(
+            array_diff(
                 $classTypes,
                 self::$stdClasses
             )

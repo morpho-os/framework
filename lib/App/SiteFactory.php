@@ -20,7 +20,7 @@ class SiteFactory implements IFn {
         $this->appConf = $appConf;
     }
 
-    public function __invoke($_ = null): ISite {
+    public function __invoke(mixed $_ = null): ISite {
         $hostName = $this->hostNameValidator->currentHostName();
         foreach ($this->appConf['sites'] as $siteName => $siteConf) {
             if ($this->hostNameValidator->isValid($hostName)) {

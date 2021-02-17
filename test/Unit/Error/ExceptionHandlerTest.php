@@ -20,8 +20,10 @@ class ExceptionHandlerTest extends TestCase {
         });
         $ifnListener = new class implements IFn {
             public $called;
-            public function __invoke($value) {
+
+            public function __invoke(mixed $value): mixed {
                 $this->called = true;
+                return null;
             }
         };
         $listeners->append($ifnListener);

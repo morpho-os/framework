@@ -52,11 +52,7 @@ class Site implements ISite {
         return $this->allModulesConf[$moduleName];
     }
 
-    /**
-     * @param ServiceManager $serviceManager
-     * @return IResponse|false
-     */
-    public function __invoke($serviceManager) {
+    public function __invoke(mixed $serviceManager): IResponse|false {
         try {
             /** @var IRequest $request */
             $request = $serviceManager['request'];

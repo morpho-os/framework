@@ -7,17 +7,17 @@
 namespace Morpho\App\Web;
 
 use Morpho\Base\IFn;
+use Negotiation\Accept;
+use Negotiation\Exception\InvalidArgument;
 use Negotiation\Negotiator;
+use function strtolower;
 
 class ContentNegotiator implements IFn {
     protected array $priorities = ['text/html', 'application/json'/*, 'application/xml;q=0.5'*/];
 
     protected string $defaultFormat = 'html';
 
-    /**
-     * @param Request $request
-     */
-    public function __invoke($request): string {
+    public function __invoke(mixed $request): string {
         $headers = $request->headers();
         if (!$headers->offsetExists('Accept')) {
             return $this->defaultFormat;
@@ -28,14 +28,14 @@ class ContentNegotiator implements IFn {
         // Perform Media Type Negotiation
         $negotiator = new Negotiator();
         try {
-            /** @var \Negotiation\Accept $mediaType */
+            /** @var Accept $mediaType */
             $mediaType = $negotiator->getBest($acceptHeaderStr, $this->priorities);
-        } catch (\Negotiation\Exception\InvalidArgument $e) {
+        } catch (InvalidArgument $e) {
             return $this->defaultFormat;
         }
         if (!$mediaType) {
             return $this->defaultFormat;
         }
-        return \strtolower($mediaType->getSubPart());
+        return strtolower($mediaType->getSubPart());
     }
 }

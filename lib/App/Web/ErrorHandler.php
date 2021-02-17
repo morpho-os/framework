@@ -1,9 +1,14 @@
 <?php declare(strict_types=1);
 namespace Morpho\App\Web;
 
+use Closure;
+use Throwable;
+use function header;
+use function headers_sent;
 use function Morpho\Base\e;
-use Morpho\App\Web\View\Html;
 use Morpho\Error\ErrorHandler as BaseErrorHandler;
+use function ob_end_clean;
+use function ob_get_level;
 
 class ErrorHandler extends BaseErrorHandler {
     public function __construct(iterable $listeners = null) {
@@ -11,12 +16,12 @@ class ErrorHandler extends BaseErrorHandler {
         $this->listeners()->append($this->mkListener());
     }
 
-    public function handleException(\Throwable $e): void {
+    public function handleException(Throwable $e): void {
         parent::handleException($e);
     }
 
-    protected function mkListener(): \Closure {
-        return function (\Throwable $e) {
+    protected function mkListener(): Closure {
+        return function (Throwable $e) {
             $statusLine = null;
 /*            if ($e instanceof NotFoundException) {
                 $statusLine = Environment::httpVersion() . ' 404 Not Found';
@@ -31,13 +36,13 @@ class ErrorHandler extends BaseErrorHandler {
                 $statusLine = Env::httpVersion() . ' 500 Internal Server Error';
                 $message = "Unable to handle the request. Please contact site's support and try to return to this page again later";
             }
-            if (!\headers_sent()) {
+            if (!headers_sent()) {
                 // @TODO: Use http_response_code()?
-                \header($statusLine);
+                header($statusLine);
             }
-            for ($i = 0, $n = \ob_get_level(); $i < $n; $i++) {
+            for ($i = 0, $n = ob_get_level(); $i < $n; $i++) {
                 //ob_end_flush();
-                \ob_end_clean();
+                ob_end_clean();
             }
             echo e($message) . '.';
         };

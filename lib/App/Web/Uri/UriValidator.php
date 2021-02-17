@@ -18,7 +18,7 @@ class UriValidator implements IFn {
 
     private const SUBDELIMS_RE = "[!$&'()*+,;=]";
 
-    public function __invoke($uri): bool {
+    public function __invoke(mixed $uri): bool {
         throw new NotImplementedException();
     }
 

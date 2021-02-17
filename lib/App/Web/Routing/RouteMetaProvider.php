@@ -9,8 +9,19 @@ namespace Morpho\App\Web\Routing;
 use Morpho\Base\IFn;
 use Morpho\App\Web\Request;
 use Morpho\Fs\Path;
+use RuntimeException;
+use UnexpectedValueException;
 use function Morpho\Base\{dasherize, last};
+use function explode;
+use function implode;
+use function preg_match;
+use function preg_match_all;
+use function str_replace;
+use function strlen;
+use function strpos;
+use function substr;
 use const Morpho\App\CONTROLLER_SUFFIX;
+use const PREG_SET_ORDER;
 
 class RouteMetaProvider implements IFn {
     protected array $restActions = [
@@ -55,11 +66,11 @@ class RouteMetaProvider implements IFn {
 
         $basePath = '/';
 
-        if (!\preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !str_ends_with($match['controller'], CONTROLLER_SUFFIX)) {
-            throw new \UnexpectedValueException(print_r($actionMeta, true));
+        if (!preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !str_ends_with($match['controller'], CONTROLLER_SUFFIX)) {
+            throw new UnexpectedValueException(print_r($actionMeta, true));
         }
-        $controller = \substr($match['controller'], 0, -\strlen(CONTROLLER_SUFFIX));
-        $controllerPath = \str_replace('\\', '/', dasherize($controller, '\\'));
+        $controller = substr($match['controller'], 0, -strlen(CONTROLLER_SUFFIX));
+        $controllerPath = str_replace('\\', '/', dasherize($controller, '\\'));
 
         $method = $actionMeta['method'];
         if (isset($this->restActions[$method])) {
@@ -83,22 +94,22 @@ class RouteMetaProvider implements IFn {
 
     public static function parseDocComment(string $docComment): array {
         $parsed = [];
-        if (false !== \strpos($docComment, '@')) {
-            $httpMethodsRegexpPart = '(?:' . \implode('|', Request::knownMethods()) . ')';
+        if (false !== strpos($docComment, '@')) {
+            $httpMethodsRegexpPart = '(?:' . implode('|', Request::knownMethods()) . ')';
             $routeRegExp = '~'
                 . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (?:\s+(?<uri>[^*\s]+))?                                                                   # uri    (optional)
                 ~xm';
-            if (\preg_match_all($routeRegExp, $docComment, $matches, \PREG_SET_ORDER)) {
+            if (preg_match_all($routeRegExp, $docComment, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
                     $meta = [
-                        'httpMethods' => \explode('|', $match['httpMethod']),
+                        'httpMethods' => explode('|', $match['httpMethod']),
                     ];
                     $uri = null;
                     if (!empty($match['uri'])) {
                         $uri = $match['uri'];
                         if ($uri[0] !== '/') {
-                            throw new \RuntimeException("Invalid annotations, URI must start with slash (/)");
+                            throw new RuntimeException("Invalid annotations, URI must start with slash (/)");
                         }
                     }
                     if (null !== $uri) {

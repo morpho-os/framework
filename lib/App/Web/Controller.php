@@ -13,11 +13,12 @@ use Morpho\Base\Err;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Controller as BaseController;
+use Morpho\App\IRequest;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
     protected IServiceManager $serviceManager;
 
-    protected $request;
+    protected IRequest $request;
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;

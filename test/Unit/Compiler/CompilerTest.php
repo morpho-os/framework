@@ -27,19 +27,19 @@ class CompilerTest extends TestCase {
         $this->assertInstanceOf(ICompiler::class, $compiler);
         $this->assertInstanceOf(Pipe::class, $compiler);
         $this->assertInstanceOf(ICompilerPhase::class, new class implements IFrontEnd {
-            public function __invoke($val) {
+            public function __invoke(mixed $val): mixed {
             }
         });
         $this->assertInstanceOf(ICompilerPhase::class, new class implements IMiddleEnd {
-            public function __invoke($val) {
+            public function __invoke(mixed $val): mixed {
             }
         });
         $this->assertInstanceOf(ICompilerPhase::class, new class implements IBackEnd {
-            public function __invoke($val) {
+            public function __invoke(mixed $val): mixed {
             }
         });
         $this->assertInstanceOf(ITranslator::class, new class implements IInterpreter {
-            public function __invoke($val) {
+            public function __invoke(mixed $val): mixed {
             }
         });
         $this->assertInstanceOf(ITranslationUnit::class, new class implements IProgram {});

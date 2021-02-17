@@ -7,14 +7,12 @@
 namespace Morpho\Tech\Php\Linting;
 
 use Closure;
-use Morpho\Infra\IPsr4Mapper;
 use function array_merge;
 use function Morpho\Base\showLn;
 use function Morpho\Base\q;
 use function Morpho\App\Cli\showErrorLn;
 use function Morpho\App\Cli\showOk;
 use Morpho\Fs\Dir;
-use function preg_match;
 use function print_r;
 
 class Linter {
@@ -48,7 +46,6 @@ class Linter {
         $valid = true;
         foreach ($psr4MapperListIt as $psr4Mapper) {
             $mappingErrors = [];
-            /** @var IPsr4Mapper $psr4Mapper */
             showLn('Checking files in ' . q($psr4Mapper->baseDirPath() . ' (namespace ' . q($psr4Mapper->nsPrefix()) . ')...'));
             foreach ($psr4Mapper->filePaths() as $filePath) {
                 $sourceFile = new SourceFile($filePath);
@@ -77,7 +74,7 @@ class Linter {
     public static function testFilePaths(bool $recursive): Closure {
         return function (string $ns, string $baseDirPath) use ($recursive): iterable {
             return Dir::filePaths($baseDirPath, function ($filePath) {
-                return (bool) preg_match('~[^/](Test|Suite)\.php$~si', $filePath);
+                return str_ends_with($filePath, '.php') && !str_contains($filePath, '/_files/');
             }, $recursive);
         };
     }

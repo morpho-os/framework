@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
+use Morpho\App\IRequest;
 use Morpho\App\Web\ContentFormat;
 use Morpho\App\Web\Response;
 use Morpho\Testing\TestCase;
@@ -29,28 +30,8 @@ class ControllerTest extends TestCase {
                 return new Ok($this->val);
             }
         };
-
         $response = new Response();
-
-        $request = new class ($response) {
-            private $response;
-
-            public function __construct($response) {
-                $this->response = $response;
-            }
-
-            public function handler() {
-                return ['method' => 'someAction'];
-            }
-
-            public function setResponse($response) {
-                $this->response = $response;
-            }
-
-            public function response() {
-                return $this->response;
-            }
-        };
+        $request = $this->createConfiguredMock(IRequest::class, ['handler' => ['method' => 'someAction'], 'response' => $response]);
 
         $request = $controller->__invoke($request);
 

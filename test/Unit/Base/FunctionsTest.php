@@ -318,7 +318,7 @@ class FunctionsTest extends TestCase {
 
     public function dataForCompose_IFnWithClosure() {
         $ifn = new class implements IFn {
-            public function __invoke($value) {
+            public function __invoke(mixed $value): mixed {
                 return 'IFn called ' . $value;
             }
         };
@@ -527,7 +527,7 @@ class FunctionsTest extends TestCase {
                 $this->disposeArgs = func_get_args();
             }
 
-            public function __invoke($value) {
+            public function __invoke(mixed $value): mixed {
                 $this->invokeArgs = func_get_args();
                 return 'returnedFromInvoke';
             }
@@ -546,7 +546,7 @@ class FunctionsTest extends TestCase {
                 $this->disposeArgs = func_get_args();
             }
 
-            public function __invoke($value) {
+            public function __invoke(mixed $value): mixed {
                 throw new RuntimeException('Some error');
             }
         };

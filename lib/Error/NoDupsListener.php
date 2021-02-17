@@ -5,6 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Error;
+
 use Exception;
 use Morpho\Base\IFn;
 use Throwable;
@@ -37,15 +38,18 @@ class NoDupsListener implements IFn {
     const ERROR_FILE_EXT = ".error";
     const GC_PROBABILITY = 0.01;
 
+    /**
+     * @var callable
+     */
     protected $listener;
 
-    protected $lockFileDirPath;
+    protected string $lockFileDirPath;
 
-    protected $period;
+    protected int $period;
 
-    protected $gcExecuted = false;
+    protected bool $gcExecuted = false;
 
-    public function __construct(IFn $listener, string $lockFileDirPath = null, int $periodSec = null) {
+    public function __construct(callable $listener, string $lockFileDirPath = null, int $periodSec = null) {
         if (null === $lockFileDirPath) {
             $lockFileDirPath = $this->defaultLockFileDirPath();
         }
@@ -58,19 +62,21 @@ class NoDupsListener implements IFn {
     /**
      * @param Throwable $exception
      */
-    public function __invoke($exception): void {
-        $id = $this->lockId($exception);
+    public function __invoke(mixed $ex): mixed {
+        $id = $this->lockId($ex);
 
-        if ($this->isLockExpired($id, $exception)) {
-            ($this->listener)($exception);
+        if ($this->isLockExpired($id, $ex)) {
+            ($this->listener)($ex);
         }
 
         // Touch always, even if we did not send anything. Else same errors will
         // be mailed again and again after $period (e.g. once per 5 minutes).
-        $this->touch($id, $exception->getFile(), $exception->getLine());
+        $this->touch($id, $ex->getFile(), $ex->getLine());
+
+        return null;
     }
 
-    protected function touch($id, $errFilePath, $errLine) {
+    protected function touch(string $id, string $errFilePath, int $errLine): void {
         $filePath = $this->lockFilePath($id);
         file_put_contents($filePath, "$errFilePath:$errLine");
         @chmod($filePath, 0666);
@@ -93,7 +99,7 @@ class NoDupsListener implements IFn {
         return $id;
     }
 
-    protected function defaultLockFileDirPath() {
+    protected function defaultLockFileDirPath(): string {
         return sys_get_temp_dir();
     }
 
@@ -109,16 +115,16 @@ class NoDupsListener implements IFn {
         return $dirPath;
     }
 
-    protected function isLockExpired($id, Throwable $exception) {
+    protected function isLockExpired(string $id, Throwable $ex): bool {
         $filePath = $this->lockFilePath($id);
         return !file_exists($filePath) || (filemtime($filePath) < time() - $this->period);
     }
 
-    protected function lockFilePath($id) {
+    protected function lockFilePath(string $id): string {
         return $this->lockFileDirPath . '/' . $id . self::ERROR_FILE_EXT;
     }
 
-    protected function gc() {
+    protected function gc(): void {
         if ($this->gcExecuted || mt_rand(0, 10000) >= $this->gcProbability() * 10000) {
             return;
         }
@@ -130,7 +136,7 @@ class NoDupsListener implements IFn {
         $this->gcExecuted = true;
     }
 
-    protected function gcProbability() {
+    protected function gcProbability(): float {
         return self::GC_PROBABILITY;
     }
 }

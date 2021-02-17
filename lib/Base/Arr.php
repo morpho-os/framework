@@ -173,6 +173,25 @@ class Arr {
         return $result;
     }
 
+    public static function unset(array $arr, $val, bool $strict = true): array {
+        $key = array_search($val, $arr, $strict);
+        if (false !== $key) {
+            unset($arr[$key]);
+        }
+        return $arr;
+    }
+
+    public static function unsetMulti(array $arr, iterable $val, bool $strict = true): array {
+        // NB: unsetMulti() can't merged with unset() as $val in unset() can be array, i.e. unset() has to support unsetting arrays.
+        foreach ($val as $v) {
+            $key = array_search($v, $arr, $strict);
+            if (false !== $key) {
+                unset($arr[$key]);
+            }
+        }
+        return $arr;
+    }
+
     /**
      * Unsets all items of array with $key recursively.
      */
@@ -182,14 +201,6 @@ class Arr {
             if (is_array($arr[$k])) {
                 self::unsetRecursive($arr[$k], $key);
             }
-        }
-        return $arr;
-    }
-
-    public static function unset(array $arr, $val, bool $strict = true): array {
-        $key = array_search($val, $arr, $strict);
-        if (false !== $key) {
-            unset($arr[$key]);
         }
         return $arr;
     }

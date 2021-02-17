@@ -13,9 +13,9 @@ namespace Morpho\App\Web\View;
  */
 class FormPersister extends HtmlProcessor {
     const DEFAULT_METHOD = 'post';
-    private $fpAutoIndexes;
+    private array $fpAutoIndexes;
 
-    public function __invoke($context) {
+    public function __invoke(mixed $context): mixed {
         $this->fpAutoIndexes = [];
         return parent::__invoke($context);
     }

@@ -6,17 +6,21 @@
  */
 namespace Morpho\App\Web\View;
 
+use function array_pop;
+use function array_push;
+use function count;
+
 class TreeRendererPlugin extends Plugin {
     protected $internalNodeRenderer, $leafNodeRenderer;
 
     private $parents = [];
 
-    public function __invoke($value) {
-        return $this->render($value);
+    public function __invoke(mixed $val): string {
+        return $this->render($val);
     }
 
     public function render(array $nodes): string {
-        if (!\count($nodes)) {
+        if (!count($nodes)) {
             return '';
         }
         $output = '';
@@ -74,9 +78,9 @@ class TreeRendererPlugin extends Plugin {
         $render = $this->internalNodeRenderer();
         $renderedChildren = '';
         if (!empty($node['nodes'])) {
-            \array_push($this->parents, $node);
+            array_push($this->parents, $node);
             $renderedChildren = $this->render($node['nodes']);
-            \array_pop($this->parents);
+            array_pop($this->parents);
         }
         return $render($node, $renderedChildren);
     }

@@ -455,12 +455,7 @@ class PhpTemplateEngine extends ArrPipe {
         }
     }
 
-    /**
-     * @param string $sourceAbsOrRelFilePath
-     * @param bool $throwExIfNotFound
-     * @return bool|string
-     */
-    protected function sourceAbsFilePath(string $sourceAbsOrRelFilePath, bool $throwExIfNotFound = true) {
+    protected function sourceAbsFilePath(string $sourceAbsOrRelFilePath, bool $throwExIfNotFound = true): bool|string {
         $sourceAbsOrRelFilePath .= self::VIEW_FILE_EXT;
         if (Path::isAbs($sourceAbsOrRelFilePath) && is_readable($sourceAbsOrRelFilePath)) {
             return $sourceAbsOrRelFilePath;

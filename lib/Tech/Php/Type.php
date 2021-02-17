@@ -25,6 +25,9 @@ abstract class Type {
             ...
         }
     where:
+        TAll
+            Union of all types (any possible type)
+
         TClassOrInterface: ClassName | InterfaceName
             Any class and interface name.
 
@@ -52,8 +55,8 @@ abstract class Type {
         TSpecial: resource | TScalar
             Special type, used only in PHP documentation or in some functions, e.g. is_scalar9).
 
-        mixed
-            Means any type, the same as disabling type checking?
+        mixed: Exclude<TAll, void>
+            Means any type.
 
         iterable: array | Traversable
 

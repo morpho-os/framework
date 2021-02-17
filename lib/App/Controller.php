@@ -9,13 +9,9 @@ namespace Morpho\App;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
-    protected $request;
+    protected IRequest $request;
 
-    /**
-     * @param $request
-     * @return IRequest
-     */
-    public function __invoke($request) {
+    public function __invoke(mixed $request): IRequest {
         $this->request = $request;
         $this->beforeEach();
         $this->runAction($request);
@@ -23,7 +19,7 @@ abstract class Controller implements IFn {
         return $request;
     }
 
-    protected function runAction($request): void {
+    protected function runAction(IRequest $request): void {
         $handler = $request->handler();
         $methodName = $handler['method'];
         // @todo: ensure that is is safe to pass ...$args
@@ -48,7 +44,7 @@ abstract class Controller implements IFn {
     protected function afterEach(): void {
     }
 
-    protected function handleResult($actionResult) {
+    protected function handleResult(mixed $actionResult) {
         return $actionResult;
     }
 }

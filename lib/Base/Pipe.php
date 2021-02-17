@@ -12,11 +12,7 @@ namespace Morpho\Base;
 abstract class Pipe implements IPipe {
     protected int $index = 0;
 
-    /**
-     * @param mixed $val
-     * @return mixed
-     */
-    public function __invoke($val) {
+    public function __invoke(mixed $val): mixed {
         foreach ($this as $fn) {
             $val = $fn($val);
         }

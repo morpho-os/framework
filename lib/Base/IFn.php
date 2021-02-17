@@ -11,9 +11,5 @@ namespace Morpho\Base;
  *     \is_callable(new class implements IFn { public function __invoke($value) {} });
  */
 interface IFn {
-    /**
-     * @param mixed $val
-     * @return mixed
-     */
-    public function __invoke($val);
+    public function __invoke(mixed $val): mixed;
 }
