@@ -6,36 +6,30 @@
  */
 namespace Morpho\Caching;
 
+use function time;
+
 /**
  * This class is based on \Doctrine\Common\Cache\ArrayCache from Doctrine project (MIT license).
  * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
- * @author David Abdemoulaie <dave@hobodave.com>
  */
 class ArrCache extends Cache {
     /**
      * @var array[] $data each element being a tuple of [$data, $expiration], where the expiration is int|bool
      */
-    private $data = [];
+    private array $data = [];
 
     private int $hitsCount = 0;
 
     private int $missesCount = 0;
 
-    /**
-     * @var int
-     */
-    private $upTime;
+    private int $upTime;
 
     public function __construct() {
-        $this->upTime = \time();
+        $this->upTime = time();
     }
 
-    public function delete($key) {
+    public function delete(string $key): bool {
         unset($this->data[$key]);
         return true;
     }
@@ -55,12 +49,12 @@ class ArrCache extends Cache {
         return true;
     }
 
-    public function has($key): bool {
+    public function has(string $key): bool {
         if (!isset($this->data[$key])) {
             return false;
         }
         $expiration = $this->data[$key][1];
-        if ($expiration && $expiration < \time()) {
+        if ($expiration && $expiration < time()) {
             $this->delete($key);
             return false;
         }
@@ -77,7 +71,7 @@ class ArrCache extends Cache {
     }
 
     protected function save(string $key, $data, $lifeTime = 0): bool {
-        $this->data[$key] = [$data, $lifeTime ? \time() + $lifeTime : false];
+        $this->data[$key] = [$data, $lifeTime ? time() + $lifeTime : false];
         return true;
     }
 }

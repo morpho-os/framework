@@ -36,8 +36,6 @@ use function unlink;
  * This class based on \Doctrine\Common\Cache\FileCache from Doctrine project (MIT license).
  * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
- * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
- * @author Tobias Schultze <http://tobion.de>
  */
 abstract class FileCache extends Cache {
     /**
@@ -87,13 +85,13 @@ abstract class FileCache extends Cache {
         $this->isRunningOnWindows = defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
-    public function delete($key) {
+    public function delete(string $key): bool {
         $filePath = $this->cacheFilePath($key);
         return @unlink($filePath) || !file_exists($filePath);
     }
 
     public function clear(): bool {
-        foreach ($this->dirIter() as $name => $file) {
+        foreach ($this->dirIt() as $name => $file) {
             if ($file->isDir()) {
                 // Remove the intermediate directories which have been created to balance the tree. It only takes effect
                 // if the directory is empty. If several caches share the same directory but with different file extensions,
@@ -111,7 +109,7 @@ abstract class FileCache extends Cache {
 
     public function stats(): ?array {
         $usage = 0;
-        foreach ($this->dirIter() as $name => $file) {
+        foreach ($this->dirIt() as $name => $file) {
             if (!$file->isDir() && $this->isFilenameEndingWithExtension($name)) {
                 $usage += $file->getSize();
             }
@@ -186,21 +184,16 @@ abstract class FileCache extends Cache {
     /**
      * @return Iterator
      */
-    private function dirIter(): Iterator {
+    private function dirIt(): Iterator {
         return new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($this->dirPath, FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::CHILD_FIRST
         );
     }
 
-    /**
-     * @param string $name The filename
-     *
-     * @return bool
-     */
-    private function isFilenameEndingWithExtension(string $name): bool {
+    private function isFilenameEndingWithExtension(string $filePath): bool {
         return '' === $this->extension
-            || strrpos($name, $this->extension) === (strlen($name) - $this->extensionStrLength);
+            || strrpos($filePath, $this->extension) === (strlen($filePath) - $this->extensionStrLength);
     }
 
     /**

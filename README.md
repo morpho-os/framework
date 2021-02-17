@@ -8,9 +8,10 @@ Not ready. API is not stable.
 
 ## Used technologies
 
-* Server-side:
+* Server-side/Backend:
     * PHP
-* Client-side:
+    * MySQL/MariaDB (optional)
+* Client-side/Frontend:
     * TypeScript
     * Stylus (CSS) and HTML
     * [Fira font from Mozilla](https://github.com/mozilla/Fira/blob/master/LICENSE)

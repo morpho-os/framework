@@ -6,16 +6,18 @@
  */
 namespace Morpho\Caching;
 
+use DateInterval;
+use DateTime;
+use InvalidArgumentException;
+use Traversable;
+use function array_fill_keys;
+use function array_merge;
+use function is_int;
+
 /**
  * This class based on \Doctrine\Common\Cache\CacheProvider from Doctrine project (MIT license).
  * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
- * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
- * @author Benoit Burnichon <bburnichon@gmail.com>
  */
 /**
  * This class based on https://github.com/Roave/DoctrineSimpleCache/blob/master/src/SimpleCacheAdapter.php
@@ -29,20 +31,20 @@ abstract class Cache implements ICache {
     protected const STATS_MEMORY_USAGE     = 'memory_usage';
     protected const STATS_MEMORY_AVAILABLE = 'memory_available';
 
-    public function get($key, $default = null) {
+    public function get(string $key, mixed $default = null): mixed {
         [$found, $value] = $this->fetch($key);
         return $found ? $value : $default;
     }
 
-    public function set($key, $value, $ttl = null): bool {
+    public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool {
         if ($ttl === null) {
             $ttl = 0;
         } else {
-            if ($ttl instanceof \DateInterval) {
+            if ($ttl instanceof DateInterval) {
                 $ttl = $this->dateIntervalToInt($ttl);
             }
-            if (!\is_int($ttl)) {
-                throw new \InvalidArgumentException('Invalid ttl');
+            if (!is_int($ttl)) {
+                throw new InvalidArgumentException('Invalid ttl');
             }
             if ($ttl <= 0) {
                 return $this->delete($key);
@@ -52,37 +54,36 @@ abstract class Cache implements ICache {
     }
 
     /**
-     * @param array|\Traversable $keys
+     * @param array|Traversable $keys
      * @param mixed $default
      * @return array
      */
-    public function getMultiple($keys, $default = null): array {
-        return \array_merge(\array_fill_keys($keys, $default), $this->fetchMultiple($keys));
+    public function multi(iterable $keys, mixed $default = null): array {
+        return array_merge(array_fill_keys($keys, $default), $this->fetchMultiple($keys));
     }
 
-    /**
-     * @param iterable $values
-     * @param null|int|\DateInterval $ttl
-     * @return bool
-     */
-    public function setMultiple($values, $ttl = null): bool {
+    public function setMulti(iterable $values, null|int|DateInterval $ttl = null): bool {
         if ($ttl === null) {
             $ttl = 0;
         } else {
-            if ($ttl instanceof \DateInterval) {
+            if ($ttl instanceof DateInterval) {
                 $ttl = $this->dateIntervalToInt($ttl);
             }
-            if (!\is_int($ttl)) {
-                throw new \InvalidArgumentException('Invalid ttl');
+            if (!is_int($ttl)) {
+                throw new InvalidArgumentException('Invalid ttl');
             }
             if ($ttl <= 0) {
-                return $this->deleteMultiple(\array_keys($values));
+                $keys = [];
+                foreach ($values as $k => $_) {
+                    $keys[] = $k;
+                }
+                return $this->deleteMulti($keys);
             }
         }
-        return $this->saveMultiple($values, $ttl);
+        return $this->saveMulti($values, $ttl);
     }
 
-    public function deleteMultiple($keys): bool {
+    public function deleteMulti(iterable $keys): bool {
         $success = true;
         foreach ($keys as $key) {
             if (!$this->delete($key)) {
@@ -125,7 +126,7 @@ abstract class Cache implements ICache {
      * @param int $lifetime The lifetime. If != 0, sets a specific lifetime for these
      *                              cache entries (0 => infinite lifeTime).
      */
-    protected function saveMultiple(array $keysAndValues, int $lifetime): bool {
+    protected function saveMulti(iterable $keysAndValues, int $lifetime): bool {
         $success = true;
         foreach ($keysAndValues as $key => $value) {
             if (!$this->save($key, $value, $lifetime)) {
@@ -135,9 +136,9 @@ abstract class Cache implements ICache {
         return $success;
     }
 
-    private function dateIntervalToInt(\DateInterval $ttl): int {
-        // Timestamp has 2038 year limitation, but it's unlikely to set TTL that long.
-        return (new \DateTime())
+    private function dateIntervalToInt(DateInterval $ttl): int {
+        // todo: check $ttl limitation for 2038 year.
+        return (new DateTime())
             ->setTimestamp(0)
             ->add($ttl)
             ->getTimestamp();
