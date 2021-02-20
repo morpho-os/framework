@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use Morpho\Base\Conf;
 use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
+use Throwable;
 use function basename;
 use function clearstatcache;
 use function copy;
@@ -22,9 +23,6 @@ use function file_get_contents;
 use function file_put_contents;
 use function filesize;
 use function fopen;
-use function Morpho\Base\{
-    fromJson, toJson
-};
 use function fwrite;
 use function implode;
 use function is_array;
@@ -32,6 +30,7 @@ use function is_dir;
 use function is_file;
 use function is_iterable;
 use function is_readable;
+use function Morpho\Base\{fromJson, toJson};
 use function rename;
 use function rtrim;
 use function strlen;
@@ -95,10 +94,7 @@ class File extends Entry {
         return $filePath;
     }
 
-    /**
-     * @param null|Closure|array $filterOrConf
-     */
-    public static function readLines(string $filePath, $filterOrConf = null, array $conf = null): Generator {
+    public static function readLines(string $filePath, null|Closure|array $filterOrConf = null, null|array $conf = null): Generator {
         if (is_array($filterOrConf)) {
             if (is_array($conf)) {
                 throw new InvalidArgumentException();
@@ -108,12 +104,12 @@ class File extends Entry {
         }
         $defaultConf = [
             'skipEmptyLines' => true,
-            'rtrim' => true,
+            'rtrim'          => true,
         ];
         if ($filterOrConf) { // If a filter was specified, don't ignore empty lines.
             $defaultConf['skipEmptyLines'] = false;
         }
-        $conf = Conf::check($defaultConf, (array) $conf);
+        $conf = Conf::check($defaultConf, (array)$conf);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
@@ -193,11 +189,49 @@ class File extends Entry {
      * Writes string to file.
      */
     public static function write(string $filePath, string $content, array $conf = null): string {
-        if (empty($filePath)) {
+        if ($filePath === '') {
             throw new Exception("The file path is empty");
         }
         Dir::create(Path::dirPath($filePath));
-        $result = file_put_contents($filePath, $content, static::filePutContentsConfToFlags((array)$conf), $conf['context'] ?? null);
+
+        $conf = Conf::check(
+            [
+                'useIncludePath' => false,
+                'lock'           => true,
+                'append'         => false,
+                'context'        => null,
+                'mode'           => Stat::FILE_MODE,
+            ],
+            (array)$conf
+        );
+        $flags = 0;
+        if ($conf['append']) {
+            $flags |= FILE_APPEND;
+        }
+        if ($conf['lock']) {
+            $flags |= LOCK_EX;
+        }
+        if ($conf['useIncludePath']) {
+            $flags |= FILE_USE_INCLUDE_PATH;
+        }
+        $perms = $conf['mode'] & 0b111_111_111;
+        $oldUmask = null;
+        if ((0b100_100_100 & $perms) === 0) { // use umask() only any `1` in `100100100` is not set, otherwise use chmod()
+            $oldUmask = umask(0666 ^ $perms); // 0666 is default value for files to subtract permissions to get umask
+        }
+        try {
+            $result = file_put_contents($filePath, $content, $flags, $conf['context'] ?? null);
+        } catch (Throwable $e) {
+            if (null !== $oldUmask) {
+                umask($oldUmask);
+            }
+            throw $e;
+        }
+        if (null !== $oldUmask) {
+            umask($oldUmask);
+        } else {
+            chmod($filePath, $perms);
+        }
         if (false === $result) {
             throw new Exception("Unable to write to the file '$filePath'");
         }
@@ -206,6 +240,9 @@ class File extends Entry {
     }
 
     public static function writePhpVar(string $filePath, $var, bool $stripNumericKeys = true): string {
+        if ($stripNumericKeys) {
+            throw new NotImplementedException();
+        }
         return File::write($filePath, '<?php return ' . var_export($var, true) . ';');
     }
 
@@ -338,29 +375,5 @@ class File extends Entry {
         $contents = file_get_contents($filePath);
         $newContents = $fn($contents);
         file_put_contents($filePath, $newContents);
-    }
-
-    private static function filePutContentsConfToFlags(array $conf): int {
-        $conf = Conf::check(
-            [
-                'useIncludePath' => false,
-                'lock'           => true,
-                'append'         => false,
-                'context'        => null,
-                'mode'           => Stat::FILE_MODE,
-            ],
-            $conf
-        );
-        $flags = 0;
-        if ($conf['append']) {
-            $flags |= FILE_APPEND;
-        }
-        if ($conf['lock']) {
-            $flags |= LOCK_EX;
-        }
-        if ($conf['useIncludePath']) {
-            $flags |= FILE_USE_INCLUDE_PATH;
-        }
-        return $flags;
     }
 }

@@ -18,11 +18,7 @@ class SelectQuery extends Query {
     protected array $orderBy = [];
     protected ?array $limit = null;
 
-    /**
-     * @param array|string $columns
-     * @return $this
-     */
-    public function columns($columns): self {
+    public function columns(array|string|Expr $columns): self {
         if (is_array($columns)) {
             $this->columns = array_merge($this->columns, $columns);
         } else {
@@ -86,16 +82,16 @@ class SelectQuery extends Query {
         return implode("\n", $sql);
     }
 
-    public function into() {
+    public function into(): self {
         throw new NotImplementedException();
     }
 
-    public function union() {
+    public function union(): self {
         // https://dev.mysql.com/doc/refman/8.0/en/union.html
         throw new NotImplementedException();
     }
 
-    public function leftJoin(string $join): self {
+    public function leftJoin($join): self {
         $this->join[] = ['LEFT', $join];
         return $this;
     }
@@ -105,7 +101,7 @@ class SelectQuery extends Query {
         return $this;
     }
 
-    public function rightJoin(string $join): self {
+    public function rightJoin($join): self {
         $this->join[] = ['RIGHT', $join];
         return $this;
     }

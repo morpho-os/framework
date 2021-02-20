@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
+use Morpho\App\Web\IRequest;
 use Morpho\App\ISite;
 use Morpho\Base\IPipe;
 use Morpho\Testing\TestCase;
@@ -14,7 +15,7 @@ use function file_put_contents;
 use function str_replace;
 
 class PhpTemplateEngineTest extends TestCase {
-    private $templateEngine;
+    private PhpTemplateEngine $templateEngine;
 
     public function setUp(): void {
         parent::setUp();
@@ -161,6 +162,18 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertEquals('foo-bar-1', $this->templateEngine->htmlId('FooBar'));
     }
 
+    public function testPageHtmlId() {
+        $request = $this->createConfiguredMock(IRequest::class, [
+            'handler' => [
+                'controllerPath' => 'foo/bar',
+                'method' => 'baz',
+            ],
+        ]);
+        $this->templateEngine->setRequest($request);
+
+        $this->assertSame('foo-bar-baz', $this->templateEngine->pageHtmlId());
+    }
+
     public function testEmptyAttributes() {
         $this->assertEquals('', $this->templateEngine->attributes([]));
     }
@@ -214,7 +227,7 @@ class PhpTemplateEngineTest extends TestCase {
 
     private function templateEngineConf(): array {
         return [
-            'request' => null,
+            'request' => $this->createMock(IRequest::class),
             'site' => $this->createStub(ISite::class),
         ];
     }

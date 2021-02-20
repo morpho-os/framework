@@ -10,10 +10,7 @@ use Morpho\App\Controller as BaseController;
 use Morpho\App\IResponse;
 
 class Controller extends BaseController {
-    /**
-     * @param mixed $actionResult
-     */
-    protected function handleResult($actionResult): IResponse {
+    protected function handleResult(mixed $actionResult): IResponse {
         $response = $this->request->response();
         $actionResult = (string) $actionResult;
         $response['result'] = $actionResult;

@@ -7,6 +7,7 @@
 namespace Morpho\App\Cli;
 
 use Generator;
+use Traversable;
 use function preg_split;
 use function trim;
 use const Morpho\Base\EOL_FULL_RE;
@@ -26,7 +27,7 @@ abstract class CommandResult implements ICommandResult {
         return $this->exitCode() !== Env::SUCCESS_CODE;
     }
 
-    public function getIterator() {
+    public function getIterator(): Traversable {
         return $this->lines();
     }
 

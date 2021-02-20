@@ -7,6 +7,7 @@
 namespace Morpho\App\Web\View;
 
 use ArrayObject;
+use Morpho\App\Web\IRequest;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\Base\ArrPipe;
 use Morpho\Base\Conf;
@@ -35,6 +36,7 @@ use function ucfirst;
 
 class PhpTemplateEngine extends ArrPipe {
     public const VIEW_FILE_EXT = '.phtml';
+    private static $htmlIds = [];
 
     protected bool $forceCompile;
     protected array $baseSourceDirPaths = [];
@@ -46,12 +48,13 @@ class PhpTemplateEngine extends ArrPipe {
      * @var callable
      */
     private $pluginFactory;
-    private $request;
+    private IRequest $request;
     private $uri;
 
     //protected array $vars = [];
 
     public function __construct(array $conf = null) {
+        $this->init();
         $conf = (array)$conf;
         $this->forceCompile = $conf['forceCompile'] ?? false;
         $this->pluginFactory = $conf['pluginFactory'] ?? function () {
@@ -61,6 +64,14 @@ class PhpTemplateEngine extends ArrPipe {
             $conf['phases'] = self::mkDefaultPhases($conf);
         }
         parent::__construct($conf['phases']);
+    }
+
+    public function setRequest(IRequest $request): void{
+        $this->request = $request;
+    }
+
+    public function request(): IRequest {
+        return $this->request;
     }
 
     public static function mkDefaultPhases(array $conf): array {
@@ -203,20 +214,19 @@ class PhpTemplateEngine extends ArrPipe {
         return trim(ob_get_clean());
     }
 
-    public function htmlId(string $id): string {
-        static $htmlIds = [];
-        $id = dasherize(deleteDups(preg_replace('/[^\w-]/s', '-', (string)$id), '-'));
-        if (isset($htmlIds[$id])) {
-            $id .= '-' . $htmlIds[$id]++;
+    public function htmlId(string $htmlId): string {
+        $htmlId = dasherize(deleteDups(preg_replace('/[^\w-]/s', '-', (string)$htmlId), '-'));
+        if (isset(self::$htmlIds[$htmlId])) {
+            $htmlId .= '-' . self::$htmlIds[$htmlId]++;
         } else {
-            $htmlIds[$id] = 1;
+            self::$htmlIds[$htmlId] = 1;
         }
-        return $this->e($id);
+        return $this->e($htmlId);
     }
 
     public function pageHtmlId(): string {
         $handler = $this->request->handler();
-        return dasherize($handler['controllerPath']) . '-' . dasherize($handler['method']);
+        return $this->htmlId(str_replace('/', '-', $handler['controllerPath'])) . '-' . dasherize($handler['method']);
     }
 
     public function hiddenField(string $name, $value, array $attributes = null): string {
@@ -474,5 +484,9 @@ class PhpTemplateEngine extends ArrPipe {
             );
         }
         return false;
+    }
+
+    private function init(): void {
+        self::$htmlIds = [];
     }
 }

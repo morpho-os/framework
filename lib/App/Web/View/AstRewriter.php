@@ -28,7 +28,7 @@ use function realpath;
 class AstRewriter extends NodeVisitorAbstract {
     private array $context;
     private PhpProcessor $processor;
-    private $appendSourceInfo = true;
+    private bool $appendSourceInfo = true;
 
     public function __construct(PhpProcessor $processor, array $context) {
         $this->processor = $processor;

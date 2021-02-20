@@ -6,7 +6,10 @@
  */
 namespace Morpho\App\Cli;
 
-interface ICommandResult extends \IteratorAggregate {
+use IteratorAggregate;
+use Stringable;
+
+interface ICommandResult extends IteratorAggregate, Stringable {
     public function command(): string;
 
     public function stdOut(): string;
@@ -19,5 +22,5 @@ interface ICommandResult extends \IteratorAggregate {
 
     public function lines(): iterable;
 
-    public function __toString();
+    public function __toString(): string;
 }

@@ -40,7 +40,7 @@ use function ucwords;
  * @copyright Copyright (c) 2005-2017 Zend Technologies USA Inc. (http://www.zend.com)
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
-class Request extends BaseRequest {
+class Request extends BaseRequest implements IRequest {
     protected ?ArrayObject $headers = null;
 
     protected ?string $originalMethod = null;

@@ -16,10 +16,7 @@ abstract class Entry {
             : File::copy($srcPath, $destPath);
     }
 
-    /**
-     * @param iterable|string $entryPath
-     */
-    public static function delete($entryPath): void {
+    public static function delete(string|iterable $entryPath): void {
         if (is_iterable($entryPath)) {
             foreach ($entryPath as $path) {
                 static::delete($path);

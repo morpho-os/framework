@@ -147,12 +147,6 @@ class DirTest extends TestCase {
         $this->assertSame(['bar' , 'bar/cow', 'baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
-    public function testDelete_InvalidArg() {
-        $tmpDirPath = $this->createTmpDir();
-        $this->expectException(InvalidArgumentException::class, 'The second argument must be either bool or callable');
-        Dir::delete($tmpDirPath, '123');
-    }
-
     public function testDelete_DeleteSelf() {
         $tmpDirPath = $this->createTmpDir();
         touch($tmpDirPath . '/orange.dat');

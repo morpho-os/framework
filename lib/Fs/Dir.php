@@ -109,24 +109,14 @@ class Dir extends Entry {
         return $targetDirPath;
     }
 
-    /**
-     * @param string|iterable $dirPaths
-     * @param string|Closure|null $processor
-     * @param array|bool|null $conf
-     * @return Generator
-     */
-    public static function paths($dirPaths, $processor = null, $conf = null): Generator {
-        $conf = self::normalizeConf($conf);
-        if (null !== $processor && !is_string($processor) && !$processor instanceof Closure) {
-            throw new Exception("Invalid processor");
-        }
+    public static function paths(string|iterable $dirPaths, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = Conf::check(
             [
                 'recursive'      => false,
                 'followLinks' => false,
                 'type'           => Stat::ENTRY,
             ],
-            $conf
+            self::normalizeConf($conf)
         );
 
         if (is_string($processor)) {
@@ -180,13 +170,7 @@ class Dir extends Entry {
         }
     }
 
-    /**
-     * @param string|iterable $dirPath
-     * @param string|Closure|null $processor
-     * @param array|bool|null $conf
-     * @return Generator
-     */
-    public static function names($dirPath, $processor = null, $conf = null): Generator {
+    public static function names(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
@@ -215,13 +199,8 @@ class Dir extends Entry {
 
     /**
      * Shortcut for the paths() with $conf['type'] == Stat::DIR option.
-     *
-     * @param string|iterable $dirPath
-     * @param string|null|Closure $processor
-     * @param array|bool|null $conf
-     * @return Generator
      */
-    public static function dirPaths($dirPath, $processor = null, $conf = null): Generator {
+    public static function dirPaths(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::DIR;
         if (null !== $processor) {
@@ -237,13 +216,7 @@ class Dir extends Entry {
         return self::paths($dirPath, $processor, $conf);
     }
 
-    /**
-     * @param iterable|string $dirPath
-     * @param string|Closure|null $processor
-     * @param array|bool|null $conf
-     * @return Generator
-     */
-    public static function dirNames($dirPath, $processor = null, $conf = null): Generator {
+    public static function dirNames(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         if (!empty($conf['recursive'])) {
             throw new LogicException("The 'recursive' conf param must be false");
@@ -254,25 +227,14 @@ class Dir extends Entry {
 
     /**
      * Shortcut for the paths() with $conf['type'] == Stat::FILE option.
-     *
-     * @param iterable|string $dirPath
-     * @param string|Closure|null $processor
-     * @param array|bool|null $conf
-     * @return Generator
      */
-    public static function filePaths($dirPath, $processor = null, $conf = null): Generator {
+    public static function filePaths(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::FILE;
         return self::paths($dirPath, $processor, $conf);
     }
 
-    /**
-     * @param iterable|string $dirPath
-     * @param array $extensions
-     * @param array|bool|null $conf
-     * @return Generator
-     */
-    public static function filePathsWithExt($dirPath, array $extensions, $conf = null): Generator {
+    public static function filePathsWithExt(string|iterable $dirPath, array $extensions, array|bool|null $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = preg_quote($extension, '/');
@@ -280,19 +242,13 @@ class Dir extends Entry {
         return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $conf);
     }
 
-    /**
-     * @param iterable|string $dirPath
-     * @param string|Closure|null $processor
-     * @param array|bool|null $conf
-     * @return Generator
-     */
-    public static function fileNames($dirPath, $processor = null, $conf = null): Generator {
+    public static function fileNames(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::FILE;
         return self::names($dirPath, $processor, $conf);
     }
 
-    public static function linkPaths(string $dirPath, callable $filter): Generator {
+    public static function linkPaths(string|iterable $dirPath, callable $filter): Generator {
         foreach (Dir::paths($dirPath) as $path) {
             if (is_link($path)) {
                 if ($filter) {
@@ -306,7 +262,7 @@ class Dir extends Entry {
         }
     }
 
-    public static function brokenLinkPaths($dirPath): Generator {
+    public static function brokenLinkPaths(string|iterable $dirPath): Generator {
         return Dir::linkPaths($dirPath, [Link::class, 'isBroken']);
     }
 
@@ -327,10 +283,9 @@ class Dir extends Entry {
      *
      * This method recursively removes the $dirPath and all its contents. You should be extremely careful with this method as it has the potential to erase everything that the current user has access to.
      *
-     * @param string|iterable $dirPath
      * @param bool|callable $predicateFnOrFlag If callable then it must return true for the all entries which will be deleted and false otherwise. If boolean it must return true if the directory $dirPath must be deleted and false otherwise.
      */
-    public static function delete($dirPath, $predicateFnOrFlag = true): void {
+    public static function delete(string|iterable $dirPath, bool|callable $predicateFnOrFlag = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
                 static::delete_($path, $predicateFnOrFlag);
@@ -340,11 +295,7 @@ class Dir extends Entry {
         }
     }
 
-    /**
-     * @param string|iterable $dirPath
-     * @param bool|callable $predicate
-     */
-    public static function deleteIfExists($dirPath, $predicate = true): void {
+    public static function deleteIfExists(string|iterable $dirPath, bool|callable $predicate = true): void {
         if (is_iterable($dirPath)) {
             foreach ($dirPath as $path) {
                 if (is_dir($path)) {
@@ -358,8 +309,11 @@ class Dir extends Entry {
         }
     }
 
-    public static function emptyDirPaths($dirPath, callable $predicate = null): iterable {
-        foreach ((array)$dirPath as $dPath) {
+    public static function emptyDirPaths(string|iterable $dirPath, callable $predicate = null): iterable {
+        if (is_string($dirPath)) {
+            $dirPath = [$dirPath];
+        }
+        foreach ($dirPath as $dPath) {
             $it = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($dPath, FilesystemIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::CHILD_FIRST
@@ -376,13 +330,13 @@ class Dir extends Entry {
         }
     }
 
-    public static function deleteEmptyDirs($dirPath, callable $predicate = null): void {
+    public static function deleteEmptyDirs(string|iterable $dirPath, callable $predicate = null): void {
         foreach (self::emptyDirPaths($dirPath, $predicate) as $dPath) {
             self::delete($dPath);
         }
     }
 
-    public static function isEmpty($dirPath): bool {
+    public static function isEmpty(string|iterable $dirPath): bool {
         foreach (self::paths($dirPath, null, ['recursive' => false]) as $_) {
             return false;
         }
@@ -553,11 +507,7 @@ class Dir extends Entry {
         }
     }
 
-    /**
-     * @param null|array|bool $conf
-     * @return array
-     */
-    private static function normalizeConf($conf): array {
+    private static function normalizeConf(null|array|bool $conf): array {
         if (!is_array($conf)) {
             if (null === $conf) {
                 $conf = [];

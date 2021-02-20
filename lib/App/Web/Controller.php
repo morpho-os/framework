@@ -13,12 +13,11 @@ use Morpho\Base\Err;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
 use Morpho\App\Controller as BaseController;
-use Morpho\App\IRequest;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
     protected IServiceManager $serviceManager;
 
-    protected IRequest $request;
+    protected $request;
 
     public function setServiceManager(IServiceManager $serviceManager): void {
         $this->serviceManager = $serviceManager;
@@ -51,15 +50,15 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->serviceManager['messenger'];
     }
 
-    protected function ok($val = null): Result {
+    protected function ok(mixed $val = null): Result {
         return new Ok($val);
     }
 
-    protected function err($val = null): Result {
+    protected function err(mixed $val = null): Result {
         return new Err($val);
     }
 
-    protected function handleResult($actionResult) {
+    protected function handleResult(mixed $actionResult): mixed {
         if ($actionResult instanceof Result) {
             $response = $this->request->response();
             $response->allowAjax(true)

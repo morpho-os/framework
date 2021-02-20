@@ -8,6 +8,9 @@ namespace Morpho\App\Web;
 
 use Morpho\Base\Converter;
 use Morpho\Base\Env as BaseEnvironment;
+use function ini_get;
+use function preg_match;
+use function strtolower;
 
 class Env extends BaseEnvironment {
     protected $startSession = false;
@@ -25,7 +28,7 @@ class Env extends BaseEnvironment {
     public static function httpVersion(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
             $protocol = $_SERVER['SERVER_PROTOCOL'];
-            if (\preg_match('~^HTTP/\d\.\d$~si', $protocol)) {
+            if (preg_match('~^HTTP/\d\.\d$~si', $protocol)) {
                 return $protocol;
             }
         }
@@ -33,7 +36,7 @@ class Env extends BaseEnvironment {
     }
 
     public static function httpHost(): string {
-        return isset($_SERVER['HTTP_HOST']) ? \strtolower($_SERVER['HTTP_HOST']) : '';
+        return isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
     }
 
     /**
@@ -49,9 +52,9 @@ class Env extends BaseEnvironment {
      * @return int|string Returns max upload file size in bytes or as string with suffix.
      */
     public static function maxUploadFileSize(bool $asBytes = true) {
-        $maxSizeIni = \ini_get('post_max_size');
+        $maxSizeIni = ini_get('post_max_size');
         $maxSize = Converter::toBytes($maxSizeIni);
-        $uploadMaxSizeIni = \ini_get('upload_max_filesize');
+        $uploadMaxSizeIni = ini_get('upload_max_filesize');
         $uploadMaxSize = Converter::toBytes($uploadMaxSizeIni);
         if ($uploadMaxSize > 0 && $uploadMaxSize < $maxSize) {
             $maxSize = $uploadMaxSize;

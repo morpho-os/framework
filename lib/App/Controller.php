@@ -9,7 +9,7 @@ namespace Morpho\App;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
-    protected IRequest $request;
+    protected $request;
 
     public function __invoke(mixed $request): IRequest {
         $this->request = $request;
@@ -44,7 +44,7 @@ abstract class Controller implements IFn {
     protected function afterEach(): void {
     }
 
-    protected function handleResult(mixed $actionResult) {
+    protected function handleResult(mixed $actionResult): mixed {
         return $actionResult;
     }
 }

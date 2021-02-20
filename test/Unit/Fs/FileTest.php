@@ -13,6 +13,7 @@ use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\File;
 use Morpho\Testing\TestCase;
 use RuntimeException;
+use Throwable;
 use function basename;
 use function copy;
 use function error_reporting;
@@ -215,10 +216,6 @@ class FileTest extends TestCase {
         $this->assertEquals('test', file_get_contents($filePath));
     }
 
-    public function testWrite_IntFlags() {
-        $this->markTestIncomplete();
-    }
-
     public function testWrite_CantWriteToEmptyFile() {
         $this->expectException(FsException::class, "The file path is empty");
         File::write('', 'Test');
@@ -228,6 +225,33 @@ class FileTest extends TestCase {
         $tmpDirPath = $this->createTmpDir();
         $filePath = $tmpDirPath . '/' . __FUNCTION__ . '.txt';
         $this->assertEquals($filePath, File::write($filePath, ''));
+        $this->assertSame('', file_get_contents($filePath));
+    }
+
+    public function dataForWrite_ModeConfOption() {
+        yield [
+            0777,
+        ];
+        yield [
+            0700,
+        ];
+        yield [
+            0666,
+        ];
+        yield [
+            0600,
+        ];
+    }
+
+    /**
+     * @dataProvider dataForWrite_ModeConfOption
+     */
+    public function testWrite_ModeConf(int $mode) {
+        $tmpDirPath = $this->createTmpDir();
+        $filePath = $tmpDirPath . '/' . __FUNCTION__ . '.txt';
+        File::write($filePath, '', ['mode' => $mode]);
+        $this->assertSame($mode, fileperms($filePath) & 07777);
+        $this->assertSame('', file_get_contents($filePath));
     }
 
     public function testCopyWithoutOverwrite() {
@@ -288,11 +312,6 @@ class FileTest extends TestCase {
     public function testReadBinary() {
         $content = File::read($this->getTestDirPath() . '/binary.jpg');
         $this->assertEquals("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01", substr($content, 0, 16));
-    }
-
-    public function testReadFileAsArray_NonExistingFile() {
-        // @TODO: Write tests for other read*() methods for non-existence also.
-        $this->markTestIncomplete();
     }
 
     public function testUsingFile_DefaultTmpDir() {
@@ -391,6 +410,17 @@ OUT
             '',
         ];
         $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath, function () { return true; }), false));
+    }
+
+    public function testReadLines_NonExistingFile() {
+        try {
+            foreach (File::readLines(__DIR__ . '/non-existing-file.php') as $line) {
+                break;
+            }
+            $this->fail();
+        } catch (Throwable $e) {
+            $this->markTestAsNotRisky();
+        }
     }
 
     public function testChange() {

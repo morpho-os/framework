@@ -29,14 +29,15 @@ abstract class Query implements IQuery {
     }
 
     /**
-     * @param array|string $tableName
+     * @param string|array|Expr $tableName For alias use: ['myTableName' => 'myAlias']
+     * @return $this
      */
-    public function table($tableName): self {
+    public function table(string|array|Expr $tableName): self {
         $this->tables[] = $tableName;
         return $this;
     }
 
-    public function expr($expr): Expr {
+    public function expr(mixed $expr): Expr {
         return $this->db->expr($expr);
     }
 
