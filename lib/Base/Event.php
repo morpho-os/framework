@@ -9,7 +9,6 @@ namespace Morpho\Base;
 use ArrayObject;
 
 class Event extends ArrayObject {
-    //public object $source;
     public string $name;
 
     public array $args;

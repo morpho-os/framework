@@ -8,9 +8,6 @@ namespace Morpho\App\Web\View;
 
 use Morpho\App\ISite;
 use Morpho\Base\Event;
-use function array_merge;
-use function array_reduce;
-use function count;
 use function file_exists;
 use function implode;
 use function json_encode;
@@ -30,33 +27,35 @@ class ScriptProcessor extends HtmlProcessor {
         $this->site = $site;
     }
 
-    /**
-     * Includes a file for controller's action.
-     */
-    public function actionScripts(string $jsModuleId): array {
-        $siteConf = $this->site->conf();
-        $shortModuleName = last($this->site->moduleName(), '/');
-        $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
-        $relFilePath = $fullJsModuleId . '.js';
-        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
-        $inline = $included = [];
-        if (file_exists($jsFilePath)) {
-            $jsConf = $this->jsConf();
-            $included[] = [
-                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
-                '_tagName' => 'script',
-                '_text' => '',
-            ];
-            $inline[] = [
-                '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
-            ];
+    protected function containerBody(array $tag): null|array|bool|string {
+        if (isset($tag[self::SKIP_ATTR])) {
+            unset($tag[self::SKIP_ATTR]);
+            return $tag;
         }
-        return [$inline, $included];
+        $childScripts = $this->scripts;
+        $this->scripts = [];
+        $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
+
+        if ($childScripts) {
+            // Don't add action scripts if there are any child scripts
+            $scripts = array_merge($this->scripts, $childScripts);
+        } else {
+            $actionScripts = $this->actionScripts($this->request['view']);
+            $scripts = array_merge($this->scripts, $actionScripts);
+        }
+
+        $scripts = $this->sortScripts($scripts);
+
+        $event = new Event('beforeRenderScripts', $scripts);
+        $this->trigger($event);
+        $scripts = $event->args;
+
+        $html .= $this->renderScripts($scripts);
+        $tag['_text'] = $html;
+        return $tag;
     }
 
-    public function renderScripts(array $scripts): string {
-        $html = [];
+    protected function sortScripts(array $scripts): array {
         $index = 0;
         foreach ($scripts as $key => $script) {
             if (!isset($script[self::INDEX_ATTR])) {
@@ -82,6 +81,11 @@ class ScriptProcessor extends HtmlProcessor {
             }
             return -1; // $diff < -PHP_FLOAT_EPSILON
         });
+        return $scripts;
+    }
+
+    protected function renderScripts(array $scripts): string {
+        $html = [];
         foreach ($scripts as $tag) {
             if (isset($tag['src'])) {
                 $tag['src'] = $this->request->prependUriWithBasePath($tag['src'])->toStr(null, false);
@@ -90,51 +94,6 @@ class ScriptProcessor extends HtmlProcessor {
             $html[] = $this->renderTag($tag);
         }
         return implode("\n", $html);
-    }
-
-    protected function containerBody(array $tag): null|array|bool {
-        if (isset($tag[self::SKIP_ATTR])) {
-            unset($tag[self::SKIP_ATTR]);
-            return $tag;
-        }
-        $childScripts = $this->scripts;
-        $this->scripts = [];
-        $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
-
-        $splitScripts = function ($scripts) {
-            return array_reduce($scripts, function ($acc, $tag) {
-                if (isset($tag['src'])) {
-                    $acc[1][] = $tag;
-                } else {
-                    $acc[0][] = $tag;
-                }
-                return $acc;
-            }, [[], []]);
-        };
-
-        $mainPageScripts = $splitScripts($this->scripts);
-        $childPageScripts = $splitScripts($childScripts);
-
-        $actionScripts = $this->actionScripts($this->request['view']);
-
-        // script: included | inline
-        // script: main-page-script | child-page-script | action-script
-        $scripts = array_merge(
-            $mainPageScripts[1],         // 1. main-page-script included
-            $childPageScripts[1],        // 2. child-page-script included
-            $actionScripts[1],           // 3. action-script included
-            $mainPageScripts[0],         // 4. main-page-script inline
-            count($childPageScripts[0])  // 5. child-page-script inline (has higher priority) | action-script inline
-                ? $childPageScripts[0]
-                : $actionScripts[0]
-        );
-
-        $event = new Event('changeScripts', $scripts);
-        $this->trigger($event);
-
-        $html .= $this->renderScripts($event->args);
-        $tag['_text'] = $html;
-        return $tag;
     }
 
     protected function containerScript(array $tag): null|array|bool {
@@ -147,6 +106,31 @@ class ScriptProcessor extends HtmlProcessor {
             return false;  // remove the original tag, we will add it later.
         }
         return null;
+    }
+
+    /**
+     * Includes a file for controller's action.
+     */
+    protected function actionScripts(string $jsModuleId): array {
+        $siteConf = $this->site->conf();
+        $shortModuleName = last($this->site->moduleName(), '/');
+        $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
+        $relFilePath = $fullJsModuleId . '.js';
+        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
+        $scripts = [];
+        if (file_exists($jsFilePath)) {
+            $jsConf = $this->jsConf();
+            $scripts[] = [
+                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
+                '_tagName' => 'script',
+                '_text' => '',
+            ];
+            $scripts[] = [
+                '_tagName' => 'script',
+                '_text' => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
+            ];
+        }
+        return $scripts;
     }
 
     protected function jsConf(): array {

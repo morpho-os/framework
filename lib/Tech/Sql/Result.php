@@ -19,10 +19,7 @@ class Result extends PDOStatement implements Countable {
         return $this->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * @return array|false
-     */
-    public function row() {
+    public function row(): array|false {
         return $this->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -33,7 +30,7 @@ class Result extends PDOStatement implements Countable {
     /**
      * @return mixed|false Returns false if the value is not found, and other non-false scalar otherwise.
      */
-    public function field() {
+    public function field(): mixed {
         return $this->fetchColumn(0);
     }
 
@@ -48,7 +45,7 @@ class Result extends PDOStatement implements Countable {
     /**
      * Has time complexity O(n)
      */
-    public function count() {
+    public function count(): int {
         // @TODO: replace with iterator_count() ?
         $i = 0;
         foreach ($this as $_) {

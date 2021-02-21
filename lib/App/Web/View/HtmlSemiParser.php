@@ -36,37 +36,32 @@ use function strtolower;
 use function substr;
 
 /**
- * This class is changed version of HTML_SemiParser class originally written by Dmitry Koterov:
- * http://forum.dklab.ru/users/DmitryKoterov/, original code was found at:
- * https://github.com/DmitryKoterov/html_formpersister
+ * This class is changed version of HTML_SemiParser class originally written by Dmitry Koterov: http://forum.dklab.ru/users/DmitryKoterov/, original code was found at: https://github.com/DmitryKoterov/html_formpersister
  */
 class HtmlSemiParser extends EventManager implements IFn {
-    protected $tagHandlerPrefix = 'tag';
-    protected $containerHandlerPrefix = 'container';
+    protected string $tagHandlerPrefix = 'tag';
+    protected string $containerHandlerPrefix = 'container';
 
     /**
      * Characters inside tag RE (between < and >).
      */
-    protected $tagRe = '(?>(?xs) (?> [^>"\']+ | " [^"]* " | \' [^\']* \' )* )';
+    protected string $tagRe = '(?>(?xs) (?> [^>"\']+ | " [^"]* " | \' [^\']* \' )* )';
 
-    protected $isHtml5 = true;
-
-    /**
-     * Containers, whose bodies are not parsed by the library.
-     */
-    protected $ignoredTags = [];//array('script', 'iframe', 'textarea', 'select', 'title');
-    protected $skipIgnoredTags = true;
-
-    private $tagHandlers = [];
-    private $containerHandlers = [];
-    private $tagsPreprocessors = [];
+    protected bool $isHtml5 = true;
 
     /**
-     * @var string
+     * Containers, whose bodies are not parsed by the library. E.g. ['script', 'iframe', 'textarea', 'select', 'title']
      */
-    private $replaceHash; // unique hash to replace all the tags
-    private $spIgnored;
-    private $selfAdd;
+    protected array $ignoredTags = [];
+    protected bool $skipIgnoredTags = true;
+
+    private array $tagHandlers = [];
+    private array $containerHandlers = [];
+    private array $tagsPreprocessors = [];
+
+    private string $replaceHash; // unique hash to replace all the tags
+    private array $spIgnored;
+    private bool $selfAdd;
 
     public function __construct() {
         $this->selfAdd = true;
@@ -81,11 +76,7 @@ class HtmlSemiParser extends EventManager implements IFn {
     /**
      * Adds new tag handler for future processing.
      *
-     * Handler is a callable which is will be for each tag found in the
-     * parsed document. This callable could be used to replace tag. Here is
-     * the prototype:
-     *
-     * mixed handler(array $attributes)
+     * Handler is a callable which is will be for each tag found in the parsed document. This callable could be used to replace tag. Here is the prototype: handler(array $attributes): null|false|string|array
      *
      * Callback get 1 parameter - parsed tag attribute array.
      * The following types instead of "mixed" is supported:
@@ -102,7 +93,7 @@ class HtmlSemiParser extends EventManager implements IFn {
      *                               String representation of tag will be
      *                               reconstructed automatically by that array.
      */
-    public function attachTagHandler(string $tagName, callable $handler, bool $atFront = false)/*: void */ {
+    public function attachTagHandler(string $tagName, callable $handler, bool $atFront = false): void {
         $tagName = strtolower($tagName);
         if (!isset($this->tagHandlers[$tagName])) {
             $this->tagHandlers[$tagName] = [];
@@ -120,7 +111,7 @@ class HtmlSemiParser extends EventManager implements IFn {
      * Containers are processed just like simple tags (see addTag()), but they also have
      * bodies saved in "_text" attribute.
      */
-    public function attachContainerHandler(string $tagName, callable $handler, bool $atFront = false)/*: void */ {
+    public function attachContainerHandler(string $tagName, callable $handler, bool $atFront = false): void {
         $tagName = strtolower($tagName);
         if (!isset($this->containerHandlers[$tagName])) {
             $this->containerHandlers[$tagName] = [];
@@ -132,7 +123,7 @@ class HtmlSemiParser extends EventManager implements IFn {
         }
     }
 
-    public function attachHandlersFrom($obj, bool $atFront = false) {
+    public function attachHandlersFrom(object $obj, bool $atFront = false): object {
         foreach (get_class_methods($obj) as $method) {
             if (0 === strpos($method, $this->tagHandlerPrefix)) {
                 $this->attachTagHandler(
@@ -160,9 +151,6 @@ class HtmlSemiParser extends EventManager implements IFn {
 
     /**
      * Processes a HTML string and calls all attached handlers.
-     *
-     * @param array|string $html
-     * @return array
      */
     public function __invoke(mixed $html): mixed {
         if (is_array($html)) { // html is context?
@@ -292,7 +280,7 @@ class HtmlSemiParser extends EventManager implements IFn {
      *
      * If $attr[_text] is present, make container.
      *
-     * @param array $attr Attributes of tag. These attributes could
+     * @param array $tag Attributes of tag. These attributes could
      *                      include two special attributes:
      *                      '_text':    tag is a container with body.
      *                                  If null - <tag ... />.
@@ -300,13 +288,12 @@ class HtmlSemiParser extends EventManager implements IFn {
      *                      '_tagName': name of this tag.
      *                      '_orig':    ignored (internal usage).
      *
-     * @return  HTML-strict representation of tag or container.
+     * @return string HTML representation of tag or container.
      */
-    protected function renderTag(array $attr): string {
-        // Join & return tag.
+    protected function renderTag(array $tag): string {
         $attrStr = '';
-        foreach ($attr as $name => $value) {
-            if ($name == '_text' || $name == '_tagName' || $name == '_orig') {
+        foreach ($tag as $name => $value) {
+            if (is_string($name) && $name[0] === '_') {
                 continue;
             }
             $attrStr .= ' ' . PhpTemplateEngine::e($name);
@@ -314,18 +301,15 @@ class HtmlSemiParser extends EventManager implements IFn {
                 $attrStr .= '="' . $this->encodeAttrValue($value) . '"';
             }
         }
-        if (empty($attr['_tagName'])) {
-            // Return empty string? When this case can occur?
+        if (empty($tag['_tagName'])) {
             throw new RuntimeException('Tag name is empty');
-            //$attr['_tagName'] = '???';
         }
-
-        if (!array_key_exists('_text', $attr)) { // do not use isset()!
-            $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}>";
-        } elseif ($attr['_text'] === null) {
-            $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}" . ($this->isHtml5 ? '>' : ' />');
+        if (!array_key_exists('_text', $tag)) { // do not use isset()!
+            $tagHtmlStr = "<{$tag['_tagName']}{$attrStr}>";
+        } elseif ($tag['_text'] === null) {
+            $tagHtmlStr = "<{$tag['_tagName']}{$attrStr}" . ($this->isHtml5 ? '>' : ' />');
         } else {
-            $tagHtmlStr = "<{$attr['_tagName']}{$attrStr}>{$attr['_text']}</{$attr['_tagName']}>";
+            $tagHtmlStr = "<{$tag['_tagName']}{$attrStr}>{$tag['_text']}</{$tag['_tagName']}>";
         }
         return $tagHtmlStr;
     }
@@ -365,7 +349,7 @@ class HtmlSemiParser extends EventManager implements IFn {
      * Container's open and close tags are NOT modified!
      * Later hash value will be replaced back to original text.
      */
-    protected function ignoredTagsToHash($m) {
+    protected function ignoredTagsToHash(array $m): string {
         static $counter = 0;
         $hash = $this->replaceHash . ++$counter . "|";
         // DO NOT use chr(0) here!!!
@@ -376,7 +360,7 @@ class HtmlSemiParser extends EventManager implements IFn {
     /**
      * @return mixed Handled tag.
      */
-    protected function runHandlersForTag(array $tag) {
+    protected function runHandlersForTag(array $tag): array|false|null|string {
         $tagName = strtolower($tag['_tagName']);
         // Processing tag or container?
         $handlers = $this->handlersOfTag($tagName, isset($tag['_text']));
@@ -394,7 +378,7 @@ class HtmlSemiParser extends EventManager implements IFn {
         return $tag;
     }
 
-    protected function handlersOfTag($tagName, $isContainerTag) {
+    protected function handlersOfTag(string $tagName, bool $isContainerTag): array {
         return $isContainerTag ? $this->containerHandlers[$tagName] : $this->tagHandlers[$tagName];
     }
 

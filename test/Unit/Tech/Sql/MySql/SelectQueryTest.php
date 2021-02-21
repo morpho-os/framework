@@ -18,6 +18,10 @@ class SelectQueryTest extends QueryTest {
         $this->query = new SelectQuery($this->db);
     }
 
+    public function testShouldNotQuoteStarChar() {
+        $this->assertSame('SELECT `p`.*', (string) $this->query->columns('p.*'));
+    }
+
     public function testOnlyColumns_ExprArg() {
         $columns = "MICROSECOND('2019-12-31 23:59:59.000010'), NOW()";
         $this->assertSqlEquals("SELECT " . $columns, (string) $this->query->columns($this->query->expr($columns)));

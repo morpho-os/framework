@@ -246,7 +246,7 @@ class Debugger {
             } else {
                 $acceptsHtml = isset($_SERVER['HTTP_ACCEPT'])
                     && false !== stristr($_SERVER['HTTP_ACCEPT'], 'text/html');
-                $this->isHtmlMode = $acceptsHtml && !$this->isPhpFormatEnabled();
+                $this->isHtmlMode = $acceptsHtml;// && !ini_get('html_errors')
             }
         }
         return $this->isHtmlMode;
@@ -378,12 +378,6 @@ OUT;
         }
 
         return $output;
-    }
-
-    protected function isPhpFormatEnabled(): bool {
-        return ini_get('html_errors')
-            && ini_get('xdebug.default_enable')
-            && ini_get('xdebug.overload_var_dump');
     }
 
     protected function errorHandler($level, $message, $filePath, $line, $context) {

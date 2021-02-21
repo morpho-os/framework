@@ -7,7 +7,9 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use ArrayObject;
+use Morpho\App\IResponse;
 use Morpho\App\ISite;
+use Morpho\App\Web\IRequest;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\ScriptProcessor;
 use RuntimeException;
@@ -130,7 +132,7 @@ OUT;
         $this->assertSame($html, $processed);
     }
 
-    public function dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript() {
+    public function dataForAutoInclusionOfActionScripts_WithoutChildScripts() {
         yield [
             ['foo' => 'bar'],
         ];
@@ -140,9 +142,9 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildPageInlineScript
+     * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildScripts
      */
-    public function testAutoInclusionOfActionScripts_WithoutChildPageInlineScript($jsConf) {
+    public function testAutoInclusionOfActionScripts_WithoutChildScripts($jsConf) {
         $request = $this->mkRequestStub('cat/tail');
         $request['jsConf'] = $jsConf;
 
@@ -150,30 +152,33 @@ OUT;
 
         $childPageHtml = <<<OUT
 This
-<script src="/foo/first.js"></script>
-<script src="bar/second.js"></script>
 is a child
 OUT;
         $processor->__invoke($childPageHtml);
 
-        $html = $processor->__invoke('<body></body>');
+        $parentScripts = '<script>before</script>
+            <script src="/parent/script.js"></script>
+            <script>after</script>';
+
+        $html = $processor->__invoke('<body>' . $parentScripts . '</body>');
 
         $re = $this->quotedRe([
-                '<body>',
-                '<script src="' . $this->baseUriPath . '/foo/first.js"></script>',
-                '<script src="bar/second.js"></script>',
-                '<script src="' . $this->baseUriPath . '/blog/app/cat/tail.js"></script>',
-                '<script>',
-                'define(["require", "exports", "blog/app/cat/tail"], function (require, exports, module) {',
-                'module.main(window.app || {}, ' . json_encode((array)$jsConf, JSON_UNESCAPED_SLASHES) . ');',
-                '});',
-                '</script>',
-                '</body>',
-            ]);
+            '<body>',
+            '<script>before</script>',
+            '<script src="' . $this->baseUriPath . '/parent/script.js"></script>',
+            '<script>after</script>',
+            '<script src="' . $this->baseUriPath . '/blog/app/cat/tail.js"></script>',
+            '<script>',
+            'define(["require", "exports", "blog/app/cat/tail"], function (require, exports, module) {',
+            'module.main(window.app || {}, ' . json_encode((array)$jsConf, JSON_UNESCAPED_SLASHES) . ');',
+            '});',
+            '</script>',
+            '</body>',
+        ]);
         $this->assertMatchesRegularExpression($re, $html);
     }
 
-    public function testAutoInclusionOfActionScripts_WithChildPageInlineScript() {
+    public function testAutoInclusionOfActionScripts_WithChildScripts() {
         $request = $this->mkRequestStub('cat/tail');
 
         $processor = new ScriptProcessor($request, $this->mkSiteStub('some/blog'));
@@ -181,24 +186,33 @@ OUT;
         $childPage = <<<OUT
 This
 <script src="/foo/first.js"></script>
+is
 <script>
 alert("OK");
 </script>
+a
 <script src="bar/second.js"></script>
-is a child
+child
 OUT;
 
         $processor->__invoke($childPage);
-        $html = $processor->__invoke('<body></body>');
+
+        $parentScripts = '<script>before</script>
+            <script src="/parent/script.js"></script>
+            <script>after</script>';
+
+        $html = $processor->__invoke('<body>' . $parentScripts . '</body>');
 
         $re = $this->quotedRe([
             '<body>',
+            '<script>before</script>',
+            '<script src="' . $this->baseUriPath . '/parent/script.js"></script>',
+            '<script>after</script>',
             '<script src="' . $this->baseUriPath . '/foo/first.js"></script>',
-            '<script src="bar/second.js"></script>',
-            '<script src="' . $this->baseUriPath . '/blog/app/cat/tail.js"></script>',
             '<script>',
             'alert("OK");',
             '</script>',
+            '<script src="bar/second.js"></script>',
             '</body>',
         ]);
         $this->assertMatchesRegularExpression($re, $html);
@@ -209,7 +223,7 @@ OUT;
     }
 
     private function mkRequestStub(string $view) {
-        return new class (['view' => $view], $this->baseUriPath) extends ArrayObject {
+        return new class (['view' => $view], $this->baseUriPath) extends ArrayObject implements IRequest {
             private $baseUriPath;
             public function __construct($array, $baseUriPath) {
                 parent::__construct($array);
@@ -235,6 +249,30 @@ OUT;
                     }
                 }
                 return $mkUri($uri);
+            }
+
+            public function isHandled(bool $flag = null): bool {
+                // TODO: Implement isHandled() method.
+            }
+
+            public function setHandler(array $handler): void {
+                // TODO: Implement setHandler() method.
+            }
+
+            public function handler(): array {
+                // TODO: Implement handler() method.
+            }
+
+            public function setResponse(IResponse $response): void {
+                // TODO: Implement setResponse() method.
+            }
+
+            public function response(): IResponse {
+                // TODO: Implement response() method.
+            }
+
+            public function args(?array $namesOrIndexes = null): mixed {
+                // TODO: Implement args() method.
             }
         };
     }

@@ -141,8 +141,14 @@ abstract class DbClient implements IDbClient {
                 return $identifiers->val();
             }
             $quoted = [];
-            foreach (explode('.', $identifiers) as $identifier) {
-                $quoted[] = $this->quote . $identifier . $this->quote;
+            $parts = explode('.', $identifiers);
+            $n = count($parts);
+            foreach ($parts as $i => $identifier) {
+                if ($identifier === '*' && $i === ($n - 1)) {
+                    $quoted[] = $identifier;
+                } else {
+                    $quoted[] = $this->quote . $identifier . $this->quote;
+                }
             }
             return implode('.', $quoted);
         };

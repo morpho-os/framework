@@ -6,6 +6,8 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
+use Morpho\App\IResponse;
+use Morpho\App\Web\IRequest;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\UriProcessor;
 
@@ -148,7 +150,7 @@ class UriProcessorTest extends TestCase {
      * @dataProvider dataForProcessUrisInTags
      */
     public function testProcessUrisInTags(string $basePath, $expected, $tag) {
-        $request = new class ($basePath) extends \ArrayObject {
+        $request = new class ($basePath) extends \ArrayObject implements IRequest {
             private $baseUriPath;
             public function __construct($baseUriPath) {
                 parent::__construct();
@@ -174,6 +176,30 @@ class UriProcessorTest extends TestCase {
                     }
                 }
                 return $mkUri($uri);
+            }
+
+            public function isHandled(bool $flag = null): bool {
+                // TODO: Implement isHandled() method.
+            }
+
+            public function setHandler(array $handler): void {
+                // TODO: Implement setHandler() method.
+            }
+
+            public function handler(): array {
+                // TODO: Implement handler() method.
+            }
+
+            public function setResponse(IResponse $response): void {
+                // TODO: Implement setResponse() method.
+            }
+
+            public function response(): IResponse {
+                // TODO: Implement response() method.
+            }
+
+            public function args(?array $namesOrIndexes = null): mixed {
+                // TODO: Implement args() method.
             }
         };
 

@@ -8,19 +8,29 @@ Not ready. API is not stable.
 
 ## Used technologies
 
-* Server-side/Backend:
-    * PHP
-    * MySQL/MariaDB (optional)
+For development:
+* Server-side/Backend
+  * PHP: required
+  * MySQL/MariaDB: optional, can be used as DBMS
 * Client-side/Frontend:
-    * TypeScript
-    * Stylus (CSS) and HTML
-    * [Fira font from Mozilla](https://github.com/mozilla/Fira/blob/master/LICENSE)
-* Infra:
-    * Git
-    * PHP
-    * Node.js
-    * GNU Bash
-    * GNU Make
+  * TypeScript and JavaScripts: required to compile to JavaScript
+  * Stylus and CSS: required to compile to CSS
+  * HTML
+* Infra (all technologies are optional):
+  * Git
+  * PHP
+  * Node.js
+  * GNU Bash
+  * GNU Make
+
+For production:
+* Server-side/Backend:
+  * PHP: required
+  * MySQL/MariaDB: optional
+* Client-side/Frontend:
+  * JavaScript
+  * CSS
+  * HTML
 
 ## Supported OSs
 

@@ -6,12 +6,14 @@
  */
 namespace Morpho\App\Web\View;
 
+use Morpho\App\Web\IRequest;
+
 abstract class HtmlProcessor extends HtmlSemiParser {
     protected const SKIP_ATTR = '_skip';
 
-    protected $request;
+    protected IRequest $request;
 
-    public function __construct($request) {
+    public function __construct(IRequest $request) {
         parent::__construct();
         $this->request = $request;
     }
