@@ -6,32 +6,21 @@
  */
 namespace Morpho\Compiler;
 
-use Morpho\Base\Pipe;
 use UnexpectedValueException;
 
-class Compiler extends Pipe implements ICompiler {
-    protected array $conf;
-    private $frontEnd;
-    private $middleEnd;
-    private $backEnd;
-
-    public function __construct(array $conf = null) {
-        if (isset($conf['frontEnd'])) {
-            $this->frontEnd = $conf['frontEnd'];
-        }
-        if (isset($conf['middleEnd'])) {
-            $this->middleEnd = $conf['middleEnd'];
-        }
-        if (isset($conf['backEnd'])) {
-            $this->backEnd = $conf['backEnd'];
-        }
-        $this->conf = (array) $conf;
-    }
-
-    public function setConf(array $conf): self {
-        $this->conf = $conf;
-        return $this;
-    }
+class Compiler extends ConfigurablePipe implements ICompiler {
+    /**
+     * @var callable
+     */
+    private $frontend;
+    /**
+     * @var callable
+     */
+    private $midend;
+    /**
+     * @var callable
+     */
+    private $backend;
 
     public function conf(): array {
         return $this->conf;
@@ -40,67 +29,55 @@ class Compiler extends Pipe implements ICompiler {
     public function current(): callable {
         $index = $this->index;
         if ($index === 0) {
-            return $this->frontEnd();
+            return $this->frontend();
         }
         if ($index === 1) {
-            return $this->middleEnd();
+            return $this->midend();
         }
         if ($index === 2) {
-            return $this->backEnd();
+            return $this->backend();
         }
         throw new UnexpectedValueException();
     }
 
     public function count(): int {
-        // Valid pipe phases are `[$this->frontEnd(), $this->middleEnd(), $this->backEnd()]`, so the count is 3.
+        // Valid pipe phases are `[$this->frontend(), $this->midend(), $this->backend()]`, so the count is 3.
         return 3;
     }
 
-    public function setFrontEnd(callable $frontEnd): self {
-        $this->frontEnd = $frontEnd;
+    public function setFrontend(callable $frontend): self {
+        $this->frontend = $frontend;
         return $this;
     }
 
-    public function frontEnd(): callable {
-        if (null === $this->frontEnd) {
-            $this->frontEnd = $this->mkFrontEnd();
+    public function frontend(): callable {
+        if (null === $this->frontend) {
+            $this->frontend = $this->conf['frontend'];
         }
-        return $this->frontEnd;
+        return $this->frontend;
     }
 
-    public function setMiddleEnd(callable $middleEnd): self {
-        $this->middleEnd = $middleEnd;
+    public function setMidend(callable $midend): self {
+        $this->midend = $midend;
         return $this;
     }
 
-    public function middleEnd(): callable {
-        if (null === $this->middleEnd) {
-            $this->middleEnd = $this->mkMiddleEnd();
+    public function midend(): callable {
+        if (null === $this->midend) {
+            $this->midend = $this->conf['midend'];
         }
-        return $this->middleEnd;
+        return $this->midend;
     }
 
-    public function setBackEnd(callable $backEnd): self {
-        $this->backEnd = $backEnd;
+    public function setBackend(callable $backend): self {
+        $this->backend = $backend;
         return $this;
     }
 
-    public function backEnd(): callable {
-        if (null === $this->backEnd) {
-            $this->backEnd = $this->mkBackEnd();
+    public function backend(): callable {
+        if (null === $this->backend) {
+            $this->backend = $this->conf['backend'];
         }
-        return $this->backEnd;
-    }
-
-    protected function mkFrontEnd(): callable {
-        return fn ($v) => $v;
-    }
-
-    protected function mkMiddleEnd(): callable {
-        return fn ($v) => $v;
-    }
-
-    protected function mkBackEnd(): callable {
-        return fn ($v) => $v;
+        return $this->backend;
     }
 }

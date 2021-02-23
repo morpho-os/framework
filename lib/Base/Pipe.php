@@ -7,7 +7,7 @@
 namespace Morpho\Base;
 
 /**
- * Pipe: Phase[], where Phase is IFn.
+ * Pipe: Phase[], where Phase is callable
  */
 abstract class Pipe implements IPipe {
     protected int $index = 0;

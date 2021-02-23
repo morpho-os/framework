@@ -6,5 +6,5 @@
  */
 namespace Morpho\Compiler;
 
-interface IMiddleEnd extends ICompilerPhase {
+interface IFrontend extends ICompilerPhase {
 }

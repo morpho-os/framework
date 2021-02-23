@@ -9,32 +9,26 @@ namespace Morpho\Test\Unit\Compiler;
 use ArrayObject;
 use Morpho\Base\Pipe;
 use Morpho\Compiler\Compiler;
-use Morpho\Compiler\IBackEnd;
+use Morpho\Compiler\IBackend;
 use Morpho\Compiler\ICompiler;
 use Morpho\Compiler\ICompilerPhase;
-use Morpho\Compiler\IFrontEnd;
 use Morpho\Compiler\IInterpreter;
-use Morpho\Compiler\IMiddleEnd;
+use Morpho\Compiler\IMidend;
 use Morpho\Compiler\IProgram;
 use Morpho\Compiler\ITranslationUnit;
 use Morpho\Compiler\ITranslator;
-use Morpho\Testing\TestCase;
 
-class CompilerTest extends TestCase {
+class CompilerTest extends ConfigurablePipeTest {
     public function testCompilerInterface() {
-        $compiler = new Compiler();
+        $compiler = new Compiler($this->mkCompilerConf());
         $this->assertInstanceOf(ITranslator::class, $compiler);
         $this->assertInstanceOf(ICompiler::class, $compiler);
         $this->assertInstanceOf(Pipe::class, $compiler);
-        $this->assertInstanceOf(ICompilerPhase::class, new class implements IFrontEnd {
+        $this->assertInstanceOf(ICompilerPhase::class, new class implements IMidend {
             public function __invoke(mixed $val): mixed {
             }
         });
-        $this->assertInstanceOf(ICompilerPhase::class, new class implements IMiddleEnd {
-            public function __invoke(mixed $val): mixed {
-            }
-        });
-        $this->assertInstanceOf(ICompilerPhase::class, new class implements IBackEnd {
+        $this->assertInstanceOf(ICompilerPhase::class, new class implements IBackend {
             public function __invoke(mixed $val): mixed {
             }
         });
@@ -46,30 +40,30 @@ class CompilerTest extends TestCase {
     }
 
     public function testCustomPhasesViaConstructorConf() {
-        $frontEnd = function ($v) {
-            $v['frontEnd'] = 'front-end ok';
+        $frontend = function ($v) {
+            $v['frontend'] = 'frontend ok';
             return $v;
         };
-        $middleEnd = function ($v) {
-            $v['middleEnd'] = 'middle-end ok';
+        $midend = function ($v) {
+            $v['midend'] = 'midend ok';
             return $v;
         };
-        $backEnd = function ($v) {
-            $v['backEnd'] = 'back-end ok';
+        $backend = function ($v) {
+            $v['backend'] = 'backend ok';
             $v['target'] = $v['source'];
             return $v;
         };
 
         $conf = [
-            'frontEnd' => $frontEnd,
-            'middleEnd' => $middleEnd,
-            'backEnd' => $backEnd,
+            'frontend' => $frontend,
+            'midend' => $midend,
+            'backend' => $backend,
         ];
         $compiler = new Compiler($conf);
 
-        $this->assertSame($frontEnd, $compiler->frontEnd());
-        $this->assertSame($middleEnd, $compiler->middleEnd());
-        $this->assertSame($backEnd, $compiler->backEnd());
+        $this->assertSame($frontend, $compiler->frontend());
+        $this->assertSame($midend, $compiler->midend());
+        $this->assertSame($backend, $compiler->backend());
 
         $source = '';
         $context = new ArrayObject([
@@ -81,16 +75,16 @@ class CompilerTest extends TestCase {
         $this->assertSame($result, $context);
         $this->assertSame($source, $result['source']);
         $this->assertSame($source, $result['target']); // should not be changed
-        $this->assertSame('front-end ok', $context['frontEnd']);
-        $this->assertSame('middle-end ok', $context['middleEnd']);
-        $this->assertSame('back-end ok', $context['backEnd']);
+        $this->assertSame('frontend ok', $context['frontend']);
+        $this->assertSame('midend ok', $context['midend']);
+        $this->assertSame('backend ok', $context['backend']);
     }
 
     public function dataForPhasesAccessors() {
         yield [
-            'frontEnd',
-            'middleEnd',
-            'backEnd',
+            'frontend',
+            'midend',
+            'backend',
         ];
     }
 
@@ -98,7 +92,7 @@ class CompilerTest extends TestCase {
      * @dataProvider dataForPhasesAccessors
      */
     public function testPhasesAccessors(string $method) {
-        $compiler = new Compiler();
+        $compiler = new Compiler($this->mkCompilerConf());
         $oldPhase = $compiler->$method();
         $this->assertIsCallable($oldPhase);
         $newPhase = fn () => null;
@@ -107,27 +101,30 @@ class CompilerTest extends TestCase {
         $this->assertNotSame($newPhase, $oldPhase);
     }
 
-    public function testConfAccessors() {
-        $compiler = new Compiler();
-        $this->checkAccessors([$compiler, 'conf'], [], ['foo' => 'bar'], $compiler);
-    }
-
     public function testDefaultPhases() {
-        $compiler = new Compiler();
+        $compiler = new Compiler($this->mkCompilerConf());
 
-        $frontEnd = $compiler->frontEnd();
-        $this->assertIsCallable($frontEnd);
+        $frontend = $compiler->frontend();
+        $this->assertIsCallable($frontend);
 
-        $middleEnd = $compiler->middleEnd();
-        $this->assertIsCallable($middleEnd);
-        $this->assertNotSame($frontEnd, $middleEnd);
+        $midend = $compiler->midend();
+        $this->assertIsCallable($midend);
+        $this->assertNotSame($frontend, $midend);
 
-        $backEnd = $compiler->backEnd();
-        $this->assertIsCallable($backEnd);
-        $this->assertNotSame($frontEnd, $backEnd);
-        $this->assertNotSame($middleEnd, $backEnd);
+        $backend = $compiler->backend();
+        $this->assertIsCallable($backend);
+        $this->assertNotSame($frontend, $backend);
+        $this->assertNotSame($midend, $backend);
 
         $context['source'] = '';
         $this->assertSame($context, $compiler($context));
+    }
+
+    private function mkCompilerConf(): array {
+        return [
+            'frontend' => fn ($v) => $v,
+            'midend' => fn ($v) => $v,
+            'backend' => fn ($v) => $v,
+        ];
     }
 }
