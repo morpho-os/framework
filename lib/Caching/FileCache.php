@@ -204,7 +204,7 @@ abstract class FileCache extends Cache {
      */
     private function createDirIfNeeded(string $path): bool {
         if (!is_dir($path)) {
-            if (false === @mkdir($path, 0755 & (~$this->umask), true) && !is_dir($path)) {
+            if (false === @mkdir($path, 0777 & (~$this->umask), true) && !is_dir($path)) {
                 return false;
             }
         }
