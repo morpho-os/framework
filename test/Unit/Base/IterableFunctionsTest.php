@@ -7,7 +7,7 @@
 namespace Morpho\Test\Unit\Base;
 
 use function Morpho\Base\{
-    all, any, apply, append, chain, contains, filter, flatMap, head, init, last, map, prepend, reduce, tail, toArr
+    all, any, apply, chain, contains, filter, flatMap, head, init, last, map, reduce, tail, toArr
 };
 use Morpho\Testing\TestCase;
 

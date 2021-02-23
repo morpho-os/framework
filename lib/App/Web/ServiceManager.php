@@ -61,24 +61,26 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkTemplateEngineService() {
         $conf = $this->conf['templateEngine'];
-        if (!isset($conf['pluginFactory'])) {
-            $conf['pluginFactory'] = function ($pluginName) {
-                $knownPlugins = [
-                    'Messenger' => MessengerPlugin::class,
-                ];
-                if (isset($knownPlugins[$pluginName])) {
-                    $plugin = new $knownPlugins[$pluginName]();
-                    if ($plugin instanceof IHasServiceManager) {
-                        $plugin->setServiceManager($this);
-                    }
-                    return $plugin;
-                }
-                throw new UnexpectedValueException("Unknown plugin: " . $pluginName);
-            };
-        }
+        $conf['pluginFactory'] = $this['templateEnginePluginFactory'];
         $conf['request'] = $this['request'];
         $conf['site'] = $this['site'];
         return new PhpTemplateEngine($conf);
+    }
+
+    protected function mkTemplateEnginePluginFactoryService() {
+        return function ($pluginName) {
+            $knownPlugins = [
+                'Messenger' => MessengerPlugin::class,
+            ];
+            if (isset($knownPlugins[$pluginName])) {
+                $plugin = new $knownPlugins[$pluginName]();
+                if ($plugin instanceof IHasServiceManager) {
+                    $plugin->setServiceManager($this);
+                }
+                return $plugin;
+            }
+            throw new UnexpectedValueException("Unknown plugin: " . $pluginName);
+        };
     }
 
     protected function mkActionResultRendererService() {

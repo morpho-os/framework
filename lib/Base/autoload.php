@@ -12,6 +12,7 @@ use Generator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use RuntimeException;
+use Stringable;
 use Throwable;
 use UnexpectedValueException;
 use function array_fill_keys;
@@ -85,12 +86,12 @@ const EPS = 0.00001;
 
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
-function e($text): string {
-    return htmlspecialchars((string) $text, ENT_QUOTES);
+function e(Stringable|int|string $s): string {
+    return htmlspecialchars((string) $s, ENT_QUOTES);
 }
 
-function de($text): string {
-    return htmlspecialchars_decode((string) $text, ENT_QUOTES);
+function de(Stringable|int|string $s): string {
+    return htmlspecialchars_decode((string) $s, ENT_QUOTES);
 }
 
 function evalFn($valOrFn) {
@@ -123,15 +124,15 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function wrap($string, string $wrapper) {
-    if (is_array($string)) {
+function wrap(Stringable|int|string|iterable $s, string $wrapper): string|array {
+    if (is_array($s)) {
         $r = [];
-        foreach ($string as $k => $s) {
-            $r[$k] = $wrapper . $s . $wrapper;
+        foreach ($s as $k => $s1) {
+            $r[$k] = $wrapper . $s1 . $wrapper;
         }
         return $r;
     }
-    return $wrapper . $string . $wrapper;
+    return $wrapper . $s . $wrapper;
 }
 
 function q($string) {
@@ -170,20 +171,20 @@ function uniqueName(): string {
     return 'unique' . $uniqueInt++;
 }
 
-function words($s, int $limit = -1): array {
+function words(Stringable|int|string $s, int $limit = -1): array {
     $s = (string) $s;
     return preg_split('~\\s+~s', trim($s), $limit, PREG_SPLIT_NO_EMPTY);
 }
 
 /**
  * Replaces first capsed letter or underscore with dash and small later.
- * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s. All other characters will be removed.
+ * @param mixed $s Allowed string are: /[a-zA-Z0-9_- ]/s. All other characters will be removed.
  * @param string $additionalChars
  * @param bool $trim Either trailing '-' characters should be removed or not.
  * @return string
  */
-function dasherize(string $string, string $additionalChars = '', bool $trim = true) {
-    $string = sanitize($string, '-_ ' . $additionalChars, false);
+function dasherize(Stringable|int|string $s, string $additionalChars = '', bool $trim = true) {
+    $string = sanitize($s, '-_ ' . $additionalChars, false);
     $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
@@ -208,14 +209,13 @@ function dasherize(string $string, string $additionalChars = '', bool $trim = tr
 /**
  * Replaces first capsed letter or dash with underscore and small later.
  *
- * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
- *                       All other characters will be removed.
- * @param bool   $trim   Either trailing '_' characters should be removed or not.
+ * @param Stringable|int|string $s
+ * @param bool $trim Either trailing '_' characters should be removed or not.
  *
  * @return string
  */
-function underscore($string, bool $trim = true) {
-    $string = sanitize($string, '-_ ', false);
+function underscore(Stringable|int|string $s, bool $trim = true) {
+    $string = sanitize($s, '-_ ', false);
     $string = deleteDups($string, '- ');
     $result = strtolower(
         preg_replace(
@@ -245,8 +245,8 @@ function underscore($string, bool $trim = true) {
  *
  * @return string
  */
-function classify($string, bool $toFqName = false): string {
-    $string = sanitize(str_replace('/', '\\', $string), '-_\\ ');
+function classify(Stringable|int|string $s, bool $toFqName = false): string {
+    $string = sanitize(str_replace('/', '\\', (string) $s), '-_\\ ');
     if (false !== strpos($string, '\\')) {
         $string = preg_replace_callback(
             '{\\\\(\w)}si',
@@ -270,13 +270,12 @@ function classify($string, bool $toFqName = false): string {
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be in upper case if $lcfirst == true or in lower case if $lcfirst == false.
  *
- * @param string $string Allowed string are: /[a-zA-Z0-9_- ]/s.
- *                       All other characters will be removed.
+ * @param Stringable|int|string $s
  * @param bool $upperCaseFirstChar
  * @return string
  */
-function camelize($string, bool $upperCaseFirstChar = false): string {
-    $string = sanitize($string, '-_ ');
+function camelize(Stringable|int|string $s, bool $upperCaseFirstChar = false): string {
+    $string = sanitize($s, '-_ ');
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
@@ -291,13 +290,13 @@ function camelize($string, bool $upperCaseFirstChar = false): string {
  * 'camelCased' -> 'camel cased'. Leaves other characters as is.
  * By default applies e() to escape of HTML special characters.
  */
-function humanize($string, bool $escape = true) {
+function humanize(Stringable|int|string $s, bool $escape = true) {
     $result = preg_replace_callback(
         '/([a-z])([A-Z])/s',
         function ($m) {
             return $m[1] . ' ' . strtolower($m[2]);
         },
-        str_replace('_', ' ', $string)
+        str_replace('_', ' ', (string )$s)
     );
     if ($escape) {
         $result = e($result);
@@ -311,15 +310,15 @@ function humanize($string, bool $escape = true) {
  * or only first word:
  * 'foo bar_baz' -> 'Foo bar baz'
  *
- * @param string $string
+ * @param string $s
  * @param bool   $ucwords If == true -> all words will be titleized, else only first word will
  *                        titleized.
  * @param bool   $escape  Either need to apply escaping of HTML special chars?
  *
  * @return string.
  */
-function titleize($string, bool $ucwords = true, bool $escape = true): string {
-    $result = humanize($string, $escape);
+function titleize(Stringable|int|string $s, bool $ucwords = true, bool $escape = true): string {
+    $result = humanize($s, $escape);
     if ($ucwords) {
         return ucwords($result);
     }
@@ -327,9 +326,9 @@ function titleize($string, bool $ucwords = true, bool $escape = true): string {
     return \ucfirst($result);
 }
 
-function sanitize(string $string, string $allowedCharacters, bool $deleteDups = true) {
+function sanitize(Stringable|int|string $s, string $allowedCharacters, bool $deleteDups = true) {
     $regexp = '/[^a-zA-Z0-9' . preg_quote($allowedCharacters, '/') . ']/s';
-    $result = preg_replace($regexp, '', $string);
+    $result = preg_replace($regexp, '', (string) $s);
     if ($deleteDups) {
         $result = deleteDups($result, $allowedCharacters);
     }
@@ -338,37 +337,33 @@ function sanitize(string $string, string $allowedCharacters, bool $deleteDups = 
 }
 
 /**
- * Modified version of \trim() that removes all characters from the
- * charlist until non of them will be present in the ends of the source string.
- *
- * @param string|array $string
- * @param $charlist
- *
- * @return string|array
+ * Modified version of \trim() that removes all characters from the $chars and whitespaces until non of them will be present in the ends of the source string.
  */
-function trimMore($string, $charlist = null) {
-    if (is_array($string)) {
-        foreach ($string as $k => $v) {
-            $string[$k] = trimMore($v, $charlist);
+function trimMore(Stringable|int|string|iterable|null $s, string $chars = null): string|array {
+    if (is_array($s)) {
+        $r = [];
+        foreach ($s as $k => $v) {
+            $r[$k] = trimMore($v, $chars);
         }
-        return $string;
+        return $r;
     }
-    return trim((string)$string, $charlist . TRIM_CHARS);
+    return trim((string)$s, $chars . TRIM_CHARS);
 }
 
 /**
  * Removes duplicated characters from the string.
  *
- * @param string|int $string Source string with duplicated characters.
- * @param string|int $chars Either a set of characters to use in character class or a reg-exp pattern that must match
+ * @param Stringable|int|string $s Source string with duplicated characters.
+ * @param Stringable|int|string $chars Either a set of characters to use in character class or a reg-exp pattern that must match
  *                               all duplicated characters that must be removed.
+ * @param bool $isCharClass
  * @return string                String with removed duplicates.
  */
-function deleteDups($string, $chars, bool $isCharClass = true) {
+function deleteDups(Stringable|int|string $s, Stringable|int|string $chars, bool $isCharClass = true) {
     $regExp = $isCharClass
         ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
         : "/($chars)+/si";
-    return preg_replace($regExp, '\1', (string)$string);
+    return preg_replace($regExp, '\1', (string)$s);
 }
 
 function format($string, array $args, callable $filterFn): string {

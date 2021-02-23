@@ -83,6 +83,10 @@ class PhpTemplateEngine extends ArrPipe {
         ];
     }
 
+    public function dasherize($val, string $additionalChars = '', bool $trim = true) {
+        return dasherize($val); // todo inline function
+    }
+
     /*
     public function __set(string $varName, $value): void {
         $this->vars[$varName] = $value;
@@ -156,10 +160,8 @@ class PhpTemplateEngine extends ArrPipe {
 
     /**
      * Translates PHTML code into PHP code and evaluates the PHP code by exporting variables from the $context.
-     * @param mixed $context
-     * @return mixed
      */
-    public function __invoke($context): string {
+    public function __invoke(mixed $context): string {
         $sourceAbsFilePath = $this->sourceAbsFilePath($context['_view']);
         $targetAbsFilePath = $this->targetDirPath . '/' . $context['_view'] . '.php';
         $this->compileFile($sourceAbsFilePath, $targetAbsFilePath, []);
@@ -195,9 +197,6 @@ class PhpTemplateEngine extends ArrPipe {
 
     /**
      * Evaluates PHP from the passed PHP file making elements of the $__vars be accessible as PHP variables for code in it.
-     * @param string $__phpFilePath
-     * @param array $__vars
-     * @return string
      */
     public function evalPhpFile(string $__phpFilePath, array $__vars): string {
         // NB: We can't use the Base\tpl() function here as we need to preserve $this
@@ -365,17 +364,16 @@ class PhpTemplateEngine extends ArrPipe {
 
     /**
      * Renders link - HTML `a` tag.
-     * @param string|Uri $uri
      */
-    public function l($uri, string $text, array $attributes = null, array $conf = null): string {
+    public function l(string|Uri $uri, string $text, array $attributes = null, array $conf = null): string {
         $attributes = (array)$attributes;
         $attributes['href'] = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false))->toStr(null, false);
         return $this->tag('a', $text, $attributes, $conf);
     }
 
-    public function copyright(string $brand, $startYear = null): string {
+    public function copyright(string $brand, string|int $startYear = null): string {
         $currentYear = date('Y');
-        if ($startYear == $currentYear) {
+        if ($startYear === $currentYear) {
             $range = $currentYear;
         } else {
             $range = intval($startYear) . '-' . $currentYear;
@@ -390,7 +388,7 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->request['jsConf'];
     }
 
-    public function toJson($val): string {
+    public function toJson(mixed $val): string {
         return toJson($val);
     }
 

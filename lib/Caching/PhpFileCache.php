@@ -5,6 +5,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Caching;
+
 use function is_file;
 use function is_object;
 use function method_exists;

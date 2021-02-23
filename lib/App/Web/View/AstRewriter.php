@@ -17,10 +17,8 @@ use PhpParser\Node\Scalar\String_ as StringScalar;
 use PhpParser\Node\Stmt\Echo_ as EchoStatement;
 use PhpParser\Node\Expr\FuncCall as FuncCallExpr;
 use PhpParser\Node\Expr\ConstFetch as ConstFetchExpr;
-use PhpParser\Comment\Doc as DocComment;
 use PhpParser\Node\Expr;
 use PhpParser\NodeVisitorAbstract;
-use function array_merge;
 use function dirname;
 use function file_get_contents;
 use function realpath;
@@ -28,7 +26,6 @@ use function realpath;
 class AstRewriter extends NodeVisitorAbstract {
     private array $context;
     private PhpProcessor $processor;
-    private bool $appendSourceInfo = true;
 
     public function __construct(PhpProcessor $processor, array $context) {
         $this->processor = $processor;
@@ -36,11 +33,18 @@ class AstRewriter extends NodeVisitorAbstract {
     }
 
     public function enterNode(Node $node) {
+        $attributes = $node->getAttributes();
+        if (!empty($attributes['comments'])) {
+            unset($attributes['comments']);
+            $node->setAttributes($attributes);
+        }
+
         if ($node instanceof DirMagicConst) {
             return new StringScalar(realpath(dirname($this->context['filePath'])));
         } elseif ($node instanceof FileMagicConst) {
             return new StringScalar($this->context['filePath']);
         }
+        return null;
     }
 
     public function leaveNode(Node $node) {
@@ -75,20 +79,7 @@ class AstRewriter extends NodeVisitorAbstract {
                 return $this->evalRequire($expr->expr);
             }
         }
-    }
-
-    public function beforeTraverse(array $nodes): void {
-        if ($this->appendSourceInfo && isset($this->context['filePath']) && $nodes) {
-            $node = $nodes[0];
-            $commentText = "Source file: '{$this->context['filePath']}'";
-            $node->setAttribute(
-                'comments',
-                array_merge(
-                    [new DocComment("/**\n * $commentText\n */")],
-                    (array)$node->getAttribute('comments')
-                )
-            );
-        }
+        return null;
     }
 
     protected function evalRequire(Expr $expr): array {
