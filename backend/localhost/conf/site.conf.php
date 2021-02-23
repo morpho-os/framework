@@ -102,7 +102,7 @@ return [
                 'port'     => '3306',
             ],
             'templateEngine'       => [
-                'forceCompile' => false,
+                'forceCompile' => true,
                 /*            'forceCompileTs' => false,
                             'nodeBinDirPath' => getenv('NODE_BIN_DIR_PATH') ?: '/usr/bin',
                             'tsOptions' => [
@@ -212,10 +212,14 @@ return [
             ],
         ],
     ],
+    /*
     VENDOR . '/system'    => [
+        'paths' => [
 
+        ],
     ],
     VENDOR . '/user'      => [
 
     ],
+    */
 ];

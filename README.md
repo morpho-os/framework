@@ -9,12 +9,13 @@ Not ready. API is not stable.
 ## Used technologies
 
 For development:
-* Server-side/Backend
-  * PHP: required
+* Server-side/Backend:
+  * Nginx
+  * PHP
   * MySQL/MariaDB: optional, can be used as DBMS
 * Client-side/Frontend:
-  * TypeScript and JavaScripts: required to compile to JavaScript
-  * Stylus and CSS: required to compile to CSS
+  * TypeScript: required to compile to JavaScript
+  * SCSS: required to compile to CSS
   * HTML
 * Infra (all technologies are optional):
   * Git
@@ -25,7 +26,8 @@ For development:
 
 For production:
 * Server-side/Backend:
-  * PHP: required
+  * Nginx
+  * PHP
   * MySQL/MariaDB: optional
 * Client-side/Frontend:
   * JavaScript

@@ -8,14 +8,15 @@
   "author": "",
   "private": true,
   "dependencies": {
-    "bootstrap-styl": "^5.0.9",
+    "bootstrap": "5.0.0-beta2",
     "imd": "github:morpho-os/imd",
-    "jquery": "^3.5.1",
-    "tslib": "latest"
+    "jquery": "latest",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
+    "@types/bootstrap": "latest",
     "@types/jasmine": "latest",
     "@types/jquery": "latest",
-    "jasmine-core": "latest"
+    "jasmine-core": "^3.6.0"
   }
 }
