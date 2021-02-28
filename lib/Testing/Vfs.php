@@ -9,6 +9,21 @@ namespace Morpho\Testing;
 use Morpho\Base\NotImplementedException;
 use Morpho\Fs\IFs;
 use Morpho\Fs\Stat;
+use RuntimeException;
+use UnexpectedValueException;
+use function basename;
+use function boolval;
+use function clearstatcache;
+use function dirname;
+use function in_array;
+use function preg_match;
+use function stream_get_wrappers;
+use function stream_wrapper_register;
+use function stream_wrapper_unregister;
+use function strlen;
+use function substr;
+use function time;
+use function umask;
 
 /**
  * This implementation of VFS was written from scratch, with help of sources found in the package mikey179/vfsStream (Copyright (c) 2007-2015, Frank Kleine), which were used to find answers on some questions.
@@ -17,32 +32,23 @@ class Vfs implements IFs {
     public const SCHEME = 'vfs';
     public const URI_PREFIX = self::SCHEME . '://';
 
-    /**
-     * @var VfsDir|null
-     */
-    private $dir;
+    private ?VfsDir $dir = null;
 
-    /**
-     * @var VfsFile|null
-     */
-    private $file;
+    private ?VfsFile $file = null;
 
-    /**
-     * @var VfsDir|null
-     */
-    private static $root;
+    private static ?VfsDir $root = null;
 
     public static function register(): void {
-        \stream_wrapper_register(self::SCHEME, __CLASS__);
+        stream_wrapper_register(self::SCHEME, __CLASS__);
     }
 
     public static function isRegistered(): bool {
-        return \in_array(self::SCHEME, \stream_get_wrappers());
+        return in_array(self::SCHEME, stream_get_wrappers());
     }
 
     public static function unregister(): void {
         self::resetState();
-        \stream_wrapper_unregister(self::SCHEME);
+        stream_wrapper_unregister(self::SCHEME);
     }
 
     public static function resetState(): void {
@@ -78,7 +84,7 @@ class Vfs implements IFs {
         $this->checkUri($uri);
         $parentDir = $this->parentDir($uri);
         if ($parentDir->dirExists(self::entryName($uri))) {
-            throw new \RuntimeException('Unable to open file, entry is a directory');
+            throw new RuntimeException('Unable to open file, entry is a directory');
         }
         $openMode = new VfsFileOpenMode($mode);
         if ($openMode->create()) {
@@ -132,7 +138,7 @@ class Vfs implements IFs {
 
     public function stream_truncate(int $newSize): bool {
         $this->file->truncate($newSize);
-        \clearstatcache(true, $this->file->uri());
+        clearstatcache(true, $this->file->uri());
         return true;
     }
 
@@ -143,14 +149,11 @@ class Vfs implements IFs {
         return $this->file->stat()->getArrayCopy();
     }
 
-    /**
-     * @param mixed $args
-     */
-    public function stream_metadata(string $uri, int $option, $args): bool {
+    public function stream_metadata(string $uri, int $option, mixed $args): bool {
         switch ($option) {
             case STREAM_META_TOUCH: // (The method was called in response to touch())
                 if (!isset($args[0])) { // touch time/mtime
-                    $args[0] = \time();
+                    $args[0] = time();
                 }
                 if (!isset($args[1])) { // access time/atime
                     $args[1] = $args[0];
@@ -180,7 +183,7 @@ class Vfs implements IFs {
                 $entry->chmod($args);
                 break;
             default:
-                throw new \UnexpectedValueException();
+                throw new UnexpectedValueException();
         }
         return true;
     }
@@ -208,8 +211,8 @@ class Vfs implements IFs {
         $entry = $this->parentDir($oldEntryUri)->unregisterEntry(self::entryName($oldEntryUri));
         $entry->setUri($newEntryUri);
         $this->parentDir($newEntryUri)->registerEntry($entry);
-        \clearstatcache(true, $oldEntryUri);
-        \clearstatcache(true, $newEntryUri);
+        clearstatcache(true, $oldEntryUri);
+        clearstatcache(true, $newEntryUri);
         return true;
     }
 
@@ -217,30 +220,30 @@ class Vfs implements IFs {
         $parentDirUri = self::parentDirUri($uri);
         $parentDir = $this->root()->dirByUriOrNone($parentDirUri);
         if ($parentDir && $parentDir->dirExists(self::entryName($uri))) {
-            throw new \RuntimeException('Unable to create directory, such directory already exists');
+            throw new RuntimeException('Unable to create directory, such directory already exists');
         }
-        $recursive = \boolval($flags & STREAM_MKDIR_RECURSIVE);
+        $recursive = boolval($flags & STREAM_MKDIR_RECURSIVE);
         $stat = new VfsEntryStat([
             'mode' => $this->dirMode($mode),
         ]);
         if ($recursive) {
             $this->root()->createAllDirs($uri, $stat);
-            \clearstatcache();
+            clearstatcache();
         } else {
             $parentDir->createDir($uri, $stat);
-            \clearstatcache(true, $uri);
+            clearstatcache(true, $uri);
         }
         return true;
     }
 
     public function rmdir(string $uri, int $flags): bool {
-        $recursive = \boolval($flags & STREAM_MKDIR_RECURSIVE);
+        $recursive = boolval($flags & STREAM_MKDIR_RECURSIVE);
         if ($recursive) {
             throw new NotImplementedException();
         }
         $parentDir = $this->parentDir($uri);
         $parentDir->deleteDir(self::entryName($uri));
-        \clearstatcache(true, $uri);
+        clearstatcache(true, $uri);
         return true;
     }
 
@@ -264,7 +267,7 @@ class Vfs implements IFs {
     /**
      * @return string|false Returns false if there is no next file.
      */
-    public function dir_readdir() {
+    public function dir_readdir(): string|bool {
         if ($this->dir) {
             $dir = $this->dir;
             $current = $dir->current();
@@ -301,37 +304,37 @@ class Vfs implements IFs {
     public static function stripUriPrefix(string $uri): string {
         $prefix = self::prefixUri();
         if (!str_starts_with($uri, $prefix)) {
-            throw new \UnexpectedValueException();
+            throw new UnexpectedValueException();
         }
-        $uri = \substr($uri, \strlen($prefix));
+        $uri = substr($uri, strlen($prefix));
         return $uri;
     }
 
     public static function parentDirUri(string $uri): string {
         $prefix = self::URI_PREFIX;
-        return $prefix . \dirname(\substr($uri, \strlen($prefix)));
+        return $prefix . dirname(substr($uri, strlen($prefix)));
     }
 
     public static function entryName(string $uri): string {
         if ($uri === '') {
-            throw new \UnexpectedValueException('Empty URI');
+            throw new UnexpectedValueException('Empty URI');
         }
         $uriNoPrefix = self::stripUriPrefix($uri);
         if ($uriNoPrefix === '' || $uriNoPrefix[0] !== '/') {
-            throw new \UnexpectedValueException("Path must be not empty and must start with the '/'");
+            throw new UnexpectedValueException("Path must be not empty and must start with the '/'");
         }
         if ($uriNoPrefix === '/') {
-            throw new \UnexpectedValueException('Unable to get name for the root');
+            throw new UnexpectedValueException('Unable to get name for the root');
         }
-        return \basename($uriNoPrefix);
+        return basename($uriNoPrefix);
     }
 
     protected function checkUri(string $uri): void {
         if (!str_starts_with($uri, self::URI_PREFIX)) {
-            throw new \RuntimeException('Invalid URI');
+            throw new RuntimeException('Invalid URI');
         }
-        if (\preg_match('~^(' . self::SCHEME . '://[^/]|://$)~si', $uri)) {
-            throw new \RuntimeException('Relative URIs are not supported');
+        if (preg_match('~^(' . self::SCHEME . '://[^/]|://$)~si', $uri)) {
+            throw new RuntimeException('Relative URIs are not supported');
         }
     }
 
@@ -346,11 +349,11 @@ class Vfs implements IFs {
         return $this->root()->dirByUri(self::parentDirUri($uri));
     }
 
-    private function fileMode($mode = Stat::FILE_BASE_MODE): int {
-        return ($mode & ~\umask()) | Stat::FILE;
+    private function fileMode(int $mode = Stat::FILE_BASE_MODE): int {
+        return ($mode & ~umask()) | Stat::FILE;
     }
 
-    private function dirMode($mode = Stat::DIR_BASE_MODE): int {
-        return ($mode & ~\umask()) | Stat::DIR;
+    private function dirMode(int $mode = Stat::DIR_BASE_MODE): int {
+        return ($mode & ~umask()) | Stat::DIR;
     }
 }

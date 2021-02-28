@@ -7,8 +7,19 @@
 
 namespace Morpho\Net\Http;
 
+use RuntimeException;
+use function array_reduce;
+use function basename;
+use function chdir;
+use function dirname;
+use function escapeshellarg;
+use function file_exists;
+use function getcwd;
 use function Morpho\Base\fromJson;
 use function Morpho\App\Cli\sh;
+use function proc_close;
+use function proc_open;
+use function strpos;
 
 class GeckoDriver implements IWebDriver {
     public const HOST = 'localhost';
@@ -16,9 +27,9 @@ class GeckoDriver implements IWebDriver {
     private string $geckoBinFilePath;
 
     public static function downloadMk(string $geckoBinFilePath, string $downloadDirPath) {
-        if (!\file_exists($geckoBinFilePath)) {
+        if (!file_exists($geckoBinFilePath)) {
             $geckoBinFilePath = '/usr/bin/geckodriver';
-            if (!\file_exists($geckoBinFilePath)) {
+            if (!file_exists($geckoBinFilePath)) {
                 $geckoBinFilePath = self::download($downloadDirPath . '/geckodriver');
             }
         }
@@ -31,17 +42,17 @@ class GeckoDriver implements IWebDriver {
 
     public function start(): void {
         if (!file_exists($this->geckoBinFilePath)) {
-            throw new \RuntimeException("The '{$this->geckoBinFilePath}' does not exist");
+            throw new RuntimeException("The '{$this->geckoBinFilePath}' does not exist");
         }
-        $cmd = \escapeshellarg($this->geckoBinFilePath) . ' > /dev/null 2>&1 &';
-        \proc_close(\proc_open($cmd, [], $pipes));
+        $cmd = escapeshellarg($this->geckoBinFilePath) . ' > /dev/null 2>&1 &';
+        proc_close(proc_open($cmd, [], $pipes));
         for ($i = 0; $i < 15; $i++) {
             if (HttpClient::serverAcceptsConnections(self::HOST, self::PORT)) {
                 return;
             }
             sleep(1);
         }
-        throw new \RuntimeException('Unable to start server');
+        throw new RuntimeException('Unable to start server');
     }
 
     public function stop(): void {
@@ -54,28 +65,28 @@ class GeckoDriver implements IWebDriver {
 
     // This function based on https://github.com/SeleniumHQ/selenium/blob/6266e58b7cf379b8f80b125e97eb4e82a220fd09/scripts/travis/install.sh
     public static function download(string $destFilePath): string {
-        $binFileName = \basename($destFilePath);
-        $curDirPath = \getcwd();
+        $binFileName = basename($destFilePath);
+        $curDirPath = getcwd();
         try {
-            \chdir(\dirname($destFilePath));
+            chdir(dirname($destFilePath));
             $fileDownloadMeta = self::fileDownloadMeta();
             $geckoDriverDownloadUri = $fileDownloadMeta['browser_download_url'];
-            $arcFilePath = \dirname($destFilePath) . '/geckodriver.tar.gz';
+            $arcFilePath = dirname($destFilePath) . '/geckodriver.tar.gz';
             (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
-            sh('tar xzf ' . \escapeshellarg($arcFilePath) . ' && chmod +x ' . \escapeshellarg($binFileName) . ' && rm -f ' . \escapeshellarg($arcFilePath), ['show' => false]);
+            sh('tar xzf ' . escapeshellarg($arcFilePath) . ' && chmod +x ' . escapeshellarg($binFileName) . ' && rm -f ' . escapeshellarg($arcFilePath), ['show' => false]);
         } finally {
-            \chdir($curDirPath);
+            chdir($curDirPath);
         }
         return $destFilePath;
     }
 
     private static function fileDownloadMeta(): array {
-        return \array_reduce(
+        return array_reduce(
             fromJson(
                 (new HttpClient())->get('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->body()
             )['assets'],
             function ($acc, $downloadMeta) {
-                if (false !== \strpos($downloadMeta['browser_download_url'], 'linux64')) {
+                if (false !== strpos($downloadMeta['browser_download_url'], 'linux64')) {
                     return $downloadMeta;
                 }
                 return $acc;

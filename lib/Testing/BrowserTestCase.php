@@ -9,7 +9,7 @@ namespace Morpho\Testing;
 use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Morpho\Network\Http\Browser;
+use Morpho\Net\Http\Browser;
 
 /**
  * @TODO: Check the https://github.com/lmc-eu/steward/blob/master/src/Test/SyntaxSugarTrait.php

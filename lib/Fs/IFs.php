@@ -32,10 +32,7 @@ interface IFs {
 
     public function stream_stat(): array;
 
-    /**
-     * @param mixed $args
-     */
-    public function stream_metadata(string $uri, int $option, $args): bool;
+    public function stream_metadata(string $uri, int $option, mixed $args): bool;
 
     /**
      * @return resource
@@ -62,7 +59,7 @@ interface IFs {
     /**
      * @return string|false Returns false if there is no next file.
      */
-    public function dir_readdir();
+    public function dir_readdir(): string|bool;
 
     public function dir_rewinddir(): bool;
 

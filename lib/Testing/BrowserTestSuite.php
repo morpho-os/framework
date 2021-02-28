@@ -6,8 +6,8 @@
  */
 namespace Morpho\Testing;
 
-use Morpho\Network\Http\GeckoDriver;
-use Morpho\Network\Http\IWebDriver;
+use Morpho\Net\Http\GeckoDriver;
+use Morpho\Net\Http\IWebDriver;
 
 abstract class BrowserTestSuite extends TestSuite {
     public static function startWebDriver(Sut $sut, bool $once = true): IWebDriver {
