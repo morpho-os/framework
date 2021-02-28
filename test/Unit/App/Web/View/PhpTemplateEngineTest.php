@@ -131,16 +131,16 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertEquals('<foo>"</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escapeText' => false]));
     }
 
-    public function testTag1_MultipleAttributes() {
-        $attributes = ['href' => 'foo/bar.css', 'rel' => 'stylesheet'];
+    public function testTag1_MultipleAttribs() {
+        $attribs = ['href' => 'foo/bar.css', 'rel' => 'stylesheet'];
         $expected = '<link href="foo/bar.css" rel="stylesheet">';
         $this->assertEquals(
             $expected,
-            $this->templateEngine->tag('link', null, $attributes, ['eol' => false, 'single' => true])
+            $this->templateEngine->tag('link', null, $attribs, ['eol' => false, 'single' => true])
         );
         $this->assertEquals(
             $expected,
-            $this->templateEngine->tag1('link', $attributes, ['eol' => false])
+            $this->templateEngine->tag1('link', $attribs, ['eol' => false])
         );
     }
 
@@ -174,14 +174,14 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertSame('foo-bar-baz', $this->templateEngine->pageHtmlId());
     }
 
-    public function testEmptyAttributes() {
-        $this->assertEquals('', $this->templateEngine->attributes([]));
+    public function testEmptyAttribs() {
+        $this->assertEquals('', $this->templateEngine->attribs([]));
     }
 
-    public function testMultipleAttributes() {
+    public function testMultipleAttribs() {
         $this->assertEquals(
             ' data-api name="foo" id="some-id"',
-            $this->templateEngine->attributes(['data-api', 'name' => 'foo', 'id' => 'some-id'])
+            $this->templateEngine->attribs(['data-api', 'name' => 'foo', 'id' => 'some-id'])
         );
     }
 

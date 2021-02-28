@@ -36,7 +36,7 @@ use function ucfirst;
 
 class PhpTemplateEngine extends ArrPipe {
     public const VIEW_FILE_EXT = '.phtml';
-    private static $htmlIds = [];
+    private static array $htmlIds = [];
 
     protected bool $forceCompile;
     protected array $baseSourceDirPaths = [];
@@ -48,8 +48,10 @@ class PhpTemplateEngine extends ArrPipe {
      * @var callable
      */
     private $pluginFactory;
+
     private IRequest $request;
-    private $uri;
+
+    private ?Uri $uri = null;
 
     //protected array $vars = [];
 
@@ -66,7 +68,7 @@ class PhpTemplateEngine extends ArrPipe {
         parent::__construct($conf['phases']);
     }
 
-    public function setRequest(IRequest $request): void{
+    public function setRequest(IRequest $request): void {
         $this->request = $request;
     }
 
@@ -76,9 +78,9 @@ class PhpTemplateEngine extends ArrPipe {
 
     public static function mkDefaultPhases(array $conf): array {
         return [
-            'phpProcessor' => new PhpProcessor(),
-            'formPersister' => new FormPersister($conf['request']),
-            'uriProcessor' => new UriProcessor($conf['request']),
+            'phpProcessor'    => new PhpProcessor(),
+            'formPersister'   => new FormPersister($conf['request']),
+            'uriProcessor'    => new UriProcessor($conf['request']),
             'scriptProcessor' => new ScriptProcessor($conf['request'], $conf['site']),
         ];
     }
@@ -228,29 +230,40 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->htmlId(str_replace('/', '-', $handler['controllerPath'])) . '-' . dasherize($handler['method']);
     }
 
-    public function hiddenField(string $name, $value, array $attributes = null): string {
-        $attributes = [
-                'name'  => $name,
-                'value' => $value,
-                'type'  => 'hidden',
-            ] + (array)$attributes;
-        if (!isset($attributes['id'])) {
-            $attributes['id'] = $this->htmlId($attributes['name']);
+    /**
+     * @param array $attribs
+     * @return string
+     */
+    public function checkboxField(array $attribs): string {
+        $attribs = ['type' => 'checkbox'] + $attribs;
+        if (!isset($attribs['id'])) {
+            $attribs['id'] = $this->htmlId($attribs['name']);
         }
-        return $this->tag1('input', $attributes);
+        if (!isset($attribs['value'])) {
+            $attribs['value'] = 1;
+        }
+        return $this->formField($this->tag1('input', $attribs));
+    }
+
+    public function hiddenField(array $attribs): string {
+        $attribs = ['type' => 'hidden'] + (array)$attribs;
+        if (!isset($attribs['id'])) {
+            $attribs['id'] = $this->htmlId($attribs['name']);
+        }
+        return $this->formField($this->tag1('input', $attribs));
     }
 
     public function selectField(?iterable $options, mixed $selectedOption = null, array $attribs = null): string {
-        $attributes = (array)$attribs;
-        if (!isset($attributes['id']) && isset($attributes['name'])) {
-            $attributes['id'] = $this->htmlId($attributes['name']);
+        $attribs = (array)$attribs;
+        if (!isset($attribs['id']) && isset($attribs['name'])) {
+            $attribs['id'] = $this->htmlId($attribs['name']);
         }
-        $html = $this->openTag('select', $attributes);
+        $html = $this->openTag('select', $attribs);
         if (null !== $options) {
             $html .= $this->optionFields($options, $selectedOption);
         }
         $html .= '</select>';
-        return $html;
+        return $this->formField($html);
     }
 
     public function optionFields(iterable $options, mixed $selectedOption = null): string {
@@ -281,18 +294,18 @@ class PhpTemplateEngine extends ArrPipe {
         return $html;
     }
 
-    public function textField($name, $val, array $attributes = null): string {
-        return $this->tag1('input', array_merge((array) $attributes, ['name' => $name, 'value' => $val]));
+    public function textField($name, $val, array $attribs = null): string {
+        return $this->tag1('input', array_merge((array)$attribs, ['name' => $name, 'value' => $val]));
     }
 
-    public function httpMethodField(string $method = null, array $attributes = null): string {
-        return $this->hiddenField('_method', $method, $attributes);
+    public function httpMethodField(string $method = null, array $attribs = null): string {
+        return $this->hiddenField('_method', $method, $attribs);
     }
 
-    public function openTag(string $tagName, array $attributes = [], bool $isXml = false): string {
+    public function openTag(string $tagName, array $attribs = [], bool $isXml = false): string {
         return '<'
             . $this->e($tagName)
-            . $this->attributes($attributes)
+            . $this->attribs($attribs)
             . ($isXml ? ' />' : '>');
     }
 
@@ -300,12 +313,12 @@ class PhpTemplateEngine extends ArrPipe {
         return '</' . $this->e($name) . '>';
     }
 
-    public function tag1(string $tagName, array $attributes = null, array $conf = []): string {
+    public function tag1(string $tagName, array $attribs = null, array $conf = []): string {
         $conf['single'] = true;
-        return $this->tag($tagName, null, $attributes, $conf);
+        return $this->tag($tagName, null, $attribs, $conf);
     }
 
-    public function tag(string $tagName, string $text = null, array $attributes = null, array $conf = null): string {
+    public function tag(string $tagName, string $text = null, array $attribs = null, array $conf = null): string {
         $conf = Conf::check(
             [
                 'escapeText' => true,
@@ -315,7 +328,7 @@ class PhpTemplateEngine extends ArrPipe {
             ],
             (array)$conf
         );
-        $output = $this->openTag($tagName, (array)$attributes, $conf['xml']);
+        $output = $this->openTag($tagName, (array)$attribs, $conf['xml']);
         if (!$conf['single']) {
             $output .= $conf['escapeText'] ? $this->e($text) : $text;
             $output .= $this->closeTag($tagName);
@@ -329,15 +342,15 @@ class PhpTemplateEngine extends ArrPipe {
     /**
      * The source was found in Drupal-7.
      */
-    public function attributes(array $attributes): string {
-        foreach ($attributes as $attribute => &$data) {
-            if (!is_numeric($attribute)) {
+    public function attribs(array $attribs): string {
+        foreach ($attribs as $attrib => &$data) {
+            if (!is_numeric($attrib)) {
                 $data = implode(' ', (array)$data);
-                $data = $attribute . '="' . $this->e($data) . '"';
+                $data = $attrib . '="' . $this->e($data) . '"';
             }
         }
         unset($data);
-        return $attributes ? ' ' . implode(' ', $attributes) : '';
+        return $attribs ? ' ' . implode(' ', $attribs) : '';
     }
 
     public function uri(): Uri {
@@ -353,10 +366,8 @@ class PhpTemplateEngine extends ArrPipe {
      * E.g.: if the current URI === 'http://baz/' then the call
      *     $templateEngine->uriWithRedirectToSelf('http://foo/bar')
      * will return 'http://foo/bar?redirect=http://baz
-     * @param string|Uri $uri
-     * @return string
      */
-    public function uriWithRedirectToSelf($uri): string {
+    public function uriWithRedirectToSelf(string|Uri $uri): string {
         $newUri = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false));
         $newUri->query()['redirect'] = $this->uri()->toStr(null, false);
         return $newUri->toStr(null, true);
@@ -365,10 +376,10 @@ class PhpTemplateEngine extends ArrPipe {
     /**
      * Renders link - HTML `a` tag.
      */
-    public function l(string|Uri $uri, string $text, array $attributes = null, array $conf = null): string {
-        $attributes = (array)$attributes;
-        $attributes['href'] = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false))->toStr(null, false);
-        return $this->tag('a', $text, $attributes, $conf);
+    public function l(string|Uri $uri, string $text, array $attribs = null, array $conf = null): string {
+        $attribs = (array)$attribs;
+        $attribs['href'] = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false))->toStr(null, false);
+        return $this->tag('a', $text, $attribs, $conf);
     }
 
     public function copyright(string $brand, string|int $startYear = null): string {
@@ -403,7 +414,7 @@ class PhpTemplateEngine extends ArrPipe {
         return htmlspecialchars_decode((string)$text, ENT_QUOTES);
     }
 
-    public function plugin($name) {
+    public function plugin(string $name): mixed {
         $name = ucfirst($name);
         if (!isset($this->plugins[$name])) {
             $this->plugins[$name] = ($this->pluginFactory)($name);
@@ -482,6 +493,13 @@ class PhpTemplateEngine extends ArrPipe {
             );
         }
         return false;
+    }
+
+    /**
+     * Can be used to wrap around any form field extra HTML.
+     */
+    protected function formField(string $html): string {
+        return $html;
     }
 
     private function init(): void {
