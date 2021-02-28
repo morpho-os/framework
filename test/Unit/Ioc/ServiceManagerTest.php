@@ -13,7 +13,7 @@ use Morpho\Testing\TestCase;
 use Morpho\Ioc\ServiceManager;
 
 class ServiceManagerTest extends TestCase {
-    private $serviceManager;
+    private IServiceManager $serviceManager;
 
     public function setUp(): void {
         parent::setUp();

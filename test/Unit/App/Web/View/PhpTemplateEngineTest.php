@@ -8,9 +8,11 @@ namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\App\Web\IRequest;
 use Morpho\App\ISite;
+use Morpho\App\Web\View\FormFieldType;
 use Morpho\Base\IPipe;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\PhpTemplateEngine;
+use function date;
 use function file_put_contents;
 use function str_replace;
 
@@ -186,7 +188,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testCopyright() {
-        $curYear = \date('Y');
+        $curYear = date('Y');
         $brand = 'Mices\'s';
 
         $startYear = $curYear - 2;

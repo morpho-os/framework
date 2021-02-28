@@ -67,7 +67,7 @@ use const PREG_SPLIT_NO_EMPTY;
 const TRIM_CHARS = " \t\n\r\x00\x0B";
 
 // Matches EOL character:
-const EOL_RE      = '(?>\r\n|\n|\r)';
+const EOL_RE = '(?>\r\n|\n|\r)';
 const EOL_FULL_RE = '~' . EOL_RE . '~s';
 
 // Matches single-line and multi-line C-style comments:
@@ -87,11 +87,11 @@ const EPS = 0.00001;
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
 function e(Stringable|int|string $s): string {
-    return htmlspecialchars((string) $s, ENT_QUOTES);
+    return htmlspecialchars((string)$s, ENT_QUOTES);
 }
 
 function de(Stringable|int|string $s): string {
-    return htmlspecialchars_decode((string) $s, ENT_QUOTES);
+    return htmlspecialchars_decode((string)$s, ENT_QUOTES);
 }
 
 function evalFn($valOrFn) {
@@ -124,23 +124,66 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function wrap(Stringable|int|string|iterable $s, string $wrapper): string|array {
-    if (is_array($s)) {
+function wrap(Stringable|int|string|iterable $list, string $pre, string $post = null): string|array {
+    if (null === $post) {
+        $post = $pre;
+    }
+    if (is_iterable($list)) {
         $r = [];
-        foreach ($s as $k => $s1) {
-            $r[$k] = $wrapper . $s1 . $wrapper;
+        foreach ($list as $k => $v) {
+            $r[$k] = $pre . $v . $post;
         }
         return $r;
     }
-    return $wrapper . $s . $wrapper;
+    return $pre . $list . $post;
 }
 
-function q($string) {
-    return wrap($string, "'");
+function wrapFn(string $prefix, string $suffix): Closure {
+    return function ($list) use ($prefix, $suffix) {
+        return $prefix . $list . $suffix;
+    };
 }
 
-function qq($string) {
-    return wrap($string, '"');
+function prepend(Stringable|int|string|iterable $list, string $prefix): string|array {
+    if (is_iterable($list)) {
+        $r = [];
+        foreach ($list as $k => $v) {
+            $r[$k] = $prefix . (string) $v;
+        }
+        return $r;
+    }
+    return $prefix . (string) $list;
+}
+
+function prependFn(string $prefix): Closure {
+    return function ($list) use ($prefix) {
+        return $prefix . $list;
+    };
+}
+
+function append(Stringable|int|string|iterable $list, string $suffix): string|array {
+    if (is_iterable($list)) {
+        $r = [];
+        foreach ($list as $k => $v) {
+            $r[$k] = (string) $v . $suffix;
+        }
+        return $r;
+    }
+    return (string) $list . $suffix;
+}
+
+function appendFn(string $suffix): Closure {
+    return function ($list) use ($suffix) {
+        return $list . $suffix;
+    };
+}
+
+function q(Stringable|int|string|iterable $list): string|array {
+    return wrap($list, "'");
+}
+
+function qq(Stringable|int|string|iterable $list): string|array {
+    return wrap($list, '"');
 }
 
 function showLn(...$messages) {
@@ -171,20 +214,20 @@ function uniqueName(): string {
     return 'unique' . $uniqueInt++;
 }
 
-function words(Stringable|int|string $s, int $limit = -1): array {
-    $s = (string) $s;
-    return preg_split('~\\s+~s', trim($s), $limit, PREG_SPLIT_NO_EMPTY);
+function words(Stringable|int|string $list, int $limit = -1): array {
+    $list = (string)$list;
+    return preg_split('~\\s+~s', trim($list), $limit, PREG_SPLIT_NO_EMPTY);
 }
 
 /**
  * Replaces first capsed letter or underscore with dash and small later.
- * @param mixed $s Allowed string are: /[a-zA-Z0-9_- ]/s. All other characters will be removed.
+ * @param mixed $list Allowed string are: /[a-zA-Z0-9_- ]/s. All other characters will be removed.
  * @param string $additionalChars
  * @param bool $trim Either trailing '-' characters should be removed or not.
  * @return string
  */
-function dasherize(Stringable|int|string $s, string $additionalChars = '', bool $trim = true) {
-    $string = sanitize($s, '-_ ' . $additionalChars, false);
+function dasherize(Stringable|int|string $list, string $additionalChars = '', bool $trim = true) {
+    $string = sanitize($list, '-_ ' . $additionalChars, false);
     $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
@@ -209,13 +252,13 @@ function dasherize(Stringable|int|string $s, string $additionalChars = '', bool 
 /**
  * Replaces first capsed letter or dash with underscore and small later.
  *
- * @param Stringable|int|string $s
+ * @param Stringable|int|string $list
  * @param bool $trim Either trailing '_' characters should be removed or not.
  *
  * @return string
  */
-function underscore(Stringable|int|string $s, bool $trim = true) {
-    $string = sanitize($s, '-_ ', false);
+function underscore(Stringable|int|string $list, bool $trim = true) {
+    $string = sanitize($list, '-_ ', false);
     $string = deleteDups($string, '- ');
     $result = strtolower(
         preg_replace(
@@ -245,8 +288,8 @@ function underscore(Stringable|int|string $s, bool $trim = true) {
  *
  * @return string
  */
-function classify(Stringable|int|string $s, bool $toFqName = false): string {
-    $string = sanitize(str_replace('/', '\\', (string) $s), '-_\\ ');
+function classify(Stringable|int|string $list, bool $toFqName = false): string {
+    $string = sanitize(str_replace('/', '\\', (string)$list), '-_\\ ');
     if (false !== strpos($string, '\\')) {
         $string = preg_replace_callback(
             '{\\\\(\w)}si',
@@ -270,12 +313,12 @@ function classify(Stringable|int|string $s, bool $toFqName = false): string {
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be in upper case if $lcfirst == true or in lower case if $lcfirst == false.
  *
- * @param Stringable|int|string $s
+ * @param Stringable|int|string $list
  * @param bool $upperCaseFirstChar
  * @return string
  */
-function camelize(Stringable|int|string $s, bool $upperCaseFirstChar = false): string {
-    $string = sanitize($s, '-_ ');
+function camelize(Stringable|int|string $list, bool $upperCaseFirstChar = false): string {
+    $string = sanitize($list, '-_ ');
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
@@ -290,13 +333,13 @@ function camelize(Stringable|int|string $s, bool $upperCaseFirstChar = false): s
  * 'camelCased' -> 'camel cased'. Leaves other characters as is.
  * By default applies e() to escape of HTML special characters.
  */
-function humanize(Stringable|int|string $s, bool $escape = true) {
+function humanize(Stringable|int|string $list, bool $escape = true) {
     $result = preg_replace_callback(
         '/([a-z])([A-Z])/s',
         function ($m) {
             return $m[1] . ' ' . strtolower($m[2]);
         },
-        str_replace('_', ' ', (string )$s)
+        str_replace('_', ' ', (string )$list)
     );
     if ($escape) {
         $result = e($result);
@@ -310,15 +353,15 @@ function humanize(Stringable|int|string $s, bool $escape = true) {
  * or only first word:
  * 'foo bar_baz' -> 'Foo bar baz'
  *
- * @param string $s
- * @param bool   $ucwords If == true -> all words will be titleized, else only first word will
+ * @param string $list
+ * @param bool $ucwords If == true -> all words will be titleized, else only first word will
  *                        titleized.
- * @param bool   $escape  Either need to apply escaping of HTML special chars?
+ * @param bool $escape Either need to apply escaping of HTML special chars?
  *
  * @return string.
  */
-function titleize(Stringable|int|string $s, bool $ucwords = true, bool $escape = true): string {
-    $result = humanize($s, $escape);
+function titleize(Stringable|int|string $list, bool $ucwords = true, bool $escape = true): string {
+    $result = humanize($list, $escape);
     if ($ucwords) {
         return ucwords($result);
     }
@@ -326,9 +369,9 @@ function titleize(Stringable|int|string $s, bool $ucwords = true, bool $escape =
     return \ucfirst($result);
 }
 
-function sanitize(Stringable|int|string $s, string $allowedCharacters, bool $deleteDups = true) {
+function sanitize(Stringable|int|string $list, string $allowedCharacters, bool $deleteDups = true) {
     $regexp = '/[^a-zA-Z0-9' . preg_quote($allowedCharacters, '/') . ']/s';
-    $result = preg_replace($regexp, '', (string) $s);
+    $result = preg_replace($regexp, '', (string)$list);
     if ($deleteDups) {
         $result = deleteDups($result, $allowedCharacters);
     }
@@ -339,31 +382,31 @@ function sanitize(Stringable|int|string $s, string $allowedCharacters, bool $del
 /**
  * Modified version of \trim() that removes all characters from the $chars and whitespaces until non of them will be present in the ends of the source string.
  */
-function trimMore(Stringable|int|string|iterable|null $s, string $chars = null): string|array {
-    if (is_array($s)) {
+function trimMore(Stringable|int|string|iterable|null $list, string $chars = null): string|array {
+    if (is_array($list)) {
         $r = [];
-        foreach ($s as $k => $v) {
+        foreach ($list as $k => $v) {
             $r[$k] = trimMore($v, $chars);
         }
         return $r;
     }
-    return trim((string)$s, $chars . TRIM_CHARS);
+    return trim((string)$list, $chars . TRIM_CHARS);
 }
 
 /**
  * Removes duplicated characters from the string.
  *
- * @param Stringable|int|string $s Source string with duplicated characters.
+ * @param Stringable|int|string $list Source string with duplicated characters.
  * @param Stringable|int|string $chars Either a set of characters to use in character class or a reg-exp pattern that must match
  *                               all duplicated characters that must be removed.
  * @param bool $isCharClass
  * @return string                String with removed duplicates.
  */
-function deleteDups(Stringable|int|string $s, Stringable|int|string $chars, bool $isCharClass = true) {
+function deleteDups(Stringable|int|string $list, Stringable|int|string $chars, bool $isCharClass = true) {
     $regExp = $isCharClass
         ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
         : "/($chars)+/si";
-    return preg_replace($regExp, '\1', (string)$s);
+    return preg_replace($regExp, '\1', (string)$list);
 }
 
 function format($string, array $args, callable $filterFn): string {
@@ -384,30 +427,20 @@ function shorten(string $text, int $length = SHORTEN_LENGTH, $tail = null): stri
     return substr($text, 0, $length - strlen($tail)) . $tail;
 }
 
-function normalizeEols(string $s): string {
-    return str_replace(["\r\n", "\n", "\r"], "\n", $s);
-    /*$res = \preg_replace(EOL_FULL_RE, "\n", $s);
+function normalizeEols(string $list): string {
+    return str_replace(["\r\n", "\n", "\r"], "\n", $list);
+    /*$res = \preg_replace(EOL_FULL_RE, "\n", $list);
     if (null === $res) {
         throw new RuntimeException("Unable to replace EOLs");
     }
     return $res;*/
 }
 
-/**
- * @param mixed $val
- * @param null $conf
- * @return string
- */
-function toJson($val, $conf = null): string {
-    return json_encode($val, $conf ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+function toJson(mixed $val, int $flags = null): string {
+    return json_encode($val, $flags ?: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
-/**
- * @param string $json
- * @param bool $objectsToArrays
- * @return mixed
- */
-function fromJson(string $json, bool $objectsToArrays = true) {
+function fromJson(string $json, bool $objectsToArrays = true): mixed {
     $res = json_decode($json, $objectsToArrays);
     if (null === $res) {
         throw new RuntimeException("Invalid JSON or too deep data");
@@ -459,9 +492,9 @@ function lines($text): iterable {
     if (is_iterable($text)) {
         return $text;
     }
-/*    if ($text === '') {
-        return [];
-    }*/
+    /*    if ($text === '') {
+            return [];
+        }*/
     return preg_split(EOL_FULL_RE, $text);
 }
 
@@ -480,7 +513,7 @@ function capture(callable $fn): string {
 }
 
 function tpl($__filePath, array $__vars = null): string {
-    extract((array) $__vars, EXTR_SKIP);
+    extract((array)$__vars, EXTR_SKIP);
     unset($__vars);
     ob_start();
     try {
@@ -499,30 +532,78 @@ function tpl($__filePath, array $__vars = null): string {
  */
 function op($operator, $arg = null): Closure {
     $functions = [
-        'instanceof' => function ($a, $b) { return $a instanceof $b; },
-        '*'          => function ($a, $b) { return $a * $b; },
-        '/'          => function ($a, $b) { return $a / $b; },
-        '%'          => function ($a, $b) { return $a % $b; },
-        '+'          => function ($a, $b) { return $a + $b; },
-        '-'          => function ($a, $b) { return $a - $b; },
-        '.'          => function ($a, $b) { return $a . $b; },
-        '<<'         => function ($a, $b) { return $a << $b; },
-        '>>'         => function ($a, $b) { return $a >> $b; },
-        '<'          => function ($a, $b) { return $a < $b; },
-        '<='         => function ($a, $b) { return $a <= $b; },
-        '>'          => function ($a, $b) { return $a > $b; },
-        '>='         => function ($a, $b) { return $a >= $b; },
-        '=='         => function ($a, $b) { return $a == $b; },
-        '!='         => function ($a, $b) { return $a != $b; },
-        '==='        => function ($a, $b) { return $a === $b; },
-        '!=='        => function ($a, $b) { return $a !== $b; },
-        '&'          => function ($a, $b) { return $a & $b; },
-        '^'          => function ($a, $b) { return $a ^ $b; },
-        '|'          => function ($a, $b) { return $a | $b; },
-        '&&'         => function ($a, $b) { return $a && $b; },
-        '||'         => function ($a, $b) { return $a || $b; },
-        '**'         => function ($a, $b) { return pow($a, $b); },
-        '<=>'        => function ($a, $b) { return $a == $b ? 0 : ($a < $b ? -1 : 1); },
+        'instanceof' => function ($a, $b) {
+            return $a instanceof $b;
+        },
+        '*'          => function ($a, $b) {
+            return $a * $b;
+        },
+        '/'          => function ($a, $b) {
+            return $a / $b;
+        },
+        '%'          => function ($a, $b) {
+            return $a % $b;
+        },
+        '+'          => function ($a, $b) {
+            return $a + $b;
+        },
+        '-'          => function ($a, $b) {
+            return $a - $b;
+        },
+        '.'          => function ($a, $b) {
+            return $a . $b;
+        },
+        '<<'         => function ($a, $b) {
+            return $a << $b;
+        },
+        '>>'         => function ($a, $b) {
+            return $a >> $b;
+        },
+        '<'          => function ($a, $b) {
+            return $a < $b;
+        },
+        '<='         => function ($a, $b) {
+            return $a <= $b;
+        },
+        '>'          => function ($a, $b) {
+            return $a > $b;
+        },
+        '>='         => function ($a, $b) {
+            return $a >= $b;
+        },
+        '=='         => function ($a, $b) {
+            return $a == $b;
+        },
+        '!='         => function ($a, $b) {
+            return $a != $b;
+        },
+        '==='        => function ($a, $b) {
+            return $a === $b;
+        },
+        '!=='        => function ($a, $b) {
+            return $a !== $b;
+        },
+        '&'          => function ($a, $b) {
+            return $a & $b;
+        },
+        '^'          => function ($a, $b) {
+            return $a ^ $b;
+        },
+        '|'          => function ($a, $b) {
+            return $a | $b;
+        },
+        '&&'         => function ($a, $b) {
+            return $a && $b;
+        },
+        '||'         => function ($a, $b) {
+            return $a || $b;
+        },
+        '**'         => function ($a, $b) {
+            return pow($a, $b);
+        },
+        '<=>'        => function ($a, $b) {
+            return $a == $b ? 0 : ($a < $b ? -1 : 1);
+        },
     ];
 
     if (!isset($functions[$operator])) {
@@ -535,7 +616,7 @@ function op($operator, $arg = null): Closure {
         return $fn;
     } else {
         // Capture the first argument of the binary operator, return a function which expect the second one (partial application and currying).
-        return function($a) use ($fn, $arg) {
+        return function ($a) use ($fn, $arg) {
             return $fn($a, $arg);
         };
     }
@@ -546,7 +627,6 @@ function not(callable $predicateFn): Closure {
         return !$predicateFn(...$args);
     };
 }
-
 
 function partial(callable $fn, ...$args1): Closure {
     return function (...$args2) use ($fn, $args1) {
@@ -589,7 +669,7 @@ function formatFloat($val): string {
     if (empty($val)) {
         $val = 0;
     }
-    $val = str_replace(',', '.', (string) $val);
+    $val = str_replace(',', '.', (string)$val);
     return number_format(round(floatval($val), 2), 2, '.', ' ');
 }
 
@@ -608,15 +688,15 @@ function equals($a, $b) {
 function memoize(callable $fn): Closure {
     return function (...$args) use ($fn) {
         static $memo = [];
-/*
-        $hash = \array_reduce($args, function ($acc, $var) {
-            $hash = '';
-            if (\is_object($var)) {
-                $hash .= spl_object_hash($var);
-            } elseif (\is_scalar($var)) { //  int, float, string and bool
-            return $hash;
-        });
-*/
+        /*
+                $hash = \array_reduce($args, function ($acc, $var) {
+                    $hash = '';
+                    if (\is_object($var)) {
+                        $hash .= spl_object_hash($var);
+                    } elseif (\is_scalar($var)) { //  int, float, string and bool
+                    return $hash;
+                });
+        */
         // @TODO: avoid overwritting different functions called with the same arguments.
         $hash = md5(json_encode($args)); // NB: \md5() can cause collisions
         if (array_key_exists($hash, $memo)) {
@@ -1075,26 +1155,28 @@ function toArr(iterable $it): array {
 /**
  * ucfirst() working for UTF-8, https://www.php.net/manual/en/function.ucfirst.php#57298
  */
-function ucfirst($s) {
-    $s = (string) $s;
-    $fc = mb_strtoupper(mb_substr($s, 0, 1));
-    return $fc . mb_substr($s, 1);
+function ucfirst($list) {
+    $list = (string)$list;
+    $fc = mb_strtoupper(mb_substr($list, 0, 1));
+    return $fc . mb_substr($list, 1);
 }
 
 /**
- * Opposite to unindent();
- * @param string $text
+ * Opposite to unindent()
+ * @param string|int|Stringable $text
  * @param int $indent Number of spaces
+ * @return string
  */
-function indent($text, int $indent = INDENT_SIZE): string {
-    return preg_replace('~^~m', str_repeat(' ', $indent), (string) $text);
+function indent(string|int|Stringable $text, int $indent = INDENT_SIZE): string {
+    return preg_replace('~^~m', str_repeat(' ', $indent), (string)$text);
 }
 
 /**
  * Opposite to indent()
- * @param string $text
+ * @param string|int|Stringable $text
  * @param int $indent Number of spaces
+ * @return string
  */
-function unindent($text, int $indent = INDENT_SIZE): string {
-    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string) $text);
+function unindent(string|int|Stringable $text, int $indent = INDENT_SIZE): string {
+    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string)$text);
 }

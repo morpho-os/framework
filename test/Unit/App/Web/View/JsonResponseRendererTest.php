@@ -9,11 +9,11 @@ namespace Morpho\Test\Unit\App\Web\View;
 use ArrayObject;
 use Morpho\App\IRequest;
 use Morpho\App\IResponse;
-use Morpho\App\Web\View\JsonRenderer;
+use Morpho\App\Web\View\JsonResponseRenderer;
 use Morpho\Base\Ok;
 use Morpho\Testing\TestCase;
 
-class JsonRendererTest extends TestCase {
+class JsonResponseRendererTest extends TestCase {
     public function testCanRenderResult() {
         $result = new Ok(['foo' => 'bar']);
 
@@ -121,7 +121,7 @@ class JsonRendererTest extends TestCase {
                 // TODO: Implement args() method.
             }
         };
-        $jsonRenderer = new JsonRenderer();
+        $jsonRenderer = new JsonResponseRenderer();
 
         $jsonRenderer($request);
 

@@ -20,7 +20,7 @@ use function call_user_func;
 use function count;
 use function fclose;
 use function file_put_contents;
-use function Morpho\Base\{formatFloat, it, last, lastPos, lines, memoize, not, op, qq, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent};
+use function Morpho\Base\{append, appendFn, formatFloat, it, last, lastPos, lines, memoize, not, op, prepend, prependFn, qq, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
 use RuntimeException;
 use function get_class_methods;
 use function ob_get_clean;
@@ -362,7 +362,7 @@ class FunctionsTest extends TestCase {
     /**
      * @dataProvider dataForQ
      */
-    public function testWrapQ($expected, $actual) {
+    public function testQ($expected, $actual) {
         $this->assertSame($expected, q($actual));
     }
 
@@ -731,6 +731,44 @@ OUT;
         $actual = indent($orig);
         $this->assertSame($expected, $actual);
         $this->assertSame($orig, unindent($actual));
+    }
+
+    public function testPrepend() {
+        $this->assertSame([], prepend([], 'pre'));
+        $this->assertSame(['pre123', 'pre123'], prepend(['123', 123], 'pre'));
+        $this->assertSame('pre123', prepend('123', 'pre'));
+        $this->assertSame('pre123', prepend(123, 'pre'));
+    }
+
+    public function testPrependFn() {
+        $this->assertSame('prefoo', prependFn('pre')('foo'));
+    }
+
+    public function testAppend() {
+        $this->assertSame([], append([], 'post'));
+        $this->assertSame(['123post', '123post'], append(['123', 123], 'post'));
+        $this->assertSame('123post', append('123', 'post'));
+        $this->assertSame('123post', append(123, 'post'));
+    }
+
+    public function testAppendFn() {
+        $this->assertSame('foopost', appendFn('post')('foo'));
+    }
+    
+    public function testWrap() {
+        $this->assertSame([], wrap([], 'pre', 'post'));
+        $this->assertSame(['pre123post', 'pre123post'], wrap(['123', 123], 'pre', 'post'));
+        $this->assertSame('pre123post', wrap('123', 'pre', 'post'));
+        $this->assertSame('pre123post', wrap(123, 'pre', 'post'));
+
+        $this->assertSame([], wrap([], '!'));
+        $this->assertSame(['!123!', '!123!'], wrap(['123', 123], '!'));
+        $this->assertSame('!123!', wrap('123', '!'));
+        $this->assertSame('!123!', wrap(123, '!'));
+    }
+
+    public function testWrapFn() {
+        $this->assertSame('prefoopost', wrapFn('pre', 'post')('foo'));
     }
 
     private function assertCommon($fn) {

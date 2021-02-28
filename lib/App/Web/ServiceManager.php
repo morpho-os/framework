@@ -20,8 +20,8 @@ use Morpho\App\Web\Logging\WebProcessor;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\App\Web\Session\Session;
-use Morpho\App\Web\View\HtmlRenderer;
-use Morpho\App\Web\View\JsonRenderer;
+use Morpho\App\Web\View\HtmlResponseRenderer;
+use Morpho\App\Web\View\JsonResponseRenderer;
 use Morpho\App\Web\View\Messenger;
 use Morpho\App\Web\View\MessengerPlugin;
 use Morpho\App\Web\View\PhpTemplateEngine;
@@ -86,13 +86,13 @@ class ServiceManager extends BaseServiceManager {
     protected function mkActionResultRendererService() {
         return new ActionResultRenderer(function ($format) {
             if ($format === ContentFormat::HTML) {
-                return new HtmlRenderer(
+                return new HtmlResponseRenderer(
                     $this['templateEngine'],
                     $this['backendModuleIndex'],
                     $this->conf()['view']['pageRenderingModule'],
                 );
             } elseif ($format === ContentFormat::JSON) {
-                return new JsonRenderer();
+                return new JsonResponseRenderer();
             }
             // todo: add XML
             throw new UnexpectedValueException();

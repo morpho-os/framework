@@ -7,7 +7,6 @@
 namespace Morpho\Ioc;
 
 use ArrayObject;
-use Exception;
 use RuntimeException;
 use Throwable;
 use function array_keys;
@@ -25,11 +24,11 @@ class ServiceManager extends ArrayObject implements IServiceManager {
     protected const FACTORY_METHOD_PREFIX = 'mk';
     protected const FACTORY_METHOD_SUFFIX = 'Service';
 
-    protected $aliases = [];
+    protected array $aliases = [];
 
-    protected $conf;
+    protected mixed $conf;
 
-    private $loading = [];
+    private array $loading = [];
 
     public function __construct(array $services = null) {
         if (null !== $services) {
@@ -37,12 +36,13 @@ class ServiceManager extends ArrayObject implements IServiceManager {
                 $this->offsetSet($id, $service);
             }
         }
+        parent::__construct([]);
     }
 
     /**
      * This method uses logic found in the Symfony\Component\DependencyInjection\Container::get().
      */
-    public function offsetGet($id) {
+    public function offsetGet(mixed $id): mixed {
         // Resolve alias:
         $id = strtolower($id);
         while (isset($this->aliases[$id])) {
@@ -73,14 +73,14 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         return $service;
     }
 
-    public function offsetSet($id, $service): void {
+    public function offsetSet(mixed $id, mixed $service): void {
         parent::offsetSet(strtolower($id), $service);
         if ($service instanceof IHasServiceManager) {
             $service->setServiceManager($this);
         }
     }
 
-    public function offsetExists($id): bool {
+    public function offsetExists(mixed $id): bool {
         // Resolve alias:
         $id = strtolower($id);
 
@@ -100,19 +100,19 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         parent::offsetUnset(strtolower($id));
     }
 
-    public function setConf($conf): void {
+    public function setConf(mixed $conf): void {
         $this->conf = $conf;
     }
 
-    public function conf() {
+    public function conf(): mixed {
         return $this->conf;
     }
 
-    public function setAliases(array $aliases) {
+    public function setAliases(array $aliases): void {
         $this->aliases = $aliases;
     }
 
-    public function setAlias(string $alias, string $name) {
+    public function setAlias(string $alias, string $name): void {
         $this->aliases[$alias] = $name;
     }
 
@@ -126,10 +126,7 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         }
     }
 
-    /**
-     * @return mixed
-     */
-    protected function mkService(string $id) {
+    protected function mkService(string $id): mixed {
         $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
         if (method_exists($this, $method)) {
             $this->beforeCreate($id);

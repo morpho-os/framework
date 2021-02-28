@@ -10,7 +10,7 @@ use Morpho\App\IRequest;
 use Morpho\Base\IFn;
 use function Morpho\Base\toJson;
 
-class JsonRenderer implements IFn {
+class JsonResponseRenderer implements IFn {
     public function __invoke(mixed $request): IRequest {
         $response = $request->response();
         // https://tools.ietf.org/html/rfc7231#section-3.1.1

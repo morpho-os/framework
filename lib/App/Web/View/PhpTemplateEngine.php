@@ -35,6 +35,8 @@ use function trim;
 use function ucfirst;
 
 class PhpTemplateEngine extends ArrPipe {
+    public const HIDDEN_FIELD = 'hidden';
+
     public const VIEW_FILE_EXT = '.phtml';
     private static array $htmlIds = [];
 
@@ -291,15 +293,19 @@ class PhpTemplateEngine extends ArrPipe {
         foreach ($newOptions as $value => $text) {
             $html .= '<option value="' . $this->e($value) . '"' . (isset($selectedOptions[$value]) ? ' selected' : '') . '>' . $this->e($text) . '</option>';
         }
-        return $html;
+        return $this->formField($html);
     }
 
     public function textField($name, $val, array $attribs = null): string {
-        return $this->tag1('input', array_merge((array)$attribs, ['name' => $name, 'value' => $val]));
+        return $this->formField(
+            $this->tag1('input', array_merge((array)$attribs, ['name' => $name, 'value' => $val]))
+        );
     }
 
     public function httpMethodField(string $method = null, array $attribs = null): string {
-        return $this->hiddenField('_method', $method, $attribs);
+        return $this->formField(
+            $this->hiddenField(['name' => '_method', 'value' => $method] + (array) $attribs)
+        );
     }
 
     public function openTag(string $tagName, array $attribs = [], bool $isXml = false): string {
@@ -376,7 +382,7 @@ class PhpTemplateEngine extends ArrPipe {
     /**
      * Renders link - HTML `a` tag.
      */
-    public function l(string|Uri $uri, string $text, array $attribs = null, array $conf = null): string {
+    public function link(string|Uri $uri, string $text, array $attribs = null, array $conf = null): string {
         $attribs = (array)$attribs;
         $attribs['href'] = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false))->toStr(null, false);
         return $this->tag('a', $text, $attribs, $conf);

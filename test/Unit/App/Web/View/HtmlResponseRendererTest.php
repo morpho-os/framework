@@ -10,9 +10,9 @@ use ArrayObject;
 use Morpho\App\IRequest;
 use Morpho\App\IResponse;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\View\HtmlRenderer;
+use Morpho\App\Web\View\HtmlResponseRenderer;
 
-class HtmlRendererTest extends TestCase {
+class HtmlResponseRendererTest extends TestCase {
     public function testInvoke() {
         $response = new class extends ArrayObject implements IResponse {
             private $body;
@@ -53,7 +53,7 @@ class HtmlRendererTest extends TestCase {
         };
         $request = $this->createConfiguredMock(IRequest::class, ['response' => $response]);
         $htmlSample = 'This is a <main>This is a body text.</main> page text.';
-        $renderer = new class (new class {}, new class {}, 'foo/bar', $htmlSample) extends HtmlRenderer {
+        $renderer = new class (new class {}, new class {}, 'foo/bar', $htmlSample) extends HtmlResponseRenderer {
             private $htmlSample;
 
             public function __construct($templateEngine, $moduleIndex, string $pageRenderingModule, string $htmlSample) {

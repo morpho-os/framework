@@ -7,10 +7,7 @@
 namespace Morpho\Ioc;
 
 trait THasServiceManager {
-    /**
-     * @var IServiceManager
-     */
-    protected $serviceManager;
+    protected IServiceManager $serviceManager;
 
     /**
      * @notCommand

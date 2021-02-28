@@ -10,7 +10,7 @@ use Morpho\App\IRequest;
 use Morpho\Base\IFn;
 use function Morpho\Base\dasherize;
 
-class HtmlRenderer implements IFn {
+class HtmlResponseRenderer implements IFn {
     private $templateEngine;
 
     private $moduleIndex;

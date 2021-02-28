@@ -9,7 +9,7 @@ namespace Morpho\Ioc;
 use ArrayAccess;
 
 interface IServiceManager extends ArrayAccess {
-    public function setConf($conf): void;
+    public function setConf(mixed $conf): void;
 
-    public function conf();
+    public function conf(): mixed;
 }
