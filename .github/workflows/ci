@@ -78,7 +78,7 @@ prepareEnv() {
 
 runTests() {
     set +e
-    bin/test
+    make test
     local -r exitCode=$?
     set -e
     if [[ $exitCode -ne 0 ]]; then

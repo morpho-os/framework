@@ -17,10 +17,10 @@ For development:
   * TypeScript: required to compile to JavaScript
   * SCSS: required to compile to CSS
   * HTML
-* Infra (all technologies are optional):
+* Infra:
   * Git
   * PHP
-  * Node.js
+  * Node.js: required for TypeScript
   * GNU Bash
   * GNU Make
 

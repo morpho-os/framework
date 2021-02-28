@@ -16,6 +16,4 @@ readonly phpunitConfFilePath="$testDirPath/phpunit.xml"
 
 readonly phpunit="php -f ""$phpunitBinFilePath"" -- -c ""$phpunitConfFilePath"$([[ -n "${MORPHO_CI-}" ]] && echo " --debug --log-junit $testDirPath/result/test.xml")
 
-# todo: uncomment after solving the #8.
-#$phpunit --stop-on-warning --stop-on-failure --stop-on-error --stop-on-skipped --stop-on-incomplete --stop-on-risky --fail-on-incomplete --fail-on-risky --fail-on-skipped --fail-on-warning "$@"
-$phpunit --stop-on-warning --stop-on-failure --stop-on-error --stop-on-risky --fail-on-risky --fail-on-skipped --fail-on-warning "$@"
+$phpunit  "$@"

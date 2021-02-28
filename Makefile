@@ -1,12 +1,40 @@
 backendModuleDirPath = $(CURDIR)/server
 frontendModuleDirPath = $(CURDIR)/client
-errorOpts = --stop-on-error --stop-on-failure --stop-on-warning
-defectOpts = --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete
 
 # Default target
-all: test-stop
+all: test
 
-##############################################################################
+################################################################################
+# Tests
+
+strictOpts := --stop-on-warning --stop-on-failure --stop-on-error --stop-on-skipped --stop-on-incomplete --stop-on-risky --fail-on-incomplete --fail-on-risky --fail-on-skipped --fail-on-warning
+looseOpts := --stop-on-warning --stop-on-failure --stop-on-error --stop-on-risky --fail-on-risky --fail-on-skipped --fail-on-warning
+# todo: switch to strictOpts after solving the #8
+testOpts := $(looseOpts)
+
+test:
+	bin/test $(testOpts)
+
+# Unit tests
+unit-test:
+	bin/test $(testOpts) test/Unit/TestSuite.php
+
+integration-test:
+	bin/test $(testOpts) test/Integration/TestSuite.php
+
+backend-test: module-test
+module-test:
+	bin/test $(testOpts) $(backendModuleDirPath)
+
+# todo: frontend tests
+frontend-test:
+	echo todo
+	exit 1
+
+lint:
+	php test/lint.php
+
+###############################################################################
 # Assets
 
 assets: js css
@@ -17,44 +45,7 @@ js:
 css:
 	bin/build css
 
-###############################################################################
-# All tests
-
-test:
-	bin/test
-
-test-stop:
-	bin/test $(errorOpts)
-
-###############################################################################
-# Unit tests
-
-utest:
-	bin/test test/Unit/TestSuite.php
-
-utest-stop:
-	bin/test $(errorOpts) test/Unit/TestSuite.php
-
-utest-stop-defect:
-	bin/test $(defectOpts) test/Unit/TestSuite.php
-
-###############################################################################
-# Integration tests
-
-itest:
-	bin/test test/Integration/TestSuite.php
-
-itest-stop:
-	bin/test test/Integration/TestSuite.php $(errorOpts)
-
-###############################################################################
-# Module tests
-
-mtest:
-	bin/test server
-
-lint:
-	php test/lint.php
+################################################################################
 
 clear: clean
 clean:
@@ -67,7 +58,8 @@ update:
 	cd public && npm install
 
 setup:
-	npm install -g stylus typescript@next
+	composer require --dev psalm/plugin-phpunit && vendor/bin/psalm-plugin enable psalm/plugin-phpunit
+	npm install -g typescript@next
 
 .SILENT:
 .PHONY: all assets js css test test-stop utest utest-stop utest-stop-defect itest itest-stop mtest lint clear clean update setup
