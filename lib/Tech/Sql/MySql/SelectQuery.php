@@ -11,18 +11,26 @@ use Morpho\Tech\Sql\Expr;
 
 class SelectQuery extends Query {
     protected array $columns = [];
+
     protected array $join = [];
+
     protected array $groupBy = [];
+
     protected array $having = [];
+
     //protected array $window = [];
+
     protected array $orderBy = [];
+
     protected ?array $limit = null;
 
-    public function columns(array|string|Expr $columns): self {
+    public function columns(array|Expr|string $columns): self {
         if (is_array($columns)) {
             $this->columns = array_merge($this->columns, $columns);
         } else {
-            $this->columns[] = $columns;
+            $this->columns[] = $columns instanceof Expr
+                ? $columns
+                : new Expr($columns);
         }
         return $this;
     }

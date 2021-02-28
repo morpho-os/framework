@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
+use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\MySql\SelectQuery;
 use UnexpectedValueException;
@@ -18,17 +19,38 @@ class SelectQueryTest extends QueryTest {
         $this->query = new SelectQuery($this->db);
     }
 
-    public function testShouldNotQuoteStarChar() {
-        $this->assertSame('SELECT `p`.*', (string) $this->query->columns('p.*'));
+    public function dataForColumns() {
+        yield [
+            'SELECT p.*',
+            'p.*',
+        ];
+        yield [
+            'SELECT `p`.*',
+            ['p.*']
+        ];
+        yield [
+            "SELECT `p`.*, 'foo' AS type",
+            ['p.*', new Expr("'foo' AS type")],
+        ];
+        yield [
+            'SELECT `p`.*',
+            ['p.*'],
+        ];
+        yield [
+            "SELECT MICROSECOND('2019-12-31 23:59:59.000010'), NOW()",
+            "MICROSECOND('2019-12-31 23:59:59.000010'), NOW()",
+        ];
+        yield [
+            "SELECT MICROSECOND('2019-12-31 23:59:59.000010'), NOW()",
+            new Expr("MICROSECOND('2019-12-31 23:59:59.000010'), NOW()"),
+        ];
     }
 
-    public function testOnlyColumns_ExprArg() {
-        $columns = "MICROSECOND('2019-12-31 23:59:59.000010'), NOW()";
-        $this->assertSqlEquals("SELECT " . $columns, (string) $this->query->columns($this->query->expr($columns)));
-    }
-
-    public function testOnlyTable() {
-        $this->assertSqlEquals("SELECT * FROM `cars`", (string) $this->query->table('cars'));
+    /**
+     * @dataProvider dataForColumns
+     */
+    public function testColumns(string $expected, $columns) {
+        $this->assertSame($expected, (string) $this->query->columns($columns));
     }
 
     public function testColumns_ExprInTable() {
@@ -37,6 +59,10 @@ class SelectQueryTest extends QueryTest {
                 $this->query->expr('customers INNER JOIN orders ON customers.id = orders.customer_id')
             );
         $this->assertSqlEquals('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $this->query->__toString());
+    }
+
+    public function testOnlyTable() {
+        $this->assertSqlEquals("SELECT * FROM `cars`", (string) $this->query->table('cars'));
     }
 
     public function testCompleteQuery() {
