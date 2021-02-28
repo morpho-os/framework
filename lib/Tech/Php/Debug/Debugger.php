@@ -22,11 +22,9 @@ use function filesize;
 use function func_get_arg;
 use function func_num_args;
 use function htmlspecialchars;
-use function ini_get;
 use function is_null;
 use function is_object;
 use function ltrim;
-use function Morpho\Base\capture;
 use function preg_match;
 use function preg_replace;
 use function preg_replace_callback;
@@ -44,23 +42,17 @@ use function var_export;
  * Utility class to debug any PHP application.
  * To debug applications, consider to add/change the following php.ini settings:
  *     html_errors = 0
- *     ; if you use xdebug:
- *     xdebug.var_display_max_data=-1
- *     xdebug.var_display_max_depth=-1
  */
 class Debugger {
-    protected $ignoredFrames = [];
+    protected array $ignoredFrames = [];
 
-    /**
-     * @var bool
-     */
-    protected $isHtmlMode;
+    protected bool $isHtmlMode = false;
 
     private static $instance;
 
     private static $class;
     
-    private $exitCode = 1;
+    private int $exitCode = 1;
 
     public function type($obj): void {
         $this->dump(get_debug_type($obj));
@@ -86,7 +78,7 @@ class Debugger {
             ->dump(...$args);
     }
 
-    public function trace() {
+    public function trace(): void {
         $output = $this->traceToStr();
         if ($this->isHtmlMode()) {
             $output = $this->formatHtml($output);
@@ -164,9 +156,9 @@ class Debugger {
     public function logToFile(string $filePath, ...$args) {
         $oldHtmlMode = $this->isHtmlMode;
         $this->isHtmlMode(false);
-        $content = capture(function () use ($args) {
-            $this->varDump(...$args);
-        });
+        ob_start();
+        $this->varDump(...$args);
+        $content = ob_get_clean();
         if (@filesize($filePath) == 0) {
             $content = ltrim($content);
         }
@@ -176,13 +168,13 @@ class Debugger {
     }
 
     public function varToStr($var, bool $fixOutput = true): string {
-        $output = trim(capture(function () use ($var) {
-            if ($var instanceof Generator) {
-                var_dump("\\Generator which yields the values:\n" . $this->describeGen($var));
-            } else {
-                var_dump($var);
-            }
-        }));
+        ob_start();
+        if ($var instanceof Generator) {
+            var_dump("\\Generator which yields the values:\n" . $this->describeGen($var));
+        } else {
+            var_dump($var);
+        }
+        $output = trim(ob_get_clean());
         if ($fixOutput) {
             $output = preg_replace('~]=>\\n\s*~si', '] => ', $output);
         }

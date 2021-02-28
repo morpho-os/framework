@@ -12,4 +12,16 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <MixedAssignment>
+            <errorLevel type="suppress">
+                <directory name="lib" />
+            </errorLevel>
+        </MixedAssignment>
+        <MixedArrayOffset>
+            <errorLevel type="suppress">
+                <directory name="lib" />
+            </errorLevel>
+        </MixedArrayOffset>
+    </issueHandlers>
 </psalm>

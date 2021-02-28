@@ -87,10 +87,6 @@ class PhpTemplateEngine extends ArrPipe {
         ];
     }
 
-    public function dasherize($val, string $additionalChars = '', bool $trim = true) {
-        return dasherize($val); // todo inline function
-    }
-
     /*
     public function __set(string $varName, $value): void {
         $this->vars[$varName] = $value;
@@ -232,40 +228,37 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->htmlId(str_replace('/', '-', $handler['controllerPath'])) . '-' . dasherize($handler['method']);
     }
 
-    /**
-     * @param array $attribs
-     * @return string
-     */
-    public function checkboxField(array $attribs): string {
-        $attribs = ['type' => 'checkbox'] + $attribs;
-        if (!isset($attribs['id'])) {
-            $attribs['id'] = $this->htmlId($attribs['name']);
-        }
-        if (!isset($attribs['value'])) {
-            $attribs['value'] = 1;
-        }
-        return $this->formField($this->tag1('input', $attribs));
+    public function textField(array $attribs): string {
+        $attribs['type'] = 'text';
+        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
+    }
+
+    public function textareaField(array $attribs): string {
+        $val = $attribs['value'];
+        unset($attribs['value']);
+        return $this->formEl($this->tag('textarea', $val, $this->addCommonAttribs($attribs)));
     }
 
     public function hiddenField(array $attribs): string {
-        $attribs = ['type' => 'hidden'] + (array)$attribs;
-        if (!isset($attribs['id'])) {
-            $attribs['id'] = $this->htmlId($attribs['name']);
+        $attribs['type'] = 'hidden';
+        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
+    }
+
+    public function checkboxField(array $attribs): string {
+        $attribs['type'] = 'checkbox';
+        if (!isset($attribs['value'])) {
+            $attribs['value'] = 1;
         }
-        return $this->formField($this->tag1('input', $attribs));
+        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
     }
 
     public function selectField(?iterable $options, mixed $selectedOption = null, array $attribs = null): string {
-        $attribs = (array)$attribs;
-        if (!isset($attribs['id']) && isset($attribs['name'])) {
-            $attribs['id'] = $this->htmlId($attribs['name']);
-        }
-        $html = $this->openTag('select', $attribs);
+        $html = $this->openTag('select', $this->addCommonAttribs((array) $attribs));
         if (null !== $options) {
             $html .= $this->optionFields($options, $selectedOption);
         }
         $html .= '</select>';
-        return $this->formField($html);
+        return $this->formEl($html);
     }
 
     public function optionFields(iterable $options, mixed $selectedOption = null): string {
@@ -293,19 +286,11 @@ class PhpTemplateEngine extends ArrPipe {
         foreach ($newOptions as $value => $text) {
             $html .= '<option value="' . $this->e($value) . '"' . (isset($selectedOptions[$value]) ? ' selected' : '') . '>' . $this->e($text) . '</option>';
         }
-        return $this->formField($html);
-    }
-
-    public function textField($name, $val, array $attribs = null): string {
-        return $this->formField(
-            $this->tag1('input', array_merge((array)$attribs, ['name' => $name, 'value' => $val]))
-        );
+        return $this->formEl($html);
     }
 
     public function httpMethodField(string $method = null, array $attribs = null): string {
-        return $this->formField(
-            $this->hiddenField(['name' => '_method', 'value' => $method] + (array) $attribs)
-        );
+        return $this->formEl($this->hiddenField(['name' => '_method', 'value' => $method] + (array) $attribs));
     }
 
     public function openTag(string $tagName, array $attribs = [], bool $isXml = false): string {
@@ -327,16 +312,16 @@ class PhpTemplateEngine extends ArrPipe {
     public function tag(string $tagName, string $text = null, array $attribs = null, array $conf = null): string {
         $conf = Conf::check(
             [
-                'escapeText' => true,
+                'escape' => true,
                 'single'     => false,
                 'xml'        => false,
-                'eol'        => true,
+                'eol'        => false,
             ],
             (array)$conf
         );
         $output = $this->openTag($tagName, (array)$attribs, $conf['xml']);
         if (!$conf['single']) {
-            $output .= $conf['escapeText'] ? $this->e($text) : $text;
+            $output .= $conf['escape'] ? $this->e($text) : $text;
             $output .= $this->closeTag($tagName);
         }
         if ($conf['eol']) {
@@ -504,11 +489,18 @@ class PhpTemplateEngine extends ArrPipe {
     /**
      * Can be used to wrap around any form field extra HTML.
      */
-    protected function formField(string $html): string {
+    protected function formEl(string $html): string {
         return $html;
     }
 
     private function init(): void {
         self::$htmlIds = [];
+    }
+
+    private function addCommonAttribs(array $attribs): array {
+        if (!isset($attribs['id']) && isset($attribs['name'])) {
+            $attribs['id'] = $this->htmlId($attribs['name']);
+        }
+        return $attribs;
     }
 }

@@ -4,13 +4,15 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
+/**
+ * Some functions are based on functions found at [nikic/iter](https://github.com/nikic/iter) package, Copyright (c) 2013 by Nikita Popov
+ */
 namespace Morpho\Base;
 
 use ArrayObject;
 use Closure;
 use Generator;
 use InvalidArgumentException;
-use IteratorAggregate;
 use RuntimeException;
 use Stringable;
 use Throwable;
@@ -86,22 +88,72 @@ const EPS = 0.00001;
 
 const WAIT_INTERVAL_MICRO_SEC = 200000;
 
-function e(Stringable|int|string $s): string {
+/**
+ * @psalm-type List = iterable|string|Stringable
+ */
+
+/**
+ * @param callable(mixed, mixed): bool $predicate
+ * @param List $list
+ * @return bool
+ */
+function all(callable $predicate, iterable|string|Stringable $list): bool {
+    foreach (toIt($list) as $key => $val) {
+        if (!$predicate($val, $key)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Converts to iterable so that it can be used in foreach loop.
+ * @param List $list
+ * @return iterable
+ * @psalm-pure
+ */
+function toIt(iterable|string|Stringable $list): iterable {
+    if (is_iterable($list)) {
+        return $list;
+    }
+    if ($list instanceof Stringable) {
+        $list = (string) $list;
+    }
+    return mb_str_split($list);
+}
+
+
+
+
+
+
+// todo: review functions below #12
+
+function e(string|Stringable|int|float $s): string {
     return htmlspecialchars((string)$s, ENT_QUOTES);
 }
 
-function de(Stringable|int|string $s): string {
+function de(string|Stringable|int|float $s): string {
     return htmlspecialchars_decode((string)$s, ENT_QUOTES);
 }
 
-function evalFn($valOrFn) {
-    if ($valOrFn instanceof Closure) { // should be more fast then is_callable()
-        return $valOrFn();
+/**
+ * @param string|iterable<mixed, string> ...$messages
+ */
+function showLn(...$messages): void {
+    if (!count($messages)) {
+        echo "\n";
+    } else {
+        foreach ($messages as $message) {
+            if (is_iterable($message)) {
+                foreach ($message as $msg) {
+                    echo $msg . "\n";
+                }
+            } else {
+                echo $message . "\n";
+            }
+        }
     }
-    if (is_callable($valOrFn)) {
-        return $valOrFn();
-    }
-    return $valOrFn;
 }
 
 /**
@@ -124,7 +176,13 @@ function unpackArgs(array $args): array {
         : $args;
 }
 
-function wrap(Stringable|int|string|iterable $list, string $pre, string $post = null): string|array {
+/**
+ * @param string|Stringable|iterable<mixed, string>|int|float $list
+ * @param string $pre
+ * @param string|null $post
+ * @return string|array
+ */
+function wrap(string|Stringable|iterable|int|float $list, string $pre, string $post = null): string|array {
     if (null === $post) {
         $post = $pre;
     }
@@ -135,16 +193,17 @@ function wrap(Stringable|int|string|iterable $list, string $pre, string $post = 
         }
         return $r;
     }
+    /** @var string $list */
     return $pre . $list . $post;
 }
 
 function wrapFn(string $prefix, string $suffix): Closure {
-    return function ($list) use ($prefix, $suffix) {
+    return function (string|Stringable|int|float $list) use ($prefix, $suffix) {
         return $prefix . $list . $suffix;
     };
 }
 
-function prepend(Stringable|int|string|iterable $list, string $prefix): string|array {
+function prepend(string|Stringable|iterable|int|float $list, string $prefix): string|array {
     if (is_iterable($list)) {
         $r = [];
         foreach ($list as $k => $v) {
@@ -156,12 +215,12 @@ function prepend(Stringable|int|string|iterable $list, string $prefix): string|a
 }
 
 function prependFn(string $prefix): Closure {
-    return function ($list) use ($prefix) {
+    return function (string|Stringable|int|float $list) use ($prefix) {
         return $prefix . $list;
     };
 }
 
-function append(Stringable|int|string|iterable $list, string $suffix): string|array {
+function append(string|Stringable|iterable|int|float $list, string $suffix): string|array {
     if (is_iterable($list)) {
         $r = [];
         foreach ($list as $k => $v) {
@@ -173,37 +232,17 @@ function append(Stringable|int|string|iterable $list, string $suffix): string|ar
 }
 
 function appendFn(string $suffix): Closure {
-    return function ($list) use ($suffix) {
+    return function (string|Stringable|int|float $list) use ($suffix) {
         return $list . $suffix;
     };
 }
 
-function q(Stringable|int|string|iterable $list): string|array {
-    return wrap($list, "'");
+function q(string|Stringable|iterable|int|float $list): string|array {
+    return \Morpho\Base\wrap($list, "'");
 }
 
-function qq(Stringable|int|string|iterable $list): string|array {
+function qq(string|Stringable|iterable|int|float $list): string|array {
     return wrap($list, '"');
-}
-
-function showLn(...$messages) {
-    if (!count($messages)) {
-        echo "\n";
-    } else {
-        foreach ($messages as $message) {
-            if ($message instanceof Closure) {
-                foreach ($message() as $msg) {
-                    echo $msg . "\n";
-                }
-            } elseif (is_iterable($message)) {
-                foreach ($message as $msg) {
-                    echo $msg . "\n";
-                }
-            } else {
-                echo $message . "\n";
-            }
-        }
-    }
 }
 
 /**
@@ -214,7 +253,7 @@ function uniqueName(): string {
     return 'unique' . $uniqueInt++;
 }
 
-function words(Stringable|int|string $list, int $limit = -1): array {
+function words(string|Stringable|int $list, int $limit = -1): array {
     $list = (string)$list;
     return preg_split('~\\s+~s', trim($list), $limit, PREG_SPLIT_NO_EMPTY);
 }
@@ -226,9 +265,9 @@ function words(Stringable|int|string $list, int $limit = -1): array {
  * @param bool $trim Either trailing '-' characters should be removed or not.
  * @return string
  */
-function dasherize(Stringable|int|string $list, string $additionalChars = '', bool $trim = true) {
-    $string = sanitize($list, '-_ ' . $additionalChars, false);
-    $string = deleteDups($string, '_ ');
+function dasherize(string|Stringable|int $list, string $additionalChars = '', bool $trim = true) {
+    $string = \Morpho\Base\sanitize($list, '-_ ' . $additionalChars, false);
+    $string = \Morpho\Base\deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
     $result = strtolower(
@@ -243,7 +282,7 @@ function dasherize(Stringable|int|string $list, string $additionalChars = '', bo
         )
     );
     if ($trim) {
-        return trimMore($result, '-');
+        return \Morpho\Base\trimMore($result, '-');
     }
 
     return $result;
@@ -257,7 +296,7 @@ function dasherize(Stringable|int|string $list, string $additionalChars = '', bo
  *
  * @return string
  */
-function underscore(Stringable|int|string $list, bool $trim = true) {
+function underscore(Stringable|string $list, bool $trim = true) {
     $string = sanitize($list, '-_ ', false);
     $string = deleteDups($string, '- ');
     $result = strtolower(
@@ -288,7 +327,7 @@ function underscore(Stringable|int|string $list, bool $trim = true) {
  *
  * @return string
  */
-function classify(Stringable|int|string $list, bool $toFqName = false): string {
+function classify(string|Stringable|int $list, bool $toFqName = false): string {
     $string = sanitize(str_replace('/', '\\', (string)$list), '-_\\ ');
     if (false !== strpos($string, '\\')) {
         $string = preg_replace_callback(
@@ -317,7 +356,7 @@ function classify(Stringable|int|string $list, bool $toFqName = false): string {
  * @param bool $upperCaseFirstChar
  * @return string
  */
-function camelize(Stringable|int|string $list, bool $upperCaseFirstChar = false): string {
+function camelize(string|Stringable|int $list, bool $upperCaseFirstChar = false): string {
     $string = sanitize($list, '-_ ');
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
@@ -333,7 +372,7 @@ function camelize(Stringable|int|string $list, bool $upperCaseFirstChar = false)
  * 'camelCased' -> 'camel cased'. Leaves other characters as is.
  * By default applies e() to escape of HTML special characters.
  */
-function humanize(Stringable|int|string $list, bool $escape = true) {
+function humanize(string|Stringable|int $list, bool $escape = true) {
     $result = preg_replace_callback(
         '/([a-z])([A-Z])/s',
         function ($m) {
@@ -342,7 +381,7 @@ function humanize(Stringable|int|string $list, bool $escape = true) {
         str_replace('_', ' ', (string )$list)
     );
     if ($escape) {
-        $result = e($result);
+        $result = \Morpho\Base\e($result);
     }
     return $result;
 }
@@ -360,8 +399,8 @@ function humanize(Stringable|int|string $list, bool $escape = true) {
  *
  * @return string.
  */
-function titleize(Stringable|int|string $list, bool $ucwords = true, bool $escape = true): string {
-    $result = humanize($list, $escape);
+function titleize(string|Stringable|int $list, bool $ucwords = true, bool $escape = true): string {
+    $result = \Morpho\Base\humanize($list, $escape);
     if ($ucwords) {
         return ucwords($result);
     }
@@ -369,7 +408,7 @@ function titleize(Stringable|int|string $list, bool $ucwords = true, bool $escap
     return \ucfirst($result);
 }
 
-function sanitize(Stringable|int|string $list, string $allowedCharacters, bool $deleteDups = true) {
+function sanitize(string|Stringable|int $list, string $allowedCharacters, bool $deleteDups = true) {
     $regexp = '/[^a-zA-Z0-9' . preg_quote($allowedCharacters, '/') . ']/s';
     $result = preg_replace($regexp, '', (string)$list);
     if ($deleteDups) {
@@ -382,11 +421,11 @@ function sanitize(Stringable|int|string $list, string $allowedCharacters, bool $
 /**
  * Modified version of \trim() that removes all characters from the $chars and whitespaces until non of them will be present in the ends of the source string.
  */
-function trimMore(Stringable|int|string|iterable|null $list, string $chars = null): string|array {
+function trimMore(string|Stringable|iterable|int|float $list, string $chars = null): string|array {
     if (is_array($list)) {
         $r = [];
         foreach ($list as $k => $v) {
-            $r[$k] = trimMore($v, $chars);
+            $r[$k] = $v === null ? '' : trimMore($v, $chars);
         }
         return $r;
     }
@@ -402,7 +441,7 @@ function trimMore(Stringable|int|string|iterable|null $list, string $chars = nul
  * @param bool $isCharClass
  * @return string                String with removed duplicates.
  */
-function deleteDups(Stringable|int|string $list, Stringable|int|string $chars, bool $isCharClass = true) {
+function deleteDups(string|Stringable|int $list, Stringable|int|string $chars, bool $isCharClass = true) {
     $regExp = $isCharClass
         ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
         : "/($chars)+/si";
@@ -741,50 +780,6 @@ function waitUntilTimeout(callable $predicate, int $timeoutMicroSec) {
     }
 }
 
-/**
- * Makes passed object true iterable so that foreach loop would work.
- * @param IteratorAggregate|iterable|Closure If \Closure then must return \Generator
- * @return iterable
- */
-function it($it): iterable {
-    if ($it instanceof IteratorAggregate) {
-        return $it->getIterator();
-    }
-    if (is_iterable($it)) {
-        return $it;
-    }
-    if ($it instanceof Closure) {
-        $gen = $it();
-        if ($gen instanceof Generator) {
-            return $gen;
-        }
-    }
-    throw new UnexpectedValueException();
-}
-
-// ----------------------------------------------------------------------------
-// Iterables
-// Code below based on the https://github.com/nikic/iter (Copyright (c) 2013 by Nikita Popov)
-// Functions are ordered by name.
-
-/**
- * @param string|iterable $iter
- */
-function all(callable $predicate, $iter): bool {
-    if (is_string($iter)) {
-        if ($iter !== '') {
-            throw new NotImplementedException();
-        }
-        return true;
-    }
-    foreach ($iter as $key => $value) {
-        if (!$predicate($value, $key)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 function any(callable $predicate, iterable $list): bool {
     foreach ($list as $key => $value) {
         if ($predicate($value, $key)) {
@@ -1098,40 +1093,44 @@ function map(callable $fn, $iter) {
 }
 
 /**
- * Modified version from the https://github.com/nikic/iter
+ * Modified reduce() from the https://github.com/nikic/iter
  * @Copyright (c) 2013 by Nikita Popov.
  *
- * Reduce iterable $iter using a function $fn into a single value.
- * The `reduce` function also known as the `fold`.
+ * Left fold: folds $list using a function $fn into a single value. The `reduce` function also known as the `fold`.
  *
  * Examples:
- *      reduce(op('+'), range(1, 5), 0)
+ *      lfold(op('+'), range(1, 5), 0)
  *      => 15
- *      reduce(op('*'), range(1, 5), 1)
+ *      lfold(op('*'), range(1, 5), 1)
  *      => 120
  *
- * @param callable $fn Reduction function: (mixed $acc, mixed $curValue, mixed $curKey)
+ * @param callable(mixed, mixed, mixed): mixed $fn Reduction function: (mixed $acc, mixed $curValue, mixed $curKey)
  *     where $acc is the accumulator
  *           $curValue is the current element
  *           $curKey is a key of the current element
  *     The reduction function must return a new accumulator value.
- * @param iterable|string $iter Iterable to reduce.
+ * @param iterable<mixed, mixed>|string $list Iterable to reduce.
  * @param mixed $initial Start value for accumulator. Usually identity value of $function.
  *
  * @return mixed Result of the reduction.
  */
-function reduce(callable $fn, $iter, $initial = null) {
-    if (is_string($iter)) {
-        // @TODO:  array mb_split ( string $pattern , string $string [, int $limit = -1 ] )
-        throw new NotImplementedException();
+function lfold(callable $fn, iterable|string $list, mixed $initial = null): mixed {
+    if (is_iterable($list)) {
+        $acc = $initial;
+        foreach ($list as $key => $cur) {
+            $acc = $fn($acc, $cur, $key);
+        }
+        return $acc;
     }
-    $acc = $initial;
-    foreach ($iter as $key => $value) {
-        $acc = $fn($acc, $value, $key);
-    }
-    return $acc;
+    // @TODO:  array mb_split ( string $pattern , string $string [, int $limit = -1 ] )
+    throw new NotImplementedException();
 }
 
+/**
+ * Alternative to iterator_to_array(), as the iterator_to_array() does not support arrays as the first argument
+ * @param iterable $it
+ * @return array
+ */
 function toArr(iterable $it): array {
     if (is_array($it)) {
         return $it;
@@ -1141,21 +1140,31 @@ function toArr(iterable $it): array {
     }
     $arr = [];
     $i = 0;
-    foreach ($it as $key => $value) {
-        if (preg_match('~^\d+$~s', (string)$key)) {
-            $arr[$i] = $value;
-            $i++;
-        } else {
-            $arr[$key] = $value;
+    $hasNumIndexes = true;
+    foreach ($it as $key => $val) {
+        if (!preg_match('~^\d+$~s', (string)$key)) {
+            $hasNumIndexes = false;
+            break;
         }
+        $arr[$i] = $val;
+        $i++;
+    }
+    if ($hasNumIndexes) {
+        return $arr;
+    }
+    $arr = [];
+    foreach ($it as $key => $val) {
+        $arr[$key] = $val;
     }
     return $arr;
 }
 
 /**
  * ucfirst() working for UTF-8, https://www.php.net/manual/en/function.ucfirst.php#57298
+ * @param string|Stringable $list
+ * @return string
  */
-function ucfirst($list) {
+function ucfirst(string|Stringable $list): string {
     $list = (string)$list;
     $fc = mb_strtoupper(mb_substr($list, 0, 1));
     return $fc . mb_substr($list, 1);
@@ -1163,20 +1172,29 @@ function ucfirst($list) {
 
 /**
  * Opposite to unindent()
- * @param string|int|Stringable $text
+ * @param string|Stringable|int|float $text
  * @param int $indent Number of spaces
  * @return string
  */
-function indent(string|int|Stringable $text, int $indent = INDENT_SIZE): string {
+function indent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
     return preg_replace('~^~m', str_repeat(' ', $indent), (string)$text);
 }
 
 /**
  * Opposite to indent()
- * @param string|int|Stringable $text
+ * @param string|Stringable|int|float $text
  * @param int $indent Number of spaces
  * @return string
  */
-function unindent(string|int|Stringable $text, int $indent = INDENT_SIZE): string {
+function unindent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
     return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string)$text);
 }
+
+
+
+
+
+
+
+
+

@@ -1685,12 +1685,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "5c0e8ed8f0bd4c5463ad726b80bd57d362be83de"
+                "reference": "f61902cc7dcec3e7857bf6ab2694743b1ce9cc6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/5c0e8ed8f0bd4c5463ad726b80bd57d362be83de",
-                "reference": "5c0e8ed8f0bd4c5463ad726b80bd57d362be83de",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/f61902cc7dcec3e7857bf6ab2694743b1ce9cc6f",
+                "reference": "f61902cc7dcec3e7857bf6ab2694743b1ce9cc6f",
                 "shasum": ""
             },
             "require": {
@@ -1738,7 +1738,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-27T09:30:27+00:00"
+            "time": "2021-02-28T13:53:56+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -4134,12 +4134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "7db742dee3f490499f584e9e86d4665e9e523ef4"
+                "reference": "3f4bb25a35d9024b6c2ce7ae53c96215d265ce1d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/7db742dee3f490499f584e9e86d4665e9e523ef4",
-                "reference": "7db742dee3f490499f584e9e86d4665e9e523ef4",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/3f4bb25a35d9024b6c2ce7ae53c96215d265ce1d",
+                "reference": "3f4bb25a35d9024b6c2ce7ae53c96215d265ce1d",
                 "shasum": ""
             },
             "require": {
@@ -4232,7 +4232,7 @@
                 "issues": "https://github.com/vimeo/psalm/issues",
                 "source": "https://github.com/vimeo/psalm/tree/master"
             },
-            "time": "2021-02-27T16:36:19+00:00"
+            "time": "2021-02-28T15:36:36+00:00"
         },
         {
             "name": "webmozart/assert",

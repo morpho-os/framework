@@ -6,13 +6,14 @@
  */
 namespace Morpho\App;
 
+use Closure;
 use Morpho\Base\IFn;
 use Morpho\Tech\Php\Reflection\FileReflection;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use function array_values;
 use function in_array;
-use function Morpho\Base\it;
 
 abstract class ActionMetaProvider implements IFn {
     protected $controllerFilter;
@@ -24,14 +25,17 @@ abstract class ActionMetaProvider implements IFn {
     }
 
     /**
-     * @param iterable|\Closure $modules Iterable over BackendModule or \Closure returning \Generator
+     * @param iterable|Closure $modules Iterable over BackendModule or \Closure returning \Generator
      * @return iterable Iterable over action meta
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
-    public function __invoke($modules): iterable {
+    public function __invoke(mixed $modules): iterable {
         $controllerFilter = $this->controllerFilter();
-        foreach (it($modules) as $module) {
-            /** @var \Morpho\App\BackendModule $module */
+        if ($modules instanceof Closure) {
+            $modules = $modules();
+        }
+        foreach ($modules as $module) {
+            /** @var BackendModule $module */
             foreach ($module->controllerFilePaths(true) as $controllerFilePath) {
                 foreach ((new FileReflection($controllerFilePath))->classes() as $rClass) {
                     if (!$controllerFilter($rClass)) {

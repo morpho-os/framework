@@ -8,7 +8,6 @@ namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\App\Web\IRequest;
 use Morpho\App\ISite;
-use Morpho\App\Web\View\FormFieldType;
 use Morpho\Base\IPipe;
 use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\PhpTemplateEngine;
@@ -118,19 +117,19 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testTag() {
-        $this->assertSame('<foo bar="baz">hello</foo>' . "\n", $this->templateEngine->tag('foo', 'hello', ['bar' => 'baz']));
+        $this->assertSame('<foo bar="baz">hello</foo>', $this->templateEngine->tag('foo', 'hello', ['bar' => 'baz']));
     }
 
     public function testTag_EolConfParam() {
-        $this->assertEquals("<foo></foo>\n", $this->templateEngine->tag('foo'));
+        $this->assertEquals("<foo></foo>", $this->templateEngine->tag('foo'));
         $this->assertEquals("<foo></foo>\n", $this->templateEngine->tag('foo', null, null, ['eol' => true]));
         $this->assertEquals("<foo></foo>", $this->templateEngine->tag('foo', null, null, ['eol' => false]));
     }
 
-    public function testTag_EscapeTextConfParam() {
-        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escapeText' => true]));
+    public function testTag_EscapeConfParam() {
+        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escape' => true]));
         $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false]));
-        $this->assertEquals('<foo>"</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escapeText' => false]));
+        $this->assertEquals('<foo>"</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escape' => false]));
     }
 
     public function testTag1_MultipleAttribs() {
@@ -147,12 +146,12 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testTag1_Html5() {
-        $this->assertSame('<foo bar="baz">' . "\n", $this->templateEngine->tag1('foo', ['bar' => 'baz']));
-        $this->assertSame('<foo bar="baz">' . "\n", $this->templateEngine->tag1('foo', ['bar' => 'baz'], ['xml' => false]));
+        $this->assertSame('<foo bar="baz">', $this->templateEngine->tag1('foo', ['bar' => 'baz']));
+        $this->assertSame('<foo bar="baz">', $this->templateEngine->tag1('foo', ['bar' => 'baz'], ['xml' => false]));
     }
 
     public function testTag1_Xml() {
-        $this->assertSame('<foo bar="baz" />' . "\n", $this->templateEngine->tag1('foo', ['bar' => 'baz'], ['xml' => true]));
+        $this->assertSame('<foo bar="baz" />', $this->templateEngine->tag1('foo', ['bar' => 'baz'], ['xml' => true]));
     }
 
     public function testHtmlId() {

@@ -14,6 +14,7 @@ use function json_encode;
 use function Morpho\Base\last;
 use function usort;
 use const Morpho\App\APP_DIR_NAME;
+use const Morpho\App\LIB_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
     public const INDEX_ATTR = '_index';
@@ -114,7 +115,7 @@ class ScriptProcessor extends HtmlProcessor {
     protected function actionScripts(string $jsModuleId): array {
         $siteConf = $this->site->conf();
         $shortModuleName = last($this->site->moduleName(), '/');
-        $fullJsModuleId = $shortModuleName . '/' . APP_DIR_NAME . '/' . $jsModuleId;
+        $fullJsModuleId = $shortModuleName . '/' . LIB_DIR_NAME . '/app/' . $jsModuleId;
         $relFilePath = $fullJsModuleId . '.js';
         $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
         $scripts = [];

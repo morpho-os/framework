@@ -20,7 +20,6 @@ use function is_file;
 
 const VENDOR = 'morpho-os';
 
-const APP_DIR_NAME = 'app';
 const BIN_DIR_NAME = 'bin';
 const CACHE_DIR_NAME = 'cache';
 const FRONTEND_MODULE_DIR_NAME = 'frontend';

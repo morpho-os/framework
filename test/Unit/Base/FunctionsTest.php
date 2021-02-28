@@ -7,8 +7,6 @@
 namespace Morpho\Test\Unit\Base;
 
 use ArrayIterator;
-use Closure;
-use Generator;
 use IteratorAggregate;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
@@ -20,7 +18,7 @@ use function call_user_func;
 use function count;
 use function fclose;
 use function file_put_contents;
-use function Morpho\Base\{append, appendFn, formatFloat, it, last, lastPos, lines, memoize, not, op, prepend, prependFn, qq, setProps, fromJson, partial, compose, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
+use function Morpho\Base\{all, append, appendFn, formatFloat, last, lastPos, lines, memoize, not, op, prepend, prependFn, qq, setProps, fromJson, partial, compose, toIt, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
 use RuntimeException;
 use function get_class_methods;
 use function ob_get_clean;
@@ -36,6 +34,131 @@ class FunctionsTest extends TestCase {
             fclose($this->tmpHandle);
         }
     }
+
+    // -------------------------------------------------------------------------
+
+    public function dataForAll_CommonCases() {
+        $falsePredicate = fn () => false;
+        $truePredicate = fn () => true;
+        $emptyString = '';
+        $emptyArr = [];
+        $emptyArrIt = new ArrayIterator($emptyArr);
+        $gen = function () {
+            yield 'foo';
+            yield 'bar';
+        };
+        yield [
+            true,
+            $falsePredicate,
+            $emptyString,
+        ];
+        yield [
+            true,
+            $falsePredicate,
+            $emptyArr,
+        ];
+        yield [
+            true,
+            $falsePredicate,
+            $emptyArrIt,
+        ];
+        yield [
+            false, // must return the same value as predicate
+            $falsePredicate,
+            $gen(),
+        ];
+        yield [
+            true, // must return the same value as predicate
+            $truePredicate,
+            $gen(),
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAll_CommonCases
+     */
+    public function testAll_CommonCases(bool $expected, callable $predicate, mixed $list) {
+        $this->assertSame($expected, all($predicate, $list));
+    }
+
+    public function dataForAll_StringAndStringable_Utf8String() {
+        yield [
+            'ℚ ⊂ ℝ ⊂ ℂ',
+        ];
+        yield [
+            new class implements \Stringable {
+                public function __toString() {
+                    return 'ℚ ⊂ ℝ ⊂ ℂ';
+                }
+            }
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAll_StringAndStringable_Utf8String
+     */
+    public function testAll_StringAndStringable_Utf8String($s) {
+        $called = [];
+        $this->assertTrue(all(function ($val, $key) use (&$called) {
+            $called[] = func_get_args();
+            return true;
+        }, $s));
+        $this->assertCount(9, $called);
+        $this->assertSame(['ℚ', 0], $called[0]);
+        $this->assertSame([' ', 1], $called[1]);
+        $this->assertSame(['⊂', 2], $called[2]);
+        $this->assertSame(['ℂ', 8], $called[8]);
+    }
+
+    // -------------------------------------------------------------------------
+
+    public function dataForToIt() {
+        $it = new ArrayIterator(['foo', 'bar']);
+        $itAggr = new class ($it) implements IteratorAggregate {
+            private ArrayIterator $it;
+
+            public function __construct(ArrayIterator $it) {
+                $this->it = $it;
+            }
+
+            public function getIterator() {
+                return $this->it;
+            }
+        };
+        yield [
+            $itAggr,
+            $itAggr
+        ];
+        yield [
+            [],
+            '',
+        ];
+        yield [
+            $it,
+            $it,
+        ];
+        $gen = (function () {
+            yield 'foo';
+            yield 'bar';
+        })();
+        yield [
+            $gen,
+            $gen,
+        ];
+        yield [
+            ['foo', 'bar'],
+            ['foo', 'bar'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForToIt
+     */
+    public function testToIt($expected, $it) {
+        $this->assertSame($expected, toIt($it));
+    }
+
+    // -------------------------------------------------------------------------
 
     public function dataForLines() {
         yield ["\n"];   // *nix
@@ -149,17 +272,6 @@ class FunctionsTest extends TestCase {
         ob_start();
         showLn("bee", "ant");
         $this->assertEquals("bee\nant\n", ob_get_clean());
-    }
-
-    public function testShowLn_ClosureGeneratorArg() {
-        $gen = function () {
-            foreach (['foo', 'bar', 'baz'] as $v) {
-                yield $v;
-            }
-        };
-        ob_start();
-        showLn($gen);
-        $this->assertEquals("foo\nbar\nbaz\n", ob_get_clean());
     }
 
     public function testShowLn_IterableArg() {
@@ -631,66 +743,6 @@ class FunctionsTest extends TestCase {
             $this->assertStringContainsString("Unknown property 'notDeclared'", $e->getMessage());
         }
         $this->assertFalse(property_exists($instance, 'notDeclared'));
-    }
-
-    public function dataForIt_ValidCases() {
-        $it = new ArrayIterator(['foo', 'bar']);
-        $itAggr = new class($it) implements IteratorAggregate {
-            public $it;
-
-            public function __construct($it) {
-                $this->it = $it;
-            }
-
-            public function getIterator() {
-                return $this->it;
-            }
-        };
-        yield [
-            $itAggr->it,
-            $itAggr
-        ];
-        yield [
-            function ($actual) {
-                $this->assertInstanceOf(Generator::class, $actual);
-            },
-            function () {
-                yield 'foo';
-                yield 'bar';
-            }
-        ];
-        yield [
-            ['foo', 'bar'],
-            ['foo', 'bar'],
-        ];
-        yield [
-            $it,
-            $it,
-        ];
-    }
-
-    /**
-     * @dataProvider dataForIt_ValidCases
-     */
-    public function testIt_ValidCases($expected, $it) {
-        if ($expected instanceof Closure) {
-            $expected(it($it));
-        } else {
-            $this->assertSame($expected, it($it));
-        }
-    }
-
-    public function dataForIt_InvalidCases() {
-        yield ['foo'];
-        yield [function () {}];
-    }
-
-    /**
-     * @dataProvider dataForIt_InvalidCases
-     */
-    public function testIt_InvalidCases($it) {
-        $this->expectException(UnexpectedValueException::class);
-        it($it);
     }
 
     public function testWords() {
