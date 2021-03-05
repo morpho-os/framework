@@ -1,4 +1,4 @@
-define("localhost/test/message-test", ["require", "exports", "localhost/lib/message", "localhost/lib/test/check"], function (require, exports, message_1, check_1) {
+define("localhost/test/message-test", ["require", "exports", "localhost/lib/base/message", "localhost/lib/test/check"], function (require, exports, message_1, check_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     describe("Message", function () {

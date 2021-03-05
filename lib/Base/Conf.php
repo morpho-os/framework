@@ -6,13 +6,14 @@
  */
 namespace Morpho\Base;
 
+use ArrayObject;
 use function array_diff_key;
 use function array_flip;
 use function array_keys;
 use function array_merge;
 use function count;
 
-class Conf extends \ArrayObject implements IConf {
+class Conf extends ArrayObject implements IConf {
     protected $default;
 
     public function __construct($values = null) {
@@ -45,16 +46,16 @@ class Conf extends \ArrayObject implements IConf {
     }
 
     /**
-     * @param array|\ArrayObject|Conf $conf
+     * @param array|ArrayObject|Conf $conf
      * @param bool $recursive
      * @return Conf
      */
     public function merge($conf, bool $recursive = true): self {
-        if ($conf instanceof \ArrayObject) {
+        if ($conf instanceof ArrayObject) {
             $conf = $conf->getArrayCopy();
         }
         if ($recursive) {
-            $this->exchangeArray(Arr::merge($this->getArrayCopy(), $conf));
+            $this->exchangeArray(merge($this->getArrayCopy(), $conf));
         } else {
             $this->exchangeArray(array_merge($this->getArrayCopy(), $conf));
         }

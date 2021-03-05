@@ -6,10 +6,10 @@
 
 /// <amd-module name="localhost/test/form-test" />
 
-import {Form, RequiredElValidator, validateEl} from "../lib/form";
-import {Widget} from "../lib/widget";
-import {ErrorMessage} from "../lib/message";
-import {checkEmpty, checkEqual, checkFalse, checkLength, checkTrue, checkNoEl} from "../lib/test/check";
+import {Form, RequiredElValidator, validateEl} from "../../lib/base/form";
+import {Widget} from "../../lib/base/widget";
+import {ErrorMessage} from "../../lib/base/message";
+import {checkEmpty, checkEqual, checkFalse, checkLength, checkTrue, checkNoEl} from "../../lib/test/check";
 
 class Page {
     public static readonly numberOfElsOfNonEmptyForm = 26;

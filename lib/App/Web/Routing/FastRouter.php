@@ -17,6 +17,7 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\App\IRouter;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
+use function Morpho\Base\only;
 use function Morpho\Caching\cacheKey;
 
 class FastRouter implements IHasServiceManager, IRouter {
@@ -65,7 +66,7 @@ class FastRouter implements IHasServiceManager, IRouter {
                 return '{' . \str_replace('$', '', $var) . ':[^/]+}';
             }, $routeMeta['uri']);
             */
-            $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], Arr::only($routeMeta, ['module', 'class', 'method', 'modulePath', 'controllerPath']));
+            $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], only($routeMeta, ['module', 'class', 'method', 'modulePath', 'controllerPath']));
         }
         $dispatchData = $routeCollector->getData();
         $this->cache->set($this->cacheKey, $dispatchData);

@@ -3,7 +3,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/jquery-ext" />
+///<amd-module name="localhost/lib/base/jquery-ext" />
 
 (() => {
     let uniqId: number = 0;
@@ -22,3 +22,32 @@ $.resolvedPromise = function (value?: any, ...args: any[]): JQueryPromise<any> {
 $.rejectedPromise = function (value?: any, ...args: any[]): JQueryPromise<any> {
     return $.Deferred().reject(value, ...args).promise();
 };
+declare global {
+    interface JQuery {
+        uniqId: () => JQuery;
+    }
+}
+
+export const __dummy = null;
+
+// Taken from https://github.com/jquery/jquery-ui/blob/master/ui/unique-id.js
+$.fn.extend({
+    uniqId: (function() {
+        var uuid = 0;
+        return function (this: JQuery) {
+            return this.each(function() {
+                if (!this.id) {
+                    this.id = "ui-id-" + ( ++uuid );
+                }
+            });
+        };
+    })(),
+
+    removeUniqId: function (this: JQuery) {
+        return this.each(function() {
+            if (/^ui-id-\d+$/.test(this.id)) {
+                $(this).removeAttr("id");
+            }
+        });
+    }
+});

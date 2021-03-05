@@ -3,10 +3,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/form" />
+///<amd-module name="localhost/lib/base/form" />
 
 import {ErrorMessage, renderMessage} from "./message";
-import {Widget, WidgetConfig} from "./widget";
+import {Widget, WidgetConf} from "./widget";
 import {redirectTo} from "./base";
 
 type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
@@ -46,6 +46,35 @@ export function validateEl($el: JQuery, validators?: ElValidator[]): string[] {
     return errors;
 }
 
+export function formData($form: JQuery): JQuerySerializeArrayElement[] {
+    // @TODO: see the serializeArray() method: $('form').serializeArray()?
+    const data: JQuerySerializeArrayElement[] = [];
+    els($form).each((index, node) => {
+        const name = node.getAttribute('name');
+        if (!name) {
+            return;
+        }
+        data.push({
+            name,
+            value: Form.elValue($(node))
+        });
+    });
+    return data;
+}
+
+export function forEachEl($form: JQuery, fn: ($el: JQuery, index?: number) => void | false) {
+    return els($form).each(function (index: number, el: HTMLElement) {
+        if (false === fn($(el), index)) {
+            return false;
+        }
+        return undefined;
+    });
+}
+
+export function els($form: JQuery): JQuery {
+    return $((<any> $form[0]).elements);
+}
+
 export enum FieldType {
     Button = 'button',
     Checkbox = 'checkbox',
@@ -61,7 +90,9 @@ export enum FieldType {
     Textfield = 'text'
 }
 
-export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
+export const elChangeEvents = 'keyup blur change paste cut';
+
+export class Form<FormConf = WidgetConf> extends Widget<FormConf> {
     public static readonly defaultInvalidCssClass: string = 'invalid';
     public skipValidation!: boolean;
     public elContainerCssClass!: string;
@@ -81,7 +112,7 @@ export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
     }
 
     public els(): JQuery {
-        return $((<any> this.el[0]).elements);
+        return els(this.el);
     }
 
     public elsToValidate(): JQuery {
@@ -249,11 +280,11 @@ export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
         this.elContainerCssClass = 'form-group';
         this.formMessageContainerCssClass = 'messages';
         this.invalidCssClass = Form.defaultInvalidCssClass;
-        this.elChangeEvents = 'keyup blur change paste cut';
+        this.elChangeEvents = elChangeEvents;
         this.el.attr('novalidate', 'novalidate');
     }
 
-    protected registerEventHandlers(): void {
+    protected bindHandlers(): void {
         this.el.on('submit', () => {
             this.submit();
             return false;
@@ -267,7 +298,7 @@ export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
         });
     }
 
-    protected sendFormData(uri: string, requestData: Object): JQueryXHR {
+    protected sendFormData(uri: string, requestData: any): JQueryXHR {
         const ajaxSettings = this.ajaxSettings();
         ajaxSettings.url = uri;
         ajaxSettings.data = requestData;
@@ -309,19 +340,7 @@ export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
     }
 
     protected formData(): JQuerySerializeArrayElement[] {
-        // @TODO: see the serializeArray() method: $('form').serializeArray()?
-        const data: JQuerySerializeArrayElement[] = [];
-        this.els().each((index, node) => {
-            const name = node.getAttribute('name');
-            if (!name) {
-                return;
-            }
-            data.push({
-                name,
-                value: Form.elValue($(node))
-            });
-        });
-        return data;
+        return formData(this.el);
     }
 
     protected uri(): string {
@@ -343,9 +362,9 @@ export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
     }
 
     protected handleResponse(result: JSONResult): void {
-        if (result.err) {
+        if (result.err !== undefined) {
             this.handleErrResponse(result.err);
-        } else if (result.ok) {
+        } else if (result.ok !== undefined) {
             this.handleOkResponse(result.ok);
         } else {
             this.invalidResponseError();
@@ -353,7 +372,7 @@ export class Form<TFormConfig = WidgetConfig> extends Widget<TFormConfig> {
     }
 
     protected handleOkResponse(responseData: any): any {
-        if (responseData.redirect) {
+        if (responseData && responseData.redirect) {
             redirectTo(responseData.redirect);
             return true;
         }

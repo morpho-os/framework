@@ -1,6 +1,7 @@
 {
-    "extends": "../../tsconfig-base",
-    "compilerOptions": {
-        "rootDir": "../.."
-    }
+    "references": [
+        {
+            "path": "./base"
+        }
+    ]
 }

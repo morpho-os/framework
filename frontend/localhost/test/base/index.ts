@@ -1,7 +1,7 @@
 /// <amd-module name="localhost/test/index" />
 
 // We need to boot jasmine on the module inclusion, so that the global 'jasmine' object would be accessible for tests.
-import {bootJasmine, TestResultsReporter} from "../lib/test/jasmine";
+import {bootJasmine, TestResultsReporter} from "../../lib/test/jasmine";
 
 const env = bootJasmine();
 

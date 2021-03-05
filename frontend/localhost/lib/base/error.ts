@@ -3,7 +3,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/error" />
+///<amd-module name="localhost/lib/base/error" />
 
 export class Exception extends Error {
     //public stack: any;

@@ -1,4 +1,4 @@
-define("localhost/test/form-test", ["require", "exports", "localhost/lib/form", "localhost/lib/widget", "localhost/lib/message", "localhost/lib/test/check"], function (require, exports, form_1, widget_1, message_1, check_1) {
+define("localhost/test/form-test", ["require", "exports", "localhost/lib/base/form", "localhost/lib/base/widget", "localhost/lib/base/message", "localhost/lib/test/check"], function (require, exports, form_1, widget_1, message_1, check_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Page {

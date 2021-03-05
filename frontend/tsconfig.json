@@ -1,9 +1,5 @@
 {
-    "files": [],
     "references": [
-        {
-            "path": "./localhost/app"
-        },
         {
             "path": "./localhost/lib"
         },

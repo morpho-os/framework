@@ -1,13 +1,18 @@
-/// <amd-module name="localhost/lib/app" />
+///<amd-module name="localhost/lib/base/app" />
 
 import {PageMessenger} from "./message";
 
+type TAppContext = Record<string, any>;
+
 export class App {
-    public context: Record<string, any> = {};
+    public context: TAppContext = {};
 
     public constructor() {
         this.context.pageMessenger = new PageMessenger({el: $('#page-messages')});
-        this.context = {}
+        this.bindEventHandlers();
+    }
+
+    protected bindEventHandlers(): void {
     }
 }
 
@@ -16,5 +21,3 @@ declare global {
         app: App;
     }
 }
-
-

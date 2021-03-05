@@ -13,6 +13,7 @@ use ArrayObject;
 use Closure;
 use Generator;
 use InvalidArgumentException;
+use OutOfBoundsException;
 use RuntimeException;
 use Stringable;
 use Throwable;
@@ -93,8 +94,8 @@ const WAIT_INTERVAL_MICRO_SEC = 200000;
  */
 
 /**
- * @param callable(mixed, mixed): bool $predicate
- * @param List $list
+ * @psalm-param callable(mixed, mixed): bool $predicate
+ * @psalm-param List $list
  * @return bool
  */
 function all(callable $predicate, iterable|string|Stringable $list): bool {
@@ -108,7 +109,7 @@ function all(callable $predicate, iterable|string|Stringable $list): bool {
 
 /**
  * Converts to iterable so that it can be used in foreach loop.
- * @param List $list
+ * @psalm-param List $list
  * @return iterable
  * @psalm-pure
  */
@@ -117,14 +118,10 @@ function toIt(iterable|string|Stringable $list): iterable {
         return $list;
     }
     if ($list instanceof Stringable) {
-        $list = (string) $list;
+        $list = (string)$list;
     }
     return mb_str_split($list);
 }
-
-
-
-
 
 
 // todo: review functions below #12
@@ -207,11 +204,11 @@ function prepend(string|Stringable|iterable|int|float $list, string $prefix): st
     if (is_iterable($list)) {
         $r = [];
         foreach ($list as $k => $v) {
-            $r[$k] = $prefix . (string) $v;
+            $r[$k] = $prefix . (string)$v;
         }
         return $r;
     }
-    return $prefix . (string) $list;
+    return $prefix . (string)$list;
 }
 
 function prependFn(string $prefix): Closure {
@@ -224,11 +221,11 @@ function append(string|Stringable|iterable|int|float $list, string $suffix): str
     if (is_iterable($list)) {
         $r = [];
         foreach ($list as $k => $v) {
-            $r[$k] = (string) $v . $suffix;
+            $r[$k] = (string)$v . $suffix;
         }
         return $r;
     }
-    return (string) $list . $suffix;
+    return (string)$list . $suffix;
 }
 
 function appendFn(string $suffix): Closure {
@@ -712,9 +709,10 @@ function formatFloat($val): string {
     return number_format(round(floatval($val), 2), 2, '.', ' ');
 }
 
-function hash($var): string {
+function hash(mixed $var): string {
     // @TODO: Use it in memoize, check all available types.
     throw new NotImplementedException();
+    //return md5(json_encode($arr));
 }
 
 function equals($a, $b) {
@@ -1127,6 +1125,37 @@ function lfold(callable $fn, iterable|string $list, mixed $initial = null): mixe
 }
 
 /**
+ * ucfirst() working for UTF-8, https://www.php.net/manual/en/function.ucfirst.php#57298
+ * @param string|Stringable $list
+ * @return string
+ */
+function ucfirst(string|Stringable $list): string {
+    $list = (string)$list;
+    $fc = mb_strtoupper(mb_substr($list, 0, 1));
+    return $fc . mb_substr($list, 1);
+}
+
+/**
+ * Opposite to unindent()
+ * @param string|Stringable|int|float $text
+ * @param int $indent Number of spaces
+ * @return string
+ */
+function indent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
+    return preg_replace('~^~m', str_repeat(' ', $indent), (string)$text);
+}
+
+/**
+ * Opposite to indent()
+ * @param string|Stringable|int|float $text
+ * @param int $indent Number of spaces
+ * @return string
+ */
+function unindent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
+    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string)$text);
+}
+
+/**
  * Alternative to iterator_to_array(), as the iterator_to_array() does not support arrays as the first argument
  * @param iterable $it
  * @return array
@@ -1160,41 +1189,212 @@ function toArr(iterable $it): array {
 }
 
 /**
- * ucfirst() working for UTF-8, https://www.php.net/manual/en/function.ucfirst.php#57298
- * @param string|Stringable $list
- * @return string
+ * Returns an array (set, order is not important) of all subsets having size 2^count($arr).
+ * If $k >= 0 then will generate only k-subsets (subsets of size $k).
+ *
+ * of all subsets,the number of elements of the output is 2^count($arr).
+ * The $arr must be either empty or non-empty and have numeric keys.
+ *
+ * @psalm-param array<string, mixed> $arr
+ * @psalm-param int $arr
  */
-function ucfirst(string|Stringable $list): string {
-    $list = (string)$list;
-    $fc = mb_strtoupper(mb_substr($list, 0, 1));
-    return $fc . mb_substr($list, 1);
+function subsets(array $arr, int $k = -1): array {
+    if (count($arr) > (8 * PHP_INT_SIZE)) {
+        throw new OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
+    }
+    if ($k > -1) {
+        throw new NotImplementedException();
+    }
+
+    // Original algo is written by Brahmananda (https://www.quora.com/How-do-I-generate-all-subsets-of-a-set-in-Java-iteratively)
+    $subsets = [];
+    $n = count($arr);
+    $numOfSubsets = 1 << $n; // 2^$n
+    for ($i = 0; $i < $numOfSubsets; $i++) {
+        $subsetBits = $i;
+        $subset = [];
+        for ($j = 0; $j < $n; $j++) { // $n is the width of the bit field, number of elements in the input set.
+            if ($subsetBits & 1) {  // is the right bit is 1?
+                $subset[] = $arr[$j];
+            }
+            $subsetBits = $subsetBits >> 1; // process next bit
+        }
+        $subsets[] = $subset;
+    }
+    return $subsets;
 }
 
 /**
- * Opposite to unindent()
- * @param string|Stringable|int|float $text
- * @param int $indent Number of spaces
- * @return string
+ * @psalm-param array<string, mixed> $arr
+ * @psalm-param int $arr
  */
-function indent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
-    return preg_replace('~^~m', str_repeat(' ', $indent), (string)$text);
+function permutations(array $arr, int $n, bool $allowDups = false): array {
+    // https://en.wikipedia.org/wiki/Heap%27s_algorithm
+    throw new NotImplementedException();
 }
 
 /**
- * Opposite to indent()
- * @param string|Stringable|int|float $text
- * @param int $indent Number of spaces
- * @return string
+ * @psalm-param array<string, mixed> $arr
+ * @psalm-param int $arr
  */
-function unindent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
-    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string)$text);
+function combinations(array $arr, int $n, bool $allowDups = false): array {
+    throw new NotImplementedException();
 }
 
+/**
+ * Modified \Zend\Stdlib\ArrayUtils::merge() from the http://github.com/zendframework/zf2
+ *
+ * Merge two arrays together.
+ *
+ * If an integer key exists in both arrays and preserveNumericKeys is false, the value
+ * from the second array will be appended to the first array. If both values are arrays, they
+ * are merged together, else the value of the second array overwrites the one of the first array.
+ */
+function merge(array $arrA, array $arrB, bool $preserveNumericKeys = false): array {
+    foreach ($arrB as $key => $value) {
+        if (isset($arrA[$key]) || array_key_exists($key, $arrA)) {
+            if (!$preserveNumericKeys && is_int($key)) {
+                $arrA[] = $value;
+            } elseif (is_array($value) && is_array($arrA[$key])) {
+                $arrA[$key] = merge($arrA[$key], $value, $preserveNumericKeys);
+            } else {
+                $arrA[$key] = $value;
+            }
+        } else {
+            $arrA[$key] = $value;
+        }
+    }
+    return $arrA;
+}
 
+function unsetOne(array $arr, $val, bool $strict = true): array {
+    $key = array_search($val, $arr, $strict);
+    if (false !== $key) {
+        unset($arr[$key]);
+    }
+    return $arr;
+}
 
+function unsetMulti(array $arr, iterable $val, bool $strict = true): array {
+    // NB: unsetMulti() can't merged with unset() as $val in unset() can be array, i.e. unset() has to support unsetting arrays.
+    foreach ($val as $v) {
+        $key = array_search($v, $arr, $strict);
+        if (false !== $key) {
+            unset($arr[$key]);
+        }
+    }
+    return $arr;
+}
 
+/**
+ * Unsets all items of array with $key recursively.
+ * @todo: remove reference
+ */
+function unsetRecursive(array &$arr, $key): array {
+    unset($arr[$key]);
+    foreach (array_keys($arr) as $k) {
+        if (is_array($arr[$k])) {
+            unsetRecursive($arr[$k], $key);
+        }
+    }
+    return $arr;
+}
 
+/**
+ * Union for sets, for difference use \array_diff(), for intersection use \array_intersect().
+ */
+function union(...$arr): array {
+    // @TODO: make it work for array of arrays and other cases.
+    return array_unique(array_merge(...$arr));
+}
 
+function intersect(...$arr): array {
+    return array_intersect_key(...$arr);
+}
 
+function flatten(array $arr): array {
+    $result = [];
+    foreach ($arr as $val) {
+        if (is_array($val)) {
+            $result = array_merge($result, flatten($val));
+        } else {
+            $result[] = $val;
+        }
+    }
+    return $result;
+}
 
+/**
+ * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
+ * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
+ */
+function symDiff(array $arrA, array $arrB): array {
+    $diffA = array_diff($arrA, $arrB);
+    $diffB = array_diff($arrB, $arrA);
+    return union($diffA, $diffB);
+}
 
+function only(array $arr, array $keys, $createMissingItems = true): array {
+    if ($createMissingItems) {
+        $newArr = [];
+        foreach ($keys as $key) {
+            $newArr[$key] = isset($arr[$key]) ? $arr[$key] : null;
+        }
+        return $newArr;
+    }
+    return array_intersect_key($arr, array_flip(array_values($keys)));
+}
+
+function cartesianProduct(array $arrA, array $arrB) {
+    // @TODO: work for iterable
+    $res = [];
+    foreach ($arrA as $v1) {
+        foreach ($arrB as $v2) {
+            $res[] = [$v1, $v2];
+        }
+    }
+    return $res;
+}
+
+function isSubset(array $arrA, array $arrB): bool {
+    return intersect($arrA, $arrB) == $arrB;
+}
+
+/**
+ * Compares sets not strictly. Each element of each array must be scalar.
+ * @return bool
+ */
+function setsEqual(array $arrA, array $arrB): bool {
+    return count($arrA) === count($arrB) && count(array_diff($arrA, $arrB)) === 0;
+}
+
+function toKeyed(array $matrix, $keyForIndex, bool $drop = false): array {
+    $result = [];
+    foreach ($matrix as $row) {
+        if (!isset($row[$keyForIndex])) {
+            throw new RuntimeException();
+        }
+        $k = $row[$keyForIndex];
+        if ($drop) {
+            unset($row[$keyForIndex]);
+        }
+        $result[$k] = $row;
+    }
+    return $result;
+}
+
+function camelizeKeys(array $arr): array {
+    $result = [];
+    foreach ($arr as $key => $value) {
+        $result[camelize($key)] = $value;
+    }
+    return $result;
+}
+
+function underscoreKeys(array $arr): array {
+    $result = [];
+    foreach ($arr as $key => $value) {
+        $result[underscore($key)] = $value;
+    }
+    return $result;
+}

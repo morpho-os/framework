@@ -3,18 +3,20 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/event-manager" />
+///<amd-module name="localhost/lib/base/event-manager" />
+
+type TArgHandler = (...args: any[]) => any;
 
 export class EventManager {
-    private eventHandlers: { [eventName: string]: ((...args: any[]) => any)[] } = {};
+    private handlers: { [eventName: string]: TArgHandler[] } = {};
 
-    public on(eventName: string, handler: (...args: any[]) => any): void {
-        this.eventHandlers[eventName] = this.eventHandlers[eventName] || [];
-        this.eventHandlers[eventName].push(handler);
+    public on(eventName: string, handler: TArgHandler): void {
+        this.handlers[eventName] = this.handlers[eventName] || [];
+        this.handlers[eventName].push(handler);
     }
 
     public trigger(eventName: string, ...args: any[]): void {
-        let handlers = this.eventHandlers[eventName];
+        let handlers = this.handlers[eventName];
         if (!handlers) {
             return;
         }

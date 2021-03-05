@@ -1,4 +1,4 @@
-define("localhost/app/index", ["require", "exports", "localhost/lib/app"], function (require, exports, app_1) {
+define("localhost/app/index", ["require", "exports", "localhost/lib/base/app"], function (require, exports, app_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     window.app = new app_1.App();

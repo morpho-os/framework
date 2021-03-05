@@ -42,7 +42,8 @@
         "phpstan/phpstan": "^0.12.0@dev",
         "vimeo/psalm": "dev-master",
         "phan/phan": "dev-master",
-        "orklah/psalm-insane-comparison": "dev-master"
+        "orklah/psalm-insane-comparison": "dev-master",
+        "psalm/plugin-phpunit": "dev-master"
     },
     "autoload": {
         "psr-4": {

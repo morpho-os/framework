@@ -3,14 +3,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/base" />
+///<amd-module name="localhost/lib/base/base" />
 
 export function id(value: any): any {
     return value;
 }
 
-export function isPromise(value: any): boolean {
-    return value && $.isFunction(value.promise);
+export function isPromise(val: any): boolean {
+    return val && typeof val.promise === 'function';
 }
 
 // found at Jasmine Testing framework, $.isDomNode
@@ -45,7 +45,7 @@ export function redirectToHome(): void {
     redirectTo('/');
 }
 
-export function redirectTo(uri: string, storePageInHistory = false): void {
+export function redirectTo(uri: string, storePageInHistory = true): void {
     if (storePageInHistory) {
         window.location.href = uri;
     } else {
@@ -90,3 +90,4 @@ export function delayedCallback(callback: Function, waitMs: number): (this: any,
         }, waitMs);
     };
 }
+

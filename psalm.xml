@@ -7,21 +7,21 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="lib" />
+        <directory name="lib"/>
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
         <MixedAssignment>
             <errorLevel type="suppress">
-                <directory name="lib" />
+                <directory name="lib"/>
             </errorLevel>
         </MixedAssignment>
         <MixedArrayOffset>
             <errorLevel type="suppress">
-                <directory name="lib" />
+                <directory name="lib"/>
             </errorLevel>
         </MixedArrayOffset>
     </issueHandlers>
-</psalm>
+<plugins><pluginClass class="Psalm\PhpUnitPlugin\Plugin"/></plugins></psalm>

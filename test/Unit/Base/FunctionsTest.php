@@ -13,12 +13,14 @@ use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
 use SplStack;
 use stdClass;
+use Stringable;
 use UnexpectedValueException;
+use function array_values;
 use function call_user_func;
 use function count;
 use function fclose;
 use function file_put_contents;
-use function Morpho\Base\{all, append, appendFn, formatFloat, last, lastPos, lines, memoize, not, op, prepend, prependFn, qq, setProps, fromJson, partial, compose, toIt, toJson, tpl, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
+use function Morpho\Base\{all, append, appendFn, camelizeKeys, cartesianProduct, formatFloat, isSubset, last, lastPos, lines, memoize, not, op, prepend, prependFn, qq, setProps, fromJson, partial, compose, setsEqual, subsets, symDiff, toIt, toJson, toKeyed, tpl, underscoreKeys, union, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, unsetMulti, unsetOne, unsetRecursive, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
 use RuntimeException;
 use function get_class_methods;
 use function ob_get_clean;
@@ -86,7 +88,7 @@ class FunctionsTest extends TestCase {
             'ℚ ⊂ ℝ ⊂ ℂ',
         ];
         yield [
-            new class implements \Stringable {
+            new class implements Stringable {
                 public function __toString() {
                     return 'ℚ ⊂ ℝ ⊂ ℂ';
                 }
@@ -821,6 +823,363 @@ OUT;
 
     public function testWrapFn() {
         $this->assertSame('prefoopost', wrapFn('pre', 'post')('foo'));
+    }
+
+    public function testSubsets_AllSubsets() {
+        $this->assertEquals([[]], subsets([]));
+        $this->assertEquals([[], [1]], subsets([1]));
+        $subsets = subsets(['a', 'b', 'c']);
+        sort($subsets);
+        $this->assertSame([
+            [],
+            ['a'],
+            ['b'],
+            ['c'],
+            ['a', 'b'],
+            ['a', 'c'],
+            ['b', 'c'],
+            ['a', 'b', 'c']
+        ], $subsets);
+    }
+
+    public function testSubsets_KSubsets() {
+        $this->markTestIncomplete();
+        $this->assertSame([[]], subsets([], 0));
+        $this->assertSame([[]], subsets([1, 2], 0));
+    }
+
+    public function dataForIsSubset() {
+        return [
+            [
+                true, [], [],
+            ],
+            [
+                false, [], ['a', 'b']
+            ],
+            [
+                true, ['a', 'b'], [],
+            ],
+            [
+                true, ['a', 'b'], ['a'],
+            ],
+            [
+                true, ['a', 'b'], ['a', 'b'],
+            ],
+            [
+                false, ['a', 'b'], ['a', 'b', 'c'],
+            ],
+            [
+                false, [2 => 'a'], [3 => 'a'],
+            ],
+            [
+                true, [3 => 'a'], [3 => 'a'],
+            ],
+            [
+                true, ['foo' => 'a'], [],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b'], ['foo' => 'a'],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b'], ['foo' => 'a', 'bar' => 'b'],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['foo' => 'a', 'bar' => 'b'],
+            ],
+            [
+                true, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['pizza'],
+            ],
+            [
+                false, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['pizza', 'bar' => 'foo'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForIsSubset
+     */
+    public function testIsSubset($expected, $a, $b) {
+        $this->assertSame($expected, isSubset($a, $b));
+    }
+
+    public function dataForSetsEqual() {
+        return [
+            [
+                [],
+                [],
+                true,
+            ],
+            [
+                [],
+                [0],
+                false,
+            ],
+            [
+                ['a', 'b', 'c'],
+                [97, 98, 99],
+                false,
+            ],
+            [
+                ['1'],
+                [1],
+                true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForSetsEqual
+     */
+    public function testSetsEqual($a, $b, $expected) {
+        $this->assertEquals($expected, setsEqual($a, $b));
+    }
+
+    public function testUnset_WeirdCases() {
+        $this->assertEquals([], unsetOne([], 'some'));
+        $this->assertEquals([], unsetOne([], null));
+    }
+
+    public function testUnset_StringKeys() {
+        $this->assertEquals(['one' => 'first-val'], unsetOne(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
+    }
+
+    public function testUnset_IntKeys() {
+        $obj1 = new stdClass();
+        $obj2 = new stdClass();
+        $this->assertEquals([$obj2], array_values(unsetOne([$obj1, $obj2], $obj1)));
+
+        $this->assertEquals(['one', 'two'], array_values(unsetOne(['one', 'two'], 'some')));
+
+        $this->assertEquals(['one'], array_values(unsetOne(['one', 'two'], 'two')));
+    }
+
+    public function testUnsetMulti() {
+        $foo = $orig = ['abc', 'def', 'ghi'];
+        $this->assertSame(['abc'], unsetMulti($foo, ['def', 'ghi']));
+        $this->assertSame($orig, $foo);
+    }
+
+    public function testToKeyed() {
+        $this->assertEquals(
+            [
+                ':-)' => [
+                    'one' => ':)', 'two' => ':-)', 'three' => ':+)',
+                ],
+                ':-]' => [
+                    'one' => ':]', 'two' => ':-]', 'three' => ':+]',
+                ],
+            ],
+            toKeyed(
+                [
+                    [
+                        'one' => ':)', 'two' => ':-)', 'three' => ':+)',
+                    ],
+                    [
+                        'one' => ':]', 'two' => ':-]', 'three' => ':+]',
+                    ],
+                ],
+                'two'
+            )
+        );
+    }
+
+    public function testToKeyed_WithDropValue() {
+        $this->assertEquals(
+            [
+                ':-)' => [
+                    'one' => ':)', 'three' => ':+)',
+                ],
+                ':-]' => [
+                    'one' => ':]', 'three' => ':+]',
+                ],
+            ],
+            toKeyed(
+                [
+                    [
+                        'one' => ':)', 'two' => ':-)', 'three' => ':+)',
+                    ],
+                    [
+                        'one' => ':]', 'two' => ':-]', 'three' => ':+]',
+                    ],
+                ],
+                'two',
+                true
+            )
+        );
+    }
+
+    public function testUnsetRecursive() {
+        $array = $this->_testArray();
+        $expected = [
+            'foo' => 'test',
+            'bar' => [
+                'something',
+            ],
+            'baz' => [
+                'test' => [],
+            ],
+        ];
+        $this->assertEquals($expected, unsetRecursive($array, 'unsetMe'));
+        $this->assertEquals($expected, $array);
+    }
+
+    public function testCamelizeKeys() {
+        $array = [
+            'foo-bar' => 'one',
+            'bar_baz' => 'two',
+        ];
+        $expected = [
+            'fooBar' => 'one',
+            'barBaz' => 'two',
+        ];
+        $this->assertEquals($expected, camelizeKeys($array));
+    }
+
+    public function testUnderscoreKeys() {
+        $array = [
+            'fooBar' => 'one',
+            'barBaz' => 'two',
+        ];
+        $expected = [
+            'foo_bar' => 'one',
+            'bar_baz' => 'two',
+        ];
+        $this->assertEquals($expected, underscoreKeys($array));
+    }
+
+    /*
+    public function testHash() {
+        $array = $this->_testArray();
+        $hash1 = hash($array);
+        $hash2 = hash($array);
+        $this->assertTrue(!empty($hash1) && !empty($hash2));
+        $this->assertEquals($hash1, $hash2);
+
+        $array['other'] = 'item';
+        $hash3 = hash($array);
+        $this->assertTrue(!empty($hash3));
+        $this->assertNotEquals($hash1, $hash3);
+    }
+    */
+
+    public function testUnion() {
+        // todo: mixed keys: numeric, string
+        $this->assertSame(['foo' => 'kiwi'], union(['foo' => 'apple'], ['foo' => 'kiwi']));
+        $this->assertSame(['foo', 'bar', 'baz'], union(['foo', 'bar'], ['baz']));
+        $this->assertSame(['foo', 'bar', 'baz'], union(['foo', 'bar'], ['baz', 'foo']));
+    }
+
+    public function dataForSymmetricDiff() {
+        // for each {numeric keys, string keys, mixed keys}
+        // check {value !=, key !=}
+        return [
+            [
+                ['foo'],
+                ['foo'],
+                [],
+            ],
+            [
+                ['foo'],
+                [],
+                ['foo'],
+            ],
+            [
+                [],
+                [],
+                [],
+            ],
+            // Numeric keys
+            [
+                // Numeric keys: keys ==, values !=
+                ['foo', 'bar', 'baz'],
+                ['foo', 'bar'],
+                ['baz'],
+            ],
+            [
+                // Numeric sequential keys: keys ==, values ==
+                ['banana', 'kiwi', 'cherry'],
+                ['pear', 'banana', 'mango'],
+                ['pear', 'mango', 'kiwi', 'cherry'],
+            ],
+            [
+                // Numeric keys: keys !=, values ==
+                ['foo'],
+                [1 => 'foo', 0 => 'bar'],
+                [3 => 'bar'],
+            ],
+            [
+                // Numeric keys: keys !=, values !=
+                ['pear', 'banana', 'mango', 'kiwi', 'cherry'],
+                [7 => 'pear', 11 => 'banana', 24 => 'mango'],
+                [6 => 'kiwi', 0 => 'cherry'],
+            ],
+
+            // String keys
+            [
+                // String keys: keys !=, values !=
+                ['foo' => 'banana', 'bar' => 'kiwi', 'baz' => 'cherry'],
+                ['foo' => 'banana'],
+                ['bar' => 'kiwi', 'baz' => 'cherry'],
+            ],
+            [
+                // String keys: keys !=, values ==
+                [],
+                ['k1' => 'v1'],
+                ['k2' => 'v1'],
+            ],
+            [
+                // String keys: keys ==, values !=
+                ['k1' => 'v2'],
+                ['k1' => 'v1'],
+                ['k1' => 'v2'],
+            ],
+            [
+                // String keys: keys ==, values ==
+                [],
+                ['k1' => 'v2'],
+                ['k1' => 'v2'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForSymmetricDiff
+     */
+    public function testSymmetricDiff(array $expected, array $a, array $b) {
+        $this->assertSame($expected, symDiff($a, $b));
+    }
+
+    public function testCartesianProduct() {
+        $a = ['foo', 'bar', 'baz'];
+        $b = ['blue', 'red'];
+        $this->assertSame(
+            [
+                ['foo', 'blue'],
+                ['foo', 'red'],
+                ['bar', 'blue'],
+                ['bar', 'red'],
+                ['baz', 'blue'],
+                ['baz', 'red'],
+            ],
+            cartesianProduct($a, $b)
+        );
+    }
+
+    private function _testArray() {
+        return [
+            'foo'     => 'test',
+            'bar'     => [
+                'something',
+            ],
+            'unsetMe' => 1,
+            'baz'     => [
+                'test' => [
+                    'unsetMe' => [
+                        'unsetMe' => 'test',
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function assertCommon($fn) {

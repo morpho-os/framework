@@ -1,5 +1,5 @@
-backendModuleDirPath = $(CURDIR)/server
-frontendModuleDirPath = $(CURDIR)/client
+backendDirPath = $(CURDIR)/backend
+frontendDirPath = $(CURDIR)/frontend
 
 # Default target
 all: test
@@ -24,7 +24,7 @@ integration-test:
 
 backend-test: module-test
 module-test:
-	bin/test $(testOpts) $(backendModuleDirPath)
+	bin/test $(testOpts) $(backendDirPath)
 
 # todo: frontend tests
 frontend-test:
@@ -40,17 +40,20 @@ lint:
 assets: js css
 
 js:
-	bin/build js
+	bin/ts build
+
+watch-js:
+	bin/ts watch
 
 css:
-	bin/build css
+	sass $(frontendDirPath)/localhost/rc/css:$(frontendDirPath)/localhost/rc/css
 
 ################################################################################
 
 clear: clean
 clean:
-	sudo sh -c 'rm -rf test/Integration/*.log $(backendModuleDirPath)/localhost/{log,cache}/*'
-	find $(frontendModuleDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.css' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -delete
+	sudo sh -c 'rm -rf test/Integration/*.log $(backendDirPath)/localhost/{log,cache}/*'
+	find $(frontendDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.css' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -delete
 
 update:
 	composer update
@@ -60,6 +63,9 @@ update:
 setup:
 	composer require --dev psalm/plugin-phpunit && vendor/bin/psalm-plugin enable psalm/plugin-phpunit
 	npm install -g typescript@next
+	test -e package.json || echo '{}' > package.json
+	npm install --save-dev @types/node
+	npm link typescript
 
 .SILENT:
-.PHONY: all assets js css test test-stop utest utest-stop utest-stop-defect itest itest-stop mtest lint clear clean update setup
+.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css clear clean update setup

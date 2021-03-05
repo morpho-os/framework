@@ -10,6 +10,7 @@ namespace Morpho\Base;
 use InvalidArgumentException;
 use OutOfRangeException;
 use RuntimeException;
+use UnexpectedValueException;
 use function array_diff_key;
 use function array_flip;
 use function array_intersect_key;
@@ -51,6 +52,20 @@ class Must {
         if (count($diff)) {
             throw new RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
         }
+    }
+
+    public static function haveItems(array $arr, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
+        $newArr = [];
+        foreach ($requiredKeys as $key) {
+            if (!isset($arr[$key]) && !array_key_exists($key, $arr)) {
+                throw new UnexpectedValueException("Missing the required item with the key " . $key);
+            }
+            if ($checkForEmptiness && !$arr[$key]) {
+                throw new UnexpectedValueException("The item '$key' is empty");
+            }
+            $newArr[$key] = $arr[$key];
+        }
+        return $returnOnlyRequired ? $newArr : $arr;
     }
 
     public static function haveKeys(array $arr, array $requiredKeys): void {

@@ -17,10 +17,8 @@ selenium.log.*
 geckodriver
 .phpunit.result.cache
 *.tsbuildinfo
-/client/localhost/lib/*.js
-!/client/localhost/lib/*.index.js
+/frontend/localhost/lib/base/*.js
+!/frontend/localhost/lib/base/index.js
 
-# bower
-bower_components/
 # npm
 node_modules/

@@ -3,7 +3,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/bom" />
+///<amd-module name="localhost/lib/base/bom" />
 
 // --------------------------------------------------------------------------
 // Math
@@ -35,7 +35,7 @@ Math.logN = function (n: number, base: number): number {
 // --------------------------------------------------------------------------
 // String
 
-String.prototype.encodeHtml = function (this: string): string {
+String.prototype.e = function (this: string): string {
     const entityMap = {
         "&": "&amp;",
         "<": "&lt;",
@@ -69,10 +69,55 @@ String.prototype.replaceAll = function (search: string, replace: string): string
     return this.split(search).join(replace);
 };
 
+String.prototype.ucFirst = function (this: string) {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+// https://stackoverflow.com/a/41431646/13393715
+String.prototype.trimR = function (this: string, chars?: string): string {
+    if (chars === undefined) {
+        return this.replace(new RegExp('\\s+$'), ''); // by default trim spaces
+    }
+    return this.replace(new RegExp("[" + RegExp.e(chars) + "]+$"), '');
+};
+String.prototype.trimL = function (this: string, chars?: string): string {
+    if (chars === undefined) {
+        return this.replace(new RegExp('^\\s+'), ''); // by default trim spaces
+    }
+    return this.replace(new RegExp("^[" + RegExp.e(chars) + "]+"), '');
+};
+String.prototype.trimLR = function (this: string, chars?: string): string {
+    if (chars == undefined) {
+        return this.trim();
+    }
+    return this.trimL(chars).trimR(chars);
+}
+
 // ----------------------------------------------------------------------------
 // RegExp
 
 // https://github.com/benjamingr/RegExp.escape/blob/master/polyfill.js
-RegExp.escape = function (s: string): string {
+RegExp.e = function (s: string): string {
     return String(s).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 };
+
+// ----------------------------------------------------------------------------
+// Object
+
+export {}; // this file needs to be a module
+
+declare global {
+    interface ObjectConstructor {
+        pick(o: any, keys: string[]): any;
+    }
+}
+
+// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_pick
+Object.pick = function (object: any, keys: string[]): any {
+    return keys.reduce((obj, key) => {
+        if (object && object.hasOwnProperty(key)) {
+            obj[key] = object[key];
+        }
+        return obj;
+    }, <{[name: string]: any}>{});
+}

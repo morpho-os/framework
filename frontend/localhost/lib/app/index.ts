@@ -1,5 +1,5 @@
 /// <amd-module name="localhost/app/index" />
 
-import {App} from "../lib/app";
+import {App} from "../base/app";
 
 window.app = new App();

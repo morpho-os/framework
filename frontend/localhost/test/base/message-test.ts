@@ -6,8 +6,8 @@
 
 /// <amd-module name="localhost/test/message-test" />
 
-import {renderMessage, Message, MessageType} from "../lib/message";
-import {checkEqual, checkTrue} from "../lib/test/check";
+import {renderMessage, Message, MessageType} from "../../lib/base/message";
+import {checkEqual, checkTrue} from "../../lib/test/check";
 
 describe("Message", function() {
 /*

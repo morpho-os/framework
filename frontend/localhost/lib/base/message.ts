@@ -3,7 +3,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-/// <amd-module name="localhost/lib/message" />
+///<amd-module name="localhost/lib/base/message" />
 /// <reference path="./index.d.ts" />
 
 import {Widget} from "./widget";
@@ -36,8 +36,8 @@ export class PageMessenger extends Widget {
         return this.el.find('.alert');
     }
 
-    protected registerEventHandlers(): void {
-        super.registerEventHandlers();
+    protected bindHandlers(): void {
+        super.bindHandlers();
         this.registerCloseMessageHandler();
     }
 
