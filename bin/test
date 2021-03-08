@@ -7,13 +7,11 @@ readonly SCRIPT_FILE_NAME="$(basename "$0")"
 readonly SCRIPT_FILE_PATH="$SCRIPT_DIR_PATH/$SCRIPT_FILE_NAME"
 
 readonly baseDirPath=$(realpath -e "$SCRIPT_DIR_PATH"/..)
+readonly testDirPath="$baseDirPath/test"
 readonly phpunitBinDirPath="$baseDirPath/vendor/phpunit/phpunit"
 readonly phpunitBinFilePath="$phpunitBinDirPath/phpunit"
-readonly testDirPath="$baseDirPath/test"
 readonly phpunitConfFilePath="$testDirPath/phpunit.xml"
 #readonly seleniumLogFilePath="$testDirPath/selenium.log"
 #export SELENIUM_VERSION=latest
 
-readonly phpunit="php -f ""$phpunitBinFilePath"" -- -c ""$phpunitConfFilePath"$([[ -n "${MORPHO_CI-}" ]] && echo " --debug --log-junit $testDirPath/result/test.xml")
-
-$phpunit  "$@"
+php -f "$phpunitBinFilePath" -- -c "$phpunitConfFilePath"$([[ -n "${MORPHO_CI-}" ]] && echo " --debug --log-junit $testDirPath/result/test.xml")

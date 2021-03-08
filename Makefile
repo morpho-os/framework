@@ -62,10 +62,9 @@ update:
 
 setup:
 	composer require --dev psalm/plugin-phpunit && vendor/bin/psalm-plugin enable psalm/plugin-phpunit
-	npm install -g typescript@next
 	test -e package.json || echo '{}' > package.json
-	npm install --save-dev @types/node
-	npm link typescript
+	npm install -g --save-dev @types/node
+	npm install -g --save typescript@next concurrently
 
 .SILENT:
 .PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css clear clean update setup
