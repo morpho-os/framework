@@ -20,7 +20,7 @@ use function call_user_func;
 use function count;
 use function fclose;
 use function file_put_contents;
-use function Morpho\Base\{all, append, appendFn, camelizeKeys, cartesianProduct, formatFloat, isSubset, last, lastPos, lines, memoize, not, op, prepend, prependFn, qq, setProps, fromJson, partial, compose, setsEqual, subsets, symDiff, toIt, toJson, toKeyed, tpl, underscoreKeys, union, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, unsetMulti, unsetOne, unsetRecursive, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
+use function Morpho\Base\{all, append, appendFn, camelizeKeys, cartesianProduct, formatFloat, isSubset, last, lastPos, lines, memoize, not, op, permutations, prepend, prependFn, qq, setProps, fromJson, partial, compose, setsEqual, subsets, symDiff, toIt, toJson, toKeyed, tpl, underscoreKeys, union, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, unsetMulti, unsetOne, unsetRecursive, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
 use RuntimeException;
 use function get_class_methods;
 use function ob_get_clean;
@@ -1163,6 +1163,75 @@ OUT;
             ],
             cartesianProduct($a, $b)
         );
+    }
+
+    public function dataForPermutations() {
+        yield [
+            [],
+            [
+                [],
+            ],
+        ];
+        yield [
+            [2],
+            [
+                [2],
+            ],
+        ];
+        yield [
+            [1, 2],
+            [
+                [1, 2],
+                [2, 1],
+            ],
+        ];
+        yield [
+            [1, 2, 3],
+            [
+                [1, 2, 3],
+                [1, 3, 2],
+                [2, 1, 3],
+                [2, 3, 1],
+                [3, 1, 2],
+                [3, 2, 1],
+            ],
+        ];
+        yield [
+            [1, 2, 3, 4],
+            [
+                [1, 2, 3, 4],
+                [1, 2, 4, 3],
+                [1, 3, 2, 4],
+                [1, 3, 4, 2],
+                [1, 4, 2, 3],
+                [1, 4, 3, 2],
+                [2, 1, 3, 4],
+                [2, 1, 4, 3],
+                [2, 3, 1, 4],
+                [2, 3, 4, 1],
+                [2, 4, 1, 3],
+                [2, 4, 3, 1],
+                [3, 1, 2, 4],
+                [3, 1, 4, 2],
+                [3, 2, 1, 4],
+                [3, 2, 4, 1],
+                [3, 4, 1, 2],
+                [3, 4, 2, 1],
+                [4, 1, 2, 3],
+                [4, 1, 3, 2],
+                [4, 2, 1, 3],
+                [4, 2, 3, 1],
+                [4, 3, 1, 2],
+                [4, 3, 2, 1],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForPermutations
+     */
+    public function testPermutations(array $input, array $expected) {
+        $this->assertSame($expected, permutations($input));
     }
 
     private function _testArray() {

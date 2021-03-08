@@ -6,7 +6,6 @@
  */
 namespace Morpho\App;
 
-use Morpho\Base\Arr;
 use Morpho\Base\IFn;
 use RuntimeException;
 use function is_file;

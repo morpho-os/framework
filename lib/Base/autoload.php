@@ -1195,11 +1195,11 @@ function toArr(iterable $it): array {
  * of all subsets,the number of elements of the output is 2^count($arr).
  * The $arr must be either empty or non-empty and have numeric keys.
  *
- * @psalm-param array<string, mixed> $arr
+ * @psalm-param array<string, mixed> $set
  * @psalm-param int $arr
  */
-function subsets(array $arr, int $k = -1): array {
-    if (count($arr) > (8 * PHP_INT_SIZE)) {
+function subsets(array $set, int $k = -1): array {
+    if (count($set) > (8 * PHP_INT_SIZE)) {
         throw new OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
     }
     if ($k > -1) {
@@ -1208,14 +1208,14 @@ function subsets(array $arr, int $k = -1): array {
 
     // Original algo is written by Brahmananda (https://www.quora.com/How-do-I-generate-all-subsets-of-a-set-in-Java-iteratively)
     $subsets = [];
-    $n = count($arr);
+    $n = count($set);
     $numOfSubsets = 1 << $n; // 2^$n
     for ($i = 0; $i < $numOfSubsets; $i++) {
         $subsetBits = $i;
         $subset = [];
         for ($j = 0; $j < $n; $j++) { // $n is the width of the bit field, number of elements in the input set.
             if ($subsetBits & 1) {  // is the right bit is 1?
-                $subset[] = $arr[$j];
+                $subset[] = $set[$j];
             }
             $subsetBits = $subsetBits >> 1; // process next bit
         }
@@ -1225,12 +1225,49 @@ function subsets(array $arr, int $k = -1): array {
 }
 
 /**
- * @psalm-param array<string, mixed> $arr
+ * @psalm-param array<string, mixed> $set
  * @psalm-param int $arr
  */
-function permutations(array $arr, int $n, bool $allowDups = false): array {
-    // https://en.wikipedia.org/wiki/Heap%27s_algorithm
-    throw new NotImplementedException();
+function permutations(array $set): array {
+    // todo: https://en.wikipedia.org/wiki/Heap%27s_algorithm
+
+    $perms = function (array $set): array {
+        $n = count($set);
+
+        $permutations = [];
+
+        $permutations[] = $set;
+
+        if ($n <= 1) {
+            return $permutations;
+        }
+        if ($n == 2) {
+            $permutations[] = [$set[1], $set[0]];
+            return $permutations;
+        }
+        throw new \UnexpectedValueException();
+    };
+
+    if (count($set) <= 2) {
+        return $perms($set);
+    }
+
+    $permutations = [];
+    $i = 0;
+    $origSet = $set;
+    $n = count($set);
+    while (true) {
+        $set = $origSet;
+        $removed = array_splice($set, $i, 1);
+        foreach (permutations($set) as $permutation) {
+            $permutations[] = array_merge($removed, $permutation);
+        }
+        $i++;
+        if ($i >= $n) {
+            break;
+        }
+    }
+    return $permutations;
 }
 
 /**
