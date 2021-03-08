@@ -48,12 +48,18 @@ watch-js:
 css:
 	sass $(frontendDirPath)/localhost/rc/css:$(frontendDirPath)/localhost/rc/css
 
+clean-css:
+	find $(frontendDirPath)/localhost -mindepth 1 -name '*.css' -not -path '*/node_modules/*' -print -delete
+
+clean-js:
+	find $(frontendDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -print -delete
+
+clean-assets: clean-css clean-js
+
 ################################################################################
 
-clear: clean
-clean:
+clean: clean-assets
 	sudo sh -c 'rm -rf test/Integration/*.log $(backendDirPath)/localhost/{log,cache}/*'
-	find $(frontendDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.css' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -delete
 
 update:
 	composer update
@@ -67,4 +73,4 @@ setup:
 	npm install -g --save typescript@next concurrently
 
 .SILENT:
-.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css clear clean update setup
+.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css clean-css clean-js clean-assets clean update setup

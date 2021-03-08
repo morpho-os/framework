@@ -1,3 +1,5 @@
+import * as widget from "./widget";
+
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -80,14 +82,17 @@ export function queryArgs(): JQuery.PlainObject {
 // https://stackoverflow.com/questions/1909441/how-to-delay-the-keyup-handler-until-the-user-stops-typing/19259625
 // https://github.com/dennyferra/TypeWatch/blob/master/jquery.typewatch.js
 export function delayedCallback(callback: Function, waitMs: number): (this: any, ...args: any[]) => void {
-    let timer = 0;
+    let timer: number = 0;
     return function(this: any): void {
         const self = this;
         const args = arguments;
         clearTimeout(timer); // clear the previous timer and set a new one. It will work if this function is called within the time interval [0..waitMs] and therefor the new timer will be set instead of the previous one.
-        timer = setTimeout(function () {
+        timer = window.setTimeout(function () {
             callback.apply(self, args);
         }, waitMs);
     };
 }
 
+export function isErr(response: ResultResponse) {
+    return !response.ok;
+}
