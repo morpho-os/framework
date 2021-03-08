@@ -1,10 +1,17 @@
 {
     "extends": "../../../tsconfig-base",
     "compilerOptions": {
-        "rootDir": "../../.."
+        "rootDir": "../../..",
+        "outFile": "./index.js"
     },
     "include": [
-        "../**/*"
+        "**/*.ts",
+        "../../lib/base/**/*.ts",
+        "../../lib/test/**/*.ts"
     ],
-    "exclude": []
+    "exclude": [
+        "**/*.d.ts",
+        "../../lib/base/**/*.d.ts",
+        "../../lib/test/**/*.d.ts"
+    ]
 }
