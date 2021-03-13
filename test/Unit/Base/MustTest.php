@@ -11,6 +11,7 @@ use Morpho\Base\Must;
 
 class MustTest extends TestCase {
     public function testContain_String_Valid() {
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull(Must::contain('foo/bar', '/'));
     }
 
@@ -29,6 +30,10 @@ class MustTest extends TestCase {
                 ['bar', 'baz', 'foo'],
                 'foo',
             ],
+            [
+                ['foo', ['bar']],
+                ['bar'],
+            ]
         ];
     }
 
@@ -36,6 +41,7 @@ class MustTest extends TestCase {
      * @dataProvider dataForContain_Array_Valid
      */
     public function testContain_Array_Valid($haystack, $needle) {
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull(Must::contain($haystack, $needle));
     }
 
@@ -62,10 +68,6 @@ class MustTest extends TestCase {
     public function testContain_Array_Invalid($haystack, $needle) {
         $this->expectException(\RuntimeException::class, 'A haystack does not contain a needle');
         Must::contain($haystack, $needle);
-    }
-
-    public function testContain_ArrayInArray_Valid() {
-        $this->markTestIncomplete();
     }
 
     public function testBeNotFalse_ReturnsPassedArgumentIfNotFalse() {
