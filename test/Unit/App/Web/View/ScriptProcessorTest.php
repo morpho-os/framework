@@ -271,7 +271,7 @@ OUT;
                 // TODO: Implement response() method.
             }
 
-            public function args(?array $namesOrIndexes = null): mixed {
+            public function args(array|string|null $namesOrIndexes = null): mixed {
                 // TODO: Implement args() method.
             }
         };

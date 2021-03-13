@@ -7,6 +7,7 @@
 namespace Morpho\Testing;
 
 use ArrayObject;
+use Morpho\App\BackendModule;
 use Morpho\Base\TSingleton;
 use function getenv;
 use function Morpho\App\moduleDirPath;
@@ -36,7 +37,7 @@ class Sut extends ArrayObject {
 
     public function baseDirPath(): string {
         if (!isset($this->baseDirPath)) {
-            $this->baseDirPath = moduleDirPath(__DIR__);
+            $this->baseDirPath = BackendModule::findModuleDir(__DIR__);
         }
         return $this->baseDirPath;
     }

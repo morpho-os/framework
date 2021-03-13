@@ -1314,7 +1314,7 @@ function combinations(array $arr): array {
  * from the second array will be appended to the first array. If both values are arrays, they
  * are merged together, else the value of the second array overwrites the one of the first array.
  */
-function merge(array $arrA, array $arrB, bool $resetIntKeys = false): array {
+function merge(array $arrA, array $arrB, bool $resetIntKeys = true): array {
     foreach ($arrB as $key => $value) {
         if (isset($arrA[$key]) || array_key_exists($key, $arrA)) {
             if ($resetIntKeys && is_int($key)) {
