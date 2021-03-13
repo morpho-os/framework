@@ -7,10 +7,39 @@
 namespace Morpho\App;
 
 use Morpho\Fs\Dir;
+use Morpho\Fs\Path;
+use RuntimeException;
 use function is_dir;
 use const PHP_SAPI;
 
 class BackendModule extends Module {
+    /**
+     * Detects and returns base directory path of the module.
+     * @param string $dirPath Any directory path within the module.
+     * @param bool $throwEx
+     * @return false|string
+     */
+    public static function findModuleDir(string $dirPath, bool $throwEx = true): string|bool {
+        $baseDirPath = false;
+        do {
+            $path = $dirPath . '/vendor/composer/ClassLoader.php';
+            if (is_file($path)) {
+                $baseDirPath = $dirPath;
+                break;
+            } else {
+                $chunks = explode(DIRECTORY_SEPARATOR, $dirPath, -1);
+                $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
+            }
+        } while ($chunks);
+        if (false === $baseDirPath) {
+            if ($throwEx) {
+                throw new RuntimeException("Unable to detect the base directory of a module");
+            }
+            return false;
+        }
+        return Path::normalize($baseDirPath);
+    }
+
     public function autoloadFilePath(): string {
         return $this->vendorDirPath() . '/' . AUTOLOAD_FILE_NAME;
     }

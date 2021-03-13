@@ -91,7 +91,7 @@ class Request extends BaseRequest implements IRequest {
      *     - connect()
      *     - propfind()
      */
-    public function args(?array $names = null, bool $trim = true): mixed {
+    public function args(string|array|null $names = null, bool $trim = true): mixed {
         $method = $this->method();
         switch ($method) {
             case HttpMethod::GET:

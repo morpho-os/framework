@@ -856,16 +856,16 @@ function filter(callable $predicate, $iter) {
     }
     if (is_array($iter)) {
         $res = [];
-        $numericKeys = true;
+        $intKeys = true;
         foreach ($iter as $k => $v) {
-            if ($numericKeys && !is_numeric($k)) {
-                $numericKeys = false;
+            if ($intKeys && !is_int($k)) {
+                $intKeys = false;
             }
             if ($predicate($v, $k)) {
                 $res[$k] = $v;
             }
         }
-        return $numericKeys ? array_values($res) : $res;
+        return $intKeys ? array_values($res) : $res;
     } else {
         return (function () use ($predicate, $iter) {
             foreach ($iter as $k => $v) {
@@ -1169,16 +1169,16 @@ function toArr(iterable $it): array {
     }
     $arr = [];
     $i = 0;
-    $hasNumIndexes = true;
+    $intKeys = true;
     foreach ($it as $key => $val) {
         if (!preg_match('~^\d+$~s', (string)$key)) {
-            $hasNumIndexes = false;
+            $intKeys = false;
             break;
         }
         $arr[$i] = $val;
         $i++;
     }
-    if ($hasNumIndexes) {
+    if ($intKeys) {
         return $arr;
     }
     $arr = [];
@@ -1197,6 +1197,7 @@ function toArr(iterable $it): array {
  *
  * @psalm-param array<string, mixed> $set
  * @psalm-param int $arr
+ * @return array
  */
 function subsets(array $set, int $k = -1): array {
     if (count($set) > (8 * PHP_INT_SIZE)) {
@@ -1224,9 +1225,36 @@ function subsets(array $set, int $k = -1): array {
     return $subsets;
 }
 
+function isSubset(array $arrA, array $arrB): bool {
+    return intersect($arrA, $arrB) == $arrB;
+}
+
+/**
+ * Union for sets, for difference use \array_diff(), for intersection use \array_intersect().
+ */
+function union(...$arr): array {
+    // @TODO: make it work for array of arrays and other cases.
+    return array_unique(array_merge(...$arr));
+}
+
+function intersect(...$arr): array {
+    return array_intersect_key(...$arr);
+}
+
+function cartesianProduct(array $arrA, array $arrB) {
+    // @TODO: work for iterable
+    $res = [];
+    foreach ($arrA as $v1) {
+        foreach ($arrB as $v2) {
+            $res[] = [$v1, $v2];
+        }
+    }
+    return $res;
+}
+
 /**
  * @psalm-param array<string, mixed> $set
- * @psalm-param int $arr
+ * @return array
  */
 function permutations(array $set): array {
     // todo: https://en.wikipedia.org/wiki/Heap%27s_algorithm
@@ -1272,9 +1300,8 @@ function permutations(array $set): array {
 
 /**
  * @psalm-param array<string, mixed> $arr
- * @psalm-param int $arr
  */
-function combinations(array $arr, int $n, bool $allowDups = false): array {
+function combinations(array $arr): array {
     throw new NotImplementedException();
 }
 
@@ -1287,13 +1314,13 @@ function combinations(array $arr, int $n, bool $allowDups = false): array {
  * from the second array will be appended to the first array. If both values are arrays, they
  * are merged together, else the value of the second array overwrites the one of the first array.
  */
-function merge(array $arrA, array $arrB, bool $preserveNumericKeys = false): array {
+function merge(array $arrA, array $arrB, bool $resetIntKeys = false): array {
     foreach ($arrB as $key => $value) {
         if (isset($arrA[$key]) || array_key_exists($key, $arrA)) {
-            if (!$preserveNumericKeys && is_int($key)) {
+            if ($resetIntKeys && is_int($key)) {
                 $arrA[] = $value;
             } elseif (is_array($value) && is_array($arrA[$key])) {
-                $arrA[$key] = merge($arrA[$key], $value, $preserveNumericKeys);
+                $arrA[$key] = merge($arrA[$key], $value, $resetIntKeys);
             } else {
                 $arrA[$key] = $value;
             }
@@ -1304,28 +1331,55 @@ function merge(array $arrA, array $arrB, bool $preserveNumericKeys = false): arr
     return $arrA;
 }
 
-function unsetOne(array $arr, $val, bool $strict = true): array {
-    $key = array_search($val, $arr, $strict);
-    if (false !== $key) {
-        unset($arr[$key]);
-    }
-    return $arr;
+/**
+ * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
+ * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
+ */
+function symDiff(array $arrA, array $arrB): array {
+    $diffA = array_diff($arrA, $arrB);
+    $diffB = array_diff($arrB, $arrA);
+    return union($diffA, $diffB);
 }
 
-function unsetMulti(array $arr, iterable $val, bool $strict = true): array {
-    // NB: unsetMulti() can't merged with unset() as $val in unset() can be array, i.e. unset() has to support unsetting arrays.
-    foreach ($val as $v) {
-        $key = array_search($v, $arr, $strict);
-        if (false !== $key) {
-            unset($arr[$key]);
+function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $strict = true, bool $allOccur = false): array {
+    while (true) {
+        $key = array_search($val, $arr, $strict);
+        if (false === $key) {
+            break;
+        }
+        unset($arr[$key]);
+        if (!$allOccur) {
+            break;
         }
     }
-    return $arr;
+    return $resetIntKeys && all(fn ($key) => is_int($key), array_keys($arr))
+        ? array_values($arr)
+        : $arr;
+}
+
+function unsetMulti(array $arr, iterable $val, bool $resetIntKeys = true, bool $strict = true, bool $allOccur = false): array {
+    // NB: unsetMulti() can't merged with unsetOne() as $val in unsetOne() can be array (iterable), i.e. unsetOne() has to support unsetting arrays.
+    foreach ($val as $v) {
+        while (true) {
+            $key = array_search($v, $arr, $strict);
+            if (false === $key) {
+                break;
+            }
+            unset($arr[$key]);
+            if (!$allOccur) {
+                break;
+            }
+        }
+    }
+    return $resetIntKeys && all(fn ($key) => is_int($key), array_keys($arr))
+        ? array_values($arr)
+        : $arr;
 }
 
 /**
  * Unsets all items of array with $key recursively.
  * @todo: remove reference
+ * todo: make it work similar to unsetOne() and unsetMulti(), rename
  */
 function unsetRecursive(array &$arr, $key): array {
     unset($arr[$key]);
@@ -1335,18 +1389,6 @@ function unsetRecursive(array &$arr, $key): array {
         }
     }
     return $arr;
-}
-
-/**
- * Union for sets, for difference use \array_diff(), for intersection use \array_intersect().
- */
-function union(...$arr): array {
-    // @TODO: make it work for array of arrays and other cases.
-    return array_unique(array_merge(...$arr));
-}
-
-function intersect(...$arr): array {
-    return array_intersect_key(...$arr);
 }
 
 function flatten(array $arr): array {
@@ -1361,16 +1403,6 @@ function flatten(array $arr): array {
     return $result;
 }
 
-/**
- * Symmetrical difference of the two sets: ($a \ $b) U ($b \ $a).
- * If for $a[$k1] and $b[$k2] string keys are equal the value $b[$k2] will overwrite the value $a[$k1].
- */
-function symDiff(array $arrA, array $arrB): array {
-    $diffA = array_diff($arrA, $arrB);
-    $diffB = array_diff($arrB, $arrA);
-    return union($diffA, $diffB);
-}
-
 function only(array $arr, array $keys, $createMissingItems = true): array {
     if ($createMissingItems) {
         $newArr = [];
@@ -1382,21 +1414,6 @@ function only(array $arr, array $keys, $createMissingItems = true): array {
     return array_intersect_key($arr, array_flip(array_values($keys)));
 }
 
-function cartesianProduct(array $arrA, array $arrB) {
-    // @TODO: work for iterable
-    $res = [];
-    foreach ($arrA as $v1) {
-        foreach ($arrB as $v2) {
-            $res[] = [$v1, $v2];
-        }
-    }
-    return $res;
-}
-
-function isSubset(array $arrA, array $arrB): bool {
-    return intersect($arrA, $arrB) == $arrB;
-}
-
 /**
  * Compares sets not strictly. Each element of each array must be scalar.
  * @return bool
@@ -1405,7 +1422,7 @@ function setsEqual(array $arrA, array $arrB): bool {
     return count($arrA) === count($arrB) && count(array_diff($arrA, $arrB)) === 0;
 }
 
-function toKeyed(array $matrix, $keyForIndex, bool $drop = false): array {
+function index(array $matrix, $keyForIndex, bool $drop = false): array {
     $result = [];
     foreach ($matrix as $row) {
         if (!isset($row[$keyForIndex])) {

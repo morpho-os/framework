@@ -10,8 +10,8 @@ use ArrayObject;
 use Morpho\Base\TSingleton;
 use function getenv;
 use function Morpho\App\moduleDirPath;
-use const Morpho\App\FRONTEND_MODULE_DIR_NAME;
-use const Morpho\App\BACKEND_MODULE_DIR_NAME;
+use const Morpho\App\FRONTEND_DIR_NAME;
+use const Morpho\App\BACKEND_DIR_NAME;
 use const Morpho\App\TEST_DIR_NAME;
 
 // SUT/System Under Test
@@ -23,7 +23,7 @@ class Sut extends ArrayObject {
     protected string $baseDirPath;
 
     public function backendModuleIterator(): iterable {
-        foreach (glob($this->baseDirPath() . '/' . BACKEND_MODULE_DIR_NAME . '/[0-9a-z]*') as $path) {
+        foreach (glob($this->baseDirPath() . '/' . BACKEND_DIR_NAME . '/[0-9a-z]*') as $path) {
             if (is_dir($path)) {
                 yield $path;
             }
@@ -48,7 +48,7 @@ class Sut extends ArrayObject {
     }
 
     public function webServerWebDirPath(): string {
-        return $this->baseDirPath() . '/' . FRONTEND_MODULE_DIR_NAME;
+        return $this->baseDirPath() . '/' . FRONTEND_DIR_NAME;
     }
 
     public function testRcDirPath(): string {

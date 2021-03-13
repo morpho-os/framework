@@ -10,17 +10,18 @@ use Morpho\Testing\TestCase;
 use Morpho\Tech\Php\Code;
 
 class CodeTest extends TestCase {
-    public function testVarToStr_ClosuresToFile() {
-        $this->markTestIncomplete();
-        $php = Code::varToStr(function () {
-            echo "OK";
-        });
-        $this->assertEquals(<<<OUT
-return function () {
-    echo "OK";
-};
-OUT
-            , $php
+    public function testVarToStr() {
+        $this->assertSame(
+            "['foo', 'bar']",
+            Code::varToStr(['foo', 'bar'])
+        );
+        $this->assertSame(
+            "[0 => 'foo', 1 => 'bar']",
+            Code::varToStr(['foo', 'bar'], false)
+        );
+        $this->assertSame(
+            "['foo' => 'bar']",
+            Code::varToStr(['foo' => 'bar'])
         );
     }
 }

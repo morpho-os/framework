@@ -16,7 +16,7 @@ class Request extends BaseRequest {
         $this->args = $args;
     }
 
-    public function args(?array $namesOrIndexes = null): mixed {
+    public function args(string|array|null $namesOrIndexes = null): mixed {
         if (null === $this->args) {
             $this->args = $_SERVER['argv'];
         }

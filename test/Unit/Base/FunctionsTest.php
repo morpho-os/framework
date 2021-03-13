@@ -11,18 +11,17 @@ use IteratorAggregate;
 use Morpho\Base\IDisposable;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
+use RuntimeException;
 use SplStack;
 use stdClass;
 use Stringable;
 use UnexpectedValueException;
-use function array_values;
 use function call_user_func;
 use function count;
 use function fclose;
 use function file_put_contents;
-use function Morpho\Base\{all, append, appendFn, camelizeKeys, cartesianProduct, formatFloat, isSubset, last, lastPos, lines, memoize, not, op, permutations, prepend, prependFn, qq, setProps, fromJson, partial, compose, setsEqual, subsets, symDiff, toIt, toJson, toKeyed, tpl, underscoreKeys, union, uniqueName, deleteDups, classify, trimMore, sanitize, underscore, dasherize, camelize, humanize, titleize, shorten, showLn, normalizeEols, unsetMulti, unsetOne, unsetRecursive, using, waitUntilNumOfAttempts, waitUntilTimeout, q, formatBytes, words, ucfirst, indent, unindent, wrap, wrapFn};
-use RuntimeException;
 use function get_class_methods;
+use function Morpho\Base\{all, append, appendFn, camelize, camelizeKeys, cartesianProduct, classify, compose, dasherize, deleteDups, formatBytes, formatFloat, fromJson, humanize, indent, index, isSubset, last, lastPos, lines, memoize, merge, normalizeEols, not, op, partial, permutations, prepend, prependFn, q, qq, sanitize, setProps, setsEqual, shorten, showLn, subsets, symDiff, titleize, toIt, toJson, tpl, trimMore, ucfirst, underscore, underscoreKeys, unindent, union, uniqueName, unsetMulti, unsetOne, unsetRecursive, using, waitUntilNumOfAttempts, waitUntilTimeout, words, wrap, wrapFn};
 use function ob_get_clean;
 use function ob_start;
 use function property_exists;
@@ -40,8 +39,8 @@ class FunctionsTest extends TestCase {
     // -------------------------------------------------------------------------
 
     public function dataForAll_CommonCases() {
-        $falsePredicate = fn () => false;
-        $truePredicate = fn () => true;
+        $falsePredicate = fn() => false;
+        $truePredicate = fn() => true;
         $emptyString = '';
         $emptyArr = [];
         $emptyArrIt = new ArrayIterator($emptyArr);
@@ -92,7 +91,7 @@ class FunctionsTest extends TestCase {
                 public function __toString() {
                     return 'ℚ ⊂ ℝ ⊂ ℂ';
                 }
-            }
+            },
         ];
     }
 
@@ -129,7 +128,7 @@ class FunctionsTest extends TestCase {
         };
         yield [
             $itAggr,
-            $itAggr
+            $itAggr,
         ];
         yield [
             [],
@@ -219,11 +218,11 @@ class FunctionsTest extends TestCase {
 
     public function testWaitUntilTimeout_Timeout() {
         $this->expectException(RuntimeException::class, 'The timeout has been reached');
-        $this->assertNull(waitUntilTimeout(fn () => usleep(2000), 1000));
+        $this->assertNull(waitUntilTimeout(fn() => usleep(2000), 1000));
     }
 
     public function testWaitUntilTimeout_NoTimeout() {
-        $this->assertSame('abc', waitUntilTimeout(fn () => 'abc', 1000));
+        $this->assertSame('abc', waitUntilTimeout(fn() => 'abc', 1000));
     }
 
     public function testNot() {
@@ -245,7 +244,7 @@ class FunctionsTest extends TestCase {
         $v1 = fromJson($json);
         $this->assertCount(count($v), $v1);
         $this->assertEquals($v['foo'], $v1['foo']);
-        $this->assertEquals((array) $v[1], $v1[1]);
+        $this->assertEquals((array)$v[1], $v1[1]);
     }
 
     public function testFromJson_InvalidJsonThrowsException() {
@@ -637,6 +636,7 @@ class FunctionsTest extends TestCase {
         $disposable = new class implements IDisposable {
             public $disposeArgs;
             public $invokeArgs;
+
             public function dispose(): void {
                 $this->disposeArgs = func_get_args();
             }
@@ -656,6 +656,7 @@ class FunctionsTest extends TestCase {
         $disposable = new class implements IDisposable {
             public $disposeArgs;
             public $invokeArgs;
+
             public function dispose(): void {
                 $this->disposeArgs = func_get_args();
             }
@@ -690,9 +691,9 @@ class FunctionsTest extends TestCase {
 
     public function testSetProps() {
         $conf = [
-            'privateFoo' => 'abc',
+            'privateFoo'   => 'abc',
             'protectedBar' => 'defg',
-            'publicBaz' => 'hig',
+            'publicBaz'    => 'hig',
         ];
         $instance = new class($conf) {
             private $privateFoo;
@@ -733,10 +734,10 @@ class FunctionsTest extends TestCase {
             }
         };
         $conf = [
-            'privateFoo' => 'abc',
+            'privateFoo'   => 'abc',
             'protectedBar' => 'defg',
-            'publicBaz' => 'hig',
-            'notDeclared' => 'some',
+            'publicBaz'    => 'hig',
+            'notDeclared'  => 'some',
         ];
         try {
             $instance->setProps($conf);
@@ -808,7 +809,7 @@ OUT;
     public function testAppendFn() {
         $this->assertSame('foopost', appendFn('post')('foo'));
     }
-    
+
     public function testWrap() {
         $this->assertSame([], wrap([], 'pre', 'post'));
         $this->assertSame(['pre123post', 'pre123post'], wrap(['123', 123], 'pre', 'post'));
@@ -838,7 +839,7 @@ OUT;
             ['a', 'b'],
             ['a', 'c'],
             ['b', 'c'],
-            ['a', 'b', 'c']
+            ['a', 'b', 'c'],
         ], $subsets);
     }
 
@@ -854,7 +855,7 @@ OUT;
                 true, [], [],
             ],
             [
-                false, [], ['a', 'b']
+                false, [], ['a', 'b'],
             ],
             [
                 true, ['a', 'b'], [],
@@ -934,32 +935,48 @@ OUT;
         $this->assertEquals($expected, setsEqual($a, $b));
     }
 
-    public function testUnset_WeirdCases() {
+    public function testUnsetOne_EmptyArr() {
         $this->assertEquals([], unsetOne([], 'some'));
         $this->assertEquals([], unsetOne([], null));
     }
 
-    public function testUnset_StringKeys() {
+    public function testUnsetOne_MultiOccurrences() {
+        $this->assertSame(['bar'], unsetOne(['foo', 'bar', 'foo'], 'foo', allOccur: true));
+        $this->assertSame(['bar', 'foo'], unsetOne(['foo', 'bar', 'foo'], 'foo', allOccur: false));
+    }
+
+    public function testUnsetOne_StringKeys() {
         $this->assertEquals(['one' => 'first-val'], unsetOne(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
     }
 
-    public function testUnset_IntKeys() {
+    public function testUnsetOne_IntKeys() {
         $obj1 = new stdClass();
         $obj2 = new stdClass();
-        $this->assertEquals([$obj2], array_values(unsetOne([$obj1, $obj2], $obj1)));
+        $this->assertEquals([$obj2], unsetOne([$obj1, $obj2], $obj1));
 
-        $this->assertEquals(['one', 'two'], array_values(unsetOne(['one', 'two'], 'some')));
+        $this->assertEquals(['one', 'two'], unsetOne(['one', 'two'], 'some'));
 
-        $this->assertEquals(['one'], array_values(unsetOne(['one', 'two'], 'two')));
+        $this->assertEquals(['one'], unsetOne(['one', 'two'], 'two'));
     }
 
-    public function testUnsetMulti() {
+    public function testUnsetMulti_OneOccurrence() {
         $foo = $orig = ['abc', 'def', 'ghi'];
         $this->assertSame(['abc'], unsetMulti($foo, ['def', 'ghi']));
         $this->assertSame($orig, $foo);
     }
 
-    public function testToKeyed() {
+    public function testUnsetMulti_MultiOccurrences() {
+        $this->assertSame(
+            ['bar', 3, 5, 2, 7],
+            unsetMulti(['foo', 'bar', 'foo', 1, 3, 5, 1, 2, 7], ['foo', 1], allOccur: true)
+        );
+        $this->assertSame(
+            ['bar', 'foo', 3, 5, 1, 2, 7],
+            unsetMulti(['foo', 'bar', 'foo', 1, 3, 5, 1, 2, 7], ['foo', 1], allOccur: false)
+        );
+    }
+
+    public function testIndex() {
         $this->assertEquals(
             [
                 ':-)' => [
@@ -969,7 +986,7 @@ OUT;
                     'one' => ':]', 'two' => ':-]', 'three' => ':+]',
                 ],
             ],
-            toKeyed(
+            index(
                 [
                     [
                         'one' => ':)', 'two' => ':-)', 'three' => ':+)',
@@ -983,7 +1000,7 @@ OUT;
         );
     }
 
-    public function testToKeyed_WithDropValue() {
+    public function testIndex_DropArg() {
         $this->assertEquals(
             [
                 ':-)' => [
@@ -993,7 +1010,7 @@ OUT;
                     'one' => ':]', 'three' => ':+]',
                 ],
             ],
-            toKeyed(
+            index(
                 [
                     [
                         'one' => ':)', 'two' => ':-)', 'three' => ':+)',
@@ -1063,14 +1080,14 @@ OUT;
     */
 
     public function testUnion() {
-        // todo: mixed keys: numeric, string
+        // todo: mixed keys: int, string
         $this->assertSame(['foo' => 'kiwi'], union(['foo' => 'apple'], ['foo' => 'kiwi']));
         $this->assertSame(['foo', 'bar', 'baz'], union(['foo', 'bar'], ['baz']));
         $this->assertSame(['foo', 'bar', 'baz'], union(['foo', 'bar'], ['baz', 'foo']));
     }
 
     public function dataForSymmetricDiff() {
-        // for each {numeric keys, string keys, mixed keys}
+        // for each {int keys, string keys, mixed keys}
         // check {value !=, key !=}
         return [
             [
@@ -1088,27 +1105,27 @@ OUT;
                 [],
                 [],
             ],
-            // Numeric keys
+            // Int keys
             [
-                // Numeric keys: keys ==, values !=
+                // Int keys: keys ==, values !=
                 ['foo', 'bar', 'baz'],
                 ['foo', 'bar'],
                 ['baz'],
             ],
             [
-                // Numeric sequential keys: keys ==, values ==
+                // Int sequential keys: keys ==, values ==
                 ['banana', 'kiwi', 'cherry'],
                 ['pear', 'banana', 'mango'],
                 ['pear', 'mango', 'kiwi', 'cherry'],
             ],
             [
-                // Numeric keys: keys !=, values ==
+                // Int keys: keys !=, values ==
                 ['foo'],
                 [1 => 'foo', 0 => 'bar'],
                 [3 => 'bar'],
             ],
             [
-                // Numeric keys: keys !=, values !=
+                // Int keys: keys !=, values !=
                 ['pear', 'banana', 'mango', 'kiwi', 'cherry'],
                 [7 => 'pear', 11 => 'banana', 24 => 'mango'],
                 [6 => 'kiwi', 0 => 'cherry'],
@@ -1234,6 +1251,139 @@ OUT;
         $this->assertSame($expected, permutations($input));
     }
 
+    /**
+     * This function based on https://github.com/zendframework/zend-stdlib/blob/master/test/ArrayUtilsTest.php
+     * Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+     */
+    public function dataForMerge() {
+        return [
+            'merge-integer-and-string-keys'                  => [
+                [
+                    'foo',
+                    3     => 'bar',
+                    'baz' => 'baz',
+                    4     => [
+                        'a',
+                        1 => 'b',
+                        'c',
+                    ],
+                ],
+                [
+                    'baz',
+                    4 => [
+                        'd' => 'd',
+                    ],
+                ],
+                true,
+                [
+                    0     => 'foo',
+                    3     => 'bar',
+                    'baz' => 'baz',
+                    4     => [
+                        'a',
+                        1 => 'b',
+                        'c',
+                    ],
+                    5     => 'baz',
+                    6     => [
+                        'd' => 'd',
+                    ],
+                ],
+            ],
+            'merge-integer-and-string-keys-preserve-numeric' => [
+                [
+                    'foo',
+                    3     => 'bar',
+                    'baz' => 'baz',
+                    4     => [
+                        'a',
+                        1 => 'b',
+                        'c',
+                    ],
+                ],
+                [
+                    'baz',
+                    4 => [
+                        'd' => 'd',
+                    ],
+                ],
+                false,
+                [
+                    0     => 'baz',
+                    3     => 'bar',
+                    'baz' => 'baz',
+                    4     => [
+                        'a',
+                        1   => 'b',
+                        'c',
+                        'd' => 'd',
+                    ],
+                ],
+            ],
+            'merge-arrays-recursively'                       => [
+                [
+                    'foo' => [
+                        'baz',
+                    ],
+                ],
+                [
+                    'foo' => [
+                        'baz',
+                    ],
+                ],
+                true,
+                [
+                    'foo' => [
+                        0 => 'baz',
+                        1 => 'baz',
+                    ],
+                ],
+            ],
+            'replace-string-keys'                            => [
+                [
+                    'foo' => 'bar',
+                    'bar' => [],
+                ],
+                [
+                    'foo' => 'baz',
+                    'bar' => 'bat',
+                ],
+                true,
+                [
+                    'foo' => 'baz',
+                    'bar' => 'bat',
+                ],
+            ],
+            'merge-with-null'                                => [
+                [
+                    'foo' => null,
+                    null  => 'rod',
+                    'cat' => 'bar',
+                    'god' => 'rad',
+                ],
+                [
+                    'foo' => 'baz',
+                    null  => 'zad',
+                    'god' => null,
+                ],
+                true,
+                [
+                    'foo' => 'baz',
+                    null  => 'zad',
+                    'cat' => 'bar',
+                    'god' => null,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForMerge
+     */
+    public function testMerge(array $a, array $b, bool $resetIntKeys, array $expected) {
+        $this->assertEquals($expected, merge($a, $b, $resetIntKeys));
+    }
+
     private function _testArray() {
         return [
             'foo'     => 'test',
@@ -1269,7 +1419,7 @@ OUT;
             ],
             [
                 "{$quote}Hello{$quote}",
-                'Hello'
+                'Hello',
             ],
             [
                 [
@@ -1278,7 +1428,7 @@ OUT;
                 ],
                 [
                     'foo',
-                    'bar'
+                    'bar',
                 ],
             ],
             [

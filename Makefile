@@ -1,3 +1,6 @@
+# Do not use make's built-in rules and variables (this increases performance and avoids hard-to-debug behaviour)
+MAKEFLAGS += -rR
+
 backendDirPath = $(CURDIR)/backend
 frontendDirPath = $(CURDIR)/frontend
 

@@ -2,7 +2,7 @@
 
 use Morpho\App\Cli\ServiceManager as CliServiceManager;
 use Morpho\App\Web\ServiceManager as WebServiceManager;
-use const Morpho\App\{FRONTEND_MODULE_DIR_NAME, BACKEND_MODULE_DIR_NAME, VENDOR, CACHE_DIR_NAME};
+use const Morpho\App\{FRONTEND_DIR_NAME, BACKEND_DIR_NAME, VENDOR, CACHE_DIR_NAME};
 
 $thisModuleDirPath = dirname(__DIR__);
 $siteModuleName = VENDOR . '/localhost';
@@ -82,8 +82,8 @@ return [
     'morpho-os/localhost' => [
         'paths'          => [
             'cacheDirPath'        => $thisModuleDirPath . '/' . CACHE_DIR_NAME,
-            'frontendModuleDirPath' => $baseDirPath . '/' . FRONTEND_MODULE_DIR_NAME,
-            'backendModuleDirPath' => $baseDirPath . '/' . BACKEND_MODULE_DIR_NAME,
+            'frontendModuleDirPath' => $baseDirPath . '/' . FRONTEND_DIR_NAME,
+            'backendModuleDirPath' => $baseDirPath . '/' . BACKEND_DIR_NAME,
         ],
         'serviceManager' => PHP_SAPI === 'cli' ? new CliServiceManager() : new WebServiceManager(),
         'services'       => [

@@ -40,7 +40,7 @@ function visit(array $nodes, array $visitors) {
 }
 
 function pp(array $nodes): string {
-    $pp = new PrettyPrinter();
+    $pp = new PrettyPrinter(['shortArraySyntax' => true]);
     return $pp->prettyPrint($nodes);
 }
 

@@ -7,55 +7,58 @@
 namespace Morpho\Tech\Php;
 
 use Morpho\Base\NotImplementedException;
+use PhpParser\Node;
+use PhpParser\NodeVisitorAbstract;
+use function in_array;
+use function is_string;
+use function Morpho\Tech\Php\Parsing\parse;
+use function Morpho\Tech\Php\Parsing\pp;
+use function Morpho\Tech\Php\Parsing\visit;
+use function preg_replace;
+use function token_get_all;
+use function var_export;
 
 class Code {
     public static function format(string $php): string {
         throw new NotImplementedException();
     }
 
-    public static function varToStr($var, bool $stripNumericKeys = true): string {
-        // @TODO: Replace with Formatter::format().
-        $php = \preg_replace(
-                [
-                    '~=>\s+array~si',
-                    '~array \(~si',
-                ],
-                [
-                    '=> array',
-                    'array(',
-                ],
-                \var_export($var, true)
-            ) . ';';
+    public static function varToStr(mixed $var, bool $removeNumericKeys = true): string {
+        $nodes = parse('<?php ' . var_export($var, true) . ';');
 
-        if ($stripNumericKeys) {
-            $php = \preg_replace('~^(\s+)\d+.*=> ~mi', '\\1', $php);
-        }
+        $visitor = new class ($removeNumericKeys) extends NodeVisitorAbstract {
+            public function __construct(public $removeNumericKeys) {
 
-        // Reindent code: replace 2 spaces -> 4 spaces.
-        $php = \preg_replace_callback(
-            '~^\s+~m',
-            function ($match) {
-                $count = \substr_count($match[0], '  ');
-                return \str_repeat('  ', $count * 2);
-            },
-            $php
-        );
+            }
 
-        return $php;
+            public function enterNode(Node $node) {
+                if ($node instanceof Node\Expr\Array_) {
+                    $node->setAttribute('kind', Node\Expr\Array_::KIND_SHORT);
+                } elseif ($node instanceof Node\Expr\ArrayItem) {
+                    if ($this->removeNumericKeys && $node->key instanceof Node\Scalar\LNumber) {
+                        $node->key = null;
+                    }
+                }
+                return parent::enterNode($node);
+            }
+        };
+        visit($nodes, [$visitor]);
+
+        return rtrim(pp($nodes), ';');
     }
 
-    public static function stripComments(string $source): string {
+    public static function removeComments(string $source): string {
         $output = '';
-        foreach (\token_get_all($source) as $token) {
-            if (\is_string($token)) {
+        foreach (token_get_all($source) as $token) {
+            if (is_string($token)) {
                 $output .= $token;
-            } elseif (!\in_array($token[0], [T_COMMENT, T_DOC_COMMENT])) {
+            } elseif (!in_array($token[0], [T_COMMENT, T_DOC_COMMENT])) {
                 $output .= $token[1];
             }
         }
 
         // replace multiple new lines with a newline
-        $output = \preg_replace(['/\s+$/Sm', '/\n+/S'], "\n", $output);
+        $output = preg_replace(['/\s+$/Sm', '/\n+/S'], "\n", $output);
 
         return $output;
     }
