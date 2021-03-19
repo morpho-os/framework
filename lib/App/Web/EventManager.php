@@ -11,10 +11,7 @@ use Morpho\Base\EventManager as BaseEventManager;
 use Morpho\Ioc\IServiceManager;
 
 class EventManager extends BaseEventManager {
-    /**
-     * @var IServiceManager
-     */
-    protected $serviceManager;
+    protected IServiceManager $serviceManager;
 
     public function __construct(IServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;

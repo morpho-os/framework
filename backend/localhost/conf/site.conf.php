@@ -5,7 +5,9 @@ use Morpho\App\Web\ServiceManager as WebServiceManager;
 use const Morpho\App\{FRONTEND_DIR_NAME, BACKEND_DIR_NAME, VENDOR, CACHE_DIR_NAME};
 
 $thisModuleDirPath = dirname(__DIR__);
-$siteModuleName = VENDOR . '/localhost';
+$shortSiteModuleName = 'localhost';
+$fullSiteModuleName = VENDOR . '/' . $shortSiteModuleName;
+$siteModuleNs = 'Morpho\\Site\\Localhost';
 $baseDirPath = dirname(dirname($thisModuleDirPath));
 
 /*$errorHandlers = (function () use ($siteModuleName) {
@@ -28,50 +30,50 @@ $baseDirPath = dirname(dirname($thisModuleDirPath));
 $errorHandlers = [
     'notFound'         => [
         'handler'  => [
-            'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'module'         => $fullSiteModuleName,
+            'class'          => $siteModuleNs . '\\App\\Web\\ErrorController',
             'method'         => 'notFound',
-            'modulePath'     => 'localhost',
+            'modulePath'     => $shortSiteModuleName,
             'controllerPath' => 'error',
         ],
         'httpCode' => 404,
     ],
     'badRequest'       => [
         'handler'  => [
-            'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'module'         => $fullSiteModuleName,
+            'class'          => $siteModuleNs . '\\App\\Web\\ErrorController',
             'method'         => 'badRequest',
-            'modulePath'     => 'localhost',
+            'modulePath'     => $shortSiteModuleName,
             'controllerPath' => 'error',
         ],
         'httpCode' => 400,
     ],
     'forbidden'        => [
         'handler'  => [
-            'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'module'         => $fullSiteModuleName,
+            'class'          => $siteModuleNs . '\\App\\Web\\ErrorController',
             'method'         => 'forbidden',
-            'modulePath'     => 'localhost',
+            'modulePath'     => $shortSiteModuleName,
             'controllerPath' => 'error',
         ],
         'httpCode' => 403,
     ],
     'methodNotAllowed' => [
         'handler'  => [
-            'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'module'         => $fullSiteModuleName,
+            'class'          => $siteModuleNs . '\\App\\Web\\ErrorController',
             'method'         => 'methodNotAllowed',
-            'modulePath'     => 'localhost',
+            'modulePath'     => $shortSiteModuleName,
             'controllerPath' => 'error',
         ],
         'httpCode' => 405,
     ],
     'uncaught'         => [
         'handler'  => [
-            'module'         => 'morpho-os/localhost',
-            'class'          => 'Morpho\\Site\\Localhost\\App\\Web\\ErrorController',
+            'module'         => $fullSiteModuleName,
+            'class'          => $siteModuleNs . '\\App\\Web\\ErrorController',
             'method'         => 'uncaught',
-            'modulePath'     => 'localhost',
+            'modulePath'     => $shortSiteModuleName,
             'controllerPath' => 'error',
         ],
         'httpCode' => 500,
@@ -79,7 +81,7 @@ $errorHandlers = [
 ];
 
 return [
-    'morpho-os/localhost' => [
+    $fullSiteModuleName => [
         'paths'          => [
             'cacheDirPath'        => $thisModuleDirPath . '/' . CACHE_DIR_NAME,
             'frontendModuleDirPath' => $baseDirPath . '/' . FRONTEND_DIR_NAME,
@@ -134,7 +136,7 @@ return [
                 'errorLogWriter' => false,
             ],
             'view'                 => [
-                'pageRenderingModule' => $siteModuleName,
+                'pageRenderingModule' => $fullSiteModuleName,
             ],
             'actionResultHandler'  => [
                 $errorHandlers['badRequest']['httpCode']       => $errorHandlers['badRequest']['handler'],

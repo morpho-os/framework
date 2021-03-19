@@ -35,7 +35,6 @@ use function htmlspecialchars_decode;
 use function in_array;
 use function is_array;
 use function is_iterable;
-use function is_numeric;
 use function is_string;
 use function json_decode;
 use function json_encode;
@@ -1341,7 +1340,7 @@ function symDiff(array $arrA, array $arrB): array {
     return union($diffA, $diffB);
 }
 
-function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $strict = true, bool $allOccur = false): array {
+function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $allOccur = false, bool $strict = true): array {
     while (true) {
         $key = array_search($val, $arr, $strict);
         if (false === $key) {
@@ -1352,12 +1351,12 @@ function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $strict = tr
             break;
         }
     }
-    return $resetIntKeys && all(fn ($key) => is_int($key), array_keys($arr))
+    return $resetIntKeys && all(fn($key) => is_int($key), array_keys($arr))
         ? array_values($arr)
         : $arr;
 }
 
-function unsetMulti(array $arr, iterable $val, bool $resetIntKeys = true, bool $strict = true, bool $allOccur = false): array {
+function unsetMulti(array $arr, iterable $val, bool $resetIntKeys = true, bool $allOccur = false, bool $strict = true): array {
     // NB: unsetMulti() can't merged with unsetOne() as $val in unsetOne() can be array (iterable), i.e. unsetOne() has to support unsetting arrays.
     foreach ($val as $v) {
         while (true) {
@@ -1371,7 +1370,7 @@ function unsetMulti(array $arr, iterable $val, bool $resetIntKeys = true, bool $
             }
         }
     }
-    return $resetIntKeys && all(fn ($key) => is_int($key), array_keys($arr))
+    return $resetIntKeys && all(fn($key) => is_int($key), array_keys($arr))
         ? array_values($arr)
         : $arr;
 }
@@ -1415,7 +1414,7 @@ function only(array $arr, array $keys, $createMissingItems = true): array {
 }
 
 /**
- * Compares sets not strictly. Each element of each array must be scalar.
+ * Compares sets not strictly. Each element of each array must be scalar. NB: It is not the same as comparing arrays as order for sets is not important.
  * @return bool
  */
 function setsEqual(array $arrA, array $arrB): bool {

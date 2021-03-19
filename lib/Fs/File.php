@@ -147,8 +147,8 @@ class File extends Entry {
     /**
      * Writes json to the file and returns the file path.
      */
-    public static function writeJson(string $filePath, $json, $jsonConf = null): string {
-        return self::write($filePath, toJson($json, $jsonConf));
+    public static function writeJson(string $filePath, mixed $json, int $jsonFlags = null, array $writeConf = null): string {
+        return self::write($filePath, toJson($json, $jsonFlags), $writeConf);
     }
 
     public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): Generator {

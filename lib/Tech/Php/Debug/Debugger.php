@@ -46,7 +46,7 @@ use function var_export;
 class Debugger {
     protected array $ignoredFrames = [];
 
-    protected bool $isHtmlMode = false;
+    protected ?bool $isHtmlMode = null;
 
     private static $instance;
 

@@ -29,6 +29,7 @@ const VIEW_DIR_NAME = 'view';
 
 const AUTOLOAD_FILE_NAME = 'autoload.php';
 const META_FILE_NAME = 'composer.json';
+const APP_CONF_FILE_NAME = 'app.conf.php';
 const SITE_CONF_FILE_NAME = 'site.conf.php';
 
 //const DOMAIN_NS = 'Domain';
