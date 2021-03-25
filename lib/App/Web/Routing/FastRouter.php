@@ -31,9 +31,10 @@ class FastRouter implements IHasServiceManager, IRouter {
         $this->cacheKey = cacheKey($this, __FUNCTION__);
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager): self {
         $this->serviceManager = $serviceManager;
         $this->cache = $this->serviceManager['routerCache'];
+        return $this;
     }
 
     public function route($request): void {

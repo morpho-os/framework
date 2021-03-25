@@ -6,11 +6,15 @@
  */
 namespace Morpho\Test\Unit\Ioc;
 
+use ArrayObject;
+use Closure;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\ServiceNotFoundException;
 use Morpho\Testing\TestCase;
 use Morpho\Ioc\ServiceManager;
+use stdClass;
+use RuntimeException;
 
 class ServiceManagerTest extends TestCase {
     private IServiceManager $serviceManager;
@@ -21,7 +25,7 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testArrayAccess() {
-        $this->assertInstanceOf(\ArrayObject::class, $this->serviceManager);
+        $this->assertInstanceOf(ArrayObject::class, $this->serviceManager);
         $id = __FUNCTION__;
         $value = 'bar';
         $this->assertFalse(isset($this->serviceManager[$id]));
@@ -39,13 +43,14 @@ class ServiceManagerTest extends TestCase {
 
     public function testConstructor_SetsServiceManagerIfServiceImplementsServiceManagerInterface() {
         $service = new class implements IHasServiceManager {
-            private $serviceManager;
+            private ?IServiceManager $serviceManager = null;
 
-            public function setServiceManager(IServiceManager $serviceManager): void {
+            public function setServiceManager(IServiceManager $serviceManager): self {
                 $this->serviceManager = $serviceManager;
+                return $this;
             }
 
-            public function isServiceManagerSet() {
+            public function isServiceManagerSet(): bool {
                 return $this->serviceManager instanceof IServiceManager;
             }
         };
@@ -55,7 +60,7 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testCanDetectCircularReference() {
-        $this->expectException('\RuntimeException', "Circular reference detected for the service 'foo', path: 'foo -> bar -> foo'");
+        $this->expectException(RuntimeException::class, "Circular reference detected for the service 'foo', path: 'foo -> bar -> foo'");
         $this->serviceManager['foo'];
     }
 
@@ -73,7 +78,7 @@ class ServiceManagerTest extends TestCase {
 
     public function testCreateServiceMethodCanReturnClosure() {
         $closure = $this->serviceManager['myClosure'];
-        $this->assertInstanceOf('\Closure', $closure);
+        $this->assertInstanceOf(Closure::class, $closure);
         $this->assertSame($closure, $this->serviceManager['myClosure']);
 
         $this->assertNull($this->serviceManager->closureCalledWith);
@@ -86,7 +91,7 @@ class MyServiceManager extends ServiceManager {
     public $closureCalledWith;
 
     protected function mkObjService() {
-        return new \stdClass();
+        return new stdClass();
     }
 
     protected function mkFooService() {

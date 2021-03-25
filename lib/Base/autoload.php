@@ -521,9 +521,8 @@ function lastPos(string $haystack, string $needle, int $offset = 0) {
 
 /**
  * The name is taken from the `lines` function in Haskell.
- * @param string|iterable $text
  */
-function lines($text): iterable {
+function lines(string|iterable $text): string|iterable {
     if (is_iterable($text)) {
         return $text;
     }

@@ -8,20 +8,23 @@ namespace Morpho\DataProcessing\Pagination;
 
 use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
+use Morpho\Tech\Sql\IDbClient;
+use function intval;
 
 abstract class DbPager extends Pager implements IHasServiceManager {
-    protected $serviceManager;
+    protected IServiceManager $serviceManager;
 
-    protected $db;
+    protected ?IDbClient $db;
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager): self {
         $this->serviceManager = $serviceManager;
         $this->db = null;
+        return $this;
     }
 
     protected function itemList($offset, $pageSize): iterable {
-        $offset = \intval($offset);
-        $pageSize = \intval($pageSize);
+        $offset = intval($offset);
+        $pageSize = intval($pageSize);
         return $this->db()->eval('SELECT * FROM (' . $this->sqlQuery() . ") AS t LIMIT $offset, $pageSize");
     }
 

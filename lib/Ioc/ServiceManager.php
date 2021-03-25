@@ -100,16 +100,18 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         parent::offsetUnset(strtolower($id));
     }
 
-    public function setConf(mixed $conf): void {
+    public function setConf(mixed $conf): self {
         $this->conf = $conf;
+        return $this;
     }
 
     public function conf(): mixed {
         return $this->conf;
     }
 
-    public function setAliases(array $aliases): void {
+    public function setAliases(array $aliases): self {
         $this->aliases = $aliases;
+        return $this;
     }
 
     public function setAlias(string $alias, string $name): void {

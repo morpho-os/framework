@@ -19,8 +19,9 @@ abstract class Controller extends BaseController implements IHasServiceManager {
 
     protected $request;
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager): self {
         $this->serviceManager = $serviceManager;
+        return $this;
     }
 
     protected function redirect(string $uri = null, int $statusCode = null) {

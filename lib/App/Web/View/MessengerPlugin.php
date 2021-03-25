@@ -34,8 +34,9 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         return $html;
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager): self {
         $this->serviceManager = $serviceManager;
+        return $this;
     }
 
     protected function formatHtmlContainer(array $renderedMessages): string {

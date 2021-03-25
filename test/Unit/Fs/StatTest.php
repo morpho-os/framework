@@ -9,6 +9,10 @@ namespace Morpho\Test\Unit\Fs;
 use Morpho\Base\Env;
 use Morpho\Fs\Stat;
 use Morpho\Testing\TestCase;
+use function chmod;
+use function link;
+use function posix_mknod;
+use function touch;
 
 class StatTest extends TestCase {
     private $oldUmask;
@@ -30,13 +34,14 @@ class StatTest extends TestCase {
     public function testModeAndModeStr() {
         $tmpFilePath = $this->createTmpFile();
         $mode = 0644;
-        $this->assertTrue(\chmod($tmpFilePath, $mode));
+        $this->assertTrue(chmod($tmpFilePath, $mode));
         $this->assertSame($mode, Stat::mode($tmpFilePath));
         $this->assertSame('0644', Stat::modeStr($tmpFilePath));
     }
 
     public function testIsBlockDev() {
         //$this->assertTrue(posix_mknod($tmpDirPath . '/block-dev', POSIX_S_IFBLK | $mode, $dev[0], $dev[1]));
+        // /dev/loop0 requires `loop` kernel module: `lsmod | grep loop`, if it is missing and the kernel module is loaded run the `sudo losetup -f`.
         $path = $this->sut()->isCi() ? '/tmp/block-dev-test' : '/dev/loop0';
         $this->assertTrue(Stat::isEntry($path));
         $this->assertTrue(Stat::isBlockDev($path));
@@ -60,7 +65,7 @@ class StatTest extends TestCase {
         $mode = 0777;
         //$this->assertTrue(posix_mknod($tmpDirPath . '/reg-file', POSIX_S_IFREG | $mode));
         $path = $tmpDirPath . '/fifo';
-        $this->assertTrue(\posix_mknod($path, POSIX_S_IFIFO | $mode));
+        $this->assertTrue(posix_mknod($path, POSIX_S_IFIFO | $mode));
 
         $this->assertTrue(Stat::isEntry($path));
         $this->assertFalse(Stat::isBlockDev($path));
@@ -97,9 +102,9 @@ class StatTest extends TestCase {
         $linkPath = $tmpDirPath . '/link';
 
         $targetPath = $tmpDirPath . '/foo';
-        $this->assertTrue(\touch($targetPath));
+        $this->assertTrue(touch($targetPath));
 
-        $this->assertTrue(\link($targetPath, $linkPath));
+        $this->assertTrue(link($targetPath, $linkPath));
         $this->assertTrue(Stat::isEntry($linkPath));
     }
 

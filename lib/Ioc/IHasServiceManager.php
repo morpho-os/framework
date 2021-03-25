@@ -7,5 +7,5 @@
 namespace Morpho\Ioc;
 
 interface IHasServiceManager {
-    public function setServiceManager(IServiceManager $serviceManager): void;
+    public function setServiceManager(IServiceManager $serviceManager): self;
 }

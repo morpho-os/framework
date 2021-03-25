@@ -28,8 +28,9 @@ class WidgetPlugin extends Plugin implements IHasServiceManager {
         */
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): void {
+    public function setServiceManager(IServiceManager $serviceManager): self {
         $this->serviceManager = $serviceManager;
+        return $this;
     }
 }
 /*
