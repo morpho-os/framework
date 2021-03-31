@@ -35,7 +35,7 @@ class DateTimeTest extends TestCase {
         $this->assertEquals($date, (new DateTime($date))->mySqlDateTime());
     }
 
-    public function dataForTestIsTimestamp() {
+    public function dataTestIsTimestamp() {
         $timestamp = DateTime::createFromFormat('Y-m-d H:i:s', '2013-12-09 01:31:34')->getTimestamp();
         return [
             [
@@ -58,7 +58,7 @@ class DateTimeTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForTestIsTimestamp
+     * @dataProvider dataTestIsTimestamp
      */
     public function testIsTimestamp($value, $isTrue) {
         if ($isTrue) {

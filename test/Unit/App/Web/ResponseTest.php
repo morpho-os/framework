@@ -68,7 +68,7 @@ class ResponseTest extends TestCase {
         );
     }
 
-    public function dataForStatusCodeToStatusLine() {
+    public function dataStatusCodeToStatusLine() {
         yield [
             200, 'OK'
         ];
@@ -99,7 +99,7 @@ class ResponseTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForStatusCodeToStatusLine
+     * @dataProvider dataStatusCodeToStatusLine
      */
     public function testStatusCodeToStatusLine(int $statusCode, string $expectedReasonPhrase) {
         $this->response->setStatusCode($statusCode);

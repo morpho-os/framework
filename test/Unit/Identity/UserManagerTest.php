@@ -114,7 +114,7 @@ class UserManagerTest extends DbTestCase {
         $this->assertEquals([UserManager::PASSWORDS_DONT_MATCH_ERROR], $this->userManager->logIn($user));
     }
 
-    public function dataForLogIn_EmptyLoginOrPasswordReturnsError() {
+    public function dataLogIn_EmptyLoginOrPasswordReturnsError() {
         return [
             [
                 'my-login',
@@ -132,7 +132,7 @@ class UserManagerTest extends DbTestCase {
     }
 
     /**
-     * @dataProvider dataForLogIn_EmptyLoginOrPasswordReturnsError
+     * @dataProvider dataLogIn_EmptyLoginOrPasswordReturnsError
      */
     public function testLogIn_EmptyLoginOrPasswordReturnsError($login, $password) {
         $this->userManager->registerUser(['login' => $login, 'password' => $password]);

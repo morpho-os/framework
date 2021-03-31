@@ -23,7 +23,7 @@ class RouteMetaProviderTest extends TestCase {
         $this->assertInstanceOf(IFn::class, new RouteMetaProvider());
     }
 
-    public function dataForInvoke_RestActions() {
+    public function dataInvoke_RestActions() {
         return [
             [
                 'index',
@@ -69,7 +69,7 @@ class RouteMetaProviderTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForInvoke_RestActions
+     * @dataProvider dataInvoke_RestActions
      */
     public function testInvoke_RestActions(string $action, string $expectedHttpMethod, ?string $expectedActionPath) {
         $actionMetas = [
@@ -144,7 +144,7 @@ class RouteMetaProviderTest extends TestCase {
         );
     }
 
-    public function dataForDocComments() {
+    public function dataDocComments() {
         yield [
             '/**
               * @GET|POST
@@ -207,7 +207,7 @@ class RouteMetaProviderTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForDocComments
+     * @dataProvider dataDocComments
      */
     public function testDocComments(string $docComment, array $expected) {
         $this->assertSame($expected, RouteMetaProvider::parseDocComment($docComment));

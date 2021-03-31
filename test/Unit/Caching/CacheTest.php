@@ -10,7 +10,7 @@ use Morpho\Caching\ICache;
 use Morpho\Testing\TestCase;
 
 abstract class CacheTest extends TestCase {
-    public function dataForCaching() {
+    public function dataCaching() {
         yield [['foo' => 'bar']];
         yield [false];
         yield [true];
@@ -21,7 +21,7 @@ abstract class CacheTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCaching
+     * @dataProvider dataCaching
      */
     public function testCaching($data) {
         // @TODO: get, set, delete, clear, getMultiple, setMultiple, deleteMultiple, has

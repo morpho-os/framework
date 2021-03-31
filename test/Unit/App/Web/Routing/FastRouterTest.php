@@ -15,7 +15,7 @@ use Morpho\Testing\TestCase;
 use FastRoute\Dispatcher as IDispatcher;
 
 class FastRouterTest extends TestCase {
-    public function dataForRoute() {
+    public function dataRoute() {
         // valid HTTP method and path
         yield [
             'GET',
@@ -57,7 +57,7 @@ class FastRouterTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForRoute
+     * @dataProvider dataRoute
      */
     public function testRoute(string $httpMethod, string $requestPath, array $routeInfo, array $expectedHandler) {
         $uri = new class ($requestPath) {

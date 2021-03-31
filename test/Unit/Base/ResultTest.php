@@ -10,12 +10,12 @@ use Morpho\Testing\TestCase;
 use Morpho\Base\{Result, Ok, Err, IFunctor, IMonad};
 
 class ResultTest extends TestCase {
-    public function dataForInterface() {
+    public function dataInterface() {
         yield [new Ok()];
         yield [new Err()];
     }
     /**
-     * @dataProvider dataForInterface
+     * @dataProvider dataInterface
      */
     public function testInterface($instance) {
         $this->assertInstanceOf(IMonad::class, $instance);
@@ -45,7 +45,7 @@ class ResultTest extends TestCase {
         $this->assertEquals(new Err($errVal), $res);
     }
 
-    public function dataForComposition() {
+    public function dataComposition() {
         $req = [
                 'name' => "Phillip",
                 'email' => "phillip@example",
@@ -66,7 +66,7 @@ class ResultTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForComposition
+     * @dataProvider dataComposition
      */
     public function testComposition($req, $expected) {
         // Adopted from https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/results

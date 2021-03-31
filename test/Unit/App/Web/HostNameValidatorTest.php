@@ -11,7 +11,7 @@ use function strtolower;
 use Morpho\Testing\TestCase;
 
 class HostNameValidatorTest extends TestCase {
-    public function dataForCurrentHostName_ValidIps() {
+    public function dataCurrentHostName_ValidIps() {
         return [
             // IPv4
             [
@@ -59,7 +59,7 @@ class HostNameValidatorTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCurrentHostName_ValidIps
+     * @dataProvider dataCurrentHostName_ValidIps
      */
     public function testCurrentHostName_ValidIps(string $expected, string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;
@@ -67,7 +67,7 @@ class HostNameValidatorTest extends TestCase {
         $this->assertSame(strtolower($expected), $validator->currentHostName());
     }
 
-    public function dataForCurrentHostName_InvalidIps() {
+    public function dataCurrentHostName_InvalidIps() {
         return [
             // Some cases found in OpenJDK and RFCs.
             [
@@ -95,7 +95,7 @@ class HostNameValidatorTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCurrentHostName_InvalidIps
+     * @dataProvider dataCurrentHostName_InvalidIps
      */
     public function testCurrentHostName_InvalidIps(string $ip) {
         $_SERVER['HTTP_HOST'] = $ip;

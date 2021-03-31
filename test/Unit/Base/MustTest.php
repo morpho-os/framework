@@ -20,7 +20,7 @@ class MustTest extends TestCase {
         Must::contain('foo-bar', '/');
     }
 
-    public function dataForContain_Array_Valid() {
+    public function dataContain_Array_Valid() {
         return [
             [
                 [null, 0, '', false],
@@ -38,14 +38,14 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForContain_Array_Valid
+     * @dataProvider dataContain_Array_Valid
      */
     public function testContain_Array_Valid($haystack, $needle) {
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull(Must::contain($haystack, $needle));
     }
 
-    public function dataForContain_Array_Invalid() {
+    public function dataContain_Array_Invalid() {
         return [
             [
                 [],
@@ -63,7 +63,7 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForContain_Array_Invalid
+     * @dataProvider dataContain_Array_Invalid
      */
     public function testContain_Array_Invalid($haystack, $needle) {
         $this->expectException(\RuntimeException::class, 'A haystack does not contain a needle');
@@ -117,7 +117,7 @@ class MustTest extends TestCase {
         Must::beEmpty();
     }
 
-    public function dataForBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue() {
+    public function dataBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue() {
         return [
             [
                 '',
@@ -131,7 +131,7 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue
+     * @dataProvider dataBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue
      */
     public function testBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue($v) {
         $this->expectException(\RuntimeException::class, "The value must be non empty");
@@ -158,7 +158,7 @@ class MustTest extends TestCase {
         Must::beNotEmpty();
     }
 
-    public function dataForHasKeys_Invalid() {
+    public function dataHasKeys_Invalid() {
         return [
             [
                 ['foo' => 1, 'baz' => 2],
@@ -176,14 +176,14 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHasKeys_Invalid
+     * @dataProvider dataHasKeys_Invalid
      */
     public function testHasKeys_Invalid($actual, $requiredKeys) {
         $this->expectException('\RuntimeException', 'Required items are missing');
         Must::haveKeys($actual, $requiredKeys);
     }
 
-    public function dataForHasKeys_Valid_DoesNotThrowException() {
+    public function dataHasKeys_Valid_DoesNotThrowException() {
         return [
             [
                 ['foo' => 1, 'bar' => 2],
@@ -201,14 +201,14 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHasKeys_Valid_DoesNotThrowException
+     * @dataProvider dataHasKeys_Valid_DoesNotThrowException
      */
     public function testHasKeys_Valid_DoesNotThrowException($actual, $requiredKeys) {
         Must::haveKeys($actual, $requiredKeys);
         $this->markTestAsNotRisky();
     }
 
-    public function dataForHasOnlyKeys_Invalid() {
+    public function dataHasOnlyKeys_Invalid() {
         return [
             [
                 ['foo' => '1', 'something' => 2],
@@ -224,14 +224,14 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHasOnlyKeys_Invalid
+     * @dataProvider dataHasOnlyKeys_Invalid
      */
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
         $this->expectException('\RuntimeException', 'Not allowed items are present: ' . \implode(', ', $notAllowedItems));
         Must::haveOnlyKeys($actual, $allowedKeys);
     }
 
-    public function dataForHasOnlyKeys_Valid_DoesNotThrowException() {
+    public function dataHasOnlyKeys_Valid_DoesNotThrowException() {
         return [
             [
                 ['foo' => '1', 'bar' => 2, 'baz' => 3],
@@ -253,7 +253,7 @@ class MustTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHasOnlyKeys_Valid_DoesNotThrowException
+     * @dataProvider dataHasOnlyKeys_Valid_DoesNotThrowException
      */
     public function testHasOnlyKeys_Valid_DoesNotThrowException($actual, $allowedKeys) {
         Must::haveOnlyKeys($actual, $allowedKeys);

@@ -10,7 +10,7 @@ use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\UriValidator;
 
 class UriValidatorTest extends TestCase {
-    public function dataForValidateScheme() {
+    public function dataValidateScheme() {
         return [
             [
                 '', false,
@@ -34,13 +34,13 @@ class UriValidatorTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForValidateScheme
+     * @dataProvider dataValidateScheme
      */
     public function testValidateScheme(string $scheme, bool $isValid) {
         $this->assertSame($isValid, UriValidator::validateScheme($scheme));
     }
 
-    public function dataForValidateAuthority() {
+    public function dataValidateAuthority() {
         yield [
             'user:pass^word@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80',
             false
@@ -76,26 +76,26 @@ class UriValidatorTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForValidateAuthority
+     * @dataProvider dataValidateAuthority
      */
     public function testValidateAuthority(string $authority, bool $isValid) {
         $this->assertSame($isValid, UriValidator::validateAuthority($authority));
     }
 
-    public function dataForValidatePath_WithAuthorityCase() {
+    public function dataValidatePath_WithAuthorityCase() {
         yield from $this->validatePathSamples();
         yield ['', true];
         yield ['//', true];
     }
 
     /**
-     * @dataProvider dataForValidatePath_WithAuthorityCase
+     * @dataProvider dataValidatePath_WithAuthorityCase
      */
     public function testValidatePath_WithAuthorityCase(string $path, bool $isValid) {
         $this->validatePath($path, $isValid, true);
     }
 
-    public function dataForValidatePath_WithoutAuthorityCase() {
+    public function dataValidatePath_WithoutAuthorityCase() {
         yield from $this->validatePathSamples();
         yield ['', false];
         yield ['//', false];
@@ -109,7 +109,7 @@ class UriValidatorTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForValidatePath_WithoutAuthorityCase
+     * @dataProvider dataValidatePath_WithoutAuthorityCase
      */
     public function testValidatePath_WithoutAuthorityCase(string $path, bool $isValid) {
         $this->validatePath($path, $isValid, false);

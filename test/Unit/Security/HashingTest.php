@@ -5,7 +5,7 @@ use Morpho\Security\Hashing;
 use Morpho\Testing\TestCase;
 
 class HashingTest extends TestCase {
-    public function dataForIsMd5Like() {
+    public function dataIsMd5Like() {
         yield [false, ''];
         yield [false, 'foo'];
         yield [true, md5('foo')];
@@ -18,7 +18,7 @@ class HashingTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIsMd5Like
+     * @dataProvider dataIsMd5Like
      */
     public function testIsMd5Like(bool $expected, string $testString) {
         $this->assertSame($expected, Hashing::isMd5Like($testString));

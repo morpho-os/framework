@@ -14,13 +14,13 @@ class UriParserTest extends TestCase {
     use TUriParserDataProvider;
 
     /**
-     * @dataProvider dataForParse
+     * @dataProvider dataParse
      */
     public function testParse(string $uriStr, array $expected) {
         $this->checkParse($uriStr, $expected);
     }
 
-    public function dataForParseOnlyAuthority_ValidCases() {
+    public function dataParseOnlyAuthority_ValidCases() {
         yield [
             '',
             [
@@ -138,7 +138,7 @@ class UriParserTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForParseOnlyAuthority_ValidCases
+     * @dataProvider dataParseOnlyAuthority_ValidCases
      */
     public function testParseOnlyAuthority_ValidCases($authority, $expected) {
         $authority = UriParser::parseOnlyAuthority($authority);
@@ -147,14 +147,14 @@ class UriParserTest extends TestCase {
         $this->assertSame($expected['port'], $authority->port());
     }
 
-    public function dataForParseOnlyAuthority_InvalidCases() {
+    public function dataParseOnlyAuthority_InvalidCases() {
         yield [
             '',
         ];
     }
 
     /**
-     * @dataProvider dataForParseOnlyAuthority_InvalidCases
+     * @dataProvider dataParseOnlyAuthority_InvalidCases
      */
     public function testParseOnlyAuthority_InvalidCases($authority) {
         $this->assertEquals(new Authority(), UriParser::parseOnlyAuthority($authority));
@@ -173,7 +173,7 @@ class UriParserTest extends TestCase {
         }
     }
 
-    public function dataForParseOnlyQuery() {
+    public function dataParseOnlyQuery() {
         yield [
             'foo',
             ['foo' => null]
@@ -334,7 +334,7 @@ class UriParserTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForParseOnlyQuery
+     * @dataProvider dataParseOnlyQuery
      */
     public function testParseOnlyQuery($queryStr, $expected) {
         $query = UriParser::parseOnlyQuery($queryStr);

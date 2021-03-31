@@ -35,13 +35,13 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->request->isAjax());
     }
 
-    public function dataForSettingHeadersThroughServerVars() {
+    public function dataSettingHeadersThroughServerVars() {
         yield [true];
         yield [false];
     }
 
     /**
-     * @dataProvider dataForSettingHeadersThroughServerVars
+     * @dataProvider dataSettingHeadersThroughServerVars
      */
     public function testSettingHeadersThroughServerVars($useGlobalServerVar) {
         $serverVars = [
@@ -129,14 +129,14 @@ class RequestTest extends TestCase {
         $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->toStr(null, true));
     }
 
-    public function dataForIsHttpMethod() {
+    public function dataIsHttpMethod() {
         foreach (Request::knownMethods() as $httpMethod) {
             yield [$httpMethod];
         }
     }
 
     /**
-     * @dataProvider dataForIsHttpMethod
+     * @dataProvider dataIsHttpMethod
      */
     public function testIsHttpMethod($httpMethod) {
         $_SERVER['REQUEST_METHOD'] = 'unknown';
@@ -181,13 +181,13 @@ class RequestTest extends TestCase {
         $this->assertNull($this->request->query('foo', false));
     }
 
-    public function dataForGetArgs() {
+    public function dataGetArgs() {
         yield [HttpMethod::GET];
         yield [HttpMethod::POST];
     }
 
     /**
-     * @dataProvider dataForGetArgs
+     * @dataProvider dataGetArgs
      */
     public function testArgs($httpMethod) {
         // @TODO: Test patch, put
@@ -212,7 +212,7 @@ class RequestTest extends TestCase {
         $this->assertSame($basePath, $uri->path()->basePath());
     }
 
-    public function dataForPrependUriWithBasePath() {
+    public function dataPrependUriWithBasePath() {
         yield [
             '',
             null,
@@ -270,7 +270,7 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForPrependUriWithBasePath
+     * @dataProvider dataPrependUriWithBasePath
      */
     public function testPrependUriWithBasePath($expectedUri, $expectedBasePath, $basePath, $uriToPrepend) {
         $fullRequestUri = 'http://localhost/foo/bar/baz';
@@ -285,7 +285,7 @@ class RequestTest extends TestCase {
         $this->assertSame($expectedUri, $prepended->toStr(null, false));
     }
 
-    public function dataForUriInitialization_Scheme() {
+    public function dataUriInitialization_Scheme() {
         yield [false, []];
         yield [true, ['HTTPS' => 'on']];
         yield [false, ['HTTPS' => 'off']];
@@ -300,7 +300,7 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForUriInitialization_Scheme
+     * @dataProvider dataUriInitialization_Scheme
      */
     public function testUriInitialization_Scheme($isHttps, $serverVars) {
         $trustedProxyIp = '127.0.0.2';
@@ -347,14 +347,14 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->request->isKnownMethod('unknown'));
     }
 
-    public function dataForMethod() {
+    public function dataMethod() {
         foreach (Request::knownMethods() as $httpMethod) {
             yield [$httpMethod];
         }
     }
 
     /**
-     * @dataProvider dataForMethod
+     * @dataProvider dataMethod
      */
     public function testMethod_OverwritingHttpMethod_ThroughMethodArg($httpMethod) {
         $_GET['_method'] = $httpMethod;
@@ -362,7 +362,7 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForMethod
+     * @dataProvider dataMethod
      */
     public function testMethod_OverwritingHttpMethod_ThroughHeader($httpMethod) {
         $this->checkHttpMethod([
@@ -372,7 +372,7 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForMethod
+     * @dataProvider dataMethod
      */
     public function testMethod_Default($httpMethod) {
         $this->checkHttpMethod(['REQUEST_METHOD' => $httpMethod], $httpMethod);

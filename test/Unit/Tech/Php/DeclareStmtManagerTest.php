@@ -5,7 +5,7 @@ use Morpho\Tech\Php\DeclareStmtManager;
 use Morpho\Testing\TestCase;
 
 class DeclareStmtManagerTest extends TestCase {
-    public function dataForRemoveCommentedOutDeclareStmt() {
+    public function dataRemoveCommentedOutDeclareStmt() {
         $expected = <<<OUT
 <?php
 /**
@@ -57,14 +57,14 @@ OUT
     }
 
     /**
-     * @dataProvider dataForRemoveCommentedOutDeclareStmt
+     * @dataProvider dataRemoveCommentedOutDeclareStmt
      */
     public function testRemoveCommentedOutDeclareStmt(string $code, string $expected) {
         $manager = new DeclareStmtManager();
         $this->assertSame($expected, $manager->removeCommentedOutDeclareStmt($code));
     }
 
-    public function dataForRemoveDeclareStmt() {
+    public function dataRemoveDeclareStmt() {
         $expected = <<<OUT
 <?php
 /**
@@ -109,14 +109,14 @@ OUT
     }
 
     /**
-     * @dataProvider dataForRemoveDeclareStmt
+     * @dataProvider dataRemoveDeclareStmt
      */
     public function testRemoveDeclareStmt(string $code, string $expected) {
         $manager = new DeclareStmtManager();
         $this->assertSame($expected, $manager->removeDeclareStmt($code));
     }
 
-    public function dataForAddDeclareStmt() {
+    public function dataAddDeclareStmt() {
         $sample = <<<OUT
 <?php
 /**
@@ -216,7 +216,7 @@ OUT
     }
 
     /**
-     * @dataProvider dataForAddDeclareStmt
+     * @dataProvider dataAddDeclareStmt
      */
     public function testAddDeclareStmt(string $code, int $position, string $expected) {
         $manager = new DeclareStmtManager();

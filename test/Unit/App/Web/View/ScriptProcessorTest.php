@@ -89,7 +89,7 @@ OUT;
         $this->assertMatchesRegularExpression($re, $html);
     }
 
-    public function dataForSkipAttribute() {
+    public function dataSkipAttribute() {
         return [
             [
                 'body',
@@ -101,7 +101,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForSkipAttribute
+     * @dataProvider dataSkipAttribute
      */
     public function testSkipAttribute($tag) {
         $processor = new class ($this->mkRequestStub('foo'), $this->mkSiteStub('abc/efg')) extends ScriptProcessor {
@@ -132,7 +132,7 @@ OUT;
         $this->assertSame($html, $processed);
     }
 
-    public function dataForAutoInclusionOfActionScripts_WithoutChildScripts() {
+    public function dataAutoInclusionOfActionScripts_WithoutChildScripts() {
         yield [
             ['foo' => 'bar'],
         ];
@@ -142,7 +142,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForAutoInclusionOfActionScripts_WithoutChildScripts
+     * @dataProvider dataAutoInclusionOfActionScripts_WithoutChildScripts
      */
     public function testAutoInclusionOfActionScripts_WithoutChildScripts($jsConf) {
         $request = $this->mkRequestStub('cat/tail');

@@ -11,7 +11,7 @@ use Morpho\Fs\Path;
 use Morpho\Fs\Exception as FsException;
 
 class PathTest extends TestCase {
-    public function dataForIsAbs() {
+    public function dataIsAbs() {
         return [
             [
                 '',
@@ -61,13 +61,13 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIsAbs
+     * @dataProvider dataIsAbs
      */
     public function testIsAbs($path, $isAbs) {
         $isAbs ? $this->assertTrue(Path::isAbs($path)) : $this->assertFalse(Path::isAbs($path));
     }
 
-    public function dataForAssertSafe() {
+    public function dataAssertSafe() {
         return [
             ['..'],
             ['C:/foo/../bar'],
@@ -79,14 +79,14 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAssertSafe
+     * @dataProvider dataAssertSafe
      */
     public function testAssertSafeThrowsExceptionForNotSafePath($path) {
         $this->expectException('\Morpho\Base\SecurityException', 'Invalid file path was detected.');
         Path::assertSafe($path);
     }
 
-    public function dataForAssertSafeDoesNotThrowExceptionForSafePath() {
+    public function dataAssertSafeDoesNotThrowExceptionForSafePath() {
         return [
             [
                 'C:/foo/bar',
@@ -98,14 +98,14 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAssertSafeDoesNotThrowExceptionForSafePath
+     * @dataProvider dataAssertSafeDoesNotThrowExceptionForSafePath
      */
     public function testAssertSafe_DoesNotThrowExceptionForSafePath($path) {
         Path::assertSafe($path);
         $this->markTestAsNotRisky();
     }
 
-    public function dataForIsNormalizedInvalid() {
+    public function dataIsNormalizedInvalid() {
         $dataSet = [
             ['\foo\bar\baz\\'],
             ['\foo\bar\baz/'],
@@ -140,7 +140,7 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIsNormalizedInvalid
+     * @dataProvider dataIsNormalizedInvalid
      */
     public function testIsNormalizedInvalid($invalid) {
         $this->assertFalse(Path::isNormalized($invalid));
@@ -152,7 +152,7 @@ class PathTest extends TestCase {
         $this->assertTrue(Path::isNormalized('C:/foo/bar/baz'));
     }
 
-    public function dataForAbs() {
+    public function dataAbs() {
         return [
             ['/', '/',],
             [__DIR__, __DIR__],
@@ -165,7 +165,7 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAbs
+     * @dataProvider dataAbs
      */
     public function testAbs($expected, $path) {
         $actual = Path::abs($path);
@@ -234,7 +234,7 @@ class PathTest extends TestCase {
         $this->assertSame('', Path::combine(['', '', '']));
     }
 
-    public function dataForCombine_AbsUri() {
+    public function dataCombine_AbsUri() {
         return [
             [
                 'http://foo/bar',
@@ -267,7 +267,7 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCombine_AbsUri
+     * @dataProvider dataCombine_AbsUri
      */
     public function testCombine_AbsUri($expected, $uri, $path1, $path2 = null) {
         $this->assertEquals($expected, Path::combine($uri, $path1, $path2));

@@ -22,7 +22,7 @@ class ActionMetaProviderTest extends TestCase {
         $this->assertInstanceOf(IFn::class, $this->actionMetaProvider);
     }
 
-    public function dataForInvoke() {
+    public function dataInvoke() {
 
         $testDirPath = $this->getTestDirPath();
         $testNs = __CLASS__;
@@ -184,7 +184,7 @@ class ActionMetaProviderTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForInvoke
+     * @dataProvider dataInvoke
      */
     public function testInvoke($moduleMeta, $expected) {
         $module = $this->mkModule($moduleMeta[0], $moduleMeta[1]);

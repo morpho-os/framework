@@ -125,21 +125,21 @@ class UriTest extends TestCase {
         $this->assertSame($uri, Uri::parse($uri));
     }
     
-    public function dataForToStr() {
-        foreach ($this->dataForParse() as $sample) {
+    public function dataToStr() {
+        foreach ($this->dataParse() as $sample) {
             yield [$sample[0]];
         }
     }
 
     /**
-     * @dataProvider dataForToStr
+     * @dataProvider dataToStr
      */
     public function testToStr(string $uriStr) {
         $uri = new Uri($uriStr);
         $this->assertSame($uriStr, $uri->toStr(null, false));
     }
     
-    public function dataForResolveRelUri_NormalExamples() {
+    public function dataResolveRelUri_NormalExamples() {
         yield ['g:h', 'g:h'];
         yield ['g', 'http://a/b/c/g'];
         yield ['./g', 'http://a/b/c/g'];
@@ -168,14 +168,14 @@ class UriTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForResolveRelUri_NormalExamples
+     * @dataProvider dataResolveRelUri_NormalExamples
      */
     public function testResolveRelUri_NormalExamples($relUri, $expected) {
         $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);
         $this->assertSame($expected, $uri->toStr(null, false));
     }
     
-    public function dataForResolveRelUri_AbnormalExamples() {
+    public function dataResolveRelUri_AbnormalExamples() {
         yield ['../../../g', 'http://a/g'];
         yield ['../../../../g', 'http://a/g'];
         yield ['/./g', 'http://a/g'];
@@ -198,7 +198,7 @@ class UriTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForResolveRelUri_AbnormalExamples
+     * @dataProvider dataResolveRelUri_AbnormalExamples
      */
     public function testResolveRelUri_AbnormalExamples($relUri, $expected) {
         $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);

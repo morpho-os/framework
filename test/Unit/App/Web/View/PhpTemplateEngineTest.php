@@ -27,7 +27,7 @@ class PhpTemplateEngineTest extends TestCase {
         $this->assertInstanceOf(IPipe::class, $this->templateEngine);
     }
 
-    public function dataForEval() {
+    public function dataEval() {
         yield [
             '',
             '',
@@ -41,7 +41,7 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForEval
+     * @dataProvider dataEval
      */
     public function testEval_DefaultPhases($expected, $source, $vars) {
         $compiled = $this->templateEngine->eval($source, $vars);

@@ -19,7 +19,7 @@ abstract class DiscoverStrategyTest extends TestCase {
         $this->strategy = $this->mkDiscoverStrategy();
     }
 
-    public function dataForClassTypesDefinedInFile() {
+    public function dataClassTypesDefinedInFile() {
         yield [
             [
                 __NAMESPACE__ . '\\StrategyTest1\\FooTrait',
@@ -39,7 +39,7 @@ abstract class DiscoverStrategyTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForClassTypesDefinedInFile
+     * @dataProvider dataClassTypesDefinedInFile
      */
     public function testClassTypesDefinedInFile(array $expected, string $relFilePath) {
         $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/' . $relFilePath);

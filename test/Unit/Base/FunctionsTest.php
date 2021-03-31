@@ -38,7 +38,7 @@ class FunctionsTest extends TestCase {
 
     // -------------------------------------------------------------------------
 
-    public function dataForAll_CommonCases() {
+    public function dataAll_CommonCases() {
         $falsePredicate = fn() => false;
         $truePredicate = fn() => true;
         $emptyString = '';
@@ -76,13 +76,13 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAll_CommonCases
+     * @dataProvider dataAll_CommonCases
      */
     public function testAll_CommonCases(bool $expected, callable $predicate, mixed $list) {
         $this->assertSame($expected, all($predicate, $list));
     }
 
-    public function dataForAll_StringAndStringable_Utf8String() {
+    public function dataAll_StringAndStringable_Utf8String() {
         yield [
             'ℚ ⊂ ℝ ⊂ ℂ',
         ];
@@ -96,7 +96,7 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForAll_StringAndStringable_Utf8String
+     * @dataProvider dataAll_StringAndStringable_Utf8String
      */
     public function testAll_StringAndStringable_Utf8String($s) {
         $called = [];
@@ -113,7 +113,7 @@ class FunctionsTest extends TestCase {
 
     // -------------------------------------------------------------------------
 
-    public function dataForToIt() {
+    public function dataToIt() {
         $it = new ArrayIterator(['foo', 'bar']);
         $itAggr = new class ($it) implements IteratorAggregate {
             private ArrayIterator $it;
@@ -153,7 +153,7 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForToIt
+     * @dataProvider dataToIt
      */
     public function testToIt($expected, $it) {
         $this->assertSame($expected, toIt($it));
@@ -161,14 +161,14 @@ class FunctionsTest extends TestCase {
 
     // -------------------------------------------------------------------------
 
-    public function dataForLines() {
+    public function dataLines() {
         yield ["\n"];   // *nix
         yield ["\r\n"]; // Win
         yield ["\r"];   // old Mac
     }
 
     /**
-     * @dataProvider dataForLines
+     * @dataProvider dataLines
      */
     public function testLines($sep) {
         // Cases taken from http://hackage.haskell.org/package/base-4.10.0.0/docs/Prelude.html#v:lines
@@ -429,7 +429,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('fghello', compose($f, $g)('hello'));
     }
 
-    public function dataForCompose_IFnWithClosure() {
+    public function dataCompose_IFnWithClosure() {
         $ifn = new class implements IFn {
             public function __invoke(mixed $value): mixed {
                 return 'IFn called ' . $value;
@@ -458,7 +458,7 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCompose_IFnWithClosure
+     * @dataProvider dataCompose_IFnWithClosure
      */
     public function testCompose_IFnWithClosure($expected, $f, $g) {
         $this->assertSame($expected, compose($f, $g)('test'));
@@ -468,23 +468,23 @@ class FunctionsTest extends TestCase {
         $this->markTestIncomplete();
     }
 
-    public function dataForQ() {
-        return $this->dataForQ_("'");
+    public function dataQ() {
+        return $this->dataQ_("'");
     }
 
     /**
-     * @dataProvider dataForQ
+     * @dataProvider dataQ
      */
     public function testQ($expected, $actual) {
         $this->assertSame($expected, q($actual));
     }
 
-    public function dataForQQ() {
-        return $this->dataForQ_('"');
+    public function dataQQ() {
+        return $this->dataQ_('"');
     }
 
     /**
-     * @dataProvider dataForQQ
+     * @dataProvider dataQQ
      */
     public function testQQ($expected, $actual) {
         $this->assertSame($expected, qq($actual));
@@ -586,7 +586,7 @@ class FunctionsTest extends TestCase {
      * Modified version of the providesOperator() from the https://github.com/nikic/iter
      * @Copyright (c) 2013 by Nikita Popov.
      */
-    public function dataForOp() {
+    public function dataOp() {
         return [
             ['instanceof', new stdClass, 'stdClass', true],
             ['*', 3, 2, 6],
@@ -622,7 +622,7 @@ class FunctionsTest extends TestCase {
     /**
      * Modified version of the testOperator() from the https://github.com/nikic/iter
      * @Copyright (c) 2013 by Nikita Popov.
-     * @dataProvider dataForOp
+     * @dataProvider dataOp
      */
     public function testOp($op, $a, $b, $result) {
         $fn1 = op($op);
@@ -849,7 +849,7 @@ OUT;
         $this->assertSame([[]], subsets([1, 2], 0));
     }
 
-    public function dataForIsSubset() {
+    public function dataIsSubset() {
         return [
             [
                 true, [], [],
@@ -897,13 +897,13 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForIsSubset
+     * @dataProvider dataIsSubset
      */
     public function testIsSubset($expected, $a, $b) {
         $this->assertSame($expected, isSubset($a, $b));
     }
 
-    public function dataForSetsEqual() {
+    public function dataSetsEqual() {
         return [
             [
                 [],
@@ -929,7 +929,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForSetsEqual
+     * @dataProvider dataSetsEqual
      */
     public function testSetsEqual($a, $b, $expected) {
         $this->assertEquals($expected, setsEqual($a, $b));
@@ -1086,7 +1086,7 @@ OUT;
         $this->assertSame(['foo', 'bar', 'baz'], union(['foo', 'bar'], ['baz', 'foo']));
     }
 
-    public function dataForSymmetricDiff() {
+    public function dataSymmetricDiff() {
         // for each {int keys, string keys, mixed keys}
         // check {value !=, key !=}
         return [
@@ -1160,7 +1160,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForSymmetricDiff
+     * @dataProvider dataSymmetricDiff
      */
     public function testSymmetricDiff(array $expected, array $a, array $b) {
         $this->assertSame($expected, symDiff($a, $b));
@@ -1182,7 +1182,7 @@ OUT;
         );
     }
 
-    public function dataForPermutations() {
+    public function dataPermutations() {
         yield [
             [],
             [
@@ -1245,7 +1245,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForPermutations
+     * @dataProvider dataPermutations
      */
     public function testPermutations(array $input, array $expected) {
         $this->assertSame($expected, permutations($input));
@@ -1255,7 +1255,7 @@ OUT;
      * This function based on https://github.com/zendframework/zend-stdlib/blob/master/test/ArrayUtilsTest.php
      * Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
      */
-    public function dataForMerge() {
+    public function dataMerge() {
         return [
             'merge-integer-and-string-keys'                  => [
                 [
@@ -1378,7 +1378,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForMerge
+     * @dataProvider dataMerge
      */
     public function testMerge(array $a, array $b, bool $resetIntKeys, array $expected) {
         $this->assertEquals($expected, merge($a, $b, $resetIntKeys));
@@ -1407,7 +1407,7 @@ OUT;
         $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
     }
 
-    private function dataForQ_(string $quote) {
+    private function dataQ_(string $quote) {
         return [
             [
                 "$quote$quote",

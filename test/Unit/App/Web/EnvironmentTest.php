@@ -10,7 +10,7 @@ use Morpho\Testing\TestCase;
 use Morpho\App\Web\Env;
 
 class EnvironmentTest extends TestCase {
-    public function dataForHttpVersion() {
+    public function dataHttpVersion() {
         yield [
             'HTTP/1.0',
             'HTTP/1.0',
@@ -38,7 +38,7 @@ class EnvironmentTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForHttpVersion
+     * @dataProvider dataHttpVersion
      */
     public function testHttpVersion(string $serverProtocol, string $expected) {
         $_SERVER['SERVER_PROTOCOL'] = $serverProtocol;

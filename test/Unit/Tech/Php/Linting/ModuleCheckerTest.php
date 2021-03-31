@@ -21,13 +21,13 @@ class ModuleCheckerTest extends TestCase {
         $this->assertSame([FileChecker::META_FILE_NOT_FOUND], $errors);
     }
 
-    public function dataForCheckMetaFile_InvalidMetaFileFormat() {
+    public function dataCheckMetaFile_InvalidMetaFileFormat() {
         yield ['test'];
         yield [\json_encode(['foo' => 'bar'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)];
     }
 
     /**
-     * @dataProvider dataForCheckMetaFile_InvalidMetaFileFormat
+     * @dataProvider dataCheckMetaFile_InvalidMetaFileFormat
      */
     public function testCheckMetaFile_InvalidMetaFileFormat(string $metaFileContents) {
         $moduleDirUri = Vfs::prefixUri($this->getTestDirPath());

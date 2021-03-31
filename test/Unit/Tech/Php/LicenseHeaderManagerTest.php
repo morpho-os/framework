@@ -136,7 +136,7 @@ OUT;
         $this->checkLicense($filePath, $licenseText, $expectedText);
     }
 
-    public function dataForUpdateLicenseHeader_DifferentLicenseHeader() {
+    public function dataUpdateLicenseHeader_DifferentLicenseHeader() {
         return [
             [
                 "/**\n * This is a new morpho license\n */",
@@ -148,7 +148,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForUpdateLicenseHeader_DifferentLicenseHeader
+     * @dataProvider dataUpdateLicenseHeader_DifferentLicenseHeader
      */
     public function testUpdateLicenseHeader_DifferentLicenseHeader($newLicenseText) {
         $filePath = $this->createTmpFile();
@@ -198,7 +198,7 @@ OUT
         );
     }
 
-    public function dataForFindLicenseHeaderInFile() {
+    public function dataFindLicenseHeaderInFile() {
         $testDirPath = $this->getTestDirPath();
         $licenseText = <<<OUT
 /**
@@ -227,7 +227,7 @@ OUT;
     }
 
     /**
-     * @dataProvider dataForFindLicenseHeaderInFile
+     * @dataProvider dataFindLicenseHeaderInFile
      */
     public function testFindLicenseHeaderInFile($expected, $filePath) {
         $this->assertSame($expected, (new LicenseHeaderManager())->findLicenseHeaderInFile($filePath));

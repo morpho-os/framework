@@ -114,7 +114,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->checkBoolAccessor([$this->mkErrorHandler(false), 'exitOnFatalError'], true);
     }
 
-    public function dataForTestHandleError_ConvertsErrorToException() {
+    public function dataTestHandleError_ConvertsErrorToException() {
         return [
             [
                 E_USER_ERROR,
@@ -136,7 +136,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     }
 
     /**
-     * @dataProvider dataForTestHandleError_ConvertsErrorToException
+     * @dataProvider dataTestHandleError_ConvertsErrorToException
      */
     public function testHandleError_ConvertsErrorToException($severity, $expectedErrorClass) {
         $errorHandler = $this->mkErrorHandler();
@@ -154,7 +154,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->assertEquals($severity, $ex->getSeverity());
     }
 
-    public function dataForErrorToException() {
+    public function dataErrorToException() {
         return [
             [
                 E_ERROR,
@@ -220,7 +220,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     }
 
     /**
-     * @dataProvider dataForErrorToException
+     * @dataProvider dataErrorToException
      */
     public function testErrorToException($severity, $class) {
         $message = 'some';

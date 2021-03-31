@@ -228,7 +228,7 @@ class FileTest extends TestCase {
         $this->assertSame('', file_get_contents($filePath));
     }
 
-    public function dataForWrite_ModeConfOption() {
+    public function dataWrite_ModeConfOption() {
         yield [
             0777,
         ];
@@ -244,7 +244,7 @@ class FileTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForWrite_ModeConfOption
+     * @dataProvider dataWrite_ModeConfOption
      */
     public function testWrite_ModeConf(int $mode) {
         $tmpDirPath = $this->createTmpDir();

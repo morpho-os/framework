@@ -142,7 +142,7 @@ class SchemaTest extends DbTestCase {
         $this->assertTrue($i > 0);
     }
 
-    public function dataForAvailableCollationsOfServer() {
+    public function dataAvailableCollationsOfServer() {
         yield [null, function ($defaultEncountered) {
             $this->assertTrue($defaultEncountered > 0);
         }];
@@ -152,7 +152,7 @@ class SchemaTest extends DbTestCase {
     }
 
     /**
-     * @dataProvider dataForAvailableCollationsOfServer
+     * @dataProvider dataAvailableCollationsOfServer
      * /
     public function testAvailableCollationsOfServer(?string $constraint, callable $checkDefaultEncountered) {
         $collations = $this->schema->availableCollationsOfServer($constraint);
@@ -262,13 +262,13 @@ class SchemaTest extends DbTestCase {
         $this->assertTrue($i > 0);
     }
 
-    public function dataForCollationOfTable() {
+    public function dataCollationOfTable() {
         yield [self::DB . '.kiwi', null];
         yield [self::DB, 'kiwi'];
     }
 
     /**
-     * @dataProvider dataForCollationOfTable
+     * @dataProvider dataCollationOfTable
      * /
     public function testCollationOfTable(string $dbName, ?string $tableName) {
         $this->createTestTables();

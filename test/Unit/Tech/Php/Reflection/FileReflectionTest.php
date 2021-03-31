@@ -79,7 +79,7 @@ class FileReflectionTest extends TestCase {
         $this->assertEquals(1, $i);
     }
 
-    public function dataForNamespaces_MultipleNamespaces() {
+    public function dataNamespaces_MultipleNamespaces() {
         $testDirPath = $this->getTestDirPath();
         return [
             [
@@ -112,7 +112,7 @@ class FileReflectionTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForNamespaces_MultipleNamespaces
+     * @dataProvider dataNamespaces_MultipleNamespaces
      */
     public function testNamespaces_MultipleNamespaces($filePath, $expected) {
         $rFile = new FileReflection($filePath);

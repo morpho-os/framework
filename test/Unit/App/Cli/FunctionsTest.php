@@ -33,7 +33,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals("OK\n", ob_get_clean());
     }
 
-    public function dataForWriteErrorAndWriteErrorLn() {
+    public function dataWriteErrorAndWriteErrorLn() {
         return [
             ['showError', 'Something went wrong', 'Something went wrong'],
             ['showErrorLn', "Space cow has arrived!\n", 'Space cow has arrived!'],
@@ -41,7 +41,7 @@ class FunctionsTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForWriteErrorAndWriteErrorLn
+     * @dataProvider dataWriteErrorAndWriteErrorLn
      */
     public function testWriteErrorAndWriteErrorLn($fn, $expectedMessage, $error) {
         if (Env::isWindows()) {
@@ -107,7 +107,7 @@ OUT
         sh('ls', ['some invalid option' => 'value of invalid option']);
     }
 
-    public function dataForShell_CaptureAndShowConfOptions() {
+    public function dataShell_CaptureAndShowConfOptions() {
         yield [false, false];
         yield [false, true];
         yield [true, false];
@@ -115,7 +115,7 @@ OUT
     }
 
     /**
-     * @dataProvider dataForShell_CaptureAndShowConfOptions
+     * @dataProvider dataShell_CaptureAndShowConfOptions
      */
     public function testShell_CaptureAndShowConfOptions(bool $capture, bool $show) {
         $cmd = 'ls '  . escapeshellarg(__DIR__);

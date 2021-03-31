@@ -120,7 +120,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         $this->assertFalse(\is_dir($uri));
     }
 
-    public function dataForEntryName() {
+    public function dataEntryName() {
         $prefix = Vfs::URI_PREFIX;
         yield [
             '',
@@ -149,7 +149,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     }
 
     /**
-     * @dataProvider dataForEntryName
+     * @dataProvider dataEntryName
      */
     public function testEntryName(string $uri, $expectedNameOrException) {
         if ($expectedNameOrException instanceof \Exception) {
@@ -215,7 +215,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         $this->assertSame(0400 | Stat::DIR, $stat['mode']);
     }
 
-    public function dataForReadingAfterWriting() {
+    public function dataReadingAfterWriting() {
         yield [
             ''
         ];
@@ -225,7 +225,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     }
 
     /**
-     * @dataProvider dataForReadingAfterWriting
+     * @dataProvider dataReadingAfterWriting
      */
     public function testReadingAfterWriting(string $contents) {
         Vfs::register();

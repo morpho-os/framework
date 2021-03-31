@@ -15,7 +15,7 @@ use Morpho\Caching\VarExportFileCache;
 use Morpho\Testing\TestCase;
 
 class VarExportFileCacheTest extends TestCase {
-    public function dataForCaching() {
+    public function dataCaching() {
         yield [
             ['foo' => 'bar']
         ];
@@ -40,7 +40,7 @@ class VarExportFileCacheTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForCaching
+     * @dataProvider dataCaching
      */
     public function testCaching($data) {
         $cache = new VarExportFileCache($this->createTmpDir());
@@ -62,13 +62,13 @@ class VarExportFileCacheTest extends TestCase {
         $this->assertSame($def, $cache->get($key, $def));
     }
 
-    public function dataForThrowsExceptionOnNotSupportedDataType() {
+    public function dataThrowsExceptionOnNotSupportedDataType() {
         yield [new ArrayIterator([])];
         yield [STDIN];
     }
 
     /**
-     * @dataProvider dataForThrowsExceptionOnNotSupportedDataType
+     * @dataProvider dataThrowsExceptionOnNotSupportedDataType
      */
     public function testThrowsExceptionOnNotSupportedDataType($data) {
         $cache = new VarExportFileCache($this->createTmpDir());

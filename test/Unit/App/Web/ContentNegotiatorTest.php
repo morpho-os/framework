@@ -12,7 +12,7 @@ use Morpho\App\Web\ContentFormat;
 use Morpho\App\Web\Request;
 
 class ContentNegotiatorTest extends TestCase {
-    public function dataForInvoke() {
+    public function dataInvoke() {
         $mediaRanges = $this->mediaRanges();
         yield [
             $this->mkAcceptHeaderVal([
@@ -48,7 +48,7 @@ class ContentNegotiatorTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForInvoke
+     * @dataProvider dataInvoke
      */
     public function testInvoke(string $acceptHeaderValue, string $expectedFormat) {
         $request = new Request();

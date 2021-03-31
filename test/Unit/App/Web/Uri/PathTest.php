@@ -32,7 +32,7 @@ class PathTest extends TestCase {
         );
     }
 
-    public function dataForBasePathAccessors() {
+    public function dataBasePathAccessors() {
         yield [
             '/base/path/foo/bar',
             '/base/path',
@@ -46,7 +46,7 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForBasePathAccessors
+     * @dataProvider dataBasePathAccessors
      */
     public function testBasePathAccessors(string $uri, string $basePathStr, string $relPathStr) {
         $path = new Path($uri);
@@ -62,7 +62,7 @@ class PathTest extends TestCase {
         $path->setBasePath('/base/path');
     }
 
-    public function dataForIsRel() {
+    public function dataIsRel() {
         yield ['', true];
         yield ['/', false];
         yield ['//', false];
@@ -76,7 +76,7 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForIsRel
+     * @dataProvider dataIsRel
      */
     public function testIsRel(string $pathStr, bool $isRel) {
         $path = new Path($pathStr);

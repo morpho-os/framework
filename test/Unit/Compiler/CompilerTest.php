@@ -80,7 +80,7 @@ class CompilerTest extends ConfigurablePipeTest {
         $this->assertSame('backend ok', $context['backend']);
     }
 
-    public function dataForPhasesAccessors() {
+    public function dataPhasesAccessors() {
         yield [
             'frontend',
             'midend',
@@ -89,7 +89,7 @@ class CompilerTest extends ConfigurablePipeTest {
     }
 
     /**
-     * @dataProvider dataForPhasesAccessors
+     * @dataProvider dataPhasesAccessors
      */
     public function testPhasesAccessors(string $method) {
         $compiler = new Compiler($this->mkCompilerConf());

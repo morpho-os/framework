@@ -10,7 +10,7 @@ use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\TreeRendererPlugin;
 
 class TreeRendererPluginTest extends TestCase {
-    public function dataForRender() {
+    public function dataRender() {
         return [
             [
                 [],
@@ -75,7 +75,7 @@ class TreeRendererPluginTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForRender
+     * @dataProvider dataRender
      */
     public function testRender($hierarchy, $expected) {
         $renderer = (new TreeRendererPlugin());

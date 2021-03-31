@@ -11,7 +11,7 @@ use function sort;
 
 class DiffStrategyTest extends DiscoverStrategyTest {
     /**
-     * @dataProvider dataForClassTypesDefinedInFile
+     * @dataProvider dataClassTypesDefinedInFile
      */
     public function testClassTypesDefinedInFile(array $expected, string $relFilePath) {
         $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/' . $relFilePath);

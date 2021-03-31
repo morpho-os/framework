@@ -826,7 +826,7 @@ class DirTest extends TestCase {
         );
     }
 
-    public function dataForFilePaths_RegExpProcessor_Recursive() {
+    public function dataFilePaths_RegExpProcessor_Recursive() {
         yield [
             ['recursive' => true],
         ];
@@ -836,7 +836,7 @@ class DirTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForFilePaths_RegExpProcessor_Recursive
+     * @dataProvider dataFilePaths_RegExpProcessor_Recursive
      */
     public function testFilePaths_RegExpProcessor_Recursive($conf) {
         $testDirPath = $this->getTestDirPath();
@@ -853,7 +853,7 @@ class DirTest extends TestCase {
         );
     }
 
-    public function dataForFilePaths_RegExpProcessor_NotRecursive() {
+    public function dataFilePaths_RegExpProcessor_NotRecursive() {
         yield [
             'recursive' => false,
         ];
@@ -866,7 +866,7 @@ class DirTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataForFilePaths_RegExpProcessor_NotRecursive
+     * @dataProvider dataFilePaths_RegExpProcessor_NotRecursive
      */
     public function testFilePaths_RegExpProcessor_NotRecursive($conf) {
         $testDirPath = $this->getTestDirPath();
