@@ -317,13 +317,13 @@ function underscore(Stringable|string $list, bool $trim = true) {
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be always in upper case.
  *
- * @param string $string Allowed string are: /[a-zA-Z0-9_- /\\\\]/s.
+ * @param string $list Allowed string are: /[a-zA-Z0-9_- /\\\\]/s.
  *                       All other characters will be removed.
  *                       The '/' will be transformed to '\'.
  *
  * @return string
  */
-function classify(string|Stringable|int $list, bool $toFqName = false): string {
+function classify(string|Stringable|int $list/*, bool $toFqName = false*/): string {
     $string = sanitize(str_replace('/', '\\', (string)$list), '-_\\ ');
     if (false !== strpos($string, '\\')) {
         $string = preg_replace_callback(
@@ -337,9 +337,9 @@ function classify(string|Stringable|int $list, bool $toFqName = false): string {
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
-    if ($toFqName) {
+/*    if ($toFqName) {
         return '\\' . $string;
-    }
+    }*/
 
     return $string;
 }

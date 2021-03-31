@@ -51,12 +51,20 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->serviceManager['messenger'];
     }
 
-    protected function ok(mixed $val = null): Result {
+    protected function ok(mixed $val = null): Ok {
         return new Ok($val);
     }
 
-    protected function err(mixed $val = null): Result {
+    protected function err(mixed $val = null): Err {
         return new Err($val);
+    }
+
+    protected function pathArg(string $name = null) {
+        $args = $this->request->handler()['args'];
+        if (null === $name) {
+            return $args;
+        }
+        return $args[$name];
     }
 
     protected function handleResult(mixed $actionResult): mixed {
