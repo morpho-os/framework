@@ -6,7 +6,7 @@
  */
 namespace Morpho\Compiler;
 
-// IProgram (source) -> ()
-interface IInterpreter extends ITranslator {
-}
+// https://en.wikipedia.org/wiki/Automata_theory
+interface IAutomaton {
 
+}

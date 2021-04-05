@@ -6,7 +6,6 @@
  */
 namespace Morpho\Compiler;
 
-// IProgram (source) -> ()
-interface IInterpreter extends ITranslator {
+// IR/Intermediate Representation
+interface IIr {
 }
-

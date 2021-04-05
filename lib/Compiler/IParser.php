@@ -8,6 +8,7 @@ namespace Morpho\Compiler;
 
 use Morpho\Base\IFn;
 
+// Aka SyntaxAnalyzer
 interface IParser extends IFn {
     /**
      * Stream<Token> => IProgram

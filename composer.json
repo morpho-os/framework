@@ -9,12 +9,13 @@
         "morpho",
         "ide",
         "framework",
-        "sdk",
+        "cms",
         "mvc",
         "rest",
         "restful",
         "core",
-        "module"
+        "module",
+        "compiler"
     ],
     "require": {
         "php-64bit": ">=8.0",
@@ -50,11 +51,12 @@
             "Morpho\\": "lib/"
         },
         "files": [
-            "lib/Base/autoload.php",
-            "lib/Tech/autoload.php",
-            "lib/Error/autoload.php",
             "lib/App/autoload.php",
-            "lib/Caching/autoload.php"
+            "lib/Base/autoload.php",
+            "lib/Caching/autoload.php",
+            "lib/Compiler/autoload.php",
+            "lib/Error/autoload.php",
+            "lib/Tech/autoload.php"
         ]
     },
     "autoload-dev": {

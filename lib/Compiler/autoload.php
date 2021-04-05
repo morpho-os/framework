@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Tech\Php\Parsing;
+namespace Morpho\Compiler;
 
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;

@@ -6,7 +6,9 @@
  */
 namespace Morpho\Compiler;
 
-// IProgram (source) -> ()
-interface IInterpreter extends ITranslator {
+// todo
+class Rules {
+    public $syntaxRules;
+    public $typeCheckingRules;
+    public $evaluationRules;
 }
-

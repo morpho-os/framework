@@ -6,7 +6,10 @@
  */
 namespace Morpho\Tech\Php\Reflection;
 
-use function Morpho\Tech\Php\Parsing\parseFile;
+use Closure;
+use ReflectionMethod;
+use function count;
+use function file_get_contents;
 use function Morpho\Base\contains;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
@@ -18,9 +21,10 @@ use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use ReflectionFunction;
+use function Morpho\Compiler\parseFile;
 
 class FileReflection {
-    private $filePath;
+    private string $filePath;
 
     public function __construct(string $filePath) {
         $this->filePath = $filePath;
@@ -52,7 +56,7 @@ class FileReflection {
                 $globalFunctions[] = $this->nodeName($stmt);
             }
         }
-        if (\count($globalClassTypes) || \count($globalFunctions)) {
+        if (count($globalClassTypes) || count($globalFunctions)) {
             yield new NamespaceReflection($this->filePath(), null, $globalClassTypes, $globalFunctions, true);
         }
     }
@@ -96,7 +100,7 @@ class FileReflection {
     }
 
     /**
-     * @return iterable|\ReflectionMethod[]
+     * @return iterable|ReflectionMethod[]
      */
     private function functions(NamespaceStmt $nsNode): iterable {
         foreach ($nsNode->stmts as $node) {
@@ -123,7 +127,7 @@ class FileReflection {
         return $node->name;
     }
 
-    private function filterClassTypes(\Closure $filter): iterable {
+    private function filterClassTypes(Closure $filter): iterable {
         foreach ($this->namespaces() as $rNamespace) {
             /** @var $rNamespace NamespaceReflection */
             yield from $rNamespace->classTypes($filter);
@@ -191,7 +195,7 @@ class NamespaceReflection {
 
     protected function requireFile(string $filePath): void {
         if (contains($filePath, '://')) { // for streams use another approach.
-            $php = \file_get_contents($filePath);
+            $php = file_get_contents($filePath);
             eval('?>' . $php);
         } else {
             /** @noinspection PhpIncludeInspection */

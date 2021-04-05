@@ -6,7 +6,7 @@
  */
 namespace Morpho\Compiler;
 
-// IProgram (source) -> ()
-interface IInterpreter extends ITranslator {
+// Defines ILanguage yielding set of strings which it consists of.
+interface IGrammar {
+    public function rules();
 }
-

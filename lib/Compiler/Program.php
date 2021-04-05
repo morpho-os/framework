@@ -6,7 +6,5 @@
  */
 namespace Morpho\Compiler;
 
-// IProgram (source) -> ()
-interface IInterpreter extends ITranslator {
+class Program extends Node implements IProgram {
 }
-

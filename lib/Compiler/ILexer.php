@@ -8,6 +8,7 @@ namespace Morpho\Compiler;
 
 use Morpho\Base\IFn;
 
+// Lexexical analyzer/Scanner/Tokenizer
 interface ILexer extends IFn {
     /**
      * Text => Stream<Token>

@@ -1450,3 +1450,9 @@ function underscoreKeys(array $arr): array {
     }
     return $result;
 }
+
+// Taken from nikic/phlexy
+function compilerRe(array $regexes, $additionalModifiers = '') {
+    return '~(' . str_replace('~', '\~', implode(')|(', $regexes)) . ')~A' . $additionalModifiers;
+}
+

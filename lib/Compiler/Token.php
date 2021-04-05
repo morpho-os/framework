@@ -6,7 +6,14 @@
  */
 namespace Morpho\Compiler;
 
-// IProgram (source) -> ()
-interface IInterpreter extends ITranslator {
-}
+class Token extends Container {
+    /**
+     * @todo: change type to int|string|enum after PHP 8.1
+     * AKA Token-class
+     */
+    public mixed $type;
 
+    public Location $location;
+
+    public array $meta = [];
+}
