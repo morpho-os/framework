@@ -63,29 +63,9 @@ class ByteReader implements IStringReader {
         return $matched === null ? null : strlen($matched);
     }
 
-
-
-
-
-
     public function check(string $re): ?string {
         return $this->read($re, false);
     }
-
-    public function checkUntil(string $re): ?string {
-        return $this->readUntil($re, false);
-    }
-
-    public function readByte(): ?string {
-        $matched = null;
-        if (isset($this->input[$this->offset])) {
-            $this->prevOffset = $this->offset;
-            $matched = $this->input[$this->offset++];
-        }
-        return $this->matched = $matched;
-    }
-
-
 
     public function skip(string $re): ?int {
         return $this->read($re, true, false);
@@ -111,6 +91,10 @@ class ByteReader implements IStringReader {
         return $this->matched = null;
     }
 
+    public function checkUntil(string $re): ?string {
+        return $this->readUntil($re, false);
+    }
+
     public function skipUntil(string $re): ?int {
         return $this->readUntil($re, true, false);
     }
@@ -118,6 +102,26 @@ class ByteReader implements IStringReader {
     public function lookUntil(string $re): ?int {
         return $this->readUntil($re, false, false);
     }
+
+    public function readByte(): ?string {
+        $matched = null;
+        if (isset($this->input[$this->offset])) {
+            $this->prevOffset = $this->offset;
+            $matched = $this->input[$this->offset++];
+        }
+        return $this->matched = $matched;
+    }
+
+    public function unread(): void {
+        if (null === $this->matched) {
+            throw new StringReaderException("Previous match record doesn't exist");
+        }
+        $this->matched = null;
+        $this->offset = $this->prevOffset;
+    }
+
+
+
 
     public function peek(int $n): string {
         $res = substr($this->input, $this->offset, $n);
@@ -127,9 +131,16 @@ class ByteReader implements IStringReader {
         return '';
     }
 
-    public function unread(): void {
-        $this->offset = $this->prevOffset;
-    }
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Sets the scan pointer to the end of the string.
@@ -176,13 +187,6 @@ class ByteReader implements IStringReader {
         return null === $this->matched || $this->offset >= strlen($this->input)
             ? null
             : strlen($this->matched);
-    }
-
-    public function match(string $re): ?int {
-        if (preg_match($this->re($re), $this->input, $match, 0, $this->offset)) {
-            return strlen($match[0]);
-        }
-        return null;
     }
 
     public function preMatch(): ?string {

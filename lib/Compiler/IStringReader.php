@@ -45,7 +45,7 @@ interface IStringReader {
     public function offset(): int;
 
     /**
-     * Reads the text (input) matching the pattern. Modifies the `matched` register.
+     * Reads the text (input) matching the pattern. Can advance or not the offset. Modifies the `matched` register.
      * Ruby methods:
      *     [scan()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-scan).
      *     [scan_full()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-scan_full)
@@ -65,11 +65,6 @@ interface IStringReader {
      */
     public function check(string $re): ?string;
 
-
-
-
-
-
     /**
      * Skips the matching bytes from the current offset. Advances the offset. Modifies the `matched register. Shortcut for the `read($re, true, false)`
      * @param string $re Pattern (PCRE) to match.
@@ -80,13 +75,13 @@ interface IStringReader {
     /**
      * Returns the number of matching bytes from the current offset. Doesn't advances the offset. Modifies the `matched` register. Shortcut for the `read($re, false, false)`.
      * Ruby method: [match?()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-match-3F)
-     * @param string $re
+     * @param string $re Pattern (PCRE) to match.
      * @return int|null
      */
     public function look(string $re): ?int;
 
     /**
-     * Reads the text until the pattern is matched. Modifies the `matched` register.
+     * Reads the text until the pattern is matched. Can advance or not the offset. Modifies the `matched` register.
      * Ruby methods:
      *     [scan_until()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-scan_until).
      *     [search_full()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-search_full).
@@ -101,25 +96,43 @@ interface IStringReader {
 
     /**
      * Checks what `readUntil()` will read. Does not advance offset. Modifies the `matched` register. Shortcut for the `readUntil($re, false, true)`.
-     * @param string $re PCRE for the input
+     * @param string $re Pattern (PCRE) to match.
      * @return string|null The matched substring from the current offset up to and including the end of the match or null otherwise.
      */
     public function checkUntil(string $re): ?string;
 
     /**
      * Skips the text until the pattern is matched. Advances the offset. Modifes the `matched` register. Shortcut for the `readUntil($re, true, false)`.
-     * @param string $re
+     * @param string $re Pattern (PCRE) to match.
      * @return int|null
      */
     public function skipUntil(string $re): ?int;
 
     /**
-     * Looks ahead to see if the pattern exists anywhere in the string. Doesn't advance the offset. Shortcut for the `readUntil($re, false, false)`.
-     * Ruby method: [exist()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-exist-3F).
-     * @param string $re
+     * Looks ahead to see if the pattern exists anywhere in the string. Doesn't advance the offset. Modifies the `matched` register. Shortcut for the `readUntil($re, false, false)`.
+     * Ruby method: [exist?()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-exist-3F).
+     * @param string $re Pattern (PCRE) to match.
      * @return int|null
      */
     public function lookUntil(string $re): ?int;
+
+    /**
+     * Reads the next byte (ASCII char). Advances the offset. Modifies the `matched` register.
+     * Ruby method: [get_byte()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-get_byte).
+     * @return string|null
+     */
+    public function readByte(): ?string;
+
+    /**
+     * Changes the offset to the previous one. Only one previous offset is remembered. Resets the `matched` register to null.
+     * Ruby method: [unscan()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-unscan).
+     * @return void
+     */
+    public function unread(): void;
+
+
+
+
 
     /**
      * Returns a string with length $n from the current offset. Doesn't advance the offset. Does not modify the `matched` register.
@@ -133,18 +146,8 @@ interface IStringReader {
 
 
 
-    /**
-     * [unscan()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-unscan) in Ruby.
-     * Sets the offset to the previous position. Only one previous position is remembered, and it changes with each scanning operation.
-     * @return void
-     */
-    public function unread(): void;
 
-    /**
-     * [get_byte()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-get_byte) in Ruby.
-     * @return string|null
-     */
-    public function readByte(): ?string;
+
 
 
 
@@ -166,7 +169,7 @@ interface IStringReader {
     //public function charOffset(): int;
 
     /**
-     * [beginning_of_line()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-beginning_of_line-3F) in Ruby.
+     * Ruby method: [beginning_of_line()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-beginning_of_line-3F).
      * @return bool `true` if the offset is at the beginning of a line.
      */
     public function isBol(): bool;

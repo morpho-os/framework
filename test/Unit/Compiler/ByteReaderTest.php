@@ -6,8 +6,10 @@
  */
 namespace Morpho\Test\Unit\Compiler;
 
+use Closure;
 use Morpho\Compiler\ByteReader;
 use Morpho\Compiler\IStringReader;
+use Morpho\Compiler\StringReaderException;
 use Morpho\Testing\TestCase;
 
 /**
@@ -110,34 +112,6 @@ class ByteReaderTest extends TestCase {
         $this->checkState($reader, 0, null);
     }
 
-    public function testCheck() {
-        $reader = new ByteReader("Foo Bar Baz");
-
-        $this->assertSame("Foo", $reader->check('/Foo/'));
-        $this->checkState($reader, 0, 'Foo');
-
-        $this->assertNull($reader->check('/Bar/'));
-        $this->checkState($reader, 0, null);
-    }
-
-    public function testCheckUntil() {
-        $reader = new ByteReader("Foo Bar Baz");
-        $this->assertSame("Foo", $reader->checkUntil('/Foo/'));
-        $this->checkState($reader, 0, 'Foo');
-
-        $this->assertSame("Foo Bar", $reader->checkUntil('/Bar/'));
-        $this->checkState($reader, 0, 'Bar');
-
-        $this->assertNull($reader->checkUntil('/Qux/'));
-        $this->checkState($reader, 0, null);
-    }
-
-
-
-
-
-
-
     public function testRead_Full() {
         $reader = new ByteReader("Foo Bar Baz");
         $this->assertSame(4, $reader->read('/Foo /', false, false));
@@ -159,20 +133,78 @@ class ByteReaderTest extends TestCase {
         $this->assertNull($reader->read('/az/', false, false));
     }
 
+    public function testCheck() {
+        $reader = new ByteReader("Foo Bar Baz");
+
+        $this->assertSame("Foo", $reader->check('/Foo/'));
+        $this->checkState($reader, 0, 'Foo');
+
+        $this->assertNull($reader->check('/Bar/'));
+        $this->checkState($reader, 0, null);
+    }
+
+    public function testSkip() {
+        $reader = new ByteReader('stra strb strc');
+
+        $checkState = $this->checkStateFn($reader);
+
+        $this->assertSame(4, $reader->skip('/\w+/'));
+        $checkState(4, 'stra');
+
+        $this->assertSame(1, $reader->skip('/\s+/'));
+        $checkState(5, ' ');
+
+        $this->assertSame(4, $reader->skip('/\w+/'));
+        $checkState(9, 'strb');
+
+        $this->assertSame(1, $reader->skip('/\s+/'));
+
+        $this->assertSame(4, $reader->skip('/\w+/'));
+        $checkState(14, 'strc');
+
+        $this->assertNull($reader->skip('/\w+/'));
+        $checkState(14, null);
+
+        $this->assertNull($reader->skip('/\s+/'));
+        $checkState(14, null);
+
+        $this->assertTrue($reader->isEnd());
+        $checkState(14, null);
+    }
+
+    public function testLook() {
+        $reader = new ByteReader("test string");
+        $checkState = $this->checkStateFn($reader);
+
+        $this->assertSame(4, $reader->look('/\w+/'));
+        $checkState(0, 'test');
+
+        $this->assertSame(4, $reader->look('/\w+/'));
+        $checkState(0, 'test');
+
+        $this->assertNull($reader->look('/\s+/'));
+        $checkState(0, null);
+    }
+
     public function testReadUntil() {
         $reader = new ByteReader("Foo Bar Baz");
+
         $this->assertSame("Foo", $reader->readUntil('/Foo/'));
         $this->checkState($reader, 3, 'Foo');
 
         $reader = new ByteReader("Fri Dec 12 1975 14:39");
+
         $this->assertSame('Fri Dec 1', $reader->readUntil('/1/'));
+        $this->checkState($reader, 9, '1');
         $this->assertSame("Fri Dec ", $reader->preMatch());
+
         $this->assertNull($reader->readUntil('/XYZ/'));
+        $this->checkState($reader, 9, null);
     }
-    
+
     public function testReadUntil_Full() {
         $reader = new ByteReader("Foo Bar Baz");
-        
+
         $this->assertSame(8, $reader->readUntil('/Bar /', false, false));
         $this->assertSame(0, $reader->offset());
 
@@ -184,43 +216,104 @@ class ByteReaderTest extends TestCase {
         $this->assertSame(11, $reader->offset());
     }
 
-    public function testSkip() {
-        $reader = new ByteReader('stra strb strc');
+    public function testCheckUntil() {
+        $reader = new ByteReader("Foo Bar Baz");
+        $this->assertSame("Foo", $reader->checkUntil('/Foo/'));
+        $this->checkState($reader, 0, 'Foo');
 
-        $checkOffsetMatched = fn ($offset, $matched) => $this->checkState($reader, $offset, $matched);
+        $this->assertSame("Foo Bar", $reader->checkUntil('/Bar/'));
+        $this->checkState($reader, 0, 'Bar');
 
-        $this->assertSame(4, $reader->skip('/\w+/'));
-        $checkOffsetMatched(4, 'stra');
-
-        $this->assertSame(1, $reader->skip('/\s+/'));
-        $checkOffsetMatched(5, ' ');
-
-        $this->assertSame(4, $reader->skip('/\w+/'));
-        $checkOffsetMatched(9, 'strb');
-
-        $this->assertSame(1, $reader->skip('/\s+/'));
-
-        $this->assertSame(4, $reader->skip('/\w+/'));
-        $checkOffsetMatched(14, 'strc');
-
-        $this->assertNull($reader->skip('/\w+/'));
-        $checkOffsetMatched(14, null);
-
-        $this->assertNull($reader->skip('/\s+/'));
-        $checkOffsetMatched(14, null);
-
-        $this->assertTrue($reader->isEnd());
-        $checkOffsetMatched(14, null);
+        $this->assertNull($reader->checkUntil('/Qux/'));
+        $this->checkState($reader, 0, null);
     }
 
     public function testSkipUntil() {
         $reader = new ByteReader("Foo Bar Baz");
+
         $this->assertSame(3, $reader->skipUntil('/Foo/'));
-        $this->assertSame(3, $reader->offset());
+        $this->checkState($reader, 3, 'Foo');
+
         $this->assertSame(4, $reader->skipUntil('/Bar/'));
-        $this->assertSame(7, $reader->offset());
+        $this->checkState($reader, 7, 'Bar');
+
         $this->assertNull($reader->skipUntil('/Qux/'));
+        $this->checkState($reader, 7, null);
     }
+
+    public function testLookUntil() {
+        $reader = new ByteReader("test string");
+
+        $this->assertSame(3, $reader->lookUntil('/s/'));
+        $this->checkState($reader, 0, 's');
+
+        $reader->read('/test/');
+
+        $this->assertSame(2, $reader->lookUntil('/s/'));
+        $this->checkState($reader, 4, 's');
+
+        $this->assertNull($reader->lookUntil('/e/'));
+        $this->checkState($reader, 4, null);
+    }
+
+    public function testReadByte() {
+        $reader = new ByteReader('abcde');
+
+        $this->assertSame('a', $reader->readByte());
+        $this->checkState($reader, 1, 'a');
+
+        $this->assertSame('b', $reader->readByte());
+        $this->checkState($reader, 2, 'b');
+
+        $this->assertSame('c', $reader->readByte());
+        $this->checkState($reader, 3, 'c');
+
+        $this->assertSame('d', $reader->readByte());
+        $this->checkState($reader, 4, 'd');
+
+        $this->assertSame('e', $reader->readByte());
+        $this->checkState($reader, 5, 'e');
+
+        $this->assertNull($reader->readByte());
+        $this->checkState($reader, 5, null);
+
+        $reader = new ByteReader("\x00\x01");
+
+        $this->assertSame("\x00", $reader->readByte());
+        $this->checkState($reader, 1, "\x00");
+
+        $this->assertSame("\x01", $reader->readByte());
+        $this->checkState($reader, 2, "\x01");
+
+        $reader = new ByteReader('');
+        $this->assertNull($reader->readByte());
+        $this->checkState($reader, 0, null);
+    }
+
+
+    public function testUnread() {
+        $reader = new ByteReader('test string');
+
+        $this->assertSame('test', $reader->read('/\w+/'));
+
+        $reader->unread();
+
+        $this->checkState($reader, 0, null);
+
+        $this->assertSame("te", $reader->read('/../'));
+
+        $this->assertNull($reader->read('/\d/'));
+
+        try {
+            $reader->unread();
+            $this->fail();
+        } catch (StringReaderException $e) {
+            $this->assertSame("Previous match record doesn't exist", $e->getMessage());
+        }
+    }
+
+
+
 
     public function testPeek() {
         $reader = new ByteReader("test string");
@@ -327,7 +420,6 @@ class ByteReaderTest extends TestCase {
 
 
 
-
     
 
 
@@ -348,25 +440,7 @@ class ByteReaderTest extends TestCase {
         $this->assertSame(1, $reader->skip('/c/'));
     }
     
-    public function testReadByte() {
-        $reader = new ByteReader('abcde');
-        $this->assertSame('a', $reader->readByte());
-        $this->checkState($reader, 1, 'a');
 
-        $this->assertSame('b', $reader->readByte());
-        $this->assertSame('c', $reader->readByte());
-        $this->assertSame('d', $reader->readByte());
-        $this->assertSame('e', $reader->readByte());
-        $this->assertNull($reader->readByte());
-        
-        $reader = new ByteReader("\x00\x01");
-        $this->assertSame("\x00", $reader->readByte());
-        $this->assertSame("\x01", $reader->readByte());
-        $this->assertNull($reader->readByte());
-        
-        $reader = new ByteReader('');
-        $this->assertNull($reader->readByte());
-    }
 
     public function testMatched() {
         $reader = new ByteReader('stra strb strc');
@@ -531,43 +605,10 @@ class ByteReaderTest extends TestCase {
         $this->assertNull($reader->matchedLen());
     }
     
-    public function testMatch() {
-        $reader = new ByteReader("test string");
-        $this->assertSame(4, $reader->match('/\w+/'));
-        $this->assertSame(4, $reader->match('/\w+/'));
-        $this->assertNull($reader->match('/\s+/'));
-    }
-
-    public function testLookUntil() {
-        $reader = new ByteReader("test string");
-        $this->assertSame(3, $reader->lookUntil('/s/'));
-        $this->assertSame(0, $reader->offset());
-        $reader->read('/test/');
-        $this->assertSame(2, $reader->lookUntil('/s/'));
-        $this->assertSame(4, $reader->offset());
-        $this->assertNull($reader->lookUntil('/e/'));
-    }
 
 
 
-    public function testUnscan() {
-        $this->markTestIncomplete();
-/*    $reader = new ByteReader('test string')
-    $this->assertSame("test", $reader->read('/\w+/'))
-    $reader->unscan
-    $this->assertSame("te", $reader->read('/../'))
-    $this->assertNull($reader->read('/\d/'))
-    assert_raise(ScanError) { $reader->unscan }
 
-todo: throw exception if can't unscan
-s = StringScanner.new('test string')
-s.read('/\w+/')        # => "test"
-s.unscan
-s.read('/../')         # => "te"
-s.read('/\d/')         # => nil
-s.unscan             # ScanError: unscan failed: previous match record not exist*/
-
-    }
 
     public function testRest() {
         $reader = new ByteReader('test string');
@@ -629,5 +670,9 @@ s.unscan             # ScanError: unscan failed: previous match record not exist
     private function checkState(ByteReader $reader, int $offset, ?string $matched): void {
         $this->assertSame($offset, $reader->offset());
         $this->assertSame($matched, $reader->matched());
+    }
+
+    private function checkStateFn(ByteReader $reader): Closure {
+        return fn ($offset, $matched) => $this->checkState($reader, $offset, $matched);
     }
 }
