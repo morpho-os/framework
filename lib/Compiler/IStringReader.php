@@ -44,6 +44,8 @@ interface IStringReader {
      */
     public function offset(): int;
 
+    //public function charOffset(): int;
+
     /**
      * Reads the text (input) matching the pattern. Can advance or not the offset. Modifies the `matched` register.
      * Ruby methods:
@@ -130,10 +132,6 @@ interface IStringReader {
      */
     public function unread(): void;
 
-
-
-
-
     /**
      * Returns a string with length $n from the current offset. Doesn't advance the offset. Does not modify the `matched` register.
      * @param int $n
@@ -141,84 +139,71 @@ interface IStringReader {
      */
     public function peek(int $n): string;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Sets the offset to the end of the string. Advances the offset. Resets the `matched` register to null.
+     */
     public function terminate(): void;
 
+    /**
+     * Resets the offset to 0. Resets the `matched` register to null.
+     */
     public function reset(): void;
 
-
-
-
-
-
-
-
-    //public function charOffset(): int;
-
     /**
+     * Check either the current offset is at the start of any line.
      * Ruby method: [beginning_of_line()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-beginning_of_line-3F).
-     * @return bool `true` if the offset is at the beginning of a line.
+     * @return bool `true` If the offset is at the start of any line.
      */
-    public function isBol(): bool;
+    public function isLineStart(): bool;
 
     /**
-     * [eos()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-eos-3F)
-     * @return bool `true` if the offset is at the end of the string.
+     * Checks either the current offset is >= the current input string length or not.
+     * Ruby method: [eos()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-eos-3F)
+     * @return bool `true` If the offset is at the end of the input string.
      */
     public function isEnd(): bool;
 
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * Returns the `matched` register: the last matched by PCRE string.
+     * Returns the `matched` register: the last matched string.
      * @return string|null
      */
     public function matched(): ?string;
 
     /**
-     * [matched_size()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-matched_size) in Ruby.
+     * Ruby method: [matched_size()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-matched_size)
      * @return int|null
      */
-    public function matchedLen(): ?int;
+    public function matchedSize(): ?int;
 
+    /**
+     * Returns subgroups for the last match including the full match.
+     * Ruby methods:
+     *     [size()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-size)
+     *     [values_at()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-values_at)
+     *     [captures()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-captures)
+     * @return array|null
+     */
+    public function subgroups(): ?array;
 
+    /**
+     * Returns the part of input string before the `matched` register.
+     * @return string|null
+     */
     public function preMatch(): ?string;
 
+    /**
+     * Returns the part of input string after the `matched` register.
+     * @return string|null
+     */
     public function postMatch(): ?string;
-
-
 
     public function rest(): string;
 
-    /*
-    //public function isAnchored();
-    public function captures();
-    public function size();
+    /**
+     * Ruby method:[rest_size()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-rest_size)
+     * @return int
+     */
+    public function restSize(): int;
 
-    public function restLen();
-
-    public function valuesAt();
-    */
+    public function isAnchored(): bool;
 }

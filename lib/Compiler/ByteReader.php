@@ -15,6 +15,7 @@ class ByteReader implements IStringReader {
     protected int $prevOffset = 0;
     protected ?string $matched = null;
     protected bool $anchored = true;
+    protected ?array $subgroups = null;
 
     /**
      * ByteReader constructor.
@@ -47,6 +48,11 @@ class ByteReader implements IStringReader {
         return $this->offset;
     }
 
+    /*    public function charOffset(): int {
+            // For ByteScanner offset is always charOffset.
+            return $this->offset();
+        }*/
+
     public function read(string $re, bool $advanceOffset = true, bool $returnStr = true): string|int|null {
         $matched = null;
         if (preg_match($this->re($re), $this->input, $match, 0, $this->offset)) {
@@ -57,6 +63,7 @@ class ByteReader implements IStringReader {
             }
         }
         $this->matched = $matched;
+        $this->subgroups = null === $matched ? null : $match;
         if ($returnStr) {
             return $matched;
         }
@@ -82,12 +89,14 @@ class ByteReader implements IStringReader {
                 $this->prevOffset = $match[0][1];
                 $this->offset += strlen($res);
             }
+            $this->subgroups = array_column($match, 0);
             $this->matched = $match[0][0];
             if ($returnStr) {
                 return $res;
             }
             return strlen($res);
         }
+        $this->subgroups = null;
         return $this->matched = null;
     }
 
@@ -108,6 +117,9 @@ class ByteReader implements IStringReader {
         if (isset($this->input[$this->offset])) {
             $this->prevOffset = $this->offset;
             $matched = $this->input[$this->offset++];
+            $this->subgroups = [$matched];
+        } else {
+            $this->subgroups = null;
         }
         return $this->matched = $matched;
     }
@@ -117,11 +129,9 @@ class ByteReader implements IStringReader {
             throw new StringReaderException("Previous match record doesn't exist");
         }
         $this->matched = null;
+        $this->subgroups = null;
         $this->offset = $this->prevOffset;
     }
-
-
-
 
     public function peek(int $n): string {
         $res = substr($this->input, $this->offset, $n);
@@ -131,27 +141,19 @@ class ByteReader implements IStringReader {
         return '';
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Sets the scan pointer to the end of the string.
-     */
     public function terminate(): void {
+        $this->matched = null;
+        $this->subgroups = null;
         $this->offset = strlen($this->input);
     }
 
+    public function reset(): void {
+        $this->matched = null;
+        $this->offset = $this->prevOffset = 0;
+        $this->subgroups = null;
+    }
 
-
-    public function isBol(): bool {
+    public function isLineStart(): bool {
         $n = strlen($this->input);
         if ($this->offset == 0) {
             return true;
@@ -166,27 +168,18 @@ class ByteReader implements IStringReader {
         return $this->offset >= strlen($this->input);
     }
 
-/*    public function charOffset(): int {
-        // For ByteScanner offset is always charOffset.
-        return $this->offset();
-    }*/
-
-
-
-
-
-
-
-
-
     public function matched(): ?string {
         return $this->matched;
     }
 
-    public function matchedLen(): ?int {
+    public function matchedSize(): ?int {
         return null === $this->matched || $this->offset >= strlen($this->input)
             ? null
             : strlen($this->matched);
+    }
+
+    public function subgroups(): ?array {
+        return $this->subgroups;
     }
 
     public function preMatch(): ?string {
@@ -201,17 +194,20 @@ class ByteReader implements IStringReader {
             : substr($this->input, $this->offset);
     }
 
-    public function reset(): void {
-        $this->matched = null;
-        $this->offset = $this->prevOffset = 0;
-    }
-
     public function rest(): string {
         $res = substr($this->input, $this->offset);
         if (false === $res) {
             return '';
         }
         return $res;
+    }
+
+    public function restSize(): int {
+        return strlen($this->input) - $this->offset;
+    }
+
+    public function isAnchored(): bool {
+        return $this->anchored;
     }
 
     protected function re(string $re, bool $anchored = null): string {
