@@ -32,19 +32,23 @@ interface IStringReader {
 
     /**
      * Sets the new offset.
-     * Ruby method: [pos=()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-pos-3D).
      * @param int $offset The new offset.
      */
     public function setOffset(int $offset): void;
 
     /**
-     * Return the current offset.
-     * Ruby method: [pos()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-pos).
+     * Return the current offset in chars.
+
      * @return int The current offset.
      */
     public function offset(): int;
 
-    //public function charOffset(): int;
+    /**
+     * Return the current offset in bytes.
+     * Ruby method: [pos()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-pos).
+     * @return int
+     */
+    public function offsetInBytes(): int;
 
     /**
      * Reads the text (input) matching the pattern. Can advance or not the offset. Modifies the `matched` register.
@@ -119,11 +123,13 @@ interface IStringReader {
     public function lookUntil(string $re): ?int;
 
     /**
-     * Reads the next byte (ASCII char). Advances the offset. Modifies the `matched` register.
-     * Ruby method: [get_byte()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-get_byte).
+     * Reads the next character. Advances the charOffset. Modifies the `matched` register.
+     * Ruby methods:
+     *     * [getch()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-getch)
      * @return string|null
+     *     * [get_byte()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-get_byte).
      */
-    public function readByte(): ?string;
+    public function char(): ?string;
 
     /**
      * Changes the offset to the previous one. Only one previous offset is remembered. Resets the `matched` register to null.

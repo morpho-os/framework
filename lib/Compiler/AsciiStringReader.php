@@ -7,9 +7,9 @@
 namespace Morpho\Compiler;
 
 /**
- * Based on [stringscanner from ruby](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html), see [license](https://github.com/ruby/ruby/blob/master/COPYING)
+ * Based on [StringScanner in Ruby](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html), see [license](https://github.com/ruby/ruby/blob/master/COPYING)
  */
-class ByteReader implements IStringReader {
+class AsciiStringReader implements IStringReader {
     protected string $input;
     protected int $offset = 0;
     protected int $prevOffset = 0;
@@ -18,7 +18,6 @@ class ByteReader implements IStringReader {
     protected ?array $subgroups = null;
 
     /**
-     * ByteReader constructor.
      * @param string $input
      * @param bool Either use the `A` PCRE modifier (PCRE_ANCHORED) for all regular expressions or not.
      */
@@ -48,18 +47,17 @@ class ByteReader implements IStringReader {
         return $this->offset;
     }
 
-    /*    public function charOffset(): int {
-            // For ByteScanner offset is always charOffset.
-            return $this->offset();
-        }*/
+    public function offsetInBytes(): int {
+        return $this->offset;
+    }
 
     public function read(string $re, bool $advanceOffset = true, bool $returnStr = true): string|int|null {
         $matched = null;
-        if (preg_match($this->re($re), $this->input, $match, 0, $this->offset)) {
+        if (preg_match($this->re($re), $this->input, $match, 0, $this->offsetInBytes())) {
             $matched = $match[0];
             if ($advanceOffset) {
                 $this->prevOffset = $this->offset;
-                $this->offset += strlen($matched);
+                $this->offset += $this->strlen($matched);
             }
         }
         $this->matched = $matched;
@@ -67,7 +65,7 @@ class ByteReader implements IStringReader {
         if ($returnStr) {
             return $matched;
         }
-        return $matched === null ? null : strlen($matched);
+        return $matched === null ? null : $this->strlen($matched);
     }
 
     public function check(string $re): ?string {
@@ -83,18 +81,18 @@ class ByteReader implements IStringReader {
     }
 
     public function readUntil(string $re, bool $advanceOffset = true, bool $returnStr = true): string|int|null {
-        if (preg_match($this->re($re, false), $this->input, $match, PREG_OFFSET_CAPTURE, $this->offset)) {
-            $res = substr($this->input, $this->offset, $match[0][1] - $this->offset + strlen($match[0][0]));
+        if (preg_match($this->re($re, false), $this->input, $match, PREG_OFFSET_CAPTURE, $this->offsetInBytes())) {
+            $res = $this->substr($this->input, $this->offset, $match[0][1] - $this->offset + $this->strlen($match[0][0]));
             if ($advanceOffset) {
                 $this->prevOffset = $match[0][1];
-                $this->offset += strlen($res);
+                $this->offset += $this->strlen($res);
             }
             $this->subgroups = array_column($match, 0);
             $this->matched = $match[0][0];
             if ($returnStr) {
                 return $res;
             }
-            return strlen($res);
+            return $this->strlen($res);
         }
         $this->subgroups = null;
         return $this->matched = null;
@@ -112,15 +110,15 @@ class ByteReader implements IStringReader {
         return $this->readUntil($re, false, false);
     }
 
-    public function readByte(): ?string {
-        $matched = null;
-        if (isset($this->input[$this->offset])) {
-            $this->prevOffset = $this->offset;
-            $matched = $this->input[$this->offset++];
-            $this->subgroups = [$matched];
-        } else {
-            $this->subgroups = null;
+    public function char(): ?string {
+        $this->subgroups = $this->matched = null;
+        if ($this->offset >= $this->strlen($this->input)) {
+            return null;
         }
+        $this->prevOffset = $this->offset;
+        $matched = $this->substr($this->input, $this->offset, 1);
+        $this->offset += $this->strlen($matched);
+        $this->subgroups = [$matched];
         return $this->matched = $matched;
     }
 
@@ -134,7 +132,7 @@ class ByteReader implements IStringReader {
     }
 
     public function peek(int $n): string {
-        $res = substr($this->input, $this->offset, $n);
+        $res = $this->substr($this->input, $this->offset, $n);
         if (false !== $res) {
             return $res;
         }
@@ -144,7 +142,7 @@ class ByteReader implements IStringReader {
     public function terminate(): void {
         $this->matched = null;
         $this->subgroups = null;
-        $this->offset = strlen($this->input);
+        $this->offset = $this->strlen($this->input);
     }
 
     public function reset(): void {
@@ -154,18 +152,19 @@ class ByteReader implements IStringReader {
     }
 
     public function isLineStart(): bool {
-        $n = strlen($this->input);
         if ($this->offset == 0) {
             return true;
         }
-        return $this->offset < $n
-            && ($this->input[$this->offset - 1] == "\n" // *nix
-                || $this->input[$this->offset - 1] == "\r" // mac
-                || ($n >= 2 && $this->input[$this->offset - 2] == "\r" && $this->input[$this->offset - 1] == "\n")); // win
+        $n = strlen($this->input);
+        $offsetInBytes = $this->offsetInBytes();
+        return $offsetInBytes < $n
+            && ($this->input[$offsetInBytes - 1] == "\n" // *nix
+                || $this->input[$offsetInBytes - 1] == "\r" // mac
+                || ($n >= 2 && $this->input[$offsetInBytes - 2] == "\r" && $this->input[$offsetInBytes - 1] == "\n")); // win
     }
 
     public function isEnd(): bool {
-        return $this->offset >= strlen($this->input);
+        return $this->offset >= $this->strlen($this->input);
     }
 
     public function matched(): ?string {
@@ -215,5 +214,13 @@ class ByteReader implements IStringReader {
             return $this->anchored ? $re . 'A' : $re;
         }
         return $anchored ? $re . 'A' : $re;
+    }
+
+    protected function strlen(mixed $s): int {
+        return strlen($s);
+    }
+
+    protected function substr(string $s, int $offset, int $length): string {
+        return substr($s, $offset, $length);
     }
 }
