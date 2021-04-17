@@ -176,6 +176,7 @@ interface IStringReader {
     public function matched(): ?string;
 
     /**
+     * Returns size of `matched` register in chars.
      * Ruby method: [matched_size()](https://docs.ruby-lang.org/en/3.0.0/StringScanner.html#method-i-matched_size)
      * @return int|null
      */

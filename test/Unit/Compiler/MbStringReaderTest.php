@@ -107,23 +107,61 @@ class MbStringReaderTest extends AsciiStringReaderTest {
     }
 
     public function testMatchedSize() {
-        $this->markTestIncomplete();
+        parent::testMatchedSize();
+
+        $reader = $this->mkReader("Привет Мир!");
+
+        $reader->read('/Прив/');
+
+        $this->assertSame(4, $reader->matchedSize());
     }
 
     public function testPreMatch() {
-        $this->markTestIncomplete();
+        parent::testPreMatch();
+
+        $reader = $this->mkReader("Привет Мир!");
+
+        $reader->read('/Привет/');
+
+        $reader->read('/ /');
+
+        $this->assertSame('Привет', $reader->preMatch());
     }
 
     public function testPostMatch() {
-        $this->markTestIncomplete();
+        parent::testPostMatch();
+
+        $reader = $this->mkReader("Привет Мир!");
+
+        $reader->read('/Привет/');
+
+        $reader->read('/ /');
+
+        $this->assertSame('Мир!', $reader->postMatch());
     }
 
     public function testRest() {
-        $this->markTestIncomplete();
+        parent::testRest();
+
+        $reader = $this->mkReader("Привет Мир!");
+
+        $this->assertSame("Привет Мир!", $reader->rest());
+
+        $reader->read('/Привет/');
+
+        $this->assertSame(' Мир!', $reader->rest());
     }
 
     public function testRestSize() {
-        $this->markTestIncomplete();
+        parent::testRestSize();
+
+        $reader = $this->mkReader("Привет Мир!");
+
+        $this->assertSame(11, $reader->restSize());
+
+        $reader->read('/Привет/');
+
+        $this->assertSame(5, $reader->restSize());
     }
 
     protected function mkReader(string $input, bool $anchored = true, string $encoding = null): IStringReader {

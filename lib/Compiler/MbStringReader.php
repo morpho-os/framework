@@ -37,7 +37,7 @@ class MbStringReader extends AsciiStringReader {
         return mb_strlen($s, $this->encoding);
     }
 
-    protected function substr(string $s, int $offset, int $length): string {
+    protected function substr(string $s, int $offset, ?int $length): string {
         return mb_substr($s, $offset, $length);
     }
 }

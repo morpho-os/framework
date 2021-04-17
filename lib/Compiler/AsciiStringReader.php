@@ -172,9 +172,9 @@ class AsciiStringReader implements IStringReader {
     }
 
     public function matchedSize(): ?int {
-        return null === $this->matched || $this->offset >= strlen($this->input)
+        return null === $this->matched || $this->offset >= $this->strlen($this->input)
             ? null
-            : strlen($this->matched);
+            : $this->strlen($this->matched);
     }
 
     public function subgroups(): ?array {
@@ -184,17 +184,17 @@ class AsciiStringReader implements IStringReader {
     public function preMatch(): ?string {
         return null === $this->matched
             ? null
-            : substr($this->input, 0, $this->prevOffset);
+            : $this->substr($this->input, 0, $this->prevOffset);
     }
 
     public function postMatch(): ?string {
         return null === $this->matched
             ? null
-            : substr($this->input, $this->offset);
+            : $this->substr($this->input, $this->offset, null);
     }
 
     public function rest(): string {
-        $res = substr($this->input, $this->offset);
+        $res = $this->substr($this->input, $this->offset, null);
         if (false === $res) {
             return '';
         }
@@ -202,7 +202,7 @@ class AsciiStringReader implements IStringReader {
     }
 
     public function restSize(): int {
-        return strlen($this->input) - $this->offset;
+        return $this->strlen($this->input) - $this->offset;
     }
 
     public function isAnchored(): bool {
@@ -220,7 +220,7 @@ class AsciiStringReader implements IStringReader {
         return strlen($s);
     }
 
-    protected function substr(string $s, int $offset, int $length): string {
+    protected function substr(string $s, int $offset, ?int $length): string {
         return substr($s, $offset, $length);
     }
 }
