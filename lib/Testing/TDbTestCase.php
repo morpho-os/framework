@@ -35,7 +35,7 @@ trait TDbTestCase {
         return new \PDO($dsn, $conf['user'], $conf['password'], $conf['pdoConf'] ?? []);
     }
 
-    abstract protected function sut(): Sut;
+    abstract protected function sut(): mixed;
 
     abstract protected function ns(): string;
 }

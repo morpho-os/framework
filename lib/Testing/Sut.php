@@ -10,7 +10,6 @@ use ArrayObject;
 use Morpho\App\BackendModule;
 use Morpho\Base\TSingleton;
 use function getenv;
-use function Morpho\App\moduleDirPath;
 use const Morpho\App\FRONTEND_DIR_NAME;
 use const Morpho\App\BACKEND_DIR_NAME;
 use const Morpho\App\TEST_DIR_NAME;
