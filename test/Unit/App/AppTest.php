@@ -1,4 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+namespace Morpho\Test\Unit\App;
+
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -12,11 +16,9 @@ class AppTest extends TestCase {
     public function testConfAccessors() {
         $app = new App();
         $this->assertEquals([], $app->conf());
-
         $newConf = ['foo' => 'bar'];
         $app = new App($newConf);
         $this->assertSame($newConf, $app->conf());
-
         $newConf = ['color' => 'orange'];
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($app->setConf($newConf));

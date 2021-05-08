@@ -26,7 +26,7 @@ class Link extends Entry {
             throw new Exception("Unable to create symlink '$linkPath' for target '$targetPath'");
         }
     }
-    
+
     public static function isBroken(string $linkPath): bool {
         if (!is_link($linkPath)) {
             throw new Exception('The passed path is not a symlink');

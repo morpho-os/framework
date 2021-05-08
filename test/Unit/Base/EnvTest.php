@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Base;
 
-use Morpho\Testing\TestCase;
 use Morpho\Base\Env;
+use Morpho\Testing\TestCase;
 
 class EnvTest extends TestCase {
     private $oldZendEnableGc;

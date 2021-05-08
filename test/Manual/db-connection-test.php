@@ -23,4 +23,9 @@ require __DIR__ . '/init.php';
         "FLUSH PRIVILEGES",
     ];
     */
-})('localhost', 'root', '', 'test');
+})(
+    'localhost',
+    'root',
+    '',
+    'test'
+);

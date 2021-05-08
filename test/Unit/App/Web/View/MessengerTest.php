@@ -5,9 +5,10 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace Morpho\Test\Unit\App\Web\View {
-    use Morpho\Testing\TestCase;
+
     use Morpho\App\Web\View\Messenger;
     use Morpho\Test\Unit\App\Web\View\MessengerTest\MessageStorage;
+    use Morpho\Testing\TestCase;
 
     class MessengerTest extends TestCase {
         private Messenger $messenger;
@@ -72,6 +73,7 @@ namespace Morpho\Test\Unit\App\Web\View {
 }
 
 namespace Morpho\Test\Unit\App\Web\View\MessengerTest {
+
     use Morpho\App\Web\View\IMessageStorage;
     use Morpho\Base\ArrIterator;
 

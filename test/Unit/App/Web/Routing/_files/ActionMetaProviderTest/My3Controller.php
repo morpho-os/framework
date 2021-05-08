@@ -11,7 +11,6 @@ class MyFirst3Controller extends Controller {
     }
 
     public function foo3() {
-
     }
 }
 
@@ -20,14 +19,12 @@ class Some3Class {
 
 class MySecond3Controller extends \Morpho\App\Web\Controller {
     public function doSomething3() {
-
     }
 
     /**
      * @foo Bar
      */
     public function process3() {
-
     }
 }
 

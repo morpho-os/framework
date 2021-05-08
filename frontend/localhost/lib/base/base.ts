@@ -5,6 +5,10 @@
  */
 ///<amd-module name="localhost/lib/base/base" />
 
+export function e(v: any): string {
+    return v.toString().e();
+}
+
 export function id(value: any): any {
     return value;
 }

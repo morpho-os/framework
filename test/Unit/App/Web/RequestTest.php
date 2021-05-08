@@ -7,9 +7,9 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\HttpMethod;
+use Morpho\App\Web\Request;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Request;
 
 class RequestTest extends TestCase {
     private Request $request;
@@ -45,42 +45,42 @@ class RequestTest extends TestCase {
      */
     public function testSettingHeadersThroughServerVars($useGlobalServerVar) {
         $serverVars = [
-            "HOME" => "/foo/bar",
-            "USER" => "user-name",
-            "HTTP_CACHE_CONTROL" => "max-age=0",
-            "HTTP_CONNECTION" => "keep-alive",
+            "HOME"                           => "/foo/bar",
+            "USER"                           => "user-name",
+            "HTTP_CACHE_CONTROL"             => "max-age=0",
+            "HTTP_CONNECTION"                => "keep-alive",
             "HTTP_UPGRADE_INSECURE_REQUESTS" => "1",
-            "HTTP_COOKIE" => "TestCookie=something+from+somewhere",
-            "HTTP_ACCEPT_LANGUAGE" => "en-US,en;q=0.5",
-            "HTTP_ACCEPT_ENCODING" =>  "gzip, deflate",
-            "HTTP_USER_AGENT" => "Test user agent",
-            "REDIRECT_STATUS" => "200",
-            "HTTP_HOST" => "localhost",
-            "SERVER_NAME" => "localhost",
-            "SERVER_ADDR" => "127.0.0.1",
-            "HTTP_FOO" => "Bar",
-            "SERVER_PORT" => "80",
-            "REMOTE_PORT" => "12345",
-            "HTTP_ACCEPT" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "SCRIPT_NAME" => "/test.php",
-            "CONTENT_LENGTH" => "4521",
-            "CONTENT_TYPE"   => "",
-            "REQUEST_METHOD" => HttpMethod::POST,
-            "CONTENT_MD5" => "Q2hlY2sgSW50ZWdyaXR5IQ==",
+            "HTTP_COOKIE"                    => "TestCookie=something+from+somewhere",
+            "HTTP_ACCEPT_LANGUAGE"           => "en-US,en;q=0.5",
+            "HTTP_ACCEPT_ENCODING"           => "gzip, deflate",
+            "HTTP_USER_AGENT"                => "Test user agent",
+            "REDIRECT_STATUS"                => "200",
+            "HTTP_HOST"                      => "localhost",
+            "SERVER_NAME"                    => "localhost",
+            "SERVER_ADDR"                    => "127.0.0.1",
+            "HTTP_FOO"                       => "Bar",
+            "SERVER_PORT"                    => "80",
+            "REMOTE_PORT"                    => "12345",
+            "HTTP_ACCEPT"                    => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "SCRIPT_NAME"                    => "/test.php",
+            "CONTENT_LENGTH"                 => "4521",
+            "CONTENT_TYPE"                   => "",
+            "REQUEST_METHOD"                 => HttpMethod::POST,
+            "CONTENT_MD5"                    => "Q2hlY2sgSW50ZWdyaXR5IQ==",
         ];
         $expectedHeaders = [
-            'Cache-Control' => $serverVars['HTTP_CACHE_CONTROL'],
-            'Connection' => $serverVars['HTTP_CONNECTION'],
+            'Cache-Control'             => $serverVars['HTTP_CACHE_CONTROL'],
+            'Connection'                => $serverVars['HTTP_CONNECTION'],
             'Upgrade-Insecure-Requests' => $serverVars['HTTP_UPGRADE_INSECURE_REQUESTS'],
-            'Accept-Language' => $serverVars['HTTP_ACCEPT_LANGUAGE'],
-            'Accept-Encoding' => $serverVars['HTTP_ACCEPT_ENCODING'],
-            'User-Agent' => $serverVars['HTTP_USER_AGENT'],
-            'Host' => $serverVars['HTTP_HOST'],
-            'Foo' => $serverVars['HTTP_FOO'],
-            'Accept' => $serverVars['HTTP_ACCEPT'],
-            'Content-Length' => $serverVars['CONTENT_LENGTH'],
-            'Content-Type' => $serverVars['CONTENT_TYPE'],
-            'Content-MD5' => $serverVars['CONTENT_MD5'],
+            'Accept-Language'           => $serverVars['HTTP_ACCEPT_LANGUAGE'],
+            'Accept-Encoding'           => $serverVars['HTTP_ACCEPT_ENCODING'],
+            'User-Agent'                => $serverVars['HTTP_USER_AGENT'],
+            'Host'                      => $serverVars['HTTP_HOST'],
+            'Foo'                       => $serverVars['HTTP_FOO'],
+            'Accept'                    => $serverVars['HTTP_ACCEPT'],
+            'Content-Length'            => $serverVars['CONTENT_LENGTH'],
+            'Content-Type'              => $serverVars['CONTENT_TYPE'],
+            'Content-MD5'               => $serverVars['CONTENT_MD5'],
         ];
         if ($useGlobalServerVar) {
             $_SERVER = $serverVars;
@@ -204,10 +204,12 @@ class RequestTest extends TestCase {
 
     public function testUriInitialization_BasePath() {
         $basePath = '/foo/bar/baz';
-        $request = new Request([
-            'REQUEST_URI' => $basePath . '/index.php/one/two',
-            'SCRIPT_NAME' => $basePath . '/index.php'
-        ]);
+        $request = new Request(
+            [
+                'REQUEST_URI' => $basePath . '/index.php/one/two',
+                'SCRIPT_NAME' => $basePath . '/index.php',
+            ]
+        );
         $uri = $request->uri();
         $this->assertSame($basePath, $uri->path()->basePath());
     }
@@ -315,23 +317,25 @@ class RequestTest extends TestCase {
     }
 
     public function testUriInitialization_Query() {
-        $request = new Request([
-            'REQUEST_URI' => '/',
-            'SCRIPT_NAME' => '/index.php',
-            'QUERY_STRING' => '',
-            'HTTP_HOST' => 'framework',
-        ]);
+        $request = new Request(
+            [
+                'REQUEST_URI'  => '/',
+                'SCRIPT_NAME'  => '/index.php',
+                'QUERY_STRING' => '',
+                'HTTP_HOST'    => 'framework',
+            ]
+        );
         $uri = $request->uri();
         $this->assertSame('http://framework/', $uri->toStr(null, true));
     }
-    
+
     public function testData() {
         $this->assertSame(
             ['bar' => 'baz'],
             $this->request->data(['foo' => ['bar' => ' baz  ']], 'foo')
         );
     }
-    
+
     public function testMappingPostToPatch() {
         $data = ['foo' => 'bar', 'baz' => 'abc'];
         $_POST = \array_merge($data, ['_method' => HttpMethod::PATCH]);
@@ -365,10 +369,13 @@ class RequestTest extends TestCase {
      * @dataProvider dataMethod
      */
     public function testMethod_OverwritingHttpMethod_ThroughHeader($httpMethod) {
-        $this->checkHttpMethod([
-            'REQUEST_METHOD' => HttpMethod::POST,
-            'HTTP_X_HTTP_METHOD_OVERRIDE' => $httpMethod,
-        ], $httpMethod);
+        $this->checkHttpMethod(
+            [
+                'REQUEST_METHOD'              => HttpMethod::POST,
+                'HTTP_X_HTTP_METHOD_OVERRIDE' => $httpMethod,
+            ],
+            $httpMethod
+        );
     }
 
     /**

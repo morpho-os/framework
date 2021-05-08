@@ -8,6 +8,7 @@ namespace Morpho\DataProcessing\Pagination;
 
 use Countable;
 use Iterator;
+
 use function array_slice;
 use function ceil;
 use function count;
@@ -46,7 +47,7 @@ class Pager implements Iterator, Countable {
     }
 
     public function totalPagesCount(): int {
-        return (int)ceil($this->totalItemsCount() / $this->pageSize());
+        return (int) ceil($this->totalItemsCount() / $this->pageSize());
     }
 
     public function setPageSize(int $pageSize): void {

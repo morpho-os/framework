@@ -6,9 +6,11 @@
  */
 namespace Morpho\Fs;
 
+use Morpho\App\Path as BasePath;
 use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
 use Morpho\Base\SecurityException;
+
 use function array_pop;
 use function count;
 use function dirname;
@@ -18,7 +20,6 @@ use function implode;
 use function is_file;
 use function ltrim;
 use function Morpho\Base\unpackArgs;
-use Morpho\App\Path as BasePath;
 use function pathinfo;
 use function str_replace;
 use function strlen;
@@ -59,7 +60,7 @@ class Path extends BasePath {
         $i = 0;
         $isWindows = Env::isWindows();
         foreach ($paths as $path) {
-            $path = (string)$path;
+            $path = (string) $path;
             if ($path === '') {
                 continue;
             }

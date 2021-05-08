@@ -5,6 +5,5 @@ use Morpho\App\Web\Controller;
 
 abstract class BaseController extends Controller {
     public function foo() {
-
     }
 }

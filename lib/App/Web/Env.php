@@ -8,6 +8,7 @@ namespace Morpho\App\Web;
 
 use Morpho\Base\Converter;
 use Morpho\Base\Env as BaseEnvironment;
+
 use function ini_get;
 use function preg_match;
 use function strtolower;
@@ -16,10 +17,10 @@ class Env extends BaseEnvironment {
     protected $startSession = false;
 
     public const HTTP_VERSION = 'HTTP/1.1';
-    
+
     public static function clientIp(): array {
         return [
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+            'ip'     => $_SERVER['REMOTE_ADDR'] ?? null,
             // http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header
             'realIp' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null,
         ];

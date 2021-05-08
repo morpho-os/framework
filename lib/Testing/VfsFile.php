@@ -8,6 +8,7 @@ namespace Morpho\Testing;
 
 use Morpho\Fs\Stat;
 use RuntimeException;
+
 use function min;
 use function strlen;
 use function substr;

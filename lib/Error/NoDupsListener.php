@@ -9,6 +9,7 @@ namespace Morpho\Error;
 use Exception;
 use Morpho\Base\IFn;
 use Throwable;
+
 use function chmod;
 use function error_clear_last;
 use function error_get_last;

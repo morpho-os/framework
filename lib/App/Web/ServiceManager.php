@@ -84,24 +84,26 @@ class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkActionResultRendererService() {
-        return new ActionResultRenderer(function ($format) {
-            if ($format === ContentFormat::HTML) {
-                return new HtmlResponseRenderer(
-                    $this['templateEngine'],
-                    $this['backendModuleIndex'],
-                    $this->conf()['view']['pageRenderingModule'],
-                );
-            } elseif ($format === ContentFormat::JSON) {
-                return new JsonResponseRenderer();
+        return new ActionResultRenderer(
+            function ($format) {
+                if ($format === ContentFormat::HTML) {
+                    return new HtmlResponseRenderer(
+                        $this['templateEngine'],
+                        $this['backendModuleIndex'],
+                        $this->conf()['view']['pageRenderingModule'],
+                    );
+                } elseif ($format === ContentFormat::JSON) {
+                    return new JsonResponseRenderer();
+                }
+                // todo: add XML
+                throw new UnexpectedValueException();
             }
-            // todo: add XML
-            throw new UnexpectedValueException();
-        });
+        );
     }
 
-/*    protected function mkAutoloaderService() {
-        return composerAutoloader();
-    }*/
+    /*    protected function mkAutoloaderService() {
+            return composerAutoloader();
+        }*/
 
     protected function mkMessengerService() {
         return new Messenger();
@@ -138,13 +140,13 @@ class ServiceManager extends BaseServiceManager {
             $this->appendLogFileWriter($logger, Logger::DEBUG);
         }
 
- /*       if ($conf['debugWriter']) {
-            $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
-                protected function write(array $record): void {
-                    d($record['message']);
-                }
-            });
-        }*/
+        /*       if ($conf['debugWriter']) {
+                   $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
+                       protected function write(array $record): void {
+                           d($record['message']);
+                       }
+                   });
+               }*/
 
         return $logger;
     }

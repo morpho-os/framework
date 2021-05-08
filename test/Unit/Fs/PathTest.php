@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\Fs;
 
-use Morpho\Testing\TestCase;
-use Morpho\Fs\Path;
 use Morpho\Fs\Exception as FsException;
+use Morpho\Fs\Path;
+use Morpho\Testing\TestCase;
 
 class PathTest extends TestCase {
     public function dataIsAbs() {
@@ -131,10 +131,13 @@ class PathTest extends TestCase {
         ];
         $isWin = $this->isWindows();
         if ($isWin) {
-            $dataSet = \array_merge($dataSet, [
-                ['\foo\bar\baz'],
-                ['C:\foo\bar\baz'],
-            ]);
+            $dataSet = \array_merge(
+                $dataSet,
+                [
+                    ['\foo\bar\baz'],
+                    ['C:\foo\bar\baz'],
+                ]
+            );
         }
         return $dataSet;
     }

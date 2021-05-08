@@ -6,29 +6,35 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\UriValidator;
+use Morpho\Testing\TestCase;
 
 class UriValidatorTest extends TestCase {
     public function dataValidateScheme() {
         return [
             [
-                '', false,
+                '',
+                false,
             ],
             [
-                'http', true,
+                'http',
+                true,
             ],
             [
-                'HTTP', true,
+                'HTTP',
+                true,
             ],
             [
-                'h', true,
+                'h',
+                true,
             ],
             [
-                'H', true,
+                'H',
+                true,
             ],
             [
-                'q^u', false,
+                'q^u',
+                false,
             ],
         ];
     }
@@ -43,7 +49,7 @@ class UriValidatorTest extends TestCase {
     public function dataValidateAuthority() {
         yield [
             'user:pass^word@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80',
-            false
+            false,
         ];
         yield [
             'user:password@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80',
@@ -99,13 +105,13 @@ class UriValidatorTest extends TestCase {
         yield from $this->validatePathSamples();
         yield ['', false];
         yield ['//', false];
- /*
-         $this->assertTrue(UriValidator::validatePath('fred@example.com'));
-         $this->assertTrue(UriValidator::validatePath('John.Doe@example.com'));
-         $this->assertTrue(UriValidator::validatePath('comp.infosystems.www.servers.unix'));
-         $this->assertTrue(UriValidator::validatePath('+1-816-555-1212'));
-         $this->assertTrue(UriValidator::validatePath('oasis:names:specification:docbook:dtd:xml:4.1.2'));
- */
+        /*
+                $this->assertTrue(UriValidator::validatePath('fred@example.com'));
+                $this->assertTrue(UriValidator::validatePath('John.Doe@example.com'));
+                $this->assertTrue(UriValidator::validatePath('comp.infosystems.www.servers.unix'));
+                $this->assertTrue(UriValidator::validatePath('+1-816-555-1212'));
+                $this->assertTrue(UriValidator::validatePath('oasis:names:specification:docbook:dtd:xml:4.1.2'));
+        */
     }
 
     /**

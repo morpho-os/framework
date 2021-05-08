@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use OutOfRangeException;
 use RuntimeException;
 use UnexpectedValueException;
+
 use function array_diff_key;
 use function array_flip;
 use function array_intersect_key;
@@ -100,9 +101,9 @@ class Must {
     }
 
     public static function beTrue($result, string $errMessage = null): void {
-        $result = (bool)$result;
+        $result = (bool) $result;
         if (false === $result) {
-            throw new RuntimeException((string)$errMessage);
+            throw new RuntimeException((string) $errMessage);
         }
     }
 
@@ -112,7 +113,7 @@ class Must {
      */
     public static function beNotFalse($result, string $errMessage = null) {
         if (false === $result) {
-            throw new RuntimeException((string)$errMessage);
+            throw new RuntimeException((string) $errMessage);
         }
         return $result;
     }

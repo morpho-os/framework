@@ -6,10 +6,10 @@
  */
 namespace Morpho\Test\Unit\Tech\Php\Reflection;
 
+use Morpho\Tech\Php\Reflection\ClassTypeReflection;
 use Morpho\Tech\Php\Reflection\FileReflection;
 use Morpho\Tech\Php\Reflection\NamespaceReflection;
 use Morpho\Testing\TestCase;
-use Morpho\Tech\Php\Reflection\ClassTypeReflection;
 use ReflectionFunction;
 
 class FileReflectionTest extends TestCase {
@@ -20,39 +20,51 @@ class FileReflectionTest extends TestCase {
     }
 
     public function testClasses() {
-        $this->checkClasses('classes', 2, function ($i, $rClass) {
-            switch ($i) {
-                case 0:
-                    $this->assertSame(__CLASS__ . '\\ServiceManager', $rClass->getName());
-                    break;
-                case 1:
-                    $this->assertSame(__CLASS__ . '\\ServiceNotFoundException', $rClass->getName());
-                    break;
+        $this->checkClasses(
+            'classes',
+            2,
+            function ($i, $rClass) {
+                switch ($i) {
+                    case 0:
+                        $this->assertSame(__CLASS__ . '\\ServiceManager', $rClass->getName());
+                        break;
+                    case 1:
+                        $this->assertSame(__CLASS__ . '\\ServiceNotFoundException', $rClass->getName());
+                        break;
+                }
             }
-        });
+        );
     }
 
     public function testTraits() {
-        $this->checkClasses('traits', 1, function ($i, $rClass) {
-            switch ($i) {
-                case 0:
-                    $this->assertSame(__CLASS__ . '\\THasServiceManager', $rClass->getName());
-                    break;
+        $this->checkClasses(
+            'traits',
+            1,
+            function ($i, $rClass) {
+                switch ($i) {
+                    case 0:
+                        $this->assertSame(__CLASS__ . '\\THasServiceManager', $rClass->getName());
+                        break;
+                }
             }
-        });
+        );
     }
 
     public function testInterface() {
-        $this->checkClasses('interfaces', 2, function ($i, $rClass) {
-            switch ($i) {
-                case 0:
-                    $this->assertSame(__CLASS__ . '\\IHasServiceManager', $rClass->getName());
-                    break;
-                case 1:
-                    $this->assertSame(__CLASS__ . '\\IServiceManager', $rClass->getName());
-                    break;
+        $this->checkClasses(
+            'interfaces',
+            2,
+            function ($i, $rClass) {
+                switch ($i) {
+                    case 0:
+                        $this->assertSame(__CLASS__ . '\\IHasServiceManager', $rClass->getName());
+                        break;
+                    case 1:
+                        $this->assertSame(__CLASS__ . '\\IServiceManager', $rClass->getName());
+                        break;
+                }
             }
-        });
+        );
     }
 
     public function testNamespaces_EmptyFile() {
@@ -86,11 +98,11 @@ class FileReflectionTest extends TestCase {
                 $testDirPath . '/multiple-bracketed-ns.php',
                 [
                     [
-                        'classes' => [__CLASS__ . '_Ns1Bracketed\\First', __CLASS__ . '_Ns1Bracketed\\Second'],
+                        'classes'   => [__CLASS__ . '_Ns1Bracketed\\First', __CLASS__ . '_Ns1Bracketed\\Second'],
                         'functions' => [__CLASS__ . '_Ns1Bracketed\\foo', __CLASS__ . '_Ns1Bracketed\\bar'],
                     ],
                     [
-                        'classes' => [__CLASS__ . '_Ns2Bracketed\\Third', __CLASS__ . '_Ns2Bracketed\\TFourth'],
+                        'classes'   => [__CLASS__ . '_Ns2Bracketed\\Third', __CLASS__ . '_Ns2Bracketed\\TFourth'],
                         'functions' => [__CLASS__ . '_Ns2Bracketed\\baz'],
                     ],
                 ],
@@ -99,11 +111,11 @@ class FileReflectionTest extends TestCase {
                 $testDirPath . '/multiple-unbracketed-ns.php',
                 [
                     [
-                        'classes' => [__CLASS__ . '_Ns1Unbracketed\\First', __CLASS__ . '_Ns1Unbracketed\\Second'],
+                        'classes'   => [__CLASS__ . '_Ns1Unbracketed\\First', __CLASS__ . '_Ns1Unbracketed\\Second'],
                         'functions' => [__CLASS__ . '_Ns1Unbracketed\\foo', __CLASS__ . '_Ns1Unbracketed\\bar'],
                     ],
                     [
-                        'classes' => [__CLASS__ . '_Ns2Unbracketed\\Third', __CLASS__ . '_Ns2Unbracketed\\TFourth'],
+                        'classes'   => [__CLASS__ . '_Ns2Unbracketed\\Third', __CLASS__ . '_Ns2Unbracketed\\TFourth'],
                         'functions' => [__CLASS__ . '_Ns2Unbracketed\\baz'],
                     ],
                 ],

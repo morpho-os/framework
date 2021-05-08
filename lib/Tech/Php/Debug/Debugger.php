@@ -13,6 +13,7 @@ use Morpho\Base\NotImplementedException;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionObject;
+
 use function array_pop;
 use function array_shift;
 use function bin2hex;
@@ -51,13 +52,13 @@ class Debugger {
     private static $instance;
 
     private static $class;
-    
+
     private int $exitCode = 1;
 
     public function type($obj): void {
         $this->dump(get_debug_type($obj));
     }
-    
+
     public function dump(): void {
         $argsCount = func_num_args();
         $output = '';
@@ -151,6 +152,34 @@ class Debugger {
             return $output;
         }
         echo $output;
+    }
+
+    /**
+     * Taken from https://stackoverflow.com/questions/1057572/how-can-i-get-a-hex-dump-of-a-string-in-php
+     */
+    function hexDump($data, $newline = "\n"): void {
+        static $from = '';
+        static $to = '';
+
+        static $width = 16; # number of bytes per line
+
+        static $pad = '.'; # padding for non-visible characters
+
+        if ($from === '') {
+            for ($i = 0; $i <= 0xFF; $i++) {
+                $from .= chr($i);
+                $to .= ($i >= 0x20 && $i <= 0x7E) ? chr($i) : $pad;
+            }
+        }
+
+        $hex = str_split(bin2hex($data), $width * 2);
+        $chars = str_split(strtr($data, $from, $to), $width);
+
+        $offset = 0;
+        foreach ($hex as $i => $line) {
+            echo sprintf('%6X', $offset) . ' : ' . implode(' ', str_split($line, 2)) . ' [' . $chars[$i] . ']' . $newline;
+            $offset += $width;
+        }
     }
 
     public function logToFile(string $filePath, ...$args) {
@@ -279,7 +308,7 @@ class Debugger {
     public static function setClass($class) {
         self::$class = $class;
     }
-    
+
     public function setExitCode(int $exitCode): self {
         $this->exitCode = $exitCode;
         return $this;

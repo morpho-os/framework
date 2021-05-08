@@ -7,9 +7,9 @@
 namespace Morpho\Tech\Sql\MySql;
 
 class ReplaceQuery extends Query {
-/*    public function build(): array {
-        throw new NotImplementedException();
-    }*/
+    /*    public function build(): array {
+            throw new NotImplementedException();
+        }*/
     public function sql(): string {
         // TODO: Implement sql() method.
     }

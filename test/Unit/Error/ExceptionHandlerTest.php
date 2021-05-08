@@ -15,9 +15,11 @@ class ExceptionHandlerTest extends TestCase {
         $exceptionHandler = new ExceptionHandler();
         $listeners = $exceptionHandler->listeners();
         $this->assertEquals(new \ArrayObject(), $listeners);
-        $listeners->append(function () use (&$called) {
-            $called = true;
-        });
+        $listeners->append(
+            function () use (&$called) {
+                $called = true;
+            }
+        );
         $ifnListener = new class implements IFn {
             public $called;
 

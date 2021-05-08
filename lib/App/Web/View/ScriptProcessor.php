@@ -8,11 +8,13 @@ namespace Morpho\App\Web\View;
 
 use Morpho\App\ISite;
 use Morpho\Base\Event;
+
 use function file_exists;
 use function implode;
 use function json_encode;
 use function Morpho\Base\last;
 use function usort;
+
 use const Morpho\App\APP_DIR_NAME;
 use const Morpho\App\LIB_DIR_NAME;
 
@@ -66,22 +68,25 @@ class ScriptProcessor extends HtmlProcessor {
             $script[self::INDEX_ATTR] = floatval($script[self::INDEX_ATTR]);
             $scripts[$key] = $script;
         }
-        usort($scripts, function ($prev, $next) {
-            $a = $prev[self::INDEX_ATTR];
-            $b = $next[self::INDEX_ATTR];
-            $diff = $a - $b;
-            if (abs($diff) <= PHP_FLOAT_EPSILON && isset($prev['src']) && isset($next['src'])) {
-                // Without this sort an exact order can be unknown when indexes are equal.
-                return $prev['src'] <=> $next['src'];
+        usort(
+            $scripts,
+            function ($prev, $next) {
+                $a = $prev[self::INDEX_ATTR];
+                $b = $next[self::INDEX_ATTR];
+                $diff = $a - $b;
+                if (abs($diff) <= PHP_FLOAT_EPSILON && isset($prev['src']) && isset($next['src'])) {
+                    // Without this sort an exact order can be unknown when indexes are equal.
+                    return $prev['src'] <=> $next['src'];
+                }
+                if ($diff > PHP_FLOAT_EPSILON) {
+                    return 1;
+                }
+                if ($diff >= -PHP_FLOAT_EPSILON) { // -PHP_FLOAT_EPSILON <= $diff <= PHP_FLOAT_EPSILON
+                    return 0;
+                }
+                return -1; // $diff < -PHP_FLOAT_EPSILON
             }
-            if  ($diff > PHP_FLOAT_EPSILON) {
-                return 1;
-            }
-            if ($diff >= -PHP_FLOAT_EPSILON) { // -PHP_FLOAT_EPSILON <= $diff <= PHP_FLOAT_EPSILON
-                return 0;
-            }
-            return -1; // $diff < -PHP_FLOAT_EPSILON
-        });
+        );
         return $scripts;
     }
 
@@ -122,13 +127,13 @@ class ScriptProcessor extends HtmlProcessor {
         if (file_exists($jsFilePath)) {
             $jsConf = $this->jsConf();
             $scripts[] = [
-                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
+                'src'      => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
                 '_tagName' => 'script',
-                '_text' => '',
+                '_text'    => '',
             ];
             $scripts[] = [
                 '_tagName' => 'script',
-                '_text' => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
+                '_text'    => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
             ];
         }
         return $scripts;

@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\App\Web\Session;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Session\Session;
+use Morpho\Testing\TestCase;
 
 class SessionTest extends TestCase {
     /**

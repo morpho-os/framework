@@ -7,8 +7,8 @@
 namespace Morpho\Test\Unit\DataProcessing\Filtering;
 
 use Morpho\Base\IFn;
-use Morpho\Testing\TestCase;
 use Morpho\DataProcessing\Filtering\PriceFilter;
+use Morpho\Testing\TestCase;
 
 class PriceFilterTest extends TestCase {
     private IFn $filter;

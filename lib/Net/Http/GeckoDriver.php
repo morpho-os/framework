@@ -8,6 +8,7 @@
 namespace Morpho\Net\Http;
 
 use RuntimeException;
+
 use function array_reduce;
 use function basename;
 use function chdir;
@@ -15,8 +16,8 @@ use function dirname;
 use function escapeshellarg;
 use function file_exists;
 use function getcwd;
-use function Morpho\Base\fromJson;
 use function Morpho\App\Cli\sh;
+use function Morpho\Base\fromJson;
 use function proc_close;
 use function proc_open;
 use function strpos;

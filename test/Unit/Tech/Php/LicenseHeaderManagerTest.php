@@ -37,7 +37,9 @@ OUT;
  * see license
  */
 OUT;
-        \file_put_contents($filePath, <<<OUT
+        \file_put_contents(
+            $filePath,
+            <<<OUT
 foo
 bar
 baz
@@ -55,7 +57,7 @@ baz
 OUT;
         $this->checkLicense($filePath, $licenseText, $expectedText);
     }
-    
+
     public function testUpdateLicenseHeader_AddHeader_FileWithShebang() {
         $filePath = $this->createTmpFile();
         $licenseText = <<<OUT
@@ -65,7 +67,9 @@ OUT;
  * see license
  */
 OUT;
-        \file_put_contents($filePath, <<<OUT
+        \file_put_contents(
+            $filePath,
+            <<<OUT
 #!/usr/bin/php
 <?php
 echo "Hello World";
@@ -93,7 +97,9 @@ OUT;
  * see license
  */
 OUT;
-        \file_put_contents($filePath, <<<OUT
+        \file_put_contents(
+            $filePath,
+            <<<OUT
 <?php
 echo "Hello World";
 OUT
@@ -119,7 +125,9 @@ OUT;
  * see license
  */
 OUT;
-        \file_put_contents($filePath, <<<OUT
+        \file_put_contents(
+            $filePath,
+            <<<OUT
 <?php
 echo "Hello World";
 OUT
@@ -152,7 +160,9 @@ OUT;
      */
     public function testUpdateLicenseHeader_DifferentLicenseHeader($newLicenseText) {
         $filePath = $this->createTmpFile();
-        \file_put_contents($filePath, <<<OUT
+        \file_put_contents(
+            $filePath,
+            <<<OUT
 <?php
 /**
  * This file is part of
@@ -166,20 +176,24 @@ OUT
         (new LicenseHeaderManager())->updateLicenseHeader($filePath, $newLicenseText);
 
         $newFileText = \file_get_contents($filePath);
-        $this->assertSame(<<<OUT
+        $this->assertSame(
+            <<<OUT
 <?php
 /**
  * This is a new morpho license
  */
 echo "Hello World";
 OUT
-            , $newFileText
+            ,
+            $newFileText
         );
     }
 
     public function testRemoveLicenseHeader() {
         $filePath = $this->createTmpFile();
-        \file_put_contents($filePath, <<<OUT
+        \file_put_contents(
+            $filePath,
+            <<<OUT
 <?php
 /**
  * This file is part of
@@ -190,11 +204,13 @@ echo "Hello World";
 OUT
         );
         (new LicenseHeaderManager())->removeLicenseHeader($filePath);
-        $this->assertSame(<<<OUT
+        $this->assertSame(
+            <<<OUT
 <?php
 echo "Hello World";
 OUT
-            , \file_get_contents($filePath)
+            ,
+            \file_get_contents($filePath)
         );
     }
 
@@ -209,19 +225,24 @@ OUT
 OUT;
         return [
             [
-                [$licenseText, 31], $testDirPath . '/file-with-header.php',
+                [$licenseText, 31],
+                $testDirPath . '/file-with-header.php',
             ],
             [
-                [$licenseText, 6], $testDirPath . '/file-with-header1.php',
+                [$licenseText, 6],
+                $testDirPath . '/file-with-header1.php',
             ],
             [
-                [$licenseText, 50], $testDirPath . '/file-with-header2.php',
+                [$licenseText, 50],
+                $testDirPath . '/file-with-header2.php',
             ],
             [
-                [$licenseText, 25], $testDirPath . '/file-with-header3.php',
+                [$licenseText, 25],
+                $testDirPath . '/file-with-header3.php',
             ],
             [
-                false, $testDirPath . '/file-without-header.php',
+                false,
+                $testDirPath . '/file-without-header.php',
             ],
         ];
     }
@@ -232,7 +253,7 @@ OUT;
     public function testFindLicenseHeaderInFile($expected, $filePath) {
         $this->assertSame($expected, (new LicenseHeaderManager())->findLicenseHeaderInFile($filePath));
     }
-    
+
     private function checkLicense($filePath, $licenseText, $expectedText) {
         $licenseHeaderManager = new LicenseHeaderManager();
 

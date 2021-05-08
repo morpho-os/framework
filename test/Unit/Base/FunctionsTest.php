@@ -16,6 +16,7 @@ use SplStack;
 use stdClass;
 use Stringable;
 use UnexpectedValueException;
+
 use function call_user_func;
 use function count;
 use function fclose;
@@ -100,10 +101,15 @@ class FunctionsTest extends TestCase {
      */
     public function testAll_StringAndStringable_Utf8String($s) {
         $called = [];
-        $this->assertTrue(all(function ($val, $key) use (&$called) {
-            $called[] = func_get_args();
-            return true;
-        }, $s));
+        $this->assertTrue(
+            all(
+                function ($val, $key) use (&$called) {
+                    $called[] = func_get_args();
+                    return true;
+                },
+                $s
+            )
+        );
         $this->assertCount(9, $called);
         $this->assertSame(['ℚ', 0], $called[0]);
         $this->assertSame([' ', 1], $called[1]);
@@ -226,25 +232,30 @@ class FunctionsTest extends TestCase {
     }
 
     public function testNot() {
-        $fn = not(function (...$args) use (&$calledWithArgs) {
-            $calledWithArgs = $args;
-            return true;
-        });
+        $fn = not(
+            function (...$args) use (&$calledWithArgs) {
+                $calledWithArgs = $args;
+                return true;
+            }
+        );
         $this->assertFalse($fn('foo', 'bar'));
         $this->assertEquals(['foo', 'bar'], $calledWithArgs);
     }
 
     public function testToAndFromJson() {
-        $v = ['foo' => 'bar', 1 => new class {
-            public $t = 123;
-        }];
+        $v = [
+            'foo' => 'bar',
+            1     => new class {
+                public $t = 123;
+            },
+        ];
         $json = toJson($v);
         $this->assertIsString($json);
         $this->assertNotEmpty($json);
         $v1 = fromJson($json);
         $this->assertCount(count($v), $v1);
         $this->assertEquals($v['foo'], $v1['foo']);
-        $this->assertEquals((array)$v[1], $v1[1]);
+        $this->assertEquals((array) $v[1], $v1[1]);
     }
 
     public function testFromJson_InvalidJsonThrowsException() {
@@ -831,16 +842,19 @@ OUT;
         $this->assertEquals([[], [1]], subsets([1]));
         $subsets = subsets(['a', 'b', 'c']);
         sort($subsets);
-        $this->assertSame([
-            [],
-            ['a'],
-            ['b'],
-            ['c'],
-            ['a', 'b'],
-            ['a', 'c'],
-            ['b', 'c'],
-            ['a', 'b', 'c'],
-        ], $subsets);
+        $this->assertSame(
+            [
+                [],
+                ['a'],
+                ['b'],
+                ['c'],
+                ['a', 'b'],
+                ['a', 'c'],
+                ['b', 'c'],
+                ['a', 'b', 'c'],
+            ],
+            $subsets
+        );
     }
 
     public function testSubsets_KSubsets() {
@@ -852,46 +866,74 @@ OUT;
     public function dataIsSubset() {
         return [
             [
-                true, [], [],
+                true,
+                [],
+                [],
             ],
             [
-                false, [], ['a', 'b'],
+                false,
+                [],
+                ['a', 'b'],
             ],
             [
-                true, ['a', 'b'], [],
+                true,
+                ['a', 'b'],
+                [],
             ],
             [
-                true, ['a', 'b'], ['a'],
+                true,
+                ['a', 'b'],
+                ['a'],
             ],
             [
-                true, ['a', 'b'], ['a', 'b'],
+                true,
+                ['a', 'b'],
+                ['a', 'b'],
             ],
             [
-                false, ['a', 'b'], ['a', 'b', 'c'],
+                false,
+                ['a', 'b'],
+                ['a', 'b', 'c'],
             ],
             [
-                false, [2 => 'a'], [3 => 'a'],
+                false,
+                [2 => 'a'],
+                [3 => 'a'],
             ],
             [
-                true, [3 => 'a'], [3 => 'a'],
+                true,
+                [3 => 'a'],
+                [3 => 'a'],
             ],
             [
-                true, ['foo' => 'a'], [],
+                true,
+                ['foo' => 'a'],
+                [],
             ],
             [
-                true, ['foo' => 'a', 'bar' => 'b'], ['foo' => 'a'],
+                true,
+                ['foo' => 'a', 'bar' => 'b'],
+                ['foo' => 'a'],
             ],
             [
-                true, ['foo' => 'a', 'bar' => 'b'], ['foo' => 'a', 'bar' => 'b'],
+                true,
+                ['foo' => 'a', 'bar' => 'b'],
+                ['foo' => 'a', 'bar' => 'b'],
             ],
             [
-                true, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['foo' => 'a', 'bar' => 'b'],
+                true,
+                ['foo' => 'a', 'bar' => 'b', 'pizza'],
+                ['foo' => 'a', 'bar' => 'b'],
             ],
             [
-                true, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['pizza'],
+                true,
+                ['foo' => 'a', 'bar' => 'b', 'pizza'],
+                ['pizza'],
             ],
             [
-                false, ['foo' => 'a', 'bar' => 'b', 'pizza'], ['pizza', 'bar' => 'foo'],
+                false,
+                ['foo' => 'a', 'bar' => 'b', 'pizza'],
+                ['pizza', 'bar' => 'foo'],
             ],
         ];
     }
@@ -980,19 +1022,27 @@ OUT;
         $this->assertEquals(
             [
                 ':-)' => [
-                    'one' => ':)', 'two' => ':-)', 'three' => ':+)',
+                    'one'   => ':)',
+                    'two'   => ':-)',
+                    'three' => ':+)',
                 ],
                 ':-]' => [
-                    'one' => ':]', 'two' => ':-]', 'three' => ':+]',
+                    'one'   => ':]',
+                    'two'   => ':-]',
+                    'three' => ':+]',
                 ],
             ],
             index(
                 [
                     [
-                        'one' => ':)', 'two' => ':-)', 'three' => ':+)',
+                        'one'   => ':)',
+                        'two'   => ':-)',
+                        'three' => ':+)',
                     ],
                     [
-                        'one' => ':]', 'two' => ':-]', 'three' => ':+]',
+                        'one'   => ':]',
+                        'two'   => ':-]',
+                        'three' => ':+]',
                     ],
                 ],
                 'two'
@@ -1004,19 +1054,25 @@ OUT;
         $this->assertEquals(
             [
                 ':-)' => [
-                    'one' => ':)', 'three' => ':+)',
+                    'one'   => ':)',
+                    'three' => ':+)',
                 ],
                 ':-]' => [
-                    'one' => ':]', 'three' => ':+]',
+                    'one'   => ':]',
+                    'three' => ':+]',
                 ],
             ],
             index(
                 [
                     [
-                        'one' => ':)', 'two' => ':-)', 'three' => ':+)',
+                        'one'   => ':)',
+                        'two'   => ':-)',
+                        'three' => ':+)',
                     ],
                     [
-                        'one' => ':]', 'two' => ':-]', 'three' => ':+]',
+                        'one'   => ':]',
+                        'two'   => ':-]',
+                        'three' => ':+]',
                     ],
                 ],
                 'two',

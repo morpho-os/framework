@@ -6,20 +6,22 @@
  */
 namespace Morpho\App\Web\Routing;
 
-use Morpho\Base\IFn;
 use Morpho\App\Web\Request;
+use Morpho\Base\IFn;
 use Morpho\Fs\Path;
 use RuntimeException;
 use UnexpectedValueException;
-use function Morpho\Base\{dasherize, last};
+
 use function explode;
 use function implode;
+use function Morpho\Base\{dasherize, last};
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
 use function strlen;
 use function strpos;
 use function substr;
+
 use const Morpho\App\CONTROLLER_SUFFIX;
 use const PREG_SET_ORDER;
 
@@ -84,11 +86,11 @@ class RouteMetaProvider implements IFn {
         $uri = Path::combine($basePath, $modulePath, $controllerPath, $actionPath);
 
         return [
-            'httpMethod' => $httpMethod,
-            'uri' => $uri,
-            'modulePath' => $modulePath,
+            'httpMethod'     => $httpMethod,
+            'uri'            => $uri,
+            'modulePath'     => $modulePath,
             'controllerPath' => $controllerPath,
-            'actionPath' => $actionPath,
+            'actionPath'     => $actionPath,
         ];
     }
 

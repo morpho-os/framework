@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\Authority;
 use Morpho\App\Web\Uri\UriParser;
+use Morpho\Testing\TestCase;
 
 class UriParserTest extends TestCase {
     use TUriParserDataProvider;
@@ -25,48 +25,48 @@ class UriParserTest extends TestCase {
             '',
             [
                 'userInfo' => '',
-                'host' => '',
-                'port' => null,
+                'host'     => '',
+                'port'     => null,
             ],
         ];
         yield [
             'user:password@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80',
             [
                 'userInfo' => 'user:password',
-                'host' => '[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
-                'port' => 80,
+                'host'     => '[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
+                'port'     => 80,
             ],
         ];
         yield [
             'user:pass^word@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
             [
                 'userInfo' => 'user:pass^word',
-                'host' => '[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
-                'port' => null,
+                'host'     => '[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]',
+                'port'     => null,
             ],
         ];
         yield [
             '127.0.0.1',
             [
                 'userInfo' => null,
-                'host' => '127.0.0.1',
-                'port' => null,
+                'host'     => '127.0.0.1',
+                'port'     => null,
             ],
         ];
         yield [
             '127.0.0.1:80',
             [
                 'userInfo' => null,
-                'host' => '127.0.0.1',
-                'port' => 80,
+                'host'     => '127.0.0.1',
+                'port'     => 80,
             ],
         ];
         yield [
             '@127.0.0.1:80',
             [
                 'userInfo' => '',
-                'host' => '127.0.0.1',
-                'port' => 80,
+                'host'     => '127.0.0.1',
+                'port'     => 80,
             ],
         ];
 
@@ -75,64 +75,64 @@ class UriParserTest extends TestCase {
             '[1080:0:0:0:8:800:200C:417A]',
             [
                 'userInfo' => null,
-                'host' => '[1080:0:0:0:8:800:200C:417A]',
-                'port' => null,
+                'host'     => '[1080:0:0:0:8:800:200C:417A]',
+                'port'     => null,
             ],
         ];
         yield [
             '[3ffe:2a00:100:7031::1]',
             [
                 'userInfo' => null,
-                'host' => '[3ffe:2a00:100:7031::1]',
-                'port' => null,
+                'host'     => '[3ffe:2a00:100:7031::1]',
+                'port'     => null,
             ],
         ];
         yield [
             '[1080::8:800:200C:417A]',
             [
                 'userInfo' => null,
-                'host' => '[1080::8:800:200C:417A]',
-                'port' => null,
+                'host'     => '[1080::8:800:200C:417A]',
+                'port'     => null,
             ],
         ];
         yield [
             '[::192.9.5.5]',
             [
                 'userInfo' => null,
-                'host' => '[::192.9.5.5]',
-                'port' => null,
+                'host'     => '[::192.9.5.5]',
+                'port'     => null,
             ],
         ];
         yield [
             '[::FFFF:129.144.52.38]',
             [
                 'userInfo' => null,
-                'host' => '[::FFFF:129.144.52.38]',
-                'port' => null,
+                'host'     => '[::FFFF:129.144.52.38]',
+                'port'     => null,
             ],
         ];
         yield [
             '[::FFFF:129.144.52.38]:80',
             [
                 'userInfo' => null,
-                'host' => '[::FFFF:129.144.52.38]',
-                'port' => 80,
+                'host'     => '[::FFFF:129.144.52.38]',
+                'port'     => 80,
             ],
         ];
         yield [
             '[2010:836B:4179::836B:4179]',
             [
                 'userInfo' => null,
-                'host' => '[2010:836B:4179::836B:4179]',
-                'port' => null,
+                'host'     => '[2010:836B:4179::836B:4179]',
+                'port'     => null,
             ],
         ];
         yield [
             '[::1]',
             [
                 'userInfo' => null,
-                'host' => '[::1]',
-                'port' => null,
+                'host'     => '[::1]',
+                'port'     => null,
             ],
         ];
     }
@@ -176,11 +176,11 @@ class UriParserTest extends TestCase {
     public function dataParseOnlyQuery() {
         yield [
             'foo',
-            ['foo' => null]
+            ['foo' => null],
         ];
         yield [
             'foo=',
-            ['foo' => '']
+            ['foo' => ''],
         ];
         yield [
             'foo=bar&baz=test',
@@ -208,11 +208,11 @@ class UriParserTest extends TestCase {
             'first=value&arr[]=foo bar&arr[test]=baz',
             [
                 'first' => 'value',
-                'arr' => [
+                'arr'   => [
                     'foo bar',
                     'test' => 'baz',
                 ],
-            ]
+            ],
         ];
         yield [
             'foo[bar][baz]',
@@ -220,7 +220,7 @@ class UriParserTest extends TestCase {
                 'foo' => [
                     'bar' => [
                         'baz' => null,
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -230,7 +230,7 @@ class UriParserTest extends TestCase {
                 'foo' => [
                     'bar' => [
                         'baz' => 'qux',
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -273,7 +273,7 @@ class UriParserTest extends TestCase {
         yield [
             '[][]&foo=bar',
             [
-                'foo' => 'bar'
+                'foo' => 'bar',
             ],
         ];
         yield [
@@ -292,7 +292,7 @@ class UriParserTest extends TestCase {
             '=&test=123', // no name and value
             [
                 'test' => '123',
-            ]
+            ],
         ];
         yield [
             'name=&test=123', // no value

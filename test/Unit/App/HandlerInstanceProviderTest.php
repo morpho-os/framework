@@ -6,12 +6,12 @@
  */
 namespace Morpho\Test\Unit\App;
 
-use Morpho\App\ModuleIndex;
 use Morpho\App\BackendModule;
+use Morpho\App\HandlerInstanceProvider;
+use Morpho\App\ModuleIndex;
+use Morpho\App\Web\Request;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use Morpho\App\HandlerInstanceProvider;
-use Morpho\App\Web\Request;
 
 class HandlerInstanceProviderTest extends TestCase {
     public function testInvoke() {
@@ -30,9 +30,11 @@ class HandlerInstanceProviderTest extends TestCase {
         ];
         $serviceManager->expects($this->any())
             ->method('offsetGet')
-            ->willReturnCallback(function ($id) use ($services) {
-                return $services[$id];
-            });
+            ->willReturnCallback(
+                function ($id) use ($services) {
+                    return $services[$id];
+                }
+            );
 
         $handlerInstanceProvider = new HandlerInstanceProvider($serviceManager);
 
@@ -40,7 +42,7 @@ class HandlerInstanceProviderTest extends TestCase {
 
         $handler = [
             'module' => $moduleName,
-            'class' => $controllerClass,
+            'class'  => $controllerClass,
         ];
 
         $request = $this->createMock(Request::class);

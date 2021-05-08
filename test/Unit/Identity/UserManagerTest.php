@@ -6,14 +6,14 @@
  */
 namespace Morpho\Test\Unit\Identity;
 
+use Morpho\App\Web\Session\Session;
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
 use Morpho\Testing\DbTestCase;
-use Morpho\App\Web\Session\Session;
 
 class UserManagerTest extends DbTestCase {
     private UserManager $userManager;
-    
+
     public function setUp(): void {
         parent::setUp();
 
@@ -38,7 +38,7 @@ class UserManagerTest extends DbTestCase {
             public function deleteUser(array $user) {
                 unset($this->users[$user['login']]);
             }
-            
+
             public function userById($id): array {
                 foreach ($this->users as $user) {
                     if ($user['id'] === $id) {

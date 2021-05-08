@@ -12,10 +12,13 @@ use Morpho\Testing\TestCase;
 class EnumTest extends TestCase {
     public function testMembers_DoesNotIncludeNonPublicMembers() {
         $members = MyEnum::members();
-        $this->assertSame([
-            'PUB_FOO' => 'foo',
-            'PUB_BAZ' => 'baz',
-        ], $members);
+        $this->assertSame(
+            [
+                'PUB_FOO' => 'foo',
+                'PUB_BAZ' => 'baz',
+            ],
+            $members
+        );
     }
 
     public function testHasVal() {

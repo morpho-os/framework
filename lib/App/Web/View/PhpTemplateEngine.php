@@ -17,6 +17,7 @@ use RuntimeException;
 use Throwable;
 use Traversable;
 use UnexpectedValueException;
+
 use function extract;
 use function htmlspecialchars;
 use function htmlspecialchars_decode;
@@ -59,7 +60,7 @@ class PhpTemplateEngine extends ArrPipe {
 
     public function __construct(array $conf = null) {
         $this->init();
-        $conf = (array)$conf;
+        $conf = (array) $conf;
         $this->forceCompile = $conf['forceCompile'] ?? false;
         $this->pluginFactory = $conf['pluginFactory'] ?? function () {
             };
@@ -214,7 +215,7 @@ class PhpTemplateEngine extends ArrPipe {
     }
 
     public function htmlId(string $htmlId): string {
-        $htmlId = dasherize(deleteDups(preg_replace('/[^\w-]/s', '-', (string)$htmlId), '-'));
+        $htmlId = dasherize(deleteDups(preg_replace('/[^\w-]/s', '-', (string) $htmlId), '-'));
         if (isset(self::$htmlIds[$htmlId])) {
             $htmlId .= '-' . self::$htmlIds[$htmlId]++;
         } else {
@@ -264,9 +265,9 @@ class PhpTemplateEngine extends ArrPipe {
     public function optionFields(iterable $options, mixed $selectedOption = null): string {
         $html = '';
         if (null === $selectedOption || is_scalar($selectedOption)) {
-            $selectedVal = (string)$selectedOption;
+            $selectedVal = (string) $selectedOption;
             foreach ($options as $val => $text) {
-                $val = (string)$val;
+                $val = (string) $val;
                 $html .= '<option value="' . $this->e($val) . '"' . ($val === $selectedVal ? ' selected' : '') . '>' . $this->e($text) . '</option>';
             }
             return $html;
@@ -276,11 +277,11 @@ class PhpTemplateEngine extends ArrPipe {
         }
         $newOptions = [];
         foreach ($options as $value => $text) {
-            $newOptions[(string)$value] = $text;
+            $newOptions[(string) $value] = $text;
         }
         $selectedOptions = [];
         foreach ($selectedOption as $val) {
-            $val = (string)$val;
+            $val = (string) $val;
             $selectedOptions[$val] = true;
         }
         foreach ($newOptions as $value => $text) {
@@ -313,13 +314,13 @@ class PhpTemplateEngine extends ArrPipe {
         $conf = Conf::check(
             [
                 'escape' => true,
-                'single'     => false,
-                'xml'        => false,
-                'eol'        => false,
+                'single' => false,
+                'xml'    => false,
+                'eol'    => false,
             ],
-            (array)$conf
+            (array) $conf
         );
-        $output = $this->openTag($tagName, (array)$attribs, $conf['xml']);
+        $output = $this->openTag($tagName, (array) $attribs, $conf['xml']);
         if (!$conf['single']) {
             $output .= $conf['escape'] ? $this->e($text) : $text;
             $output .= $this->closeTag($tagName);
@@ -336,7 +337,7 @@ class PhpTemplateEngine extends ArrPipe {
     public function attribs(array $attribs): string {
         foreach ($attribs as $attrib => &$data) {
             if (!is_numeric($attrib)) {
-                $data = implode(' ', (array)$data);
+                $data = implode(' ', (array) $data);
                 $data = $attrib . '="' . $this->e($data) . '"';
             }
         }
@@ -368,7 +369,7 @@ class PhpTemplateEngine extends ArrPipe {
      * Renders link - HTML `a` tag.
      */
     public function link(string|Uri $uri, string $text, array $attribs = null, array $conf = null): string {
-        $attribs = (array)$attribs;
+        $attribs = (array) $attribs;
         $attribs['href'] = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false))->toStr(null, false);
         return $this->tag('a', $text, $attribs, $conf);
     }
@@ -395,14 +396,14 @@ class PhpTemplateEngine extends ArrPipe {
     }
 
     public static function e($text): string {
-        return htmlspecialchars((string)$text, ENT_QUOTES);
+        return htmlspecialchars((string) $text, ENT_QUOTES);
     }
 
     /**
      * Opposite to e().
      */
     public static function de($text): string {
-        return htmlspecialchars_decode((string)$text, ENT_QUOTES);
+        return htmlspecialchars_decode((string) $text, ENT_QUOTES);
     }
 
     public function plugin(string $name): mixed {
@@ -452,7 +453,7 @@ class PhpTemplateEngine extends ArrPipe {
         $targetRelFilePath = Path::changeExt(Path::rel($sourceAbsFilePath, $baseSourceDirPath), 'php');
         $targetAbsFilePath = $this->targetDirPath . '/' . $targetRelFilePath;
         $this->compileFile($sourceAbsFilePath, $targetAbsFilePath, []);
-        return $this->evalPhpFile($targetAbsFilePath, (array)$context);
+        return $this->evalPhpFile($targetAbsFilePath, (array) $context);
     }
 
     protected function compileFile(string $sourceFilePath, string $targetFilePath, array $context): void {

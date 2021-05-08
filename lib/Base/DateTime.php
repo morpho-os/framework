@@ -32,7 +32,7 @@ class DateTime extends DateTimeImmutable {
     }
 
     public function yearAsInt() {
-        return (int)$this->format('Y');
+        return (int) $this->format('Y');
     }
 
     public function year() {
@@ -43,7 +43,7 @@ class DateTime extends DateTimeImmutable {
      * @return int
      */
     public function monthAsInt() {
-        return (int)$this->format('n');
+        return (int) $this->format('n');
     }
 
     public function month() {
@@ -54,7 +54,7 @@ class DateTime extends DateTimeImmutable {
      * @return int
      */
     public function dayAsInt() {
-        return (int)$this->format('j');
+        return (int) $this->format('j');
     }
 
     public function day() {
@@ -65,7 +65,7 @@ class DateTime extends DateTimeImmutable {
      * @return int
      */
     public function hourAsInt() {
-        return (int)$this->format('G');
+        return (int) $this->format('G');
     }
 
     public function hour() {
@@ -76,7 +76,7 @@ class DateTime extends DateTimeImmutable {
      * @return int
      */
     public function minuteAsInt() {
-        return (int)$this->stripLeadingZero($this->format('i'));
+        return (int) $this->stripLeadingZero($this->format('i'));
     }
 
     public function minute() {
@@ -87,7 +87,7 @@ class DateTime extends DateTimeImmutable {
      * @return int
      */
     public function secondAsInt() {
-        return (int)$this->stripLeadingZero($this->format('s'));
+        return (int) $this->stripLeadingZero($this->format('s'));
     }
 
     public function second() {
@@ -144,7 +144,7 @@ class DateTime extends DateTimeImmutable {
     }
 
     public function getTimestamp(): int {
-        return PHP_INT_SIZE === 4 ? (int)$this->format('U') : parent::getTimestamp();
+        return PHP_INT_SIZE === 4 ? (int) $this->format('U') : parent::getTimestamp();
     }
 
     /**
@@ -152,14 +152,14 @@ class DateTime extends DateTimeImmutable {
      * @return bool
      */
     public static function isTimestamp($value): bool {
-        $value = (string)$value;
+        $value = (string) $value;
         return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
     }
 
     public static function mkFromTimestamp($timestamp): self {
         return (new static())->setTimestamp($timestamp);
     }
-    
+
     public function __toString(): string {
         return $this->mySqlDateTime();
     }

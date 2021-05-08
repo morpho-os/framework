@@ -75,10 +75,14 @@ abstract class Query implements IQuery {
         $args = $this->args();
         if ($args) {
             // todo: replace named args like foo = :foo AND bar = :bar
-            $sql = preg_replace_callback('~\?~s', function ($match) use (&$args): string {
-                $val = array_shift($args);
-                return $this->db->pdo()->quote((string) $val);
-            }, $sql);
+            $sql = preg_replace_callback(
+                '~\?~s',
+                function ($match) use (&$args): string {
+                    $val = array_shift($args);
+                    return $this->db->pdo()->quote((string) $val);
+                },
+                $sql
+            );
         }
         return $sql;
     }

@@ -7,6 +7,7 @@
 namespace Morpho\DataProcessing\Filtering;
 
 use Morpho\Base\IFn;
+
 use function floatval;
 use function is_scalar;
 use function preg_match;
@@ -38,6 +39,6 @@ class PriceFilter implements IFn {
 
     private static function isFloat($value) {
         // @TODO: ['+'|'-'] [digit* '.'] digit+ [('e'|'E') ['+'|'-'] digit+]
-        return (bool)preg_match('{^[-+]?[0-9]+(?:\.[0-9]*)?$}is', $value);
+        return (bool) preg_match('{^[-+]?[0-9]+(?:\.[0-9]*)?$}is', $value);
     }
 }

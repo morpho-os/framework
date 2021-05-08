@@ -6,10 +6,11 @@
  */
 namespace Morpho\Test\Unit\Error;
 
-use function func_get_args;
-use function Morpho\Base\op;
 use Morpho\Error\HandlerManager;
 use Morpho\Testing\TestCase;
+
+use function func_get_args;
+use function Morpho\Base\op;
 use function restore_error_handler;
 use function restore_exception_handler;
 use function set_error_handler;

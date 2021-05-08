@@ -7,7 +7,6 @@
 namespace Morpho\Test\Integration;
 
 use Morpho\Testing\TestSuite as BaseTestSuite;
-use Morpho\Testing\Sut;
 
 class TestSuite extends BaseTestSuite {
     protected $testCase = true; // to enable @before* and @after* annotations.

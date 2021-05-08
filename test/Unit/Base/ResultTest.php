@@ -6,14 +6,15 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use Morpho\Base\{Err, IFunctor, IMonad, Ok, Result};
 use Morpho\Testing\TestCase;
-use Morpho\Base\{Result, Ok, Err, IFunctor, IMonad};
 
 class ResultTest extends TestCase {
     public function dataInterface() {
         yield [new Ok()];
         yield [new Err()];
     }
+
     /**
      * @dataProvider dataInterface
      */
@@ -26,10 +27,12 @@ class ResultTest extends TestCase {
         $ok1Val = 'foo';
         $ok2Val = 'bar';
         $res = (new Ok($ok1Val))
-            ->bind(function ($val) use (&$captured, $ok2Val) {
-                $captured = $val;
-                return new Ok($ok2Val);
-            });
+            ->bind(
+                function ($val) use (&$captured, $ok2Val) {
+                    $captured = $val;
+                    return new Ok($ok2Val);
+                }
+            );
         $this->assertSame($ok1Val, $captured);
         $this->assertEquals(new Ok($ok2Val), $res);
     }
@@ -37,18 +40,20 @@ class ResultTest extends TestCase {
     public function testBind_Err() {
         $okVal = 'foo';
         $errVal = 'bar';
-        $res = (new Ok($okVal))->bind(function ($val) use (&$captured, $errVal) {
-            $captured = $val;
-            return new Err($errVal);
-        });
+        $res = (new Ok($okVal))->bind(
+            function ($val) use (&$captured, $errVal) {
+                $captured = $val;
+                return new Err($errVal);
+            }
+        );
         $this->assertSame($okVal, $captured);
         $this->assertEquals(new Err($errVal), $res);
     }
 
     public function dataComposition() {
         $req = [
-                'name' => "Phillip",
-                'email' => "phillip@example",
+            'name'  => "Phillip",
+            'email' => "phillip@example",
         ];
         yield [
             $req,
@@ -56,7 +61,7 @@ class ResultTest extends TestCase {
         ];
 
         $req = [
-            'name' => 'Phillip',
+            'name'  => 'Phillip',
             'email' => "phillip@localhost",
         ];
         yield [
@@ -99,13 +104,15 @@ class ResultTest extends TestCase {
 
         $validateRequest = function (Result $reqResult) use ($validateName, $validateEmail, $expected): Result {
             return $reqResult->bind($validateName)
-                             ->bind($validateEmail)
-                             ->bind(function ($val) use ($expected) {
-                                 if ($expected instanceof Err) {
-                                     throw new \RuntimeException("Must not be called");
-                                 }
-                                 return new Ok($val);
-                             });
+                ->bind($validateEmail)
+                ->bind(
+                    function ($val) use ($expected) {
+                        if ($expected instanceof Err) {
+                            throw new \RuntimeException("Must not be called");
+                        }
+                        return new Ok($val);
+                    }
+                );
         };
 
         $res1 = $validateRequest(new Ok($req));
@@ -149,26 +156,26 @@ class ResultTest extends TestCase {
         };
 
         $this->assertEquals(
-            (new Ok(5))->bind(fn ($x) => $f($x)->bind($g)),
+            (new Ok(5))->bind(fn($x) => $f($x)->bind($g)),
             (new Ok(5))->bind($f)->bind($g)
         );
     }
 
     // Functor
     public function testMap() {
-        $res = (new Ok(2))->map(fn ($val) => $val - 3);
+        $res = (new Ok(2))->map(fn($val) => $val - 3);
         $this->assertInstanceOf(IFunctor::class, $res);
         $this->assertSame(-1, $res->val());
     }
 
     // Applicative
     public function testApply() {
-        $fn = fn ($v) => $v - 2;
+        $fn = fn($v) => $v - 2;
         $res = (new Ok(5))->apply(new Ok($fn));
         $this->assertInstanceOf(Ok::class, $res);
         $this->assertSame(3, $res->val());
     }
-    
+
     public function testIsOk() {
         $this->assertTrue((new Ok())->isOk());
         $this->assertFalse((new Err())->isOk());

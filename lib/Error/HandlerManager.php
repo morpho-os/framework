@@ -8,6 +8,7 @@ namespace Morpho\Error;
 
 use InvalidArgumentException;
 use RuntimeException;
+
 use function array_reverse;
 use function call_user_func;
 use function in_array;

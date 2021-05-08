@@ -28,12 +28,10 @@ class Xml {
                     self::arrayToXml($value, $doc, $node);
                 }
             } else {
-                $currentNode->appendChild($doc->createElement($key, (string)$value));
+                $currentNode->appendChild($doc->createElement($key, (string) $value));
             }
         }
     }
-
-
 
 
     /*

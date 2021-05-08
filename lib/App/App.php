@@ -12,6 +12,7 @@ use Morpho\Base\EventManager;
 use Morpho\Error\ErrorHandler;
 use Morpho\Ioc\IServiceManager;
 use Throwable;
+
 use function addslashes;
 use function error_log;
 use function umask;
@@ -28,7 +29,7 @@ class App extends EventManager {
             $app = new static($conf);
             $response = $app->run();
             $exitCode = $response ? Env::SUCCESS_CODE : Env::FAILURE_CODE;
-            $event = new Event('exit', ['exitCode'=> $exitCode, 'response' => $response]);
+            $event = new Event('exit', ['exitCode' => $exitCode, 'response' => $response]);
             $app->trigger($event);
             return $event->args['exitCode'];
         } catch (Throwable $e) {

@@ -8,6 +8,7 @@ namespace Morpho\App\Web\Uri;
 
 use LogicException;
 use Morpho\Base\IFn;
+
 use function count;
 use function explode;
 use function mb_strlen;
@@ -27,13 +28,17 @@ class UriParser implements IFn {
         $this->uri = new Uri();
 
         # We use modified [regular expression from the RFC 3986](https://tools.ietf.org/html/rfc3986#appendix-B)
-        if (!preg_match('~^
+        if (!preg_match(
+            '~^
             ((?P<scheme>[^:/?\#]+):)?                      # scheme
             (?P<authority_>//(?P<authority>[^/?\#]*))?     # authority
             (?P<path>[^?\#]*)                              # path
             (?P<query_>\?(?P<query>[^\#]*))?               # query
             (?P<fragment_>\#(?P<fragment>.*))?             # fragment
-            $~six', $uri, $match)) {
+            $~six',
+            $uri,
+            $match
+        )) {
             throw new UriParseException('Invalid URI');
         }
         $this->semiParsed = $match;
@@ -55,17 +60,21 @@ class UriParser implements IFn {
             $authority->setHost('');
             return $authority;
         }
-        if (!preg_match('~^
+        if (!preg_match(
+            '~^
             (?P<userInfo_>(?P<userInfo>[^@]*)@)?
             (?P<host>(?:\[[^\]]+\]|[^:]+)?)
             (:(?P<port>\d+))?
-            $~six', $authorityStr, $authorityMatch)) {
+            $~six',
+            $authorityStr,
+            $authorityMatch
+        )) {
             return $authority;
         }
         $hasUserInfo = $authorityMatch['userInfo_'] !== '';
         $authority->setUserInfo($hasUserInfo ? $authorityMatch['userInfo'] : null);
         $authority->setHost($authorityMatch['host']);
-        $authority->setPort(isset($authorityMatch['port']) ? (int)$authorityMatch['port'] : null);
+        $authority->setPort(isset($authorityMatch['port']) ? (int) $authorityMatch['port'] : null);
         return $authority;
     }
 
@@ -162,7 +171,7 @@ class UriParser implements IFn {
         }
         return new Query($queryArgs);
     }
-    
+
     protected function parseScheme(): void {
         $scheme = $this->semiParsed['scheme'];
         $this->uri->setScheme($scheme);

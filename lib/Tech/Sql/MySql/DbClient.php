@@ -46,16 +46,19 @@ class DbClient extends BaseDbClient {
 
     protected function connect($confOrPdo): \PDO {
         if (is_array($confOrPdo)) {
-            $conf = Conf::check([
-                'host' => self::DEFAULT_HOST,
-                'port' => self::DEFAULT_PORT,
-                'user' => self::DEFAULT_USER,
-                'db' => self::DEFAULT_DB,
-                'password' => self::DEFAULT_PASSWORD,
-                'charset' => self::DEFAULT_CHARSET,
-                'sockFilePath' => null,
-                'pdoConf' => null,
-            ], $confOrPdo);
+            $conf = Conf::check(
+                [
+                    'host'         => self::DEFAULT_HOST,
+                    'port'         => self::DEFAULT_PORT,
+                    'user'         => self::DEFAULT_USER,
+                    'db'           => self::DEFAULT_DB,
+                    'password'     => self::DEFAULT_PASSWORD,
+                    'charset'      => self::DEFAULT_CHARSET,
+                    'sockFilePath' => null,
+                    'pdoConf'      => null,
+                ],
+                $confOrPdo
+            );
             $transportStr = null !== $conf['sockFilePath']
                 ? 'unix_socket=' . $conf['sockFilePath']
                 : "host={$conf['host']};port={$conf['port']}";

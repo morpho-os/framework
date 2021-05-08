@@ -14,6 +14,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionObject;
 use RuntimeException;
+
 use function chmod;
 use function count;
 use function date_default_timezone_get;
@@ -72,9 +73,9 @@ abstract class TestCase extends BaseTestCase {
 
     protected function createTmpFile(string $ext = null, string $prefix = null, bool $deleteOnTearDown = true): string {
         if (null === $ext) {
-            $tmpFilePath = tempnam($this->tmpDirPath(), uniqid((string)$prefix));
+            $tmpFilePath = tempnam($this->tmpDirPath(), uniqid((string) $prefix));
         } else {
-            $fileName = uniqid((string)$prefix) . strtolower(__FUNCTION__);
+            $fileName = uniqid((string) $prefix) . strtolower(__FUNCTION__);
             if (null !== $ext) {
                 $fileName .= '.' . ltrim($ext, '.');
             }
@@ -229,10 +230,12 @@ abstract class TestCase extends BaseTestCase {
         $sysTmpDirPath = $this->tmpDirPath();
         foreach ($this->tmpDirPaths as $tmpDirPath) {
             if (is_dir($tmpDirPath)) {
-                foreach (new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($tmpDirPath, FilesystemIterator::SKIP_DOTS),
-                    RecursiveIteratorIterator::CHILD_FIRST
-                ) as $path => $_) {
+                foreach (
+                    new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($tmpDirPath, FilesystemIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::CHILD_FIRST
+                    ) as $path => $_
+                ) {
                     if (false !== strpos($path, $sysTmpDirPath) && $path !== $sysTmpDirPath) {
                         if (is_dir($path)) {
                             if (false === $this->tryDeleteDir($path)) {

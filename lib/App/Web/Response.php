@@ -9,6 +9,7 @@ namespace Morpho\App\Web;
 use ArrayObject;
 use Morpho\App\Response as BaseResponse;
 use RuntimeException;
+
 use function header;
 use function intval;
 use function is_string;
@@ -97,7 +98,7 @@ class Response extends BaseResponse {
     }
 
     public function statusLine(): string {
-        if (null == $this->statusLine){
+        if (null == $this->statusLine) {
             $this->statusLine = $this->statusCodeToStatusLine($this->statusCode);
         }
         return $this->statusLine;

@@ -6,9 +6,9 @@
  */
 namespace Morpho\Testing;
 
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverElement;
-use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Morpho\Net\Http\Browser;
 
 /**

@@ -13,6 +13,7 @@ use Morpho\Error\HandlerManager;
 use Morpho\Error\IErrorHandler;
 use Morpho\Error\WarningException;
 use RuntimeException;
+
 use function ini_get;
 use function ini_set;
 use function trigger_error;
@@ -43,7 +44,7 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->expectException(WarningException::class, 'Undefined variable $undefVar');
         ErrorHandler::checkError(false, "Op failed");
     }
-    
+
     public function testCheckError_ThrowsRuntimeExceptionWhenErrorGetLastIsNotSet() {
         $msg = 'Op failed';
         $this->expectException(RuntimeException::class, $msg);
@@ -59,7 +60,6 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         try {
             throw new RuntimeException();
         } catch (RuntimeException $e1) {
-
         }
         $hashId1 = ErrorHandler::hashId($e1);
         $this->assertNotEmpty($hashId1);
@@ -67,7 +67,6 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         try {
             throw new RuntimeException();
         } catch (RuntimeException $e2) {
-
         }
         $hashId2 = ErrorHandler::hashId($e2);
         $this->assertNotEmpty($hashId2);

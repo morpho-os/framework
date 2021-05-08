@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\TreeRendererPlugin;
+use Morpho\Testing\TestCase;
 
 class TreeRendererPluginTest extends TestCase {
     public function dataRender() {
@@ -22,7 +22,7 @@ class TreeRendererPluginTest extends TestCase {
                     ['label' => 'b'],
                     ['label' => 'c'],
                 ],
-                 '<ul class="tree"><li class="tree__node tree__node-leaf">a</li><li class="tree__node tree__node-leaf">b</li><li class="tree__node tree__node-leaf">c</li></ul>',
+                '<ul class="tree"><li class="tree__node tree__node-leaf">a</li><li class="tree__node tree__node-leaf">b</li><li class="tree__node tree__node-leaf">c</li></ul>',
             ],
             [
                 [

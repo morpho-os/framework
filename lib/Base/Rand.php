@@ -14,7 +14,7 @@ namespace Morpho\Base;
 abstract class Rand {
     public static function randBool(): bool {
         $byte = random_bytes(1);
-        return (bool)(ord($byte) % 2);
+        return (bool) (ord($byte) % 2);
     }
 
     /**

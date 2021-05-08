@@ -6,35 +6,41 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\Testing\TestCase;
-use Morpho\App\Web\ContentNegotiator;
 use Morpho\App\Web\ContentFormat;
+use Morpho\App\Web\ContentNegotiator;
 use Morpho\App\Web\Request;
+use Morpho\Testing\TestCase;
 
 class ContentNegotiatorTest extends TestCase {
     public function dataInvoke() {
         $mediaRanges = $this->mediaRanges();
         yield [
-            $this->mkAcceptHeaderVal([
-                $mediaRanges[ContentFormat::JSON],
-                $mediaRanges[ContentFormat::HTML],
-                $mediaRanges[ContentFormat::XML],
-                $mediaRanges[ContentFormat::ANY],
-            ]),
+            $this->mkAcceptHeaderVal(
+                [
+                    $mediaRanges[ContentFormat::JSON],
+                    $mediaRanges[ContentFormat::HTML],
+                    $mediaRanges[ContentFormat::XML],
+                    $mediaRanges[ContentFormat::ANY],
+                ]
+            ),
             ContentFormat::HTML,// Default priority is choosing HTML
         ];
         yield [
-            $this->mkAcceptHeaderVal([
-                $mediaRanges[ContentFormat::ANY],
-                $mediaRanges[ContentFormat::XML],
-                $mediaRanges[ContentFormat::JSON],
-            ]),
+            $this->mkAcceptHeaderVal(
+                [
+                    $mediaRanges[ContentFormat::ANY],
+                    $mediaRanges[ContentFormat::XML],
+                    $mediaRanges[ContentFormat::JSON],
+                ]
+            ),
             ContentFormat::JSON,
         ];
         yield [
-            $this->mkAcceptHeaderVal([
-                $mediaRanges[ContentFormat::JSON],
-            ]),
+            $this->mkAcceptHeaderVal(
+                [
+                    $mediaRanges[ContentFormat::JSON],
+                ]
+            ),
             ContentFormat::JSON,
         ];
         yield [
@@ -82,8 +88,8 @@ class ContentNegotiatorTest extends TestCase {
         return [
             ContentFormat::JSON => ['application/json'],
             ContentFormat::HTML => ['text/html', 'application/xhtml+xml'],
-            ContentFormat::XML => ['application/xml;q=0.9'],
-            ContentFormat::ANY => ['*/*;q=0.8'],
+            ContentFormat::XML  => ['application/xml;q=0.9'],
+            ContentFormat::ANY  => ['*/*;q=0.8'],
         ];
     }
 }

@@ -6,13 +6,13 @@
  */
 namespace Morpho\Test\Unit\App\Web\Routing;
 
+use FastRoute\Dispatcher as IDispatcher;
 use Morpho\App\IRequest;
 use Morpho\App\IResponse;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\Caching\ICache;
 use Morpho\Ioc\IServiceManager;
 use Morpho\Testing\TestCase;
-use FastRoute\Dispatcher as IDispatcher;
 
 class FastRouterTest extends TestCase {
     public function dataRoute() {
@@ -48,7 +48,7 @@ class FastRouterTest extends TestCase {
             '/foo/bar',
             [
                 IDispatcher::METHOD_NOT_ALLOWED,
-                null
+                null,
             ],
             [
                 'this is methodNotAllowed handler',
@@ -125,15 +125,17 @@ class FastRouterTest extends TestCase {
         $serviceManager = $this->createMock(IServiceManager::class);
         $serviceManager->expects($this->any())
             ->method('conf')
-            ->willReturn([
-                'router' => [
-                    'handlers' => [
-                        'badRequest' => ['this is badRequest handler'],
-                        'notFound' => ['this is notFound handler'],
-                        'methodNotAllowed' => ['this is methodNotAllowed handler'],
+            ->willReturn(
+                [
+                    'router' => [
+                        'handlers' => [
+                            'badRequest'       => ['this is badRequest handler'],
+                            'notFound'         => ['this is notFound handler'],
+                            'methodNotAllowed' => ['this is methodNotAllowed handler'],
+                        ],
                     ],
-                ],
-            ]);
+                ]
+            );
         $cache = $this->createStub(ICache::class);
         $serviceManager->expects($this->any())
             ->method('offsetGet')

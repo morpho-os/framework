@@ -42,7 +42,7 @@ class HostNameValidator implements IHostNameValidator {
             $hostWithoutPort = \strtolower(\substr($host, 0, $endOff + 1));
         } else {
             // IPv4 or domain name
-            $hostWithoutPort = \explode(':', \strtolower((string)$host), 2)[0];
+            $hostWithoutPort = \explode(':', \strtolower((string) $host), 2)[0];
             if (\substr($hostWithoutPort, 0, 4) === 'www.' && \strlen($hostWithoutPort) > 4) {
                 $hostWithoutPort = \substr($hostWithoutPort, 4);
             }

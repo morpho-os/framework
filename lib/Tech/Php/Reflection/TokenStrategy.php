@@ -7,6 +7,7 @@
 namespace Morpho\Tech\Php\Reflection;
 
 use PhpToken;
+
 use function count;
 use function file_get_contents;
 use function in_array;
@@ -20,7 +21,7 @@ class TokenStrategy implements IDiscoverStrategy {
         }
 
         $tokens = array_values(
-            array_filter(PhpToken::tokenize($contents), fn ($token) => !$token->isIgnorable())
+            array_filter(PhpToken::tokenize($contents), fn($token) => !$token->isIgnorable())
         );
 
         $classTypes = [];

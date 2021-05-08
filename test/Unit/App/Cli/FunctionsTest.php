@@ -9,17 +9,16 @@ namespace Morpho\Test\Unit\App\Cli;
 use ArrayObject;
 use Morpho\Base\Env;
 use Morpho\Base\InvalidConfException;
-use RuntimeException;
-use function Morpho\App\Cli\{
-    arg, envVarsStr, sh, escapeArg, showOk, stylize
-};
 use Morpho\Testing\TestCase;
+use RuntimeException;
+
 use function basename;
 use function escapeshellarg;
 use function fclose;
 use function file_put_contents;
 use function fwrite;
 use function md5;
+use function Morpho\App\Cli\{arg, envVarsStr, escapeArg, sh, showOk, stylize};
 use function ob_get_clean;
 use function ob_start;
 use function proc_close;
@@ -50,7 +49,9 @@ class FunctionsTest extends TestCase {
 
         $tmpFilePath = $this->createTmpFile();
         $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
-        file_put_contents($tmpFilePath, <<<OUT
+        file_put_contents(
+            $tmpFilePath,
+            <<<OUT
 <?php
 require "$autoloadFilePath";
 echo \\Morpho\\App\\Cli\\$fn("$error");
@@ -96,8 +97,8 @@ OUT
         $this->assertEquals(" 'foo' 'bar'", arg($gen()));
         $this->assertSame(" 'foo' 'bar'", arg(new ArrayObject(['foo', 'bar'])));
         $gen1 = function () {
-             yield 1;
-             yield 2;
+            yield 1;
+            yield 2;
         };
         $this->assertSame(" '1' '2'", arg($gen1()));
     }
@@ -118,13 +119,13 @@ OUT
      * @dataProvider dataShell_CaptureAndShowConfOptions
      */
     public function testShell_CaptureAndShowConfOptions(bool $capture, bool $show) {
-        $cmd = 'ls '  . escapeshellarg(__DIR__);
+        $cmd = 'ls ' . escapeshellarg(__DIR__);
         ob_start();
         $result = sh($cmd, ['capture' => $capture, 'show' => $show]);
         $this->assertStringContainsString($show ? basename(__FILE__) : '', ob_get_clean());
         $this->assertEquals(0, $result->exitCode());
         $this->assertFalse($result->isError());
-        $this->assertStringContainsString($capture ? basename(__FILE__) : '', (string)$result);
+        $this->assertStringContainsString($capture ? basename(__FILE__) : '', (string) $result);
     }
 
     public function testShell_CheckExitConfParam() {
@@ -168,7 +169,9 @@ OUT
         $tmpFilePath = $this->createTmpFile();
         $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
         $question = "Do you want to play";
-        file_put_contents($tmpFilePath, <<<OUT
+        file_put_contents(
+            $tmpFilePath,
+            <<<OUT
 <?php
 require "$autoloadFilePath";
 echo json_encode(\\Morpho\\App\\Cli\\askYesNo("$question"));

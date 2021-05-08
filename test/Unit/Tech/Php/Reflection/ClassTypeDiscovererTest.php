@@ -6,10 +6,11 @@
  */
 namespace Morpho\Test\Unit\Tech\Php\Reflection;
 
+use Morpho\Tech\Php\Reflection\ClassTypeDiscoverer;
 use Morpho\Tech\Php\Reflection\IDiscoverStrategy;
 use Morpho\Tech\Php\Reflection\TokenStrategy;
 use Morpho\Testing\TestCase;
-use Morpho\Tech\Php\Reflection\ClassTypeDiscoverer;
+
 use function get_class;
 use function str_replace;
 
@@ -76,33 +77,36 @@ class ClassTypeDiscovererTest extends TestCase {
 
     public function testFileDependsFromClassTypes() {
         $classTypes = ClassTypeDiscoverer::fileDependsFromClassTypes($this->getTestDirPath() . '/ClassTypeDeps.php');
-        $this->assertEquals([
-            self::class . '\A_ClassExtends',
-            self::class . '\B_ClassImplementsA',
-            self::class . '\B_ClassImplementsB',
-            self::class . '\C_ClassUsesTrait',
-            self::class . '\D_InstantiatesNewObject',
-            self::class . '\E_CallsMethodStatically',
-            self::class . '\F_ReadsStaticProperty',
-            self::class . '\G_WritesStaticProperty',
-            self::class . '\H_CatchesExceptionA',
-            self::class . '\H_CatchesExceptionB',
-            self::class . '\I_AppliesInstanceOfOperator',
-            self::class . '\J_ReadsClassConstant',
-            self::class . '\K_MethodDefinitionHasParameterWithType',
-            self::class . '\L_MethodDefinitionHasReturnType',
-            self::class . '\M_FunctionDefinitionHasParameterWithType',
-            self::class . '\N_FunctionDefinitionHasReturnType',
-            self::class . '\O_ConstructorDefinitionHasParameterWithType',
-            self::class . '\P_ExtendsInterfaceA',
-            self::class . '\P_ExtendsInterfaceB',
-            self::class . '\Q_TraitUsesTrait',
-            self::class . '\R_AnonymousClassExtends',
-            self::class . '\S_AnonymousClassImplementsA',
-            self::class . '\S_AnonymousClassImplementsB',
-            self::class . '\T_AnonymousFunctionDefinitionHasParameterWithType',
-            self::class . '\U_AnonymousFunctionDefinitionHasReturnType',
-        ], $classTypes);
+        $this->assertEquals(
+            [
+                self::class . '\A_ClassExtends',
+                self::class . '\B_ClassImplementsA',
+                self::class . '\B_ClassImplementsB',
+                self::class . '\C_ClassUsesTrait',
+                self::class . '\D_InstantiatesNewObject',
+                self::class . '\E_CallsMethodStatically',
+                self::class . '\F_ReadsStaticProperty',
+                self::class . '\G_WritesStaticProperty',
+                self::class . '\H_CatchesExceptionA',
+                self::class . '\H_CatchesExceptionB',
+                self::class . '\I_AppliesInstanceOfOperator',
+                self::class . '\J_ReadsClassConstant',
+                self::class . '\K_MethodDefinitionHasParameterWithType',
+                self::class . '\L_MethodDefinitionHasReturnType',
+                self::class . '\M_FunctionDefinitionHasParameterWithType',
+                self::class . '\N_FunctionDefinitionHasReturnType',
+                self::class . '\O_ConstructorDefinitionHasParameterWithType',
+                self::class . '\P_ExtendsInterfaceA',
+                self::class . '\P_ExtendsInterfaceB',
+                self::class . '\Q_TraitUsesTrait',
+                self::class . '\R_AnonymousClassExtends',
+                self::class . '\S_AnonymousClassImplementsA',
+                self::class . '\S_AnonymousClassImplementsB',
+                self::class . '\T_AnonymousFunctionDefinitionHasParameterWithType',
+                self::class . '\U_AnonymousFunctionDefinitionHasReturnType',
+            ],
+            $classTypes
+        );
     }
 
     public function testFileDependsFromClassTypes_WithoutStdClassesArg() {

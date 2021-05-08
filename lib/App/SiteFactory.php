@@ -8,6 +8,7 @@ namespace Morpho\App;
 
 use Morpho\Base\IFn;
 use RuntimeException;
+
 use function is_file;
 use function Morpho\Base\merge;
 
@@ -41,7 +42,7 @@ class SiteFactory implements IFn {
         $extendedSiteConf = $this->loadConfFile($siteModuleConf['paths']['confFilePath']);
         $siteModuleName = $siteModuleConf['name'];
         unset($siteModuleConf['name']);
-        return merge([$siteModuleName => $siteModuleConf], $extendedSiteConf) ;
+        return merge([$siteModuleName => $siteModuleConf], $extendedSiteConf);
     }
 
     protected function loadConfFile(string $filePath): array {

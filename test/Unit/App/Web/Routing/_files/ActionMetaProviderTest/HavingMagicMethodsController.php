@@ -33,7 +33,6 @@ class HavingMagicMethodsController {
     }
 
     public function playMe() {
-
     }
 
     public function __set(string $name, mixed $value): void {
@@ -43,7 +42,6 @@ class HavingMagicMethodsController {
     }
 
     public function _mustBeSkipped() {
-
     }
 
     public function __sleep(): array {
@@ -59,6 +57,5 @@ class HavingMagicMethodsController {
     }
 
     public function __toString(): string {
-
     }
 }

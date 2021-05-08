@@ -8,14 +8,12 @@ namespace Morpho\Test\Unit\Compiler;
 
 use ArrayObject;
 use Morpho\Base\Pipe;
+use Morpho\Compiler\Backend\IBackend;
+use Morpho\Compiler\Backend\IInterpreter;
 use Morpho\Compiler\Compiler;
-use Morpho\Compiler\IBackend;
 use Morpho\Compiler\ICompiler;
 use Morpho\Compiler\ICompilerPhase;
-use Morpho\Compiler\IInterpreter;
 use Morpho\Compiler\IMidend;
-use Morpho\Compiler\IProgram;
-use Morpho\Compiler\ITranslationUnit;
 use Morpho\Compiler\ITranslator;
 
 class CompilerTest extends ConfigurablePipeTest {
@@ -24,19 +22,27 @@ class CompilerTest extends ConfigurablePipeTest {
         $this->assertInstanceOf(ITranslator::class, $compiler);
         $this->assertInstanceOf(ICompiler::class, $compiler);
         $this->assertInstanceOf(Pipe::class, $compiler);
-        $this->assertInstanceOf(ICompilerPhase::class, new class implements IMidend {
-            public function __invoke(mixed $val): mixed {
+        $this->assertInstanceOf(
+            ICompilerPhase::class,
+            new class implements IMidend {
+                public function __invoke(mixed $val): mixed {
+                }
             }
-        });
-        $this->assertInstanceOf(ICompilerPhase::class, new class implements IBackend {
-            public function __invoke(mixed $val): mixed {
+        );
+        $this->assertInstanceOf(
+            ICompilerPhase::class,
+            new class implements IBackend {
+                public function __invoke(mixed $val): mixed {
+                }
             }
-        });
-        $this->assertInstanceOf(ITranslator::class, new class implements IInterpreter {
-            public function __invoke(mixed $val): mixed {
+        );
+        $this->assertInstanceOf(
+            ITranslator::class,
+            new class implements IInterpreter {
+                public function __invoke(mixed $val): mixed {
+                }
             }
-        });
-        $this->assertInstanceOf(ITranslationUnit::class, new class implements IProgram {});
+        );
     }
 
     public function testCustomPhasesViaConstructorConf() {
@@ -56,8 +62,8 @@ class CompilerTest extends ConfigurablePipeTest {
 
         $conf = [
             'frontend' => $frontend,
-            'midend' => $midend,
-            'backend' => $backend,
+            'midend'   => $midend,
+            'backend'  => $backend,
         ];
         $compiler = new Compiler($conf);
 
@@ -66,9 +72,11 @@ class CompilerTest extends ConfigurablePipeTest {
         $this->assertSame($backend, $compiler->backend());
 
         $source = '';
-        $context = new ArrayObject([
-            'source' => $source,
-        ]);
+        $context = new ArrayObject(
+            [
+                'source' => $source,
+            ]
+        );
 
         $result = $compiler($context);
 
@@ -95,7 +103,7 @@ class CompilerTest extends ConfigurablePipeTest {
         $compiler = new Compiler($this->mkCompilerConf());
         $oldPhase = $compiler->$method();
         $this->assertIsCallable($oldPhase);
-        $newPhase = fn () => null;
+        $newPhase = fn() => null;
         $this->assertSame($compiler, $compiler->{'set' . $method}($newPhase));
         $this->assertSame($newPhase, $compiler->$method());
         $this->assertNotSame($newPhase, $oldPhase);
@@ -122,9 +130,9 @@ class CompilerTest extends ConfigurablePipeTest {
 
     private function mkCompilerConf(): array {
         return [
-            'frontend' => fn ($v) => $v,
-            'midend' => fn ($v) => $v,
-            'backend' => fn ($v) => $v,
+            'frontend' => fn($v) => $v,
+            'midend'   => fn($v) => $v,
+            'backend'  => fn($v) => $v,
         ];
     }
 }

@@ -7,6 +7,7 @@
 namespace Morpho\Tech\Php\Reflection;
 
 use Morpho\Base\IFn;
+
 use function array_diff;
 use function array_values;
 
@@ -179,7 +180,7 @@ class StdClassTypeFilter implements IFn {
         'php_user_filter',
         'stdClass',
     ];
-    
+
     public function __invoke(mixed $classTypes): array {
         return array_values(
             array_diff(

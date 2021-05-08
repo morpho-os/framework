@@ -10,20 +10,20 @@ class VfsFileOpenMode {
     private $mode;
 
     // Taken from https://github.com/torvalds/linux/blob/master/include/uapi/asm-generic/fcntl.h
-    private const O_RDONLY   = 00000000;
-    private const O_WRONLY   = 00000001;
-    private const O_RDWR     = 00000002;
-    private const O_CREAT    = 00000100;
-    private const O_APPEND   = 00002000;
-/*    private const O_CLOEXEC  = 02000000;
-    private const O_EXCL     = 00000200;
-    private const O_NONBLOCK = 00004000;*/
-    private const O_TRUNC    = 00001000;
+    private const O_RDONLY = 00000000;
+    private const O_WRONLY = 00000001;
+    private const O_RDWR = 00000002;
+    private const O_CREAT = 00000100;
+    private const O_APPEND = 00002000;
+    /*    private const O_CLOEXEC  = 02000000;
+        private const O_EXCL     = 00000200;
+        private const O_NONBLOCK = 00004000;*/
+    private const O_TRUNC = 00001000;
 
     public function __construct(string $mode) {
         $this->mode = $this->parseMode($mode);
     }
-    
+
     public function create(): bool {
         return (bool) ($this->mode & self::O_CREAT);
     }
@@ -35,11 +35,11 @@ class VfsFileOpenMode {
     public function readOnly(): bool {
         return $this->mode === self::O_RDONLY;
     }
-    
+
     public function truncate(): bool {
         return (bool) ($this->mode & self::O_TRUNC);
     }
-    
+
     public function writeOnly(): bool {
         return (bool) ($this->mode & self::O_WRONLY);
     }
@@ -86,8 +86,10 @@ class VfsFileOpenMode {
 
         if (\strchr($mode, '+')) {
             $flags |= self::O_RDWR;
-        } else if ($flags) {
-            $flags |= self::O_WRONLY;
+        } else {
+            if ($flags) {
+                $flags |= self::O_WRONLY;
+            }
         }
         /*else {
             $flags |= self::O_RDONLY;
@@ -103,12 +105,12 @@ class VfsFileOpenMode {
             $flags |= self::O_NONBLOCK;
         }
         */
-/*
-        if (strchr($mode, 't')) {
-            $flags |= self::O_TEXT;
-        } else {
-            $flags |= self::O_BINARY;
-        }*/
+        /*
+                if (strchr($mode, 't')) {
+                    $flags |= self::O_TEXT;
+                } else {
+                    $flags |= self::O_BINARY;
+                }*/
 
         return $flags;
     }

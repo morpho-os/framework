@@ -6,11 +6,11 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\Authority;
 use Morpho\App\Web\Uri\Path;
 use Morpho\App\Web\Uri\Query;
 use Morpho\App\Web\Uri\Uri;
+use Morpho\Testing\TestCase;
 
 class UriTest extends TestCase {
     use TUriParserDataProvider;
@@ -20,15 +20,15 @@ class UriTest extends TestCase {
         $uriStr = "схема://юзер:пароль@хост:1234/базовый/путь/тест?один=единица&два=двойка#фрагмент";
         $this->assertSame(
             \rawurlencode('схема')
-                . '://'
-                . \rawurlencode('юзер') . ':' . \rawurlencode('пароль')
-                . '@'
-                . \rawurlencode('хост')
-                . ':1234'
-                . \str_replace('%2F', '/', \rawurlencode('/базовый/путь/тест'))
-                . '?'
-                . \rawurlencode('один') . '=' . \rawurlencode('единица') . '&' . \rawurlencode('два') . '=' . \rawurlencode('двойка')
-                . '#' . \rawurlencode('фрагмент'),
+            . '://'
+            . \rawurlencode('юзер') . ':' . \rawurlencode('пароль')
+            . '@'
+            . \rawurlencode('хост')
+            . ':1234'
+            . \str_replace('%2F', '/', \rawurlencode('/базовый/путь/тест'))
+            . '?'
+            . \rawurlencode('один') . '=' . \rawurlencode('единица') . '&' . \rawurlencode('два') . '=' . \rawurlencode('двойка')
+            . '#' . \rawurlencode('фрагмент'),
             (new Uri($uriStr))->toStr(null, true)
         );
     }
@@ -124,7 +124,7 @@ class UriTest extends TestCase {
         $uri = new Uri();
         $this->assertSame($uri, Uri::parse($uri));
     }
-    
+
     public function dataToStr() {
         foreach ($this->dataParse() as $sample) {
             yield [$sample[0]];
@@ -138,7 +138,7 @@ class UriTest extends TestCase {
         $uri = new Uri($uriStr);
         $this->assertSame($uriStr, $uri->toStr(null, false));
     }
-    
+
     public function dataResolveRelUri_NormalExamples() {
         yield ['g:h', 'g:h'];
         yield ['g', 'http://a/b/c/g'];
@@ -174,7 +174,7 @@ class UriTest extends TestCase {
         $uri = Uri::resolveRelUri('http://a/b/c/d;p?q', $relUri);
         $this->assertSame($expected, $uri->toStr(null, false));
     }
-    
+
     public function dataResolveRelUri_AbnormalExamples() {
         yield ['../../../g', 'http://a/g'];
         yield ['../../../../g', 'http://a/g'];

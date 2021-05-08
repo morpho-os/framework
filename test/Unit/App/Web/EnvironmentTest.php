@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Env;
+use Morpho\Testing\TestCase;
 
 class EnvironmentTest extends TestCase {
     public function dataHttpVersion() {

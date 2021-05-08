@@ -65,7 +65,8 @@ class DbClientTest extends DbTestCase {
     }
 
     public function testLastInsertId_NonAutoincrementCol() {
-        $this->db->eval(<<<SQL
+        $this->db->eval(
+            <<<SQL
 CREATE TABLE foo (
     bar varchar(255)
 )
@@ -78,7 +79,8 @@ SQL
     }
 
     public function testLastInsertId_AutoincrementCol() {
-        $this->db->eval(<<<SQL
+        $this->db->eval(
+            <<<SQL
 CREATE TABLE foo (
     baz int PRIMARY KEY AUTO_INCREMENT,
     bar varchar(255)

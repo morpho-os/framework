@@ -18,7 +18,9 @@ class ArrIterator extends BaseArrayIt {
     }
 
     public function clear(): void {
-        for ($this->rewind(); $this->valid(); $this->offsetUnset($this->key()));
+        for ($this->rewind(); $this->valid(); $this->offsetUnset($this->key())) {
+            ;
+        }
     }
 
     public function isEmpty(): bool {

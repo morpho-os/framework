@@ -12,11 +12,11 @@ class DeclareStmtManager {
     public const AFTER_FIRST_MULTI_COMMENT = 2;
 
     private const TOKENS = [
-        'openTag' => '~^<\?php(?:[\040\t]|\n)?~siA',
-        'multiComment' => '~/\*.*?\*/~siA',
+        'openTag'       => '~^<\?php(?:[\040\t]|\n)?~siA',
+        'multiComment'  => '~/\*.*?\*/~siA',
         'singleComment' => '~//[^\n\r]*~siA',
-        'declareStmt' => '~declare\s*\(strict_types\s*=\s*[01]\s*\)\s*;~siA',
-        'whitespace' => '~\s+~siA',
+        'declareStmt'   => '~declare\s*\(strict_types\s*=\s*[01]\s*\)\s*;~siA',
+        'whitespace'    => '~\s+~siA',
     ];
 
     private const OPEN_TAG_NODE = 'openTag';
@@ -120,8 +120,8 @@ class DeclareStmtManager {
                     break;
                 case self::MULTI_COMMENT_NODE:
                     if (!$added && $position === self::AFTER_FIRST_MULTI_COMMENT) {
-                         $code .= \rtrim($node['value']) . "\n$declareStmt";
-                         $added = true;
+                        $code .= \rtrim($node['value']) . "\n$declareStmt";
+                        $added = true;
                     } else {
                         $code .= $node['value'];
                     }
@@ -196,11 +196,13 @@ class DeclareStmtManager {
     }
 
     private function mkNode(string $value, string $type): \ArrayObject {
-        return new \ArrayObject([
-            'value' => $value,
-            'type' => $type,
-            'offset' => $this->offset,
-        ]);
+        return new \ArrayObject(
+            [
+                'value'  => $value,
+                'type'   => $type,
+                'offset' => $this->offset,
+            ]
+        );
     }
 
     private function emit(\ArrayObject $node): void {

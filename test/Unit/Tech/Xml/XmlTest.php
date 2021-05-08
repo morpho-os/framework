@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Tech\Xml;
 
-use Morpho\Testing\TestCase;
 use Morpho\Tech\Xml\Xml;
+use Morpho\Testing\TestCase;
 
 class XmlTest extends TestCase {
     public function testArrayToDomDoc() {

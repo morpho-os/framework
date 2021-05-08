@@ -7,15 +7,15 @@
 namespace Morpho\Net\Http;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverBy as By;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class Browser extends RemoteWebDriver {
     public const WEB_DRIVER_URI = 'http://localhost:4444';
-    protected const WAIT_TIMEOUT  = 20;    // sec
+    protected const WAIT_TIMEOUT = 20;    // sec
     protected const WAIT_INTERVAL = 1000;  // ms
     protected const CONNECTION_TIMEOUT = 30000; // ms, corresponds to CURLOPT_CONNECTTIMEOUT_MS
-    protected const REQUEST_TIMEOUT    = 30000; // ms, corresponds to CURLOPT_TIMEOUT_MS
+    protected const REQUEST_TIMEOUT = 30000; // ms, corresponds to CURLOPT_TIMEOUT_MS
 
     /**
      * Timeout in sec, how long to wait() for condition

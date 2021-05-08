@@ -7,6 +7,7 @@
 namespace Morpho\Caching;
 
 use RuntimeException;
+
 use function fclose;
 use function fgets;
 use function fopen;
@@ -39,7 +40,7 @@ class TextFileCache extends FileCache {
         }
         try {
             if (false !== ($line = fgets($handle))) {
-                $lifetime = (int)$line;
+                $lifetime = (int) $line;
             }
         } finally {
             fclose($handle);
@@ -60,7 +61,7 @@ class TextFileCache extends FileCache {
         }
         try {
             if (false !== ($line = fgets($handle))) {
-                $lifetime = (int)$line;
+                $lifetime = (int) $line;
             }
             if ($lifetime !== 0 && $lifetime < time()) {
                 fclose($handle);

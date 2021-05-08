@@ -6,13 +6,13 @@
  */
 namespace Morpho\Identity;
 
-use Morpho\Base\NotImplementedException;
 use Morpho\App\Web\Session\Session;
+use Morpho\Base\NotImplementedException;
 
 class UserManager {
-    public const LOGIN_NOT_FOUND_ERROR      = 'loginNotFound';
+    public const LOGIN_NOT_FOUND_ERROR = 'loginNotFound';
     public const PASSWORDS_DONT_MATCH_ERROR = 'passwordsDontMatch';
-    public const EMPTY_LOGIN_OR_PASSWORD    = 'emptyPassword';
+    public const EMPTY_LOGIN_OR_PASSWORD = 'emptyPassword';
 
     protected Session $session;
 
@@ -41,7 +41,7 @@ class UserManager {
     }
 
     public function isUserRegistered(array $user): bool {
-        return (bool)$this->repo->findUserByLogin($user['login']);
+        return (bool) $this->repo->findUserByLogin($user['login']);
     }
 
     /**

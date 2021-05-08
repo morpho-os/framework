@@ -7,6 +7,7 @@
 namespace Morpho\Caching;
 
 use RuntimeException;
+
 use function is_array;
 use function is_scalar;
 use function time;

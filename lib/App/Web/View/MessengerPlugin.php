@@ -6,12 +6,9 @@
  */
 namespace Morpho\App\Web\View;
 
-use function Morpho\Base\{
-    dasherize, format
-};
-use Morpho\Ioc\{
-    IServiceManager, IHasServiceManager
-};
+use Morpho\Ioc\{IHasServiceManager, IServiceManager};
+
+use function Morpho\Base\{dasherize, format};
 
 class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     private $serviceManager;
@@ -58,7 +55,9 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         $text = format(
             \nl2br(PhpTemplateEngine::e($message['text'])),
             $message['args'],
-            function ($arg) { return $arg; }
+            function ($arg) {
+                return $arg;
+            }
         );
         $cssClass = $this->messageTypeToCssClass($type);
         return '<div class="alert alert-' . $cssClass . ' alert-dismissible fade show" role="alert">' . $text . ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';

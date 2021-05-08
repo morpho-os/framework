@@ -8,12 +8,14 @@ namespace Morpho\Test\Manual;
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-set_error_handler(function ($severity, $message, $filePath, $lineNo) {
-    if (!(error_reporting() & $severity)) {
-        return;
+set_error_handler(
+    function ($severity, $message, $filePath, $lineNo) {
+        if (!(error_reporting() & $severity)) {
+            return;
+        }
+        throw new \ErrorException($message, 0, $severity, $filePath, $lineNo);
     }
-    throw new \ErrorException($message, 0, $severity, $filePath, $lineNo);
-});
+);
 if (\ini_get('zend.assertions') !== '1') {
     throw new \RuntimeException("The 'zend.assertions' ini parameter must be set to 1 for expectations");
 }

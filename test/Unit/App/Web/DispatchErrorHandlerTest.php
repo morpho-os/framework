@@ -7,10 +7,10 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Monolog\Logger;
-use Morpho\Ioc\ServiceManager;
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\DispatchErrorHandler;
 use Morpho\App\Web\Request;
+use Morpho\Ioc\ServiceManager;
+use Morpho\Testing\TestCase;
 
 class DispatchErrorHandlerTest extends TestCase {
     public function testHandleException_ThrowsExceptionWhenTheSameErrorOccursTwice() {

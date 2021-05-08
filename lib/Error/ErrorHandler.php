@@ -9,6 +9,7 @@ namespace Morpho\Error;
 use Morpho\Base\Env;
 use RuntimeException;
 use Throwable;
+
 use function error_clear_last;
 use function error_get_last;
 use function error_reporting;

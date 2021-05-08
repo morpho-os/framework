@@ -37,9 +37,12 @@ class UpdateQueryTest extends QueryTest {
         $this->assertInstanceOf(Result::class, $result);
         $this->assertSame(1, $result->rowCount());
 
-        $this->assertSame([
-            ['name' => $modelName, 'color' => $newColor, 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
-        ], $selectRows());
+        $this->assertSame(
+            [
+                ['name' => $modelName, 'color' => $newColor, 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
+            ],
+            $selectRows()
+        );
     }
 
     public function testTableRef() {

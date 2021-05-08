@@ -11,27 +11,29 @@ use PDOStatement;
 use RuntimeException;
 use Throwable;
 use UnexpectedValueException;
+
 use function implode;
 
 /**
- * @method PDOStatement prepare($statement, array $driver_options = array())
+ * @method PDOStatement prepare($statement, array $driver_options = [])
  * @method bool beginTransaction()
  * @method bool commit()
  * @method bool rollBack()
  * @method bool setAttribute($attribute, $value)
  * @method string errorCode()
  * @method array errorInfo()
- * @method mixed getAttribute($attribute) {}
+ * @method mixed getAttribute($attribute) {
+}
  */
 abstract class DbClient implements IDbClient {
     protected PDO $conn;
 
     protected array $pdoConf = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_STATEMENT_CLASS => [__NAMESPACE__ . '\\Result', []],
-        PDO::ATTR_EMULATE_PREPARES => false,
-        PDO::ATTR_STRINGIFY_FETCHES => false,
+        PDO::ATTR_STATEMENT_CLASS    => [__NAMESPACE__ . '\\Result', []],
+        PDO::ATTR_EMULATE_PREPARES   => false,
+        PDO::ATTR_STRINGIFY_FETCHES  => false,
     ];
 
     protected string $quote;

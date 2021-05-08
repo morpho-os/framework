@@ -7,33 +7,33 @@
 namespace Morpho\G11n;
 
 class Locale {
-/*
-From locale(5):
-       *  LC_CTYPE
+    /*
+    From locale(5):
+           *  LC_CTYPE
 
-       *  LC_COLLATE
+           *  LC_COLLATE
 
-       *  LC_MESSAGES
+           *  LC_MESSAGES
 
-       *  LC_MONETARY
+           *  LC_MONETARY
 
-       *  LC_NUMERIC
+           *  LC_NUMERIC
 
-       *  LC_TIME
+           *  LC_TIME
 
-       In addition, since version 2.2, the GNU C library supports the following nonstandard categories:
+           In addition, since version 2.2, the GNU C library supports the following nonstandard categories:
 
-       *  LC_ADDRESS
+           *  LC_ADDRESS
 
-       *  LC_IDENTIFICATION
+           *  LC_IDENTIFICATION
 
-       *  LC_MEASUREMENT
+           *  LC_MEASUREMENT
 
-       *  LC_NAME
+           *  LC_NAME
 
-       *  LC_PAPER
+           *  LC_PAPER
 
-       *  LC_TELEPHONE
+           *  LC_TELEPHONE
 
- */
+     */
 }

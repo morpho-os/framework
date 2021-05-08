@@ -92,7 +92,7 @@ class ConfTest extends TestCase {
             [
                 ['foo' => 'bar'],
                 null,
-                ['foo' => 'bar']
+                ['foo' => 'bar'],
             ],
         ];
     }

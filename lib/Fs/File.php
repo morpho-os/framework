@@ -13,6 +13,7 @@ use Morpho\Base\Conf;
 use Morpho\Base\Env;
 use Morpho\Base\NotImplementedException;
 use Throwable;
+
 use function basename;
 use function clearstatcache;
 use function copy;
@@ -56,7 +57,7 @@ class File extends Entry {
                 'context'        => null,
                 'removeBom'      => true,
             ],
-            (array)$conf
+            (array) $conf
         );
 
         $content = @file_get_contents($filePath, $conf['useIncludePath']);
@@ -109,7 +110,7 @@ class File extends Entry {
         if ($filterOrConf) { // If a filter was specified, don't ignore empty lines.
             $defaultConf['skipEmptyLines'] = false;
         }
-        $conf = Conf::check($defaultConf, (array)$conf);
+        $conf = Conf::check($defaultConf, (array) $conf);
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to open the '$filePath' file for reading");
@@ -182,7 +183,7 @@ class File extends Entry {
      * Appends content to the file and returns the file path.
      */
     public static function append(string $filePath, string $content, array $conf = null): string {
-        return self::write($filePath, $content, Conf::check(['append' => true], (array)$conf));
+        return self::write($filePath, $content, Conf::check(['append' => true], (array) $conf));
     }
 
     /**
@@ -202,7 +203,7 @@ class File extends Entry {
                 'context'        => null,
                 'mode'           => Stat::FILE_MODE,
             ],
-            (array)$conf
+            (array) $conf
         );
         $flags = 0;
         if ($conf['append']) {

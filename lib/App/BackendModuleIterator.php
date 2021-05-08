@@ -8,6 +8,7 @@ namespace Morpho\App;
 
 use IteratorAggregate;
 use Morpho\Fs\File;
+
 use function is_file;
 use function trim;
 
@@ -45,10 +46,10 @@ class BackendModuleIterator implements IteratorAggregate {
         }
         $moduleName = $module['name'];
         return [
-            'name' => $moduleName,
-            'paths' => $module['paths'],
+            'name'      => $moduleName,
+            'paths'     => $module['paths'],
             'namespace' => $namespaces,
-            'weight' => 0,
+            'weight'    => 0,
         ];
     }
 }

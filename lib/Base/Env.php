@@ -7,6 +7,7 @@
 namespace Morpho\Base;
 
 use Morpho\Fs\Path;
+
 use function defined;
 use function error_reporting;
 use function in_array;
@@ -71,18 +72,26 @@ abstract class Env {
         // Basic idea found here: php.net/ini_get.
         static $map = [
             // true values:
-            'on'  => true, 'true' => true, 'yes' => true, '1' => true,
+            'on'    => true,
+            'true'  => true,
+            'yes'   => true,
+            '1'     => true,
             // false values:
-            'off' => false, 'false' => false, 'no' => false, 'none' => false, '' => false, '0' => false,
+            'off'   => false,
+            'false' => false,
+            'no'    => false,
+            'none'  => false,
+            ''      => false,
+            '0'     => false,
         ];
-        return $map[strtolower((string)$value)] ?? (bool)$value;
+        return $map[strtolower((string) $value)] ?? (bool) $value;
     }
 
     /**
      * Returns true if the ini-value looks like bool.
      */
     public static function isBoolIniVal(int|string|float|bool $value): bool {
-        return in_array(strtolower((string)$value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
+        return in_array(strtolower((string) $value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
     }
 
     public static function tmpDirPath(): string {

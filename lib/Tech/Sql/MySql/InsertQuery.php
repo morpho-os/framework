@@ -36,24 +36,24 @@ class InsertQuery extends Query {
     // todo: public funciton rows(array $rows): self {
     //}
 
-/*
-    public function insertRows(string $tableName, array $rows, array $conf = null): void {
-        $args = [];
-        $keys = null;
-        foreach ($rows as $row) {
-            if (null === $keys) {
-                $keys = array_keys($row);
+    /*
+        public function insertRows(string $tableName, array $rows, array $conf = null): void {
+            $args = [];
+            $keys = null;
+            foreach ($rows as $row) {
+                if (null === $keys) {
+                    $keys = array_keys($row);
+                }
+                $args = array_merge($args, array_values($row));
             }
-            $args = array_merge($args, array_values($row));
+            $query = $this->query();
+            $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
+            $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
+            $this->eval($sql, $args);
         }
-        $query = $this->query();
-        $valuesClause = ', (' . implode(', ', $query->positionalPlaceholders($keys)) . ')';
-        $sql = 'INSERT INTO ' . $query->quoteIdentifier($tableName) . ' (' . implode(', ', $query->quoteIdentifiers($keys)) . ') VALUES ' . ltrim(str_repeat($valuesClause, count($rows)), ', ');
-        $this->eval($sql, $args);
-    }
 
-    abstract public function insertRows(string $tableName, array $rows): void;
-*/
+        abstract public function insertRows(string $tableName, array $rows): void;
+    */
     public function sql(): string {
         if (count($this->rows) > 1) {
             throw new NotImplementedException("Inserting > 1 rows in one query is not implemented yet");

@@ -2,11 +2,12 @@
 namespace Morpho\App\Web;
 
 use Closure;
+use Morpho\Error\ErrorHandler as BaseErrorHandler;
 use Throwable;
+
 use function header;
 use function headers_sent;
 use function Morpho\Base\e;
-use Morpho\Error\ErrorHandler as BaseErrorHandler;
 use function ob_end_clean;
 use function ob_get_level;
 
@@ -23,13 +24,14 @@ class ErrorHandler extends BaseErrorHandler {
     protected function mkListener(): Closure {
         return function (Throwable $e) {
             $statusLine = null;
-/*            if ($e instanceof NotFoundException) {
-                $statusLine = Environment::httpVersion() . ' 404 Not Found';
-                $message = "The requested resource was not found";
-            } elseif ($e instanceof AccessDeniedException) {
-                $statusLine = Environment::httpVersion() . ' 403 Forbidden';
-                $message = "You don't have access to the requested resource";
-            } else*/if ($e instanceof BadRequestException) {
+            /*            if ($e instanceof NotFoundException) {
+                            $statusLine = Environment::httpVersion() . ' 404 Not Found';
+                            $message = "The requested resource was not found";
+                        } elseif ($e instanceof AccessDeniedException) {
+                            $statusLine = Environment::httpVersion() . ' 403 Forbidden';
+                            $message = "You don't have access to the requested resource";
+                        } else*/
+            if ($e instanceof BadRequestException) {
                 $statusLine = Env::httpVersion() . ' 400 Bad Request';
                 $message = "Bad request, please contact site's support";
             } else {

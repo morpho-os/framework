@@ -29,14 +29,16 @@ class PipeTest extends TestCase {
 
     public function testIterator() {
         $phases = [
-            0 => fn () => null,
-            1 => fn () => null,
+            0 => fn() => null,
+            1 => fn() => null,
         ];
         $pipe = new class ($phases) extends Pipe {
             private array $phases;
+
             public function __construct($phases) {
                 $this->phases = $phases;
             }
+
             public function current(): callable {
                 return $this->phases[$this->index];
             }

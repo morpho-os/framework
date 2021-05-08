@@ -8,8 +8,8 @@ namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\App\IResponse;
 use Morpho\App\Web\IRequest;
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\UriProcessor;
+use Morpho\Testing\TestCase;
 
 class UriProcessorTest extends TestCase {
     public function dataProcessUrisInTags() {
@@ -54,7 +54,7 @@ class UriProcessorTest extends TestCase {
             yield [
                 $basePath,
                 '<link href="http://host/css/test1.css">',
-                '<link href="http://host/css/test1.css">'
+                '<link href="http://host/css/test1.css">',
             ];
             yield [
                 $basePath,
@@ -152,6 +152,7 @@ class UriProcessorTest extends TestCase {
     public function testProcessUrisInTags(string $basePath, $expected, $tag) {
         $request = new class ($basePath) extends \ArrayObject implements IRequest {
             private $baseUriPath;
+
             public function __construct($baseUriPath) {
                 parent::__construct();
                 $this->baseUriPath = $baseUriPath;
@@ -161,6 +162,7 @@ class UriProcessorTest extends TestCase {
                 $mkUri = function ($uri) {
                     return new class ($uri) {
                         private $uri;
+
                         public function __construct($uri) {
                             $this->uri = $uri;
                         }

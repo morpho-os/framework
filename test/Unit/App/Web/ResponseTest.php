@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Env;
 use Morpho\App\Web\Response;
+use Morpho\Testing\TestCase;
 
 class ResponseTest extends TestCase {
     /**
@@ -57,7 +57,7 @@ class ResponseTest extends TestCase {
         $headers = $this->response->headers();
         $this->assertInstanceOf(\ArrayObject::class, $headers);
         $headersToSet = [
-            'Content-Type' => 'application/pdf',
+            'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="sample.pdf"',
         ];
         $headers->exchangeArray($headersToSet);
@@ -70,31 +70,40 @@ class ResponseTest extends TestCase {
 
     public function dataStatusCodeToStatusLine() {
         yield [
-            200, 'OK'
+            200,
+            'OK',
         ];
         yield [
-            302, 'Found',
+            302,
+            'Found',
         ];
         yield [
-            304, 'Not Modified',
+            304,
+            'Not Modified',
         ];
         yield [
-            400, 'Bad Request',
+            400,
+            'Bad Request',
         ];
         yield [
-            403, 'Forbidden',
+            403,
+            'Forbidden',
         ];
         yield [
-            404, 'Not Found',
+            404,
+            'Not Found',
         ];
         yield [
-            500, 'Internal Server Error',
+            500,
+            'Internal Server Error',
         ];
         yield [
-            201, 'Created',
+            201,
+            'Created',
         ];
         yield [
-            144, 'Unassigned',
+            144,
+            'Unassigned',
         ];
     }
 
@@ -112,6 +121,7 @@ class ResponseTest extends TestCase {
     public function testSend() {
         $response = new class extends Response {
             public $called = [];
+
             protected function sendHeader(string $value): void {
                 $this->called[] = [__FUNCTION__, \func_get_args()];
             }
@@ -119,9 +129,11 @@ class ResponseTest extends TestCase {
         $body = 'Such page does not exist';
         $response->setStatusCode(404);
         $response->setBody($body);
-        $response->headers()->exchangeArray([
-            'Location' => 'http://example.com',
-        ]);
+        $response->headers()->exchangeArray(
+            [
+                'Location' => 'http://example.com',
+            ]
+        );
         \ob_start();
         $response->send();
         $this->assertSame($body, \ob_get_clean());

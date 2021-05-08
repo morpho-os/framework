@@ -26,7 +26,7 @@ class SelectQueryTest extends QueryTest {
         ];
         yield [
             'SELECT `p`.*',
-            ['p.*']
+            ['p.*'],
         ];
         yield [
             "SELECT `p`.*, 'foo' AS type",
@@ -78,14 +78,17 @@ class SelectQueryTest extends QueryTest {
             ->having('MAX(tL.endedAt)')
             ->orderBy('t.id')
             ->limit($numOfRows, $offset);
-        $this->assertSqlEquals("SELECT $columns
+        $this->assertSqlEquals(
+            "SELECT $columns
             FROM `task` AS `t`
             LEFT JOIN $join
             WHERE `t`.`id` = '123'
             GROUP BY `t`.`id`
             HAVING MAX(tL.endedAt)
             ORDER BY `t`.`id`
-            LIMIT $offset, $numOfRows", $sql);
+            LIMIT $offset, $numOfRows",
+            $sql
+        );
     }
 
     public function testOnlyOrderBy_ExprArg() {
@@ -108,7 +111,7 @@ class SelectQueryTest extends QueryTest {
             ->columns($this->query->expr($columns));
         $joinToMethod = [
             'INNER' => 'innerJoin',
-            'LEFT' => 'leftJoin',
+            'LEFT'  => 'leftJoin',
             'RIGHT' => 'rightJoin',
         ];
         $method = $joinToMethod[$joinType];

@@ -78,18 +78,18 @@ class ClassTypeAutoloader extends Autoloader {
     public function addPrefixToDirPathMappingPsr0(string $prefix, $paths, bool $prepend = false): self {
         $first = $prefix[0];
         if (!isset($this->prefixesPsr0[$first][$prefix])) {
-            $this->prefixesPsr0[$first][$prefix] = (array)$paths;
+            $this->prefixesPsr0[$first][$prefix] = (array) $paths;
         } else {
             $this->prefixesPsr0[$first][$prefix] = $prepend
-                ? \array_merge((array)$paths, $this->prefixesPsr0[$first][$prefix])
-                : \array_merge($this->prefixesPsr0[$first][$prefix], (array)$paths);
+                ? \array_merge((array) $paths, $this->prefixesPsr0[$first][$prefix])
+                : \array_merge($this->prefixesPsr0[$first][$prefix], (array) $paths);
         }
         return $this;
     }
 
     public function setPrefixToDirPathMappingPsr0(string $prefix, $paths): self {
         $first = $prefix[0];
-        $this->prefixesPsr0[$first][$prefix] = (array)$paths;
+        $this->prefixesPsr0[$first][$prefix] = (array) $paths;
         return $this;
     }
 
@@ -105,8 +105,8 @@ class ClassTypeAutoloader extends Autoloader {
             $this->setPrefixToDirPathMappingPsr4($prefix, $paths);
         } else {
             $this->prefixDirsPsr4[$prefix] = $prepend
-                ? \array_merge((array)$paths, $this->prefixDirsPsr4[$prefix])
-                : \array_merge($this->prefixDirsPsr4[$prefix], (array)$paths);
+                ? \array_merge((array) $paths, $this->prefixDirsPsr4[$prefix])
+                : \array_merge($this->prefixDirsPsr4[$prefix], (array) $paths);
         }
         return $this;
     }
@@ -117,7 +117,7 @@ class ClassTypeAutoloader extends Autoloader {
             throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
         }
         $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
-        $this->prefixDirsPsr4[$prefix] = (array)$paths;
+        $this->prefixDirsPsr4[$prefix] = (array) $paths;
         return $this;
     }
 

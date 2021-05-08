@@ -10,6 +10,7 @@ use DateInterval;
 use DateTime;
 use InvalidArgumentException;
 use Traversable;
+
 use function array_fill_keys;
 use function array_merge;
 use function is_int;
@@ -19,16 +20,17 @@ use function is_int;
  * For more information, see <http://www.doctrine-project.org>.
  * Copyright (c) 2006-2015 Doctrine Project
  */
+
 /**
  * This class based on https://github.com/Roave/DoctrineSimpleCache/blob/master/src/SimpleCacheAdapter.php
  * The MIT License (MIT)
  * Copyright (c) 2017 Roave, LLC.
  */
 abstract class Cache implements ICache {
-    protected const STATS_HITS             = 'hits';
-    protected const STATS_MISSES           = 'misses';
-    protected const STATS_UPTIME           = 'uptime';
-    protected const STATS_MEMORY_USAGE     = 'memory_usage';
+    protected const STATS_HITS = 'hits';
+    protected const STATS_MISSES = 'misses';
+    protected const STATS_UPTIME = 'uptime';
+    protected const STATS_MEMORY_USAGE = 'memory_usage';
     protected const STATS_MEMORY_AVAILABLE = 'memory_available';
 
     public function get(string $key, mixed $default = null): mixed {

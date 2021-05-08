@@ -26,9 +26,12 @@ class EventManagerTest extends TestCase {
         $eventManager->on($eventName, $handler1);
         $eventManager->on($eventName, $handler2);
         $eventManager->on($eventName, $handler3);
-        $eventManager->on('should-not-call', function () {
-            $this->fail('Should not be called');
-        });
+        $eventManager->on(
+            'should-not-call',
+            function () {
+                $this->fail('Should not be called');
+            }
+        );
 
         $event = new Event($eventName, ['foo' => 'bar']);
 
@@ -40,9 +43,12 @@ class EventManagerTest extends TestCase {
 
         $args1 = $args2 = $args3 = null;
 
-        $eventManager->off($eventName, function ($handler) use ($handler1) {
-            return $handler === $handler1;
-        });
+        $eventManager->off(
+            $eventName,
+            function ($handler) use ($handler1) {
+                return $handler === $handler1;
+            }
+        );
         $eventManager->trigger($event);
 
         $this->assertNull($args1);
@@ -62,7 +68,7 @@ class EventManagerTest extends TestCase {
     public function testCanChangeFieldsOfEvent() {
         $event = new Event('change', ['foo' => 'bar']);
         $eventManager = new EventManager();
-        $eventManager->on('change', fn ($event) => $event->args['foo'] = 'abc');
+        $eventManager->on('change', fn($event) => $event->args['foo'] = 'abc');
         $this->assertSame('bar', $event->args['foo']);
         $eventManager->trigger($event);
         $this->assertSame('abc', $event->args['foo']);
@@ -70,7 +76,11 @@ class EventManagerTest extends TestCase {
 
     public function testOff_NonExistingHandlerDoesNotThrowError() {
         $eventManager = new EventManager();
-        $eventManager->off('foo', function () {});
+        $eventManager->off(
+            'foo',
+            function () {
+            }
+        );
         $this->markTestAsNotRisky();
     }
 }

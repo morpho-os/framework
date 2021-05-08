@@ -8,6 +8,7 @@ namespace Morpho\Error;
 
 use Morpho\Tech\Php\Debug\Debugger;
 use Throwable;
+
 use function htmlspecialchars;
 use function print_r;
 

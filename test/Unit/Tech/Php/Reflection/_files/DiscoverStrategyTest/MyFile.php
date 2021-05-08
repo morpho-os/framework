@@ -3,7 +3,6 @@ namespace Morpho\Test\Unit\Tech\Php\Reflection\StrategyTest1;
 
 trait FooTrait {
     public function test() {
-
     }
 }
 
@@ -13,7 +12,8 @@ class BarClass {
         return [
             self::class . '\\MyClass',
             BarClass::class,
-            new class {},
+            new class {
+            },
         ];
     }
 }

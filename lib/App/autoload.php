@@ -7,9 +7,9 @@
 namespace Morpho\App;
 
 //if (PHP_SAPI == 'cli') {
-    require __DIR__ . '/Cli/autoload.php';
+require __DIR__ . '/Cli/autoload.php';
 //} else {
-    require __DIR__ . '/Web/autoload.php';
+require __DIR__ . '/Web/autoload.php';
 //}
 
 const VENDOR = 'morpho-os';

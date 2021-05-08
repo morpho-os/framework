@@ -9,8 +9,8 @@ namespace Morpho\Test\Unit\Tech\Xml;
 use Countable;
 use Iterator;
 use Morpho\Base\InvalidConfException;
-use Morpho\Testing\TestCase;
 use Morpho\Tech\Xml\Doc;
+use Morpho\Testing\TestCase;
 
 class DocTest extends TestCase {
     public function testSelect() {
@@ -49,7 +49,7 @@ OUT;
 
         $this->assertInstanceOf(Countable::class, $nodes);
         $this->assertInstanceOf(Iterator::class, $nodes);
-        
+
         $this->assertSame($nodes->item(0), $nodes->head());
         $this->assertSame([$nodes->item(1), $nodes->item(2)], $nodes->tail());
         $this->assertSame($nodes->item(2), $nodes->last());
@@ -79,19 +79,23 @@ OUT;
 <!DOCTYPE html><html><body>µ</body></html>
 OUT;
         $doc = Doc::parse($html, ['fixEncoding' => true, 'formatOutput' => false]);
-        $this->assertHtmlEquals(<<<OUT
+        $this->assertHtmlEquals(
+            <<<OUT
 <!DOCTYPE html>
 <html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body>µ</body></html>
 OUT
-            , $doc->saveHTML()
+            ,
+            $doc->saveHTML()
         );
 
         $doc = Doc::parse($html, ['fixEncoding' => false, 'formatOutput' => false]);
-        $this->assertHtmlEquals(<<<OUT
+        $this->assertHtmlEquals(
+            <<<OUT
 <!DOCTYPE html>
 <html><body>&Acirc;&micro;</body></html>
 OUT
-            , $doc->saveHTML()
+            ,
+            $doc->saveHTML()
         );
     }
 }

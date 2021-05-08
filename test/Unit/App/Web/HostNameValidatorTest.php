@@ -7,8 +7,9 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\HostNameValidator;
-use function strtolower;
 use Morpho\Testing\TestCase;
+
+use function strtolower;
 
 class HostNameValidatorTest extends TestCase {
     public function dataCurrentHostName_ValidIps() {

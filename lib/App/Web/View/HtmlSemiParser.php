@@ -9,6 +9,7 @@ namespace Morpho\App\Web\View;
 use Morpho\Base\EventManager;
 use Morpho\Base\IFn;
 use RuntimeException;
+
 use function array_key_exists;
 use function array_keys;
 use function array_push;
@@ -137,7 +138,7 @@ class HtmlSemiParser extends EventManager implements IFn {
                     [$obj, $method],
                     $atFront
                 );
-            // Check the selfAdd to avoid infinite call of the preprocessTags, as it is already defined here.
+                // Check the selfAdd to avoid infinite call of the preprocessTags, as it is already defined here.
             } elseif (!$this->selfAdd && $method === 'preprocessTags') {
                 if (!$atFront) {
                     array_push($this->tagsPreprocessors, [$obj, $method]);

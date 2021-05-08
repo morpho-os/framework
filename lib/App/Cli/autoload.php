@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Cli;
 
-const IN_FD  = 0;
+const IN_FD = 0;
 const OUT_FD = 1;
 const ERR_FD = 2;
 const STD_PIPES = [
@@ -16,8 +16,11 @@ const STD_PIPES = [
 ];
 
 use Morpho\Base\Conf;
+use Morpho\Error\DumpListener;
+use Morpho\Error\ErrorHandler;
 use RuntimeException;
 use UnexpectedValueException;
+
 use function count;
 use function escapeshellarg;
 use function fgets;
@@ -25,10 +28,8 @@ use function fwrite;
 use function implode;
 use function is_int;
 use function is_string;
-use function Morpho\Base\showLn;
 use function Morpho\Base\capture;
-use Morpho\Error\DumpListener;
-use Morpho\Error\ErrorHandler;
+use function Morpho\Base\showLn;
 use function passthru;
 use function pcntl_exec;
 use function pcntl_fork;
@@ -143,7 +144,7 @@ function envVarsStr(array $envVars): string {
     }
     $str = '';
     foreach ($envVars as $name => $value) {
-        if (!preg_match('~^[a-z][a-z0-9_]*$~si', (string)$name)) {
+        if (!preg_match('~^[a-z][a-z0-9_]*$~si', (string) $name)) {
             throw new RuntimeException('Invalid variable name');
         }
         $str .= ' ' . $name . '=' . escapeshellarg($value);
@@ -168,20 +169,23 @@ function rm(string $args, array $conf = null): ICommandResult {
 }
 
 function sh(string $command, array $conf = null): ICommandResult {
-/*    if (isset($conf['capture'])) {
-        if (!isset($conf['show'])) {
-            $conf['show'] = !$conf['capture'];
-        }
-    }*/
+    /*    if (isset($conf['capture'])) {
+            if (!isset($conf['show'])) {
+                $conf['show'] = !$conf['capture'];
+            }
+        }*/
     $showSet = isset($conf['show']);
     $captureSet = isset($conf['capture']);
-    $conf = Conf::check([
-        'check' => true,
-        // @TODO: tee: buffer and display output
-        'show' => true,
-        'capture' => false,
-        'envVars' => null,
-    ], (array) $conf);
+    $conf = Conf::check(
+        [
+            'check'   => true,
+            // @TODO: tee: buffer and display output
+            'show'    => true,
+            'capture' => false,
+            'envVars' => null,
+        ],
+        (array) $conf
+    );
     if (!$showSet && $conf['capture']) {
         $conf['show'] = false;
     }
@@ -195,9 +199,11 @@ function sh(string $command, array $conf = null): ICommandResult {
     }
     // todo: replace capture() (and ob_*() calls) with an variable
     if ($conf['capture']) {
-        $output = capture(function () use ($command, &$exitCode) {
-            passthru($command, $exitCode);
-        });
+        $output = capture(
+            function () use ($command, &$exitCode) {
+                passthru($command, $exitCode);
+            }
+        );
         if ($conf['show']) {
             // Capture and show
             echo $output;
@@ -208,9 +214,11 @@ function sh(string $command, array $conf = null): ICommandResult {
             passthru($command, $exitCode);
         } else {
             // Don't capture, don't show => we are capturing to avoid displaying the result, but don't save the output.
-            capture(function () use ($command, &$exitCode) {
-                passthru($command, $exitCode);
-            });
+            capture(
+                function () use ($command, &$exitCode) {
+                    passthru($command, $exitCode);
+                }
+            );
         }
     }
 

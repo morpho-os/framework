@@ -6,9 +6,10 @@
  */
 namespace Morpho\DataProcessing\Pagination;
 
-use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
 use Morpho\Tech\Sql\IDbClient;
+
 use function intval;
 
 abstract class DbPager extends Pager implements IHasServiceManager {

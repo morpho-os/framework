@@ -34,15 +34,13 @@
         "ext-tokenizer": "*",
         "monolog/monolog": "dev-main",
         "nikic/fast-route": "dev-master",
-        "nikic/php-parser": "4.10.4",
+        "nikic/php-parser": "^4.10.4",
         "willdurand/negotiation": "^3.0@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5.0",
         "php-webdriver/webdriver": "dev-main",
-        "phpstan/phpstan": "^0.12.0@dev",
         "vimeo/psalm": "dev-master",
-        "phan/phan": "dev-master",
         "orklah/psalm-insane-comparison": "dev-master",
         "psalm/plugin-phpunit": "dev-master"
     },
@@ -54,7 +52,6 @@
             "lib/App/autoload.php",
             "lib/Base/autoload.php",
             "lib/Caching/autoload.php",
-            "lib/Compiler/autoload.php",
             "lib/Error/autoload.php",
             "lib/Tech/autoload.php"
         ]

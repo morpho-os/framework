@@ -9,7 +9,9 @@ namespace Morpho\App;
 use Morpho\Fs\Dir;
 use Morpho\Fs\Path;
 use RuntimeException;
+
 use function is_dir;
+
 use const PHP_SAPI;
 
 class BackendModule extends Module {
@@ -122,7 +124,7 @@ class BackendModule extends Module {
     public function controllerFilePaths(bool $differentiateSapi): iterable {
         $paths = $this['paths'];
         if (isset($paths['controllerDirPath'])) {
-            $controllerDirPaths = (array)$paths['controllerDirPath'];
+            $controllerDirPaths = (array) $paths['controllerDirPath'];
         } else {
             $libDirPath = $this->libDirPath();
             if ($differentiateSapi) {

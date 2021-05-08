@@ -7,6 +7,7 @@
 namespace Morpho\Test\Unit\Tech\Php\Reflection;
 
 use Morpho\Tech\Php\Reflection\DiffStrategy;
+
 use function sort;
 
 class DiffStrategyTest extends DiscoverStrategyTest {

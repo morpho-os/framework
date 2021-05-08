@@ -6,9 +6,10 @@
  */
 namespace Morpho\Test\Unit\App\Web\Routing;
 
+use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Routing\RouteMetaProvider;
+
 use function Morpho\Base\dasherize;
 
 class RouteMetaProviderTest extends TestCase {
@@ -95,7 +96,7 @@ class RouteMetaProviderTest extends TestCase {
                     'modulePath'     => explode('/', $actionMetas[0]['module'])[1],
                     'controllerPath' => $expectedControllerPath,
                     'actionPath'     => $expectedActionPath,
-                ]
+                ],
             ],
             $actual
         );
@@ -185,7 +186,7 @@ class RouteMetaProviderTest extends TestCase {
               *
               */',
             [
-            ]
+            ],
         ];
 
         yield [
@@ -196,11 +197,11 @@ class RouteMetaProviderTest extends TestCase {
             [
                 [
                     'httpMethods' => ['GET'],
-                    'uri' => '/foo/bar',
+                    'uri'         => '/foo/bar',
                 ],
                 [
                     'httpMethods' => ['POST', 'PATCH'],
-                    'uri' => '/baz',
+                    'uri'         => '/baz',
                 ],
             ],
         ];

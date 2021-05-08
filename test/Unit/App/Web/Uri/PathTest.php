@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\IUriComponent;
 use Morpho\App\Web\Uri\Path;
+use Morpho\Testing\TestCase;
 
 class PathTest extends TestCase {
     public function testInitialState() {

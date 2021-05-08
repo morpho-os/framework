@@ -7,8 +7,8 @@
 namespace Morpho\Test\Unit\Error;
 
 use Morpho\Base\IFn;
-use Morpho\Testing\TestCase;
 use Morpho\Error\NoDupsListener;
+use Morpho\Testing\TestCase;
 
 class NoDupsListenerTest extends TestCase {
     private $lockFileDirPath;

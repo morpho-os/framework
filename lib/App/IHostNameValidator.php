@@ -7,7 +7,7 @@ interface IHostNameValidator {
      */
     public function throwInvalidSiteError(): void;
 
-        /**
+    /**
      * @return string|false
      */
     public function currentHostName();

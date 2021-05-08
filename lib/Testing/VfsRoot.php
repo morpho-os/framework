@@ -8,80 +8,98 @@ namespace Morpho\Testing;
 
 class VfsRoot extends VfsDir {
     public function createAllDirs(string $uri, VfsEntryStat $stat): VfsDir {
-        return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts, string $curUri) use ($stat) {
-            $dir = $dir->createDir($curUri, $stat);
-            return [$dir, false];
-        });
+        return $this->forEachParentDir(
+            $uri,
+            function (VfsDir $dir, string $name, array $parts, string $curUri) use ($stat) {
+                $dir = $dir->createDir($curUri, $stat);
+                return [$dir, false];
+            }
+        );
     }
 
     public function dirByUri(string $uri): VfsDir {
-        return $this->forEachParentDir($uri, function (VfsDir $dir, string $name) {
-            $childDir = $dir->dir($name);
-            return [$childDir, false];
-        });
+        return $this->forEachParentDir(
+            $uri,
+            function (VfsDir $dir, string $name) {
+                $childDir = $dir->dir($name);
+                return [$childDir, false];
+            }
+        );
     }
 
     /**
      * @return VfsDir|false
      */
     public function dirByUriOrNone(string $uri) {
-        return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts) {
-            $childDir = $dir->dirOrNone($name);
-            if (!$childDir) {
-                return [false, true];
+        return $this->forEachParentDir(
+            $uri,
+            function (VfsDir $dir, string $name, array $parts) {
+                $childDir = $dir->dirOrNone($name);
+                if (!$childDir) {
+                    return [false, true];
+                }
+                return [$childDir, false];
             }
-            return [$childDir, false];
-        });
+        );
     }
 
     /**
      * @param VfsFile|false
      */
     public function fileByUriOrNone(string $uri) {
-        return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts) {
-            if (!\count($parts)) { // last item?
-                $file = $dir->fileOrNone($name);
-                return [$file, true];
+        return $this->forEachParentDir(
+            $uri,
+            function (VfsDir $dir, string $name, array $parts) {
+                if (!\count($parts)) { // last item?
+                    $file = $dir->fileOrNone($name);
+                    return [$file, true];
+                }
+                $childDir = $dir->dirOrNone($name);
+                if (!$childDir) {
+                    return [false, true];
+                }
+                return [$childDir, false];
             }
-            $childDir = $dir->dirOrNone($name);
-            if (!$childDir) {
-                return [false, true];
-            }
-            return [$childDir, false];
-        });
+        );
     }
 
     public function entryByUri(string $uri): IVfsEntry {
-        return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts) {
-            $childEntry = $dir->entry($name);
-            if ($childEntry instanceof VfsFile) {
-                if (\count($parts)) {
-                    throw new \LogicException();
+        return $this->forEachParentDir(
+            $uri,
+            function (VfsDir $dir, string $name, array $parts) {
+                $childEntry = $dir->entry($name);
+                if ($childEntry instanceof VfsFile) {
+                    if (\count($parts)) {
+                        throw new \LogicException();
+                    }
+                    return [$childEntry, true];
                 }
-                return [$childEntry, true];
+                return [$childEntry, false];
             }
-            return [$childEntry, false];
-        });
+        );
     }
 
     /**
      * @return IVfsEntry|false
      */
     public function entryByUriOrNone(string $uri) {
-        return $this->forEachParentDir($uri, function (VfsDir $dir, string $name, array $parts) {
-            $childEntry = $dir->entryOrNone($name);
-            if (!$childEntry) {
-                return [false, true];
-            }
-            if ($childEntry instanceof VfsFile) {
-                if (\count($parts)) { // file in the middle of path
-                    throw new \LogicException();
+        return $this->forEachParentDir(
+            $uri,
+            function (VfsDir $dir, string $name, array $parts) {
+                $childEntry = $dir->entryOrNone($name);
+                if (!$childEntry) {
+                    return [false, true];
                 }
-                return [$childEntry, true];
-            } else {
-                return [$childEntry, false];
+                if ($childEntry instanceof VfsFile) {
+                    if (\count($parts)) { // file in the middle of path
+                        throw new \LogicException();
+                    }
+                    return [$childEntry, true];
+                } else {
+                    return [$childEntry, false];
+                }
             }
-        });
+        );
     }
 
     private function forEachParentDir(string $uri, \Closure $current) {

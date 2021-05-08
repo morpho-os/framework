@@ -8,6 +8,7 @@ namespace Morpho\App;
 
 use Morpho\Base\Env;
 use RuntimeException;
+
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
@@ -34,7 +35,7 @@ abstract class Path {
             throw new RuntimeException("The path '$path' does not contain the base path '$basePath'");
         }
 
-        return (string)substr($path, strlen($basePath) + 1);
+        return (string) substr($path, strlen($basePath) + 1);
     }
 
     /**
@@ -66,7 +67,7 @@ abstract class Path {
                     $path = '/';
                     break;
                 case ($path == '/..'):
-                    $path   = '/';
+                    $path = '/';
                     $lastSlashPos = lastPos($output, '/', -1);
                     if (false === $lastSlashPos) {
                         break;
@@ -74,7 +75,7 @@ abstract class Path {
                     $output = mb_substr($output, 0, $lastSlashPos);
                     break;
                 case (mb_substr($path, 0, 4) == '/../'):
-                    $path   = '/' . mb_substr($path, 4);
+                    $path = '/' . mb_substr($path, 4);
                     $lastSlashPos = lastPos($output, '/', -1);
                     if (false === $lastSlashPos) {
                         break;

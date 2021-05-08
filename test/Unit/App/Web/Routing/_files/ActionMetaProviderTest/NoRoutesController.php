@@ -8,6 +8,5 @@ use Morpho\App\Web\Controller;
  */
 class NoRoutesController extends Controller {
     public function doSomething() {
-
     }
 }

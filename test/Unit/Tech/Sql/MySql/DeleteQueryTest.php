@@ -30,9 +30,12 @@ class DeleteQueryTest extends QueryTest {
 
         $this->query->table('cars')->where(['color' => 'green'])->eval();
 
-        $this->assertSame([
-            ['name' => 'Chevrolet Camaro', 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
-        ], $this->selectAllRows());
+        $this->assertSame(
+            [
+                ['name' => 'Chevrolet Camaro', 'color' => 'red', 'country' => 'US', 'type1' => 1, 'type2' => 'US'],
+            ],
+            $this->selectAllRows()
+        );
     }
 
     private function selectAllRows() {

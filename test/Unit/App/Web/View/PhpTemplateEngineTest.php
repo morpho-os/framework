@@ -6,11 +6,12 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
-use Morpho\App\Web\IRequest;
 use Morpho\App\ISite;
+use Morpho\App\Web\IRequest;
+use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\Base\IPipe;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\View\PhpTemplateEngine;
+
 use function date;
 use function file_put_contents;
 use function str_replace;
@@ -60,10 +61,12 @@ class PhpTemplateEngineTest extends TestCase {
 
     public function testEval_PrependCustomPhase() {
         $code = '<?php echo ??;';
-        $this->templateEngine->prependPhase(function ($context) {
-            $context['program'] = str_replace('??', '"<span>$smile</span>"', $context['program']);
-            return $context;
-        });
+        $this->templateEngine->prependPhase(
+            function ($context) {
+                $context['program'] = str_replace('??', '"<span>$smile</span>"', $context['program']);
+                return $context;
+            }
+        );
         $res = $this->templateEngine->eval($code, ['smile' => ':)']);
         $this->assertSame(
             htmlspecialchars('<span>:)</span>', ENT_QUOTES),
@@ -164,12 +167,15 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testPageHtmlId() {
-        $request = $this->createConfiguredMock(IRequest::class, [
-            'handler' => [
-                'controllerPath' => 'foo/bar',
-                'method' => 'baz',
-            ],
-        ]);
+        $request = $this->createConfiguredMock(
+            IRequest::class,
+            [
+                'handler' => [
+                    'controllerPath' => 'foo/bar',
+                    'method'         => 'baz',
+                ],
+            ]
+        );
         $this->templateEngine->setRequest($request);
 
         $this->assertSame('foo-bar-baz', $this->templateEngine->pageHtmlId());
@@ -229,7 +235,7 @@ class PhpTemplateEngineTest extends TestCase {
     private function templateEngineConf(): array {
         return [
             'request' => $this->createMock(IRequest::class),
-            'site' => $this->createStub(ISite::class),
+            'site'    => $this->createStub(ISite::class),
         ];
     }
 }

@@ -11,7 +11,7 @@ namespace Morpho\Base;
  */
 interface IFunctor extends IContainer {
     /**
-     * @param $fn: A => B
+     * @param $fn : A => B
      *     The $fn can return any value which will be wrapped in IFunctor container by the map() implementation.
      */
     public function map(callable $fn): IFunctor;

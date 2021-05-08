@@ -84,14 +84,14 @@ class TreeRendererPlugin extends Plugin {
         }
         return $render($node, $renderedChildren);
     }
-/*
-    protected function renderCheckbox(string $name, bool $isInternalNode): string {
-        $renderInputName = function (string $name): string {
-            $parents = $this->parents;
-            $parents[] = $name;
-            return \implode('___', \array_map([$this, 'escapeHtml'], $parents));
-        };
-        return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . PhpTemplateEngine::e($name);
-    }
-*/
+    /*
+        protected function renderCheckbox(string $name, bool $isInternalNode): string {
+            $renderInputName = function (string $name): string {
+                $parents = $this->parents;
+                $parents[] = $name;
+                return \implode('___', \array_map([$this, 'escapeHtml'], $parents));
+            };
+            return '<input type="checkbox" name="' . ($isInternalNode ? 'internalNode' : 'leafNode') . '[' . $renderInputName($name) . ']"> ' . PhpTemplateEngine::e($name);
+        }
+    */
 }

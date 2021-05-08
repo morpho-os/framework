@@ -12,6 +12,7 @@ use Morpho\Tech\Php\Reflection\FileReflection;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+
 use function array_values;
 use function in_array;
 
@@ -50,9 +51,9 @@ abstract class ActionMetaProvider implements IFn {
     public function actionMetaFromController($module, ReflectionClass $rClass): iterable {
         $actionFilter = $this->actionFilter();
         $controllerMeta = [
-            'module' => $module->name(),
+            'module'   => $module->name(),
             'filePath' => $rClass->getFileName(),
-            'class' => $rClass->getName(),
+            'class'    => $rClass->getName(),
         ];
         /** @noinspection PhpIncludeInspection */
         require_once $controllerMeta['filePath'];
@@ -63,10 +64,10 @@ abstract class ActionMetaProvider implements IFn {
             }
             $method = $rMethod->getName();
             $actionsMeta[$method] = [
-                'module' => $controllerMeta['module'],
-                'class' => $controllerMeta['class'],
+                'module'   => $controllerMeta['module'],
+                'class'    => $controllerMeta['class'],
                 'filePath' => $controllerMeta['filePath'],
-                'method' => $method,
+                'method'   => $method,
             ];
             $docComment = $rMethod->getDocComment();
             if ($docComment) {

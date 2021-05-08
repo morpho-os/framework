@@ -14,6 +14,7 @@ use Morpho\Fs\File;
 use Morpho\Testing\TestCase;
 use RuntimeException;
 use Throwable;
+
 use function basename;
 use function copy;
 use function error_reporting;
@@ -63,15 +64,18 @@ class FileTest extends TestCase {
         $targetFilePath = $tmpDirPath . '/composer.json';
         copy($this->getTestDirPath() . '/composer.json', $targetFilePath);
 
-        $this->assertEquals([
-            'require'     => [
-                'php'      => '7.0.*',
-                'ext-curl' => '*',
+        $this->assertEquals(
+            [
+                'require'     => [
+                    'php' => '7.0.*',
+                    'ext-curl' => '*',
+                ],
+                'require-dev' => [
+                    'phpunit/phpunit' => 'dev-master',
+                ],
             ],
-            'require-dev' => [
-                'phpunit/phpunit' => 'dev-master',
-            ],
-        ], File::readJson($targetFilePath));
+            File::readJson($targetFilePath)
+        );
     }
 
     public function testWriteJson() {
@@ -96,14 +100,16 @@ class FileTest extends TestCase {
         $nonExistingFilePath = $this->tmpDirPath() . '/' . md5(uniqid()) . '.php';
         $exceptionMessage = 'testDeleteNonExistentFileThrowsExceptionOK';
         $this->expectException(RuntimeException::class, $exceptionMessage);
-        set_error_handler(function ($severity, $message, $filePath, $lineNo) use ($nonExistingFilePath, $exceptionMessage) {
-            if (!(error_reporting() & $severity)) {
-                return;
+        set_error_handler(
+            function ($severity, $message, $filePath, $lineNo) use ($nonExistingFilePath, $exceptionMessage) {
+                if (!(error_reporting() & $severity)) {
+                    return;
+                }
+                if ($severity === E_WARNING && $message === "unlink($nonExistingFilePath): No such file or directory") {
+                    throw new RuntimeException($exceptionMessage);
+                }
             }
-            if ($severity === E_WARNING && $message === "unlink($nonExistingFilePath): No such file or directory") {
-                throw new RuntimeException($exceptionMessage);
-            }
-        });
+        );
         File::delete($nonExistingFilePath);
     }
 
@@ -315,22 +321,33 @@ class FileTest extends TestCase {
     }
 
     public function testUsingFile_DefaultTmpDir() {
-        $this->assertSame('ok', File::usingTmp(function ($filePath) use (&$usedFilePath) {
-            $this->assertSame(0, filesize($filePath));
-            $usedFilePath = $filePath;
-            return 'ok';
-        }));
+        $this->assertSame(
+            'ok',
+            File::usingTmp(
+                function ($filePath) use (&$usedFilePath) {
+                    $this->assertSame(0, filesize($filePath));
+                    $usedFilePath = $filePath;
+                    return 'ok';
+                }
+            )
+        );
         $this->assertNotEmpty($usedFilePath);
         $this->assertFileDoesNotExist($usedFilePath);
     }
 
     public function testUsingTmp_NonDefaultTmpDir() {
         $tmpDirPath = $this->createTmpDir(__FUNCTION__);
-        $this->assertSame('ok', File::usingTmp(function ($filePath) use (&$usedFilePath) {
-            $this->assertSame(0, filesize($filePath));
-            $usedFilePath = $filePath;
-            return 'ok';
-        }, $tmpDirPath));
+        $this->assertSame(
+            'ok',
+            File::usingTmp(
+                function ($filePath) use (&$usedFilePath) {
+                    $this->assertSame(0, filesize($filePath));
+                    $usedFilePath = $filePath;
+                    return 'ok';
+                },
+                $tmpDirPath
+            )
+        );
         $this->assertStringContainsString(__FUNCTION__, $usedFilePath);
         $this->assertFileDoesNotExist($usedFilePath);
     }
@@ -370,7 +387,9 @@ class FileTest extends TestCase {
 
     public function testReadLines_DefaultConf() {
         $tmpFilePath = $this->createTmpFile();
-        file_put_contents($tmpFilePath, <<<OUT
+        file_put_contents(
+            $tmpFilePath,
+            <<<OUT
     First
        
    Second	
@@ -394,7 +413,9 @@ OUT
 
     public function testReadLines_DoesNotSkipEmptyLinesIfFilterProvided() {
         $tmpFilePath = $this->createTmpFile();
-        file_put_contents($tmpFilePath, <<<OUT
+        file_put_contents(
+            $tmpFilePath,
+            <<<OUT
     First
        
    Second	
@@ -409,7 +430,18 @@ OUT
             '     Third',
             '',
         ];
-        $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath, function () { return true; }), false));
+        $this->assertEquals(
+            $expected,
+            iterator_to_array(
+                File::readLines(
+                    $tmpFilePath,
+                    function () {
+                        return true;
+                    }
+                ),
+                false
+            )
+        );
     }
 
     public function testReadLines_NonExistingFile() {
@@ -427,9 +459,14 @@ OUT
         $tmpFilePath = $this->createTmpFile();
         file_put_contents($tmpFilePath, 'Foo');
         /** @noinspection PhpVoidFunctionResultUsedInspection */
-        $this->assertVoid(File::change($tmpFilePath, function ($contents) {
-            return str_replace('Foo', 'Bar', $contents);
-        }));
+        $this->assertVoid(
+            File::change(
+                $tmpFilePath,
+                function ($contents) {
+                    return str_replace('Foo', 'Bar', $contents);
+                }
+            )
+        );
         $this->assertSame('Bar', file_get_contents($tmpFilePath));
     }
 }

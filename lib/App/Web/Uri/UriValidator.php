@@ -23,7 +23,7 @@ class UriValidator implements IFn {
     }
 
     public static function validateScheme(string $scheme): bool {
-        return (bool)\preg_match('~^([a-z][-a-z0-9+.]*)$~si', $scheme);
+        return (bool) \preg_match('~^([a-z][-a-z0-9+.]*)$~si', $scheme);
     }
 
     public static function validateAuthority(string $authority): bool {
@@ -74,7 +74,7 @@ class UriValidator implements IFn {
 
         $port = $authority->port();
         if (null !== $port) {
-            return (bool) \preg_match('~^\d*$~s', (string)$port);
+            return (bool) \preg_match('~^\d*$~s', (string) $port);
         }
 
         return true;

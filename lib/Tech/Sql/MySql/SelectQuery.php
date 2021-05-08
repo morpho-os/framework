@@ -83,8 +83,8 @@ class SelectQuery extends Query {
         if ($this->limit) {
             [$offset, $numOfRows] = $this->limit;
             $sql[] = 'LIMIT '
-                    . (null !== $offset ? intval($offset) . ', ' : '')
-                    . intval($numOfRows);
+                . (null !== $offset ? intval($offset) . ', ' : '')
+                . intval($numOfRows);
         }
 
         return implode("\n", $sql);

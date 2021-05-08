@@ -1,11 +1,11 @@
 <?php
 namespace Morpho\Test\Unit\Tech\Php\Reflection\FileReflectionTest_Ns1Bracketed {
+
     class First {
 
     }
 
     function foo() {
-
     }
 
     class Second {
@@ -13,17 +13,16 @@ namespace Morpho\Test\Unit\Tech\Php\Reflection\FileReflectionTest_Ns1Bracketed {
     }
 
     function bar() {
-
     }
 }
 
 namespace Morpho\Test\Unit\Tech\Php\Reflection\FileReflectionTest_Ns2Bracketed {
+
     class Third {
 
     }
 
     function baz() {
-
     }
 
     trait TFourth {

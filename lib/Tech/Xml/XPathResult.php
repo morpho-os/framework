@@ -67,7 +67,7 @@ class XPathResult implements \Iterator, Countable {
     public function item(int $offset): ?\DOMElement {
         return $this->nodeList->item($offset);
     }
-    
+
     public function current() {
         return $this->item($this->offset);
     }
@@ -85,7 +85,7 @@ class XPathResult implements \Iterator, Countable {
     }
 
     public function valid(): bool {
-        return (bool)$this->item($this->offset);
+        return (bool) $this->item($this->offset);
     }
 
     public function count(): int {

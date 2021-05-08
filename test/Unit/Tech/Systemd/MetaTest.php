@@ -6,10 +6,10 @@
  */
 namespace Morpho\Test\Unit\Tech\Systemd;
 
-use Morpho\Testing\TestCase;
+use Morpho\Tech\Systemd\ActivationType;
 use Morpho\Tech\Systemd\Meta;
 use Morpho\Tech\Systemd\UnitType;
-use Morpho\Tech\Systemd\ActivationType;
+use Morpho\Testing\TestCase;
 
 class MetaTest extends TestCase {
     public function testKnownBins() {

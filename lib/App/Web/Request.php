@@ -11,7 +11,7 @@ use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 use Morpho\App\Web\Uri;
 use Morpho\Fs\Path;
-use function Morpho\Base\trimMore;
+
 use function array_fill_keys;
 use function array_flip;
 use function array_intersect_key;
@@ -22,6 +22,7 @@ use function intval;
 use function is_array;
 use function is_string;
 use function ltrim;
+use function Morpho\Base\trimMore;
 use function preg_match;
 use function preg_replace;
 use function strlen;
@@ -186,7 +187,7 @@ class Request extends BaseRequest implements IRequest {
 
     public function isAjax(bool $flag = null): bool {
         if (null !== $flag) {
-            $this->isAjax = (bool)$flag;
+            $this->isAjax = (bool) $flag;
         }
         if (null !== $this->isAjax) {
             return $this->isAjax;
@@ -236,9 +237,9 @@ class Request extends BaseRequest implements IRequest {
             : $this->originalMethod;
     }
 
-/*    public function isConnectMethod(): bool {
-        return $this->method() === self::CONNECT_METHOD;
-    }*/
+    /*    public function isConnectMethod(): bool {
+            return $this->method() === self::CONNECT_METHOD;
+        }*/
 
     public function isDeleteMethod(): bool {
         return $this->method() === HttpMethod::DELETE;
@@ -248,13 +249,13 @@ class Request extends BaseRequest implements IRequest {
         return $this->method() === HttpMethod::GET;
     }
 
-/*    public function isHeadMethod(): bool {
-        return $this->method() === self::HEAD_METHOD;
-    }*/
+    /*    public function isHeadMethod(): bool {
+            return $this->method() === self::HEAD_METHOD;
+        }*/
 
-/*    public function isOptionsMethod(): bool {
-        return $this->method() === self::OPTIONS_METHOD;
-    }*/
+    /*    public function isOptionsMethod(): bool {
+            return $this->method() === self::OPTIONS_METHOD;
+        }*/
 
     public function isPatchMethod(): bool {
         return $this->method() === HttpMethod::PATCH;
@@ -264,13 +265,13 @@ class Request extends BaseRequest implements IRequest {
         return $this->method() === HttpMethod::POST;
     }
 
-/*    public function isPutMethod(): bool {
-        return $this->method() === self::PUT_METHOD;
-    }
+    /*    public function isPutMethod(): bool {
+            return $this->method() === self::PUT_METHOD;
+        }
 
-    public function isTraceMethod(): bool {
-        return $this->method() === self::TRACE_METHOD;
-    }*/
+        public function isTraceMethod(): bool {
+            return $this->method() === self::TRACE_METHOD;
+        }*/
 
     public function isKnownMethod($method): bool {
         return is_string($method) && in_array($method, self::$methods, true);
@@ -387,20 +388,19 @@ class Request extends BaseRequest implements IRequest {
             // works for regname, IPv4 & IPv6
             if (preg_match('~\:(\d+)$~', $host, $matches)) {
                 $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
-                $port = (int)$matches[1];
+                $port = (int) $matches[1];
             }
-
-/*            // set up a validator that check if the hostname is legal (not spoofed)
-            $hostnameValidator = new HostnameValidator([
-                'allow'       => HostnameValidator::ALLOW_ALL,
-                'useIdnCheck' => false,
-                'useTldCheck' => false,
-            ]);
-            // If invalid. Reset the host & port
-            if (!$hostnameValidator->isValid($host)) {
-                $host = null;
-                $port = null;
-            }*/
+            /*            // set up a validator that check if the hostname is legal (not spoofed)
+                        $hostnameValidator = new HostnameValidator([
+                            'allow'       => HostnameValidator::ALLOW_ALL,
+                            'useIdnCheck' => false,
+                            'useTldCheck' => false,
+                        ]);
+                        // If invalid. Reset the host & port
+                        if (!$hostnameValidator->isValid($host)) {
+                            $host = null;
+                            $port = null;
+                        }*/
         }
 
         $serverName = $this->serverVar('SERVER_NAME');
@@ -451,7 +451,7 @@ class Request extends BaseRequest implements IRequest {
         // IIS7 with URL Rewrite: make sure we get the unencoded url
         // (double slash problem).
         $iisUrlRewritten = $this->serverVar('IIS_WasUrlRewritten');
-        $unencodedUrl    = $this->serverVar('UNENCODED_URL', '');
+        $unencodedUrl = $this->serverVar('UNENCODED_URL', '');
         if ('1' == $iisUrlRewritten && '' !== $unencodedUrl) {
             return $normalizeUri($unencodedUrl);
         }
@@ -479,9 +479,9 @@ class Request extends BaseRequest implements IRequest {
             return '/';
         }
         $basePath = ltrim(Uri\Path::normalize(dirname($scriptName)), '/');
-/*        if (!Uri::validatePath($basePath)) {
-            throw new BadRequestException();
-        }*/
+        /*        if (!Uri::validatePath($basePath)) {
+                    throw new BadRequestException();
+                }*/
         return '/' . $basePath;
     }
 
@@ -499,7 +499,7 @@ class Request extends BaseRequest implements IRequest {
     protected function detectOriginalMethod(): ?string {
         $httpMethod = $this->serverVar('REQUEST_METHOD');
         if (null !== $httpMethod) {
-            $httpMethod = strtoupper((string)$httpMethod);
+            $httpMethod = strtoupper((string) $httpMethod);
             if ($this->isKnownMethod($httpMethod)) {
                 return $httpMethod;
             }
@@ -514,10 +514,10 @@ class Request extends BaseRequest implements IRequest {
             $overwrittenMethod = (string) $httpMethod;
         } elseif (isset($_GET['_method'])) {
             // Allow to pass a method through the special '_method' item.
-            $overwrittenMethod = (string)$_GET['_method'];
+            $overwrittenMethod = (string) $_GET['_method'];
             unset($_GET['_method']);
         } elseif (isset($_POST['_method'])) {
-            $overwrittenMethod = (string)$_POST['_method'];
+            $overwrittenMethod = (string) $_POST['_method'];
             unset($_POST['_method']);
         }
         if (null !== $overwrittenMethod) {

@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Base;
 
-use Morpho\Testing\TestCase;
 use Morpho\Base\Converter;
+use Morpho\Testing\TestCase;
 
 class ConverterTest extends TestCase {
     public function testToBytes() {

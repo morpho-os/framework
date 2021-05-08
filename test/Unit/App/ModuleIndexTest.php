@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App;
 
-use Morpho\App\ModuleIndex;
 use Morpho\App\IModuleIndexer;
 use Morpho\App\Module;
+use Morpho\App\ModuleIndex;
 use Morpho\Testing\TestCase;
 
 class ModuleIndexTest extends TestCase {
@@ -45,7 +45,7 @@ class ModuleIndexTest extends TestCase {
         $this->expectException(\RuntimeException::class, "The module '$moduleName' was not found in index");
         $moduleIndex->module($moduleName);
     }
-    
+
     public function testIter() {
         $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
         $this->assertInstanceOf(\Traversable::class, $moduleIndex);
@@ -66,16 +66,19 @@ class ModuleIndexTest extends TestCase {
     }
 
     private function mkModuleIndexer() {
-        $moduleIndexer = $this->createConfiguredMock(IModuleIndexer::class, [
-            'index' => [
-                'galaxy/neptune' => [
-                    'namespace' => __CLASS__ . '/Neptune',
+        $moduleIndexer = $this->createConfiguredMock(
+            IModuleIndexer::class,
+            [
+                'index' => [
+                    'galaxy/neptune' => [
+                        'namespace' => __CLASS__ . '/Neptune',
+                    ],
+                    'galaxy/mars'    => [
+                        'namespace' => __CLASS__ . '/Mars',
+                    ],
                 ],
-                'galaxy/mars'    => [
-                    'namespace' => __CLASS__ . '/Mars',
-                ],
-            ],
-        ]);
+            ]
+        );
         return $moduleIndexer;
     }
 }

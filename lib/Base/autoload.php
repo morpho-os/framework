@@ -18,6 +18,7 @@ use RuntimeException;
 use Stringable;
 use Throwable;
 use UnexpectedValueException;
+
 use function array_fill_keys;
 use function array_key_exists;
 use function array_merge;
@@ -64,6 +65,7 @@ use function substr;
 use function trim;
 use function ucwords;
 use function usleep;
+
 use const PREG_SPLIT_NO_EMPTY;
 
 const TRIM_CHARS = " \t\n\r\x00\x0B";
@@ -117,7 +119,7 @@ function toIt(iterable|string|Stringable $list): iterable {
         return $list;
     }
     if ($list instanceof Stringable) {
-        $list = (string)$list;
+        $list = (string) $list;
     }
     return mb_str_split($list);
 }
@@ -126,11 +128,11 @@ function toIt(iterable|string|Stringable $list): iterable {
 // todo: review functions below #12
 
 function e(string|Stringable|int|float $s): string {
-    return htmlspecialchars((string)$s, ENT_QUOTES);
+    return htmlspecialchars((string) $s, ENT_QUOTES);
 }
 
 function de(string|Stringable|int|float $s): string {
-    return htmlspecialchars_decode((string)$s, ENT_QUOTES);
+    return htmlspecialchars_decode((string) $s, ENT_QUOTES);
 }
 
 /**
@@ -203,11 +205,11 @@ function prepend(string|Stringable|iterable|int|float $list, string $prefix): st
     if (is_iterable($list)) {
         $r = [];
         foreach ($list as $k => $v) {
-            $r[$k] = $prefix . (string)$v;
+            $r[$k] = $prefix . (string) $v;
         }
         return $r;
     }
-    return $prefix . (string)$list;
+    return $prefix . (string) $list;
 }
 
 function prependFn(string $prefix): Closure {
@@ -220,11 +222,11 @@ function append(string|Stringable|iterable|int|float $list, string $suffix): str
     if (is_iterable($list)) {
         $r = [];
         foreach ($list as $k => $v) {
-            $r[$k] = (string)$v . $suffix;
+            $r[$k] = (string) $v . $suffix;
         }
         return $r;
     }
-    return (string)$list . $suffix;
+    return (string) $list . $suffix;
 }
 
 function appendFn(string $suffix): Closure {
@@ -250,7 +252,7 @@ function uniqueName(): string {
 }
 
 function words(string|Stringable|int $list, int $limit = -1): array {
-    $list = (string)$list;
+    $list = (string) $list;
     return preg_split('~\\s+~s', trim($list), $limit, PREG_SPLIT_NO_EMPTY);
 }
 
@@ -324,7 +326,7 @@ function underscore(Stringable|string $list, bool $trim = true) {
  * @return string
  */
 function classify(string|Stringable|int $list/*, bool $toFqName = false*/): string {
-    $string = sanitize(str_replace('/', '\\', (string)$list), '-_\\ ');
+    $string = sanitize(str_replace('/', '\\', (string) $list), '-_\\ ');
     if (false !== strpos($string, '\\')) {
         $string = preg_replace_callback(
             '{\\\\(\w)}si',
@@ -337,9 +339,9 @@ function classify(string|Stringable|int $list/*, bool $toFqName = false*/): stri
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
-/*    if ($toFqName) {
-        return '\\' . $string;
-    }*/
+    /*    if ($toFqName) {
+            return '\\' . $string;
+        }*/
 
     return $string;
 }
@@ -374,7 +376,7 @@ function humanize(string|Stringable|int $list, bool $escape = true) {
         function ($m) {
             return $m[1] . ' ' . strtolower($m[2]);
         },
-        str_replace('_', ' ', (string )$list)
+        str_replace('_', ' ', (string ) $list)
     );
     if ($escape) {
         $result = \Morpho\Base\e($result);
@@ -406,7 +408,7 @@ function titleize(string|Stringable|int $list, bool $ucwords = true, bool $escap
 
 function sanitize(string|Stringable|int $list, string $allowedCharacters, bool $deleteDups = true) {
     $regexp = '/[^a-zA-Z0-9' . preg_quote($allowedCharacters, '/') . ']/s';
-    $result = preg_replace($regexp, '', (string)$list);
+    $result = preg_replace($regexp, '', (string) $list);
     if ($deleteDups) {
         $result = deleteDups($result, $allowedCharacters);
     }
@@ -425,7 +427,7 @@ function trimMore(string|Stringable|iterable|int|float $list, string $chars = nu
         }
         return $r;
     }
-    return trim((string)$list, $chars . TRIM_CHARS);
+    return trim((string) $list, $chars . TRIM_CHARS);
 }
 
 /**
@@ -439,9 +441,9 @@ function trimMore(string|Stringable|iterable|int|float $list, string $chars = nu
  */
 function deleteDups(string|Stringable|int $list, Stringable|int|string $chars, bool $isCharClass = true) {
     $regExp = $isCharClass
-        ? '/([' . preg_quote((string)$chars, '/') . '])+/si'
+        ? '/([' . preg_quote((string) $chars, '/') . '])+/si'
         : "/($chars)+/si";
-    return preg_replace($regExp, '\1', (string)$list);
+    return preg_replace($regExp, '\1', (string) $list);
 }
 
 function format($string, array $args, callable $filterFn): string {
@@ -547,7 +549,7 @@ function capture(callable $fn): string {
 }
 
 function tpl($__filePath, array $__vars = null): string {
-    extract((array)$__vars, EXTR_SKIP);
+    extract((array) $__vars, EXTR_SKIP);
     unset($__vars);
     ob_start();
     try {
@@ -703,7 +705,7 @@ function formatFloat($val): string {
     if (empty($val)) {
         $val = 0;
     }
-    $val = str_replace(',', '.', (string)$val);
+    $val = str_replace(',', '.', (string) $val);
     return number_format(round(floatval($val), 2), 2, '.', ' ');
 }
 
@@ -1128,7 +1130,7 @@ function lfold(callable $fn, iterable|string $list, mixed $initial = null): mixe
  * @return string
  */
 function ucfirst(string|Stringable $list): string {
-    $list = (string)$list;
+    $list = (string) $list;
     $fc = mb_strtoupper(mb_substr($list, 0, 1));
     return $fc . mb_substr($list, 1);
 }
@@ -1140,7 +1142,7 @@ function ucfirst(string|Stringable $list): string {
  * @return string
  */
 function indent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
-    return preg_replace('~^~m', str_repeat(' ', $indent), (string)$text);
+    return preg_replace('~^~m', str_repeat(' ', $indent), (string) $text);
 }
 
 /**
@@ -1150,7 +1152,7 @@ function indent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): s
  * @return string
  */
 function unindent(string|Stringable|int|float $text, int $indent = INDENT_SIZE): string {
-    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string)$text);
+    return preg_replace('~^' . str_repeat(' ', $indent) . '~m', '', (string) $text);
 }
 
 /**
@@ -1169,7 +1171,7 @@ function toArr(iterable $it): array {
     $i = 0;
     $intKeys = true;
     foreach ($it as $key => $val) {
-        if (!preg_match('~^\d+$~s', (string)$key)) {
+        if (!preg_match('~^\d+$~s', (string) $key)) {
             $intKeys = false;
             break;
         }

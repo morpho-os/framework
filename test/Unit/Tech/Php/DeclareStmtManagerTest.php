@@ -21,7 +21,8 @@ OUT;
  */
 echo "Test";
 OUT
-            , $expected
+            ,
+            $expected,
         ];
         yield [
             <<<OUT
@@ -32,7 +33,8 @@ OUT
  */
 echo "Test";
 OUT
-            , $expected
+            ,
+            $expected,
         ];
         yield [
             <<<OUT
@@ -43,7 +45,8 @@ OUT
 //declare(strict_types=1);
 echo "Test";
 OUT
-            , $expected
+            ,
+            $expected,
         ];
 
         yield [
@@ -51,7 +54,8 @@ OUT
 <?php
 //declare(strict_types=1);
 OUT
-            , '<?php'
+            ,
+            '<?php',
         ];
         yield from $this->commonCases();
     }
@@ -80,7 +84,8 @@ OUT;
  */
 echo "Test";
 OUT
-            , $expected
+            ,
+            $expected,
         ];
         yield [
             <<<OUT
@@ -92,6 +97,7 @@ OUT
 <?php
 //declare(strict_types=1);
 OUT
+    ,
         ];
         yield [
             <<<OUT
@@ -104,6 +110,7 @@ OUT
 <?php
 //declare(strict_types=1);
 OUT
+    ,
         ];
         yield from $this->commonCases();
     }
@@ -137,6 +144,7 @@ OUT;
  */
 namespace Foo\Bar;
 OUT
+    ,
         ];
 
         yield [
@@ -151,6 +159,7 @@ declare(strict_types=1);
  */
 namespace Foo\Bar;
 OUT
+    ,
         ];
 
         yield [
@@ -165,6 +174,7 @@ OUT
 declare(strict_types=1);
 namespace Foo\Bar;
 OUT
+    ,
         ];
 
         $sample = <<<OUT
@@ -179,6 +189,7 @@ OUT;
 <?php declare(strict_types=1);
 namespace Foo\Bar;
 OUT
+    ,
         ];
 
         yield [
@@ -189,6 +200,7 @@ OUT
 declare(strict_types=1);
 namespace Foo\Bar;
 OUT
+    ,
         ];
 
         yield [
@@ -198,6 +210,7 @@ OUT
 <?php
 namespace Foo\Bar;
 OUT
+    ,
         ];
 
         yield [
@@ -212,6 +225,7 @@ OUT
             <<<OUT
 <?php declare(strict_types=1);
 OUT
+    ,
         ];
     }
 
@@ -240,6 +254,7 @@ OUT
  */
 echo "Test";
 OUT
+    ,
         ];
         yield [
             "<?php\n",

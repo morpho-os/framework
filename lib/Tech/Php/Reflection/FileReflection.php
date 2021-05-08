@@ -7,10 +7,6 @@
 namespace Morpho\Tech\Php\Reflection;
 
 use Closure;
-use ReflectionMethod;
-use function count;
-use function file_get_contents;
-use function Morpho\Base\contains;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
@@ -21,7 +17,12 @@ use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use ReflectionFunction;
-use function Morpho\Compiler\parseFile;
+use ReflectionMethod;
+
+use function count;
+use function file_get_contents;
+use function Morpho\Base\contains;
+use function Morpho\Tech\Php\parseFile;
 
 class FileReflection {
     private string $filePath;
@@ -65,27 +66,33 @@ class FileReflection {
      * @return iterable|ClassTypeReflection[]
      */
     public function classes(): iterable {
-        return $this->filterClassTypes(function (ClassTypeReflection $rClass) {
-            return !$rClass->isTrait() && !$rClass->isInterface();
-        });
+        return $this->filterClassTypes(
+            function (ClassTypeReflection $rClass) {
+                return !$rClass->isTrait() && !$rClass->isInterface();
+            }
+        );
     }
 
     /**
      * @return iterable|ClassTypeReflection[]
      */
     public function traits(): iterable {
-        return $this->filterClassTypes(function (ClassTypeReflection $rClass) {
-            return $rClass->isTrait();
-        });
+        return $this->filterClassTypes(
+            function (ClassTypeReflection $rClass) {
+                return $rClass->isTrait();
+            }
+        );
     }
 
     /**
      * @return iterable|ClassTypeReflection[]
      */
     public function interfaces(): iterable {
-        return $this->filterClassTypes(function (ClassTypeReflection $rClass) {
-            return $rClass->isInterface();
-        });
+        return $this->filterClassTypes(
+            function (ClassTypeReflection $rClass) {
+                return $rClass->isInterface();
+            }
+        );
     }
 
     /**

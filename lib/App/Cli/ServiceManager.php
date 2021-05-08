@@ -6,15 +6,15 @@
  */
 namespace Morpho\App\Cli;
 
+use Monolog\Handler\ErrorLogHandler as PhpErrorLogWriter;
 use Monolog\Logger;
 use Morpho\App\IRouter;
 use Morpho\App\ServiceManager as BaseServiceManager;
+use Morpho\Base\EventManager;
 use Morpho\Base\NotImplementedException;
 use Morpho\Error\ErrorHandler;
-use Monolog\Handler\ErrorLogHandler as PhpErrorLogWriter;
 use Morpho\Error\LogListener;
 use Morpho\Error\NoDupsListener;
-use Morpho\Base\EventManager;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkAppInitializerService() {
@@ -28,11 +28,13 @@ class ServiceManager extends BaseServiceManager {
             $logger->pushHandler(new PhpErrorLogWriter());
         }
 
-        $logger->pushHandler(new class extends \Monolog\Handler\AbstractProcessingHandler {
-            protected function write(array $record): void {
-                errorLn($record['message']);
+        $logger->pushHandler(
+            new class extends \Monolog\Handler\AbstractProcessingHandler {
+                protected function write(array $record): void {
+                    errorLn($record['message']);
+                }
             }
-        });
+        );
 
         return $logger;
     }
@@ -61,9 +63,12 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkEventManagerService() {
         $eventManager = new EventManager();
-        $eventManager->on('dispatchError', function ($event) {
-            throw $event->args['exception'];
-        });
+        $eventManager->on(
+            'dispatchError',
+            function ($event) {
+                throw $event->args['exception'];
+            }
+        );
         return $eventManager;
     }
 }

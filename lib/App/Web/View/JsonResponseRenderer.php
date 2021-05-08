@@ -8,6 +8,7 @@ namespace Morpho\App\Web\View;
 
 use Morpho\App\IRequest;
 use Morpho\Base\IFn;
+
 use function Morpho\Base\toJson;
 
 class JsonResponseRenderer implements IFn {

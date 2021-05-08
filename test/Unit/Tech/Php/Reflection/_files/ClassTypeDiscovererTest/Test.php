@@ -1,8 +1,11 @@
 <?php
 namespace Morpho\Test\Unit\Tech\Php\Reflection\ClassTypeDiscovererTest;
 
-class MyClass {}
+class MyClass {
+}
 
-interface IMyInterface {}
+interface IMyInterface {
+}
 
-trait TMyTrait {}
+trait TMyTrait {
+}

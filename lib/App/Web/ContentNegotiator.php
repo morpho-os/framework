@@ -10,6 +10,7 @@ use Morpho\Base\IFn;
 use Negotiation\Accept;
 use Negotiation\Exception\InvalidArgument;
 use Negotiation\Negotiator;
+
 use function strtolower;
 
 class ContentNegotiator implements IFn {

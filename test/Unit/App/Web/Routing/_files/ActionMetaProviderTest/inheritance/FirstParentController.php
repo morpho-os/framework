@@ -5,6 +5,5 @@ require_once __DIR__ . '/SecondParentController.php';
 
 class FirstParentController extends SecondParentController {
     public function firstParent() {
-        
     }
 }

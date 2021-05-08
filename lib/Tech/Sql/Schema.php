@@ -12,29 +12,29 @@ abstract class Schema implements ISchema {
     public function __construct(IDbClient $db) {
         $this->db = $db;
     }
-/*
-    abstract public function createDatabase(string $dbName): void;
+    /*
+        abstract public function createDatabase(string $dbName): void;
 
-    public function deleteTables(iterable $tableNames): void {
-        foreach ($tableNames as $tableName) {
-            $this->deleteTable($tableName);
+        public function deleteTables(iterable $tableNames): void {
+            foreach ($tableNames as $tableName) {
+                $this->deleteTable($tableName);
+            }
         }
-    }
 
-    public function deleteAllTables(): void {
-        $this->deleteTables($this->tableNames());
-    }
+        public function deleteAllTables(): void {
+            $this->deleteTables($this->tableNames());
+        }
 
-    abstract public function tableExists(string $tableName): bool;
+        abstract public function tableExists(string $tableName): bool;
 
-    abstract public function deleteTable(string $tableName): void;
+        abstract public function deleteTable(string $tableName): void;
 
-    abstract public function createTableSql(string $tableName): string;
+        abstract public function createTableSql(string $tableName): string;
 
-    abstract public function deleteTableIfExists(string $tableName): void;
+        abstract public function deleteTableIfExists(string $tableName): void;
 
-    /**
-     * @return iterable<string>
-    abstract public function tableNames(): iterable;
-*/
+        /**
+         * @return iterable<string>
+        abstract public function tableNames(): iterable;
+    */
 }

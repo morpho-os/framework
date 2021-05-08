@@ -6,9 +6,10 @@
  */
 namespace Morpho\App\Web\Uri;
 
-use RuntimeException;
-use function Morpho\Base\contains;
 use Morpho\App\Path as BasePath;
+use RuntimeException;
+
+use function Morpho\Base\contains;
 use function rawurlencode;
 use function str_replace;
 

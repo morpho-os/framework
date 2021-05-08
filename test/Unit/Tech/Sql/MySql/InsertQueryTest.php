@@ -14,7 +14,7 @@ class InsertQueryTest extends QueryTest {
     public function testQuery() {
         $insert = new InsertQuery($this->db);
 
-        $selectAllRows = fn () =>$this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
+        $selectAllRows = fn() => $this->db->pdo()->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
         $this->assertSame([], $selectAllRows());
 
         $insert = $insert->table('cars')->row(['color' => 'green', 'name' => 'Honda']);
@@ -22,13 +22,18 @@ class InsertQueryTest extends QueryTest {
         $this->assertInstanceOf(Result::class, $result);
 
 
-        $this->assertSame([[
-            'name' => 'Honda',
-            'color' => 'green',
-            'country' => null,
-            'type1' => null,
-            'type2' => null,
-        ]], $selectAllRows());
+        $this->assertSame(
+            [
+                [
+                    'name'    => 'Honda',
+                    'color'   => 'green',
+                    'country' => null,
+                    'type1'   => null,
+                    'type2'   => null,
+                ],
+            ],
+            $selectAllRows()
+        );
     }
 
     protected function createFixtures($db): void {

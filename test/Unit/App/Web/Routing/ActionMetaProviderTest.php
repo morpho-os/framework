@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web\Routing;
 
+use Morpho\App\Web\Routing\ActionMetaProvider;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
-use Morpho\App\Web\Routing\ActionMetaProvider;
 
 class ActionMetaProviderTest extends TestCase {
     private ActionMetaProvider $actionMetaProvider;
@@ -23,7 +23,6 @@ class ActionMetaProviderTest extends TestCase {
     }
 
     public function dataInvoke() {
-
         $testDirPath = $this->getTestDirPath();
         $testNs = __CLASS__;
         yield [
@@ -31,10 +30,10 @@ class ActionMetaProviderTest extends TestCase {
             [
                 // SecondParentController
                 [
-                    'module'     => 'self/box',
-                    'class'      => $testNs . '\\SecondParentController',
-                    'filePath'   => $testDirPath . '/inheritance/SecondParentController.php',
-                    'method'     => 'secondParent',
+                    'module'   => 'self/box',
+                    'class'    => $testNs . '\\SecondParentController',
+                    'filePath' => $testDirPath . '/inheritance/SecondParentController.php',
+                    'method'   => 'secondParent',
                 ],
             ],
         ];
@@ -43,16 +42,16 @@ class ActionMetaProviderTest extends TestCase {
             [
                 // FirstParentController extends SecondParentController
                 [
-                    'module'     => 'store/product',
-                    'class'      => $testNs . '\\FirstParentController',
-                    'filePath'   => $testDirPath . '/inheritance/FirstParentController.php',
-                    'method'     => 'firstParent',
+                    'module'   => 'store/product',
+                    'class'    => $testNs . '\\FirstParentController',
+                    'filePath' => $testDirPath . '/inheritance/FirstParentController.php',
+                    'method'   => 'firstParent',
                 ],
                 [
-                    'module'     => 'store/product',
-                    'class'      => $testNs . '\\FirstParentController',
-                    'filePath'   => $testDirPath . '/inheritance/FirstParentController.php',
-                    'method'     => 'secondParent',
+                    'module'   => 'store/product',
+                    'class'    => $testNs . '\\FirstParentController',
+                    'filePath' => $testDirPath . '/inheritance/FirstParentController.php',
+                    'method'   => 'secondParent',
                 ],
             ],
         ];
@@ -61,22 +60,22 @@ class ActionMetaProviderTest extends TestCase {
             [
                 // ChildController extends FirstParentController
                 [
-                    'module'     => 'store/product',
-                    'class'      => $testNs . '\\ChildController',
-                    'filePath'   => $testDirPath . '/inheritance/ChildController.php',
-                    'method'     => 'child',
+                    'module'   => 'store/product',
+                    'class'    => $testNs . '\\ChildController',
+                    'filePath' => $testDirPath . '/inheritance/ChildController.php',
+                    'method'   => 'child',
                 ],
                 [
-                    'module'     => 'store/product',
-                    'class'      => $testNs . '\\ChildController',
-                    'filePath'   => $testDirPath . '/inheritance/ChildController.php',
-                    'method'     => 'firstParent',
+                    'module'   => 'store/product',
+                    'class'    => $testNs . '\\ChildController',
+                    'filePath' => $testDirPath . '/inheritance/ChildController.php',
+                    'method'   => 'firstParent',
                 ],
                 [
-                    'module'     => 'store/product',
-                    'class'      => $testNs . '\\ChildController',
-                    'filePath'   => $testDirPath . '/inheritance/ChildController.php',
-                    'method'     => 'secondParent',
+                    'module'   => 'store/product',
+                    'class'    => $testNs . '\\ChildController',
+                    'filePath' => $testDirPath . '/inheritance/ChildController.php',
+                    'method'   => 'secondParent',
                 ],
             ],
         ];
@@ -85,17 +84,17 @@ class ActionMetaProviderTest extends TestCase {
             [
                 // MyFirst2Controller extends Controller
                 [
-                    'module'     => 'foo/bar',
-                    'class'      => $testNs . '\\MyFirst2Controller',
-                    'filePath'   => $testDirPath . '/My2Controller.php',
-                    'method'     => 'foo2',
+                    'module'   => 'foo/bar',
+                    'class'    => $testNs . '\\MyFirst2Controller',
+                    'filePath' => $testDirPath . '/My2Controller.php',
+                    'method'   => 'foo2',
                 ],
                 // MySecond2Controller extends Controller
                 [
-                    'module'     => 'foo/bar',
-                    'class'      => $testNs . '\\MySecond2Controller',
-                    'filePath'   => $testDirPath . '/My2Controller.php',
-                    'method'     => 'doSomething2',
+                    'module'   => 'foo/bar',
+                    'class'    => $testNs . '\\MySecond2Controller',
+                    'filePath' => $testDirPath . '/My2Controller.php',
+                    'method'   => 'doSomething2',
                 ],
                 // Third2Controller extends Controller
                 [
@@ -114,17 +113,17 @@ class ActionMetaProviderTest extends TestCase {
             [
                 // My1FirstController extends Controller
                 [
-                    'module'     => 'random/planet',
-                    'class'      => $testNs . '\\My1FirstController',
-                    'filePath'   => $testDirPath . '/My1Controller.php',
-                    'method'     => 'foo1',
+                    'module'   => 'random/planet',
+                    'class'    => $testNs . '\\My1FirstController',
+                    'filePath' => $testDirPath . '/My1Controller.php',
+                    'method'   => 'foo1',
                 ],
                 // MySecond1Controller extends Controller
                 [
-                    'module'     => 'random/planet',
-                    'class'      => $testNs . '\\MySecond1Controller',
-                    'filePath'   => $testDirPath . '/My1Controller.php',
-                    'method'     => 'doSomething1',
+                    'module'   => 'random/planet',
+                    'class'    => $testNs . '\\MySecond1Controller',
+                    'filePath' => $testDirPath . '/My1Controller.php',
+                    'method'   => 'doSomething1',
                 ],
                 [
                     'module'     => 'random/planet',
@@ -142,17 +141,17 @@ class ActionMetaProviderTest extends TestCase {
             [
                 // MyFirst3Controller extends Controller
                 [
-                    'module'     => 'sunny/day',
-                    'class'      => $testNs . '\\MyFirst3Controller',
-                    'filePath'   => $testDirPath . '/My3Controller.php',
-                    'method'     => 'foo3',
+                    'module'   => 'sunny/day',
+                    'class'    => $testNs . '\\MyFirst3Controller',
+                    'filePath' => $testDirPath . '/My3Controller.php',
+                    'method'   => 'foo3',
                 ],
                 // MySecond3Controller extends Controller
                 [
-                    'module'     => 'sunny/day',
-                    'class'      => $testNs . '\\MySecond3Controller',
-                    'filePath'   => $testDirPath . '/My3Controller.php',
-                    'method'     => 'doSomething3',
+                    'module'   => 'sunny/day',
+                    'class'    => $testNs . '\\MySecond3Controller',
+                    'filePath' => $testDirPath . '/My3Controller.php',
+                    'method'   => 'doSomething3',
                 ],
                 // MyThird3Controller
                 [
@@ -201,14 +200,17 @@ class ActionMetaProviderTest extends TestCase {
     public function testInvoke_SkipsMagicAndUnderscoredMethods() {
         $module = $this->mkModule('foo/bar', $this->getTestDirPath() . '/HavingMagicMethodsController.php');
 
-        $this->assertSame([
+        $this->assertSame(
             [
-                'module'     => 'foo/bar',
-                'class'      => __CLASS__ . '\\HavingMagicMethodsController',
-                'filePath'   => $this->getTestDirPath() . '/HavingMagicMethodsController.php',
-                'method'     => 'playMe',
+                [
+                    'module'   => 'foo/bar',
+                    'class'    => __CLASS__ . '\\HavingMagicMethodsController',
+                    'filePath' => $this->getTestDirPath() . '/HavingMagicMethodsController.php',
+                    'method'   => 'playMe',
+                ],
             ],
-        ], \iterator_to_array($this->actionMetaProvider->__invoke([$module])));
+            \iterator_to_array($this->actionMetaProvider->__invoke([$module]))
+        );
     }
 
     private function mkModule(string $name, $controllerFilePaths) {

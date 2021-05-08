@@ -13,7 +13,6 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
         E_CallsMethodStatically::some();
 
         if (F_ReadsStaticProperty::$foo) {
-
         }
         G_WritesStaticProperty::$foo = 'bar';
 
@@ -24,19 +23,18 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
 
         $v = '123';
         if ($v instanceof I_AppliesInstanceOfOperator) {
-
         }
 
         if (J_ReadsClassConstant::SOME) {
-
         }
 
         new class extends R_AnonymousClassExtends implements S_AnonymousClassImplementsA, S_AnonymousClassImplementsB {
         };
 
         function ($a, T_AnonymousFunctionDefinitionHasParameterWithType $b): U_AnonymousFunctionDefinitionHasReturnType {
+        }
 
-        };
+        ;
     }
 
     public function skipMe() {
@@ -60,7 +58,6 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
     }
 
     public function foo(int $a, K_MethodDefinitionHasParameterWithType $b, self $c, $d = self::PING_PONG): L_MethodDefinitionHasReturnType {
-
     }
 
     public function bar(): string {
@@ -72,12 +69,10 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
 }
 
 function test(int $a, M_FunctionDefinitionHasParameterWithType $b): N_FunctionDefinitionHasReturnType {
-    
 }
 
 class Second {
     public function __construct(string $a, O_ConstructorDefinitionHasParameterWithType $b) {
-
     }
 }
 

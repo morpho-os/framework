@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use Iterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+
 use function bin2hex;
 use function chmod;
 use function defined;
@@ -63,17 +64,21 @@ abstract class FileCache extends Cache {
         $this->umask = $umask;
 
         if (!$this->createDirIfNeeded($dirPath)) {
-            throw new InvalidArgumentException(sprintf(
-                'The directory "%s" does not exist and could not be created.',
-                $dirPath
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'The directory "%s" does not exist and could not be created.',
+                    $dirPath
+                )
+            );
         }
 
         if (!is_writable($dirPath)) {
-            throw new InvalidArgumentException(sprintf(
-                'The directory "%s" is not writable.',
-                $dirPath
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'The directory "%s" is not writable.',
+                    $dirPath
+                )
+            );
         }
 
         // YES, this needs to be *after* createPathIfNeeded()

@@ -9,12 +9,13 @@ namespace Morpho\App\Web\View;
 use Countable;
 use IteratorAggregate;
 use UnexpectedValueException;
+
 use function count;
 use function in_array;
 
 class Messenger implements Countable, IteratorAggregate {
-    public const ERROR   = 'error';
-    public const INFO    = 'info';
+    public const ERROR = 'error';
+    public const INFO = 'info';
     public const SUCCESS = 'success';
     public const WARNING = 'warning';
 
@@ -67,7 +68,7 @@ class Messenger implements Countable, IteratorAggregate {
         }
         $this->messageStorage[$type][] = [
             'text' => $text,
-            'args' => (array)$args,
+            'args' => (array) $args,
         ];
     }
 

@@ -35,7 +35,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
      * @return IVfsEntry|false
      */
     public function entryOrNone(string $name) {
-        return isset($this->entries[$name]) ? $this->entries[$name]: false;
+        return isset($this->entries[$name]) ? $this->entries[$name] : false;
     }
 
     /*public function entryExists(string $name): bool {
@@ -86,7 +86,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     /**
      * @return VfsFile|false
      */
-    public function fileOrNone(string $name)  {
+    public function fileOrNone(string $name) {
         $file = $this->entries[$name] ?? false;
         if ($file && !$file instanceof VfsFile) {
             throw new \LogicException();

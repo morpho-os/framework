@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Error;
 
-use Morpho\Testing\TestCase;
 use Morpho\Error\WarningException;
+use Morpho\Testing\TestCase;
 
 class PhpErrorExceptionTest extends TestCase {
     public function testToString() {

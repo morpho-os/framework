@@ -8,13 +8,15 @@ namespace Morpho\Test\Unit\App\Cli;
 
 use IteratorAggregate;
 use Morpho\App\Cli\ICommandResult;
-use Morpho\Testing\TestCase;
 use Morpho\App\Cli\ShellCommandResult;
+use Morpho\Testing\TestCase;
+
 use function iterator_to_array;
 
 class ShellCommandResultTest extends TestCase {
     public function testLines_DefaultArgs() {
-        $res = new ShellCommandResult('foo', 0, <<<OUT
+        $res = new ShellCommandResult(
+            'foo', 0, <<<OUT
  First line
 
         Second line
@@ -30,7 +32,7 @@ OUT
             [
                 'First line',
                 'Second line',
-                'Third line'
+                'Third line',
             ],
             iterator_to_array($res->lines())
         );

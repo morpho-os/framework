@@ -8,10 +8,10 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\IRequest;
 use Morpho\App\Web\ContentFormat;
-use Morpho\App\Web\Response;
-use Morpho\Testing\TestCase;
-use Morpho\Base\Ok;
 use Morpho\App\Web\Controller;
+use Morpho\App\Web\Response;
+use Morpho\Base\Ok;
+use Morpho\Testing\TestCase;
 
 class ControllerTest extends TestCase {
     public function testReturnResultFromAction() {

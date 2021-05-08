@@ -7,7 +7,7 @@
 namespace Morpho\App\Web\Uri;
 
 use Morpho\Base\Conf;
-use Morpho\Fs\Path as FsPath;
+
 use function array_fill_keys;
 use function is_string;
 use function mb_substr;
@@ -234,20 +234,23 @@ class Uri {
     public function toStr(?array $parts, bool $encode): string {
         if (null !== $parts) {
             $conf = array_fill_keys($parts, true);
-            $conf = Conf::check([
-                'scheme' => false,
-                'authority' => false,
-                'path' => false,
-                'query' => false,
-                'fragment' => false,
-            ], $conf);
+            $conf = Conf::check(
+                [
+                    'scheme'    => false,
+                    'authority' => false,
+                    'path'      => false,
+                    'query'     => false,
+                    'fragment'  => false,
+                ],
+                $conf
+            );
         } else {
             $conf = [
-                'scheme' => true,
+                'scheme'    => true,
                 'authority' => true,
-                'path' => true,
-                'query' => true,
-                'fragment' => true,
+                'path'      => true,
+                'query'     => true,
+                'fragment'  => true,
             ];
         }
 
@@ -256,9 +259,12 @@ class Uri {
         $shouldReturnOnly = function (string $partName) use ($conf) {
             $val = $conf[$partName];
             unset($conf[$partName]);
-            return $val && all(function ($val) {
-                return !$val;
-            }, $conf);
+            return $val && all(
+                    function ($val) {
+                        return !$val;
+                    },
+                    $conf
+                );
         };
 
         if ($conf['scheme']) {

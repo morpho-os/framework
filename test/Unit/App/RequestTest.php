@@ -7,10 +7,10 @@
 namespace Morpho\Test\Unit\App;
 
 use Morpho\App\IRequest;
-use Morpho\Base\NotImplementedException;
 use Morpho\App\IResponse;
-use Morpho\App\Request;
 use Morpho\App\Message;
+use Morpho\App\Request;
+use Morpho\Base\NotImplementedException;
 
 class RequestTest extends MessageTest {
     private $request;

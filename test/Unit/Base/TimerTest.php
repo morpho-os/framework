@@ -8,6 +8,7 @@ namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\Timer;
 use Morpho\Testing\TestCase;
+
 use function is_float;
 use function usleep;
 

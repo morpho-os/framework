@@ -9,9 +9,9 @@ namespace Morpho\Tech\Php;
 use Morpho\Base\NotImplementedException;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
+
 use function in_array;
 use function is_string;
-use function Morpho\Compiler\{parse, pp, visit};
 use function preg_replace;
 use function token_get_all;
 use function var_export;
@@ -26,7 +26,6 @@ class Code {
 
         $visitor = new class ($removeNumericKeys) extends NodeVisitorAbstract {
             public function __construct(public $removeNumericKeys) {
-
             }
 
             public function enterNode(Node $node) {

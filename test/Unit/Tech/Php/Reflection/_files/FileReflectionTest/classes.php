@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 namespace Morpho\Test\Unit\Tech\Php\Reflection\FileReflectionTest;
+
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
 interface IHasServiceManager {
     public function setServiceManager(IServiceManager $serviceManager);
 }
@@ -23,7 +23,6 @@ interface IServiceManager {
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
 class ServiceManager implements IServiceManager {
     protected $services = [];
 
@@ -116,7 +115,6 @@ class ServiceManager implements IServiceManager {
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
 class ServiceNotFoundException extends \Exception {
     public function __construct($id) {
         parent::__construct("The service with ID '$id' was not found");
@@ -128,7 +126,6 @@ class ServiceNotFoundException extends \Exception {
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
 trait THasServiceManager {
     protected $serviceManager;
 

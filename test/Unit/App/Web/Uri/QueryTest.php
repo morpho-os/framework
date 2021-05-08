@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\IUriComponent;
 use Morpho\App\Web\Uri\Query;
+use Morpho\Testing\TestCase;
 
 class QueryTest extends TestCase {
     public function testInterface() {
@@ -46,7 +46,7 @@ class QueryTest extends TestCase {
         $this->assertFalse($query->isNull());
 
         $query['has space'] = 'тест';
-$this->assertSame('foo=bar&has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr(true));
+        $this->assertSame('foo=bar&has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr(true));
 
         unset($query['foo']);
         $this->assertSame('has%20space=%D1%82%D0%B5%D1%81%D1%82', $query->toStr(true));

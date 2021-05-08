@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\Uri\Authority;
 use Morpho\App\Web\Uri\IUriComponent;
+use Morpho\Testing\TestCase;
 
 class AuthorityTest extends TestCase {
     public function testAuthority() {
@@ -33,7 +33,8 @@ class AuthorityTest extends TestCase {
         $authority = new Authority("$userInfo@$host:80");
         $this->assertSame(
             \rawurlencode($login) . ':' . \rawurlencode($password) . '@' . \rawurlencode($host) . ':80',
-            $authority->toStr(true));
+            $authority->toStr(true)
+        );
     }
 
     public function testIsNull() {

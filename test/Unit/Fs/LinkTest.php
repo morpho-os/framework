@@ -7,9 +7,9 @@
 namespace Morpho\Test\Unit\Fs;
 
 use Morpho\Fs\Dir;
+use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\Link;
 use Morpho\Testing\TestCase;
-use Morpho\Fs\Exception as FsException;
 
 class LinkTest extends TestCase {
     private $tmpDirPath;
@@ -29,7 +29,7 @@ class LinkTest extends TestCase {
         Link::create($targetFilePath, $linkDirPath);
         $this->assertTrue(\is_file($expectedLinkPath));
     }
-    
+
     public function testIsBroken() {
         $tmpDirPath = $this->createTmpDir();
         $targetFilePath = $tmpDirPath . '/foo';

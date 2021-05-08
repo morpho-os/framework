@@ -6,17 +6,15 @@
  */
 namespace Morpho\Test\Unit\Tech\Php\Debug;
 
+use Morpho\Base\Env;
 use Morpho\Tech\Php\Debug\Debugger;
 use Morpho\Testing\TestCase;
-use Morpho\Base\Env;
+
 use function ob_get_clean;
 use function ob_start;
 
 class DebuggerTest extends TestCase {
-    /**
-     * @var Debugger
-     */
-    private $debugger;
+    private Debugger $debugger;
 
     public function setUp(): void {
         $this->debugger = Debugger::instance();
@@ -31,12 +29,12 @@ class DebuggerTest extends TestCase {
         $this->checkXdebug();
 
         ob_start();
-?>
+        ?>
 
-array(1) {
-  ["foo"] => string(3) "bar"
-}
-<?php
+        array(1) {
+        ["foo"] => string(3) "bar"
+        }
+        <?php
         $expected = ob_get_clean();
         $this->assertEquals($expected, $this->debugger->varToStr(['foo' => 'bar']));
     }

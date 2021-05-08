@@ -11,7 +11,6 @@ class MyFirst2Controller extends Controller {
     }
 
     public function foo2() {
-
     }
 }
 
@@ -20,14 +19,12 @@ class Some2Class {
 
 class MySecond2Controller extends Controller {
     public function doSomething2() {
-
     }
 
     /**
      * @foo Bar
      */
     public function process2() {
-
     }
 }
 

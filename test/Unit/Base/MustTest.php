@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Base;
 
-use Morpho\Testing\TestCase;
 use Morpho\Base\Must;
+use Morpho\Testing\TestCase;
 
 class MustTest extends TestCase {
     public function testContain_String_Valid() {
@@ -33,7 +33,7 @@ class MustTest extends TestCase {
             [
                 ['foo', ['bar']],
                 ['bar'],
-            ]
+            ],
         ];
     }
 

@@ -7,35 +7,36 @@
 namespace Morpho\Test\Unit\Caching;
 
 use ArrayIterator;
-use RuntimeException;
-use stdClass;
-use function get_debug_type;
-use function is_object;
 use Morpho\Caching\VarExportFileCache;
 use Morpho\Testing\TestCase;
+use RuntimeException;
+use stdClass;
+
+use function get_debug_type;
+use function is_object;
 
 class VarExportFileCacheTest extends TestCase {
     public function dataCaching() {
         yield [
-            ['foo' => 'bar']
+            ['foo' => 'bar'],
         ];
         yield [
-            false
+            false,
         ];
         yield [
-            true
+            true,
         ];
         yield [
-            null
+            null,
         ];
         yield [
-            'Hello World'
+            'Hello World',
         ];
         yield [
-            3.14
+            3.14,
         ];
         yield [
-            [3 => 456, 1 => 'abc']
+            [3 => 456, 1 => 'abc'],
         ];
     }
 

@@ -10,13 +10,14 @@ use Closure;
 use DirectoryIterator;
 use FilesystemIterator;
 use Generator;
+use InvalidArgumentException;
 use LogicException;
 use Morpho\Base\Conf;
 use Morpho\Base\Env;
-use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+
 use function basename;
 use function chdir;
 use function dirname;
@@ -57,9 +58,9 @@ class Dir extends Entry {
 
         $conf = Conf::check(
             [
-                'overwrite'      => false,
-                'followLinks' => false,
-                'skipIfExists'   => false,
+                'overwrite'    => false,
+                'followLinks'  => false,
+                'skipIfExists' => false,
             ],
             (array) $conf
         );
@@ -80,8 +81,8 @@ class Dir extends Entry {
             $sourceDirPath,
             $processor,
             [
-                'recursive' => false,
-                'type' => Stat::ENTRY,
+                'recursive'   => false,
+                'type'        => Stat::ENTRY,
                 'followLinks' => $conf['followLinks'],
             ]
         );
@@ -112,9 +113,9 @@ class Dir extends Entry {
     public static function paths(string|iterable $dirPaths, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
         $conf = Conf::check(
             [
-                'recursive'      => false,
+                'recursive'   => false,
                 'followLinks' => false,
-                'type'           => Stat::ENTRY,
+                'type'        => Stat::ENTRY,
             ],
             self::normalizeConf($conf)
         );

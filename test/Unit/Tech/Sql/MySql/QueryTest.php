@@ -15,7 +15,7 @@ abstract class QueryTest extends DbTestCase {
         parent::setUp();
         $this->query = $this->mkQuery();
     }
-    
+
     public function testInterface() {
         $this->assertInstanceOf(IQuery::class, $this->query);
     }

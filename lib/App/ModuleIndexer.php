@@ -8,6 +8,7 @@ namespace Morpho\App;
 
 use ArrayAccess;
 use Morpho\Caching\ICache;
+
 use function Morpho\Caching\cacheKey;
 use function uasort;
 
@@ -35,9 +36,12 @@ class ModuleIndexer implements IModuleIndexer {
         foreach ($this->moduleIt as $module) {
             $index[$module['name']] = $module;
         }
-        uasort($index, function ($a, $b) {
-            return $a['weight'] - $b['weight'];
-        });
+        uasort(
+            $index,
+            function ($a, $b) {
+                return $a['weight'] - $b['weight'];
+            }
+        );
         $this->cache->set($cacheKey, $index);
         return $index;
     }

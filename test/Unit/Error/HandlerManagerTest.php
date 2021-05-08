@@ -10,8 +10,8 @@ use InvalidArgumentException;
 use Morpho\Error\HandlerManager;
 use PHPUnit\Util\ErrorHandler;
 use RuntimeException;
+
 use function array_diff;
-use function array_pop;
 use function array_shift;
 use function call_user_func;
 use function get_class_methods;
@@ -90,7 +90,11 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         $this->assertSame([], $this->errorHandlers());
 
         try {
-            HandlerManager::unregisterHandler(HandlerManager::ERROR, function () {});
+            HandlerManager::unregisterHandler(
+                HandlerManager::ERROR,
+                function () {
+                }
+            );
             $this->fail('Exception has not been thrown');
         } catch (RuntimeException $e) {
             $this->assertSame('Unable to unregister the error handler', $e->getMessage());

@@ -8,12 +8,13 @@ namespace Morpho\Tech\Php\Reflection;
 
 use Morpho\Fs\Dir;
 use Morpho\Fs\File;
+use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser\Php7 as Parser;
-use PhpParser\Lexer;
 use ReflectionClass;
 use RuntimeException;
+
 use function array_filter;
 use function array_merge;
 use function get_declared_classes;
@@ -31,12 +32,15 @@ class ClassTypeDiscoverer {
             get_declared_traits()
         );
     }
-    
+
     public static function definedClasses(): array {
-        return array_filter(get_declared_classes(), function ($class) {
-            // Skip anonymous classes.
-            return 'class@anonymous' !== substr($class, 0, 15);
-        });
+        return array_filter(
+            get_declared_classes(),
+            function ($class) {
+                // Skip anonymous classes.
+                return 'class@anonymous' !== substr($class, 0, 15);
+            }
+        );
     }
 
     public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $conf = null): array {
@@ -74,7 +78,7 @@ class ClassTypeDiscoverer {
     public static function classTypeFilePath(string $classType): string {
         return (new ReflectionClass($classType))->getFileName();
     }
-    
+
     public static function fileDependsFromClassTypes(string $filePath, bool $excludeStdClasses = true): array {
         $phpCode = File::read($filePath);
 

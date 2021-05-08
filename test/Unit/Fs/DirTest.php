@@ -7,13 +7,13 @@
 namespace Morpho\Test\Unit\Fs;
 
 use DirectoryIterator;
-use InvalidArgumentException;
 use LogicException;
 use Morpho\Base\InvalidConfException;
 use Morpho\Fs\Dir;
+use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\Stat;
 use Morpho\Testing\TestCase;
-use Morpho\Fs\Exception as FsException;
+
 use function basename;
 use function chdir;
 use function chmod;
@@ -128,9 +128,12 @@ class DirTest extends TestCase {
         touch($tmpDirPath . '/foo');
         touch($tmpDirPath . '/bar');
         mkdir($tmpDirPath . '/baz');
-        Dir::delete($tmpDirPath, function ($filePath) {
-            return basename($filePath) === 'bar';
-        });
+        Dir::delete(
+            $tmpDirPath,
+            function ($filePath) {
+                return basename($filePath) === 'bar';
+            }
+        );
         $this->assertSame(['baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
@@ -141,10 +144,13 @@ class DirTest extends TestCase {
         touch($tmpDirPath . '/bar/cow');
         touch($tmpDirPath . '/bar/wolf');
         touch($tmpDirPath . '/baz');
-        Dir::delete($tmpDirPath, function ($filePath) {
-            return basename($filePath) === 'wolf';
-        });
-        $this->assertSame(['bar' , 'bar/cow', 'baz', 'foo'], $this->pathsInDir($tmpDirPath));
+        Dir::delete(
+            $tmpDirPath,
+            function ($filePath) {
+                return basename($filePath) === 'wolf';
+            }
+        );
+        $this->assertSame(['bar', 'bar/cow', 'baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
     public function testDelete_DeleteSelf() {
@@ -234,7 +240,7 @@ class DirTest extends TestCase {
     public function testMustExist_AbsPath() {
         $this->assertEquals(__DIR__, Dir::mustExist(__DIR__));
     }
-    
+
     public function testIsEmptyDir() {
         $this->assertFalse(Dir::isEmpty($this->getTestDirPath()));
         $this->assertTrue(Dir::isEmpty($this->createTmpDir()));
@@ -765,7 +771,7 @@ class DirTest extends TestCase {
         $this->assertEquals(2, $calledTimes);
         $this->assertEquals(['bar', 'foo'], $dirNames);
     }
-    
+
     public function testDirNames_ClosureProcessorWhichReturnsBool() {
         $testDirPath = $this->getTestDirPath();
         $processor = function ($dirName, $path) use (&$calledTimes) {

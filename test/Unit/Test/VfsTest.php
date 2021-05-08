@@ -51,10 +51,13 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
 
         $handle1 = \fopen($uri1, 'w');
         $handle2 = \fopen($uri2, 'w');
-        $this->assertSame([
-            $uri1,
-            $uri2,
-        ], $this->paths($prefix . '/'));
+        $this->assertSame(
+            [
+                $uri1,
+                $uri2,
+            ],
+            $this->paths($prefix . '/')
+        );
 
         $this->assertSame(0, \ftell($handle1));
         $contents = 'Foo bar';
@@ -83,7 +86,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     public function testRename() {
         $this->markTestIncomplete();
     }
-    
+
     public function testTruncation_WithFtruncate() {
         Vfs::register();
         $uri = Vfs::prefixUri('/foo/bar');
@@ -109,7 +112,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         $truncateAndCheck(3);
         $truncateAndCheck(0);
     }
-    
+
     public function testDirApi() {
         Vfs::register();
         $uri = Vfs::prefixUri('/upload/blog/123');
@@ -217,7 +220,7 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
 
     public function dataReadingAfterWriting() {
         yield [
-            ''
+            '',
         ];
         yield [
             'test',

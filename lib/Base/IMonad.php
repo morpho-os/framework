@@ -11,7 +11,7 @@ namespace Morpho\Base;
  */
 interface IMonad extends IApplicative {
     /**
-     * @param $fn: A => IMonad<A>
+     * @param $fn : A => IMonad<A>
      */
     public function bind(callable $fn): IMonad;
 }

@@ -11,6 +11,7 @@ use Morpho\Fs\IFs;
 use Morpho\Fs\Stat;
 use RuntimeException;
 use UnexpectedValueException;
+
 use function basename;
 use function boolval;
 use function clearstatcache;
@@ -76,10 +77,10 @@ class Vfs implements IFs {
         }
         if (0 !== $flags) {
             // @TODO
-/*            if ($flags | STREAM_REPORT_ERRORS) {
-                d($flags);
-                trigger_error(), see http://php.net/manual/en/streamwrapper.stream-open.php
-            }*/
+            /*            if ($flags | STREAM_REPORT_ERRORS) {
+                            d($flags);
+                            trigger_error(), see http://php.net/manual/en/streamwrapper.stream-open.php
+                        }*/
         }
         $this->checkUri($uri);
         $parentDir = $this->parentDir($uri);
@@ -88,9 +89,14 @@ class Vfs implements IFs {
         }
         $openMode = new VfsFileOpenMode($mode);
         if ($openMode->create()) {
-            $file = $parentDir->createFile($uri, new VfsEntryStat([
-                'mode' => $this->fileMode(),
-            ]));
+            $file = $parentDir->createFile(
+                $uri,
+                new VfsEntryStat(
+                    [
+                        'mode' => $this->fileMode(),
+                    ]
+                )
+            );
         } else {
             $file = $parentDir->file(self::entryName($uri));
         }
@@ -143,9 +149,9 @@ class Vfs implements IFs {
     }
 
     public function stream_stat(): array {
-/*        if (!$this->file) {
-            return [];
-        }*/
+        /*        if (!$this->file) {
+                    return [];
+                }*/
         return $this->file->stat()->getArrayCopy();
     }
 
@@ -223,9 +229,11 @@ class Vfs implements IFs {
             throw new RuntimeException('Unable to create directory, such directory already exists');
         }
         $recursive = boolval($flags & STREAM_MKDIR_RECURSIVE);
-        $stat = new VfsEntryStat([
-            'mode' => $this->dirMode($mode),
-        ]);
+        $stat = new VfsEntryStat(
+            [
+                'mode' => $this->dirMode($mode),
+            ]
+        );
         if ($recursive) {
             $this->root()->createAllDirs($uri, $stat);
             clearstatcache();

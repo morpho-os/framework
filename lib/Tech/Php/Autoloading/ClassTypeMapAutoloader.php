@@ -8,6 +8,7 @@ namespace Morpho\Tech\Php\Autoloading;
 
 use Morpho\Caching\ICache;
 use Morpho\Tech\Php\Reflection\ClassTypeDiscoverer;
+
 use function Morpho\Caching\cacheKey;
 
 class ClassTypeMapAutoloader extends Autoloader {

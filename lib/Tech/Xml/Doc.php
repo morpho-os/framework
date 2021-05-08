@@ -7,12 +7,12 @@
 namespace Morpho\Tech\Xml;
 
 use DOMDocument;
-
 use DOMXPath;
 use InvalidArgumentException;
 use Morpho\Base\InvalidConfException;
 use Morpho\Fs\File;
 use RuntimeException;
+
 use function array_diff_key;
 use function call_user_func_array;
 use function count;
@@ -35,17 +35,17 @@ class Doc extends DOMDocument {
      * NB: true values are not actual values of the options.
      */
     private const CREATE_CONFIG_PARAMS = [
-        'documentURI' => true,
-        'encoding' => true,
-        'formatOutput' => true,
-        'preserveWhiteSpace' => true,
-        'recover' => true,
-        'resolveExternals' => true,
+        'documentURI'         => true,
+        'encoding'            => true,
+        'formatOutput'        => true,
+        'preserveWhiteSpace'  => true,
+        'recover'             => true,
+        'resolveExternals'    => true,
         'strictErrorChecking' => true,
-        'substituteEntities' => true,
-        'validateOnParse' => true,
-        'xmlStandalone' => true,
-        'xmlVersion' => true,
+        'substituteEntities'  => true,
+        'validateOnParse'     => true,
+        'xmlStandalone'       => true,
+        'xmlVersion'          => true,
     ];
 
     public static function parseFile(string $filePath, array $conf = null): Doc {

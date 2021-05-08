@@ -10,9 +10,10 @@ use ArrayObject;
 use Morpho\App\IResponse;
 use Morpho\App\ISite;
 use Morpho\App\Web\IRequest;
-use Morpho\Testing\TestCase;
 use Morpho\App\Web\View\ScriptProcessor;
+use Morpho\Testing\TestCase;
 use RuntimeException;
+
 use const Morpho\App\FRONTEND_DIR_NAME;
 
 class ScriptProcessorTest extends TestCase {
@@ -45,14 +46,16 @@ OUT;
         // And now render them for <body>
         $html = $this->processor->__invoke($parentPage);
 
-        $re = $this->quotedRe([
-            '<body>',
-            'This is a',
-            'parent',
-            '<script src="' . $this->baseUriPath . '/bar/parent.js"></script>',
-            '<script src="' . $this->baseUriPath . '/foo/child.js"></script>',
-            '</body>',
-        ]);
+        $re = $this->quotedRe(
+            [
+                '<body>',
+                'This is a',
+                'parent',
+                '<script src="' . $this->baseUriPath . '/bar/parent.js"></script>',
+                '<script src="' . $this->baseUriPath . '/foo/child.js"></script>',
+                '</body>',
+            ]
+        );
 
         $this->assertMatchesRegularExpression($re, $html);
     }
@@ -78,14 +81,16 @@ OUT;
         // And now render them for <body>
         $html = $this->processor->__invoke($parentPage);
 
-        $re = $this->quotedRe([
-            '<body>',
-            'This is a',
-            'parent',
-            '<script src="foo/child.js"></script>',
-            '<script src="bar/parent.js"></script>',
-            '</body>'
-        ]);
+        $re = $this->quotedRe(
+            [
+                '<body>',
+                'This is a',
+                'parent',
+                '<script src="foo/child.js"></script>',
+                '<script src="bar/parent.js"></script>',
+                '</body>',
+            ]
+        );
         $this->assertMatchesRegularExpression($re, $html);
     }
 
@@ -162,19 +167,21 @@ OUT;
 
         $html = $processor->__invoke('<body>' . $parentScripts . '</body>');
 
-        $re = $this->quotedRe([
-            '<body>',
-            '<script>before</script>',
-            '<script src="' . $this->baseUriPath . '/parent/script.js"></script>',
-            '<script>after</script>',
-            '<script src="' . $this->baseUriPath . '/blog/lib/app/cat/tail.js"></script>',
-            '<script>',
-            'define(["require", "exports", "blog/lib/app/cat/tail"], function (require, exports, module) {',
-            'module.main(window.app || {}, ' . json_encode((array)$jsConf, JSON_UNESCAPED_SLASHES) . ');',
-            '});',
-            '</script>',
-            '</body>',
-        ]);
+        $re = $this->quotedRe(
+            [
+                '<body>',
+                '<script>before</script>',
+                '<script src="' . $this->baseUriPath . '/parent/script.js"></script>',
+                '<script>after</script>',
+                '<script src="' . $this->baseUriPath . '/blog/lib/app/cat/tail.js"></script>',
+                '<script>',
+                'define(["require", "exports", "blog/lib/app/cat/tail"], function (require, exports, module) {',
+                'module.main(window.app || {}, ' . json_encode((array) $jsConf, JSON_UNESCAPED_SLASHES) . ');',
+                '});',
+                '</script>',
+                '</body>',
+            ]
+        );
         $this->assertMatchesRegularExpression($re, $html);
     }
 
@@ -203,28 +210,31 @@ OUT;
 
         $html = $processor->__invoke('<body>' . $parentScripts . '</body>');
 
-        $re = $this->quotedRe([
-            '<body>',
-            '<script>before</script>',
-            '<script src="' . $this->baseUriPath . '/parent/script.js"></script>',
-            '<script>after</script>',
-            '<script src="' . $this->baseUriPath . '/foo/first.js"></script>',
-            '<script>',
-            'alert("OK");',
-            '</script>',
-            '<script src="bar/second.js"></script>',
-            '</body>',
-        ]);
+        $re = $this->quotedRe(
+            [
+                '<body>',
+                '<script>before</script>',
+                '<script src="' . $this->baseUriPath . '/parent/script.js"></script>',
+                '<script>after</script>',
+                '<script src="' . $this->baseUriPath . '/foo/first.js"></script>',
+                '<script>',
+                'alert("OK");',
+                '</script>',
+                '<script src="bar/second.js"></script>',
+                '</body>',
+            ]
+        );
         $this->assertMatchesRegularExpression($re, $html);
     }
 
     private function quotedRe(array $parts): string {
-        return '~^' . implode('\s*?', array_map(fn ($s) => preg_quote($s), $parts)) . '$~s';
+        return '~^' . implode('\s*?', array_map(fn($s) => preg_quote($s), $parts)) . '$~s';
     }
 
     private function mkRequestStub(string $view) {
         return new class (['view' => $view], $this->baseUriPath) extends ArrayObject implements IRequest {
             private $baseUriPath;
+
             public function __construct($array, $baseUriPath) {
                 parent::__construct($array);
                 $this->baseUriPath = $baseUriPath;
@@ -234,6 +244,7 @@ OUT;
                 $mkUri = function ($uri) {
                     return new class ($uri) {
                         private $uri;
+
                         public function __construct($uri) {
                             $this->uri = $uri;
                         }
@@ -282,12 +293,14 @@ OUT;
         $site->method('moduleName')
             ->willReturn($siteModuleName);
         $site->method('conf')
-            ->willReturn([
-                'paths' => [
-                    'frontendModuleDirPath' => $this->getTestDirPath() . '/' . FRONTEND_DIR_NAME,
-                    'baseUriPath' => $this->baseUriPath,
-                ],
-            ]);
+            ->willReturn(
+                [
+                    'paths' => [
+                        'frontendModuleDirPath' => $this->getTestDirPath() . '/' . FRONTEND_DIR_NAME,
+                        'baseUriPath'           => $this->baseUriPath,
+                    ],
+                ]
+            );
         return $site;
     }
 }

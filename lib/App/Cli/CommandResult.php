@@ -8,8 +8,10 @@ namespace Morpho\App\Cli;
 
 use Generator;
 use Traversable;
+
 use function preg_split;
 use function trim;
+
 use const Morpho\Base\EOL_FULL_RE;
 
 abstract class CommandResult implements ICommandResult {

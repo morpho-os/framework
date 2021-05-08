@@ -70,13 +70,13 @@ interface IDbClient {
     //public function namedArgs(array $args): array;
 
     public function nameValArgs(array $args): array;
-/*
-    public function commaSep(array $exprs): string;
+    /*
+        public function commaSep(array $exprs): string;
 
-    public function logicalOr(array $exprs): string;
+        public function logicalOr(array $exprs): string;
 
-    public function logicalAnd(array $exprs): string;
-*/
+        public function logicalAnd(array $exprs): string;
+    */
     /**
      * See [SQL Syntax Allowed in Prepared Statements](https://dev.mysql.com/doc/refman/5.7/en/sql-syntax-prepared-statements.html#idm139630090954512)
      * @param callable $fn

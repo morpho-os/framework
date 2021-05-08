@@ -6,17 +6,18 @@
  */
 namespace Morpho\App\Web\Routing;
 
-use Morpho\Base\Arr;
-use Morpho\Caching\ICache;
-use function Morpho\Base\compose;
+use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\Dispatcher as IDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
-use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\App\IRouter;
+use Morpho\Base\Arr;
+use Morpho\Caching\ICache;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
+
+use function Morpho\Base\compose;
 use function Morpho\Base\only;
 use function Morpho\Caching\cacheKey;
 
@@ -91,7 +92,9 @@ class FastRouter implements IHasServiceManager, IRouter {
         return compose(
             $this->serviceManager['routeMetaProvider'],
             new ActionMetaProvider(),
-        )($modules);
+        )(
+            $modules
+        );
     }
 
     protected function conf(): array {

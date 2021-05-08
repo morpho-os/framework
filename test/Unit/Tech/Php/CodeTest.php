@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Tech\Php;
 
-use Morpho\Testing\TestCase;
 use Morpho\Tech\Php\Code;
+use Morpho\Testing\TestCase;
 
 class CodeTest extends TestCase {
     public function testVarToStr() {

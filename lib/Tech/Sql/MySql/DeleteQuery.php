@@ -11,31 +11,31 @@ class DeleteQuery extends Query {
 //        throw new NotImplementedException();
 //    }
 
-/*
-    /**
-     * @param string $tableName
-     * @param array|string $whereCondition
-     * @param array|null $whereConditionArgs
-    public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): void {
+    /*
+        /**
+         * @param string $tableName
+         * @param array|string $whereCondition
+         * @param array|null $whereConditionArgs
+        public function deleteRows(string $tableName, $whereCondition, array $whereConditionArgs = null): void {
 
-    }
- */
+        }
+     */
     public function sql(): string {
         $sql = ['DELETE', 'FROM', $this->db->quoteIdentifierStr($this->tables)];
-/*
-DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
-    tbl_name[.*] [, tbl_name[.*]] ...
-    FROM table_references
-    [WHERE where_condition]
+        /*
+        DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+            tbl_name[.*] [, tbl_name[.*]] ...
+            FROM table_references
+            [WHERE where_condition]
 
-Or:
+        Or:
 
-DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
-    FROM tbl_name[.*] [, tbl_name[.*]] ...
-    USING table_references
-    [WHERE where_condition]
+        DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+            FROM tbl_name[.*] [, tbl_name[.*]] ...
+            USING table_references
+            [WHERE where_condition]
 
- */
+         */
         if ($this->where) {
             $sql[] = $this->whereStr();
         }

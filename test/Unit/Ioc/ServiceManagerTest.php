@@ -8,13 +8,13 @@ namespace Morpho\Test\Unit\Ioc;
 
 use ArrayObject;
 use Closure;
-use Morpho\Ioc\IServiceManager;
 use Morpho\Ioc\IHasServiceManager;
+use Morpho\Ioc\IServiceManager;
+use Morpho\Ioc\ServiceManager;
 use Morpho\Ioc\ServiceNotFoundException;
 use Morpho\Testing\TestCase;
-use Morpho\Ioc\ServiceManager;
-use stdClass;
 use RuntimeException;
+use stdClass;
 
 class ServiceManagerTest extends TestCase {
     private IServiceManager $serviceManager;

@@ -7,18 +7,20 @@
 namespace Morpho\Tech\Php;
 
 use InvalidArgumentException;
+
 use function array_merge;
 use function array_splice;
 use function count;
 use function file_get_contents;
 use function file_put_contents;
 use function implode;
+use function Morpho\Base\contains;
 use function preg_match;
 use function preg_split;
 use function strlen;
 use function substr_replace;
+
 use const Morpho\Base\EOL_FULL_RE;
-use function Morpho\Base\contains;
 
 class LicenseHeaderManager {
     public function updateLicenseHeader(string $filePath, string $licenseText): void {

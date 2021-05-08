@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Caching;
 
-use Morpho\Caching\TextFileCache;
 use Morpho\Caching\ICache;
+use Morpho\Caching\TextFileCache;
 
 class TextFileCacheTest extends CacheTest {
     protected function mkCache(): ICache {

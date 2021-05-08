@@ -6,105 +6,79 @@
  */
 namespace Morpho\Tech\Php\Linting;
 
-use Traversable;
-use UnexpectedValueException;
-use function array_merge;
-use function basename;
-use function count;
-use function in_array;
-use function Morpho\Base\init;
-use function Morpho\Base\last;
+use Morpho\Base\Err;
+use Morpho\Base\Ok;
+use Morpho\Base\Result;
+use Morpho\Fs\Path;
 use Morpho\Tech\Php\Reflection\ClassTypeDiscoverer;
 use Morpho\Tech\Php\Reflection\FileReflection;
-use Morpho\Fs\Path;
-use function rtrim;
-use function str_replace;
-use function strlen;
-use function strpos;
-use function substr;
+use Traversable;
 
-/*
-@TODO
-Add an option to fix the class name (if does not match and fix only first)
-Add an option to fix namespace, (if does not match and fix only first)
-*/
-class FileChecker {
-    public const META_FILE_NOT_FOUND = 'metaFileNotFound';
-    public const INVALID_META_FILE_FORMAT = 'invalidMetaFileFormat';
-    public const NS_NOT_FOUND = 'nsNotFound';
+use function Morpho\Base\init;
+use function Morpho\Base\last;
+
+class FileChecker implements ILinter {
     public const INVALID_CLASS = 'invalidClass';
     public const INVALID_NS = 'invalidNs';
 
-    public function checkFile(SourceFile $sourceFile): array {
+    public function check(mixed $context): Result {
+        $invalidNss = $this->checkNamespaces($context);
+        $invalidClassTypes = $this->checkClassTypes($context);
         $errors = [];
-        $errors = array_merge($errors, $this->checkNamespaces($sourceFile));
-        $errors = array_merge($errors, $this->checkClassTypes($sourceFile));
-        return count($errors) ? [$sourceFile->filePath() => $errors] : [];
+        if ($invalidNss) {
+            $errors[self::INVALID_NS] = $invalidNss;
+        }
+        if ($invalidClassTypes) {
+            $errors[self::INVALID_CLASS] = $invalidClassTypes;
+        }
+        return $errors ? new Err($errors) : new Ok();
     }
 
-    public function checkNamespaces(SourceFile $sourceFile): array {
-        $expectedNss = [];
-        foreach ($sourceFile->nsToDirPathMap() as $nsPrefix => $libDirPath) {
-            if (!Path::isAbs($libDirPath)) {
-                $pos = strpos($libDirPath, '://'); // URI like vfs:///foo
-                if (false !== $pos) {
-                    $isAbs = isset($libDirPath[$pos + 3]) && $libDirPath[$pos + 3] === '/';
-                } else {
-                    $isAbs = false;
-                }
-                if (!$isAbs) {
-                    throw new UnexpectedValueException('The library directory path must be absolute');
-                }
-            }
-            if (str_starts_with($sourceFile->filePath(), $libDirPath)) {
-                $nsPrefix = rtrim($nsPrefix, '\\');
-                $nsSuffix = str_replace('/', '\\', substr($sourceFile->filePath(), strlen($libDirPath) + 1));
-                $ns = $nsPrefix . '\\' . $nsSuffix;
-                $expectedNss[] = init($ns, '\\');
-            }
+    public function checkNamespaces($context): array {
+        $relPath = Path::rel($context['filePath'], $context['baseDirPath']);
+        $expectedNs = rtrim($context['ns'], '\\');
+        $nsSuffix = init(str_replace('/', '\\', $relPath), '\\');
+        if ($nsSuffix !== '') {
+            $expectedNs .= '\\' . $nsSuffix;
         }
-        $errors = [];
-        if (!count($expectedNss)) {
-            $errors[] = self::NS_NOT_FOUND;
-            return $errors;
-        }
-
-        // Check namespaces (if > 1, then first)
-        foreach (self::namespaces($sourceFile->filePath()) as $nsName) {
-            if (null === $nsName) {
+        $allowGlobalNs = ctype_lower(basename($relPath)); // Allow only if filename starts with [a-z]
+        foreach (self::namespaces($context['filePath']) as $ns) {
+            if (null === $ns && $allowGlobalNs) {
                 // null means global
                 continue;
             }
-
-            if (!in_array($nsName, $expectedNss, true)) {
-                $errors[self::INVALID_NS] = $nsName;
+            // We are checking only the first namespace.
+            if ($ns !== $expectedNs) {
+                return [
+                    'expected' => $expectedNs,
+                    'actual'   => $ns,
+                ];
             }
-
-            // We are checking only a first namespace.
-            break;
+            return [];
         }
-
-        return $errors;
+        return [];
     }
 
-    public function checkClassTypes(SourceFile $sourceFile): array {
-        $errors = [];
-        $filePath = $sourceFile->filePath();
+    public function checkClassTypes($context): array {
+        $filePath = $context['filePath'];
         $expectedClassName = Path::dropExt(basename($filePath));
-        foreach (self::classes($sourceFile->filePath()) as $className) {
+        foreach (self::classes($filePath) as $className) {
             $shortClassName = last($className, '\\');
             if ($shortClassName !== $expectedClassName) {
-                $errors[self::INVALID_CLASS] = $className;
+                return [
+                    'expected' => $expectedClassName,
+                    'actual'   => $shortClassName,
+                ];
             }
-            // We are checking only first class.
-            return $errors;
+            // We are checking only the first class.
+            return [];
         }
-        return $errors;
+        return [];
     }
 
     /**
      * @param string $filePath
-     * @return Traversable|string[]
+     * @return \Traversable|string[]
      */
     protected function namespaces(string $filePath): iterable {
         $rFile = new FileReflection($filePath);
@@ -118,8 +92,6 @@ class FileChecker {
      * @return Traversable|string[]
      */
     protected function classes(string $filePath): iterable {
-        $classTypeDiscoverer = new ClassTypeDiscoverer();
-        $classes = $classTypeDiscoverer->classTypesDefinedInFile($filePath);
-        return $classes;
+        return (new ClassTypeDiscoverer())->classTypesDefinedInFile($filePath);
     }
 }

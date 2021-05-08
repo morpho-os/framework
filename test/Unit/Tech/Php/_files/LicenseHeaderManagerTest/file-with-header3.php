@@ -8,6 +8,3 @@
 declare(strict_types=1);
 namespace Morpho\Test\Unit\Tech\Php;
 
-use const Morpho\Base\EOL_FULL_RE;
-use function Morpho\Base\contains;
-use Morpho\Base\NotImplementedException;

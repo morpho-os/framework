@@ -12,6 +12,7 @@ use Morpho\Error\IErrorHandler;
 use Morpho\Ioc\ServiceManager;
 use Morpho\Testing\TestCase;
 use UnexpectedValueException;
+
 use function ini_get;
 use function ini_set;
 
@@ -21,7 +22,6 @@ class AppInitializerTest extends TestCase {
     public function setUp(): void {
         parent::setUp();
         $this->timezone = ini_get('date.timezone');
-
     }
 
     public function tearDown(): void {
@@ -46,7 +46,7 @@ class AppInitializerTest extends TestCase {
     public function testTimezoneCanBeSetThroughSiteConf(string $timeZone) {
         $siteConf = [
             'iniConf' => [
-                'date.timezone' => $timeZone
+                'date.timezone' => $timeZone,
             ],
         ];
         $serviceManager = $this->mkServiceManager($siteConf);
@@ -60,21 +60,28 @@ class AppInitializerTest extends TestCase {
 
     private function mkServiceManager($siteConf) {
         $serviceManager = $this->createMock(ServiceManager::class);
-        $site = $this->createConfiguredMock(Site::class, [
-            'conf' => $siteConf,
-        ]);
+        $site = $this->createConfiguredMock(
+            Site::class,
+            [
+                'conf' => $siteConf,
+            ]
+        );
         $errorHandler = $this->createMock(IErrorHandler::class);
         $serviceManager->expects($this->any())
             ->method('offsetGet')
-            ->will($this->returnCallback(function ($id) use ($site, $errorHandler) {
-                if ($id === 'site') {
-                    return $site;
-                }
-                if ($id === 'errorHandler') {
-                    return $errorHandler;
-                }
-                throw new UnexpectedValueException($id);
-            }));
+            ->will(
+                $this->returnCallback(
+                    function ($id) use ($site, $errorHandler) {
+                        if ($id === 'site') {
+                            return $site;
+                        }
+                        if ($id === 'errorHandler') {
+                            return $errorHandler;
+                        }
+                        throw new UnexpectedValueException($id);
+                    }
+                )
+            );
         return $serviceManager;
     }
 }

@@ -7,8 +7,8 @@
 namespace Morpho\Test\Unit\Base {
 
     use Morpho\Test\Unit\Base\TSingletonTest\ChildSingleton;
-    use Morpho\Testing\TestCase;
     use Morpho\Test\Unit\Base\TSingletonTest\Singleton;
+    use Morpho\Testing\TestCase;
 
     class TSingletonTest extends TestCase {
         public function tearDown(): void {
@@ -39,6 +39,7 @@ namespace Morpho\Test\Unit\Base {
 }
 
 namespace Morpho\Test\Unit\Base\TSingletonTest {
+
     use Morpho\Base\TSingleton;
 
     class Singleton {
