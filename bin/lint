@@ -5,25 +5,11 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test;
+namespace Morpho\Infra;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 function main(): void {
-//    $baseDirPath = realpath(__DIR__ . '/..');
-//
-//    $mappers = [];
-//    $absDirPath = function (string $relDirPath) use ($baseDirPath) {
-//        return Path::combine($baseDirPath, $relDirPath);
-//    };
-//    $fqNs = function ($ns) {
-//        return 'Morpho\\' . (null === $ns ? '' : trim($ns, '\\') . '\\');
-//    };
-//    $mappers[] = new Psr4Mapper($fqNs(null), $absDirPath('lib'), Psr4Mapper::phpFilePathsFn());
-//    $mappers[] = new Psr4Mapper($fqNs('Test'), $absDirPath('test'), Psr4Mapper::testFilePathsFn());
-//    // @TODO: Add modules
-//    $ok = (new Linter())->checkModule($baseDirPath, $mappers);
-//
 //    //passthru('cd ' . escapeshellarg($baseDirPath) . ' && ' . escapeshellarg($baseDirPath) . '/vendor/bin/psalm', $exitCode);
 //    //$ok = $ok && ($exitCode === 0);
     $ok = true;

@@ -4,6 +4,7 @@ namespace Morpho\Tech\Php;
 require __DIR__ . '/Debug/autoload.php';
 require __DIR__ . '/Autoloading/autoload.php';
 
+use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
 use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
 use PhpParser\Node\Stmt\Trait_ as TraitStmt;
@@ -11,8 +12,12 @@ use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 
+use UnexpectedValueException;
+
+use function file_get_contents;
+
 function parseFile(string $filePath): ?array {
-    return parse(\file_get_contents($filePath));
+    return parse(file_get_contents($filePath));
 }
 
 function parse(string $str): ?array {
@@ -24,7 +29,7 @@ function visitFile(string $filePath, array $visitors): array {
     $nodes = parseFile($filePath);
     if (null === $nodes) {
         // non-throwing error handler is used and parser was unable to recover from an error.
-        throw new \UnexpectedValueException();
+        throw new UnexpectedValueException();
     }
     return visit($nodes, $visitors);
 }
@@ -48,8 +53,10 @@ function ppFile(array $nodes): string {
     return $pp->prettyPrintFile($nodes);
 }
 
-function isClassType(\PhpParser\Node $node): bool {
+function isClassType(Node $node): bool {
     return $node instanceof ClassStmt
         || $node instanceof InterfaceStmt
         || $node instanceof TraitStmt;
 }
+
+

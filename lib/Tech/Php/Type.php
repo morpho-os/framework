@@ -39,7 +39,7 @@ abstract class Type {
         TParam: TProperty | static | callable
             Can be used in function definition as formal parameter type hint.
 
-        TReturn: TParam | void
+        TReturn: TParam | void | never (>= 8.1)
             Can be used in function definition as return type hint.
 
         TScalar: int | float | bool | string | null
@@ -79,6 +79,7 @@ abstract class Type {
     public const PUBLIC = 'parent';      // in TProperty, TParam, TReturn
     public const STATIC = 'static';      // in TParam, TReturn
     public const VOID = 'void';        // in TReturn
+    public const NEVER = 'never';      // in TReturn
     public const MIXED = 'mixed';       // in TProperty, TParam, TReturn
     //public const CLASS_OR_INTERFACE = 'classin -interface'; // TProperty, TParam, TReturn, TClassOrInterface
     //public const UNION = 'union';        // in TProperty, TParam, TReturn
