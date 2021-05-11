@@ -7,7 +7,7 @@
 /**
  * Some functions are based on functions found at [nikic/iter](https://github.com/nikic/iter) package, Copyright (c) 2013 by Nikita Popov
  */
-namespace Morpho\Test\Unit\Tech\PhpFileHeaderFixerTest;
+namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest;
 
 use ArrayObject;
 use Closure;

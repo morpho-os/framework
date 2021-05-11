@@ -15,7 +15,7 @@ namespace {
         }
     }
 }
-namespace Morpho\Test\Unit\Tech\PhpFileHeaderFixerTest {
+namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest {
 
     use Composer\Autoload\ClassLoader;
     use PhpParser\Node;

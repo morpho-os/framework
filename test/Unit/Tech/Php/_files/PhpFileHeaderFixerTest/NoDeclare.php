@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Morpho\Test\Unit\Tech\PhpFileHeaderFixerTest;
+namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest;
 
 
 class NoDeclare {

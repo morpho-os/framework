@@ -36,8 +36,7 @@ class PhpFileHeaderFixer implements IFn {
                     ->map(
                         function ($context) {
                             if (!$context['dryRun']) {
-                                var_dump($context['text']);
-                                //file_put_contents($context['filePath'], d($context['text']));
+                                file_put_contents($context['filePath'], $context['text']);
                             }
                             return $context;
                         }
@@ -284,7 +283,7 @@ OUT;
                 ]
             )
         );
-        $context['text'] = ppFile($nodes);
+        $context['text'] = $this->ppFile($nodes);
         return $context;
     }
 
@@ -349,7 +348,7 @@ OUT;
      * @param callable|null $afterVisit
      * @return array Modified $context.
      */
-    function visit(array $context, array $visitors, callable $beforeVisit = null, callable $afterVisit = null): array {
+    private function visit(array $context, array $visitors, callable $beforeVisit = null, callable $afterVisit = null): array {
         $nodes = $this->parse($context);
         if ($beforeVisit) {
             $nodes = $beforeVisit($nodes, $visitors);
@@ -358,7 +357,13 @@ OUT;
         if ($afterVisit) {
             $nodes = $afterVisit($nodes, $visitors);
         }
-        $context['text'] = ppFile($nodes);
+        $context['text'] = $this->ppFile($nodes);
         return $context;
+    }
+
+    private function ppFile(array $nodes): string {
+        $text = ppFile($nodes);
+        $text = preg_replace('~^\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si', '<?php declare(strict_types=1);', $text);
+        return $text;
     }
 }

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 
-namespace Morpho\Test\Unit\Tech;
+namespace Morpho\Test\Unit\Tech\Php;
 
 
 use Morpho\Base\Err;
@@ -294,7 +294,7 @@ class PhpFileHeaderFixerTest extends TestCase {
     }
 
     private function fileHeaderRe(string $expectedNs, string $licenseComment = null): string {
-        return '~^\\<\\?php\\s+declare\\s*\\(strict_types\\=1\\);\s+'
+        return '~^\\<\\?php declare\\(strict_types=1\\);\s+'
             . preg_quote($licenseComment ?? $this->licenseComment(), '~')
             . '\s+namespace ' . preg_quote($expectedNs, '~') . '~s';
     }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Morpho\Test\Unit\Tech\PhpFileHeaderFixerTest;
+namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest;
 
 use Morpho\Base\Err;
 use Morpho\Base\IFn;
