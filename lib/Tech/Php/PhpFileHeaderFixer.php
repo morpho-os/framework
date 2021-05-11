@@ -169,7 +169,9 @@ class PhpFileHeaderFixer implements IFn {
                         return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
                     }
                     if ($node instanceof Node\Stmt\Namespace_) {
-                        $node->name->parts = explode('\\', $this->fix['expected']);
+                        if ($node->name) {
+                            $node->name->parts = explode('\\', $this->fix['expected']); // fix only if non-global namespace.
+                        }
                         $this->fixed = true;
                     }
                 }
@@ -289,6 +291,7 @@ OUT;
     private function fixLicenseComment(array $context): array {
         $visitor = new class ($this->licenseComment()) extends NodeVisitorAbstract {
             private bool $licenseCommentRemoved = false;
+            private bool $licenseCommentAdded = false;
 
             public function __construct(private string $licenseComment) {
             }
@@ -299,12 +302,18 @@ OUT;
                         $this->licenseCommentRemoved = $this->removeLicenseComment($node);
                     }
 
-                    if ($node instanceof Node\Stmt\Namespace_) {
+                    if ($node instanceof Node\Stmt\Declare_) {
+                        return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
+                    }
+
+                    if (!$this->licenseCommentAdded && $node instanceof Node\Stmt) {
                         $comments = $node->getComments();
                         array_unshift($comments, new Comment\Doc($this->licenseComment));
                         $node->setAttribute('comments', $comments);
+                        $this->licenseCommentAdded = true;
                     }
                 }
+                return null;
             }
 
             private function removeLicenseComment(Node $node): bool {

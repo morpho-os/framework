@@ -22,7 +22,6 @@ use ReflectionMethod;
 use function count;
 use function file_get_contents;
 use function Morpho\Base\contains;
-use function Morpho\Tech\Php\parseFile;
 
 class FileReflection {
     private string $filePath;
@@ -50,7 +49,13 @@ class FileReflection {
         $globalClassTypes = $globalFunctions = [];
         foreach ($stmts as $stmt) {
             if ($stmt instanceof NamespaceStmt) {
-                yield new NamespaceReflection($this->filePath(), $stmt->name->toString(), $this->classTypes($stmt), $this->functions($stmt), false);
+                yield new NamespaceReflection(
+                    $this->filePath(),
+                    null !== $stmt->name ? $stmt->name->toString() : null,
+                    $this->classTypes($stmt),
+                    $this->functions($stmt),
+                    false
+                );
             } elseif ($this->isClassType($stmt)) {
                 $globalClassTypes[] = $this->nodeName($stmt);
             } elseif ($this->isFunction($stmt)) {
