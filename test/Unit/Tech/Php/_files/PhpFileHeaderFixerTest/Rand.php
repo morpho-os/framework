@@ -5,10 +5,6 @@
 namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest;
 
 
-
-
-
-
 class Rand {
 
 }

@@ -1,4 +1,9 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\App\Web;
 
 use Closure;
@@ -25,12 +30,12 @@ class ErrorHandler extends BaseErrorHandler {
         return function (Throwable $e) {
             $statusLine = null;
             /*            if ($e instanceof NotFoundException) {
-                            $statusLine = Environment::httpVersion() . ' 404 Not Found';
-                            $message = "The requested resource was not found";
-                        } elseif ($e instanceof AccessDeniedException) {
-                            $statusLine = Environment::httpVersion() . ' 403 Forbidden';
-                            $message = "You don't have access to the requested resource";
-                        } else*/
+                              $statusLine = Environment::httpVersion() . ' 404 Not Found';
+                              $message = "The requested resource was not found";
+                          } elseif ($e instanceof AccessDeniedException) {
+                              $statusLine = Environment::httpVersion() . ' 403 Forbidden';
+                              $message = "You don't have access to the requested resource";
+                          } else*/
             if ($e instanceof BadRequestException) {
                 $statusLine = Env::httpVersion() . ' 400 Bad Request';
                 $message = "Bad request, please contact site's support";

@@ -68,7 +68,11 @@ class FastRouter implements IHasServiceManager, IRouter {
                 return '{' . \str_replace('$', '', $var) . ':[^/]+}';
             }, $routeMeta['uri']);
             */
-            $routeCollector->addRoute($routeMeta['httpMethod'], $routeMeta['uri'], only($routeMeta, ['module', 'class', 'method', 'modulePath', 'controllerPath']));
+            $routeCollector->addRoute(
+                $routeMeta['httpMethod'],
+                $routeMeta['uri'],
+                only($routeMeta, ['module', 'class', 'method', 'modulePath', 'controllerPath'])
+            );
         }
         $dispatchData = $routeCollector->getData();
         $this->cache->set($this->cacheKey, $dispatchData);

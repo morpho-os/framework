@@ -71,7 +71,9 @@ class Doc extends DOMDocument {
             $result = $doc->loadXML($source);
         } else {
             if ($fixEncoding) {
-                $source = '<meta http-equiv="content-type" content="text/html; charset=' . e($conf['encoding'] ?? self::ENCODING) . '">'
+                $source = '<meta http-equiv="content-type" content="text/html; charset=' . e(
+                        $conf['encoding'] ?? self::ENCODING
+                    ) . '">'
                     . $source;
             }
             $result = $doc->loadHTML($source);

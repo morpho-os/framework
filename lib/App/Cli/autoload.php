@@ -253,7 +253,9 @@ function rawSh(string $cmd, $env = null) {
 
 function checkExitCode(int $exitCode, string $errMessage = null): int {
     if ($exitCode !== 0) {
-        throw new RuntimeException("Command returned non-zero exit code: " . (int) $exitCode . (null !== $errMessage ? '. ' . $errMessage : ''));
+        throw new RuntimeException(
+            "Command returned non-zero exit code: " . (int) $exitCode . (null !== $errMessage ? '. ' . $errMessage : '')
+        );
     }
     return $exitCode;
 }

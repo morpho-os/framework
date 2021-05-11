@@ -157,7 +157,13 @@ class NamespaceReflection {
     private $isGlobal;
     private $filePath;
 
-    public function __construct(string $filePath, ?string $name, iterable $classTypes, iterable $functions, bool $isGlobal) {
+    public function __construct(
+        string $filePath,
+        ?string $name,
+        iterable $classTypes,
+        iterable $functions,
+        bool $isGlobal
+    ) {
         $this->filePath = $filePath;
         $this->name = $name;
         $this->classTypes = $classTypes;

@@ -60,6 +60,11 @@ class InsertQuery extends Query {
         }
         $row = $this->rows[0]; // todo: support multiple rows
         return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tables[0])
-            . ' (' . \implode(', ', $this->db->quoteIdentifier(\array_keys($row))) . ') VALUES (' . \implode(', ', $this->db->positionalArgs($row)) . ')';
+            . ' (' . \implode(', ', $this->db->quoteIdentifier(\array_keys($row))) . ') VALUES (' . \implode(
+                ', ',
+                $this->db->positionalArgs(
+                    $row
+                )
+            ) . ')';
     }
 }

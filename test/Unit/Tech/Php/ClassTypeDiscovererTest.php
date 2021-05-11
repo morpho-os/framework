@@ -42,7 +42,10 @@ class ClassTypeDiscovererTest extends TestCase {
         $discoverStrategy->expects($this->atLeastOnce())
             ->method('classTypesDefinedInFile')
             ->will($this->returnValue([]));
-        $this->assertInstanceOf(get_class($this->classTypeDiscoverer), $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy));
+        $this->assertInstanceOf(
+            get_class($this->classTypeDiscoverer),
+            $this->classTypeDiscoverer->setDiscoverStrategy($discoverStrategy)
+        );
         $this->classTypeDiscoverer->classTypesDefinedInDir(__DIR__);
     }
 
@@ -110,7 +113,18 @@ class ClassTypeDiscovererTest extends TestCase {
     }
 
     public function testFileDependsFromClassTypes_WithoutStdClassesArg() {
-        $this->assertEquals([self::class . '\ISome'], ClassTypeDiscoverer::fileDependsFromClassTypes($this->getTestDirPath() . '/ClassTypeDepsWithStdClasses.php'));
-        $this->assertEquals(['ArrayObject', self::class . '\ISome'], ClassTypeDiscoverer::fileDependsFromClassTypes($this->getTestDirPath() . '/ClassTypeDepsWithStdClasses.php', false));
+        $this->assertEquals(
+            [self::class . '\ISome'],
+            ClassTypeDiscoverer::fileDependsFromClassTypes(
+                $this->getTestDirPath() . '/ClassTypeDepsWithStdClasses.php'
+            )
+        );
+        $this->assertEquals(
+            ['ArrayObject', self::class . '\ISome'],
+            ClassTypeDiscoverer::fileDependsFromClassTypes(
+                $this->getTestDirPath() . '/ClassTypeDepsWithStdClasses.php',
+                false
+            )
+        );
     }
 }

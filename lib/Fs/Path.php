@@ -143,7 +143,11 @@ class Path extends BasePath {
     /**
      * Returns unique path for a file system entry.
      */
-    public static function unique(string $path, ?bool $handleExtsForFiles = true, int $numberOfAttempts = 10000): string {
+    public static function unique(
+        string $path,
+        ?bool $handleExtsForFiles = true,
+        int $numberOfAttempts = 10000
+    ): string {
         Dir::mustExist(dirname($path));
         $uniquePath = $path;
         $isFile = is_file($path);

@@ -68,7 +68,10 @@ class RouteMetaProvider implements IFn {
 
         $basePath = '/';
 
-        if (!preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !str_ends_with($match['controller'], CONTROLLER_SUFFIX)) {
+        if (!preg_match(self::CONTROLLER_CLASS_RE, $actionMeta['class'], $match) || !str_ends_with(
+                $match['controller'],
+                CONTROLLER_SUFFIX
+            )) {
             throw new UnexpectedValueException(print_r($actionMeta, true));
         }
         $controller = substr($match['controller'], 0, -strlen(CONTROLLER_SUFFIX));

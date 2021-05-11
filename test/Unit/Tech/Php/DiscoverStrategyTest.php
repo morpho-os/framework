@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Tech\Php\Reflection;
+namespace Morpho\Test\Unit\Tech\Php;
 
 use Morpho\Tech\Php\IDiscoverStrategy;
 use Morpho\Testing\TestCase;
@@ -18,22 +18,22 @@ abstract class DiscoverStrategyTest extends TestCase {
     }
 
     public function dataClassTypesDefinedInFile() {
-        yield [
+        (yield [
             [
                 __NAMESPACE__ . '\\StrategyTest1\\FooTrait',
                 __NAMESPACE__ . '\\StrategyTest1\\BarClass',
                 __NAMESPACE__ . '\\StrategyTest2\\BazInterface',
             ],
             'MyFile.php',
-        ];
-        yield [
+        ]);
+        (yield [
             [
                 'Morpho_Test_Unit_Tech_Php_ReflectionStrategyTest1_Foo',
                 'Morpho_Test_Unit_Tech_Php_ReflectionStrategyTest1\\Bar',
                 __NAMESPACE__ . '\\StrategyTest1\\Baz',
             ],
             'mixed-nss.php',
-        ];
+        ]);
     }
 
     /**
@@ -44,5 +44,5 @@ abstract class DiscoverStrategyTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
-    abstract protected function mkDiscoverStrategy();
+    protected abstract function mkDiscoverStrategy();
 }

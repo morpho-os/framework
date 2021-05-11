@@ -8,7 +8,7 @@ namespace Morpho\App;
 
 use Closure;
 use Morpho\Base\IFn;
-use Morpho\Tech\Php\Reflection\FileReflection;
+use Morpho\Tech\Php\FileReflection;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -104,7 +104,11 @@ abstract class ActionMetaProvider implements IFn {
             $baseControllerClasses = $this->baseControllerClasses();
             $ignoredMethods = [];
             foreach ($baseControllerClasses as $baseControllerClass) {
-                foreach ((new ReflectionClass($baseControllerClass))->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
+                foreach (
+                    (new ReflectionClass($baseControllerClass))->getMethods(
+                        ReflectionMethod::IS_PUBLIC
+                    ) as $rMethod
+                ) {
                     $ignoredMethods[] = $rMethod->getName();
                 }
             }

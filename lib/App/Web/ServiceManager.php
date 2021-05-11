@@ -176,7 +176,11 @@ class ServiceManager extends BaseServiceManager {
         $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
         $handler = new StreamHandler($filePath, $logLevel);
         $handler->setFormatter(
-            new LineFormatter(LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n", null, true)
+            new LineFormatter(
+                LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n",
+                null,
+                true
+            )
         );
         $logger->pushHandler($handler);
     }

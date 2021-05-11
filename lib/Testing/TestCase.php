@@ -69,7 +69,11 @@ abstract class TestCase extends BaseTestCase {
         Vfs::unregister();
     }
 
-    protected function createTmpFile(string $prefix = null, string $suffix = null, bool $deleteOnTearDown = true): string {
+    protected function createTmpFile(
+        string $prefix = null,
+        string $suffix = null,
+        bool $deleteOnTearDown = true
+    ): string {
         $prefix = (string) $prefix;
         $suffix = (string) $suffix;
         if ($prefix === '') {
@@ -149,7 +153,11 @@ abstract class TestCase extends BaseTestCase {
     }
 
     protected function assertIntString($val): void {
-        $this->assertMatchesRegularExpression('~^[-+]?\d+$~si', $val, "The value is not either an integer or an integer string");
+        $this->assertMatchesRegularExpression(
+            '~^[-+]?\d+$~si',
+            $val,
+            "The value is not either an integer or an integer string"
+        );
     }
 
     protected function assertHtmlEquals($expected, $actual, $message = ''): void {

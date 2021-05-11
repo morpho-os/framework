@@ -36,7 +36,10 @@ class TokenStrategy implements IDiscoverStrategy {
                 continue;
             }
 
-            if (in_array($token->id, [T_CLASS, T_INTERFACE, T_TRAIT]) && isset($tokens[$i + 1]) && $tokens[$i + 1]->id == T_STRING) {
+            if (in_array(
+                    $token->id,
+                    [T_CLASS, T_INTERFACE, T_TRAIT]
+                ) && isset($tokens[$i + 1]) && $tokens[$i + 1]->id == T_STRING) {
                 $classTypes[] = (strlen($namespace) ? $namespace . '\\' : '') . $tokens[$i + 1]->text;
             }
         }

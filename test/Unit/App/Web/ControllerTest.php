@@ -31,7 +31,10 @@ class ControllerTest extends TestCase {
             }
         };
         $response = new Response();
-        $request = $this->createConfiguredMock(IRequest::class, ['handler' => ['method' => 'someAction'], 'response' => $response]);
+        $request = $this->createConfiguredMock(
+            IRequest::class,
+            ['handler' => ['method' => 'someAction'], 'response' => $response]
+        );
 
         $request = $controller->__invoke($request);
 

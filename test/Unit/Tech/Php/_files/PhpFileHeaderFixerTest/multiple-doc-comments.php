@@ -9,12 +9,3 @@
  */
 namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest;
 
-use ArrayObject;
-use Closure;
-use Generator;
-use InvalidArgumentException;
-use OutOfBoundsException;
-use RuntimeException;
-use Stringable;
-use Throwable;
-use UnexpectedValueException;

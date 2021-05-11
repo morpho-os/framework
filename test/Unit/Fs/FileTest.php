@@ -317,7 +317,10 @@ class FileTest extends TestCase {
 
     public function testReadBinary() {
         $content = File::read($this->getTestDirPath() . '/binary.jpg');
-        $this->assertEquals("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01", substr($content, 0, 16));
+        $this->assertEquals(
+            "\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x00\x00\x01",
+            substr($content, 0, 16)
+        );
     }
 
     public function testUsingFile_DefaultTmpDir() {

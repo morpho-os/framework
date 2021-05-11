@@ -66,7 +66,12 @@ class Schema extends BaseSchema {
      */
     public function deleteTables(array $tableNames): void {
         if ($tableNames) {
-            $this->db->exec('SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS ' . implode(', ', $this->db->quoteIdentifier(toArr($tableNames))) . '; SET FOREIGN_KEY_CHECKS=1');
+            $this->db->exec(
+                'SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS ' . implode(
+                    ', ',
+                    $this->db->quoteIdentifier(toArr($tableNames))
+                ) . '; SET FOREIGN_KEY_CHECKS=1'
+            );
         }
     }
     /*

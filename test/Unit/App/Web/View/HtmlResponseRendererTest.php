@@ -61,7 +61,12 @@ class HtmlResponseRendererTest extends TestCase {
         }, 'foo/bar', $htmlSample) extends HtmlResponseRenderer {
             private $htmlSample;
 
-            public function __construct($templateEngine, $moduleIndex, string $pageRenderingModule, string $htmlSample) {
+            public function __construct(
+                $templateEngine,
+                $moduleIndex,
+                string $pageRenderingModule,
+                string $htmlSample
+            ) {
                 parent::__construct($templateEngine, $moduleIndex, $pageRenderingModule);
                 $this->htmlSample = $htmlSample;
             }

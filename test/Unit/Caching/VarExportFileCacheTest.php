@@ -73,7 +73,12 @@ class VarExportFileCacheTest extends TestCase {
      */
     public function testThrowsExceptionOnNotSupportedDataType($data) {
         $cache = new VarExportFileCache($this->createTmpDir());
-        $this->expectException(RuntimeException::class, 'Only arrays and scalars are supported by this class, but $data has type ' . get_debug_type($data));
+        $this->expectException(
+            RuntimeException::class,
+            'Only arrays and scalars are supported by this class, but $data has type ' . get_debug_type(
+                $data
+            )
+        );
         $cache->set('foo', $data);
     }
 }

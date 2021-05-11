@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
-
-
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Tech\Php;
-
 
 use Morpho\Base\Err;
 use Morpho\Base\IFn;
@@ -32,15 +34,14 @@ class PhpFileHeaderFixer implements IFn {
         if (!$result->isOk()) {
             if ($context['shouldFix']($result)) {
                 /** @noinspection PhpIncompatibleReturnTypeInspection */
-                return $this->fix($result->val())
-                    ->map(
-                        function ($context) {
-                            if (!$context['dryRun']) {
-                                file_put_contents($context['filePath'], $context['text']);
-                            }
-                            return $context;
+                return $this->fix($result->val())->map(
+                    function ($context) {
+                        if (!$context['dryRun']) {
+                            file_put_contents($context['filePath'], $context['text']);
                         }
-                    );
+                        return $context;
+                    }
+                );
             } else {
                 return new Ok($result->val());
             }
@@ -55,8 +56,7 @@ class PhpFileHeaderFixer implements IFn {
     public function check(array $context): Result {
         $nsCheckResult = $this->checkNamespaces($context);
         $classTypeCheckResult = $this->checkClassTypes($context);
-
-        $visitor = new class ($this->licenseComment()) extends NodeVisitorAbstract {
+        $visitor = new class($this->licenseComment()) extends NodeVisitorAbstract {
             public bool $hasValidDeclare = false;
             public bool $hasDeclare = false;
             public bool $hasLicenseComment = false;
@@ -68,8 +68,13 @@ class PhpFileHeaderFixer implements IFn {
 
             public function enterNode(Node $node) {
                 if ($node instanceof Node\Stmt) {
-                    if (!$this->hasStmts && $node instanceof Node\Stmt\InlineHTML && substr($node->value, 0, 2) == '#!') {
-                        return null; // skip shebang
+                    if (!$this->hasStmts && $node instanceof Node\Stmt\InlineHTML && substr(
+                            $node->value,
+                            0,
+                            2
+                        ) == '#!') {
+                        return null;
+                        // skip shebang
                     }
                     $this->hasStmts = true;
                     if ($node instanceof Node\Stmt\Declare_) {
@@ -78,7 +83,8 @@ class PhpFileHeaderFixer implements IFn {
                             $this->hasValidDeclare = true;
                         }
                         return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
-                    } elseif ($this->checkLicenseComment && !$node instanceof Node\Stmt\Declare_) { // check that the first encountered statement except declare has the license comment
+                    } elseif ($this->checkLicenseComment && !$node instanceof Node\Stmt\Declare_) {
+                        // check that the first encountered statement except declare has the license comment
                         $licenseComment = trim($this->licenseComment);
                         foreach ($node->getComments() as $comment) {
                             if ($comment instanceof Comment\Doc && trim($comment->getText()) === $licenseComment) {
@@ -92,12 +98,7 @@ class PhpFileHeaderFixer implements IFn {
                 return null;
             }
         };
-
-        visit(
-            $this->parse($context),
-            [$visitor]
-        );
-
+        visit($this->parse($context), [$visitor]);
         $result = array_merge(
             $context,
             [
@@ -109,53 +110,54 @@ class PhpFileHeaderFixer implements IFn {
                 'classTypeCheckResult' => $classTypeCheckResult,
             ]
         );
-        return $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk() && $visitor->hasLicenseComment
-            ? new Ok($result)
-            : new Err($result);
+        return $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk(
+        ) && $visitor->hasLicenseComment ? new Ok($result) : new Err($result);
     }
 
     public function fix(array $context): Result {
         if (!$context['hasStmts']) {
             return new Err("The file " . q($context['filePath']) . ' does not have PHP statements');
         }
-
         if ($context['hasDeclare']) {
             if (!$context['hasValidDeclare']) {
                 return new Err(
                     array_merge(
                         $context,
-                        ['reason' => "Unable to fix declare() for the file " . q($context['filePath']) . '. Reason: file has unknown `declare` statement.'],
+                        [
+                            'reason' => "Unable to fix declare() for the file " . q(
+                                    $context['filePath']
+                                ) . '. Reason: file has unknown `declare` statement.',
+                        ]
                     )
                 );
             }
         } else {
             $context = $this->addDeclare($context);
         }
-
         if (!$context['classTypeCheckResult']->isOk()) {
             return new Err(
                 array_merge(
                     $context,
-                    ['reason' => "Unable to fix the file " . q($context['filePath']) . '. Reason: file contains invalid class(es).'],
+                    [
+                        'reason' => "Unable to fix the file " . q(
+                                $context['filePath']
+                            ) . '. Reason: file contains invalid class(es).',
+                    ]
                 )
             );
         }
-
         if (!$context['nsCheckResult']->isOk()) {
             $context = $this->fixNs($context);
         }
-
-        $context = $this->fixLicenseComment($context); // Fix always.
-
+        $context = $this->fixLicenseComment($context);
+        // Fix always.
         return new Ok($context);
     }
 
     private function fixNs(array $context): array {
         $fix = $context['nsCheckResult']->val();
-
-        $visitor = new class ($fix) extends NodeVisitorAbstract {
+        $visitor = new class($fix) extends NodeVisitorAbstract {
             public bool $fixed = false;
-
             private array $fix;
 
             public function __construct(array $fix) {
@@ -169,7 +171,8 @@ class PhpFileHeaderFixer implements IFn {
                     }
                     if ($node instanceof Node\Stmt\Namespace_) {
                         if ($node->name) {
-                            $node->name->parts = explode('\\', $this->fix['expected']); // fix only if non-global namespace.
+                            $node->name->parts = explode('\\', $this->fix['expected']);
+                            // fix only if non-global namespace.
                         }
                         $this->fixed = true;
                     }
@@ -177,7 +180,6 @@ class PhpFileHeaderFixer implements IFn {
                 return null;
             }
         };
-
         return $this->visit(
             $context,
             [$visitor],
@@ -214,26 +216,17 @@ class PhpFileHeaderFixer implements IFn {
     }
 
     private function checkClassTypes(array $context): Result {
-        $mustHaveClasses = ctype_upper(ltrim(basename($context['filePath'], '_'))[0]); // Must have classes if filename starts with [A-Z]
+        $mustHaveClasses = ctype_upper(ltrim(basename($context['filePath'], '_'))[0]);
+        // Must have classes if filename starts with [A-Z]
         $filePath = $context['filePath'];
         $expectedClassName = Path::dropExt(basename($filePath));
         foreach (self::classes($filePath) as $className) {
             $shortClassName = last($className, '\\');
             if ($shortClassName !== $expectedClassName) {
-                return new Err(
-                    [
-                        'expected' => $expectedClassName,
-                        'actual'   => $shortClassName,
-                    ]
-                );
+                return new Err(['expected' => $expectedClassName, 'actual' => $shortClassName]);
             }
             // We are checking only the first class.
-            return new Ok(
-                [
-                    'expected' => $expectedClassName,
-                    'actual'   => $shortClassName,
-                ]
-            );
+            return new Ok(['expected' => $expectedClassName, 'actual' => $shortClassName]);
         }
         if ($mustHaveClasses) {
             return new Err(['expected' => $expectedClassName, 'actual' => null]);
@@ -248,7 +241,7 @@ class PhpFileHeaderFixer implements IFn {
     private function namespaces(string $filePath): iterable {
         $rFile = new FileReflection($filePath);
         foreach ($rFile->namespaces() as $rNamespace) {
-            yield $rNamespace->name();
+            (yield $rNamespace->name());
         }
     }
 
@@ -277,8 +270,7 @@ OUT;
             new Node\Stmt\Declare_(
                 [
                     new Node\Stmt\DeclareDeclare(
-                        new Node\Identifier('strict_types'),
-                        new Node\Scalar\LNumber(1),
+                        new Node\Identifier('strict_types'), new Node\Scalar\LNumber(1)
                     ),
                 ]
             )
@@ -288,7 +280,7 @@ OUT;
     }
 
     private function fixLicenseComment(array $context): array {
-        $visitor = new class ($this->licenseComment()) extends NodeVisitorAbstract {
+        $visitor = new class($this->licenseComment()) extends NodeVisitorAbstract {
             private bool $licenseCommentRemoved = false;
             private bool $licenseCommentAdded = false;
 
@@ -300,11 +292,9 @@ OUT;
                     if (!$this->licenseCommentRemoved) {
                         $this->licenseCommentRemoved = $this->removeLicenseComment($node);
                     }
-
                     if ($node instanceof Node\Stmt\Declare_) {
                         return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
                     }
-
                     if (!$this->licenseCommentAdded && $node instanceof Node\Stmt) {
                         $comments = $node->getComments();
                         array_unshift($comments, new Comment\Doc($this->licenseComment));
@@ -348,7 +338,12 @@ OUT;
      * @param callable|null $afterVisit
      * @return array Modified $context.
      */
-    private function visit(array $context, array $visitors, callable $beforeVisit = null, callable $afterVisit = null): array {
+    private function visit(
+        array $context,
+        array $visitors,
+        callable $beforeVisit = null,
+        callable $afterVisit = null
+    ): array {
         $nodes = $this->parse($context);
         if ($beforeVisit) {
             $nodes = $beforeVisit($nodes, $visitors);
@@ -363,7 +358,11 @@ OUT;
 
     private function ppFile(array $nodes): string {
         $text = ppFile($nodes);
-        $text = preg_replace('~^\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si', '<?php declare(strict_types=1);', $text);
+        $text = preg_replace(
+            '~^\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si',
+            '<?php declare(strict_types=1);',
+            $text
+        );
         return $text;
     }
 }

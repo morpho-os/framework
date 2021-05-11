@@ -1,4 +1,9 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\App;
 
 use Morpho\Caching\ICache;
@@ -11,20 +16,20 @@ abstract class ServiceManager extends BaseServiceManager {
     }
 
     protected function mkDispatcherService() {
-        return new Dispatcher(
-            $this['handlerInstanceProvider'],
-            $this['eventManager']
-        );
+        return new Dispatcher($this['handlerInstanceProvider'], $this['eventManager']);
     }
 
-    abstract protected function mkEventManagerService();
+    protected abstract function mkEventManagerService();
 
     protected function mkBackendModuleIndexService() {
         return new ModuleIndex($this['backendModuleIndexer']);
     }
 
     protected function mkBackendModuleIndexerService() {
-        return new ModuleIndexer($this['backendModuleIterator'], $this->mkCache($this->cacheDirPath() . '/module-indexer'));
+        return new ModuleIndexer(
+            $this['backendModuleIterator'],
+            $this->mkCache($this->cacheDirPath() . '/module-indexer')
+        );
     }
 
     protected function mkBackendModuleIteratorService() {

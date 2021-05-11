@@ -166,7 +166,9 @@ abstract class FileCache extends Cache {
         // This ensures that the filename is unique and that there are no invalid chars in it.
         if ('' === $key
             || ((strlen($key) * 2 + $this->extensionStrLength) > 255)
-            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + strlen($key) * 2 + $this->extensionStrLength) > 258)
+            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + strlen(
+                        $key
+                    ) * 2 + $this->extensionStrLength) > 258)
         ) {
             // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
             // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.

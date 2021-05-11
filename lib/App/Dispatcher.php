@@ -29,7 +29,9 @@ class Dispatcher {
             $request->isHandled(false);
 
             if ($i >= $this->maxNoOfDispatchIterations) {
-                throw new RuntimeException("Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times");
+                throw new RuntimeException(
+                    "Dispatch loop has occurred, iterated {$this->maxNoOfDispatchIterations} times"
+                );
             }
             try {
                 $this->eventManager->trigger(new Event('beforeDispatch', ['request' => $request]));

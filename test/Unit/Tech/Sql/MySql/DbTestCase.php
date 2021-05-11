@@ -1,4 +1,9 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Test\Unit\Tech\Sql\MySql;
 
 use Morpho\Tech\Sql\IDbClient;
@@ -24,13 +29,7 @@ abstract class DbTestCase extends BaseDbTestCase {
     protected function createCarsTable(bool $addData): void {
         $this->pdo->query('DROP TABLE IF EXISTS cars');
         $this->pdo->query(
-            "CREATE TABLE cars (
-            name varchar(20),
-            color varchar(20),
-            country varchar(20),
-            type1 int,
-            type2 enum('US', 'Japan', 'EU')
-        )"
+            "CREATE TABLE cars (\n            name varchar(20),\n            color varchar(20),\n            country varchar(20),\n            type1 int,\n            type2 enum('US', 'Japan', 'EU')\n        )"
         );
         if ($addData) {
             $rows = [
@@ -46,7 +45,7 @@ abstract class DbTestCase extends BaseDbTestCase {
     }
 
     protected function assertSqlEquals(string $expectedSql, string $actualSql): void {
-        $normalize = fn($sql) => preg_replace('~\s+~s', ' ', $sql);
+        $normalize = fn($sql) => preg_replace('~\\s+~s', ' ', $sql);
         $this->assertSame($normalize($expectedSql), $normalize($actualSql));
     }
 }

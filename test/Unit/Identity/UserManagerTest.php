@@ -136,7 +136,10 @@ class UserManagerTest extends DbTestCase {
      */
     public function testLogIn_EmptyLoginOrPasswordReturnsError($login, $password) {
         $this->userManager->registerUser(['login' => $login, 'password' => $password]);
-        $this->assertEquals([UserManager::EMPTY_LOGIN_OR_PASSWORD], $this->userManager->logIn(['login' => $login, 'password' => $password]));
+        $this->assertEquals(
+            [UserManager::EMPTY_LOGIN_OR_PASSWORD],
+            $this->userManager->logIn(['login' => $login, 'password' => $password])
+        );
     }
 
     private function assertLoggedInUserThrowsUserNotLoggedInException() {

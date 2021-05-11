@@ -22,7 +22,64 @@ use function count;
 use function fclose;
 use function file_put_contents;
 use function get_class_methods;
-use function Morpho\Base\{all, append, appendFn, camelize, camelizeKeys, cartesianProduct, classify, compose, dasherize, deleteDups, formatBytes, formatFloat, fromJson, humanize, indent, index, isSubset, last, lastPos, lines, memoize, merge, normalizeEols, not, op, partial, permutations, prepend, prependFn, q, qq, sanitize, setProps, setsEqual, shorten, showLn, subsets, symDiff, titleize, toIt, toJson, tpl, trimMore, ucfirst, underscore, underscoreKeys, unindent, union, uniqueName, unsetMulti, unsetOne, unsetRecursive, using, waitUntilNumOfAttempts, waitUntilTimeout, words, wrap, wrapFn};
+use function Morpho\Base\{all,
+    append,
+    appendFn,
+    camelize,
+    camelizeKeys,
+    cartesianProduct,
+    classify,
+    compose,
+    dasherize,
+    deleteDups,
+    formatBytes,
+    formatFloat,
+    fromJson,
+    humanize,
+    indent,
+    index,
+    isSubset,
+    last,
+    lastPos,
+    lines,
+    memoize,
+    merge,
+    normalizeEols,
+    not,
+    op,
+    partial,
+    permutations,
+    prepend,
+    prependFn,
+    q,
+    qq,
+    sanitize,
+    setProps,
+    setsEqual,
+    shorten,
+    showLn,
+    subsets,
+    symDiff,
+    titleize,
+    toIt,
+    toJson,
+    tpl,
+    trimMore,
+    ucfirst,
+    underscore,
+    underscoreKeys,
+    unindent,
+    union,
+    uniqueName,
+    unsetMulti,
+    unsetOne,
+    unsetRecursive,
+    using,
+    waitUntilNumOfAttempts,
+    waitUntilTimeout,
+    words,
+    wrap,
+    wrapFn};
 use function ob_get_clean;
 use function ob_start;
 use function property_exists;
@@ -413,7 +470,10 @@ class FunctionsTest extends TestCase {
 
     public function testTitleize() {
         $this->assertEquals('V&quot;&quot;v Pe Te Adam Bob Camel Ized.', titleize('v""v pe_te Adam bob camelIzed.'));
-        $this->assertEquals('V""v pe te Adam bob camel ized.', titleize('v""v pe_te Adam bob camelIzed.', false, false));
+        $this->assertEquals(
+            'V""v pe te Adam bob camel ized.',
+            titleize('v""v pe_te Adam bob camelIzed.', false, false)
+        );
     }
 
     public function testPartial() {
@@ -988,7 +1048,10 @@ OUT;
     }
 
     public function testUnsetOne_StringKeys() {
-        $this->assertEquals(['one' => 'first-val'], unsetOne(['one' => 'first-val', 'two' => 'second-val'], 'second-val'));
+        $this->assertEquals(
+            ['one' => 'first-val'],
+            unsetOne(['one' => 'first-val', 'two' => 'second-val'], 'second-val')
+        );
     }
 
     public function testUnsetOne_IntKeys() {

@@ -63,6 +63,10 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     protected function mkMap(): array {
         $classTypeDiscoverer = new ClassTypeDiscoverer();
-        return $classTypeDiscoverer->classTypesDefinedInDir($this->searchDirPaths, $this->processor, ['followLinks' => true]);
+        return $classTypeDiscoverer->classTypesDefinedInDir(
+            $this->searchDirPaths,
+            $this->processor,
+            ['followLinks' => true]
+        );
     }
 }

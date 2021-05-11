@@ -105,13 +105,19 @@ class PhpTemplateEngineTest extends TestCase {
     public function testSelectField_IndexedArrOptions_WithSingleSelectedOption() {
         $options = ['foo', 'bar'];
         $html = $this->templateEngine->selectField($options, 1);
-        $this->assertHtmlEquals('<select><option value="0">foo</option><option value="1" selected>bar</option></select>', $html);
+        $this->assertHtmlEquals(
+            '<select><option value="0">foo</option><option value="1" selected>bar</option></select>',
+            $html
+        );
     }
 
     public function testSelectField_IndexedArrOptions_WithMultipleSelectedOptions() {
         $options = ['foo', 'bar'];
         $html = $this->templateEngine->selectField($options, [0, 1]);
-        $this->assertHtmlEquals('<select><option value="0" selected>foo</option><option value="1" selected>bar</option></select>', $html);
+        $this->assertHtmlEquals(
+            '<select><option value="0" selected>foo</option><option value="1" selected>bar</option></select>',
+            $html
+        );
     }
 
     public function testSelectField_AddsIdAttribIfNotSpecifiedFromNameAttrib() {
@@ -130,9 +136,15 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testTag_EscapeConfParam() {
-        $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escape' => true]));
+        $this->assertEquals(
+            '<foo>&quot;</foo>',
+            $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escape' => true])
+        );
         $this->assertEquals('<foo>&quot;</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false]));
-        $this->assertEquals('<foo>"</foo>', $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escape' => false]));
+        $this->assertEquals(
+            '<foo>"</foo>',
+            $this->templateEngine->tag('foo', '"', null, ['eol' => false, 'escape' => false])
+        );
     }
 
     public function testTag1_MultipleAttribs() {

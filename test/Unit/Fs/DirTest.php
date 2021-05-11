@@ -341,7 +341,10 @@ class DirTest extends TestCase {
             $testDirPath . '/4/5',
             $testDirPath . '/4/5/6.php',
         ];
-        $actual = iterator_to_array(Dir::paths($testDirPath, null, ['type' => Stat::DIR | Stat::FILE, 'recursive' => true]), false);
+        $actual = iterator_to_array(
+            Dir::paths($testDirPath, null, ['type' => Stat::DIR | Stat::FILE, 'recursive' => true]),
+            false
+        );
         sort($expected);
         sort($actual);
         $this->assertEquals($expected, $actual);
@@ -447,7 +450,7 @@ class DirTest extends TestCase {
             $testDirPath,
             '~\.txt$~si',
             [
-                'type'      => Stat::DIR | Stat::FILE,
+                'type' => Stat::DIR | Stat::FILE,
                 'recursive' => false,
             ]
         );

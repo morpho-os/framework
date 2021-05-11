@@ -51,11 +51,18 @@ class Must {
     public static function haveOnlyKeys(array $arr, array $allowedKeys): void {
         $diff = array_diff_key($arr, array_flip($allowedKeys));
         if (count($diff)) {
-            throw new RuntimeException('Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80));
+            throw new RuntimeException(
+                'Not allowed items are present: ' . shorten(implode(', ', array_keys($diff)), 80)
+            );
         }
     }
 
-    public static function haveItems(array $arr, array $requiredKeys, bool $returnOnlyRequired = true, bool $checkForEmptiness = false): array {
+    public static function haveItems(
+        array $arr,
+        array $requiredKeys,
+        bool $returnOnlyRequired = true,
+        bool $checkForEmptiness = false
+    ): array {
         $newArr = [];
         foreach ($requiredKeys as $key) {
             if (!isset($arr[$key]) && !array_key_exists($key, $arr)) {

@@ -15,7 +15,9 @@ use function time;
 class VarExportFileCache extends PhpFileCache {
     protected function save(string $key, $data, $lifeTime = 0): bool {
         if (!is_array($data) && !is_scalar($data) && $data !== null) {
-            throw new RuntimeException('Only arrays and scalars are supported by this class, but $data has type ' . get_debug_type($data));
+            throw new RuntimeException(
+                'Only arrays and scalars are supported by this class, but $data has type ' . get_debug_type($data)
+            );
         }
 
         if ($lifeTime > 0) {

@@ -193,7 +193,9 @@ class Request extends BaseRequest implements IRequest {
             return $this->isAjax;
         }
         $headers = $this->headers();
-        return $headers->offsetExists('X-Requested-With') && $headers->offsetGet('X-Requested-With') === 'XMLHttpRequest';
+        return $headers->offsetExists('X-Requested-With') && $headers->offsetGet(
+                'X-Requested-With'
+            ) === 'XMLHttpRequest';
     }
 
     public function uri(): Uri\Uri {
@@ -342,7 +344,11 @@ class Request extends BaseRequest implements IRequest {
             return 'off' !== strtolower($https);
         }
         if ($this->isFromTrustedProxy()) {
-            return in_array(strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')), ['https', 'on', 'ssl', '1'], true);
+            return in_array(
+                strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')),
+                ['https', 'on', 'ssl', '1'],
+                true
+            );
         }
         return false;
     }
@@ -486,7 +492,11 @@ class Request extends BaseRequest implements IRequest {
     }
 
     protected function isFromTrustedProxy(): bool {
-        return null !== $this->trustedProxyIps && in_array($this->serverVar('REMOTE_ADDR'), $this->trustedProxyIps, true);
+        return null !== $this->trustedProxyIps && in_array(
+                $this->serverVar('REMOTE_ADDR'),
+                $this->trustedProxyIps,
+                true
+            );
     }
 
     protected function serverVar(string $name, $default = null): mixed {

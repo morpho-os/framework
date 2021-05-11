@@ -27,7 +27,9 @@ class UriTest extends TestCase {
             . ':1234'
             . \str_replace('%2F', '/', \rawurlencode('/базовый/путь/тест'))
             . '?'
-            . \rawurlencode('один') . '=' . \rawurlencode('единица') . '&' . \rawurlencode('два') . '=' . \rawurlencode('двойка')
+            . \rawurlencode('один') . '=' . \rawurlencode('единица') . '&' . \rawurlencode('два') . '=' . \rawurlencode(
+                'двойка'
+            )
             . '#' . \rawurlencode('фрагмент'),
             (new Uri($uriStr))->toStr(null, true)
         );
@@ -58,7 +60,10 @@ class UriTest extends TestCase {
         $this->assertSame($query, $uri->toStr(['query'], false));
         $this->assertSame($path . '?' . $query, $uri->toStr(['path', 'query'], false));
         $this->assertSame('//' . $authority . $path . '?' . $query, $uri->toStr(['authority', 'path', 'query'], false));
-        $this->assertSame($scheme . '://' . $authority . $path . '?' . $query, $uri->toStr(['scheme', 'authority', 'path', 'query'], false));
+        $this->assertSame(
+            $scheme . '://' . $authority . $path . '?' . $query,
+            $uri->toStr(['scheme', 'authority', 'path', 'query'], false)
+        );
         $this->assertSame('//' . $authority . '?' . $query, $uri->toStr(['authority', 'query'], false));
 
         // Fragment

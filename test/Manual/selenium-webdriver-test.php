@@ -52,7 +52,9 @@ try {
         $browser->get($testUri);
         $testingResultsSelector = WebDriverBy::id('testing-results');
         try {
-            $visibleElements = $browser->wait()->until(WebDriverExpectedCondition::visibilityOfAnyElementLocated($testingResultsSelector));
+            $visibleElements = $browser->wait()->until(
+                WebDriverExpectedCondition::visibilityOfAnyElementLocated($testingResultsSelector)
+            );
             var_dump('Visible elements:', $visibleElements);
         } catch (TimeOutException $e) {
             var_dump('Timeout exception thrown:', $e);
@@ -63,7 +65,11 @@ try {
         assert(count($match[1]));
         var_dump('Found scripts:', count($match[1]));
         foreach ($match[1] as $scriptUri) {
-            var_dump('--------------------------------------------------------------------------------', $scriptUri, file_get_contents($uri . $scriptUri));
+            var_dump(
+                '--------------------------------------------------------------------------------',
+                $scriptUri,
+                file_get_contents($uri . $scriptUri)
+            );
         }
     }
 } finally {

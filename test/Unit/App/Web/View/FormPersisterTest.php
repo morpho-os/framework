@@ -33,11 +33,17 @@ class FormPersisterTest extends TestCase {
     public function testInvoke_FormWithoutAction_DefaultMethod_AddsRequestUri() {
         $this->assertSame('post', FormPersister::DEFAULT_METHOD);
         $html = '<form></form>';
-        $this->assertEquals('<form method="' . FormPersister::DEFAULT_METHOD . '" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>', $this->formPersister->__invoke($html));
+        $this->assertEquals(
+            '<form method="' . FormPersister::DEFAULT_METHOD . '" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>',
+            $this->formPersister->__invoke($html)
+        );
     }
 
     public function testInvoke_FormWithoutAction_GetMethod_AddsRequestUri() {
         $html = '<form method="get"></form>';
-        $this->assertEquals('<form method="get" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>', $this->formPersister->__invoke($html));
+        $this->assertEquals(
+            '<form method="get" action="/foo/bar&lt;script?one=ok&amp;two=done"></form>',
+            $this->formPersister->__invoke($html)
+        );
     }
 }

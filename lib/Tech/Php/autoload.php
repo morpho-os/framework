@@ -1,4 +1,9 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace {
 
     use Morpho\Tech\Php\Debugger;
@@ -6,22 +11,17 @@ namespace {
     require_once __DIR__ . '/Trace.php';
     require_once __DIR__ . '/Frame.php';
     require_once __DIR__ . '/Debugger.php';
-
     if (!function_exists('d')) {
         function d(...$args) {
             $debugger = Debugger::instance();
-            return count($args)
-                ? $debugger->ignoreCaller(__FILE__, __LINE__)->dump(...$args)
-                : $debugger;
+            return count($args) ? $debugger->ignoreCaller(__FILE__, __LINE__)->dump(...$args) : $debugger;
         }
     }
-
     if (!function_exists('dd')) {
         function dd(): void {
             Debugger::instance()->ignoreCaller(__FILE__)->dump();
         }
     }
-
     if (!function_exists('dt')) {
         function dt(): void {
             Debugger::instance()->ignoreCaller(__FILE__)->trace();
@@ -29,6 +29,7 @@ namespace {
     }
 }
 namespace Morpho\Tech\Php {
+
     use Composer\Autoload\ClassLoader;
     use PhpParser\Node;
     use PhpParser\Node\Stmt\Class_ as ClassStmt;
@@ -53,7 +54,7 @@ namespace Morpho\Tech\Php {
      * @return Node\Stmt[]|null Array of statements, representing the text.
      */
     function parse(string $text): ?array {
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         return $parser->parse($text);
     }
 
@@ -86,9 +87,7 @@ namespace Morpho\Tech\Php {
     }
 
     function isClassType(Node $node): bool {
-        return $node instanceof ClassStmt
-            || $node instanceof InterfaceStmt
-            || $node instanceof TraitStmt;
+        return $node instanceof ClassStmt || $node instanceof InterfaceStmt || $node instanceof TraitStmt;
     }
 
     /**

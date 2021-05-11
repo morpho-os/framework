@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Tech\Php\Reflection;
+namespace Morpho\Test\Unit\Tech\Php;
 
 use Morpho\Tech\Php\ClassTypeReflection;
 use Morpho\Tech\Php\FileReflection;
@@ -82,10 +82,12 @@ class FileReflectionTest extends TestCase {
             $this->assertNull($rNamespace->name());
             $this->assertTrue($rNamespace->isGlobal());
             $this->assertEquals($filePath, $rNamespace->filePath());
-
-            $this->checkClassTypes(['Bar4f978258c3d87c0711d6f17c6b4ecfcd', 'TMoon4f978258c3d87c0711d6f17c6b4ecfcd'], $filePath, $rNamespace);
+            $this->checkClassTypes(
+                ['Bar4f978258c3d87c0711d6f17c6b4ecfcd', 'TMoon4f978258c3d87c0711d6f17c6b4ecfcd'],
+                $filePath,
+                $rNamespace
+            );
             $this->checkFunctions(['foo4f978258c3d87c0711d6f17c6b4ecfcd'], $filePath, $rNamespace);
-
             $i++;
         }
         $this->assertEquals(1, $i);
@@ -133,10 +135,8 @@ class FileReflectionTest extends TestCase {
             $this->assertInstanceOf(NamespaceReflection::class, $rNamespace);
             $this->assertFalse($rNamespace->isGlobal());
             $this->assertEquals($filePath, $rNamespace->filePath());
-
             $this->checkClassTypes($expected[$i]['classes'], $filePath, $rNamespace);
             $this->checkFunctions($expected[$i]['functions'], $filePath, $rNamespace);
-
             $i++;
         }
         $this->assertEquals(2, $i);
@@ -164,12 +164,20 @@ class FileReflectionTest extends TestCase {
         $this->assertEquals(\count($expectedFns), $j);
     }
 
-    private function checkReflectionClass(string $expectedClass, string $expectedFilePath, ClassTypeReflection $rClass) {
+    private function checkReflectionClass(
+        string $expectedClass,
+        string $expectedFilePath,
+        ClassTypeReflection $rClass
+    ) {
         $this->assertEquals($expectedClass, $rClass->getName());
         $this->assertEquals($expectedFilePath, $rClass->getFileName());
     }
 
-    private function checkReflectionFunction(string $expectedFnName, string $expectedFilePath, ReflectionFunction $rFunction) {
+    private function checkReflectionFunction(
+        string $expectedFnName,
+        string $expectedFilePath,
+        ReflectionFunction $rFunction
+    ) {
         $this->assertEquals($expectedFnName, $rFunction->getName());
         $this->assertEquals($expectedFilePath, $rFunction->getFileName());
     }
@@ -178,7 +186,7 @@ class FileReflectionTest extends TestCase {
         $filePath = $this->getTestDirPath() . '/classes.php';
         $rFile = new FileReflection($filePath);
         $i = 0;
-        foreach ($rFile->$method() as $rClass) {
+        foreach ($rFile->{$method}() as $rClass) {
             /** @var $rClass ClassTypeReflection */
             $this->assertInstanceOf(\ReflectionClass::class, $rClass);
             $check($i, $rClass);

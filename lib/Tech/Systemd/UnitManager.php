@@ -29,11 +29,19 @@ class UnitManager {
     }
 
     public function enable(bool $canFail, bool $start) {
-        $this->sh('systemctl enable' . ($start ? ' --now' : '') . ' ' . escapeshellarg($this->unitFilePath), ['check' => !$canFail]);
+        $this->sh(
+            'systemctl enable' . ($start ? ' --now' : '') . ' ' . escapeshellarg($this->unitFilePath),
+            ['check' => !$canFail]
+        );
     }
 
     public function disable(bool $canFail, bool $stop): self {
-        $this->sh('systemctl disable' . ($stop ? ' --now' : '') . ' ' . escapeshellarg($this->unitName . '.' . $this->unitType), ['check' => !$canFail]);
+        $this->sh(
+            'systemctl disable' . ($stop ? ' --now' : '') . ' ' . escapeshellarg(
+                $this->unitName . '.' . $this->unitType
+            ),
+            ['check' => !$canFail]
+        );
         return $this;
     }
 

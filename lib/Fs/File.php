@@ -95,7 +95,11 @@ class File extends Entry {
         return $filePath;
     }
 
-    public static function readLines(string $filePath, null|Closure|array $filterOrConf = null, null|array $conf = null): Generator {
+    public static function readLines(
+        string $filePath,
+        null|Closure|array $filterOrConf = null,
+        null|array $conf = null
+    ): Generator {
         if (is_array($filterOrConf)) {
             if (is_array($conf)) {
                 throw new InvalidArgumentException();
@@ -148,11 +152,21 @@ class File extends Entry {
     /**
      * Writes json to the file and returns the file path.
      */
-    public static function writeJson(string $filePath, mixed $json, int $jsonFlags = null, array $writeConf = null): string {
+    public static function writeJson(
+        string $filePath,
+        mixed $json,
+        int $jsonFlags = null,
+        array $writeConf = null
+    ): string {
         return self::write($filePath, toJson($json, $jsonFlags), $writeConf);
     }
 
-    public static function readCsv(string $filePath, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): Generator {
+    public static function readCsv(
+        string $filePath,
+        string $delimiter = ',',
+        string $enclosure = '"',
+        string $escape = '\\'
+    ): Generator {
         $handle = fopen($filePath, 'r');
         if (!$handle) {
             throw new Exception("Unable to read the '$filePath' file");
@@ -170,7 +184,12 @@ class File extends Entry {
         throw new NotImplementedException(__METHOD__);
     }
 
-    public static function prepend(string $filePath, string $content, array $readConf = null, array $writeConf = null): string {
+    public static function prepend(
+        string $filePath,
+        string $content,
+        array $readConf = null,
+        array $writeConf = null
+    ): string {
         $writeConf['append'] = false;
         return self::write(
             $filePath,
@@ -298,7 +317,12 @@ class File extends Entry {
     /**
      * Copies the source file to target directory of file and returns target.
      */
-    public static function copy(string $sourceFilePath, string $targetFilePath, bool $overwrite = false, bool $skipIfExists = false): string {
+    public static function copy(
+        string $sourceFilePath,
+        string $targetFilePath,
+        bool $overwrite = false,
+        bool $skipIfExists = false
+    ): string {
         if (!is_file($sourceFilePath)) {
             throw new Exception("Unable to copy: the source '$sourceFilePath' is not a file");
         }

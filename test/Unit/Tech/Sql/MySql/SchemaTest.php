@@ -301,7 +301,9 @@ class SchemaTest extends DbTestCase {
     */
     private function createDb($dbName, string $charset = null, string $collation = null): string {
         $this->dbs[] = $dbName;
-        $this->db->eval("CREATE DATABASE $dbName CHARACTER SET " . ($charset ?: Schema::CHARSET) . " COLLATE " . ($collation ?: Schema::COLLATION));
+        $this->db->eval(
+            "CREATE DATABASE $dbName CHARACTER SET " . ($charset ?: Schema::CHARSET) . " COLLATE " . ($collation ?: Schema::COLLATION)
+        );
         return $dbName;
     }
     /*

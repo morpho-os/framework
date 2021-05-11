@@ -74,7 +74,12 @@ class GeckoDriver implements IWebDriver {
             $geckoDriverDownloadUri = $fileDownloadMeta['browser_download_url'];
             $arcFilePath = dirname($destFilePath) . '/geckodriver.tar.gz';
             (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
-            sh('tar xzf ' . escapeshellarg($arcFilePath) . ' && chmod +x ' . escapeshellarg($binFileName) . ' && rm -f ' . escapeshellarg($arcFilePath), ['show' => false]);
+            sh(
+                'tar xzf ' . escapeshellarg($arcFilePath) . ' && chmod +x ' . escapeshellarg(
+                    $binFileName
+                ) . ' && rm -f ' . escapeshellarg($arcFilePath),
+                ['show' => false]
+            );
         } finally {
             chdir($curDirPath);
         }

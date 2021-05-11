@@ -1,4 +1,9 @@
 <?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Base;
 
 /**
@@ -33,10 +38,11 @@ abstract class Rand {
      */
     public static function randFloat(): float {
         $bytes = random_bytes(7);
-        $bytes[6] = $bytes[6] | chr(0xF0);
-        $bytes .= chr(63); // exponent bias (1023)
+        $bytes[6] = $bytes[6] | chr(0xf0);
+        $bytes .= chr(63);
+        // exponent bias (1023)
         [, $float] = unpack('d', $bytes);
-        return ($float - 1);
+        return $float - 1;
     }
 
     /**
@@ -49,20 +55,16 @@ abstract class Rand {
         if ($length < 1) {
             throw new \InvalidArgumentException('Length should be >= 1');
         }
-
         // charlist is empty or not provided
         if (empty($charlist)) {
             $numBytes = ceil($length * 0.75);
             $bytes = random_bytes((int) $numBytes);
             return mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
         }
-
         $listLen = mb_strlen($charlist, '8bit');
-
         if ($listLen == 1) {
             return str_repeat($charlist, $length);
         }
-
         $result = '';
         for ($i = 0; $i < $length; $i++) {
             $pos = self::randInt(0, $listLen - 1);

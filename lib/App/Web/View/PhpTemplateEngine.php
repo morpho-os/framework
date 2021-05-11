@@ -268,7 +268,9 @@ class PhpTemplateEngine extends ArrPipe {
             $selectedVal = (string) $selectedOption;
             foreach ($options as $val => $text) {
                 $val = (string) $val;
-                $html .= '<option value="' . $this->e($val) . '"' . ($val === $selectedVal ? ' selected' : '') . '>' . $this->e($text) . '</option>';
+                $html .= '<option value="' . $this->e(
+                        $val
+                    ) . '"' . ($val === $selectedVal ? ' selected' : '') . '>' . $this->e($text) . '</option>';
             }
             return $html;
         }
@@ -285,7 +287,9 @@ class PhpTemplateEngine extends ArrPipe {
             $selectedOptions[$val] = true;
         }
         foreach ($newOptions as $value => $text) {
-            $html .= '<option value="' . $this->e($value) . '"' . (isset($selectedOptions[$value]) ? ' selected' : '') . '>' . $this->e($text) . '</option>';
+            $html .= '<option value="' . $this->e(
+                    $value
+                ) . '"' . (isset($selectedOptions[$value]) ? ' selected' : '') . '>' . $this->e($text) . '</option>';
         }
         return $this->formEl($html);
     }
@@ -370,7 +374,9 @@ class PhpTemplateEngine extends ArrPipe {
      */
     public function link(string|Uri $uri, string $text, array $attribs = null, array $conf = null): string {
         $attribs = (array) $attribs;
-        $attribs['href'] = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false))->toStr(null, false);
+        $attribs['href'] = $this->request->prependUriWithBasePath(
+            is_string($uri) ? $uri : $uri->toStr(null, false)
+        )->toStr(null, false);
         return $this->tag('a', $text, $attribs, $conf);
     }
 

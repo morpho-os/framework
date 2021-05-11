@@ -20,7 +20,10 @@ if (\ini_get('zend.assertions') !== '1') {
     throw new \RuntimeException("The 'zend.assertions' ini parameter must be set to 1 for expectations");
 }
 assert_options(ASSERT_ACTIVE, true);     // enable assert() evaluation?
-assert_options(ASSERT_WARNING, false);   // issue a PHP warning for each failed assertion, handled by the ASSERT_CALLBACK
+assert_options(
+    ASSERT_WARNING,
+    false
+);   // issue a PHP warning for each failed assertion, handled by the ASSERT_CALLBACK
 assert_options(ASSERT_BAIL, false);      // terminate execution on failed assertions, handled by the ASSERT_CALLBACK
 assert_options(ASSERT_QUIET_EVAL, true); // disable error_reporting during assertion expression evaluation
 assert_options(                          // callback to call on failed assertions

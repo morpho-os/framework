@@ -47,7 +47,12 @@ class Dir extends Entry {
         return $targetDirPath;
     }
 
-    public static function copy(string $sourceDirPath, string $targetDirPath, $processor = null, array $conf = null): string {
+    public static function copy(
+        string $sourceDirPath,
+        string $targetDirPath,
+        $processor = null,
+        array $conf = null
+    ): string {
         // @TODO: Handle dots and relative paths: '..', '.'
         // @TODO: Handle the case: cp module/system ../../dst/module should create ../../dst/module/system
         self::mustExist($sourceDirPath);
@@ -71,7 +76,9 @@ class Dir extends Entry {
                 $targetDirPath .= '/' . $sourceDirName;
             }
             if ($sourceDirPath === $targetDirPath) {
-                throw new Exception("The '" . dirname($targetDirPath) . "' directory already contains the '$sourceDirName'");
+                throw new Exception(
+                    "The '" . dirname($targetDirPath) . "' directory already contains the '$sourceDirName'"
+                );
             }
         }
 
@@ -110,7 +117,11 @@ class Dir extends Entry {
         return $targetDirPath;
     }
 
-    public static function paths(string|iterable $dirPaths, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
+    public static function paths(
+        string|iterable $dirPaths,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = Conf::check(
             [
                 'recursive'   => false,
@@ -171,7 +182,11 @@ class Dir extends Entry {
         }
     }
 
-    public static function names(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
+    public static function names(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = self::normalizeConf($conf);
         if (null !== $processor) {
             $processor = function ($path) use ($processor) {
@@ -201,7 +216,11 @@ class Dir extends Entry {
     /**
      * Shortcut for the paths() with $conf['type'] == Stat::DIR option.
      */
-    public static function dirPaths(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
+    public static function dirPaths(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::DIR;
         if (null !== $processor) {
@@ -217,7 +236,11 @@ class Dir extends Entry {
         return self::paths($dirPath, $processor, $conf);
     }
 
-    public static function dirNames(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
+    public static function dirNames(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = self::normalizeConf($conf);
         if (!empty($conf['recursive'])) {
             throw new LogicException("The 'recursive' conf param must be false");
@@ -229,13 +252,21 @@ class Dir extends Entry {
     /**
      * Shortcut for the paths() with $conf['type'] == Stat::FILE option.
      */
-    public static function filePaths(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
+    public static function filePaths(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::FILE;
         return self::paths($dirPath, $processor, $conf);
     }
 
-    public static function filePathsWithExt(string|iterable $dirPath, array $extensions, array|bool|null $conf = null): Generator {
+    public static function filePathsWithExt(
+        string|iterable $dirPath,
+        array $extensions,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = self::normalizeConf($conf);
         foreach ($extensions as $k => $extension) {
             $extensions[$k] = preg_quote($extension, '/');
@@ -243,7 +274,11 @@ class Dir extends Entry {
         return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $conf);
     }
 
-    public static function fileNames(string|iterable $dirPath, string|null|callable $processor = null, array|bool|null $conf = null): Generator {
+    public static function fileNames(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
         $conf = self::normalizeConf($conf);
         $conf['type'] = Stat::FILE;
         return self::names($dirPath, $processor, $conf);
@@ -502,7 +537,9 @@ class Dir extends Entry {
         }
         if (null === $predicate || $predicate($absPath, true)) {
             if (!rmdir($absPath)) {
-                throw new RuntimeException("Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions");
+                throw new RuntimeException(
+                    "Unable to delete the directory '$absPath': it may be not empty or doesn't have relevant permissions"
+                );
             }
             clearstatcache(true, $absPath);
         }

@@ -60,7 +60,10 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testCanDetectCircularReference() {
-        $this->expectException(RuntimeException::class, "Circular reference detected for the service 'foo', path: 'foo -> bar -> foo'");
+        $this->expectException(
+            RuntimeException::class,
+            "Circular reference detected for the service 'foo', path: 'foo -> bar -> foo'"
+        );
         $this->serviceManager['foo'];
     }
 

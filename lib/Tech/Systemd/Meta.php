@@ -1139,7 +1139,10 @@ class Meta {
             ['text' => 'Source code', 'uri' => 'https://github.com/systemd/systemd'],
             ['text' => 'Lennart Poettering\'s blog', 'uri' => 'http://0pointer.de/blog/'],
             ['text' => 'List of man pages', 'uri' => 'https://www.freedesktop.org/software/systemd/man/index.html'],
-            ['text' => 'List of configuration directives', 'uri' => 'https://www.freedesktop.org/software/systemd/man/systemd.directives.html'],
+            [
+                'text' => 'List of configuration directives',
+                'uri'  => 'https://www.freedesktop.org/software/systemd/man/systemd.directives.html',
+            ],
         ];
     }
 }

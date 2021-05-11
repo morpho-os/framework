@@ -58,7 +58,10 @@ class SelectQueryTest extends QueryTest {
             ->table(
                 $this->query->expr('customers INNER JOIN orders ON customers.id = orders.customer_id')
             );
-        $this->assertSqlEquals('SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id', $this->query->__toString());
+        $this->assertSqlEquals(
+            'SELECT `customers`.`id` FROM customers INNER JOIN orders ON customers.id = orders.customer_id',
+            $this->query->__toString()
+        );
     }
 
     public function testOnlyTable() {
@@ -92,7 +95,10 @@ class SelectQueryTest extends QueryTest {
     }
 
     public function testOnlyOrderBy_ExprArg() {
-        $this->assertSqlEquals('SELECT * ORDER BY tL.endedAt DESC', $this->query->orderBy($this->db->expr('tL.endedAt DESC'))->sql());
+        $this->assertSqlEquals(
+            'SELECT * ORDER BY tL.endedAt DESC',
+            $this->query->orderBy($this->db->expr('tL.endedAt DESC'))->sql()
+        );
     }
 
     public function dataJoin() {
@@ -118,11 +124,17 @@ class SelectQueryTest extends QueryTest {
         $sql = $query->$method($join)
             ->where(['foo' => 'bar'])
             ->__toString();
-        $this->assertSqlEquals("SELECT $columns FROM `task`, `taskLaunch` $joinType JOIN $join WHERE `foo` = 'bar'", $sql);
+        $this->assertSqlEquals(
+            "SELECT $columns FROM `task`, `taskLaunch` $joinType JOIN $join WHERE `foo` = 'bar'",
+            $sql
+        );
     }
 
     public function testWhereClause_OnlyCondition_ValidArg() {
-        $this->assertSqlEquals("SELECT * WHERE `foo` = 'abc' AND `bar` = 'efg'", $this->query->where(['foo' => 'abc', 'bar' => 'efg'])->__toString());
+        $this->assertSqlEquals(
+            "SELECT * WHERE `foo` = 'abc' AND `bar` = 'efg'",
+            $this->query->where(['foo' => 'abc', 'bar' => 'efg'])->__toString()
+        );
     }
 
     public function testWhereClause_OnlyCondition_InvalidArg() {

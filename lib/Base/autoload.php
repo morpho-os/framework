@@ -1201,7 +1201,9 @@ function toArr(iterable $it): array {
  */
 function subsets(array $set, int $k = -1): array {
     if (count($set) > (8 * PHP_INT_SIZE)) {
-        throw new OutOfBoundsException('Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE));
+        throw new OutOfBoundsException(
+            'Too large array/set, max number of elements of the input can be ' . (8 * PHP_INT_SIZE)
+        );
     }
     if ($k > -1) {
         throw new NotImplementedException();
@@ -1357,7 +1359,13 @@ function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $allOccur = 
         : $arr;
 }
 
-function unsetMulti(array $arr, iterable $val, bool $resetIntKeys = true, bool $allOccur = false, bool $strict = true): array {
+function unsetMulti(
+    array $arr,
+    iterable $val,
+    bool $resetIntKeys = true,
+    bool $allOccur = false,
+    bool $strict = true
+): array {
     // NB: unsetMulti() can't merged with unsetOne() as $val in unsetOne() can be array (iterable), i.e. unsetOne() has to support unsetting arrays.
     foreach ($val as $v) {
         while (true) {

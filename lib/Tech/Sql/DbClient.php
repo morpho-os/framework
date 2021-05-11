@@ -23,7 +23,7 @@ use function implode;
  * @method string errorCode()
  * @method array errorInfo()
  * @method mixed getAttribute($attribute) {
-}
+ * }
  */
 abstract class DbClient implements IDbClient {
     protected PDO $conn;

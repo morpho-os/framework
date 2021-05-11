@@ -2,14 +2,10 @@
 
 namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest;
 
-use Morpho\Base\Err;
-use Morpho\Base\IFn;
-
-use function Morpho\Base\init;
-
 /**
  * Some functions are based on functions found somewhere.
  */
+
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.

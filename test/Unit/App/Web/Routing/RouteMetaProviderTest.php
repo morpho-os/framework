@@ -84,7 +84,10 @@ class RouteMetaProviderTest extends TestCase {
         $actual = \iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
 
         $expectedControllerPath = 'my/nested/very-simple';
-        $expectedUri = '/' . explode('/', $actionMetas[0]['module'])[1] . '/' . $expectedControllerPath . (null === $expectedActionPath ? '' : '/' . $expectedActionPath);
+        $expectedUri = '/' . explode(
+                                 '/',
+                                 $actionMetas[0]['module']
+                             )[1] . '/' . $expectedControllerPath . (null === $expectedActionPath ? '' : '/' . $expectedActionPath);
         $this->assertEquals(
             [
                 [

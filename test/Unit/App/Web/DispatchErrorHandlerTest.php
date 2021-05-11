@@ -46,7 +46,13 @@ class DispatchErrorHandlerTest extends TestCase {
         }
     }
 
-    private function checkHandlesTheSameErrorOccurredTwice(DispatchErrorHandler $dispatchErrorHandler, array $expectedHandler, \Throwable $exception, int $expectedStatusCode, bool $mustLogError) {
+    private function checkHandlesTheSameErrorOccurredTwice(
+        DispatchErrorHandler $dispatchErrorHandler,
+        array $expectedHandler,
+        \Throwable $exception,
+        int $expectedStatusCode,
+        bool $mustLogError
+    ) {
         $request = new Request();
         $request->isHandled(true);
 
@@ -70,7 +76,11 @@ class DispatchErrorHandlerTest extends TestCase {
         }
     }
 
-    private function mkServiceManagerWithLogger(bool $mustLogError, \Throwable $expectedException, int $expectedNumberOfCalls) {
+    private function mkServiceManagerWithLogger(
+        bool $mustLogError,
+        \Throwable $expectedException,
+        int $expectedNumberOfCalls
+    ) {
         $errorLogger = $this->createMock(Logger::class);
         if ($mustLogError) {
             $errorLogger->expects($this->exactly($expectedNumberOfCalls))

@@ -234,10 +234,14 @@ class RequestTest extends TestCase {
             '',
         ];
         yield [
-            '/foo/bar/baz/abc?test=123&redirect=' . \rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza') . '#toc',
+            '/foo/bar/baz/abc?test=123&redirect=' . \rawurlencode(
+                'http://localhost/some/base/path/abc/def?three=qux&four=pizza'
+            ) . '#toc',
             '/foo/bar',
             '/foo/bar',
-            '/baz/abc?test=123&redirect=' . \rawurlencode('http://localhost/some/base/path/abc/def?three=qux&four=pizza') . '#toc',
+            '/baz/abc?test=123&redirect=' . \rawurlencode(
+                'http://localhost/some/base/path/abc/def?three=qux&four=pizza'
+            ) . '#toc',
         ];
         yield [
             '/foo/bar/abc/def/ghi',

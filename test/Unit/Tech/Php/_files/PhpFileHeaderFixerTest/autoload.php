@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 namespace {
+
     use Morpho\Tech\Php\Debugger;
 
     require_once __DIR__ . '/Trace.php';
@@ -16,9 +17,6 @@ namespace {
     }
 }
 namespace Morpho\Test\Unit\Tech\Php\PhpFileHeaderFixerTest {
-
-    use Composer\Autoload\ClassLoader;
-    use PhpParser\Node;
 
     /**
      * Foo bar

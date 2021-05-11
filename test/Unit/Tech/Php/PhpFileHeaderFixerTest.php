@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
-
-
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
 namespace Morpho\Test\Unit\Tech\Php;
-
 
 use Morpho\Base\Err;
 use Morpho\Base\Ok;
@@ -19,11 +21,11 @@ class PhpFileHeaderFixerTest extends TestCase {
     }
 
     public function dataCheckAndFix_EmptyFile() {
-        yield [''];
-        yield ['<?php'];
-        yield ["#!/usr/bin/env php"];
-        yield ["#!/usr/bin/env php\n<?php"];
-        yield ["#!/usr/bin/env php\n<?php\n"];
+        (yield ['']);
+        (yield ['<?php']);
+        (yield ["#!/usr/bin/env php"]);
+        (yield ["#!/usr/bin/env php\n<?php"]);
+        (yield ["#!/usr/bin/env php\n<?php\n"]);
     }
 
     /**
@@ -33,14 +35,8 @@ class PhpFileHeaderFixerTest extends TestCase {
     public function testCheckAndFix_EmptyFile($text) {
         $tmpFilePath = $this->createTmpFile();
         file_put_contents($tmpFilePath, $text);
-        $context = [
-            'baseDirPath' => dirname($tmpFilePath),
-            'filePath'    => $tmpFilePath,
-            'ns'          => 'Some',
-        ];
-
+        $context = ['baseDirPath' => dirname($tmpFilePath), 'filePath' => $tmpFilePath, 'ns' => 'Some'];
         $checkResult = $this->fixer->check($context);
-
         $resultContext = $checkResult->val();
         $this->assertInstanceOf(Err::class, $checkResult);
         $this->checkContext(
@@ -52,30 +48,21 @@ class PhpFileHeaderFixerTest extends TestCase {
                     'hasValidDeclare'      => false,
                     'hasLicenseComment'    => false,
                     'nsCheckResult'        => new Err(['expected' => 'Some', 'actual' => null]),
-                    'classTypeCheckResult' => new Ok((['expected' => null, 'actual' => null])),
-                ],
+                    'classTypeCheckResult' => new Ok(['expected' => null, 'actual' => null]),
+                ]
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->assertEquals(new Err("The file '{$context['filePath']}' does not have PHP statements"), $fixResult);
     }
 
     public function testCheckAndFix_DeclareAndNamespace_NoLicense() {
         $filePath = $this->getTestDirPath() . '/Foo.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Err::class, $checkResult);
         $resultContext = $checkResult->val();
-
         $this->checkContext(
             array_merge(
                 $context,
@@ -90,22 +77,14 @@ class PhpFileHeaderFixerTest extends TestCase {
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->checkFixResult($fixResult);
     }
 
     public function testCheckAndFix_DeclareAndLicense_NoNs() {
         $filePath = $this->getTestDirPath() . '/bar.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Err::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
@@ -122,22 +101,14 @@ class PhpFileHeaderFixerTest extends TestCase {
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->checkFixResult($fixResult);
     }
 
     public function testCheck_MultipleDocComments() {
         $filePath = $this->getTestDirPath() . '/multiple-doc-comments.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Ok::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
@@ -158,14 +129,8 @@ class PhpFileHeaderFixerTest extends TestCase {
 
     public function testCheckAndFix_LicenseInInvalidPlace() {
         $filePath = $this->getTestDirPath() . '/LicenseCommentInInvalidPlace.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Ok::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
@@ -177,27 +142,21 @@ class PhpFileHeaderFixerTest extends TestCase {
                     'hasValidDeclare'      => true,
                     'hasLicenseComment'    => true,
                     'nsCheckResult'        => new Ok(['expected' => $context['ns'], 'actual' => $context['ns']]),
-                    'classTypeCheckResult' => new Ok(['expected' => 'LicenseCommentInInvalidPlace', 'actual' => 'LicenseCommentInInvalidPlace']),
+                    'classTypeCheckResult' => new Ok(
+                        ['expected' => 'LicenseCommentInInvalidPlace', 'actual' => 'LicenseCommentInInvalidPlace']
+                    ),
                 ]
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->checkFixResult($fixResult);
     }
 
     public function testCheckAndFix_OtherDocCommentAfterDeclare() {
         $filePath = $this->getTestDirPath() . '/Rand.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Err::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
@@ -214,31 +173,21 @@ class PhpFileHeaderFixerTest extends TestCase {
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->checkFixResult(
             $fixResult,
-            $this->licenseComment()
-            . "\n"
-            . <<<'OUT'
-            /**
-             * Pseudorandom number generator (PRNG)
-             */
-            OUT
+            $this->licenseComment() . "\n" . <<<'OUT'
+/**
+ * Pseudorandom number generator (PRNG)
+ */
+OUT
         );
     }
 
     public function testCheckAndFix_MultipleNamespacesWithGlobal() {
         $filePath = $this->getTestDirPath() . '/autoload.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Err::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
@@ -255,22 +204,14 @@ class PhpFileHeaderFixerTest extends TestCase {
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->checkFixResult($fixResult, null, '');
     }
 
     public function testCheckAndFix_FileWithoutDeclareStmt() {
         $filePath = $this->getTestDirPath() . '/NoDeclare.php';
-        $context = [
-            'filePath'    => $filePath,
-            'baseDirPath' => dirname($filePath),
-            'ns'          => self::class,
-        ];
-
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
         $checkResult = $this->fixer->check($context);
-
         $this->assertInstanceOf(Err::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
@@ -287,16 +228,15 @@ class PhpFileHeaderFixerTest extends TestCase {
             ),
             $resultContext
         );
-
         $fixResult = $this->fixer->fix($resultContext);
-
         $this->checkFixResult($fixResult, null, '');
     }
 
     private function fileHeaderRe(string $expectedNs, string $licenseComment = null): string {
-        return '~^\\<\\?php declare\\(strict_types=1\\);\s+'
-            . preg_quote($licenseComment ?? $this->licenseComment(), '~')
-            . '\s+namespace ' . preg_quote($expectedNs, '~') . '~s';
+        return '~^\\<\\?php declare\\(strict_types=1\\);\\s+' . preg_quote(
+                $licenseComment ?? $this->licenseComment(),
+                '~'
+            ) . '\\s+namespace ' . preg_quote($expectedNs, '~') . '~s';
     }
 
     private function checkContext(array $expectedContext, array $actualContext): void {
@@ -313,18 +253,21 @@ class PhpFileHeaderFixerTest extends TestCase {
 
     private function licenseComment(): string {
         return <<<'OUT'
-        /**
-         * This file is part of morpho-os/framework
-         * It is distributed under the 'Apache License Version 2.0' license.
-         * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
-         */
-        OUT;
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+OUT;
     }
 
     private function checkFixResult(Result $fixResult, string $licenseComment = null, string $expectedNs = null): void {
         $this->assertInstanceOf(Ok::class, $fixResult);
         $resultContext = $fixResult->val();
-        $this->assertMatchesRegularExpression($this->fileHeaderRe($expectedNs ?? self::class, $licenseComment), $resultContext['text']);
+        $this->assertMatchesRegularExpression(
+            $this->fileHeaderRe($expectedNs ?? self::class, $licenseComment),
+            $resultContext['text']
+        );
         $this->assertSame(1, substr_count($resultContext['text'], 'This file is part of morpho-os/framework'));
     }
 }

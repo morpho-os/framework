@@ -18,7 +18,7 @@ class BarClass {
     }
 }
 
-namespace Morpho\Test\Unit\Tech\Php\Reflection\StrategyTest2;
+namespace Morpho\Test\Unit\Tech\Php\StrategyTest2;
 
 interface BazInterface {
 }

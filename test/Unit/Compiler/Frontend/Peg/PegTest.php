@@ -124,7 +124,11 @@ class PegTest extends TestCase {
     }
 
     public function dataParse_Sequence_FailureCase() {
-        return [[[new TerminalSymbol('abc'), new TerminalSymbol('abc')], 'abc'], [[new TerminalSymbol('efg'), $this->newRaiseErrorTerminalSymbol()], 'abc'], [[new TerminalSymbol('abc'), new TerminalSymbol('xyz')], 'abcefg']];
+        return [
+            [[new TerminalSymbol('abc'), new TerminalSymbol('abc')], 'abc'],
+            [[new TerminalSymbol('efg'), $this->newRaiseErrorTerminalSymbol()], 'abc'],
+            [[new TerminalSymbol('abc'), new TerminalSymbol('xyz')], 'abcefg'],
+        ];
     }
 
     /**
@@ -137,7 +141,10 @@ class PegTest extends TestCase {
     }
 
     public function dataParse_Choice() {
-        return [['foo', [new TerminalSymbol('foo'), $this->newRaiseErrorTerminalSymbol()], 'foobar'], ['foo', [new TerminalSymbol('xyz'), new TerminalSymbol('foo')], 'foobar']];
+        return [
+            ['foo', [new TerminalSymbol('foo'), $this->newRaiseErrorTerminalSymbol()], 'foobar'],
+            ['foo', [new TerminalSymbol('xyz'), new TerminalSymbol('foo')], 'foobar'],
+        ];
     }
 
     /**
@@ -204,7 +211,25 @@ class PegTest extends TestCase {
     public function testArithmeticGrammar() {
         $this->markTestIncomplete();
         // Modified grammar from pegjs
-        $peg = new Peg(['Expression' => new Sequence(new NonterminalSymbol('Term'), new Choice(new TerminalSymbol('+'), new TerminalSymbol('+')), new NonterminalSymbol('Term')), 'Term' => new Sequence(new NonterminalSymbol('Factor'), new Choice(new TerminalSymbol('*'), new TerminalSymbol('/')), new NonterminalSymbol('Factor')), 'Factor' => new Choice(new Sequence(new TerminalSymbol('('), new NonterminalSymbol('Expression'), new TerminalSymbol(')')), new NonterminalSymbol('Integer')), 'Integer' => new OneOrMoreRepetition(new CharacterClass('[0-9]'))]);
+        $peg = new Peg(
+            [
+                'Expression' => new Sequence(
+                    new NonterminalSymbol('Term'),
+                    new Choice(new TerminalSymbol('+'), new TerminalSymbol('+')),
+                    new NonterminalSymbol('Term')
+                ),
+                'Term'       => new Sequence(
+                    new NonterminalSymbol('Factor'),
+                    new Choice(new TerminalSymbol('*'), new TerminalSymbol('/')),
+                    new NonterminalSymbol('Factor')
+                ),
+                'Factor'     => new Choice(
+                    new Sequence(new TerminalSymbol('('), new NonterminalSymbol('Expression'), new TerminalSymbol(')')),
+                    new NonterminalSymbol('Integer')
+                ),
+                'Integer'    => new OneOrMoreRepetition(new CharacterClass('[0-9]')),
+            ]
+        );
         $this->assertSame('14', $peg->parse('2*(3+4)'));
         // @TODO: Add whitespaces
         /*

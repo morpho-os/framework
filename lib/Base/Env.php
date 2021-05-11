@@ -91,7 +91,11 @@ abstract class Env {
      * Returns true if the ini-value looks like bool.
      */
     public static function isBoolIniVal(int|string|float|bool $value): bool {
-        return in_array(strtolower((string) $value), ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0], true);
+        return in_array(
+            strtolower((string) $value),
+            ['on', 'true', 'yes', '1', 1, 'off', 'false', 'none', '', '0', 0],
+            true
+        );
     }
 
     public static function tmpDirPath(): string {
@@ -100,7 +104,10 @@ abstract class Env {
 
     public static function enableExpectations(): void {
         // http://php.net/assert#function.assert.expectations
-        Must::beTrue(ini_get('zend.assertions') === '1', "The 'zend.assertions' ini parameter must be set to 1 for expectations");
+        Must::beTrue(
+            ini_get('zend.assertions') === '1',
+            "The 'zend.assertions' ini parameter must be set to 1 for expectations"
+        );
         ini_set('assert.active', '1');
         ini_set('assert.exception', '1');
     }

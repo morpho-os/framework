@@ -11,7 +11,7 @@ namespace Morpho_Test_Unit_Tech_Php_ReflectionStrategyTest1 {
     }
 }
 
-namespace Morpho\Test\Unit\Tech\Php\Reflection\StrategyTest1 {
+namespace Morpho\Test\Unit\Tech\Php\StrategyTest1 {
 
     class Baz {
     }

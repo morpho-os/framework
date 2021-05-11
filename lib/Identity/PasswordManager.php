@@ -31,7 +31,10 @@ class PasswordManager {
 
     const COST = 12;
 
-    public static function generatePassword(int $length = self::PASSWORD_LENGTH, int $flags = self::USE_ALL_CHARS ^ self::USE_CONFUSED_CHARS): string {
+    public static function generatePassword(
+        int $length = self::PASSWORD_LENGTH,
+        int $flags = self::USE_ALL_CHARS ^ self::USE_CONFUSED_CHARS
+    ): string {
         $chars = '';
         if ($flags & self::USE_PUNCT_CHARS) {
             $chars .= self::PUNCT_CHARS;

@@ -82,7 +82,11 @@ class AsciiStringReader implements IStringReader {
 
     public function readUntil(string $re, bool $advanceOffset = true, bool $returnStr = true): string|int|null {
         if (preg_match($this->re($re, false), $this->input, $match, PREG_OFFSET_CAPTURE, $this->offsetInBytes())) {
-            $res = $this->substr($this->input, $this->offset, $match[0][1] - $this->offset + $this->strlen($match[0][0]));
+            $res = $this->substr(
+                $this->input,
+                $this->offset,
+                $match[0][1] - $this->offset + $this->strlen($match[0][0])
+            );
             if ($advanceOffset) {
                 $this->prevOffset = $match[0][1];
                 $this->offset += $this->strlen($res);

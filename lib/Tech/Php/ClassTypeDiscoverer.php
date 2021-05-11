@@ -51,7 +51,9 @@ class ClassTypeDiscoverer {
         foreach ($filePaths as $filePath) {
             foreach ($discoverStrategy->classTypesDefinedInFile($filePath) as $classType) {
                 if (isset($map[$classType])) {
-                    throw new RuntimeException("Cannot redeclare the class|interface|trait '$classType' in '$filePath'");
+                    throw new RuntimeException(
+                        "Cannot redeclare the class|interface|trait '$classType' in '$filePath'"
+                    );
                 }
                 $map[$classType] = $filePath;
             }

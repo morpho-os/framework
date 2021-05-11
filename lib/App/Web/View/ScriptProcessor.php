@@ -37,7 +37,9 @@ class ScriptProcessor extends HtmlProcessor {
         }
         $childScripts = $this->scripts;
         $this->scripts = [];
-        $html = $this->__invoke($tag['_text']); // render the parent page, extract and collect all scripts from it into $this->scripts.
+        $html = $this->__invoke(
+            $tag['_text']
+        ); // render the parent page, extract and collect all scripts from it into $this->scripts.
 
         if ($childScripts) {
             // Don't add action scripts if there are any child scripts
@@ -127,13 +129,16 @@ class ScriptProcessor extends HtmlProcessor {
         if (file_exists($jsFilePath)) {
             $jsConf = $this->jsConf();
             $scripts[] = [
-                'src'      => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
+                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
                 '_tagName' => 'script',
-                '_text'    => '',
+                '_text' => '',
             ];
             $scripts[] = [
                 '_tagName' => 'script',
-                '_text'    => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode($jsConf, JSON_UNESCAPED_SLASHES) . '); });',
+                '_text'    => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode(
+                        $jsConf,
+                        JSON_UNESCAPED_SLASHES
+                    ) . '); });',
             ];
         }
         return $scripts;

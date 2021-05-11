@@ -18,7 +18,10 @@ class HandlerInstanceProviderTest extends TestCase {
         $serviceManager = $this->createMock(IServiceManager::class);
 
         $moduleName = 'foo/bar';
-        $module = $this->createConfiguredMock(BackendModule::class, ['name' => $moduleName, 'autoloadFilePath' => __FILE__]);
+        $module = $this->createConfiguredMock(
+            BackendModule::class,
+            ['name' => $moduleName, 'autoloadFilePath' => __FILE__]
+        );
 
         $moduleIndex = $this->createMock(ModuleIndex::class);
         $moduleIndex->expects($this->any())

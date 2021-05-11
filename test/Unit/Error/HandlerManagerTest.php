@@ -103,7 +103,10 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
 
     public function testThrowsExceptionIfInvalidHandlerTypeProvided() {
         $class = HandlerManager::class;
-        $methods = array_diff(get_class_methods($class), ['exceptionHandlers', 'errorHandlers', 'exceptionHandler', 'errorHandler']);
+        $methods = array_diff(
+            get_class_methods($class),
+            ['exceptionHandlers', 'errorHandlers', 'exceptionHandler', 'errorHandler']
+        );
         $callback = [$this, 'myHandler'];
         foreach ($methods as $method) {
             try {

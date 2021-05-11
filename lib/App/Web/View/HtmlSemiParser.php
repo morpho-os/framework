@@ -318,7 +318,12 @@ class HtmlSemiParser extends EventManager implements IFn {
     protected function encodeAttrValue(string $attrValue): string {
         if (false !== strpos($attrValue, '<?')) {
             // Modified RE from https://github.com/nikic/PHP-Parser/blob/master/grammar/rebuildParsers.php#L34
-            $groups = preg_split('~(?P<php> (?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?> )~six', $attrValue, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+            $groups = preg_split(
+                '~(?P<php> (?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?> )~six',
+                $attrValue,
+                -1,
+                PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
+            );
             $value = '';
             foreach ($groups as $group) {
                 if (preg_match('~^(?: <\?php|<\?= ) [^?]*+(?:\?(?!>)[^?]*+)*+ \?>$~six', $group)) { // ignore PHP code

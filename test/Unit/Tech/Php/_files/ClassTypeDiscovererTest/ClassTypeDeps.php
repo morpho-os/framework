@@ -31,7 +31,10 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
         new class extends R_AnonymousClassExtends implements S_AnonymousClassImplementsA, S_AnonymousClassImplementsB {
         };
 
-        function ($a, T_AnonymousFunctionDefinitionHasParameterWithType $b): U_AnonymousFunctionDefinitionHasReturnType {
+        function (
+            $a,
+            T_AnonymousFunctionDefinitionHasParameterWithType $b
+        ): U_AnonymousFunctionDefinitionHasReturnType {
         }
 
         ;
@@ -57,7 +60,12 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
         $t::PING_PONG;
     }
 
-    public function foo(int $a, K_MethodDefinitionHasParameterWithType $b, self $c, $d = self::PING_PONG): L_MethodDefinitionHasReturnType {
+    public function foo(
+        int $a,
+        K_MethodDefinitionHasParameterWithType $b,
+        self $c,
+        $d = self::PING_PONG
+    ): L_MethodDefinitionHasReturnType {
     }
 
     public function bar(): string {
