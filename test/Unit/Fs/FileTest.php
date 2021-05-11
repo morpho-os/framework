@@ -67,7 +67,7 @@ class FileTest extends TestCase {
         $this->assertEquals(
             [
                 'require'     => [
-                    'php' => '7.0.*',
+                    'php'      => '7.0.*',
                     'ext-curl' => '*',
                 ],
                 'require-dev' => [

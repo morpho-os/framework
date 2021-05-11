@@ -450,7 +450,7 @@ class DirTest extends TestCase {
             $testDirPath,
             '~\.txt$~si',
             [
-                'type' => Stat::DIR | Stat::FILE,
+                'type'      => Stat::DIR | Stat::FILE,
                 'recursive' => false,
             ]
         );

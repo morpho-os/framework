@@ -129,9 +129,9 @@ class ScriptProcessor extends HtmlProcessor {
         if (file_exists($jsFilePath)) {
             $jsConf = $this->jsConf();
             $scripts[] = [
-                'src' => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
+                'src'      => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
                 '_tagName' => 'script',
-                '_text' => '',
+                '_text'    => '',
             ];
             $scripts[] = [
                 '_tagName' => 'script',
