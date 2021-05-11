@@ -1,15 +1,13 @@
 <?php declare(strict_types=1);
+namespace Morpho\Base;
+
 /**
+ * Pseudorandom number generator (PRNG)
  * Modified file from Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
  * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-namespace Morpho\Base;
-
-/**
- * Pseudorandom number generator (PRNG)
  */
 abstract class Rand {
     public static function randBool(): bool {

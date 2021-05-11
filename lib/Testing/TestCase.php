@@ -25,7 +25,6 @@ use function fileperms;
 use function is_dir;
 use function is_file;
 use function is_string;
-use function ltrim;
 use function md5;
 use function microtime;
 use function mkdir;
@@ -35,7 +34,6 @@ use function realpath;
 use function rmdir;
 use function str_replace;
 use function strpos;
-use function strtolower;
 use function sys_get_temp_dir;
 use function tempnam;
 use function touch;
@@ -71,19 +69,20 @@ abstract class TestCase extends BaseTestCase {
         Vfs::unregister();
     }
 
-    protected function createTmpFile(string $ext = null, string $prefix = null, bool $deleteOnTearDown = true): string {
-        if (null === $ext) {
-            $tmpFilePath = tempnam($this->tmpDirPath(), uniqid((string) $prefix));
-        } else {
-            $fileName = uniqid((string) $prefix) . strtolower(__FUNCTION__);
-            if (null !== $ext) {
-                $fileName .= '.' . ltrim($ext, '.');
-            }
-            $tmpFilePath = $this->tmpDirPath() . '/' . $fileName;
+    protected function createTmpFile(string $prefix = null, string $suffix = null, bool $deleteOnTearDown = true): string {
+        $prefix = (string) $prefix;
+        $suffix = (string) $suffix;
+        if ($prefix === '') {
+            $prefix = strtolower(__FUNCTION__);
+        }
+        $tmpFilePath = tempnam($this->tmpDirPath(), (string) $prefix);
+        if ($suffix !== '') {
+            unlink($tmpFilePath);
+            $tmpFilePath .= $suffix;
             touch($tmpFilePath);
-            if (!is_file($tmpFilePath)) {
-                throw new RuntimeException();
-            }
+        }
+        if (!is_file($tmpFilePath)) {
+            throw new RuntimeException();
         }
         if ($deleteOnTearDown) {
             $this->tmpFilePaths[] = $tmpFilePath;
