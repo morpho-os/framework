@@ -32,7 +32,7 @@ class PhpFileHeaderFixer implements IFn {
     public function __invoke(mixed $context): Result {
         $result = $this->check($context);
         if (!$result->isOk()) {
-            if ($context['shouldFix']($result)) {
+            if (!isset($context['shouldFix']) || $context['shouldFix']($result)) {
                 /** @noinspection PhpIncompatibleReturnTypeInspection */
                 return $this->fix($result->val())->map(
                     function ($context) {
@@ -68,13 +68,8 @@ class PhpFileHeaderFixer implements IFn {
 
             public function enterNode(Node $node) {
                 if ($node instanceof Node\Stmt) {
-                    if (!$this->hasStmts && $node instanceof Node\Stmt\InlineHTML && substr(
-                            $node->value,
-                            0,
-                            2
-                        ) == '#!') {
+                    if (!$this->hasStmts && isShebangNode($node)) {
                         return null;
-                        // skip shebang
                     }
                     $this->hasStmts = true;
                     if ($node instanceof Node\Stmt\Declare_) {
@@ -110,8 +105,9 @@ class PhpFileHeaderFixer implements IFn {
                 'classTypeCheckResult' => $classTypeCheckResult,
             ]
         );
-        return $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk(
-        ) && $visitor->hasLicenseComment ? new Ok($result) : new Err($result);
+        return $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk() && $visitor->hasLicenseComment ? new Ok(
+            $result
+        ) : new Err($result);
     }
 
     public function fix(array $context): Result {
@@ -265,15 +261,23 @@ OUT;
 
     private function addDeclare(array $context): array {
         $nodes = $this->parse($context);
-        array_unshift(
+        $offset = 0;
+        if (isset($nodes[0]) && isShebangNode($nodes[0])) {
+            $offset++;
+        }
+        array_splice(
             $nodes,
-            new Node\Stmt\Declare_(
-                [
-                    new Node\Stmt\DeclareDeclare(
-                        new Node\Identifier('strict_types'), new Node\Scalar\LNumber(1)
-                    ),
-                ]
-            )
+            $offset,
+            0,
+            [
+                new Node\Stmt\Declare_(
+                    [
+                        new Node\Stmt\DeclareDeclare(
+                            new Node\Identifier('strict_types'), new Node\Scalar\LNumber(1)
+                        ),
+                    ]
+                ),
+            ]
         );
         $context['text'] = $this->ppFile($nodes);
         return $context;
@@ -283,6 +287,7 @@ OUT;
         $visitor = new class($this->licenseComment()) extends NodeVisitorAbstract {
             private bool $licenseCommentRemoved = false;
             private bool $licenseCommentAdded = false;
+            private bool $foundFirstStmt = false;
 
             public function __construct(private string $licenseComment) {
             }
@@ -295,11 +300,17 @@ OUT;
                     if ($node instanceof Node\Stmt\Declare_) {
                         return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
                     }
-                    if (!$this->licenseCommentAdded && $node instanceof Node\Stmt) {
-                        $comments = $node->getComments();
-                        array_unshift($comments, new Comment\Doc($this->licenseComment));
-                        $node->setAttribute('comments', $comments);
-                        $this->licenseCommentAdded = true;
+                    if ($node instanceof Node\Stmt) {
+                        if (!$this->licenseCommentAdded) {
+                            if (!$this->foundFirstStmt && isShebangNode($node)) {
+                                return null;
+                            }
+                            $comments = $node->getComments();
+                            array_unshift($comments, new Comment\Doc($this->licenseComment));
+                            $node->setAttribute('comments', $comments);
+                            $this->licenseCommentAdded = true;
+                        }
+                        $this->foundFirstStmt = true;
                     }
                 }
                 return null;
@@ -358,11 +369,10 @@ OUT;
 
     private function ppFile(array $nodes): string {
         $text = ppFile($nodes);
-        $text = preg_replace(
-            '~^\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si',
-            '<?php declare(strict_types=1);',
+        return preg_replace(
+            '~^(#![^\\n\\r]+[\\n\\r]*)?\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si',
+            '\\1<?php declare(strict_types=1);',
             $text
         );
-        return $text;
     }
 }

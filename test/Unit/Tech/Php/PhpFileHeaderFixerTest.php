@@ -232,11 +232,32 @@ OUT
         $this->checkFixResult($fixResult, null, '');
     }
 
-    private function fileHeaderRe(string $expectedNs, string $licenseComment = null): string {
-        return '~^\\<\\?php declare\\(strict_types=1\\);\\s+' . preg_quote(
-                $licenseComment ?? $this->licenseComment(),
-                '~'
-            ) . '\\s+namespace ' . preg_quote($expectedNs, '~') . '~s';
+    public function testCheckAndFix_FileWithShebang() {
+        $filePath = $this->getTestDirPath() . '/fix.php';
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
+
+        $checkResult = $this->fixer->check($context);
+
+        $this->assertInstanceOf(Err::class, $checkResult);
+        $resultContext = $checkResult->val();
+        $this->checkContext(
+            array_merge(
+                $context,
+                [
+                    'hasStmts'             => true,
+                    'hasDeclare'           => false,
+                    'hasValidDeclare'      => false,
+                    'hasLicenseComment'    => false,
+                    'nsCheckResult'        => new Err(['expected' => $context['ns'], 'actual' => 'Morpho\\Infra']),
+                    'classTypeCheckResult' => new Ok(['expected' => null, 'actual' => null]),
+                ]
+            ),
+            $resultContext
+        );
+
+        $fixResult = $this->fixer->fix($resultContext);
+
+        $this->checkFixResult($fixResult, shebang: true);
     }
 
     private function checkContext(array $expectedContext, array $actualContext): void {
@@ -261,13 +282,27 @@ OUT
 OUT;
     }
 
-    private function checkFixResult(Result $fixResult, string $licenseComment = null, string $expectedNs = null): void {
+    private function checkFixResult(
+        Result $fixResult,
+        string $licenseComment = null,
+        string $expectedNs = null,
+        bool $shebang = false
+    ): void {
         $this->assertInstanceOf(Ok::class, $fixResult);
         $resultContext = $fixResult->val();
         $this->assertMatchesRegularExpression(
-            $this->fileHeaderRe($expectedNs ?? self::class, $licenseComment),
+            $this->fileHeaderRe($expectedNs ?? self::class, $licenseComment, $shebang),
             $resultContext['text']
         );
         $this->assertSame(1, substr_count($resultContext['text'], 'This file is part of morpho-os/framework'));
+    }
+
+    private function fileHeaderRe(string $expectedNs, string $licenseComment = null, bool $shebang = false): string {
+        return '~^'
+            . ($shebang ? '#!/usr/bin/env\\s+php\\n' : '')
+            . '\\<\\?php declare\\(strict_types=1\\);\\s+'
+            . preg_quote($licenseComment ?? $this->licenseComment(), '~')
+            . '\\s+namespace ' . preg_quote($expectedNs, '~')
+            . '~si';
     }
 }
