@@ -19,6 +19,7 @@ use Traversable;
 
 use function Morpho\App\Cli\errorLn;
 use function Morpho\App\Cli\showOk;
+use function Morpho\Base\classify;
 use function Morpho\Base\indent;
 use function Morpho\Base\init;
 use function Morpho\Base\last;
@@ -47,8 +48,17 @@ class PhpFileHeaderFixer implements IFn {
         return $this->licenseComment;
     }
 
-    public function fixFiles(iterable $files, array $context): bool {
-        $ok = true;
+    public function fixFiles(iterable $files, array $context, Result $prevResult = null): Result {
+        if ($prevResult) {
+            $stats = $prevResult->val();
+            $ok = $prevResult->isOk();
+        } else {
+            $stats = [
+                'processed' => 0,
+                'fixed'     => 0,
+            ];
+            $ok = true;
+        }
         foreach ($files as $filePath) {
             showLn("Processing file " . q($filePath) . '...');
             $result = $this->__invoke(array_merge($context, ['filePath' => $filePath]));
@@ -57,11 +67,13 @@ class PhpFileHeaderFixer implements IFn {
             }
             if ($context['dryRun'] && isset($result->val()['text'])) {
                 showLn(indent($result->val()['text']));
+                $stats['fixed']++;
             }
+            $stats['processed']++;
             showOk();
             $ok = $result->isOk() && $ok;
         }
-        return $ok;
+        return $ok ? new Ok($stats) : new Err($stats);
     }
 
     /**
@@ -95,8 +107,8 @@ class PhpFileHeaderFixer implements IFn {
      * @return Result Err if the file has to be fixed later, and Ok otherwise.
      */
     public function check(array $context): Result {
-        $nsCheckResult = $this->checkNamespaces($context);
-        $classTypeCheckResult = $this->checkClassTypes($context);
+        $nsCheckResult = $this->checkNs($context);
+        $classTypeCheckResult = $this->checkClassType($context);
         $visitor = new class($this->licenseComment()) extends NodeVisitorAbstract {
             public bool $hasValidDeclare = false;
             public bool $hasDeclare = false;
@@ -246,12 +258,12 @@ class PhpFileHeaderFixer implements IFn {
         );
     }
 
-    private function checkNamespaces(array $context): Result {
+    private function checkNs(array $context): Result {
         $relPath = Path::rel($context['filePath'], $context['baseDirPath']);
         $expectedNs = rtrim($context['ns'], '\\');
         $nsSuffix = init(str_replace('/', '\\', $relPath), '\\');
         if ($nsSuffix !== '') {
-            $expectedNs .= '\\' . $nsSuffix;
+            $expectedNs .= '\\' . classify($nsSuffix);
         }
         foreach (self::namespaces($context['filePath']) as $ns) {
             // We are checking only the first namespace.
@@ -263,7 +275,7 @@ class PhpFileHeaderFixer implements IFn {
         return new Err(['expected' => $expectedNs, 'actual' => null]);
     }
 
-    private function checkClassTypes(array $context): Result {
+    private function checkClassType(array $context): Result {
         $mustHaveClasses = ctype_upper(ltrim(basename($context['filePath'], '_'))[0]);
         // Must have classes if filename starts with [A-Z]
         $filePath = $context['filePath'];

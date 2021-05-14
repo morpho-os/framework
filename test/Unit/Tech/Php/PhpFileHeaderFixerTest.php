@@ -361,6 +361,34 @@ OUT
         $this->checkFixResult($fixResult, false, shebang: true);
     }
 
+    public function testCheckAndFix_InvalidNs_NsDirWithHyphen() {
+        $filePath = $this->getTestDirPath() . '/foo-bar/Some.php';
+        $context = [
+            'filePath' => $filePath,
+            'baseDirPath' => dirname(dirname($filePath)),
+            'ns' => self::class
+        ];
+
+        $checkResult = $this->fixer->check($context);
+
+        $this->assertInstanceOf(Err::class, $checkResult);
+        $resultContext = $checkResult->val();
+        $this->checkContext(
+            array_merge(
+                $context,
+                [
+                    'hasStmts'             => true,
+                    'hasDeclare'           => true,
+                    'hasValidDeclare'      => true,
+                    'hasLicenseComment'    => true,
+                    'nsCheckResult'        => new Err(['expected' => $context['ns'] . '\\FooBar', 'actual' => self::class . '\\SomeInvalidNs']),
+                    'classTypeCheckResult' => new Ok(['expected' => 'Some', 'actual' => 'Some']),
+                ]
+            ),
+            $resultContext
+        );
+    }
+
     private function checkContext(array $expectedContext, array $actualContext): void {
         $this->checkCommonContextVals($expectedContext, $actualContext);
         $this->assertSame($expectedContext['hasLicenseComment'], $actualContext['hasLicenseComment']);

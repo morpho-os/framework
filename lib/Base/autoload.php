@@ -236,7 +236,7 @@ function appendFn(string $suffix): Closure {
 }
 
 function q(string|Stringable|iterable|int|float $list): string|array {
-    return \Morpho\Base\wrap($list, "'");
+    return wrap($list, "'");
 }
 
 function qq(string|Stringable|iterable|int|float $list): string|array {
@@ -264,8 +264,8 @@ function words(string|Stringable|int $list, int $limit = -1): array {
  * @return string
  */
 function dasherize(string|Stringable|int $list, string $additionalChars = '', bool $trim = true) {
-    $string = \Morpho\Base\sanitize($list, '-_ ' . $additionalChars, false);
-    $string = \Morpho\Base\deleteDups($string, '_ ');
+    $string = sanitize($list, '-_ ' . $additionalChars, false);
+    $string = deleteDups($string, '_ ');
     $search = ['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'];
     $replace = ['\\1-\\2', '\\1-\\2'];
     $result = strtolower(
@@ -280,7 +280,7 @@ function dasherize(string|Stringable|int $list, string $additionalChars = '', bo
         )
     );
     if ($trim) {
-        return \Morpho\Base\trimMore($result, '-');
+        return trimMore($result, '-');
     }
 
     return $result;
@@ -289,13 +289,13 @@ function dasherize(string|Stringable|int $list, string $additionalChars = '', bo
 /**
  * Replaces first capsed letter or dash with underscore and small later.
  *
- * @param Stringable|int|string $list
+ * @param Stringable|string $s
  * @param bool $trim Either trailing '_' characters should be removed or not.
  *
  * @return string
  */
-function underscore(Stringable|string $list, bool $trim = true) {
-    $string = sanitize($list, '-_ ', false);
+function underscore(Stringable|string $s, bool $trim = true) {
+    $string = sanitize($s, '-_ ', false);
     $string = deleteDups($string, '- ');
     $result = strtolower(
         preg_replace(
@@ -319,15 +319,15 @@ function underscore(Stringable|string $list, bool $trim = true) {
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be always in upper case.
  *
- * @param string $list Allowed string are: /[a-zA-Z0-9_- /\\\\]/s.
+ * @param Stringable|string $s Allowed string are: /[a-zA-Z0-9_- /\\\\]/s.
  *                       All other characters will be removed.
  *                       The '/' will be transformed to '\'.
  *
  * @return string
  */
-function classify(string|Stringable|int $list/*, bool $toFqName = false*/): string {
-    $string = sanitize(str_replace('/', '\\', (string) $list), '-_\\ ');
-    if (false !== strpos($string, '\\')) {
+function classify(string|Stringable $s): string {
+    $string = sanitize(str_replace('/', '\\', (string) $s), '-_\\ ');
+    if (str_contains($string, '\\')) {
         $string = preg_replace_callback(
             '{\\\\(\w)}si',
             function ($match) {
@@ -338,28 +338,23 @@ function classify(string|Stringable|int $list/*, bool $toFqName = false*/): stri
     }
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
-    $string = str_replace(' ', '', $string);
-    /*    if ($toFqName) {
-            return '\\' . $string;
-        }*/
-
-    return $string;
+    return str_replace(' ', '', $string);
 }
 
 /**
  * Replaces next letter after the allowed character with capital letter.
  * First latter will be in upper case if $lcfirst == true or in lower case if $lcfirst == false.
  *
- * @param Stringable|int|string $list
- * @param bool $upperCaseFirstChar
+ * @param Stringable|string $s
+ * @param bool $toUpperFirstChar
  * @return string
  */
-function camelize(string|Stringable|int $list, bool $upperCaseFirstChar = false): string {
-    $string = sanitize($list, '-_ ');
+function camelize(string|Stringable $s, bool $toUpperFirstChar = false): string {
+    $string = sanitize($s, '-_ ');
     $string = str_replace(['-', '_'], ' ', $string);
     $string = ucwords($string);
     $string = str_replace(' ', '', $string);
-    if (!$upperCaseFirstChar) {
+    if (!$toUpperFirstChar) {
         return lcfirst($string);
     }
     return $string;
@@ -379,7 +374,7 @@ function humanize(string|Stringable|int $list, bool $escape = true) {
         str_replace('_', ' ', (string ) $list)
     );
     if ($escape) {
-        $result = \Morpho\Base\e($result);
+        $result = e($result);
     }
     return $result;
 }
@@ -398,7 +393,7 @@ function humanize(string|Stringable|int $list, bool $escape = true) {
  * @return string.
  */
 function titleize(string|Stringable|int $list, bool $ucwords = true, bool $escape = true): string {
-    $result = \Morpho\Base\humanize($list, $escape);
+    $result = humanize($list, $escape);
     if ($ucwords) {
         return ucwords($result);
     }
@@ -446,10 +441,10 @@ function deleteDups(string|Stringable|int $list, Stringable|int|string $chars, b
     return preg_replace($regExp, '\1', (string) $list);
 }
 
-function format($string, array $args, callable $filterFn): string {
+function format($string, array $args, callable $format): string {
     $fromToMap = [];
     foreach ($args as $key => $value) {
-        $fromToMap['{' . $key . '}'] = $filterFn($value);
+        $fromToMap['{' . $key . '}'] = $format($value);
     }
     return strtr($string, $fromToMap);
 }
@@ -1275,7 +1270,7 @@ function permutations(array $set): array {
             $permutations[] = [$set[1], $set[0]];
             return $permutations;
         }
-        throw new \UnexpectedValueException();
+        throw new UnexpectedValueException();
     };
 
     if (count($set) <= 2) {
@@ -1462,7 +1457,7 @@ function underscoreKeys(array $arr): array {
 }
 
 // Taken from nikic/phlexy
-function compilerRe(array $regexes, $additionalModifiers = '') {
+function compileRe(array $regexes, string $additionalModifiers = ''): string {
     return '~(' . str_replace('~', '\~', implode(')|(', $regexes)) . ')~A' . $additionalModifiers;
 }
 
