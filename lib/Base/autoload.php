@@ -1354,7 +1354,7 @@ function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $allOccur = 
             break;
         }
     }
-    return $resetIntKeys && all(fn($key) => is_int($key), array_keys($arr))
+    return $resetIntKeys && all(fn ($key) => is_int($key), array_keys($arr))
         ? array_values($arr)
         : $arr;
 }
@@ -1379,7 +1379,7 @@ function unsetMulti(
             }
         }
     }
-    return $resetIntKeys && all(fn($key) => is_int($key), array_keys($arr))
+    return $resetIntKeys && all(fn ($key) => is_int($key), array_keys($arr))
         ? array_values($arr)
         : $arr;
 }

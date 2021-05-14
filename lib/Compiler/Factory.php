@@ -16,7 +16,7 @@ class Factory implements IFactory {
 
     public function mkMidend(): callable {
         // Middle end by default does nothing.
-        return fn($v) => $v;
+        return fn ($v) => $v;
     }
 
     public function mkBackend(): callable {

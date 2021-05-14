@@ -103,7 +103,7 @@ class CompilerTest extends ConfigurablePipeTest {
         $compiler = new Compiler($this->mkCompilerConf());
         $oldPhase = $compiler->$method();
         $this->assertIsCallable($oldPhase);
-        $newPhase = fn() => null;
+        $newPhase = fn () => null;
         $this->assertSame($compiler, $compiler->{'set' . $method}($newPhase));
         $this->assertSame($newPhase, $compiler->$method());
         $this->assertNotSame($newPhase, $oldPhase);
@@ -130,9 +130,9 @@ class CompilerTest extends ConfigurablePipeTest {
 
     private function mkCompilerConf(): array {
         return [
-            'frontend' => fn($v) => $v,
-            'midend'   => fn($v) => $v,
-            'backend'  => fn($v) => $v,
+            'frontend' => fn ($v) => $v,
+            'midend'   => fn ($v) => $v,
+            'backend'  => fn ($v) => $v,
         ];
     }
 }

@@ -228,7 +228,7 @@ OUT;
     }
 
     private function quotedRe(array $parts): string {
-        return '~^' . implode('\s*?', array_map(fn($s) => preg_quote($s), $parts)) . '$~s';
+        return '~^' . implode('\s*?', array_map(fn ($s) => preg_quote($s), $parts)) . '$~s';
     }
 
     private function mkRequestStub(string $view) {

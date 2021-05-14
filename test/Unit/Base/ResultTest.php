@@ -156,21 +156,21 @@ class ResultTest extends TestCase {
         };
 
         $this->assertEquals(
-            (new Ok(5))->bind(fn($x) => $f($x)->bind($g)),
+            (new Ok(5))->bind(fn ($x) => $f($x)->bind($g)),
             (new Ok(5))->bind($f)->bind($g)
         );
     }
 
     // Functor
     public function testMap() {
-        $res = (new Ok(2))->map(fn($val) => $val - 3);
+        $res = (new Ok(2))->map(fn ($val) => $val - 3);
         $this->assertInstanceOf(IFunctor::class, $res);
         $this->assertSame(-1, $res->val());
     }
 
     // Applicative
     public function testApply() {
-        $fn = fn($v) => $v - 2;
+        $fn = fn ($v) => $v - 2;
         $res = (new Ok(5))->apply(new Ok($fn));
         $this->assertInstanceOf(Ok::class, $res);
         $this->assertSame(3, $res->val());

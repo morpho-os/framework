@@ -65,7 +65,7 @@ class SchemaTest extends DbTestCase {
 
     public function testDeleteAllTables() {
         $this->createCarsTable(false);
-        $tableNames = fn() => $this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+        $tableNames = fn () => $this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
         $this->assertContains('cars', $tableNames());
         $this->schema->deleteAllTables();
         $this->assertSame([], $tableNames());

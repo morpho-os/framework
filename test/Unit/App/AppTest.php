@@ -8,10 +8,9 @@ namespace Morpho\Test\Unit\App;
 
 use Morpho\App\App;
 use Morpho\Testing\TestCase;
-class AppTest extends TestCase
-{
-    public function testConfAccessors()
-    {
+
+class AppTest extends TestCase {
+    public function testConfAccessors() {
         $app = new App();
         $this->assertEquals([], $app->conf());
         $newConf = ['foo' => 'bar'];

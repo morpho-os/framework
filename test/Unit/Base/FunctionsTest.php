@@ -97,8 +97,8 @@ class FunctionsTest extends TestCase {
     // -------------------------------------------------------------------------
 
     public function dataAll_CommonCases() {
-        $falsePredicate = fn() => false;
-        $truePredicate = fn() => true;
+        $falsePredicate = fn () => false;
+        $truePredicate = fn () => true;
         $emptyString = '';
         $emptyArr = [];
         $emptyArrIt = new ArrayIterator($emptyArr);
@@ -281,11 +281,11 @@ class FunctionsTest extends TestCase {
 
     public function testWaitUntilTimeout_Timeout() {
         $this->expectException(RuntimeException::class, 'The timeout has been reached');
-        $this->assertNull(waitUntilTimeout(fn() => usleep(2000), 1000));
+        $this->assertNull(waitUntilTimeout(fn () => usleep(2000), 1000));
     }
 
     public function testWaitUntilTimeout_NoTimeout() {
-        $this->assertSame('abc', waitUntilTimeout(fn() => 'abc', 1000));
+        $this->assertSame('abc', waitUntilTimeout(fn () => 'abc', 1000));
     }
 
     public function testNot() {

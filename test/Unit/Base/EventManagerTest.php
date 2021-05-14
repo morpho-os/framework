@@ -68,7 +68,7 @@ class EventManagerTest extends TestCase {
     public function testCanChangeFieldsOfEvent() {
         $event = new Event('change', ['foo' => 'bar']);
         $eventManager = new EventManager();
-        $eventManager->on('change', fn($event) => $event->args['foo'] = 'abc');
+        $eventManager->on('change', fn ($event) => $event->args['foo'] = 'abc');
         $this->assertSame('bar', $event->args['foo']);
         $eventManager->trigger($event);
         $this->assertSame('abc', $event->args['foo']);
