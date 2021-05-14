@@ -361,7 +361,7 @@ OUT
         $this->checkFixResult($fixResult, false, shebang: true);
     }
 
-    public function testCheckAndFix_InvalidNs_NsDirWithHyphen() {
+    public function testCheck_InvalidNs_NsDirWithHyphen() {
         $filePath = $this->getTestDirPath() . '/foo-bar/Some.php';
         $context = [
             'filePath' => $filePath,
