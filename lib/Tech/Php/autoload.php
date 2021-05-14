@@ -30,6 +30,7 @@ namespace {
 }
 namespace Morpho\Tech\Php {
 
+    const LICENSE_COMMENT = "/**\n * This file is part of morpho-os/framework\n * It is distributed under the 'Apache License Version 2.0' license.\n * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.\n */";
     use Composer\Autoload\ClassLoader;
     use PhpParser\Node;
     use PhpParser\Node\Stmt\Class_ as ClassStmt;
@@ -43,10 +44,6 @@ namespace Morpho\Tech\Php {
 
     use function file_get_contents;
     use function is_array;
-    use function Morpho\App\Cli\errorLn;
-    use function Morpho\App\Cli\showOk;
-    use function Morpho\Base\q;
-    use function Morpho\Base\showLn;
     use function spl_autoload_functions;
 
     function parseFile(string $filePath): ?array {
@@ -104,24 +101,6 @@ namespace Morpho\Tech\Php {
             }
         }
         throw new RuntimeException("Unable to find the Composer's autoloader in the list of autoloaders");
-    }
-
-    function fixFiles(iterable $files, $context): bool {
-        $fixer = new PhpFileHeaderFixer();
-        $ok = true;
-        foreach ($files as $filePath) {
-            showLn("Processing file " . q($filePath) . '...');
-            $result = $fixer->__invoke(array_merge($context, ['filePath' => $filePath]));
-            if (!$result->isOk()) {
-                errorLn("Unable to fix the file " . q($filePath) . "\n" . print_r($result, true));
-            }
-            if ($context['dryRun'] && isset($result->val()['text'])) {
-                var_dump($result->val()['text']);
-            }
-            showOk();
-            $ok = $result->isOk() && $ok;
-        }
-        return $ok;
     }
 
     function isShebangNode(Node $node): bool {

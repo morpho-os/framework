@@ -12,12 +12,14 @@ use Morpho\Base\Result;
 use Morpho\Tech\Php\PhpFileHeaderFixer;
 use Morpho\Testing\TestCase;
 
+use const Morpho\Tech\Php\LICENSE_COMMENT;
+
 class PhpFileHeaderFixerTest extends TestCase {
     private PhpFileHeaderFixer $fixer;
 
     public function setUp(): void {
         parent::setUp();
-        $this->fixer = new PhpFileHeaderFixer();
+        $this->fixer = new PhpFileHeaderFixer(LICENSE_COMMENT);
     }
 
     public function dataCheckAndFix_EmptyFile() {
@@ -78,7 +80,7 @@ class PhpFileHeaderFixerTest extends TestCase {
             $resultContext
         );
         $fixResult = $this->fixer->fix($resultContext);
-        $this->checkFixResult($fixResult);
+        $this->checkFixResult($fixResult, $this->licenseComment());
     }
 
     public function testCheckAndFix_DeclareAndLicense_NoNs() {
@@ -102,7 +104,7 @@ class PhpFileHeaderFixerTest extends TestCase {
             $resultContext
         );
         $fixResult = $this->fixer->fix($resultContext);
-        $this->checkFixResult($fixResult);
+        $this->checkFixResult($fixResult, $this->licenseComment());
     }
 
     public function testCheck_MultipleDocComments() {
@@ -150,7 +152,7 @@ class PhpFileHeaderFixerTest extends TestCase {
             $resultContext
         );
         $fixResult = $this->fixer->fix($resultContext);
-        $this->checkFixResult($fixResult);
+        $this->checkFixResult($fixResult, $this->licenseComment());
     }
 
     public function testCheckAndFix_OtherDocCommentAfterDeclare() {
@@ -205,7 +207,7 @@ OUT
             $resultContext
         );
         $fixResult = $this->fixer->fix($resultContext);
-        $this->checkFixResult($fixResult, null, '');
+        $this->checkFixResult($fixResult, $this->licenseComment(), '');
     }
 
     public function testCheckAndFix_FileWithoutDeclareStmt() {
@@ -229,11 +231,47 @@ OUT
             $resultContext
         );
         $fixResult = $this->fixer->fix($resultContext);
-        $this->checkFixResult($fixResult, null, '');
+        $this->checkFixResult($fixResult, $this->licenseComment(), '');
     }
 
-    public function testCheckAndFix_FileWithShebang() {
-        $filePath = $this->getTestDirPath() . '/fix.php';
+    public function testLicenseCommentAccessors() {
+        $fixer = new PhpFileHeaderFixer();
+        $this->checkAccessors([$fixer, 'licenseComment'], null, '/* foo */', $fixer);
+    }
+
+    public function testCheckAndFix_ValidFile_NullLicenseComment() {
+        $fixer = new PhpFileHeaderFixer(null);
+
+        $filePath = $this->getTestDirPath() . '/Foo.php';
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
+
+        $checkResult = $fixer->check($context);
+
+        $this->assertInstanceOf(Ok::class, $checkResult);
+        $resultContext = $checkResult->val();
+        $this->assertTrue(!isset($resultContext['hasLicenseComment']));
+        $this->checkCommonContextVals(
+            array_merge(
+                $context,
+                [
+                    'hasStmts'             => true,
+                    'hasDeclare'           => true,
+                    'hasValidDeclare'      => true,
+                    'nsCheckResult'        => new Ok(['expected' => $context['ns'], 'actual' => $context['ns']]),
+                    'classTypeCheckResult' => new Ok(['expected' => 'Foo', 'actual' => 'Foo']),
+                ]
+            ),
+            $resultContext
+        );
+
+        $fixResult = $this->fixer->fix($resultContext);
+
+        $this->assertInstanceOf(Ok::class, $fixResult);
+        $this->assertTrue(!isset($fixResult->val()['text']));
+    }
+
+    public function testCheckAndFix_FileWithShebangWithoutDeclareWithInvalidNs() {
+        $filePath = $this->getTestDirPath() . '/shebang-without-declare-with-invalid-ns.php';
         $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
 
         $checkResult = $this->fixer->check($context);
@@ -257,17 +295,80 @@ OUT
 
         $fixResult = $this->fixer->fix($resultContext);
 
-        $this->checkFixResult($fixResult, shebang: true);
+        $this->checkFixResult($fixResult, $this->licenseComment(), shebang: true);
+    }
+
+    public function testCheckAndFix_FileWithShebangWithDeclareWithoutNsWithNullLicense() {
+        $filePath = $this->getTestDirPath() . '/shebang-with-declare-without-ns-null-license.php';
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
+
+        $fixer = new PhpFileHeaderFixer(null);
+
+        $checkResult = $fixer->check($context);
+
+        $this->assertInstanceOf(Err::class, $checkResult);
+        $resultContext = $checkResult->val();
+
+        $this->checkCommonContextVals(
+            array_merge(
+                $context,
+                [
+                    'hasStmts'             => true,
+                    'hasDeclare'           => true,
+                    'hasValidDeclare'      => true,
+                    'nsCheckResult'        => new Err(['expected' => $context['ns'], 'actual' => null]),
+                    'classTypeCheckResult' => new Ok(['expected' => null, 'actual' => null]),
+                ]
+            ),
+            $resultContext
+        );
+
+        $fixResult = $fixer->fix($resultContext);
+
+        $this->checkFixResult($fixResult, false, shebang: true);
+    }
+
+    public function testCheckAndFix_LicenseCommentInInvalidPlace() {
+        $filePath = $this->getTestDirPath() . '/AppTest.php';
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
+
+        $checkResult = $this->fixer->check($context);
+
+        $this->assertInstanceOf(Err::class, $checkResult);
+        $resultContext = $checkResult->val();
+
+        $this->checkCommonContextVals(
+            array_merge(
+                $context,
+                [
+                    'hasStmts'             => true,
+                    'hasDeclare'           => true,
+                    'hasValidDeclare'      => true,
+                    'nsCheckResult'        => new Ok(['expected' => $context['ns'], 'actual' => $context['ns']]),
+                    'classTypeCheckResult' => new Ok(['expected' => 'AppTest', 'actual' => 'AppTest']),
+                    //'hasLicenseComment'    => false,
+                ],
+            ),
+            $resultContext,
+        );
+
+        $fixResult = $this->fixer->fix($resultContext);
+
+        $this->checkFixResult($fixResult, $this->licenseComment());
     }
 
     private function checkContext(array $expectedContext, array $actualContext): void {
+        $this->checkCommonContextVals($expectedContext, $actualContext);
+        $this->assertSame($expectedContext['hasLicenseComment'], $actualContext['hasLicenseComment']);
+    }
+
+    private function checkCommonContextVals(array $expectedContext, array $actualContext): void {
         $this->assertSame($expectedContext['filePath'], $actualContext['filePath']);
         $this->assertSame($expectedContext['ns'], $actualContext['ns']);
         $this->assertSame($expectedContext['baseDirPath'], $actualContext['baseDirPath']);
         $this->assertSame($expectedContext['hasStmts'], $actualContext['hasStmts']);
         $this->assertSame($expectedContext['hasDeclare'], $actualContext['hasDeclare']);
         $this->assertSame($expectedContext['hasValidDeclare'], $actualContext['hasValidDeclare']);
-        $this->assertSame($expectedContext['hasLicenseComment'], $actualContext['hasLicenseComment']);
         $this->assertEquals($expectedContext['nsCheckResult'], $actualContext['nsCheckResult']);
         $this->assertEquals($expectedContext['classTypeCheckResult'], $actualContext['classTypeCheckResult']);
     }
@@ -284,7 +385,7 @@ OUT;
 
     private function checkFixResult(
         Result $fixResult,
-        string $licenseComment = null,
+        bool|string $licenseComment,
         string $expectedNs = null,
         bool $shebang = false
     ): void {
@@ -294,15 +395,17 @@ OUT;
             $this->fileHeaderRe($expectedNs ?? self::class, $licenseComment, $shebang),
             $resultContext['text']
         );
-        $this->assertSame(1, substr_count($resultContext['text'], 'This file is part of morpho-os/framework'));
+        if ($licenseComment !== false) {
+            $this->assertSame(1, substr_count($resultContext['text'], 'This file is part of morpho-os/framework'));
+        }
     }
 
-    private function fileHeaderRe(string $expectedNs, string $licenseComment = null, bool $shebang = false): string {
+    private function fileHeaderRe(string $expectedNs, string|bool $licenseComment, bool $shebang = false): string {
         return '~^'
             . ($shebang ? '#!/usr/bin/env\\s+php\\n' : '')
             . '\\<\\?php declare\\(strict_types=1\\);\\s+'
-            . preg_quote($licenseComment ?? $this->licenseComment(), '~')
-            . '\\s+namespace ' . preg_quote($expectedNs, '~')
+            . ($licenseComment !== false ? preg_quote($licenseComment, '~') . "\\s+" : '')
+            . 'namespace ' . preg_quote($expectedNs, '~')
             . '~si';
     }
 }

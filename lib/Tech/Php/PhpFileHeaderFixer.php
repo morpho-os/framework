@@ -16,13 +16,54 @@ use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use Traversable;
-use UnexpectedValueException;
 
+use function Morpho\App\Cli\errorLn;
+use function Morpho\App\Cli\showOk;
+use function Morpho\Base\indent;
 use function Morpho\Base\init;
 use function Morpho\Base\last;
 use function Morpho\Base\q;
+use function Morpho\Base\showLn;
 
 class PhpFileHeaderFixer implements IFn {
+    private ?string $licenseComment;
+
+    /**
+     * @param null|string $licenseComment If null then license will not be checked and fixed.
+     */
+    public function __construct(string $licenseComment = null) {
+        $this->licenseComment = $licenseComment;
+    }
+
+    /**
+     * @param null|string $licenseComment If null then license will not be checked and fixed.
+     */
+    public function setLicenseComment(?string $licenseComment): self {
+        $this->licenseComment = $licenseComment;
+        return $this;
+    }
+
+    public function licenseComment(): ?string {
+        return $this->licenseComment;
+    }
+
+    public function fixFiles(iterable $files, array $context): bool {
+        $ok = true;
+        foreach ($files as $filePath) {
+            showLn("Processing file " . q($filePath) . '...');
+            $result = $this->__invoke(array_merge($context, ['filePath' => $filePath]));
+            if (!$result->isOk()) {
+                errorLn("Unable to fix the file " . q($filePath) . "\n" . print_r($result, true));
+            }
+            if ($context['dryRun'] && isset($result->val()['text'])) {
+                showLn(indent($result->val()['text']));
+            }
+            showOk();
+            $ok = $result->isOk() && $ok;
+        }
+        return $ok;
+    }
+
     /**
      * @param mixed $context
      * @return Result
@@ -62,8 +103,10 @@ class PhpFileHeaderFixer implements IFn {
             public bool $hasLicenseComment = false;
             public bool $hasStmts = false;
             private bool $checkLicenseComment = true;
+            private ?string $licenseComment;
 
-            public function __construct(private string $licenseComment) {
+            public function __construct(?string $licenseComment) {
+                $this->licenseComment = $licenseComment;
             }
 
             public function enterNode(Node $node) {
@@ -79,35 +122,42 @@ class PhpFileHeaderFixer implements IFn {
                         }
                         return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
                     } elseif ($this->checkLicenseComment && !$node instanceof Node\Stmt\Declare_) {
+                        if (null == $this->licenseComment) {
+                            return null;
+                        }
                         // check that the first encountered statement except declare has the license comment
                         $licenseComment = trim($this->licenseComment);
                         foreach ($node->getComments() as $comment) {
                             if ($comment instanceof Comment\Doc && trim($comment->getText()) === $licenseComment) {
                                 $this->hasLicenseComment = true;
                                 $this->checkLicenseComment = false;
-                                break;
+                                return null;
                             }
                         }
+                        $this->checkLicenseComment = false; // Doesn't have valid license comment for the first encountered statement.
                     }
                 }
                 return null;
             }
         };
         visit($this->parse($context), [$visitor]);
-        $result = array_merge(
+        $resultContext = array_merge(
             $context,
             [
                 'hasStmts'             => $visitor->hasStmts,
                 'hasDeclare'           => $visitor->hasDeclare,
                 'hasValidDeclare'      => $visitor->hasValidDeclare,
-                'hasLicenseComment'    => $visitor->hasLicenseComment,
                 'nsCheckResult'        => $nsCheckResult,
                 'classTypeCheckResult' => $classTypeCheckResult,
             ]
         );
-        return $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk() && $visitor->hasLicenseComment ? new Ok(
-            $result
-        ) : new Err($result);
+        if (null !== $this->licenseComment) {
+            $resultContext['hasLicenseComment'] = $visitor->hasLicenseComment;
+            $isValid = $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk() && $visitor->hasLicenseComment;
+        } else {
+            $isValid = $visitor->hasValidDeclare && $nsCheckResult->isOk() && $classTypeCheckResult->isOk();
+        }
+        return $isValid ? new Ok($resultContext) : new Err($resultContext);
     }
 
     public function fix(array $context): Result {
@@ -122,7 +172,7 @@ class PhpFileHeaderFixer implements IFn {
                         [
                             'reason' => "Unable to fix declare() for the file " . q(
                                     $context['filePath']
-                                ) . '. Reason: file has unknown `declare` statement.',
+                                ) . '. Reason: the file has unknown `declare` statement.',
                         ]
                     )
                 );
@@ -137,7 +187,7 @@ class PhpFileHeaderFixer implements IFn {
                     [
                         'reason' => "Unable to fix the file " . q(
                                 $context['filePath']
-                            ) . '. Reason: file contains invalid class(es).',
+                            ) . '. Reason: the file contains invalid class(es).',
                     ]
                 )
             );
@@ -146,7 +196,6 @@ class PhpFileHeaderFixer implements IFn {
             $context = $this->fixNs($context);
         }
         $context = $this->fixLicenseComment($context);
-        // Fix always.
         return new Ok($context);
     }
 
@@ -183,10 +232,13 @@ class PhpFileHeaderFixer implements IFn {
             $visitor = $visitors[0];
             if (!$visitor->fixed) {
                 if ($nodes) {
-                    if (!$nodes[0] instanceof Node\Stmt\Declare_) {
-                        throw new UnexpectedValueException();
+                    $offset = 0;
+                    foreach ($nodes as $node) {
+                        if ($node instanceof Node\Stmt\Declare_ || isShebangNode($node)) {
+                            $offset++;
+                        }
                     }
-                    array_splice($nodes, 1, 0, [new Node\Stmt\Namespace_(new Node\Name($fix['expected']))]);
+                    array_splice($nodes, $offset, 0, [new Node\Stmt\Namespace_(new Node\Name($fix['expected']))]);
                 }
             }
             return $nodes;
@@ -249,16 +301,6 @@ class PhpFileHeaderFixer implements IFn {
         return (new ClassTypeDiscoverer())->classTypesDefinedInFile($filePath);
     }
 
-    private function licenseComment(): string {
-        return <<<'OUT'
-/**
- * This file is part of morpho-os/framework
- * It is distributed under the 'Apache License Version 2.0' license.
- * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
- */
-OUT;
-    }
-
     private function addDeclare(array $context): array {
         $nodes = $this->parse($context);
         $offset = 0;
@@ -284,6 +326,9 @@ OUT;
     }
 
     private function fixLicenseComment(array $context): array {
+        if (!isset($context['hasLicenseComment'])) {
+            return $context;
+        }
         $visitor = new class($this->licenseComment()) extends NodeVisitorAbstract {
             private bool $licenseCommentRemoved = false;
             private bool $licenseCommentAdded = false;
