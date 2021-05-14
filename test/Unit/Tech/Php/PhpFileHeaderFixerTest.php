@@ -129,11 +129,13 @@ class PhpFileHeaderFixerTest extends TestCase {
         );
     }
 
-    public function testCheckAndFix_LicenseInInvalidPlace() {
+    public function testCheckAndFix_LicenseCommentInInvalidPlace() {
         $filePath = $this->getTestDirPath() . '/LicenseCommentInInvalidPlace.php';
         $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
+
         $checkResult = $this->fixer->check($context);
-        $this->assertInstanceOf(Ok::class, $checkResult);
+
+        $this->assertInstanceOf(Err::class, $checkResult);
         $resultContext = $checkResult->val();
         $this->checkContext(
             array_merge(
@@ -142,7 +144,7 @@ class PhpFileHeaderFixerTest extends TestCase {
                     'hasStmts'             => true,
                     'hasDeclare'           => true,
                     'hasValidDeclare'      => true,
-                    'hasLicenseComment'    => true,
+                    'hasLicenseComment'    => false,
                     'nsCheckResult'        => new Ok(['expected' => $context['ns'], 'actual' => $context['ns']]),
                     'classTypeCheckResult' => new Ok(
                         ['expected' => 'LicenseCommentInInvalidPlace', 'actual' => 'LicenseCommentInInvalidPlace']
@@ -151,7 +153,38 @@ class PhpFileHeaderFixerTest extends TestCase {
             ),
             $resultContext
         );
+
         $fixResult = $this->fixer->fix($resultContext);
+
+        $this->checkFixResult($fixResult, $this->licenseComment());
+    }
+
+    public function testCheckAndFix_LicenseCommentInInvalidPlace1() {
+        $filePath = $this->getTestDirPath() . '/AppTest.php';
+        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
+
+        $checkResult = $this->fixer->check($context);
+
+        $this->assertInstanceOf(Err::class, $checkResult);
+        $resultContext = $checkResult->val();
+
+        $this->checkContext(
+            array_merge(
+                $context,
+                [
+                    'hasStmts'             => true,
+                    'hasDeclare'           => true,
+                    'hasValidDeclare'      => true,
+                    'nsCheckResult'        => new Ok(['expected' => $context['ns'], 'actual' => $context['ns']]),
+                    'classTypeCheckResult' => new Ok(['expected' => 'AppTest', 'actual' => 'AppTest']),
+                    'hasLicenseComment'    => false,
+                ],
+            ),
+            $resultContext,
+        );
+
+        $fixResult = $this->fixer->fix($resultContext);
+
         $this->checkFixResult($fixResult, $this->licenseComment());
     }
 
@@ -326,35 +359,6 @@ OUT
         $fixResult = $fixer->fix($resultContext);
 
         $this->checkFixResult($fixResult, false, shebang: true);
-    }
-
-    public function testCheckAndFix_LicenseCommentInInvalidPlace() {
-        $filePath = $this->getTestDirPath() . '/AppTest.php';
-        $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
-
-        $checkResult = $this->fixer->check($context);
-
-        $this->assertInstanceOf(Err::class, $checkResult);
-        $resultContext = $checkResult->val();
-
-        $this->checkCommonContextVals(
-            array_merge(
-                $context,
-                [
-                    'hasStmts'             => true,
-                    'hasDeclare'           => true,
-                    'hasValidDeclare'      => true,
-                    'nsCheckResult'        => new Ok(['expected' => $context['ns'], 'actual' => $context['ns']]),
-                    'classTypeCheckResult' => new Ok(['expected' => 'AppTest', 'actual' => 'AppTest']),
-                    //'hasLicenseComment'    => false,
-                ],
-            ),
-            $resultContext,
-        );
-
-        $fixResult = $this->fixer->fix($resultContext);
-
-        $this->checkFixResult($fixResult, $this->licenseComment());
     }
 
     private function checkContext(array $expectedContext, array $actualContext): void {
