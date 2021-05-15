@@ -36,10 +36,31 @@ class ServiceManagerTest extends TestCase {
         $this->assertFalse(isset($this->serviceManager[$id]));
     }
 
-    public function testUnsetNonExistingItem() {
-        $serviceManager = new class extends ServiceManager {};
+    public function testUnsetNonExistingItem_MethodDoesNotExist() {
+        $serviceManager = new class extends ServiceManager {
+
+
+        };
         unset($serviceManager['foo']); // should not throw an exception
         $this->markTestAsNotRisky();
+    }
+
+    public function testUnsetNonExistingItem_MethodExists() {
+        $serviceManager = new class extends ServiceManager {
+            public function mkFooService() {
+                return new stdClass();
+            }
+        };
+        unset($serviceManager['foo']); // should not throw an exception
+        $this->markTestAsNotRisky();
+    }
+
+    public function testUnset_ExistingItem_NotCaseSensitive() {
+        $serviceManager = new class extends ServiceManager {};
+        $serviceManager['foobar'] = new stdClass();
+        unset($serviceManager['FOOBar']); // should not throw an exception
+        $this->assertTrue(!isset($serviceManager['foobar']));
+        $this->assertTrue(!isset($serviceManager['FOOBar']));
     }
 
     public function testArrayAccess_OffsetExists_ReturnsTrueIfContainerCanReturnEntryForId() {

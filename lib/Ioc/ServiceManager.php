@@ -98,8 +98,16 @@ class ServiceManager extends ArrayObject implements IServiceManager {
     }
 
     public function offsetUnset($id): void {
-        if (isset($this[$id])) {
-            parent::offsetUnset(strtolower($id));
+        $id = strtolower($id);
+        if ($this->offsetExists($id)) {
+            while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
+                $id = $this->aliases[$id];
+            }
+
+            if (parent::offsetExists($id)) {
+                parent::offsetUnset($id);
+                return;
+            }
         }
     }
 
