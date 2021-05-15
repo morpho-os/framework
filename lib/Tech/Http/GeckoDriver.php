@@ -4,8 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-
-namespace Morpho\Net\Http;
+namespace Morpho\Tech\Http;
 
 use RuntimeException;
 
@@ -27,6 +26,10 @@ class GeckoDriver implements IWebDriver {
     public const PORT = 4444;
     private string $geckoBinFilePath;
 
+    public function __construct(string $geckoBinFilePath) {
+        $this->geckoBinFilePath = $geckoBinFilePath;
+    }
+
     public static function downloadMk(string $geckoBinFilePath, string $downloadDirPath) {
         if (!file_exists($geckoBinFilePath)) {
             $geckoBinFilePath = '/usr/bin/geckodriver';
@@ -37,8 +40,37 @@ class GeckoDriver implements IWebDriver {
         return new GeckoDriver($geckoBinFilePath);
     }
 
-    public function __construct(string $geckoBinFilePath) {
-        $this->geckoBinFilePath = $geckoBinFilePath;
+    public static function download(string $destFilePath): string {
+        $binFileName = basename($destFilePath);
+        $curDirPath = getcwd();
+        try {
+            chdir(dirname($destFilePath));
+            $fileDownloadMeta = self::fileDownloadMeta();
+            $geckoDriverDownloadUri = $fileDownloadMeta['browser_download_url'];
+            $arcFilePath = dirname($destFilePath) . '/geckodriver.tar.gz';
+            (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
+            sh(
+                'tar xzf ' . escapeshellarg($arcFilePath) . ' && chmod +x ' . escapeshellarg($binFileName) . ' && rm -f ' . escapeshellarg(
+                    $arcFilePath
+                ),
+                ['show' => false]
+            );
+        } finally {
+            chdir($curDirPath);
+        }
+        return $destFilePath;
+    }
+
+    private static function fileDownloadMeta(): array {
+        return array_reduce(
+            fromJson((new HttpClient())->get('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->body())['assets'],
+            function ($acc, $downloadMeta) {
+                if (false !== strpos($downloadMeta['browser_download_url'], 'linux64')) {
+                    return $downloadMeta;
+                }
+                return $acc;
+            }
+        );
     }
 
     public function start(): void {
@@ -56,47 +88,13 @@ class GeckoDriver implements IWebDriver {
         throw new RuntimeException('Unable to start server');
     }
 
-    public function stop(): void {
-        sh('killall geckodriver &>/dev/null || true');
-    }
+    // This function based on https://github.com/SeleniumHQ/selenium/blob/6266e58b7cf379b8f80b125e97eb4e82a220fd09/scripts/travis/install.sh
 
     public function __destruct() {
         $this->stop();
     }
 
-    // This function based on https://github.com/SeleniumHQ/selenium/blob/6266e58b7cf379b8f80b125e97eb4e82a220fd09/scripts/travis/install.sh
-    public static function download(string $destFilePath): string {
-        $binFileName = basename($destFilePath);
-        $curDirPath = getcwd();
-        try {
-            chdir(dirname($destFilePath));
-            $fileDownloadMeta = self::fileDownloadMeta();
-            $geckoDriverDownloadUri = $fileDownloadMeta['browser_download_url'];
-            $arcFilePath = dirname($destFilePath) . '/geckodriver.tar.gz';
-            (new HttpClient())->download($geckoDriverDownloadUri, $arcFilePath);
-            sh(
-                'tar xzf ' . escapeshellarg($arcFilePath) . ' && chmod +x ' . escapeshellarg(
-                    $binFileName
-                ) . ' && rm -f ' . escapeshellarg($arcFilePath),
-                ['show' => false]
-            );
-        } finally {
-            chdir($curDirPath);
-        }
-        return $destFilePath;
-    }
-
-    private static function fileDownloadMeta(): array {
-        return array_reduce(
-            fromJson(
-                (new HttpClient())->get('https://api.github.com/repos/mozilla/geckodriver/releases/latest')->body()
-            )['assets'],
-            function ($acc, $downloadMeta) {
-                if (false !== strpos($downloadMeta['browser_download_url'], 'linux64')) {
-                    return $downloadMeta;
-                }
-                return $acc;
-            }
-        );
+    public function stop(): void {
+        sh('killall geckodriver &>/dev/null || true');
     }
 }

@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Net\Http;
+namespace Morpho\Tech\Http;
 
 use function basename;
 use function escapeshellarg;
@@ -37,6 +37,6 @@ class HttpClient {
             return false;
         }
         fwrite($sock, "GET / HTTP/1.1\r\n\r\n");
-        return (bool) preg_match('~^HTTP/\d+.\d+ \d{3}~si', fread($sock, 25));
+        return (bool) preg_match('~^HTTP/\\d+.\\d+ \\d{3}~si', fread($sock, 25));
     }
 }

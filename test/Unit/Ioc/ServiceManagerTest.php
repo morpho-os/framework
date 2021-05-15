@@ -36,6 +36,12 @@ class ServiceManagerTest extends TestCase {
         $this->assertFalse(isset($this->serviceManager[$id]));
     }
 
+    public function testUnsetNonExistingItem() {
+        $serviceManager = new class extends ServiceManager {};
+        unset($serviceManager['foo']); // should not throw an exception
+        $this->markTestAsNotRisky();
+    }
+
     public function testArrayAccess_OffsetExists_ReturnsTrueIfContainerCanReturnEntryForId() {
         // See [PHP docs for the ContainerInterface::has()](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md#31-psrcontainercontainerinterface)
         $this->assertTrue(isset($this->serviceManager['foo']));

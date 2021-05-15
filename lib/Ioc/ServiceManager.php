@@ -98,7 +98,9 @@ class ServiceManager extends ArrayObject implements IServiceManager {
     }
 
     public function offsetUnset($id): void {
-        parent::offsetUnset(strtolower($id));
+        if (isset($this[$id])) {
+            parent::offsetUnset(strtolower($id));
+        }
     }
 
     public function setConf(mixed $conf): self {
