@@ -4,16 +4,13 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\App\Web\Session;
+namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\App\Web\Session\Session;
+use Morpho\App\Web\Session;
 use Morpho\Testing\TestCase;
 
 class SessionTest extends TestCase {
-    /**
-     * @var Session
-     */
-    private $session;
+    private Session $session;
 
     public function setUp(): void {
         parent::setUp();
@@ -27,21 +24,17 @@ class SessionTest extends TestCase {
             return $uniqId;
         };
         $this->session->fn = $closure;
-
         $this->assertTrue(isset($this->session->fn));
-
         unset($this->session);
-
         $session = new Session(__CLASS__, false);
-
         $fn = $session->fn;
         $this->assertEquals($uniqId, $fn());
     }
 
     public function testImplementsInterfaces() {
-        $this->assertInstanceOf('\Countable', $this->session);
-        $this->assertInstanceOf('\Iterator', $this->session);
-        $this->assertInstanceOf('\ArrayAccess', $this->session);
+        $this->assertInstanceOf('\\Countable', $this->session);
+        $this->assertInstanceOf('\\Iterator', $this->session);
+        $this->assertInstanceOf('\\ArrayAccess', $this->session);
     }
 
     public function testStorageKey() {
@@ -53,17 +46,13 @@ class SessionTest extends TestCase {
         $this->assertCount(0, $this->session);
         $this->assertFalse(isset($this->session->foo));
         $this->assertTrue(empty($this->session->foo));
-
         $this->session->foo = 'bar';
-
         $this->assertEquals('bar', $this->session->foo);
         $this->assertCount(1, $this->session);
         $this->assertTrue(isset($this->session->foo));
         $this->assertFalse(empty($this->session->foo));
         $this->assertFalse(empty($_SESSION[Session::KEY][__CLASS__]));
-
         unset($this->session->foo);
-
         $this->assertCount(0, $this->session);
         $this->assertFalse(isset($this->session->foo));
         $this->assertTrue(empty($this->session->foo));
@@ -72,30 +61,21 @@ class SessionTest extends TestCase {
 
     public function testIterator() {
         $this->assertFalse($this->session->valid());
-
         $data = [1, 2, ['foo' => 'bar']];
         $this->session->fromArray($data);
-
         $this->assertNull($this->session->rewind());
-
         $this->assertTrue($this->session->valid());
         $this->assertEquals(0, $this->session->key());
         $this->assertEquals(1, $this->session->current());
-
         $this->assertNull($this->session->next());
-
         $this->assertTrue($this->session->valid());
         $this->assertEquals(1, $this->session->key());
         $this->assertEquals(2, $this->session->current());
-
         $this->assertNull($this->session->next());
-
         $this->assertTrue($this->session->valid());
         $this->assertEquals(2, $this->session->key());
         $this->assertEquals(['foo' => 'bar'], $this->session->current());
-
         $this->assertNull($this->session->next());
-
         $this->assertFalse($this->session->valid());
     }
 

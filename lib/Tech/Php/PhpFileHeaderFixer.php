@@ -65,7 +65,7 @@ class PhpFileHeaderFixer implements IFn {
             if (!$result->isOk()) {
                 errorLn("Unable to fix the file " . q($filePath) . "\n" . print_r($result, true));
             }
-            if ($context['dryRun'] && isset($result->val()['text'])) {
+            if (isset($result->val()['text'])) {
                 showLn(indent($result->val()['text']));
                 $stats['fixed']++;
             }

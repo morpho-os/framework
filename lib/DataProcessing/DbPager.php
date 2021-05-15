@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\DataProcessing\Pagination;
+namespace Morpho\DataProcessing;
 
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\IServiceManager;
@@ -14,7 +14,6 @@ use function intval;
 
 abstract class DbPager extends Pager implements IHasServiceManager {
     protected IServiceManager $serviceManager;
-
     protected ?IDbClient $db;
 
     public function setServiceManager(IServiceManager $serviceManager): self {
@@ -26,11 +25,7 @@ abstract class DbPager extends Pager implements IHasServiceManager {
     protected function itemList($offset, $pageSize): iterable {
         $offset = intval($offset);
         $pageSize = intval($pageSize);
-        return $this->db()->eval('SELECT * FROM (' . $this->sqlQuery() . ") AS t LIMIT $offset, $pageSize");
-    }
-
-    protected function calculateTotalItemsCount(): int {
-        return $this->db()->eval('SELECT COUNT(*) FROM (' . $this->sqlQuery() . ') AS t')->field();
+        return $this->db()->eval('SELECT * FROM (' . $this->sqlQuery() . ") AS t LIMIT {$offset}, {$pageSize}");
     }
 
     protected function db() {
@@ -40,5 +35,9 @@ abstract class DbPager extends Pager implements IHasServiceManager {
         return $this->db;
     }
 
-    abstract protected function sqlQuery();
+    protected abstract function sqlQuery();
+
+    protected function calculateTotalItemsCount(): int {
+        return $this->db()->eval('SELECT COUNT(*) FROM (' . $this->sqlQuery() . ') AS t')->field();
+    }
 }

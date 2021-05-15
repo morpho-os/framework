@@ -4,10 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\DataProcessing\Filtering;
+namespace Morpho\Test\Unit\DataProcessing;
 
 use Morpho\Base\IFn;
-use Morpho\DataProcessing\Filtering\PriceFilter;
+use Morpho\DataProcessing\PriceFilter;
 use Morpho\Testing\TestCase;
 
 class PriceFilterTest extends TestCase {
@@ -27,12 +27,7 @@ class PriceFilterTest extends TestCase {
     }
 
     public function testCanFilterMixedValue() {
-        $this->assertEquals(
-            '3.1415',
-            $this->filter->__invoke(
-                "ab3 , c1 f\n4fa^1**5z"
-            )
-        );
+        $this->assertEquals('3.1415', $this->filter->__invoke("ab3 , c1 f\n4fa^1**5z"));
     }
 
     public function testMultipleDotsAndCommas() {

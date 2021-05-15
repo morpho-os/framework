@@ -4,18 +4,15 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\DataProcessing\Pagination;
+namespace Morpho\Test\Unit\DataProcessing;
 
 use Countable;
-use Morpho\DataProcessing\Pagination\Page;
-use Morpho\DataProcessing\Pagination\Pager;
+use Morpho\DataProcessing\Page;
+use Morpho\DataProcessing\Pager;
 use Morpho\Testing\TestCase;
 
 class PagerTest extends TestCase {
-    /**
-     * @var Pager
-     */
-    private $pager;
+    private Pager $pager;
 
     public function setUp(): void {
         parent::setUp();
@@ -40,24 +37,18 @@ class PagerTest extends TestCase {
         $this->assertCount(0, $this->pager);
         $this->assertEquals(0, $this->pager->count());
         $this->assertEquals(0, $this->pager->totalPagesCount());
-
         $this->pager->setItems([1, 2, 3, 4, 5, 6, 7]);
         $this->pager->setPageSize(2);
-
         $this->assertCount(4, $this->pager);
         $this->assertEquals(4, $this->pager->count());
         $this->assertEquals(4, $this->pager->totalPagesCount());
-
         $this->pager->setPageSize(20);
         $this->assertCount(1, $this->pager);
         $this->assertEquals(1, $this->pager->count());
         $this->assertEquals(1, $this->pager->totalPagesCount());
-
         $this->assertTrue(\gettype($this->pager->count()) == 'integer');
-
         $this->pager->setItems([]);
         $this->assertEquals(0, $this->pager->totalPagesCount());
-
         $pager = new Pager();
         $pager->setItems([]);
         $pager->setCurrentPageNumber(2);
@@ -72,7 +63,6 @@ class PagerTest extends TestCase {
         $this->assertEquals([6], $this->pager->mkPageByNumber(4)->toArr());
         $this->assertEquals([4, 5], $this->pager->mkPageByNumber(3)->toArr());
         $this->assertEquals([0, 1], $this->pager->mkPageByNumber(1)->toArr());
-
         // check bounds
         $this->assertEquals([], $this->pager->mkPageByNumber(5)->toArr());
         $this->assertEquals([0, 1], $this->pager->mkPageByNumber(-1)->toArr());
@@ -82,34 +72,24 @@ class PagerTest extends TestCase {
         $items = [1, 2, 3, 4, 5, 6, 7];
         $this->pager->setItems($items);
         $this->pager->setPageSize(2);
-
         $this->assertNull($this->pager->rewind());
-
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(1, $this->pager->key());
         $this->assertInstanceOf(Page::class, $this->pager->current());
         $this->assertEquals([1, 2], $this->pager->current()->toArr());
-
         $this->assertNull($this->pager->next());
-
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(2, $this->pager->key());
         $this->assertEquals([3, 4], $this->pager->current()->toArr());
-
         $this->assertNull($this->pager->next());
-
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(3, $this->pager->key());
         $this->assertEquals([5, 6], $this->pager->current()->toArr());
-
         $this->assertNull($this->pager->next());
-
         $this->assertTrue($this->pager->valid());
         $this->assertEquals(4, $this->pager->key());
         $this->assertEquals([7], $this->pager->current()->toArr());
-
         $this->assertNull($this->pager->next());
-
         $this->assertFalse($this->pager->valid());
         $this->assertEquals(4, $this->pager->key());
         $this->assertEquals([7], $this->pager->current()->toArr());

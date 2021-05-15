@@ -6,7 +6,7 @@
  */
 namespace Morpho\Test\Unit\Identity;
 
-use Morpho\App\Web\Session\Session;
+use Morpho\App\Web\Session;
 use Morpho\Identity\IUserRepo;
 use Morpho\Identity\UserManager;
 use Morpho\Testing\DbTestCase;

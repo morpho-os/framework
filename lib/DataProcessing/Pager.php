@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\DataProcessing\Pagination;
+namespace Morpho\DataProcessing;
 
 use Countable;
 use Iterator;
@@ -17,14 +17,55 @@ use function max;
 
 class Pager implements Iterator, Countable {
     protected $items = [];
-
     protected int $pageSize = 20;
-
     protected int $currentPageNumber = 1;
-
     private bool $isValid = false;
-
     private ?int $totalItemsCount = null;
+
+    public function setItems(array $items): void {
+        $this->items = $items;
+        $this->totalItemsCount = null;
+    }
+
+    public function setPageSize(int $pageSize): void {
+        $this->pageSize = max(intval($pageSize), 1);
+        $this->totalItemsCount = null;
+    }
+
+    public function currentPage(): iterable {
+        return $this->mkPageByNumber($this->currentPageNumber());
+    }
+
+    public function mkPageByNumber(int $pageNumber): Page {
+        $pageNumber = max(intval($pageNumber), 1);
+        $pageSize = $this->pageSize();
+        $offset = ($pageNumber - 1) * $pageSize;
+        return $this->mkPage($this->items($offset, $pageSize));
+    }
+
+    public function pageSize(): int {
+        return $this->pageSize;
+    }
+
+    /**
+     * Creates a new Page with $items.
+     */
+    protected function mkPage(array $items): Page {
+        return new Page($items);
+    }
+
+    protected function items(int $offset, int $pageSize): array {
+        return array_slice($this->items, $offset, $pageSize);
+    }
+
+    public function currentPageNumber(): int {
+        return $this->currentPageNumber;
+    }
+
+    public function rewind(): void {
+        $this->isValid = true;
+        $this->setCurrentPageNumber(1);
+    }
 
     public function setCurrentPageNumber(int $pageNumber): void {
         $pageNumber = intval($pageNumber);
@@ -37,42 +78,8 @@ class Pager implements Iterator, Countable {
         $this->currentPageNumber = $pageNumber;
     }
 
-    public function currentPageNumber(): int {
-        return $this->currentPageNumber;
-    }
-
-    public function setItems(array $items): void {
-        $this->items = $items;
-        $this->totalItemsCount = null;
-    }
-
     public function totalPagesCount(): int {
         return (int) ceil($this->totalItemsCount() / $this->pageSize());
-    }
-
-    public function setPageSize(int $pageSize): void {
-        $this->pageSize = max(intval($pageSize), 1);
-        $this->totalItemsCount = null;
-    }
-
-    public function pageSize(): int {
-        return $this->pageSize;
-    }
-
-    public function currentPage(): iterable {
-        return $this->mkPageByNumber($this->currentPageNumber());
-    }
-
-    public function mkPageByNumber(int $pageNumber): Page {
-        $pageNumber = max(intval($pageNumber), 1);
-        $pageSize = $this->pageSize();
-        $offset = ($pageNumber - 1) * $pageSize;
-        return $this->mkPage(
-            $this->items(
-                $offset,
-                $pageSize
-            )
-        );
     }
 
     public function totalItemsCount(): int {
@@ -82,9 +89,8 @@ class Pager implements Iterator, Countable {
         return $this->totalItemsCount;
     }
 
-    public function rewind(): void {
-        $this->isValid = true;
-        $this->setCurrentPageNumber(1);
+    protected function calculateTotalItemsCount(): int {
+        return count($this->items);
     }
 
     public function current(): Page {
@@ -113,20 +119,5 @@ class Pager implements Iterator, Countable {
 
     public function count(): int {
         return $this->totalPagesCount();
-    }
-
-    protected function calculateTotalItemsCount(): int {
-        return count($this->items);
-    }
-
-    /**
-     * Creates a new Page with $items.
-     */
-    protected function mkPage(array $items): Page {
-        return new Page($items);
-    }
-
-    protected function items(int $offset, int $pageSize): array {
-        return array_slice($this->items, $offset, $pageSize);
     }
 }

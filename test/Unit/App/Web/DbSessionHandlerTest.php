@@ -4,14 +4,15 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\App\Web\Session;
+namespace Morpho\Test\Unit\App\Web;
 
-use Morpho\App\Web\Session\DbSessionHandler;
+use Morpho\App\Web\DbSessionHandler;
 use Morpho\Testing\DbTestCase;
+use SessionHandlerInterface;
 
 class DbSessionHandlerTest extends DbTestCase {
     public function testInterface() {
         $handler = new DbSessionHandler();
-        $this->assertInstanceOf('\\SessionHandlerInterface', $handler);
+        $this->assertInstanceOf(SessionHandlerInterface::class, $handler);
     }
 }

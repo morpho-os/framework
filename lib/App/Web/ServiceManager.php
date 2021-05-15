@@ -19,7 +19,6 @@ use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\App\Web\Logging\WebProcessor;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\App\Web\Routing\RouteMetaProvider;
-use Morpho\App\Web\Session\Session;
 use Morpho\App\Web\View\HtmlResponseRenderer;
 use Morpho\App\Web\View\JsonResponseRenderer;
 use Morpho\App\Web\View\Messenger;

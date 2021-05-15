@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\App\Web\Session\Session;
+use Morpho\App\Web\Session;
 
 class SessionMessageStorage extends Session implements IMessageStorage {
 }

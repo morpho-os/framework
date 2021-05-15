@@ -6,7 +6,7 @@
  */
 namespace Morpho\Identity;
 
-use Morpho\App\Web\Session\Session;
+use Morpho\App\Web\Session;
 use Morpho\Base\NotImplementedException;
 
 class UserManager {
