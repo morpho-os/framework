@@ -42,7 +42,7 @@ abstract class DbClient implements IDbClient {
      * DbClient constructor.
      * @param PDO|array $confOrPdo
      */
-    public function __construct($confOrPdo) {
+    public function __construct(PDO|array $confOrPdo) {
         $this->conn = $this->connect($confOrPdo);
     }
 
@@ -72,11 +72,11 @@ abstract class DbClient implements IDbClient {
         return $this->conn->lastInsertId($name);
     }
 
-    public function expr($expr): Expr {
+    public function expr(mixed $expr): Expr {
         return new Expr($expr);
     }
 
-    public function where($condition, array $args = null): array {
+    public function where(array|string $condition, array $args = null): array {
         $where = [];
         if (null === $args) {
             // $args not specified => $condition contains arguments
@@ -99,7 +99,7 @@ abstract class DbClient implements IDbClient {
      * @return mixed
      * @throws Throwable
      */
-    public function transaction(callable $transaction, ...$args) {
+    public function transaction(callable $transaction, ...$args): mixed {
         $this->conn->beginTransaction();
         try {
             $result = $transaction($this, ...$args);
@@ -123,20 +123,11 @@ abstract class DbClient implements IDbClient {
         return PDO::getAvailableDrivers();
     }
 
-    /**
-     * @param string $method
-     * @param array $args
-     * @return mixed
-     */
-    public function __call(string $method, array $args) {
+    public function __call(string $method, array $args): mixed {
         return $this->conn->$method(...$args);
     }
 
-    /**
-     * @param array|string $identifiers
-     * @return array|string string
-     */
-    public function quoteIdentifier($identifiers) {
+    public function quoteIdentifier(string|array|Expr $identifiers): string|array {
         // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
         $quoteIdentifier = function ($identifiers): string {
             if ($identifiers instanceof Expr) {
@@ -164,7 +155,7 @@ abstract class DbClient implements IDbClient {
         return $ids;
     }
 
-    public function quoteIdentifierStr($identifiers): string {
+    public function quoteIdentifierStr(string|array|Expr $identifiers): string {
         $result = $this->quoteIdentifier($identifiers);
         return is_array($result) ? implode(', ', $result) : $result;
     }
@@ -189,7 +180,7 @@ abstract class DbClient implements IDbClient {
      * @param callable $fn
      * @return mixed
      */
-    public function usingEmulatedPrepares(callable $fn) {
+    public function usingEmulatedPrepares(callable $fn): mixed {
         $emulatePrepares = $this->getAttribute(PDO::ATTR_EMULATE_PREPARES);
         if (!$emulatePrepares) {
             $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
@@ -204,5 +195,5 @@ abstract class DbClient implements IDbClient {
         return $result;
     }
 
-    abstract protected function connect($confOrPdo): PDO;
+    abstract protected function connect(PDO|array $confOrPdo): PDO;
 }

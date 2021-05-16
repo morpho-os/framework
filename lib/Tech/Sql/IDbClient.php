@@ -11,19 +11,19 @@ use PDO;
 interface IDbClient {
     public function pdo(): PDO;
 
-    public function expr($expr): Expr;
+    public function expr(mixed $expr): Expr;
 
-    public function where($condition, array $args = null): array;
+    public function where(array|string $condition, array $args = null): array;
 
-    public function insert($spec = null): IQuery;
+    public function insert(array $spec = null): IQuery;
 
-    public function select($spec = null): IQuery;
+    public function select(array $spec = null): IQuery;
 
-    public function update($spec = null): IQuery;
+    public function update(array $spec = null): IQuery;
 
-    public function delete($spec = null): IQuery;
+    public function delete(array $spec = null): IQuery;
 
-    public function replace($spec = null): IQuery;
+    public function replace(array $spec = null): IQuery;
 
     public function exec(string $sql): int;
 
@@ -36,7 +36,7 @@ interface IDbClient {
      * @param mixed ...$args
      * @return mixed
      */
-    public function transaction(callable $transaction, ...$args);
+    public function transaction(callable $transaction, ...$args): mixed;
 
     public function inTransaction(): bool;
 
@@ -54,15 +54,14 @@ interface IDbClient {
     public function availableDrivers(): array;
 
     /**
-     * @param string|array $identifiers
      * @return string|array
      */
-    public function quoteIdentifier($identifiers);
+    public function quoteIdentifier(string|array|Expr $identifiers): string|array;
 
     /**
      * Returns SQL-query for quoted identifiers. If an array has been provided, then separates them with comma.
      */
-    public function quoteIdentifierStr($identifiers): string;
+    public function quoteIdentifierStr(string|array|Expr $identifiers): string;
 
     public function positionalArgs(array $args): array;
 
@@ -82,5 +81,5 @@ interface IDbClient {
      * @param callable $fn
      * @return mixed
      */
-    public function usingEmulatedPrepares(callable $fn);
+    public function usingEmulatedPrepares(callable $fn): mixed;
 }

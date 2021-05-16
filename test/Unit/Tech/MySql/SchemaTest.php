@@ -4,11 +4,11 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Tech\Sql\MySql;
+namespace Morpho\Test\Unit\Tech\MySql;
 
 //use Morpho\Base\Arr;
 use Morpho\Tech\Sql\ISchema;
-use Morpho\Tech\Sql\MySql\Schema;
+use Morpho\Tech\MySql\Schema;
 use PDO;
 
 use function md5;

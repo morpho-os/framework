@@ -4,10 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Tech\Sql\MySql;
+namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\Sql\IQuery;
-use Morpho\Tech\Sql\MySql\UpdateQuery;
+use Morpho\Tech\MySql\UpdateQuery;
 use Morpho\Tech\Sql\Result;
 
 class UpdateQueryTest extends QueryTest {

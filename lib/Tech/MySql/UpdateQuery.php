@@ -4,13 +4,13 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Tech\Sql\MySql;
+namespace Morpho\Tech\MySql;
 
 class UpdateQuery extends Query {
     protected array $tables = [];
     protected array $columns = [];
 
-    public function columns($columns): self {
+    public function columns(array|string $columns): self {
         if (is_array($columns)) {
             $this->columns = array_merge($this->columns, $columns);
         } else {
@@ -25,7 +25,7 @@ class UpdateQuery extends Query {
                 [PARTITION (partition_list)]
           SET col1={expr1|DEFAULT} [,col2={expr2|DEFAULT}] ...
           [WHERE where_condition]
-
+        
             // todo
           [ORDER BY ...]
           [LIMIT row_count]

@@ -6,13 +6,16 @@
  */
 namespace Morpho\Tech\Sql;
 
+use Morpho\Tech\MySql\DbClient as MySqlClient;
+use Morpho\Tech\Sqlite\DbClient as SqliteClient;
+
 use PDO;
 use UnexpectedValueException;
 
 const SQL_TRUE = 1;
 const SQL_FALSE = 0;
 
-function mkDbClient($confOrPdo = null): IDbClient {
+function mkDbClient(PDO|array $confOrPdo = null): IDbClient {
     if ($confOrPdo instanceof PDO) {
         $driverName = $confOrPdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     } else {
@@ -22,9 +25,9 @@ function mkDbClient($confOrPdo = null): IDbClient {
     }
     switch ($driverName) {
         case 'mysql':
-            return new MySql\DbClient($confOrPdo);
+            return new MySqlClient($confOrPdo);
         case 'sqlite':
-            return new Sqlite\DbClient($confOrPdo);
+            return new SqliteClient($confOrPdo);
     }
     throw new UnexpectedValueException("Unknown DB driver");
 }

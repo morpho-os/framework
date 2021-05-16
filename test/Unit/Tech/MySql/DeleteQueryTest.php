@@ -5,10 +5,10 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 
-namespace Morpho\Test\Unit\Tech\Sql\MySql;
+namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\Sql\IQuery;
-use Morpho\Tech\Sql\MySql\DeleteQuery;
+use Morpho\Tech\MySql\DeleteQuery;
 use PDO;
 
 class DeleteQueryTest extends QueryTest {

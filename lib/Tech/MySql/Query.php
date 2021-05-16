@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Tech\Sql\MySql;
+namespace Morpho\Tech\MySql;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
@@ -14,11 +14,8 @@ use Morpho\Tech\Sql\Result;
 
 abstract class Query implements IQuery {
     protected IDbClient $db;
-
     protected array $tables = [];
-
     protected array $where = [];
-
     protected array $args = [];
 
     public function __construct(IDbClient $db, array $spec = null) {
@@ -26,6 +23,10 @@ abstract class Query implements IQuery {
         if (null !== $spec) {
             $this->build($spec);
         }
+    }
+
+    public function build(array $spec): self {
+        throw new NotImplementedException(__METHOD__);
     }
 
     /**
@@ -61,8 +62,10 @@ abstract class Query implements IQuery {
         return $this->db->eval($this->sql(), $this->args());
     }
 
-    public function build(array $spec): self {
-        throw new NotImplementedException(__METHOD__);
+    public abstract function sql(): string;
+
+    public function args(): array {
+        return $this->args;
     }
 
     /**
@@ -76,7 +79,7 @@ abstract class Query implements IQuery {
         if ($args) {
             // todo: replace named args like foo = :foo AND bar = :bar
             $sql = preg_replace_callback(
-                '~\?~s',
+                '~\\?~s',
                 function ($match) use (&$args): string {
                     $val = array_shift($args);
                     return $this->db->pdo()->quote((string) $val);
@@ -85,12 +88,6 @@ abstract class Query implements IQuery {
             );
         }
         return $sql;
-    }
-
-    abstract public function sql(): string;
-
-    public function args(): array {
-        return $this->args;
     }
 
     protected function tableRefStr(): string {
@@ -102,8 +99,9 @@ abstract class Query implements IQuery {
             } elseif (is_array($table)) {
                 $tables = [];
                 foreach ($table as $name => $alias) {
-                    if (is_int($name) || preg_match('~^\d+$~', $name)) {
-                        $tables[] = $this->db->quoteIdentifier($alias); // alias is table name
+                    if (is_int($name) || preg_match('~^\\d+$~', $name)) {
+                        $tables[] = $this->db->quoteIdentifier($alias);
+                        // alias is table name
                     } else {
                         $tables[] = $this->db->quoteIdentifier($name) . ' AS ' . $this->db->quoteIdentifier($alias);
                     }

@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Morpho\Test\Unit\Tech\Sql\MySql\SelectQueryTest;
+namespace Morpho\Test\Unit\Tech\MySql\SelectQueryTest;
 
 class NorthwindFixture {
     public function load($db): void {
