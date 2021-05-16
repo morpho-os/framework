@@ -38,6 +38,8 @@ abstract class DbClient implements IDbClient {
         PDO::ATTR_STRINGIFY_FETCHES  => false,
     ];
 
+    protected array $conf;
+
     protected string $quote;
 
     /**
@@ -45,7 +47,17 @@ abstract class DbClient implements IDbClient {
      * @param array $conf
      */
     public function __construct(array $conf) {
-        $this->connect($conf);
+        $this->setConf($conf);
+        $this->connect();
+    }
+
+    public function setConf(array $conf): self {
+        $this->conf = $this->checkConf($conf);
+        return $this;
+    }
+
+    public function conf(): array {
+        return $this->conf;
     }
 
 /*    public function __destruct() {
@@ -204,4 +216,6 @@ abstract class DbClient implements IDbClient {
         }
         return $result;
     }
+
+    abstract protected function checkConf(array $conf): array;
 }

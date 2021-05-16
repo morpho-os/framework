@@ -22,20 +22,8 @@ class DbClient extends BaseDbClient {
     protected string $quote = '`';
     private ?ISchema $schema = null;
 
-    public function connect(array $conf): void {
-        $conf = Conf::check(
-            [
-                'host'         => self::DEFAULT_HOST,
-                'port'         => self::DEFAULT_PORT,
-                'user'         => self::DEFAULT_USER,
-                'db'           => self::DEFAULT_DB,
-                'password'     => self::DEFAULT_PASSWORD,
-                'charset'      => self::DEFAULT_CHARSET,
-                'sockFilePath' => null,
-                'pdoConf'      => null,
-            ],
-            $conf
-        );
+    public function connect(): void {
+        $conf = $this->conf;
         $transportStr = null !== $conf['sockFilePath'] ? 'unix_socket=' . $conf['sockFilePath'] : "host={$conf['host']};port={$conf['port']}";
         $dsn = "mysql:{$transportStr};dbname={$conf['db']};charset={$conf['charset']}";
         $pdo = new PDO($dsn, $conf['user'], $conf['password']);
@@ -79,5 +67,21 @@ class DbClient extends BaseDbClient {
             $this->schema = new Schema($this);
         }
         return $this->schema;
+    }
+
+    protected function checkConf(array $conf): array {
+        return Conf::check(
+            [
+                'host'         => self::DEFAULT_HOST,
+                'port'         => self::DEFAULT_PORT,
+                'user'         => self::DEFAULT_USER,
+                'db'           => self::DEFAULT_DB,
+                'password'     => self::DEFAULT_PASSWORD,
+                'charset'      => self::DEFAULT_CHARSET,
+                'sockFilePath' => null,
+                'pdoConf'      => null,
+            ],
+            $conf
+        );
     }
 }

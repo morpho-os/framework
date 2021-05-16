@@ -7,7 +7,11 @@
 namespace Morpho\Tech\Sql;
 
 interface IDbClient {
-    public function connect(array $conf): void;
+    public function setConf(array $conf): self;
+
+    public function conf(): array;
+
+    public function connect(): void;
 
     public function disconnect(): void;
 

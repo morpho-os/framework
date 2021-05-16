@@ -28,14 +28,14 @@ class UnitManager {
         $this->unitFilePath = $unitFilePath;
     }
 
-    public function enable(bool $canFail, bool $start) {
+    public function enable(bool $start, bool $canFail) {
         $this->sh(
             'systemctl enable' . ($start ? ' --now' : '') . ' ' . escapeshellarg($this->unitFilePath),
             ['check' => !$canFail]
         );
     }
 
-    public function disable(bool $canFail, bool $stop): self {
+    public function disable(bool $stop, bool $canFail): self {
         $this->sh(
             'systemctl disable' . ($stop ? ' --now' : '') . ' ' . escapeshellarg(
                 $this->unitName . '.' . $this->unitType

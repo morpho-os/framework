@@ -42,7 +42,7 @@ class DbClientTest extends DbTestCase {
         } catch (Throwable) {
         }
 
-        $dbClient->connect($dbConf);
+        $dbClient->connect();
 
         $this->assertTrue($dbClient->isConnected());
         $this->assertSame($version, $selectVersion());
