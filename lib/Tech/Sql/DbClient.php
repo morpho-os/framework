@@ -7,7 +7,6 @@
 namespace Morpho\Tech\Sql;
 
 use PDO;
-use PDOStatement;
 use RuntimeException;
 use Throwable;
 use UnexpectedValueException;
@@ -15,18 +14,21 @@ use UnexpectedValueException;
 use function implode;
 
 /**
- * @method PDOStatement prepare($statement, array $driver_options = [])
- * @method bool beginTransaction()
- * @method bool commit()
- * @method bool rollBack()
- * @method bool setAttribute($attribute, $value)
- * @method string errorCode()
- * @method array errorInfo()
- * @method mixed getAttribute($attribute) {
- * }
+ * @method prepare(string $query, array $options = []): \PDOStatement|false
+ * @method beginTransaction(): bool
+ * @method commit(): bool
+ * @method rollBack(): bool
+ * @method setAttribute(int $attribute, array|int $value): bool
+ * @method errorCode(): string|null
+ * @method errorInfo(): array
+ * @method getAttribute(int $attribute): bool|int|string|array|null
+ * @method quote(string $string, int $type = PDO::PARAM_STR): string|false
  */
 abstract class DbClient implements IDbClient {
-    protected PDO $conn;
+    /**
+     * @var PDO|null If null then disconnected.
+     */
+    protected ?PDO $pdo;
 
     protected array $pdoConf = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -40,36 +42,44 @@ abstract class DbClient implements IDbClient {
 
     /**
      * DbClient constructor.
-     * @param PDO|array $confOrPdo
+     * @param array $conf
      */
-    public function __construct(PDO|array $confOrPdo) {
-        $this->conn = $this->connect($confOrPdo);
+    public function __construct(array $conf) {
+        $this->connect($conf);
     }
 
-    public function pdo(): PDO {
-        return $this->conn;
+/*    public function __destruct() {
+        $this->disconnect();
+    }*/
+
+    public function disconnect(): void {
+        $this->pdo = null;
+    }
+
+    public function isConnected(): bool {
+        return null !== $this->pdo;
     }
 
     public function exec(string $sql): int {
-        return $this->conn->exec($sql);
+        return $this->pdo->exec($sql);
     }
 
     public function eval(string $sql, array $args = null): Result {
         /** @var $stmt Result */
         if ($args) {
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
             $result = $stmt->execute($args);
             if (false === $result) {
                 throw new RuntimeException("SQL query failed, check the arguments");
             }
         } else {
-            $stmt = $this->conn->query($sql);
+            $stmt = $this->pdo->query($sql);
         }
         return $stmt;
     }
 
     public function lastInsertId(string $name = null): string {
-        return $this->conn->lastInsertId($name);
+        return $this->pdo->lastInsertId($name);
     }
 
     public function expr(mixed $expr): Expr {
@@ -100,23 +110,23 @@ abstract class DbClient implements IDbClient {
      * @throws Throwable
      */
     public function transaction(callable $transaction, ...$args): mixed {
-        $this->conn->beginTransaction();
+        $this->pdo->beginTransaction();
         try {
             $result = $transaction($this, ...$args);
-            $this->conn->commit();
+            $this->pdo->commit();
         } catch (Throwable $e) {
-            $this->conn->rollBack();
+            $this->pdo->rollBack();
             throw $e;
         }
         return $result;
     }
 
     public function inTransaction(): bool {
-        return $this->conn->inTransaction();
+        return $this->pdo->inTransaction();
     }
 
     public function driverName(): string {
-        return $this->conn->getAttribute(PDO::ATTR_DRIVER_NAME);
+        return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
 
     public function availableDrivers(): array {
@@ -124,7 +134,7 @@ abstract class DbClient implements IDbClient {
     }
 
     public function __call(string $method, array $args): mixed {
-        return $this->conn->$method(...$args);
+        return $this->pdo->$method(...$args);
     }
 
     public function quoteIdentifier(string|array|Expr $identifiers): string|array {
@@ -183,17 +193,15 @@ abstract class DbClient implements IDbClient {
     public function usingEmulatedPrepares(callable $fn): mixed {
         $emulatePrepares = $this->getAttribute(PDO::ATTR_EMULATE_PREPARES);
         if (!$emulatePrepares) {
-            $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+            $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
             try {
                 $result = $fn($this);
             } finally {
-                $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, $emulatePrepares);
+                $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, intval($emulatePrepares));
             }
         } else {
             $result = $fn($this);
         }
         return $result;
     }
-
-    abstract protected function connect(PDO|array $confOrPdo): PDO;
 }

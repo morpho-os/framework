@@ -6,10 +6,12 @@
  */
 namespace Morpho\Tech\Sql;
 
-use PDO;
-
 interface IDbClient {
-    public function pdo(): PDO;
+    public function connect(array $conf): void;
+
+    public function disconnect(): void;
+
+    public function isConnected(): bool;
 
     public function expr(mixed $expr): Expr;
 
@@ -54,6 +56,7 @@ interface IDbClient {
     public function availableDrivers(): array;
 
     /**
+     * @param string|array|Expr $identifiers
      * @return string|array
      */
     public function quoteIdentifier(string|array|Expr $identifiers): string|array;

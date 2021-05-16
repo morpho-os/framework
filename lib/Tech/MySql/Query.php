@@ -82,7 +82,7 @@ abstract class Query implements IQuery {
                 '~\\?~s',
                 function ($match) use (&$args): string {
                     $val = array_shift($args);
-                    return $this->db->pdo()->quote((string) $val);
+                    return $this->db->quote((string) $val); // NB: this may be not safe due SQL-injection.
                 },
                 $sql
             );

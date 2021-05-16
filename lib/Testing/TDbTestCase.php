@@ -7,6 +7,11 @@
 namespace Morpho\Testing;
 
 use Morpho\Fs\Dir;
+use PDO;
+
+use function basename;
+use function dirname;
+use function pathinfo;
 
 trait TDbTestCase {
     protected function createFixtures($db): void {
@@ -16,8 +21,8 @@ trait TDbTestCase {
             foreach ($paths as $path) {
                 require_once $path;
                 $class = $this->ns() . '\\'
-                    . \basename(\dirname($path)) . '\\'
-                    . \pathinfo($path, PATHINFO_FILENAME);
+                    . basename(dirname($path)) . '\\'
+                    . pathinfo($path, PATHINFO_FILENAME);
                 (new $class())->load($db);
             }
         }
@@ -27,12 +32,22 @@ trait TDbTestCase {
         return $this->sut()->dbConf();
     }
 
-    protected function mkPdo(array $conf = null): \PDO {
+    protected function mkPdo(array $conf = null): PDO {
         if (!$conf) {
             $conf = $this->dbConf();
         }
         $dsn = $conf['driver'] . ':dbname=' . $conf['db'] . ';' . $conf['host'] . ';' . ($conf['charset'] ?? 'utf8');
-        return new \PDO($dsn, $conf['user'], $conf['password'], $conf['pdoConf'] ?? []);
+        $pdo = new PDO($dsn, $conf['user'], $conf['password'], $conf['pdoConf'] ?? []);
+        $pdoConf = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => 0,
+            PDO::ATTR_STRINGIFY_FETCHES  => 0,
+        ];
+        foreach ($pdoConf as $name => $val) {
+            $pdo->setAttribute($name, $val);
+        }
+        return $pdo;
     }
 
     abstract protected function sut(): mixed;

@@ -46,7 +46,7 @@ class Schema extends BaseSchema {
     public function tableExists(string $tableName): bool {
         // @TODO: Use `mysql` table?
         //return $this->db->eval('SELECT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'mydb';
-        return $this->db->eval('SHOW TABLES LIKE ' . $this->db->pdo()->quote($tableName))->bool();
+        return $this->db->eval('SHOW TABLES LIKE ' . $this->db->quote($tableName))->bool();
     }
 
     public function deleteAllTables(): void {

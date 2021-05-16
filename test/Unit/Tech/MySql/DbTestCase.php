@@ -19,7 +19,7 @@ abstract class DbTestCase extends BaseDbTestCase {
     public function setUp(): void {
         parent::setUp();
         $this->pdo = $this->mkPdo();
-        $this->db = mkDbClient($this->pdo);
+        $this->db = mkDbClient($this->dbConf());
         foreach ($this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) as $tableName) {
             $this->pdo->exec('DROP TABLE `' . $tableName . '`');
         }
