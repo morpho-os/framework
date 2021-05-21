@@ -49,7 +49,7 @@ watch-js:
 	bin/ts watch
 
 css:
-	sass $(frontendDirPath)/localhost/rc/css:$(frontendDirPath)/localhost/rc/css
+	sass $(frontendDirPath)/localhost
 
 clean-css:
 	find $(frontendDirPath)/localhost -mindepth 1 -name '*.css' -not -path '*/node_modules/*' -print -delete

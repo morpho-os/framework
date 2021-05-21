@@ -30,6 +30,9 @@ use Morpho\Error\NoDupsListener;
 use Morpho\Ioc\IHasServiceManager;
 use UnexpectedValueException;
 
+use function Morpho\Base\classify;
+use function Morpho\Base\init;
+
 class ServiceManager extends BaseServiceManager {
     protected function mkRouterService(): IRouter {
         //return new Router($this['db']);
@@ -68,17 +71,24 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkTemplateEnginePluginFactoryService() {
         return function ($pluginName) {
-            $knownPlugins = [
-                'Messenger' => MessengerPlugin::class,
-            ];
-            if (isset($knownPlugins[$pluginName])) {
-                $plugin = new $knownPlugins[$pluginName]();
-                if ($plugin instanceof IHasServiceManager) {
-                    $plugin->setServiceManager($this);
+            $instanceNs = init(get_class($this['request']->handler()['instance']), '\\');
+            $pluginClass = $instanceNs . '\\View\\' . classify($pluginName) . 'Plugin';
+            if (class_exists($pluginClass)) {
+                $plugin = new $pluginClass();
+            } else {
+                $knownPlugins = [
+                    'Messenger' => MessengerPlugin::class,
+                ];
+                if (isset($knownPlugins[$pluginName])) {
+                    $plugin = new $knownPlugins[$pluginName]();
+                } else {
+                    throw new UnexpectedValueException("Unknown plugin: " . $pluginName . '. Candidates: ' . $pluginClass . '.');
                 }
-                return $plugin;
             }
-            throw new UnexpectedValueException("Unknown plugin: " . $pluginName);
+            if ($plugin instanceof IHasServiceManager) {
+                $plugin->setServiceManager($this);
+            }
+            return $plugin;
         };
     }
 

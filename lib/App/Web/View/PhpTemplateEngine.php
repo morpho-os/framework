@@ -36,7 +36,7 @@ use function trim;
 use function ucfirst;
 
 class PhpTemplateEngine extends ArrPipe {
-    public const HIDDEN_FIELD = 'hidden';
+    //public const HIDDEN_FIELD = 'hidden';
 
     public const VIEW_FILE_EXT = '.phtml';
     private static array $htmlIds = [];
@@ -77,6 +77,10 @@ class PhpTemplateEngine extends ArrPipe {
 
     public function request(): IRequest {
         return $this->request;
+    }
+
+    public function instance(): mixed {
+        return $this['request']->handler()['instance'];
     }
 
     public static function mkDefaultPhases(array $conf): array {
@@ -169,12 +173,8 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->evalPhpFile($targetAbsFilePath, $context);
     }
 
-    public function compile($sourceCode): string {
-        $context = parent::__invoke(['program' => $sourceCode]);
-        return $context['program'];
-    }
-
     /**
+     * Evaluates PHPTemplateEngine code.
      * @param string $sourceCode
      * @param array $__vars
      * @return string
@@ -194,6 +194,54 @@ class PhpTemplateEngine extends ArrPipe {
             throw $e;
         }
         return trim(ob_get_clean());
+    }
+
+    /**
+     * Evaluates a file containing PHPTemplateEngine code by compiling it to PHP and evaluating the produced PHP. The result of evaluation is returned as string.
+     * @param string $sourceAbsFilePath
+     * @param array|null $context
+     * @return string
+     * @throws Throwable
+     */
+    public function evalFile(string $sourceAbsFilePath, array $context = null): string {
+        $candidateDirPaths = [];
+        for ($i = count($this->baseSourceDirPaths) - 1; $i >= 0; $i--) {
+            $baseSourceDirPath = $this->baseSourceDirPaths[$i];
+            if (str_starts_with($sourceAbsFilePath, $baseSourceDirPath)) {
+                $candidateDirPaths[] = $baseSourceDirPath;
+            }
+        }
+        if (!$candidateDirPaths) {
+            throw new UnexpectedValueException("Unable to find a base directory for the file " . $sourceAbsFilePath);
+        }
+        $max = [0, strlen($candidateDirPaths[0])];
+        for ($i = 1, $n = count($candidateDirPaths); $i < $n; $i++) {
+            $candidateDirPath = $candidateDirPaths[$i];
+            $length = strlen($candidateDirPath);
+            if ($length > $max[1]) {
+                $max = [$i, $length];
+            }
+        }
+        $baseSourceDirPath = $candidateDirPaths[$max[0]];
+        $targetRelFilePath = Path::changeExt(Path::rel($sourceAbsFilePath, $baseSourceDirPath), 'php');
+        $targetAbsFilePath = $this->targetDirPath . '/' . $targetRelFilePath;
+        $this->compileFile($sourceAbsFilePath, $targetAbsFilePath, []);
+        return $this->evalPhpFile($targetAbsFilePath, (array) $context);
+    }
+
+    protected function compile(string $sourceCode): string {
+        $context = parent::__invoke(['program' => $sourceCode]);
+        return $context['program'];
+    }
+
+    protected function compileFile(string $sourceFilePath, string $targetFilePath, array $context): void {
+        $forceCompile = $this->forceCompile;
+        if ($forceCompile || !file_exists($targetFilePath)) {
+            $context['filePath'] = $sourceFilePath;
+            $context['program'] = file_get_contents($sourceFilePath);
+            $preprocessed = parent::__invoke($context);
+            File::write($targetFilePath, $preprocessed['program']);
+        }
     }
 
     /**
@@ -428,49 +476,6 @@ class PhpTemplateEngine extends ArrPipe {
     /*public function handlerInstance() {
         return $this->request->handler()['instance'];
     }*/
-
-    /**
-     * Compiles and renders the $sourceAbsFilePath.
-     * @param string $sourceAbsFilePath
-     * @param array|null $context
-     * @return string
-     * @throws Throwable
-     */
-    protected function evalFile(string $sourceAbsFilePath, array $context = null): string {
-        $candidateDirPaths = [];
-        for ($i = count($this->baseSourceDirPaths) - 1; $i >= 0; $i--) {
-            $baseSourceDirPath = $this->baseSourceDirPaths[$i];
-            if (str_starts_with($sourceAbsFilePath, $baseSourceDirPath)) {
-                $candidateDirPaths[] = $baseSourceDirPath;
-            }
-        }
-        if (!$candidateDirPaths) {
-            throw new UnexpectedValueException("Unable to find a base directory for the file " . $sourceAbsFilePath);
-        }
-        $max = [0, strlen($candidateDirPaths[0])];
-        for ($i = 1, $n = count($candidateDirPaths); $i < $n; $i++) {
-            $candidateDirPath = $candidateDirPaths[$i];
-            $length = strlen($candidateDirPath);
-            if ($length > $max[1]) {
-                $max = [$i, $length];
-            }
-        }
-        $baseSourceDirPath = $candidateDirPaths[$max[0]];
-        $targetRelFilePath = Path::changeExt(Path::rel($sourceAbsFilePath, $baseSourceDirPath), 'php');
-        $targetAbsFilePath = $this->targetDirPath . '/' . $targetRelFilePath;
-        $this->compileFile($sourceAbsFilePath, $targetAbsFilePath, []);
-        return $this->evalPhpFile($targetAbsFilePath, (array) $context);
-    }
-
-    protected function compileFile(string $sourceFilePath, string $targetFilePath, array $context): void {
-        $forceCompile = $this->forceCompile;
-        if ($forceCompile || !file_exists($targetFilePath)) {
-            $context['filePath'] = $sourceFilePath;
-            $context['program'] = file_get_contents($sourceFilePath);
-            $preprocessed = parent::__invoke($context);
-            File::write($targetFilePath, $preprocessed['program']);
-        }
-    }
 
     protected function sourceAbsFilePath(string $sourceAbsOrRelFilePath, bool $throwExIfNotFound = true): bool|string {
         $sourceAbsOrRelFilePath .= self::VIEW_FILE_EXT;

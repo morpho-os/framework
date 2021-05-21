@@ -92,7 +92,7 @@ class AstRewriter extends NodeVisitorAbstract {
         return $processor->rewrite($ast, $context);
     }
 
-    protected function evalExpr(Expr $expr) {
+    protected function evalExpr(Expr $expr): mixed {
         $printer = new PrettyPrinter();
         return eval('return ' . $printer->prettyPrintExpr($expr) . ';');
     }
