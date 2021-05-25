@@ -1,0 +1,118 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+namespace Morpho\Infra;
+
+use Generator;
+use Morpho\Base\Err;
+use Morpho\Base\Ok;
+use Morpho\Base\Result;
+use Morpho\Fs\Dir;
+use Morpho\Tech\Php\PhpFileHeaderFixer;
+
+use function Morpho\App\Cli\bootstrap;
+use function Morpho\App\Cli\showErrorLn;
+use function Morpho\Base\showLn;
+
+use const Morpho\App\BIN_DIR_NAME;
+use const Morpho\App\CONF_DIR_NAME;
+use const Morpho\App\LIB_DIR_NAME;
+use const Morpho\App\TEST_DIR_NAME;
+use const Morpho\Tech\Php\LICENSE_COMMENT;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+bootstrap();
+
+function fixFileHeaders(bool $dryRun): Result {
+    $baseDirPath = __DIR__ . '/..';
+    $baseNs = 'Morpho';
+
+    $phpFilePaths = function (string $dirPath): Generator {
+        return Dir::filePaths(
+            $dirPath,
+            function (string $filePath) {
+                if (pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
+                    return true;
+                }
+                $fp = fopen($filePath, 'r');
+                $line = fgets($fp);
+                return (bool) preg_match('~^#!/usr/bin/env\\s+php$~', $line);
+            },
+            true,
+        );
+    };
+
+    $fixers = [
+        [
+            $phpFilePaths($baseDirPath . '/' . BIN_DIR_NAME),
+            [
+                'baseDirPath' => $baseDirPath . '/' . BIN_DIR_NAME,
+                'ns'          => $baseNs . '\\Infra',
+            ],
+        ],
+        [
+            $phpFilePaths($baseDirPath . '/' . CONF_DIR_NAME),
+            [
+                'baseDirPath' => $baseDirPath . '/' . CONF_DIR_NAME,
+                'ns'          => $baseNs . '\\App',
+            ],
+        ],
+        [
+            Dir::filePaths($baseDirPath . '/' . LIB_DIR_NAME, Dir::PHP_FILE_RE, true),
+            [
+                'baseDirPath' => $baseDirPath . '/' . LIB_DIR_NAME,
+                'ns'          => $baseNs,
+                'shouldFix'   => function ($result) use ($baseNs, $baseDirPath) {
+                    $context = $result->val();
+                    if (realpath($context['filePath']) === realpath($baseDirPath . '/' . LIB_DIR_NAME . '/Tech/Php/autoload.php')) {
+                        return !$context['hasValidDeclare'] || !$context['hasLicenseComment'] || $context['nsCheckResult'] != new Err(
+                                ['expected' => $baseNs . '\\Tech\\Php', 'actual' => null]
+                            );
+                    }
+                    return true;
+                },
+            ],
+        ],
+        [
+            Dir::filePaths(
+                $baseDirPath . '/' . TEST_DIR_NAME,
+                fn ($filePath) => str_ends_with($filePath, '.php')
+                    && !str_contains($filePath, '/_files/')
+                    && !str_ends_with($filePath, '/' . TEST_DIR_NAME . '/Unit/Tech/Php/DebuggerTest.php'),
+                true
+            ),
+            [
+                'baseDirPath' => $baseDirPath . '/' . TEST_DIR_NAME,
+                'ns'          => $baseNs . '\\Test',
+            ],
+        ],
+    ];
+    $result = null;
+    $fixer = new PhpFileHeaderFixer(LICENSE_COMMENT);
+    foreach ($fixers as [$filePaths, $context]) {
+        $context['dryRun'] = $dryRun;
+        $result = $fixer->fixFiles($filePaths, $context, $result);
+    }
+    showLn("\nProcessed: " . $result->val()['processed']);
+    showLn("Fixed: " . $result->val()['fixed']);
+    return $result;
+}
+
+function fixFormatting(bool $dryRun): Result {
+    // todo: see #71
+    //throw new NotImplementedException();
+    return new Ok();
+}
+
+$dryRun = false;
+if (fixFileHeaders($dryRun)->isOk()) {
+    fixFormatting($dryRun);
+} else {
+    showErrorLn("Errors found!");
+    exit(1);
+}
