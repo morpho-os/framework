@@ -19,15 +19,15 @@ class Peg implements IGrammar {
         $this->rules = $rules;
     }
 
-    public function rules() {
-        throw new NotImplementedException();
-    }
-
     /**
      * Generates PHP code with Peg by the grammar.
      */
     public static function generate(string $grammar): string {
         throw new NotImplementedException(__METHOD__);
+    }
+
+    public function rules() {
+        throw new NotImplementedException();
     }
 
     /**

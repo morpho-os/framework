@@ -71,6 +71,10 @@ class BackendModule extends Module {
         return $this['paths']['logDirPath'] = $this->dirPath() . '/' . LOG_DIR_NAME;
     }
 
+    public function compiledTemplatesDirPath(): string {
+        return $this->cacheDirPath() . '/template-engine';
+    }
+
     public function cacheDirPath(): string {
         if (isset($this['paths']['cacheDirPath'])) {
             return $this['paths']['cacheDirPath'];
@@ -78,22 +82,11 @@ class BackendModule extends Module {
         return $this['paths']['cacheDirPath'] = $this->dirPath() . '/' . CACHE_DIR_NAME;
     }
 
-    public function compiledTemplatesDirPath(): string {
-        return $this->cacheDirPath() . '/template-engine';
-    }
-
     public function viewDirPath(): string {
         if (isset($this['paths']['viewDirPath'])) {
             return $this['paths']['viewDirPath'];
         }
         return $this['paths']['viewDirPath'] = $this->dirPath() . '/' . VIEW_DIR_NAME;
-    }
-
-    public function libDirPath(): string {
-        if (isset($this['paths']['libDirPath'])) {
-            return $this['paths']['libDirPath'];
-        }
-        return $this['paths']['libDirPath'] = $this->dirPath() . '/' . LIB_DIR_NAME;
     }
 
     public function confDirPath(): string {
@@ -139,5 +132,12 @@ class BackendModule extends Module {
             }
             yield from Dir::filePaths($controllerDirPath, '~\w' . CONTROLLER_SUFFIX . '\.php$~', true);
         }
+    }
+
+    public function libDirPath(): string {
+        if (isset($this['paths']['libDirPath'])) {
+            return $this['paths']['libDirPath'];
+        }
+        return $this['paths']['libDirPath'] = $this->dirPath() . '/' . LIB_DIR_NAME;
     }
 }

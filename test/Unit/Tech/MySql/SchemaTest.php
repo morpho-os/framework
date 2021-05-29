@@ -7,8 +7,8 @@
 namespace Morpho\Test\Unit\Tech\MySql;
 
 //use Morpho\Base\Arr;
-use Morpho\Tech\Sql\ISchema;
 use Morpho\Tech\MySql\Schema;
+use Morpho\Tech\Sql\ISchema;
 use PDO;
 
 use function md5;
@@ -47,6 +47,14 @@ class SchemaTest extends DbTestCase {
         $this->assertContains('mysql', $this->schema->dbNames());
     }
 
+    private function createDb($dbName, string $charset = null, string $collation = null): string {
+        $this->dbs[] = $dbName;
+        $this->db->eval(
+            "CREATE DATABASE $dbName CHARACTER SET " . ($charset ?: Schema::CHARSET) . " COLLATE " . ($collation ?: Schema::COLLATION)
+        );
+        return $dbName;
+    }
+
     public function testDbExists() {
         $dbSuffix = md5(__FUNCTION__);
         $dbName = 't' . $dbSuffix;
@@ -61,14 +69,6 @@ class SchemaTest extends DbTestCase {
         $this->createCarsTable(false);
         $this->assertSame(['cars'], $this->schema->tableNames());
         $this->assertTrue($this->schema->tableExists('cars'));
-    }
-
-    public function testDeleteAllTables() {
-        $this->createCarsTable(false);
-        $tableNames = fn () => $this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
-        $this->assertContains('cars', $tableNames());
-        $this->schema->deleteAllTables();
-        $this->assertSame([], $tableNames());
     }
 
     /*
@@ -299,12 +299,13 @@ class SchemaTest extends DbTestCase {
             );
         }
     */
-    private function createDb($dbName, string $charset = null, string $collation = null): string {
-        $this->dbs[] = $dbName;
-        $this->db->eval(
-            "CREATE DATABASE $dbName CHARACTER SET " . ($charset ?: Schema::CHARSET) . " COLLATE " . ($collation ?: Schema::COLLATION)
-        );
-        return $dbName;
+
+    public function testDeleteAllTables() {
+        $this->createCarsTable(false);
+        $tableNames = fn () => $this->pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertContains('cars', $tableNames());
+        $this->schema->deleteAllTables();
+        $this->assertSame([], $tableNames());
     }
     /*
         private function createTestTables(): void {

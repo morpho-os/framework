@@ -42,14 +42,14 @@ class ActionResultRenderer implements IFn {
         return null;
     }
 
-    public function setContentNegotiator($contentNegotiator) {
-        $this->contentNegotiator = $contentNegotiator;
-    }
-
     public function contentNegotiator() {
         if (null === $this->contentNegotiator) {
             $this->contentNegotiator = new ContentNegotiator();
         }
         return $this->contentNegotiator;
+    }
+
+    public function setContentNegotiator($contentNegotiator) {
+        $this->contentNegotiator = $contentNegotiator;
     }
 }

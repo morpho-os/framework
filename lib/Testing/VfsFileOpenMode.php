@@ -7,53 +7,21 @@
 namespace Morpho\Testing;
 
 class VfsFileOpenMode {
-    private $mode;
+    private const O_RDONLY = 00000000;
 
     // Taken from https://github.com/torvalds/linux/blob/master/include/uapi/asm-generic/fcntl.h
-    private const O_RDONLY = 00000000;
     private const O_WRONLY = 00000001;
     private const O_RDWR = 00000002;
     private const O_CREAT = 00000100;
     private const O_APPEND = 00002000;
+    private const O_TRUNC = 00001000;
     /*    private const O_CLOEXEC  = 02000000;
         private const O_EXCL     = 00000200;
         private const O_NONBLOCK = 00004000;*/
-    private const O_TRUNC = 00001000;
+    private $mode;
 
     public function __construct(string $mode) {
         $this->mode = $this->parseMode($mode);
-    }
-
-    public function create(): bool {
-        return (bool) ($this->mode & self::O_CREAT);
-    }
-
-    public function append(): bool {
-        return (bool) ($this->mode & self::O_APPEND);
-    }
-
-    public function readOnly(): bool {
-        return $this->mode === self::O_RDONLY;
-    }
-
-    public function truncate(): bool {
-        return (bool) ($this->mode & self::O_TRUNC);
-    }
-
-    public function writeOnly(): bool {
-        return (bool) ($this->mode & self::O_WRONLY);
-    }
-
-    public function readWrite(): bool {
-        return (bool) ($this->mode & self::O_RDWR);
-    }
-
-    public function canWrite(): bool {
-        return $this->append() || $this->writeOnly() || $this->readWrite();
-    }
-
-    public function canRead(): bool {
-        return $this->readOnly() || $this->readWrite();
     }
 
     protected function parseMode(string $mode): int {
@@ -113,5 +81,37 @@ class VfsFileOpenMode {
                 }*/
 
         return $flags;
+    }
+
+    public function create(): bool {
+        return (bool) ($this->mode & self::O_CREAT);
+    }
+
+    public function truncate(): bool {
+        return (bool) ($this->mode & self::O_TRUNC);
+    }
+
+    public function canWrite(): bool {
+        return $this->append() || $this->writeOnly() || $this->readWrite();
+    }
+
+    public function append(): bool {
+        return (bool) ($this->mode & self::O_APPEND);
+    }
+
+    public function writeOnly(): bool {
+        return (bool) ($this->mode & self::O_WRONLY);
+    }
+
+    public function readWrite(): bool {
+        return (bool) ($this->mode & self::O_RDWR);
+    }
+
+    public function canRead(): bool {
+        return $this->readOnly() || $this->readWrite();
+    }
+
+    public function readOnly(): bool {
+        return $this->mode === self::O_RDONLY;
     }
 }

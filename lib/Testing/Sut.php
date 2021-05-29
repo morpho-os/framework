@@ -32,10 +32,6 @@ class Sut extends ArrayObject {
         }
     }
 
-    public function isCi(): bool {
-        return !empty(getenv('MORPHO_CI'));
-    }
-
     public function baseDirPath(): string {
         if (!isset($this->baseDirPath)) {
             $this->baseDirPath = BackendModule::findModuleDir(__DIR__);
@@ -43,23 +39,23 @@ class Sut extends ArrayObject {
         return $this->baseDirPath;
     }
 
-    public function webServerAddress(): array {
-        $domain = getenv('MORPHO_TEST_WEB_SERVER_DOMAIN') ?: 'framework';
-        $port = getenv('MORPHO_TEST_WEB_SERVER_PORT') ?: 80;
-        return ['host' => $domain, 'port' => (int) $port];
+    public function isCi(): bool {
+        return !empty(getenv('MORPHO_CI'));
     }
 
     public function webServerWebDirPath(): string {
         return $this->baseDirPath() . '/' . FRONTEND_DIR_NAME;
     }
 
-    public function testRcDirPath(): string {
-        return getenv('MORPHO_TEST_RC_DIR_PATH') ?: $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
-    }
-
     public function siteUri(): string {
         $webServerAddress = $this->webServerAddress();
         return 'http://' . $webServerAddress['host'] . ':' . $webServerAddress['port'];
+    }
+
+    public function webServerAddress(): array {
+        $domain = getenv('MORPHO_TEST_WEB_SERVER_DOMAIN') ?: 'framework';
+        $port = getenv('MORPHO_TEST_WEB_SERVER_PORT') ?: 80;
+        return ['host' => $domain, 'port' => (int) $port];
     }
 
     public function webDriverConf(): array {
@@ -69,6 +65,10 @@ class Sut extends ArrayObject {
             $geckoBinFilePath = $geckoBinCandidateFilePath;
         }
         return ['geckoBinFilePath' => $geckoBinFilePath];
+    }
+
+    public function testRcDirPath(): string {
+        return getenv('MORPHO_TEST_RC_DIR_PATH') ?: $this->baseDirPath() . '/' . TEST_DIR_NAME . '/Integration';
     }
 
     public function dbConf(): array {

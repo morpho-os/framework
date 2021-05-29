@@ -21,12 +21,12 @@ abstract class CommandResult implements ICommandResult {
         $this->exitCode = $exitCode;
     }
 
-    public function exitCode(): int {
-        return $this->exitCode;
-    }
-
     public function isError(): bool {
         return $this->exitCode() !== Env::SUCCESS_CODE;
+    }
+
+    public function exitCode(): int {
+        return $this->exitCode;
     }
 
     public function getIterator(): Traversable {

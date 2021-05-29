@@ -28,9 +28,7 @@ trait TDbTestCase {
         }
     }
 
-    protected function dbConf(): array {
-        return $this->sut()->dbConf();
-    }
+    abstract protected function ns(): string;
 
     protected function mkPdo(array $conf = null): PDO {
         if (!$conf) {
@@ -50,7 +48,9 @@ trait TDbTestCase {
         return $pdo;
     }
 
-    abstract protected function sut(): mixed;
+    protected function dbConf(): array {
+        return $this->sut()->dbConf();
+    }
 
-    abstract protected function ns(): string;
+    abstract protected function sut(): mixed;
 }

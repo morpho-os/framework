@@ -30,8 +30,22 @@ class FileReflection {
         $this->filePath = $filePath;
     }
 
-    public function filePath(): string {
-        return $this->filePath;
+    /**
+     * @return iterable|ClassTypeReflection[]
+     */
+    public function classes(): iterable {
+        return $this->filterClassTypes(
+            function (ClassTypeReflection $rClass) {
+                return !$rClass->isTrait() && !$rClass->isInterface();
+            }
+        );
+    }
+
+    private function filterClassTypes(Closure $filter): iterable {
+        foreach ($this->namespaces() as $rNamespace) {
+            /** @var $rNamespace NamespaceReflection */
+            yield from $rNamespace->classTypes($filter);
+        }
     }
 
     /**
@@ -67,15 +81,47 @@ class FileReflection {
         }
     }
 
+    public function filePath(): string {
+        return $this->filePath;
+    }
+
     /**
      * @return iterable|ClassTypeReflection[]
      */
-    public function classes(): iterable {
-        return $this->filterClassTypes(
-            function (ClassTypeReflection $rClass) {
-                return !$rClass->isTrait() && !$rClass->isInterface();
+    private function classTypes(NamespaceStmt $nsNode): iterable {
+        foreach ($nsNode->stmts as $node) {
+            if ($this->isClassType($node)) {
+                yield $node->namespacedName->toString();
             }
-        );
+        }
+    }
+
+    private function isClassType(Node $node): bool {
+        return $node instanceof ClassStmt
+            || $node instanceof TraitStmt
+            || $node instanceof InterfaceStmt;
+    }
+
+    /**
+     * @return iterable|ReflectionMethod[]
+     */
+    private function functions(NamespaceStmt $nsNode): iterable {
+        foreach ($nsNode->stmts as $node) {
+            if ($this->isFunction($node)) {
+                yield $node->namespacedName->toString();
+            }
+        }
+    }
+
+    private function isFunction(Node $node): bool {
+        return $node instanceof FunctionStmt;
+    }
+
+    private function nodeName(Node $node): string {
+        if ($node->name instanceof Identifier) {
+            return $node->name->name;
+        }
+        return $node->name;
     }
 
     /**
@@ -98,52 +144,6 @@ class FileReflection {
                 return $rClass->isInterface();
             }
         );
-    }
-
-    /**
-     * @return iterable|ClassTypeReflection[]
-     */
-    private function classTypes(NamespaceStmt $nsNode): iterable {
-        foreach ($nsNode->stmts as $node) {
-            if ($this->isClassType($node)) {
-                yield $node->namespacedName->toString();
-            }
-        }
-    }
-
-    /**
-     * @return iterable|ReflectionMethod[]
-     */
-    private function functions(NamespaceStmt $nsNode): iterable {
-        foreach ($nsNode->stmts as $node) {
-            if ($this->isFunction($node)) {
-                yield $node->namespacedName->toString();
-            }
-        }
-    }
-
-    private function isFunction(Node $node): bool {
-        return $node instanceof FunctionStmt;
-    }
-
-    private function isClassType(Node $node): bool {
-        return $node instanceof ClassStmt
-            || $node instanceof TraitStmt
-            || $node instanceof InterfaceStmt;
-    }
-
-    private function nodeName(Node $node): string {
-        if ($node->name instanceof Identifier) {
-            return $node->name->name;
-        }
-        return $node->name;
-    }
-
-    private function filterClassTypes(Closure $filter): iterable {
-        foreach ($this->namespaces() as $rNamespace) {
-            /** @var $rNamespace NamespaceReflection */
-            yield from $rNamespace->classTypes($filter);
-        }
     }
 }
 
@@ -200,6 +200,16 @@ class NamespaceReflection {
         }
     }
 
+    protected function requireFile(string $filePath): void {
+        if (contains($filePath, '://')) { // for streams use another approach.
+            $php = file_get_contents($filePath);
+            eval('?>' . $php);
+        } else {
+            /** @noinspection PhpIncludeInspection */
+            require_once $filePath;
+        }
+    }
+
     /**
      * @return iterable Iterable over \ReflectionFunction
      */
@@ -208,16 +218,6 @@ class NamespaceReflection {
         require_once $this->filePath;
         foreach ($this->functions as $function) {
             yield new ReflectionFunction($function);
-        }
-    }
-
-    protected function requireFile(string $filePath): void {
-        if (contains($filePath, '://')) { // for streams use another approach.
-            $php = file_get_contents($filePath);
-            eval('?>' . $php);
-        } else {
-            /** @noinspection PhpIncludeInspection */
-            require_once $filePath;
         }
     }
 }

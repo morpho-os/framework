@@ -56,7 +56,8 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testUnset_ExistingItem_NotCaseSensitive() {
-        $serviceManager = new class extends ServiceManager {};
+        $serviceManager = new class extends ServiceManager {
+        };
         $serviceManager['foobar'] = new stdClass();
         unset($serviceManager['FOOBar']); // should not throw an exception
         $this->assertTrue(!isset($serviceManager['foobar']));

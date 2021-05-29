@@ -12,9 +12,9 @@ use Morpho\App\IRouter;
 use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\Base\EventManager;
 use Morpho\Base\NotImplementedException;
-use Morpho\Error\ErrorHandler;
-use Morpho\Error\LogListener;
-use Morpho\Error\NoDupsListener;
+use Morpho\Tech\Php\ErrorHandler;
+use Morpho\Tech\Php\LogListener;
+use Morpho\Tech\Php\NoDupsListener;
 
 class ServiceManager extends BaseServiceManager {
     protected function mkAppInitializerService() {

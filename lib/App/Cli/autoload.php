@@ -16,8 +16,8 @@ const STD_PIPES = [
 ];
 
 use Morpho\Base\Conf;
-use Morpho\Error\DumpListener;
-use Morpho\Error\ErrorHandler;
+use Morpho\Tech\Php\DumpListener;
+use Morpho\Tech\Php\ErrorHandler;
 use RuntimeException;
 use UnexpectedValueException;
 

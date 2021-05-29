@@ -4,16 +4,15 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Error;
+namespace Morpho\Tech\Php;
 
 use ArrayObject;
 use LogicException;
 use Throwable;
 
 class ExceptionHandler implements IExceptionHandler {
-    private bool $registered = false;
-
     protected ArrayObject $listeners;
+    private bool $registered = false;
 
     public function __construct(iterable $listeners = null) {
         if (null === $listeners) {

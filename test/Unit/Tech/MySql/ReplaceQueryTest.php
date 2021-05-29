@@ -7,8 +7,8 @@
 
 namespace Morpho\Test\Unit\Tech\MySql;
 
-use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\MySql\ReplaceQuery;
+use Morpho\Tech\Sql\IQuery;
 
 class ReplaceQueryTest extends QueryTest {
     public function testQuery() {

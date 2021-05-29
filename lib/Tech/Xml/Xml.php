@@ -13,10 +13,6 @@ class Xml {
         return $doc;
     }
 
-    public static function nodeToXml(\DOMNode $node): string {
-        return $node->ownerDocument->saveXML($node);
-    }
-
     private static function arrayToXml(array $data, Doc $doc, $currentNode = null) {
         $currentNode = $currentNode ?: $doc;
         foreach ($data as $key => $value) {
@@ -31,6 +27,10 @@ class Xml {
                 $currentNode->appendChild($doc->createElement($key, (string) $value));
             }
         }
+    }
+
+    public static function nodeToXml(\DOMNode $node): string {
+        return $node->ownerDocument->saveXML($node);
     }
 
 

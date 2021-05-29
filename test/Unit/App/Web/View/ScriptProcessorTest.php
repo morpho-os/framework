@@ -26,6 +26,79 @@ class ScriptProcessorTest extends TestCase {
         $this->processor = new ScriptProcessor($this->mkRequestStub('foo/bar'), $this->mkSiteStub('abc/efg'));
     }
 
+    private function mkRequestStub(string $view) {
+        return new class (['view' => $view], $this->baseUriPath) extends ArrayObject implements IRequest {
+            private $baseUriPath;
+
+            public function __construct($array, $baseUriPath) {
+                parent::__construct($array);
+                $this->baseUriPath = $baseUriPath;
+            }
+
+            public function prependUriWithBasePath($uri) {
+                $mkUri = function ($uri) {
+                    return new class ($uri) {
+                        private $uri;
+
+                        public function __construct($uri) {
+                            $this->uri = $uri;
+                        }
+
+                        public function toStr() {
+                            return $this->uri;
+                        }
+                    };
+                };
+                if (strlen($uri) > 0) {
+                    if ($uri[0] === '/') {
+                        return $mkUri(rtrim($this->baseUriPath . $uri, '/'));
+                    }
+                }
+                return $mkUri($uri);
+            }
+
+            public function isHandled(bool $flag = null): bool {
+                // TODO: Implement isHandled() method.
+            }
+
+            public function setHandler(array $handler): void {
+                // TODO: Implement setHandler() method.
+            }
+
+            public function handler(): array {
+                // TODO: Implement handler() method.
+            }
+
+            public function setResponse(IResponse $response): void {
+                // TODO: Implement setResponse() method.
+            }
+
+            public function response(): IResponse {
+                // TODO: Implement response() method.
+            }
+
+            public function args(array|string|null $namesOrIndexes = null): mixed {
+                // TODO: Implement args() method.
+            }
+        };
+    }
+
+    private function mkSiteStub(string $siteModuleName): ISite {
+        $site = $this->createStub(ISite::class);
+        $site->method('moduleName')
+            ->willReturn($siteModuleName);
+        $site->method('conf')
+            ->willReturn(
+                [
+                    'paths' => [
+                        'frontendModuleDirPath' => $this->getTestDirPath() . '/' . FRONTEND_DIR_NAME,
+                        'baseUriPath'           => $this->baseUriPath,
+                    ],
+                ]
+            );
+        return $site;
+    }
+
     public function testHandlingOfScripts_InChildParentPages() {
         $childPage = <<<OUT
 This
@@ -58,6 +131,10 @@ OUT;
         );
 
         $this->assertMatchesRegularExpression($re, $html);
+    }
+
+    private function quotedRe(array $parts): string {
+        return '~^' . implode('\s*?', array_map(fn ($s) => preg_quote($s), $parts)) . '$~s';
     }
 
     public function testHandlingOfScripts_IndexAttribute() {
@@ -225,82 +302,5 @@ OUT;
             ]
         );
         $this->assertMatchesRegularExpression($re, $html);
-    }
-
-    private function quotedRe(array $parts): string {
-        return '~^' . implode('\s*?', array_map(fn ($s) => preg_quote($s), $parts)) . '$~s';
-    }
-
-    private function mkRequestStub(string $view) {
-        return new class (['view' => $view], $this->baseUriPath) extends ArrayObject implements IRequest {
-            private $baseUriPath;
-
-            public function __construct($array, $baseUriPath) {
-                parent::__construct($array);
-                $this->baseUriPath = $baseUriPath;
-            }
-
-            public function prependUriWithBasePath($uri) {
-                $mkUri = function ($uri) {
-                    return new class ($uri) {
-                        private $uri;
-
-                        public function __construct($uri) {
-                            $this->uri = $uri;
-                        }
-
-                        public function toStr() {
-                            return $this->uri;
-                        }
-                    };
-                };
-                if (strlen($uri) > 0) {
-                    if ($uri[0] === '/') {
-                        return $mkUri(rtrim($this->baseUriPath . $uri, '/'));
-                    }
-                }
-                return $mkUri($uri);
-            }
-
-            public function isHandled(bool $flag = null): bool {
-                // TODO: Implement isHandled() method.
-            }
-
-            public function setHandler(array $handler): void {
-                // TODO: Implement setHandler() method.
-            }
-
-            public function handler(): array {
-                // TODO: Implement handler() method.
-            }
-
-            public function setResponse(IResponse $response): void {
-                // TODO: Implement setResponse() method.
-            }
-
-            public function response(): IResponse {
-                // TODO: Implement response() method.
-            }
-
-            public function args(array|string|null $namesOrIndexes = null): mixed {
-                // TODO: Implement args() method.
-            }
-        };
-    }
-
-    private function mkSiteStub(string $siteModuleName): ISite {
-        $site = $this->createStub(ISite::class);
-        $site->method('moduleName')
-            ->willReturn($siteModuleName);
-        $site->method('conf')
-            ->willReturn(
-                [
-                    'paths' => [
-                        'frontendModuleDirPath' => $this->getTestDirPath() . '/' . FRONTEND_DIR_NAME,
-                        'baseUriPath'           => $this->baseUriPath,
-                    ],
-                ]
-            );
-        return $site;
     }
 }

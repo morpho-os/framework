@@ -41,40 +41,6 @@ use function unlink;
 
 class File extends Entry {
     /**
-     * Reads file as string.
-     */
-    public static function read(string $filePath, array $conf = null): string {
-        if (!is_file($filePath)) {
-            throw new FileNotFoundException($filePath);
-        }
-
-        $conf = Conf::check(
-            [
-                'lock'           => false,
-                'offset'         => -1,
-                'length'         => null,
-                'useIncludePath' => false,
-                'context'        => null,
-                'removeBom'      => true,
-            ],
-            (array) $conf
-        );
-
-        $content = @file_get_contents($filePath, $conf['useIncludePath']);
-
-        if (false === $content) {
-            throw new Exception("Unable to read the '$filePath' file");
-        }
-
-        // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
-        if ($conf['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
-            return substr($content, 3);
-        }
-
-        return $content;
-    }
-
-    /**
      * NB: To read a file and then write to it use the construct: File::writeLines($filePath, toArray(File::readLines($filePath))
      */
     public static function writeLines(string $filePath, iterable $lines): string {
@@ -92,6 +58,60 @@ class File extends Entry {
         } finally {
             fclose($handle);
         }
+        return $filePath;
+    }
+
+    /**
+     * Writes string to file.
+     */
+    public static function write(string $filePath, string $content, array $conf = null): string {
+        if ($filePath === '') {
+            throw new Exception("The file path is empty");
+        }
+        Dir::create(Path::dirPath($filePath));
+
+        $conf = Conf::check(
+            [
+                'useIncludePath' => false,
+                'lock'           => true,
+                'append'         => false,
+                'context'        => null,
+                'mode'           => Stat::FILE_MODE,
+            ],
+            (array) $conf
+        );
+        $flags = 0;
+        if ($conf['append']) {
+            $flags |= FILE_APPEND;
+        }
+        if ($conf['lock']) {
+            $flags |= LOCK_EX;
+        }
+        if ($conf['useIncludePath']) {
+            $flags |= FILE_USE_INCLUDE_PATH;
+        }
+        $perms = $conf['mode'] & 0b111_111_111;
+        $oldUmask = null;
+        if ((0b100_100_100 & $perms) === 0) { // use umask() only any `1` in `100100100` is not set, otherwise use chmod()
+            $oldUmask = umask(0666 ^ $perms); // 0666 is default value for files to subtract permissions to get umask
+        }
+        try {
+            $result = file_put_contents($filePath, $content, $flags, $conf['context'] ?? null);
+        } catch (Throwable $e) {
+            if (null !== $oldUmask) {
+                umask($oldUmask);
+            }
+            throw $e;
+        }
+        if (null !== $oldUmask) {
+            umask($oldUmask);
+        } else {
+            chmod($filePath, $perms);
+        }
+        if (false === $result) {
+            throw new Exception("Unable to write to the file '$filePath'");
+        }
+
         return $filePath;
     }
 
@@ -150,6 +170,40 @@ class File extends Entry {
     }
 
     /**
+     * Reads file as string.
+     */
+    public static function read(string $filePath, array $conf = null): string {
+        if (!is_file($filePath)) {
+            throw new FileNotFoundException($filePath);
+        }
+
+        $conf = Conf::check(
+            [
+                'lock'           => false,
+                'offset'         => -1,
+                'length'         => null,
+                'useIncludePath' => false,
+                'context'        => null,
+                'removeBom'      => true,
+            ],
+            (array) $conf
+        );
+
+        $content = @file_get_contents($filePath, $conf['useIncludePath']);
+
+        if (false === $content) {
+            throw new Exception("Unable to read the '$filePath' file");
+        }
+
+        // @TODO: Handle other BOM representations, see https://en.wikipedia.org/wiki/Byte_order_mark
+        if ($conf['removeBom'] && substr($content, 0, 3) === "\xEF\xBB\xBF") {
+            return substr($content, 3);
+        }
+
+        return $content;
+    }
+
+    /**
      * Writes json to the file and returns the file path.
      */
     public static function writeJson(
@@ -205,60 +259,6 @@ class File extends Entry {
         return self::write($filePath, $content, Conf::check(['append' => true], (array) $conf));
     }
 
-    /**
-     * Writes string to file.
-     */
-    public static function write(string $filePath, string $content, array $conf = null): string {
-        if ($filePath === '') {
-            throw new Exception("The file path is empty");
-        }
-        Dir::create(Path::dirPath($filePath));
-
-        $conf = Conf::check(
-            [
-                'useIncludePath' => false,
-                'lock'           => true,
-                'append'         => false,
-                'context'        => null,
-                'mode'           => Stat::FILE_MODE,
-            ],
-            (array) $conf
-        );
-        $flags = 0;
-        if ($conf['append']) {
-            $flags |= FILE_APPEND;
-        }
-        if ($conf['lock']) {
-            $flags |= LOCK_EX;
-        }
-        if ($conf['useIncludePath']) {
-            $flags |= FILE_USE_INCLUDE_PATH;
-        }
-        $perms = $conf['mode'] & 0b111_111_111;
-        $oldUmask = null;
-        if ((0b100_100_100 & $perms) === 0) { // use umask() only any `1` in `100100100` is not set, otherwise use chmod()
-            $oldUmask = umask(0666 ^ $perms); // 0666 is default value for files to subtract permissions to get umask
-        }
-        try {
-            $result = file_put_contents($filePath, $content, $flags, $conf['context'] ?? null);
-        } catch (Throwable $e) {
-            if (null !== $oldUmask) {
-                umask($oldUmask);
-            }
-            throw $e;
-        }
-        if (null !== $oldUmask) {
-            umask($oldUmask);
-        } else {
-            chmod($filePath, $perms);
-        }
-        if (false === $result) {
-            throw new Exception("Unable to write to the file '$filePath'");
-        }
-
-        return $filePath;
-    }
-
     public static function writePhpVar(string $filePath, $var, bool $stripNumericKeys = true): string {
         if ($stripNumericKeys) {
             throw new NotImplementedException();
@@ -292,6 +292,12 @@ class File extends Entry {
         return filesize($filePath) === 0;
     }
 
+    public static function deleteIfExists(string $filePath): void {
+        if (is_file($filePath)) {
+            self::delete($filePath);
+        }
+    }
+
     /**
      * Deletes the file.
      */
@@ -306,12 +312,6 @@ class File extends Entry {
             throw new FileNotFoundException($filePath);
         }
         clearstatcache(true, $filePath);
-    }
-
-    public static function deleteIfExists(string $filePath): void {
-        if (is_file($filePath)) {
-            self::delete($filePath);
-        }
     }
 
     /**

@@ -24,34 +24,6 @@ class UriParser implements IFn {
 
     protected array $semiParsed;
 
-    public function __invoke(mixed $uri): Uri {
-        $this->uri = new Uri();
-
-        # We use modified [regular expression from the RFC 3986](https://tools.ietf.org/html/rfc3986#appendix-B)
-        if (!preg_match(
-            '~^
-            ((?P<scheme>[^:/?\#]+):)?                      # scheme
-            (?P<authority_>//(?P<authority>[^/?\#]*))?     # authority
-            (?P<path>[^?\#]*)                              # path
-            (?P<query_>\?(?P<query>[^\#]*))?               # query
-            (?P<fragment_>\#(?P<fragment>.*))?             # fragment
-            $~six',
-            $uri,
-            $match
-        )) {
-            throw new UriParseException('Invalid URI');
-        }
-        $this->semiParsed = $match;
-
-        $this->parseScheme();
-        $this->parseAuthority();
-        $this->parsePath();
-        $this->parseQuery();
-        $this->parseFragment();
-
-        return $this->uri;
-    }
-
     public static function parseOnlyAuthority(string $authorityStr): Authority {
         // authority = [ userinfo "@" ] host [ ":" port ]
         $authority = new Authority();
@@ -170,6 +142,34 @@ class UriParser implements IFn {
             }
         }
         return new Query($queryArgs);
+    }
+
+    public function __invoke(mixed $uri): Uri {
+        $this->uri = new Uri();
+
+        # We use modified [regular expression from the RFC 3986](https://tools.ietf.org/html/rfc3986#appendix-B)
+        if (!preg_match(
+            '~^
+            ((?P<scheme>[^:/?\#]+):)?                      # scheme
+            (?P<authority_>//(?P<authority>[^/?\#]*))?     # authority
+            (?P<path>[^?\#]*)                              # path
+            (?P<query_>\?(?P<query>[^\#]*))?               # query
+            (?P<fragment_>\#(?P<fragment>.*))?             # fragment
+            $~six',
+            $uri,
+            $match
+        )) {
+            throw new UriParseException('Invalid URI');
+        }
+        $this->semiParsed = $match;
+
+        $this->parseScheme();
+        $this->parseAuthority();
+        $this->parsePath();
+        $this->parseQuery();
+        $this->parseFragment();
+
+        return $this->uri;
     }
 
     protected function parseScheme(): void {

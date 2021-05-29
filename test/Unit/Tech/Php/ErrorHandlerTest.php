@@ -4,14 +4,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Error;
+namespace Morpho\Test\Unit\Tech\Php;
 
 use ErrorException;
-use Morpho\Error\ErrorHandler;
-use Morpho\Error\ExceptionHandler;
-use Morpho\Error\HandlerManager;
-use Morpho\Error\IErrorHandler;
-use Morpho\Error\WarningException;
+use Morpho\Tech\Php\ErrorHandler;
+use Morpho\Tech\Php\ExceptionHandler;
+use Morpho\Tech\Php\HandlerManager;
+use Morpho\Tech\Php\IErrorHandler;
+use Morpho\Tech\Php\WarningException;
 use RuntimeException;
 
 use function ini_get;
@@ -52,7 +52,8 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     }
 
     public function testCheckError_DoesNotThrowExceptionWhenPredIsTrueAndNoError() {
-        ErrorHandler::checkError(true); // this call should not throw an exception
+        ErrorHandler::checkError(true);
+        // this call should not throw an exception
         $this->markTestAsNotRisky();
     }
 
@@ -76,13 +77,22 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     public function testRegisterTwiceThrowsException() {
         $errorHandler = $this->mkErrorHandler();
         $errorHandler->register();
-        $this->expectException('\LogicException');
+        $this->expectException('\\LogicException');
         $errorHandler->register();
+    }
+
+    private function mkErrorHandler($init = true) {
+        $errorHandler = new ErrorHandler();
+        if ($init) {
+            $errorHandler->exitOnFatalError(false);
+            $errorHandler->registerAsFatalErrorHandler(false);
+        }
+        return $errorHandler;
     }
 
     public function testUnregisterWithoutRegisterThrowsException() {
         $errorHandler = $this->mkErrorHandler();
-        $this->expectException('\LogicException');
+        $this->expectException('\\LogicException');
         $errorHandler->unregister();
     }
 
@@ -97,7 +107,6 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $this->assertEquals($expected, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
         $this->assertEquals(0, ini_get('display_errors'));
         $this->assertEquals(0, ini_get('display_startup_errors'));
-
         $errorHandler->unregister();
         $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
         $this->assertEquals($this->prevExceptionHandler, HandlerManager::handlerOfType(HandlerManager::EXCEPTION));
@@ -115,22 +124,10 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function dataTestHandleError_ConvertsErrorToException() {
         return [
-            [
-                E_USER_ERROR,
-                'UserErrorException',
-            ],
-            [
-                E_USER_WARNING,
-                'UserWarningException',
-            ],
-            [
-                E_USER_NOTICE,
-                'UserNoticeException',
-            ],
-            [
-                E_USER_DEPRECATED,
-                'UserDeprecatedException',
-            ],
+            [E_USER_ERROR, 'UserErrorException'],
+            [E_USER_WARNING, 'UserWarningException'],
+            [E_USER_NOTICE, 'UserNoticeException'],
+            [E_USER_DEPRECATED, 'UserDeprecatedException'],
         ];
     }
 
@@ -140,12 +137,11 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
     public function testHandleError_ConvertsErrorToException($severity, $expectedErrorClass) {
         $errorHandler = $this->mkErrorHandler();
         $errorHandler->register();
-
         try {
             trigger_error("My message", $severity);
             $this->fail();
         } catch (ErrorException $ex) {
-            $this->assertInstanceOf('Morpho\\Error\\' . $expectedErrorClass, $ex);
+            $this->assertInstanceOf('Morpho\\Tech\\Php\\' . $expectedErrorClass, $ex);
         }
         $this->assertEquals(__LINE__ - 5, $ex->getLine());
         $this->assertEquals("My message", $ex->getMessage());
@@ -155,66 +151,21 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
 
     public function dataErrorToException() {
         return [
-            [
-                E_ERROR,
-                'ErrorException',
-            ],
-            [
-                E_WARNING,
-                'WarningException',
-            ],
-            [
-                E_PARSE,
-                'ParseException',
-            ],
-            [
-                E_NOTICE,
-                'NoticeException',
-            ],
-            [
-                E_CORE_ERROR,
-                'CoreErrorException',
-            ],
-            [
-                E_CORE_WARNING,
-                'CoreWarningException',
-            ],
-            [
-                E_COMPILE_ERROR,
-                'CompileErrorException',
-            ],
-            [
-                E_COMPILE_WARNING,
-                'CompileWarningException',
-            ],
-            [
-                E_USER_ERROR,
-                'UserErrorException',
-            ],
-            [
-                E_USER_WARNING,
-                'UserWarningException',
-            ],
-            [
-                E_USER_NOTICE,
-                'UserNoticeException',
-            ],
-            [
-                E_STRICT,
-                'StrictException',
-            ],
-            [
-                E_RECOVERABLE_ERROR,
-                'RecoverableErrorException',
-            ],
-            [
-                E_DEPRECATED,
-                'DeprecatedException',
-            ],
-            [
-                E_USER_DEPRECATED,
-                'UserDeprecatedException',
-            ],
+            [E_ERROR, 'ErrorException'],
+            [E_WARNING, 'WarningException'],
+            [E_PARSE, 'ParseException'],
+            [E_NOTICE, 'NoticeException'],
+            [E_CORE_ERROR, 'CoreErrorException'],
+            [E_CORE_WARNING, 'CoreWarningException'],
+            [E_COMPILE_ERROR, 'CompileErrorException'],
+            [E_COMPILE_WARNING, 'CompileWarningException'],
+            [E_USER_ERROR, 'UserErrorException'],
+            [E_USER_WARNING, 'UserWarningException'],
+            [E_USER_NOTICE, 'UserNoticeException'],
+            [E_STRICT, 'StrictException'],
+            [E_RECOVERABLE_ERROR, 'RecoverableErrorException'],
+            [E_DEPRECATED, 'DeprecatedException'],
+            [E_USER_DEPRECATED, 'UserDeprecatedException'],
         ];
     }
 
@@ -225,18 +176,9 @@ class ErrorHandlerTest extends BaseErrorHandlerTest {
         $message = 'some';
         $lineNo = __LINE__;
         $exception = ErrorHandler::errorToException($severity, $message, __FILE__, $lineNo, null);
-        $this->assertInstanceOf('Morpho\\Error\\' . $class, $exception);
+        $this->assertInstanceOf('Morpho\\Tech\\Php\\' . $class, $exception);
         $this->assertEquals($message, $exception->getMessage());
         $this->assertEquals(__FILE__, $exception->getFile());
         $this->assertEquals($lineNo, $exception->getLine());
-    }
-
-    private function mkErrorHandler($init = true) {
-        $errorHandler = new ErrorHandler();
-        if ($init) {
-            $errorHandler->exitOnFatalError(false);
-            $errorHandler->registerAsFatalErrorHandler(false);
-        }
-        return $errorHandler;
     }
 }

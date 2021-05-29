@@ -131,6 +131,17 @@ class PegTest extends TestCase {
         ];
     }
 
+    private function newRaiseErrorTerminalSymbol() {
+        return new class extends TerminalSymbol {
+            public function __construct() {
+            }
+
+            public function parse($input, Peg $peg) {
+                throw new \RuntimeException();
+            }
+        };
+    }
+
     /**
      * @dataProvider dataParse_Sequence_FailureCase
      */
@@ -234,7 +245,7 @@ class PegTest extends TestCase {
         // @TODO: Add whitespaces
         /*
         // Accepts expressions like "2 * (3 + 4)" and computes their value.
-        
+
         Expression
          = head:Term tail:(_ ("+" / "-") _ Term)* {
              return tail.reduce(function(result, element) {
@@ -242,7 +253,7 @@ class PegTest extends TestCase {
                if (element[1] === "-") { return result - element[3]; }
              }, head);
            }
-        
+
         Term
          = head:Factor tail:(_ ("*" / "/") _ Factor)* {
              return tail.reduce(function(result, element) {
@@ -250,27 +261,16 @@ class PegTest extends TestCase {
                if (element[1] === "/") { return result / element[3]; }
              }, head);
            }
-        
+
         Factor
          = "(" _ expr:Expression _ ")" { return expr; }
          / Integer
-        
+
         Integer "integer"
          = _ [0-9]+ { return parseInt(text(), 10); }
-        
+
         _ "whitespace"
          = [ \t\n\r]*
         */
-    }
-
-    private function newRaiseErrorTerminalSymbol() {
-        return new class extends TerminalSymbol {
-            public function __construct() {
-            }
-
-            public function parse($input, Peg $peg) {
-                throw new \RuntimeException();
-            }
-        };
     }
 }

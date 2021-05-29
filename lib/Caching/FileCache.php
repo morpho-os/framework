@@ -90,9 +90,52 @@ abstract class FileCache extends Cache {
         $this->isRunningOnWindows = defined('PHP_WINDOWS_VERSION_BUILD');
     }
 
+    /**
+     * Create path if needed.
+     *
+     * @param string $path
+     * @return bool true on success or if path already exists, false if path cannot be created.
+     */
+    private function createDirIfNeeded(string $path): bool {
+        if (!is_dir($path)) {
+            if (false === @mkdir($path, 0777 & (~$this->umask), true) && !is_dir($path)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function delete(string $key): bool {
         $filePath = $this->cacheFilePath($key);
         return @unlink($filePath) || !file_exists($filePath);
+    }
+
+    protected function cacheFilePath(string $key): string {
+        $hash = hash('sha256', $key);
+
+        // This ensures that the filename is unique and that there are no invalid chars in it.
+        if ('' === $key
+            || ((strlen($key) * 2 + $this->extensionStrLength) > 255)
+            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + strlen(
+                        $key
+                    ) * 2 + $this->extensionStrLength) > 258)
+        ) {
+            // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
+            // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.
+            // And there is a bug in PHP (https://bugs.php.net/bug.php?id=70943) with path lengths of 259.
+            // So if the id in hex representation would surpass the limit, we use the hash instead. The prefix prevents
+            // collisions between the hash and bin2hex.
+            $filename = '_' . $hash;
+        } else {
+            $filename = bin2hex($key);
+        }
+
+        return $this->dirPath
+            . DIRECTORY_SEPARATOR
+            . substr($hash, 0, 2)
+            . DIRECTORY_SEPARATOR
+            . $filename
+            . $this->extension;
     }
 
     public function clear(): bool {
@@ -110,6 +153,21 @@ abstract class FileCache extends Cache {
         }
 
         return true;
+    }
+
+    /**
+     * @return Iterator
+     */
+    private function dirIt(): Iterator {
+        return new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($this->dirPath, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+    }
+
+    private function isFilenameEndingWithExtension(string $filePath): bool {
+        return '' === $this->extension
+            || strrpos($filePath, $this->extension) === (strlen($filePath) - $this->extensionStrLength);
     }
 
     public function stats(): ?array {
@@ -158,63 +216,5 @@ abstract class FileCache extends Cache {
             @unlink($tmpFilePath);
         }
         return false;
-    }
-
-    protected function cacheFilePath(string $key): string {
-        $hash = hash('sha256', $key);
-
-        // This ensures that the filename is unique and that there are no invalid chars in it.
-        if ('' === $key
-            || ((strlen($key) * 2 + $this->extensionStrLength) > 255)
-            || ($this->isRunningOnWindows && ($this->dirPathStrLength + 4 + strlen(
-                        $key
-                    ) * 2 + $this->extensionStrLength) > 258)
-        ) {
-            // Most filesystems have a limit of 255 chars for each path component. On Windows the the whole path is limited
-            // to 260 chars (including terminating null char). Using long UNC ("\\?\" prefix) does not work with the PHP API.
-            // And there is a bug in PHP (https://bugs.php.net/bug.php?id=70943) with path lengths of 259.
-            // So if the id in hex representation would surpass the limit, we use the hash instead. The prefix prevents
-            // collisions between the hash and bin2hex.
-            $filename = '_' . $hash;
-        } else {
-            $filename = bin2hex($key);
-        }
-
-        return $this->dirPath
-            . DIRECTORY_SEPARATOR
-            . substr($hash, 0, 2)
-            . DIRECTORY_SEPARATOR
-            . $filename
-            . $this->extension;
-    }
-
-    /**
-     * @return Iterator
-     */
-    private function dirIt(): Iterator {
-        return new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($this->dirPath, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-    }
-
-    private function isFilenameEndingWithExtension(string $filePath): bool {
-        return '' === $this->extension
-            || strrpos($filePath, $this->extension) === (strlen($filePath) - $this->extensionStrLength);
-    }
-
-    /**
-     * Create path if needed.
-     *
-     * @param string $path
-     * @return bool true on success or if path already exists, false if path cannot be created.
-     */
-    private function createDirIfNeeded(string $path): bool {
-        if (!is_dir($path)) {
-            if (false === @mkdir($path, 0777 & (~$this->umask), true) && !is_dir($path)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

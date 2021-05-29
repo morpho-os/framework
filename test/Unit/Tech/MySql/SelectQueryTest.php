@@ -6,9 +6,9 @@
  */
 namespace Morpho\Test\Unit\Tech\MySql;
 
+use Morpho\Tech\MySql\SelectQuery;
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
-use Morpho\Tech\MySql\SelectQuery;
 use UnexpectedValueException;
 
 class SelectQueryTest extends QueryTest {

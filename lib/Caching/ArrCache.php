@@ -29,11 +29,6 @@ class ArrCache extends Cache {
         $this->upTime = time();
     }
 
-    public function delete(string $key): bool {
-        unset($this->data[$key]);
-        return true;
-    }
-
     public function stats(): ?array {
         return [
             Cache::STATS_HITS             => $this->hitsCount,
@@ -58,6 +53,11 @@ class ArrCache extends Cache {
             $this->delete($key);
             return false;
         }
+        return true;
+    }
+
+    public function delete(string $key): bool {
+        unset($this->data[$key]);
         return true;
     }
 

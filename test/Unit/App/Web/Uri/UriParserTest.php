@@ -20,6 +20,28 @@ class UriParserTest extends TestCase {
         $this->checkParse($uriStr, $expected);
     }
 
+    private function checkParse(string $uriStr, array $expected): void {
+        $uri = (new UriParser())->__invoke($uriStr);
+
+        $this->assertSame($expected['scheme'], $uri->scheme());
+
+        if (null === $expected['authority']) {
+            $this->assertTrue($uri->authority()->isNull());
+        } else {
+            $this->assertSame($expected['authority'], $uri->authority()->toStr(false));
+        }
+
+        $this->assertSame($expected['path'], $uri->path()->toStr(false));
+
+        if (null === $expected['query']) {
+            $this->assertTrue($uri->query()->isNull());
+        } else {
+            $this->assertSame($expected['query'], $uri->query()->toStr(false));
+        }
+
+        $this->assertSame($expected['fragment'], $uri->fragment());
+    }
+
     public function dataParseOnlyAuthority_ValidCases() {
         yield [
             '',
@@ -339,27 +361,5 @@ class UriParserTest extends TestCase {
     public function testParseOnlyQuery($queryStr, $expected) {
         $query = UriParser::parseOnlyQuery($queryStr);
         $this->assertSame($expected, $query->getArrayCopy());
-    }
-
-    private function checkParse(string $uriStr, array $expected): void {
-        $uri = (new UriParser())->__invoke($uriStr);
-
-        $this->assertSame($expected['scheme'], $uri->scheme());
-
-        if (null === $expected['authority']) {
-            $this->assertTrue($uri->authority()->isNull());
-        } else {
-            $this->assertSame($expected['authority'], $uri->authority()->toStr(false));
-        }
-
-        $this->assertSame($expected['path'], $uri->path()->toStr(false));
-
-        if (null === $expected['query']) {
-            $this->assertTrue($uri->query()->isNull());
-        } else {
-            $this->assertSame($expected['query'], $uri->query()->toStr(false));
-        }
-
-        $this->assertSame($expected['fragment'], $uri->fragment());
     }
 }

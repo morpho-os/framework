@@ -32,15 +32,15 @@ abstract class ServiceManager extends BaseServiceManager {
         );
     }
 
-    protected function mkBackendModuleIteratorService() {
-        return new BackendModuleIterator($this['site']);
+    protected function mkCache($conf): ICache {
+        return new VarExportFileCache($conf);
     }
 
     protected function cacheDirPath() {
         return $this['site']->conf()['paths']['cacheDirPath'];
     }
 
-    protected function mkCache($conf): ICache {
-        return new VarExportFileCache($conf);
+    protected function mkBackendModuleIteratorService() {
+        return new BackendModuleIterator($this['site']);
     }
 }

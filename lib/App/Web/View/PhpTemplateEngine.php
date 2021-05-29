@@ -71,16 +71,8 @@ class PhpTemplateEngine extends ArrPipe {
         parent::__construct($conf['phases']);
     }
 
-    public function setRequest(IRequest $request): void {
-        $this->request = $request;
-    }
-
-    public function request(): IRequest {
-        return $this->request;
-    }
-
-    public function instance(): mixed {
-        return $this['request']->handler()['instance'];
+    private function init(): void {
+        self::$htmlIds = [];
     }
 
     public static function mkDefaultPhases(array $conf): array {
@@ -90,6 +82,17 @@ class PhpTemplateEngine extends ArrPipe {
             'uriProcessor'    => new UriProcessor($conf['request']),
             'scriptProcessor' => new ScriptProcessor($conf['request'], $conf['site']),
         ];
+    }
+
+    /**
+     * Opposite to e().
+     */
+    public static function de($text): string {
+        return htmlspecialchars_decode((string) $text, ENT_QUOTES);
+    }
+
+    public function setRequest(IRequest $request): void {
+        $this->request = $request;
     }
 
     /*
@@ -133,6 +136,14 @@ class PhpTemplateEngine extends ArrPipe {
     }
 */
 
+    public function request(): IRequest {
+        return $this->request;
+    }
+
+    public function instance(): mixed {
+        return $this['request']->handler()['instance'];
+    }
+
     public function forceCompile(bool $flag = null): bool {
         if (null !== $flag) {
             return $this->forceCompile = $flag;
@@ -155,10 +166,6 @@ class PhpTemplateEngine extends ArrPipe {
         return $this;
     }
 
-    public function baseSourceDirPaths(): array {
-        return $this->baseSourceDirPaths;
-    }
-
     public function clearBaseSourceDirPaths(): void {
         $this->baseSourceDirPaths = [];
     }
@@ -171,6 +178,59 @@ class PhpTemplateEngine extends ArrPipe {
         $targetAbsFilePath = $this->targetDirPath . '/' . $context['_view'] . '.php';
         $this->compileFile($sourceAbsFilePath, $targetAbsFilePath, []);
         return $this->evalPhpFile($targetAbsFilePath, $context);
+    }
+
+    protected function sourceAbsFilePath(string $sourceAbsOrRelFilePath, bool $throwExIfNotFound = true): bool|string {
+        $sourceAbsOrRelFilePath .= self::VIEW_FILE_EXT;
+        if (Path::isAbs($sourceAbsOrRelFilePath) && is_readable($sourceAbsOrRelFilePath)) {
+            return $sourceAbsOrRelFilePath;
+        }
+        for ($i = count($this->baseSourceDirPaths()) - 1; $i >= 0; $i--) {
+            $baseSourceDirPath = $this->baseSourceDirPaths[$i];
+            $sourceAbsFilePath = Path::combine($baseSourceDirPath, $sourceAbsOrRelFilePath);
+            if (is_readable($sourceAbsFilePath)) {
+                return $sourceAbsFilePath;
+            }
+        }
+        if ($throwExIfNotFound) {
+            throw new RuntimeException(
+                "Unable to detect an absolute file path for the path '$sourceAbsOrRelFilePath', searched in paths:\n'"
+                . implode(PATH_SEPARATOR, $this->baseSourceDirPaths) . "'"
+            );
+        }
+        return false;
+    }
+
+    public function baseSourceDirPaths(): array {
+        return $this->baseSourceDirPaths;
+    }
+
+    protected function compileFile(string $sourceFilePath, string $targetFilePath, array $context): void {
+        $forceCompile = $this->forceCompile;
+        if ($forceCompile || !file_exists($targetFilePath)) {
+            $context['filePath'] = $sourceFilePath;
+            $context['program'] = file_get_contents($sourceFilePath);
+            $preprocessed = parent::__invoke($context);
+            File::write($targetFilePath, $preprocessed['program']);
+        }
+    }
+
+    /**
+     * Evaluates PHP from the passed PHP file making elements of the $__vars be accessible as PHP variables for code in it.
+     */
+    public function evalPhpFile(string $__phpFilePath, array $__vars): string {
+        // NB: We can't use the Base\tpl() function here as we need to preserve $this
+        extract($__vars, EXTR_SKIP);
+        unset($__vars);
+        ob_start();
+        try {
+            require $__phpFilePath;
+        } catch (Throwable $e) {
+            // Don't output any result in case of Error
+            ob_end_clean();
+            throw $e;
+        }
+        return trim(ob_get_clean());
     }
 
     /**
@@ -194,6 +254,11 @@ class PhpTemplateEngine extends ArrPipe {
             throw $e;
         }
         return trim(ob_get_clean());
+    }
+
+    protected function compile(string $sourceCode): string {
+        $context = parent::__invoke(['program' => $sourceCode]);
+        return $context['program'];
     }
 
     /**
@@ -229,37 +294,9 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->evalPhpFile($targetAbsFilePath, (array) $context);
     }
 
-    protected function compile(string $sourceCode): string {
-        $context = parent::__invoke(['program' => $sourceCode]);
-        return $context['program'];
-    }
-
-    protected function compileFile(string $sourceFilePath, string $targetFilePath, array $context): void {
-        $forceCompile = $this->forceCompile;
-        if ($forceCompile || !file_exists($targetFilePath)) {
-            $context['filePath'] = $sourceFilePath;
-            $context['program'] = file_get_contents($sourceFilePath);
-            $preprocessed = parent::__invoke($context);
-            File::write($targetFilePath, $preprocessed['program']);
-        }
-    }
-
-    /**
-     * Evaluates PHP from the passed PHP file making elements of the $__vars be accessible as PHP variables for code in it.
-     */
-    public function evalPhpFile(string $__phpFilePath, array $__vars): string {
-        // NB: We can't use the Base\tpl() function here as we need to preserve $this
-        extract($__vars, EXTR_SKIP);
-        unset($__vars);
-        ob_start();
-        try {
-            require $__phpFilePath;
-        } catch (Throwable $e) {
-            // Don't output any result in case of Error
-            ob_end_clean();
-            throw $e;
-        }
-        return trim(ob_get_clean());
+    public function pageHtmlId(): string {
+        $handler = $this->request->handler();
+        return $this->htmlId(str_replace('/', '-', $handler['controllerPath'])) . '-' . dasherize($handler['method']);
     }
 
     public function htmlId(string $htmlId): string {
@@ -272,9 +309,8 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->e($htmlId);
     }
 
-    public function pageHtmlId(): string {
-        $handler = $this->request->handler();
-        return $this->htmlId(str_replace('/', '-', $handler['controllerPath'])) . '-' . dasherize($handler['method']);
+    public static function e($text): string {
+        return htmlspecialchars((string) $text, ENT_QUOTES);
     }
 
     public function textField(array $attribs): string {
@@ -282,15 +318,75 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
     }
 
+    /**
+     * Can be used to wrap around any form field extra HTML.
+     */
+    protected function formEl(string $html): string {
+        return $html;
+    }
+
+    public function tag1(string $tagName, array $attribs = null, array $conf = []): string {
+        $conf['single'] = true;
+        return $this->tag($tagName, null, $attribs, $conf);
+    }
+
+    public function tag(string $tagName, string $text = null, array $attribs = null, array $conf = null): string {
+        $conf = Conf::check(
+            [
+                'escape' => true,
+                'single' => false,
+                'xml'    => false,
+                'eol'    => false,
+            ],
+            (array) $conf
+        );
+        $output = $this->openTag($tagName, (array) $attribs, $conf['xml']);
+        if (!$conf['single']) {
+            $output .= $conf['escape'] ? $this->e($text) : $text;
+            $output .= $this->closeTag($tagName);
+        }
+        if ($conf['eol']) {
+            $output .= "\n";
+        }
+        return $output;
+    }
+
+    public function openTag(string $tagName, array $attribs = [], bool $isXml = false): string {
+        return '<'
+            . $this->e($tagName)
+            . $this->attribs($attribs)
+            . ($isXml ? ' />' : '>');
+    }
+
+    /**
+     * The source was found in Drupal-7.
+     */
+    public function attribs(array $attribs): string {
+        foreach ($attribs as $attrib => &$data) {
+            if (!is_numeric($attrib)) {
+                $data = implode(' ', (array) $data);
+                $data = $attrib . '="' . $this->e($data) . '"';
+            }
+        }
+        unset($data);
+        return $attribs ? ' ' . implode(' ', $attribs) : '';
+    }
+
+    public function closeTag(string $name): string {
+        return '</' . $this->e($name) . '>';
+    }
+
+    private function addCommonAttribs(array $attribs): array {
+        if (!isset($attribs['id']) && isset($attribs['name'])) {
+            $attribs['id'] = $this->htmlId($attribs['name']);
+        }
+        return $attribs;
+    }
+
     public function textareaField(array $attribs): string {
         $val = $attribs['value'];
         unset($attribs['value']);
         return $this->formEl($this->tag('textarea', $val, $this->addCommonAttribs($attribs)));
-    }
-
-    public function hiddenField(array $attribs): string {
-        $attribs['type'] = 'hidden';
-        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
     }
 
     public function checkboxField(array $attribs): string {
@@ -346,62 +442,9 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->formEl($this->hiddenField(['name' => '_method', 'value' => $method] + (array) $attribs));
     }
 
-    public function openTag(string $tagName, array $attribs = [], bool $isXml = false): string {
-        return '<'
-            . $this->e($tagName)
-            . $this->attribs($attribs)
-            . ($isXml ? ' />' : '>');
-    }
-
-    public function closeTag(string $name): string {
-        return '</' . $this->e($name) . '>';
-    }
-
-    public function tag1(string $tagName, array $attribs = null, array $conf = []): string {
-        $conf['single'] = true;
-        return $this->tag($tagName, null, $attribs, $conf);
-    }
-
-    public function tag(string $tagName, string $text = null, array $attribs = null, array $conf = null): string {
-        $conf = Conf::check(
-            [
-                'escape' => true,
-                'single' => false,
-                'xml'    => false,
-                'eol'    => false,
-            ],
-            (array) $conf
-        );
-        $output = $this->openTag($tagName, (array) $attribs, $conf['xml']);
-        if (!$conf['single']) {
-            $output .= $conf['escape'] ? $this->e($text) : $text;
-            $output .= $this->closeTag($tagName);
-        }
-        if ($conf['eol']) {
-            $output .= "\n";
-        }
-        return $output;
-    }
-
-    /**
-     * The source was found in Drupal-7.
-     */
-    public function attribs(array $attribs): string {
-        foreach ($attribs as $attrib => &$data) {
-            if (!is_numeric($attrib)) {
-                $data = implode(' ', (array) $data);
-                $data = $attrib . '="' . $this->e($data) . '"';
-            }
-        }
-        unset($data);
-        return $attribs ? ' ' . implode(' ', $attribs) : '';
-    }
-
-    public function uri(): Uri {
-        if (null === $this->uri) {
-            $this->uri = $this->request->uri();
-        }
-        return $this->uri;
+    public function hiddenField(array $attribs): string {
+        $attribs['type'] = 'hidden';
+        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
     }
 
     /**
@@ -415,6 +458,13 @@ class PhpTemplateEngine extends ArrPipe {
         $newUri = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false));
         $newUri->query()['redirect'] = $this->uri()->toStr(null, false);
         return $newUri->toStr(null, true);
+    }
+
+    public function uri(): Uri {
+        if (null === $this->uri) {
+            $this->uri = $this->request->uri();
+        }
+        return $this->uri;
     }
 
     /**
@@ -438,6 +488,10 @@ class PhpTemplateEngine extends ArrPipe {
         return '© ' . $range . ', ' . $this->e($brand);
     }
 
+    /*public function handlerInstance() {
+        return $this->request->handler()['instance'];
+    }*/
+
     public function jsConf(): ArrayObject {
         if (!isset($this->request['jsConf'])) {
             $this->request['jsConf'] = new ArrayObject();
@@ -449,15 +503,9 @@ class PhpTemplateEngine extends ArrPipe {
         return toJson($val);
     }
 
-    public static function e($text): string {
-        return htmlspecialchars((string) $text, ENT_QUOTES);
-    }
-
-    /**
-     * Opposite to e().
-     */
-    public static function de($text): string {
-        return htmlspecialchars_decode((string) $text, ENT_QUOTES);
+    public function __call(string $pluginName, array $args) {
+        $plugin = $this->plugin($pluginName);
+        return $plugin($args);
     }
 
     public function plugin(string $name): mixed {
@@ -466,53 +514,5 @@ class PhpTemplateEngine extends ArrPipe {
             $this->plugins[$name] = ($this->pluginFactory)($name);
         }
         return $this->plugins[$name];
-    }
-
-    public function __call(string $pluginName, array $args) {
-        $plugin = $this->plugin($pluginName);
-        return $plugin($args);
-    }
-
-    /*public function handlerInstance() {
-        return $this->request->handler()['instance'];
-    }*/
-
-    protected function sourceAbsFilePath(string $sourceAbsOrRelFilePath, bool $throwExIfNotFound = true): bool|string {
-        $sourceAbsOrRelFilePath .= self::VIEW_FILE_EXT;
-        if (Path::isAbs($sourceAbsOrRelFilePath) && is_readable($sourceAbsOrRelFilePath)) {
-            return $sourceAbsOrRelFilePath;
-        }
-        for ($i = count($this->baseSourceDirPaths()) - 1; $i >= 0; $i--) {
-            $baseSourceDirPath = $this->baseSourceDirPaths[$i];
-            $sourceAbsFilePath = Path::combine($baseSourceDirPath, $sourceAbsOrRelFilePath);
-            if (is_readable($sourceAbsFilePath)) {
-                return $sourceAbsFilePath;
-            }
-        }
-        if ($throwExIfNotFound) {
-            throw new RuntimeException(
-                "Unable to detect an absolute file path for the path '$sourceAbsOrRelFilePath', searched in paths:\n'"
-                . implode(PATH_SEPARATOR, $this->baseSourceDirPaths) . "'"
-            );
-        }
-        return false;
-    }
-
-    /**
-     * Can be used to wrap around any form field extra HTML.
-     */
-    protected function formEl(string $html): string {
-        return $html;
-    }
-
-    private function init(): void {
-        self::$htmlIds = [];
-    }
-
-    private function addCommonAttribs(array $attribs): array {
-        if (!isset($attribs['id']) && isset($attribs['name'])) {
-            $attribs['id'] = $this->htmlId($attribs['name']);
-        }
-        return $attribs;
     }
 }

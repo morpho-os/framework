@@ -27,10 +27,7 @@ use function trim;
  * @method XPathResult select(string $xPath, $contextNode = null)
  */
 class Doc extends DOMDocument {
-    private $xPath;
-
     const ENCODING = 'utf-8';
-
     /**
      * NB: true values are not actual values of the options.
      */
@@ -47,6 +44,7 @@ class Doc extends DOMDocument {
         'xmlStandalone'       => true,
         'xmlVersion'          => true,
     ];
+    private $xPath;
 
     public static function parseFile(string $filePath, array $conf = null): Doc {
         if (!is_file($filePath) || !is_readable($filePath)) {

@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Error;
+namespace Morpho\Tech\Php;
 
 use function get_class;
 use function preg_quote;
@@ -14,25 +14,23 @@ class PhpErrorException extends \ErrorException {
     public function __toString(): string {
         $s = parent::__toString();
         $severity = $this->getSeverity();
-        $levels = [
-            E_ERROR             => 'E_ERROR',
-            E_WARNING           => 'E_WARNING',
-            E_PARSE             => 'E_PARSE',
-            E_NOTICE            => 'E_NOTICE',
-            E_CORE_ERROR        => 'E_CORE_ERROR',
-            E_CORE_WARNING      => 'E_CORE_WARNING',
-            E_COMPILE_ERROR     => 'E_COMPILE_ERROR',
-            E_COMPILE_WARNING   => 'E_COMPILE_WARNING',
-            E_USER_ERROR        => 'E_USER_ERROR',
-            E_USER_WARNING      => 'E_USER_WARNING',
-            E_USER_NOTICE       => 'E_USER_NOTICE',
-            E_STRICT            => 'E_STRICT',
-            E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-            E_DEPRECATED        => 'E_DEPRECATED',
-            E_USER_DEPRECATED   => 'E_USER_DEPRECATED',
+        $levels = [E_ERROR             => 'E_ERROR',
+                   E_WARNING           => 'E_WARNING',
+                   E_PARSE             => 'E_PARSE',
+                   E_NOTICE            => 'E_NOTICE',
+                   E_CORE_ERROR        => 'E_CORE_ERROR',
+                   E_CORE_WARNING      => 'E_CORE_WARNING',
+                   E_COMPILE_ERROR     => 'E_COMPILE_ERROR',
+                   E_COMPILE_WARNING   => 'E_COMPILE_WARNING',
+                   E_USER_ERROR        => 'E_USER_ERROR',
+                   E_USER_WARNING      => 'E_USER_WARNING',
+                   E_USER_NOTICE       => 'E_USER_NOTICE',
+                   E_STRICT            => 'E_STRICT',
+                   E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+                   E_DEPRECATED        => 'E_DEPRECATED',
+                   E_USER_DEPRECATED   => 'E_USER_DEPRECATED',
         ];
-
-        return preg_replace('/^(' . preg_quote(get_class($this), '/') . ')/si', '\1 (' . $levels[$severity] . ')', $s);
+        return preg_replace('/^(' . preg_quote(get_class($this), '/') . ')/si', '\\1 (' . $levels[$severity] . ')', $s);
     }
 }
 

@@ -40,6 +40,13 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         parent::__construct([]);
     }
 
+    public function offsetSet(mixed $id, mixed $service): void {
+        parent::offsetSet(strtolower($id), $service);
+        if ($service instanceof IHasServiceManager) {
+            $service->setServiceManager($this);
+        }
+    }
+
     /**
      * This method uses logic found in the Symfony\Component\DependencyInjection\Container::get().
      */
@@ -74,10 +81,38 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         return $service;
     }
 
-    public function offsetSet(mixed $id, mixed $service): void {
-        parent::offsetSet(strtolower($id), $service);
+    protected function mkService(string $id): mixed {
+        $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
+        if (method_exists($this, $method)) {
+            $this->beforeCreate($id);
+            $service = $this->$method();
+            $this->afterCreate($id, $service);
+            return $service;
+        }
+        throw new ServiceNotFoundException($id);
+    }
+
+    protected function beforeCreate(string $id): void {
+        // Do nothing by default.
+    }
+
+    protected function afterCreate(string $id, $service): void {
         if ($service instanceof IHasServiceManager) {
             $service->setServiceManager($this);
+        }
+    }
+
+    public function offsetUnset($id): void {
+        $id = strtolower($id);
+        if ($this->offsetExists($id)) {
+            while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
+                $id = $this->aliases[$id];
+            }
+
+            if (parent::offsetExists($id)) {
+                parent::offsetUnset($id);
+                return;
+            }
         }
     }
 
@@ -97,20 +132,6 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         return method_exists($this, $method);
     }
 
-    public function offsetUnset($id): void {
-        $id = strtolower($id);
-        if ($this->offsetExists($id)) {
-            while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
-                $id = $this->aliases[$id];
-            }
-
-            if (parent::offsetExists($id)) {
-                parent::offsetUnset($id);
-                return;
-            }
-        }
-    }
-
     public function setConf(mixed $conf): self {
         $this->conf = $conf;
         return $this;
@@ -127,26 +148,5 @@ class ServiceManager extends ArrayObject implements IServiceManager {
 
     public function setAlias(string $alias, string $name): void {
         $this->aliases[$alias] = $name;
-    }
-
-    protected function beforeCreate(string $id): void {
-        // Do nothing by default.
-    }
-
-    protected function afterCreate(string $id, $service): void {
-        if ($service instanceof IHasServiceManager) {
-            $service->setServiceManager($this);
-        }
-    }
-
-    protected function mkService(string $id): mixed {
-        $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
-        if (method_exists($this, $method)) {
-            $this->beforeCreate($id);
-            $service = $this->$method();
-            $this->afterCreate($id, $service);
-            return $service;
-        }
-        throw new ServiceNotFoundException($id);
     }
 }

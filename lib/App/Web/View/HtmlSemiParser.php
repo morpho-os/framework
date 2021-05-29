@@ -74,6 +74,32 @@ class HtmlSemiParser extends EventManager implements IFn {
         $this->replaceHash = md5(microtime() . ' ' . ++$num . ' ' . getmypid());
     }
 
+    public function attachHandlersFrom(object $obj, bool $atFront = false): object {
+        foreach (get_class_methods($obj) as $method) {
+            if (0 === strpos($method, $this->tagHandlerPrefix)) {
+                $this->attachTagHandler(
+                    substr($method, strlen($this->tagHandlerPrefix)),
+                    [$obj, $method],
+                    $atFront
+                );
+            } elseif (0 === strpos($method, $this->containerHandlerPrefix)) {
+                $this->attachContainerHandler(
+                    substr($method, strlen($this->containerHandlerPrefix)),
+                    [$obj, $method],
+                    $atFront
+                );
+                // Check the selfAdd to avoid infinite call of the preprocessTags, as it is already defined here.
+            } elseif (!$this->selfAdd && $method === 'preprocessTags') {
+                if (!$atFront) {
+                    array_push($this->tagsPreprocessors, [$obj, $method]);
+                } else {
+                    array_unshift($this->tagsPreprocessors, [$obj, $method]);
+                }
+            }
+        }
+        return $obj;
+    }
+
     /**
      * Adds new tag handler for future processing.
      *
@@ -122,32 +148,6 @@ class HtmlSemiParser extends EventManager implements IFn {
         } else {
             array_unshift($this->containerHandlers[$tagName], $handler);
         }
-    }
-
-    public function attachHandlersFrom(object $obj, bool $atFront = false): object {
-        foreach (get_class_methods($obj) as $method) {
-            if (0 === strpos($method, $this->tagHandlerPrefix)) {
-                $this->attachTagHandler(
-                    substr($method, strlen($this->tagHandlerPrefix)),
-                    [$obj, $method],
-                    $atFront
-                );
-            } elseif (0 === strpos($method, $this->containerHandlerPrefix)) {
-                $this->attachContainerHandler(
-                    substr($method, strlen($this->containerHandlerPrefix)),
-                    [$obj, $method],
-                    $atFront
-                );
-                // Check the selfAdd to avoid infinite call of the preprocessTags, as it is already defined here.
-            } elseif (!$this->selfAdd && $method === 'preprocessTags') {
-                if (!$atFront) {
-                    array_push($this->tagsPreprocessors, [$obj, $method]);
-                } else {
-                    array_unshift($this->tagsPreprocessors, [$obj, $method]);
-                }
-            }
-        }
-        return $obj;
     }
 
     /**
@@ -277,6 +277,68 @@ class HtmlSemiParser extends EventManager implements IFn {
     }
 
     /**
+     * Parse the attribute string: "a1=v1 a2=v2 ..." of the tag.
+     */
+    protected function parseAttributes(string $attribs): array {
+        $preg = '/([-\w:]+) \s* ( = \s* (?> ("[^"]*" | \'[^\']*\' | \S*) ) )?/sx';
+        $regs = null;
+        preg_match_all($preg, $attribs, $regs);
+        $names = $regs[1];
+        $checks = $regs[2];
+        $values = $regs[3];
+        $tag = [];
+        for ($i = 0, $c = count($names); $i < $c; $i++) {
+            $name = strtolower($names[$i]);
+            if (empty($checks[$i])) {
+                $value = $name;
+            } else {
+                $value = $values[$i];
+                if ($value[0] == '"' || $value[0] == "'") {
+                    $value = substr($value, 1, -1);
+                }
+            }
+            $tag[$name] = $value;
+        }
+        return $tag;
+    }
+
+    /**
+     * This function is called after all tags and containers are
+     * found in HTML text, but BEFORE any replaces.
+     */
+    protected function preprocessTags(array $foundTags): array {
+        foreach ($this->tagsPreprocessors as $tagPreprocessor) {
+            $foundTags = $tagPreprocessor($foundTags);
+        }
+        return $foundTags;
+    }
+
+    /**
+     * @return mixed Handled tag.
+     */
+    protected function runHandlersForTag(array $tag): array|false|null|string {
+        $tagName = strtolower($tag['_tagName']);
+        // Processing tag or container?
+        $handlers = $this->handlersOfTag($tagName, isset($tag['_text']));
+        // Use all handlers from right to left.
+        for ($i = count($handlers) - 1; $i >= 0; $i--) {
+            $handler = $handlers[$i];
+            $result = call_user_func($handler, $tag, $tagName);
+            if (null !== $result) {
+                if (!is_array($result)) {
+                    return $result;
+                }
+                $tag = $result;
+            }
+        }
+        return $tag;
+    }
+
+    protected function handlersOfTag(string $tagName, bool $isContainerTag): array {
+        return $isContainerTag ? $this->containerHandlers[$tagName] : $this->tagHandlers[$tagName];
+    }
+
+    /**
      * Recreate the tag or container by its parsed attributes.
      *
      * If $attr[_text] is present, make container.
@@ -339,17 +401,6 @@ class HtmlSemiParser extends EventManager implements IFn {
     }
 
     /**
-     * This function is called after all tags and containers are
-     * found in HTML text, but BEFORE any replaces.
-     */
-    protected function preprocessTags(array $foundTags): array {
-        foreach ($this->tagsPreprocessors as $tagPreprocessor) {
-            $foundTags = $tagPreprocessor($foundTags);
-        }
-        return $foundTags;
-    }
-
-    /**
      * Replace found ignored container body by hash value.
      *
      * Container's open and close tags are NOT modified!
@@ -361,56 +412,5 @@ class HtmlSemiParser extends EventManager implements IFn {
         // DO NOT use chr(0) here!!!
         $this->spIgnored[$hash] = $m[3];
         return $m[1] . $hash . $m[4];
-    }
-
-    /**
-     * @return mixed Handled tag.
-     */
-    protected function runHandlersForTag(array $tag): array|false|null|string {
-        $tagName = strtolower($tag['_tagName']);
-        // Processing tag or container?
-        $handlers = $this->handlersOfTag($tagName, isset($tag['_text']));
-        // Use all handlers from right to left.
-        for ($i = count($handlers) - 1; $i >= 0; $i--) {
-            $handler = $handlers[$i];
-            $result = call_user_func($handler, $tag, $tagName);
-            if (null !== $result) {
-                if (!is_array($result)) {
-                    return $result;
-                }
-                $tag = $result;
-            }
-        }
-        return $tag;
-    }
-
-    protected function handlersOfTag(string $tagName, bool $isContainerTag): array {
-        return $isContainerTag ? $this->containerHandlers[$tagName] : $this->tagHandlers[$tagName];
-    }
-
-    /**
-     * Parse the attribute string: "a1=v1 a2=v2 ..." of the tag.
-     */
-    protected function parseAttributes(string $attribs): array {
-        $preg = '/([-\w:]+) \s* ( = \s* (?> ("[^"]*" | \'[^\']*\' | \S*) ) )?/sx';
-        $regs = null;
-        preg_match_all($preg, $attribs, $regs);
-        $names = $regs[1];
-        $checks = $regs[2];
-        $values = $regs[3];
-        $tag = [];
-        for ($i = 0, $c = count($names); $i < $c; $i++) {
-            $name = strtolower($names[$i]);
-            if (empty($checks[$i])) {
-                $value = $name;
-            } else {
-                $value = $values[$i];
-                if ($value[0] == '"' || $value[0] == "'") {
-                    $value = substr($value, 1, -1);
-                }
-            }
-            $tag[$name] = $value;
-        }
-        return $tag;
     }
 }

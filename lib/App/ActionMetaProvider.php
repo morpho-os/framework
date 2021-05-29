@@ -48,6 +48,18 @@ abstract class ActionMetaProvider implements IFn {
         }
     }
 
+    public function controllerFilter(): callable {
+        if (null === $this->controllerFilter) {
+            $this->controllerFilter = function (ReflectionClass $rClass): bool {
+                if ($rClass->isAbstract()) {
+                    return false;
+                }
+                return str_ends_with($rClass->getName(), CONTROLLER_SUFFIX);
+            };
+        }
+        return $this->controllerFilter;
+    }
+
     public function actionMetaFromController($module, ReflectionClass $rClass): iterable {
         $actionFilter = $this->actionFilter();
         $controllerMeta = [
@@ -75,28 +87,6 @@ abstract class ActionMetaProvider implements IFn {
             }
         }
         yield from array_values($actionsMeta);
-    }
-
-    public function setControllerFilter(callable $controllerFilter) {
-        $this->controllerFilter = $controllerFilter;
-        return $this;
-    }
-
-    public function controllerFilter(): callable {
-        if (null === $this->controllerFilter) {
-            $this->controllerFilter = function (ReflectionClass $rClass): bool {
-                if ($rClass->isAbstract()) {
-                    return false;
-                }
-                return str_ends_with($rClass->getName(), CONTROLLER_SUFFIX);
-            };
-        }
-        return $this->controllerFilter;
-    }
-
-    public function setActionFilter(callable $actionFilter) {
-        $this->actionFilter = $actionFilter;
-        return $this;
     }
 
     public function actionFilter(): callable {
@@ -133,4 +123,14 @@ abstract class ActionMetaProvider implements IFn {
     }
 
     abstract protected function baseControllerClasses(): array;
+
+    public function setControllerFilter(callable $controllerFilter) {
+        $this->controllerFilter = $controllerFilter;
+        return $this;
+    }
+
+    public function setActionFilter(callable $actionFilter) {
+        $this->actionFilter = $actionFilter;
+        return $this;
+    }
 }

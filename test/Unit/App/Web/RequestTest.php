@@ -369,6 +369,12 @@ class RequestTest extends TestCase {
         $this->checkHttpMethod(['REQUEST_METHOD' => HttpMethod::POST], $httpMethod);
     }
 
+    private function checkHttpMethod(array $serverVars, string $httpMethod): void {
+        $request = new Request($serverVars);
+        $this->assertSame($httpMethod, $request->method());
+        $this->assertTrue($request->{'is' . $httpMethod . 'Method'}());
+    }
+
     /**
      * @dataProvider dataMethod
      */
@@ -387,11 +393,5 @@ class RequestTest extends TestCase {
      */
     public function testMethod_Default($httpMethod) {
         $this->checkHttpMethod(['REQUEST_METHOD' => $httpMethod], $httpMethod);
-    }
-
-    private function checkHttpMethod(array $serverVars, string $httpMethod): void {
-        $request = new Request($serverVars);
-        $this->assertSame($httpMethod, $request->method());
-        $this->assertTrue($request->{'is' . $httpMethod . 'Method'}());
     }
 }

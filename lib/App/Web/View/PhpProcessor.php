@@ -20,6 +20,11 @@ class PhpProcessor implements IFn {
         return $context;
     }
 
+    public function parse(string $code): array {
+        $parser = new Parser(new Lexer());
+        return $parser->parse($code);
+    }
+
     public function rewrite(array $ast, $context): array {
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new AstRewriter($this, $context));
@@ -28,10 +33,5 @@ class PhpProcessor implements IFn {
 
     public function prettyPrint(array $ast): string {
         return (new PrettyPrinter())->prettyPrintFile($ast);
-    }
-
-    public function parse(string $code): array {
-        $parser = new Parser(new Lexer());
-        return $parser->parse($code);
     }
 }

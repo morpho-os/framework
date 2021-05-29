@@ -13,10 +13,6 @@ use function Morpho\Base\{dasherize, format};
 class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     private $serviceManager;
 
-    public function count(): int {
-        return $this->messenger()->count();
-    }
-
     public function renderPageMessages(): string {
         $html = '';
         $messenger = $this->messenger();
@@ -31,13 +27,12 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         return $html;
     }
 
-    public function setServiceManager(IServiceManager $serviceManager): self {
-        $this->serviceManager = $serviceManager;
-        return $this;
+    protected function messenger(): Messenger {
+        return $this->serviceManager['messenger'];
     }
 
-    protected function formatHtmlContainer(array $renderedMessages): string {
-        return '<div id="page-messages">' . \implode("\n", $renderedMessages) . '</div>';
+    public function count(): int {
+        return $this->messenger()->count();
     }
 
     protected function renderMessagesOfType(iterable $messages, string $type) {
@@ -63,10 +58,6 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
         return '<div class="alert alert-' . $cssClass . ' alert-dismissible fade show" role="alert">' . $text . ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
     }
 
-    protected function messenger(): Messenger {
-        return $this->serviceManager['messenger'];
-    }
-
     protected function messageTypeToCssClass(string $type): string {
         $type2CssClass = [
             Messenger::ERROR   => 'danger',
@@ -75,5 +66,14 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
             Messenger::WARNING => 'warning',
         ];
         return $type2CssClass[$type] ?? dasherize($type);
+    }
+
+    protected function formatHtmlContainer(array $renderedMessages): string {
+        return '<div id="page-messages">' . \implode("\n", $renderedMessages) . '</div>';
+    }
+
+    public function setServiceManager(IServiceManager $serviceManager): self {
+        $this->serviceManager = $serviceManager;
+        return $this;
     }
 }

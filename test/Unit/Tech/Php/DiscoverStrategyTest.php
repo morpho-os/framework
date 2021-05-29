@@ -17,6 +17,8 @@ abstract class DiscoverStrategyTest extends TestCase {
         $this->strategy = $this->mkDiscoverStrategy();
     }
 
+    protected abstract function mkDiscoverStrategy();
+
     public function dataClassTypesDefinedInFile() {
         (yield [
             [
@@ -43,6 +45,4 @@ abstract class DiscoverStrategyTest extends TestCase {
         $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/' . $relFilePath);
         $this->assertEquals($expected, $actual);
     }
-
-    protected abstract function mkDiscoverStrategy();
 }

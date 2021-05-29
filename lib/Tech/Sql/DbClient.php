@@ -56,13 +56,15 @@ abstract class DbClient implements IDbClient {
         return $this;
     }
 
+    abstract protected function checkConf(array $conf): array;
+
+    /*    public function __destruct() {
+            $this->disconnect();
+        }*/
+
     public function conf(): array {
         return $this->conf;
     }
-
-/*    public function __destruct() {
-        $this->disconnect();
-    }*/
 
     public function disconnect(): void {
         $this->pdo = null;
@@ -115,6 +117,45 @@ abstract class DbClient implements IDbClient {
         return ['WHERE ' . implode(' AND ', $where), $args];
     }
 
+    public function nameValArgs(array $args): array {
+        $placeholders = [];
+        foreach ($args as $name => $val) {
+            if (!is_string($name)) {
+                throw new UnexpectedValueException();
+            }
+            $placeholders[] = $this->quoteIdentifier($name) . ' = ?';
+        }
+        return $placeholders;
+    }
+
+    public function quoteIdentifier(string|array|Expr $identifiers): string|array {
+        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+        $quoteIdentifier = function ($identifiers): string {
+            if ($identifiers instanceof Expr) {
+                return $identifiers->val();
+            }
+            $quoted = [];
+            $parts = explode('.', $identifiers);
+            $n = count($parts);
+            foreach ($parts as $i => $identifier) {
+                if ($identifier === '*' && $i === ($n - 1)) {
+                    $quoted[] = $identifier;
+                } else {
+                    $quoted[] = $this->quote . $identifier . $this->quote;
+                }
+            }
+            return implode('.', $quoted);
+        };
+        if (!is_array($identifiers)) {
+            return $quoteIdentifier($identifiers);
+        }
+        $ids = [];
+        foreach ($identifiers as $identifier) {
+            $ids[] = $quoteIdentifier($identifier);
+        }
+        return $ids;
+    }
+
     /**
      * @param callable $transaction
      * @param mixed ...$args
@@ -149,34 +190,6 @@ abstract class DbClient implements IDbClient {
         return $this->pdo->$method(...$args);
     }
 
-    public function quoteIdentifier(string|array|Expr $identifiers): string|array {
-        // @see http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
-        $quoteIdentifier = function ($identifiers): string {
-            if ($identifiers instanceof Expr) {
-                return $identifiers->val();
-            }
-            $quoted = [];
-            $parts = explode('.', $identifiers);
-            $n = count($parts);
-            foreach ($parts as $i => $identifier) {
-                if ($identifier === '*' && $i === ($n - 1)) {
-                    $quoted[] = $identifier;
-                } else {
-                    $quoted[] = $this->quote . $identifier . $this->quote;
-                }
-            }
-            return implode('.', $quoted);
-        };
-        if (!is_array($identifiers)) {
-            return $quoteIdentifier($identifiers);
-        }
-        $ids = [];
-        foreach ($identifiers as $identifier) {
-            $ids[] = $quoteIdentifier($identifier);
-        }
-        return $ids;
-    }
-
     public function quoteIdentifierStr(string|array|Expr $identifiers): string {
         $result = $this->quoteIdentifier($identifiers);
         return is_array($result) ? implode(', ', $result) : $result;
@@ -184,17 +197,6 @@ abstract class DbClient implements IDbClient {
 
     public function positionalArgs(array $args): array {
         return array_fill(0, count($args), '?');
-    }
-
-    public function nameValArgs(array $args): array {
-        $placeholders = [];
-        foreach ($args as $name => $val) {
-            if (!is_string($name)) {
-                throw new UnexpectedValueException();
-            }
-            $placeholders[] = $this->quoteIdentifier($name) . ' = ?';
-        }
-        return $placeholders;
     }
 
     /**
@@ -216,6 +218,4 @@ abstract class DbClient implements IDbClient {
         }
         return $result;
     }
-
-    abstract protected function checkConf(array $conf): array;
 }

@@ -30,6 +30,14 @@ class ModuleIndexTest extends TestCase {
         $this->assertSame('second', $moduleIndex->module($moduleName)[0]);
     }
 
+    private function mkModuleIndex($moduleIndexer) {
+        return new class ($moduleIndexer) extends ModuleIndex {
+            protected function mkModule(string $moduleName, $meta): Module {
+                return new Module($moduleName, $meta);
+            }
+        };
+    }
+
     public function testModuleOperations() {
         $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
 
@@ -37,6 +45,23 @@ class ModuleIndexTest extends TestCase {
 
         $this->assertTrue($moduleIndex->moduleExists('galaxy/neptune'));
         $this->assertFalse($moduleIndex->moduleExists('galaxy/invalid'));
+    }
+
+    private function mkModuleIndexer() {
+        $moduleIndexer = $this->createConfiguredMock(
+            IModuleIndexer::class,
+            [
+                'index' => [
+                    'galaxy/neptune' => [
+                        'namespace' => __CLASS__ . '/Neptune',
+                    ],
+                    'galaxy/mars'    => [
+                        'namespace' => __CLASS__ . '/Mars',
+                    ],
+                ],
+            ]
+        );
+        return $moduleIndexer;
     }
 
     public function testModule_ThrowsExceptionForNonExistentModule() {
@@ -55,30 +80,5 @@ class ModuleIndexTest extends TestCase {
             $i++;
         }
         $this->assertSame(2, $i);
-    }
-
-    private function mkModuleIndex($moduleIndexer) {
-        return new class ($moduleIndexer) extends ModuleIndex {
-            protected function mkModule(string $moduleName, $meta): Module {
-                return new Module($moduleName, $meta);
-            }
-        };
-    }
-
-    private function mkModuleIndexer() {
-        $moduleIndexer = $this->createConfiguredMock(
-            IModuleIndexer::class,
-            [
-                'index' => [
-                    'galaxy/neptune' => [
-                        'namespace' => __CLASS__ . '/Neptune',
-                    ],
-                    'galaxy/mars'    => [
-                        'namespace' => __CLASS__ . '/Mars',
-                    ],
-                ],
-            ]
-        );
-        return $moduleIndexer;
     }
 }

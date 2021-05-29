@@ -4,9 +4,9 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Error;
+namespace Morpho\Test\Unit\Tech\Php;
 
-use Morpho\Error\HandlerManager;
+use Morpho\Tech\Php\HandlerManager;
 use Morpho\Testing\TestCase;
 
 use function func_get_args;
@@ -23,11 +23,9 @@ abstract class BaseErrorHandlerTest extends TestCase {
         $handler = set_error_handler([$this, __FUNCTION__]);
         restore_error_handler();
         $this->prevErrorHandler = $handler;
-
         $handler = set_exception_handler([$this, __FUNCTION__]);
         restore_exception_handler();
         $this->prevExceptionHandler = $handler;
-
         unset($this->handlerArgs);
     }
 

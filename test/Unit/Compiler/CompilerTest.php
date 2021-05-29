@@ -45,6 +45,14 @@ class CompilerTest extends ConfigurablePipeTest {
         );
     }
 
+    private function mkCompilerConf(): array {
+        return [
+            'frontend' => fn ($v) => $v,
+            'midend'   => fn ($v) => $v,
+            'backend'  => fn ($v) => $v,
+        ];
+    }
+
     public function testCustomPhasesViaConstructorConf() {
         $frontend = function ($v) {
             $v['frontend'] = 'frontend ok';
@@ -126,13 +134,5 @@ class CompilerTest extends ConfigurablePipeTest {
 
         $context['source'] = '';
         $this->assertSame($context, $compiler($context));
-    }
-
-    private function mkCompilerConf(): array {
-        return [
-            'frontend' => fn ($v) => $v,
-            'midend'   => fn ($v) => $v,
-            'backend'  => fn ($v) => $v,
-        ];
     }
 }

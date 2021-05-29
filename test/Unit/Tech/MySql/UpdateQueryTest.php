@@ -6,8 +6,8 @@
  */
 namespace Morpho\Test\Unit\Tech\MySql;
 
-use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\MySql\UpdateQuery;
+use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\Result;
 
 class UpdateQueryTest extends QueryTest {

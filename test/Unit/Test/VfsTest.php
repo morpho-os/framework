@@ -83,6 +83,20 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue(\fclose($handle1));
     }
 
+    private function paths(string $dirPath): array {
+        $handle = \opendir($dirPath);
+        $paths = [];
+        $prefix = Vfs::URI_PREFIX;
+        if (0 === \strpos($dirPath, $prefix)) {
+            $dirPath = \substr($dirPath, \strlen($prefix));
+        }
+        while (false !== ($entry = \readdir($handle))) {
+            $paths[] = $prefix . \rtrim($dirPath, '\\/') . '/' . $entry;
+        }
+        \closedir($handle);
+        return $paths;
+    }
+
     public function testRename() {
         $this->markTestIncomplete();
     }
@@ -255,19 +269,5 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue(\rename($oldFileUri, $newFileUri));
         $this->assertFileDoesNotExist($oldFileUri);
         $this->assertFileExists($newFileUri);
-    }
-
-    private function paths(string $dirPath): array {
-        $handle = \opendir($dirPath);
-        $paths = [];
-        $prefix = Vfs::URI_PREFIX;
-        if (0 === \strpos($dirPath, $prefix)) {
-            $dirPath = \substr($dirPath, \strlen($prefix));
-        }
-        while (false !== ($entry = \readdir($handle))) {
-            $paths[] = $prefix . \rtrim($dirPath, '\\/') . '/' . $entry;
-        }
-        \closedir($handle);
-        return $paths;
     }
 }

@@ -40,6 +40,27 @@ class Compiler extends ConfigurablePipe implements ICompiler {
         throw new UnexpectedValueException();
     }
 
+    public function frontend(): callable {
+        if (null === $this->frontend) {
+            $this->frontend = $this->conf['frontend'];
+        }
+        return $this->frontend;
+    }
+
+    public function midend(): callable {
+        if (null === $this->midend) {
+            $this->midend = $this->conf['midend'];
+        }
+        return $this->midend;
+    }
+
+    public function backend(): callable {
+        if (null === $this->backend) {
+            $this->backend = $this->conf['backend'];
+        }
+        return $this->backend;
+    }
+
     public function count(): int {
         // Valid pipe phases are `[$this->frontend(), $this->midend(), $this->backend()]`, so the count is 3.
         return 3;
@@ -50,34 +71,13 @@ class Compiler extends ConfigurablePipe implements ICompiler {
         return $this;
     }
 
-    public function frontend(): callable {
-        if (null === $this->frontend) {
-            $this->frontend = $this->conf['frontend'];
-        }
-        return $this->frontend;
-    }
-
     public function setMidend(callable $midend): self {
         $this->midend = $midend;
         return $this;
     }
 
-    public function midend(): callable {
-        if (null === $this->midend) {
-            $this->midend = $this->conf['midend'];
-        }
-        return $this->midend;
-    }
-
     public function setBackend(callable $backend): self {
         $this->backend = $backend;
         return $this;
-    }
-
-    public function backend(): callable {
-        if (null === $this->backend) {
-            $this->backend = $this->conf['backend'];
-        }
-        return $this->backend;
     }
 }

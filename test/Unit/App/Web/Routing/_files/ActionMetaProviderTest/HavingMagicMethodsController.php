@@ -5,13 +5,16 @@ class HavingMagicMethodsController {
     public function __construct() {
     }
 
+    public static function __callStatic(string $name, array $arguments): mixed {
+    }
+
+    public static function __set_state(array $properties): object {
+    }
+
     public function __destruct() {
     }
 
     public function __call(string $name, array $arguments): mixed {
-    }
-
-    public static function __callStatic(string $name, array $arguments): mixed {
     }
 
     public function __clone(): void {
@@ -21,6 +24,9 @@ class HavingMagicMethodsController {
     }
 
     public function __get(string $name): mixed {
+    }
+
+    public function __set(string $name, mixed $value): void {
     }
 
     public function __invoke(mixed $arguments): mixed {
@@ -33,12 +39,6 @@ class HavingMagicMethodsController {
     }
 
     public function playMe() {
-    }
-
-    public function __set(string $name, mixed $value): void {
-    }
-
-    public static function __set_state(array $properties): object {
     }
 
     public function _mustBeSkipped() {

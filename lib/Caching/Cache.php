@@ -38,6 +38,13 @@ abstract class Cache implements ICache {
         return $found ? $value : $default;
     }
 
+    /**
+     * @return array a tuple, where
+     *     the first element must be false in case of cache miss, and true otherwise
+     *     the second element must be the actual value in case of success or null in case of cache miss.
+     */
+    abstract protected function fetch(string $key): array;
+
     public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool {
         if ($ttl === null) {
             $ttl = 0;
@@ -55,6 +62,22 @@ abstract class Cache implements ICache {
         return $this->save($key, $value, $ttl);
     }
 
+    private function dateIntervalToInt(DateInterval $ttl): int {
+        // todo: check $ttl limitation for 2038 year.
+        return (new DateTime())
+            ->setTimestamp(0)
+            ->add($ttl)
+            ->getTimestamp();
+    }
+
+    /**
+     * Puts data into the cache.
+     *
+     * @param int $lifeTime If 0 then infinite lifetime.
+     * @return bool true if the entry was successfully stored in the cache, false otherwise.
+     */
+    abstract protected function save(string $key, $data, $lifeTime): bool;
+
     /**
      * @param array|Traversable $keys
      * @param mixed $default
@@ -62,6 +85,17 @@ abstract class Cache implements ICache {
      */
     public function multi(iterable $keys, mixed $default = null): array {
         return array_merge(array_fill_keys($keys, $default), $this->fetchMultiple($keys));
+    }
+
+    protected function fetchMultiple(array $keys) {
+        $res = [];
+        foreach ($keys as $key) {
+            [$found, $value] = $this->fetch($key);
+            if ($found) {
+                $res[$key] = $value;
+            }
+        }
+        return $res;
     }
 
     public function setMulti(iterable $values, null|int|DateInterval $ttl = null): bool {
@@ -96,32 +130,6 @@ abstract class Cache implements ICache {
     }
 
     /**
-     * @return array a tuple, where
-     *     the first element must be false in case of cache miss, and true otherwise
-     *     the second element must be the actual value in case of success or null in case of cache miss.
-     */
-    abstract protected function fetch(string $key): array;
-
-    protected function fetchMultiple(array $keys) {
-        $res = [];
-        foreach ($keys as $key) {
-            [$found, $value] = $this->fetch($key);
-            if ($found) {
-                $res[$key] = $value;
-            }
-        }
-        return $res;
-    }
-
-    /**
-     * Puts data into the cache.
-     *
-     * @param int $lifeTime If 0 then infinite lifetime.
-     * @return bool true if the entry was successfully stored in the cache, false otherwise.
-     */
-    abstract protected function save(string $key, $data, $lifeTime): bool;
-
-    /**
      * Default implementation of doSaveMultiple. Each driver that supports multi-put should override it.
      *
      * @param array $keysAndValues Array of keys and values to save in cache
@@ -136,13 +144,5 @@ abstract class Cache implements ICache {
             }
         }
         return $success;
-    }
-
-    private function dateIntervalToInt(DateInterval $ttl): int {
-        // todo: check $ttl limitation for 2038 year.
-        return (new DateTime())
-            ->setTimestamp(0)
-            ->add($ttl)
-            ->getTimestamp();
     }
 }

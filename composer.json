@@ -52,7 +52,6 @@
             "lib/App/autoload.php",
             "lib/Base/autoload.php",
             "lib/Caching/autoload.php",
-            "lib/Error/autoload.php",
             "lib/Tech/autoload.php"
         ]
     },

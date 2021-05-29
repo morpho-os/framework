@@ -18,10 +18,6 @@ class UriValidator implements IFn {
 
     private const SUBDELIMS_RE = "[!$&'()*+,;=]";
 
-    public function __invoke(mixed $uri): bool {
-        throw new NotImplementedException();
-    }
-
     public static function validateScheme(string $scheme): bool {
         return (bool) \preg_match('~^([a-z][-a-z0-9+.]*)$~si', $scheme);
     }
@@ -113,7 +109,7 @@ class UriValidator implements IFn {
            system, these dot-segments are only interpreted within the URI path
            hierarchy and are removed as part of the resolution process (Section
            5.2).
-        
+
            Aside from dot-segments in hierarchical paths, a path segment is
            considered opaque by the generic syntax.  URI producing applications
            often use the reserved characters allowed in a segment to delimit
@@ -127,7 +123,7 @@ class UriValidator implements IFn {
            indicate the same.  Parameter types may be defined by scheme-specific
            semantics, but in most cases the syntax of a parameter is specific to
            the implementation of the URI's dereferencing algorithm.
-        
+
         */
     }
 
@@ -136,6 +132,10 @@ class UriValidator implements IFn {
     }
 
     public static function validateFragment(string $fragment): bool {
+        throw new NotImplementedException();
+    }
+
+    public function __invoke(mixed $uri): bool {
         throw new NotImplementedException();
     }
 }

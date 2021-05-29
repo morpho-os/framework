@@ -91,14 +91,14 @@ class VfsFile extends VfsEntry {
         return $this->offset >= strlen($this->contents);
     }
 
-    public function count(): int {
-        return strlen($this->contents);
-    }
-
     public function stat(): VfsEntryStat {
         $stat = parent::stat();
         $stat['size'] = $this->count();
         return $stat;
+    }
+
+    public function count(): int {
+        return strlen($this->contents);
     }
 
     protected function normalizeStat(VfsEntryStat $stat): void {

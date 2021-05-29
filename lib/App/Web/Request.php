@@ -42,18 +42,6 @@ use function ucwords;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest implements IRequest {
-    protected ?ArrayObject $headers = null;
-
-    protected ?string $originalMethod = null;
-
-    protected string|bool|null $overwrittenMethod;
-
-    protected ?bool $isAjax = null;
-
-    private ?array $serverVars;
-
-    private ?Uri\Uri $uri = null;
-
     private static array $methods = [
         /*
         HttpMethod::CONNECT,
@@ -67,7 +55,12 @@ class Request extends BaseRequest implements IRequest {
         //HttpMethod::PUT,
         //HttpMethod::TRACE,
     ];
-
+    protected ?ArrayObject $headers = null;
+    protected ?string $originalMethod = null;
+    protected string|bool|null $overwrittenMethod;
+    protected ?bool $isAjax = null;
+    private ?array $serverVars;
+    private ?Uri\Uri $uri = null;
     private ?array $trustedProxyIps = null;
 
     public function __construct(?array $serverVars = null) {
@@ -76,6 +69,54 @@ class Request extends BaseRequest implements IRequest {
         $method = $this->detectOriginalMethod();
         $this->originalMethod = null !== $method ? $method : HttpMethod::GET;
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
+    }
+
+    protected function detectOriginalMethod(): ?string {
+        $httpMethod = $this->serverVar('REQUEST_METHOD');
+        if (null !== $httpMethod) {
+            $httpMethod = strtoupper((string) $httpMethod);
+            if ($this->isKnownMethod($httpMethod)) {
+                return $httpMethod;
+            }
+        }
+        return null;
+    }
+
+    protected function serverVar(string $name, $default = null): mixed {
+        if (null !== $this->serverVars) {
+            return $this->serverVars[$name] ?? $default;
+        }
+        return $_SERVER[$name] ?? $default;
+    }
+
+    public function isKnownMethod($method): bool {
+        return is_string($method) && in_array($method, self::$methods, true);
+    }
+
+    protected function detectOverwrittenMethod(): ?string {
+        $overwrittenMethod = null;
+        $httpMethod = $this->serverVar('HTTP_X_HTTP_METHOD_OVERRIDE');
+        if (null !== $httpMethod) {
+            $overwrittenMethod = (string) $httpMethod;
+        } elseif (isset($_GET['_method'])) {
+            // Allow to pass a method through the special '_method' item.
+            $overwrittenMethod = (string) $_GET['_method'];
+            unset($_GET['_method']);
+        } elseif (isset($_POST['_method'])) {
+            $overwrittenMethod = (string) $_POST['_method'];
+            unset($_POST['_method']);
+        }
+        if (null !== $overwrittenMethod) {
+            $overwrittenMethod = strtoupper($overwrittenMethod);
+            if ($this->isKnownMethod($overwrittenMethod)) {
+                return $overwrittenMethod;
+            }
+        }
+        return null;
+    }
+
+    public static function knownMethods(): array {
+        return self::$methods;
     }
 
     /**
@@ -106,63 +147,10 @@ class Request extends BaseRequest implements IRequest {
         }
     }
 
-    public function data(array $source, $name = null, bool $trim = true): mixed {
-        // NB: On change sync code with query() and post()
-        if (null === $name) {
-            return $trim ? trimMore($source) : $source;
-        }
-        if (is_array($name)) {
-            $data = array_intersect_key($source, array_flip(array_values($name)));
-            $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
-        }
-        if ($trim) {
-            return isset($source[$name])
-                ? trimMore($source[$name])
-                : null;
-        }
-        return isset($source[$name])
-            ? $source[$name]
-            : null;
-    }
-
-    /**
-     * @return mixed @TODO Specify concrete types.
-     */
-    public function patch($name = null, bool $trim = true) {
-        if ($this->overwrittenMethod === HttpMethod::PATCH) {
-            return $this->post($name, $trim);
-        }
-        // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
-        throw new BadRequestException('Method not allowed');
-    }
-
-    public function hasPost(string $name): bool {
-        return isset($_POST[$name]);
-    }
-
-    public function post($name = null, bool $trim = true) {
-        // NB: On change sync with data() and query()
-        if (null === $name) {
-            return $trim ? trimMore($_POST) : $_POST;
-        }
-        if (is_array($name)) {
-            $data = array_intersect_key($_POST, array_flip(array_values($name)));
-            $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
-        }
-        if ($trim) {
-            return isset($_POST[$name])
-                ? trimMore($_POST[$name])
-                : null;
-        }
-        return isset($_POST[$name])
-            ? $_POST[$name]
-            : null;
-    }
-
-    public function hasQuery(string $name): bool {
-        return isset($_GET[$name]);
+    public function method(): string {
+        return null !== $this->overwrittenMethod
+            ? $this->overwrittenMethod
+            : $this->originalMethod;
     }
 
     public function query($name = null, bool $trim = true): mixed {
@@ -185,6 +173,69 @@ class Request extends BaseRequest implements IRequest {
             : null;
     }
 
+    public function post($name = null, bool $trim = true) {
+        // NB: On change sync with data() and query()
+        if (null === $name) {
+            return $trim ? trimMore($_POST) : $_POST;
+        }
+        if (is_array($name)) {
+            $data = array_intersect_key($_POST, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
+            return $trim ? trimMore($data) : $data;
+        }
+        if ($trim) {
+            return isset($_POST[$name])
+                ? trimMore($_POST[$name])
+                : null;
+        }
+        return isset($_POST[$name])
+            ? $_POST[$name]
+            : null;
+    }
+
+    /**
+     * @return mixed @TODO Specify concrete types.
+     */
+    public function patch($name = null, bool $trim = true) {
+        if ($this->overwrittenMethod === HttpMethod::PATCH) {
+            return $this->post($name, $trim);
+        }
+        // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
+        throw new BadRequestException('Method not allowed');
+    }
+
+    public function data(array $source, $name = null, bool $trim = true): mixed {
+        // NB: On change sync code with query() and post()
+        if (null === $name) {
+            return $trim ? trimMore($source) : $source;
+        }
+        if (is_array($name)) {
+            $data = array_intersect_key($source, array_flip(array_values($name)));
+            $data += array_fill_keys($name, null);
+            return $trim ? trimMore($data) : $data;
+        }
+        if ($trim) {
+            return isset($source[$name])
+                ? trimMore($source[$name])
+                : null;
+        }
+        return isset($source[$name])
+            ? $source[$name]
+            : null;
+    }
+
+    public function hasPost(string $name): bool {
+        return isset($_POST[$name]);
+    }
+
+    public function hasQuery(string $name): bool {
+        return isset($_GET[$name]);
+    }
+
+    /*    public function isConnectMethod(): bool {
+            return $this->method() === self::CONNECT_METHOD;
+        }*/
+
     public function isAjax(bool $flag = null): bool {
         if (null !== $flag) {
             $this->isAjax = (bool) $flag;
@@ -198,91 +249,6 @@ class Request extends BaseRequest implements IRequest {
             ) === 'XMLHttpRequest';
     }
 
-    public function uri(): Uri\Uri {
-        if (null === $this->uri) {
-            $this->initUri();
-        }
-        return $this->uri;
-    }
-
-    public function setUri(Uri\Uri $uri): void {
-        $this->uri = $uri;
-    }
-
-    public function prependUriWithBasePath(string $uri): Uri\Uri {
-        $uri = new Uri\Uri($uri);
-        $basePath = $this->uri()->path()->basePath();
-        if ($uri->authority()->isNull() && $uri->scheme() === '') {
-            $path = $uri->path();
-            if (!$path->isRel()) {
-                $uriStr = Path::combine($basePath, $uri->toStr(null, false));
-                $uri = new Uri\Uri($uriStr);
-                $uri->path()->setBasePath($basePath);
-                return $uri;
-            }
-        }
-        return $uri;
-    }
-
-    /**
-     * NB: $method must not be taken from user input.
-     * @param string $method
-     */
-    public function setMethod(string $method): void {
-        $this->originalMethod = strtoupper($method);
-        $this->overwrittenMethod = null;
-    }
-
-    public function method(): string {
-        return null !== $this->overwrittenMethod
-            ? $this->overwrittenMethod
-            : $this->originalMethod;
-    }
-
-    /*    public function isConnectMethod(): bool {
-            return $this->method() === self::CONNECT_METHOD;
-        }*/
-
-    public function isDeleteMethod(): bool {
-        return $this->method() === HttpMethod::DELETE;
-    }
-
-    public function isGetMethod(): bool {
-        return $this->method() === HttpMethod::GET;
-    }
-
-    /*    public function isHeadMethod(): bool {
-            return $this->method() === self::HEAD_METHOD;
-        }*/
-
-    /*    public function isOptionsMethod(): bool {
-            return $this->method() === self::OPTIONS_METHOD;
-        }*/
-
-    public function isPatchMethod(): bool {
-        return $this->method() === HttpMethod::PATCH;
-    }
-
-    public function isPostMethod(): bool {
-        return $this->method() === HttpMethod::POST;
-    }
-
-    /*    public function isPutMethod(): bool {
-            return $this->method() === self::PUT_METHOD;
-        }
-
-        public function isTraceMethod(): bool {
-            return $this->method() === self::TRACE_METHOD;
-        }*/
-
-    public function isKnownMethod($method): bool {
-        return is_string($method) && in_array($method, self::$methods, true);
-    }
-
-    public static function knownMethods(): array {
-        return self::$methods;
-    }
-
     /**
      * Note: Returned headers can contain user input and therefore can be not safe in some scenarious.
      */
@@ -293,25 +259,13 @@ class Request extends BaseRequest implements IRequest {
         return $this->headers;
     }
 
-    public function setTrustedProxyIps(array $ips): void {
-        $this->trustedProxyIps = $ips;
-    }
+    /*    public function isHeadMethod(): bool {
+            return $this->method() === self::HEAD_METHOD;
+        }*/
 
-    public function trustedProxyIps(): ?array {
-        return $this->trustedProxyIps;
-    }
-
-    /*
-    public function acceptsJson(): bool
-     * {
-     * $header = $this->getHeaders()->get('ACCEPT');
-     * return false !== $header && false !== stripos($header->getFieldValue(), 'application/json');
-     * }
-     */
-
-    protected function mkResponse(): IResponse {
-        return new Response();
-    }
+    /*    public function isOptionsMethod(): bool {
+            return $this->method() === self::OPTIONS_METHOD;
+        }*/
 
     protected function initHeaders(): void {
         $headers = [];
@@ -334,23 +288,38 @@ class Request extends BaseRequest implements IRequest {
         $this->headers = new ArrayObject($headers);
     }
 
-    /**
-     * Based on Request::isSecure() from the https://github.com/symfony/symfony/blob/master/src/Symfony/Component/HttpFoundation/Request.php
-     * (c) Fabien Potencier <fabien@symfony.com>
-     */
-    protected function isSecure(): bool {
-        $https = $this->serverVar('HTTPS');
-        if ($https) {
-            return 'off' !== strtolower($https);
+    public function setUri(Uri\Uri $uri): void {
+        $this->uri = $uri;
+    }
+
+    /*    public function isPutMethod(): bool {
+            return $this->method() === self::PUT_METHOD;
         }
-        if ($this->isFromTrustedProxy()) {
-            return in_array(
-                strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')),
-                ['https', 'on', 'ssl', '1'],
-                true
-            );
+
+        public function isTraceMethod(): bool {
+            return $this->method() === self::TRACE_METHOD;
+        }*/
+
+    public function prependUriWithBasePath(string $uri): Uri\Uri {
+        $uri = new Uri\Uri($uri);
+        $basePath = $this->uri()->path()->basePath();
+        if ($uri->authority()->isNull() && $uri->scheme() === '') {
+            $path = $uri->path();
+            if (!$path->isRel()) {
+                $uriStr = Path::combine($basePath, $uri->toStr(null, false));
+                $uri = new Uri\Uri($uriStr);
+                $uri->path()->setBasePath($basePath);
+                return $uri;
+            }
         }
-        return false;
+        return $uri;
+    }
+
+    public function uri(): Uri\Uri {
+        if (null === $this->uri) {
+            $this->initUri();
+        }
+        return $this->uri;
     }
 
     protected function initUri(): void {
@@ -381,6 +350,41 @@ class Request extends BaseRequest implements IRequest {
 
         $this->uri = $uri;
     }
+
+    /**
+     * Based on Request::isSecure() from the https://github.com/symfony/symfony/blob/master/src/Symfony/Component/HttpFoundation/Request.php
+     * (c) Fabien Potencier <fabien@symfony.com>
+     */
+    protected function isSecure(): bool {
+        $https = $this->serverVar('HTTPS');
+        if ($https) {
+            return 'off' !== strtolower($https);
+        }
+        if ($this->isFromTrustedProxy()) {
+            return in_array(
+                strtolower($this->serverVar('HTTP_X_FORWARDED_PROTO', '')),
+                ['https', 'on', 'ssl', '1'],
+                true
+            );
+        }
+        return false;
+    }
+
+    protected function isFromTrustedProxy(): bool {
+        return null !== $this->trustedProxyIps && in_array(
+                $this->serverVar('REMOTE_ADDR'),
+                $this->trustedProxyIps,
+                true
+            );
+    }
+
+    /*
+    public function acceptsJson(): bool
+     * {
+     * $header = $this->getHeaders()->get('ACCEPT');
+     * return false !== $header && false !== stripos($header->getFieldValue(), 'application/json');
+     * }
+     */
 
     protected function detectHostAndPort(): array {
         // URI host & port
@@ -491,51 +495,40 @@ class Request extends BaseRequest implements IRequest {
         return '/' . $basePath;
     }
 
-    protected function isFromTrustedProxy(): bool {
-        return null !== $this->trustedProxyIps && in_array(
-                $this->serverVar('REMOTE_ADDR'),
-                $this->trustedProxyIps,
-                true
-            );
+    /**
+     * NB: $method must not be taken from user input.
+     * @param string $method
+     */
+    public function setMethod(string $method): void {
+        $this->originalMethod = strtoupper($method);
+        $this->overwrittenMethod = null;
     }
 
-    protected function serverVar(string $name, $default = null): mixed {
-        if (null !== $this->serverVars) {
-            return $this->serverVars[$name] ?? $default;
-        }
-        return $_SERVER[$name] ?? $default;
+    public function isDeleteMethod(): bool {
+        return $this->method() === HttpMethod::DELETE;
     }
 
-    protected function detectOriginalMethod(): ?string {
-        $httpMethod = $this->serverVar('REQUEST_METHOD');
-        if (null !== $httpMethod) {
-            $httpMethod = strtoupper((string) $httpMethod);
-            if ($this->isKnownMethod($httpMethod)) {
-                return $httpMethod;
-            }
-        }
-        return null;
+    public function isGetMethod(): bool {
+        return $this->method() === HttpMethod::GET;
     }
 
-    protected function detectOverwrittenMethod(): ?string {
-        $overwrittenMethod = null;
-        $httpMethod = $this->serverVar('HTTP_X_HTTP_METHOD_OVERRIDE');
-        if (null !== $httpMethod) {
-            $overwrittenMethod = (string) $httpMethod;
-        } elseif (isset($_GET['_method'])) {
-            // Allow to pass a method through the special '_method' item.
-            $overwrittenMethod = (string) $_GET['_method'];
-            unset($_GET['_method']);
-        } elseif (isset($_POST['_method'])) {
-            $overwrittenMethod = (string) $_POST['_method'];
-            unset($_POST['_method']);
-        }
-        if (null !== $overwrittenMethod) {
-            $overwrittenMethod = strtoupper($overwrittenMethod);
-            if ($this->isKnownMethod($overwrittenMethod)) {
-                return $overwrittenMethod;
-            }
-        }
-        return null;
+    public function isPatchMethod(): bool {
+        return $this->method() === HttpMethod::PATCH;
+    }
+
+    public function isPostMethod(): bool {
+        return $this->method() === HttpMethod::POST;
+    }
+
+    public function setTrustedProxyIps(array $ips): void {
+        $this->trustedProxyIps = $ips;
+    }
+
+    public function trustedProxyIps(): ?array {
+        return $this->trustedProxyIps;
+    }
+
+    protected function mkResponse(): IResponse {
+        return new Response();
     }
 }

@@ -43,19 +43,25 @@ use function unlink;
 
 abstract class TestCase extends BaseTestCase {
     const TIMEZONE = 'UTC';
-
+    protected $backupGlobals = true;
     private array $tmpDirPaths = [];
     private array $tmpFilePaths = [];
-
     private string $classFilePath;
-
     private ?string $prevTimezone = null;
-
-    protected $backupGlobals = true;
 
     public function setUp(): void {
         parent::setUp();
         Vfs::register();
+    }
+
+    public function expectException(string $exceptionClass, $message = '', $code = null): void {
+        parent::expectException($exceptionClass);
+        if ($message !== null && $message !== '') {
+            $this->expectExceptionMessage($message);
+        }
+        if ($code !== null) {
+            $this->expectExceptionCode($code);
+        }
     }
 
     protected function tearDown(): void {
@@ -67,6 +73,93 @@ abstract class TestCase extends BaseTestCase {
         $this->deleteTmpFiles();
         $this->deleteTmpDirs();
         Vfs::unregister();
+    }
+
+    private function deleteTmpFiles(): void {
+        foreach ($this->tmpFilePaths as $tmpFilePath) {
+            if (is_file($tmpFilePath)) {
+                $this->tryDeleteFile($tmpFilePath);
+            }
+        }
+    }
+
+    private function tryDeleteFile(string $filePath): bool {
+        $this->fixPerms($filePath);
+        return @unlink($filePath);
+    }
+
+    private function fixPerms(string $path): bool {
+        $prevMode = @fileperms($path) & 07777;
+        if (!$prevMode) {
+            return false;
+        }
+        return @chmod($path, $prevMode | 0200); // set the write bit (in octal)
+    }
+
+    /*
+    protected function initSession()
+    {
+        try {
+            (new EnvInitializer())->initSession();
+        } catch (\RuntimeException $e) {
+            // fallback case.
+            $GLOBALS['_SESSION'] = array();
+        }
+    }
+    */
+
+    private function deleteTmpDirs(): void {
+        $sysTmpDirPath = $this->tmpDirPath();
+        foreach ($this->tmpDirPaths as $tmpDirPath) {
+            if (is_dir($tmpDirPath)) {
+                foreach (
+                    new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($tmpDirPath, FilesystemIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::CHILD_FIRST
+                    ) as $path => $_
+                ) {
+                    if (false !== strpos($path, $sysTmpDirPath) && $path !== $sysTmpDirPath) {
+                        if (is_dir($path)) {
+                            if (false === $this->tryDeleteDir($path)) {
+                                $parentDirPath = realpath($path . '/..');
+                                if ($parentDirPath !== $sysTmpDirPath) {
+                                    if ($this->fixPerms($parentDirPath)) {
+                                        rmdir($path);
+                                    }
+                                }
+                            }
+                        } else {
+                            if (false === $this->tryDeleteFile($path)) {
+                                $parentDirPath = realpath($path . '/..');
+                                if ($parentDirPath !== $sysTmpDirPath) {
+                                    if ($this->fixPerms($parentDirPath)) {
+                                        unlink($path);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (false !== strpos($tmpDirPath, $sysTmpDirPath)) {
+                    rmdir($tmpDirPath);
+                }
+            }
+        }
+    }
+
+    protected function tmpDirPath(): string {
+        return sys_get_temp_dir();
+    }
+
+    private function tryDeleteDir(string $dirPath): bool {
+        $this->fixPerms($dirPath);
+        return @rmdir($dirPath);
+    }
+
+    protected function tmpFilePath(): string {
+        $tmpFilePath = $this->createTmpFile();
+        unlink($tmpFilePath);
+        return $tmpFilePath;
     }
 
     protected function createTmpFile(
@@ -94,12 +187,6 @@ abstract class TestCase extends BaseTestCase {
         return $tmpFilePath;
     }
 
-    protected function tmpFilePath(): string {
-        $tmpFilePath = $this->createTmpFile();
-        unlink($tmpFilePath);
-        return $tmpFilePath;
-    }
-
     protected function assertSetsEqual(array $expected, array $actual): void {
         $this->assertCount(count($expected), $actual);
         foreach ($expected as $expect) {
@@ -112,24 +199,22 @@ abstract class TestCase extends BaseTestCase {
         return Sut::instance();
     }
 
-    /*
-    protected function initSession()
-    {
-        try {
-            (new EnvInitializer())->initSession();
-        } catch (\RuntimeException $e) {
-            // fallback case.
-            $GLOBALS['_SESSION'] = array();
-        }
-    }
-    */
-
     /**
      * Note: we can't use name testDirPath as it will be considered as test method.
      */
     protected function getTestDirPath(): string {
         $classFilePath = $this->classFilePath();
         return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
+    }
+
+    private function classFilePath(): string {
+        if (!isset($this->classFilePath)) {
+            $filePath = (new ReflectionObject($this))->getFileName();
+            $isWindows = defined('PHP_WINDOWS_VERSION_BUILD');
+            $this->classFilePath = $isWindows ? str_replace('\\', '/', $filePath) : $filePath;
+        }
+
+        return $this->classFilePath;
     }
 
     protected function createTmpDir(string $dirName = null): string {
@@ -141,10 +226,6 @@ abstract class TestCase extends BaseTestCase {
         }
         mkdir($tmpDirPath, 0777, true);
         return $tmpDirPath;
-    }
-
-    protected function tmpDirPath(): string {
-        return sys_get_temp_dir();
     }
 
     protected function ns(): string {
@@ -166,12 +247,12 @@ abstract class TestCase extends BaseTestCase {
         self::assertSame($expected, $actual, $message);
     }
 
-    protected function assertVoid($value): void {
-        $this->assertNull($value);
-    }
-
     protected function normalizeHtml(string $html): string {
         return preg_replace(['~>\s+~si', '~\s+<~'], ['>', '<'], trim($html));
+    }
+
+    protected function assertVoid($value): void {
+        $this->assertNull($value);
     }
 
     protected function checkBoolAccessor(callable $callback, bool $initialValue): void {
@@ -221,90 +302,5 @@ abstract class TestCase extends BaseTestCase {
 
     protected function isWindows(): bool {
         return defined('PHP_WINDOWS_VERSION_BUILD');
-    }
-
-    public function expectException(string $exceptionClass, $message = '', $code = null): void {
-        parent::expectException($exceptionClass);
-        if ($message !== null && $message !== '') {
-            $this->expectExceptionMessage($message);
-        }
-        if ($code !== null) {
-            $this->expectExceptionCode($code);
-        }
-    }
-
-    private function deleteTmpDirs(): void {
-        $sysTmpDirPath = $this->tmpDirPath();
-        foreach ($this->tmpDirPaths as $tmpDirPath) {
-            if (is_dir($tmpDirPath)) {
-                foreach (
-                    new RecursiveIteratorIterator(
-                        new RecursiveDirectoryIterator($tmpDirPath, FilesystemIterator::SKIP_DOTS),
-                        RecursiveIteratorIterator::CHILD_FIRST
-                    ) as $path => $_
-                ) {
-                    if (false !== strpos($path, $sysTmpDirPath) && $path !== $sysTmpDirPath) {
-                        if (is_dir($path)) {
-                            if (false === $this->tryDeleteDir($path)) {
-                                $parentDirPath = realpath($path . '/..');
-                                if ($parentDirPath !== $sysTmpDirPath) {
-                                    if ($this->fixPerms($parentDirPath)) {
-                                        rmdir($path);
-                                    }
-                                }
-                            }
-                        } else {
-                            if (false === $this->tryDeleteFile($path)) {
-                                $parentDirPath = realpath($path . '/..');
-                                if ($parentDirPath !== $sysTmpDirPath) {
-                                    if ($this->fixPerms($parentDirPath)) {
-                                        unlink($path);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (false !== strpos($tmpDirPath, $sysTmpDirPath)) {
-                    rmdir($tmpDirPath);
-                }
-            }
-        }
-    }
-
-    private function deleteTmpFiles(): void {
-        foreach ($this->tmpFilePaths as $tmpFilePath) {
-            if (is_file($tmpFilePath)) {
-                $this->tryDeleteFile($tmpFilePath);
-            }
-        }
-    }
-
-    private function classFilePath(): string {
-        if (!isset($this->classFilePath)) {
-            $filePath = (new ReflectionObject($this))->getFileName();
-            $isWindows = defined('PHP_WINDOWS_VERSION_BUILD');
-            $this->classFilePath = $isWindows ? str_replace('\\', '/', $filePath) : $filePath;
-        }
-
-        return $this->classFilePath;
-    }
-
-    private function tryDeleteDir(string $dirPath): bool {
-        $this->fixPerms($dirPath);
-        return @rmdir($dirPath);
-    }
-
-    private function tryDeleteFile(string $filePath): bool {
-        $this->fixPerms($filePath);
-        return @unlink($filePath);
-    }
-
-    private function fixPerms(string $path): bool {
-        $prevMode = @fileperms($path) & 07777;
-        if (!$prevMode) {
-            return false;
-        }
-        return @chmod($path, $prevMode | 0200); // set the write bit (in octal)
     }
 }

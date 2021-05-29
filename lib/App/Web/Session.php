@@ -7,10 +7,8 @@
 namespace Morpho\App\Web;
 
 class Session implements \Countable, \Iterator, \ArrayAccess {
-    protected $storageKey;
-
     const KEY = __CLASS__;
-
+    protected $storageKey;
     protected $data;
 
     public function __construct(string $storageKey, bool $start = true) {
@@ -18,9 +16,17 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         $this->init($start);
     }
 
-    public static function started(): bool {
-        return \session_status() == PHP_SESSION_ACTIVE;
-        // return defined('SID') || isset($_SESSION);
+    protected function init(bool $start): void {
+        if ($start) {
+            self::start();
+        }
+
+        if (!isset($_SESSION[self::KEY])) {
+            $_SESSION[self::KEY] = [];
+        }
+        if (!isset($_SESSION[self::KEY][$this->storageKey])) {
+            $_SESSION[self::KEY][$this->storageKey] = [];
+        }
     }
 
     public static function start(): void {
@@ -30,27 +36,13 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         \session_start();
     }
 
+    public static function started(): bool {
+        return \session_status() == PHP_SESSION_ACTIVE;
+        // return defined('SID') || isset($_SESSION);
+    }
+
     public function storageKey(): string {
         return $this->storageKey;
-    }
-
-    public function &__get($name) {
-        if (\array_key_exists($name, $_SESSION[self::KEY][$this->storageKey])) {
-            return $_SESSION[self::KEY][$this->storageKey][$name];
-        }
-        throw new \RuntimeException('The specified key has not been set');
-    }
-
-    public function __set($name, $value): void {
-        $_SESSION[self::KEY][$this->storageKey][$name] = $value;
-    }
-
-    public function __isset($name): bool {
-        return isset($_SESSION[self::KEY][$this->storageKey][$name]);
-    }
-
-    public function __unset($name): void {
-        unset($_SESSION[self::KEY][$this->storageKey][$name]);
     }
 
     public function count(): int {
@@ -99,8 +91,23 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         return $this->__isset($key);
     }
 
+    public function __isset($name): bool {
+        return isset($_SESSION[self::KEY][$this->storageKey][$name]);
+    }
+
     public function &offsetGet($key) {
         return $this->__get($key);
+    }
+
+    public function &__get($name) {
+        if (\array_key_exists($name, $_SESSION[self::KEY][$this->storageKey])) {
+            return $_SESSION[self::KEY][$this->storageKey][$name];
+        }
+        throw new \RuntimeException('The specified key has not been set');
+    }
+
+    public function __set($name, $value): void {
+        $_SESSION[self::KEY][$this->storageKey][$name] = $value;
     }
 
     public function offsetSet($key, $value): void {
@@ -111,16 +118,7 @@ class Session implements \Countable, \Iterator, \ArrayAccess {
         $this->__unset($key);
     }
 
-    protected function init(bool $start): void {
-        if ($start) {
-            self::start();
-        }
-
-        if (!isset($_SESSION[self::KEY])) {
-            $_SESSION[self::KEY] = [];
-        }
-        if (!isset($_SESSION[self::KEY][$this->storageKey])) {
-            $_SESSION[self::KEY][$this->storageKey] = [];
-        }
+    public function __unset($name): void {
+        unset($_SESSION[self::KEY][$this->storageKey][$name]);
     }
 }

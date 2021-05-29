@@ -24,6 +24,13 @@ class PhpTemplateEngineTest extends TestCase {
         $this->templateEngine = new PhpTemplateEngine($this->templateEngineConf());
     }
 
+    private function templateEngineConf(): array {
+        return [
+            'request' => $this->createMock(IRequest::class),
+            'site'    => $this->createStub(ISite::class),
+        ];
+    }
+
     public function testInterface() {
         $this->assertInstanceOf(IPipe::class, $this->templateEngine);
     }
@@ -242,12 +249,5 @@ class PhpTemplateEngineTest extends TestCase {
             $this->assertSame($expected, $encoded);
             $this->assertSame($char, $this->templateEngine->de($encoded));
         }
-    }
-
-    private function templateEngineConf(): array {
-        return [
-            'request' => $this->createMock(IRequest::class),
-            'site'    => $this->createStub(ISite::class),
-        ];
     }
 }

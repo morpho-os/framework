@@ -11,6 +11,16 @@ class UriProcessor extends HtmlProcessor {
         return $this->prependTagAttrWithBasePath($tag, 'href');
     }
 
+    protected function prependTagAttrWithBasePath(array $tag, string $attrName): array {
+        if (isset($tag[self::SKIP_ATTR])) {
+            return $tag;
+        }
+        if (isset($tag[$attrName]) && !str_starts_with($tag[$attrName], '<?')) {
+            $tag[$attrName] = $this->request->prependUriWithBasePath($tag[$attrName])->toStr(null, false);
+        }
+        return $tag;
+    }
+
     protected function tagA($tag) {
         return $this->prependTagAttrWithBasePath($tag, 'href');
     }
@@ -21,15 +31,5 @@ class UriProcessor extends HtmlProcessor {
 
     protected function tagScript($tag) {
         return $this->prependTagAttrWithBasePath($tag, 'src');
-    }
-
-    protected function prependTagAttrWithBasePath(array $tag, string $attrName): array {
-        if (isset($tag[self::SKIP_ATTR])) {
-            return $tag;
-        }
-        if (isset($tag[$attrName]) && !str_starts_with($tag[$attrName], '<?')) {
-            $tag[$attrName] = $this->request->prependUriWithBasePath($tag[$attrName])->toStr(null, false);
-        }
-        return $tag;
     }
 }

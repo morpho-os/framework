@@ -38,6 +38,22 @@ abstract class Path {
         return (string) substr($path, strlen($basePath) + 1);
     }
 
+    public static function normalize(string $path): string {
+        if ($path === '') {
+            return $path;
+        }
+        if (Env::isWindows()) {
+            $path = str_replace('\\', '/', $path);
+        }
+        if ($path === '/') {
+            return $path;
+        }
+        if (false !== strpos($path, '/..')) {
+            $path = static::removeDotSegments($path);
+        }
+        return rtrim($path, '/\\');
+    }
+
     /**
      * This method taken from https://github.com/zendframework/zend-uri/blob/master/src/Uri.php and changed to match our requirements.
      *
@@ -106,21 +122,5 @@ abstract class Path {
         }
 
         return $output;
-    }
-
-    public static function normalize(string $path): string {
-        if ($path === '') {
-            return $path;
-        }
-        if (Env::isWindows()) {
-            $path = str_replace('\\', '/', $path);
-        }
-        if ($path === '/') {
-            return $path;
-        }
-        if (false !== strpos($path, '/..')) {
-            $path = static::removeDotSegments($path);
-        }
-        return rtrim($path, '/\\');
     }
 }

@@ -7,7 +7,7 @@
 namespace Morpho\App\Web;
 
 use Closure;
-use Morpho\Error\ErrorHandler as BaseErrorHandler;
+use Morpho\Tech\Php\ErrorHandler as BaseErrorHandler;
 use Throwable;
 
 use function header;
@@ -20,10 +20,6 @@ class ErrorHandler extends BaseErrorHandler {
     public function __construct(iterable $listeners = null) {
         parent::__construct($listeners);
         $this->listeners()->append($this->mkListener());
-    }
-
-    public function handleException(Throwable $e): void {
-        parent::handleException($e);
     }
 
     protected function mkListener(): Closure {
@@ -53,5 +49,9 @@ class ErrorHandler extends BaseErrorHandler {
             }
             echo e($message) . '.';
         };
+    }
+
+    public function handleException(Throwable $e): void {
+        parent::handleException($e);
     }
 }

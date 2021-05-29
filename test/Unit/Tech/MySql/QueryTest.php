@@ -16,6 +16,8 @@ abstract class QueryTest extends DbTestCase {
         $this->query = $this->mkQuery();
     }
 
+    abstract protected function mkQuery(): IQuery;
+
     public function testInterface() {
         $this->assertInstanceOf(IQuery::class, $this->query);
     }
@@ -24,6 +26,4 @@ abstract class QueryTest extends DbTestCase {
         $sql = $this->query->table(['abc' => 'someAlias', 'interTable', 'def' => 'anotherAlias'])->__toString();
         $this->assertStringContainsString('`abc` AS `someAlias`, `interTable`, `def` AS `anotherAlias`', $sql);
     }
-
-    abstract protected function mkQuery(): IQuery;
 }

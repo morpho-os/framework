@@ -32,11 +32,11 @@ class RequestTest extends MessageTest {
         };
     }
 
-    protected function mkMessage(): Message {
-        return clone $this->request;
-    }
-
     public function testInterface() {
         $this->assertInstanceOf(IRequest::class, $this->request);
+    }
+
+    protected function mkMessage(): Message {
+        return clone $this->request;
     }
 }

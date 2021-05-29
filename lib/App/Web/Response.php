@@ -21,27 +21,23 @@ use function is_string;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Response extends BaseResponse {
-    protected int $statusCode = self::OK_STATUS_CODE;
-
-    protected ?ArrayObject $headers;
-
-    private ?string $statusLine = null;
-
-    private array $formats;
-
-    private bool $allowAjax = false;
-
-    // @TODO: Move to StatusCode::OK
     public const OK_STATUS_CODE = 200;
     public const MOVED_PERMANENTLY = 301;
     public const FOUND_STATUS_CODE = 302;
     public const NOT_MODIFIED_STATUS_CODE = 304;
     public const BAD_REQUEST_STATUS_CODE = 400;
+
+    // @TODO: Move to StatusCode::OK
     public const FORBIDDEN_STATUS_CODE = 403;
     public const NOT_FOUND_STATUS_CODE = 404;
     public const METHOD_NOT_ALLOWED = 405;
     public const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
     public const SERVICE_UNAVAILABLE_CODE = 503;
+    protected int $statusCode = self::OK_STATUS_CODE;
+    protected ?ArrayObject $headers;
+    private ?string $statusLine = null;
+    private array $formats;
+    private bool $allowAjax = false;
 
     public function __construct(array $input = null) {
         parent::__construct((array) $input);
@@ -87,6 +83,10 @@ class Response extends BaseResponse {
         return $this;
     }
 
+    public function headers(): ArrayObject {
+        return $this->headers;
+    }
+
     public function isRedirect(): bool {
         $statusCode = $this->statusCode;
         return isset($this->headers()['Location'])
@@ -95,17 +95,6 @@ class Response extends BaseResponse {
 
     public function setStatusLine(string $statusLine): void {
         $this->statusLine = $statusLine;
-    }
-
-    public function statusLine(): string {
-        if (null == $this->statusLine) {
-            $this->statusLine = $this->statusCodeToStatusLine($this->statusCode);
-        }
-        return $this->statusLine;
-    }
-
-    public function headers(): ArrayObject {
-        return $this->headers;
     }
 
     public function resetState(): void {
@@ -127,6 +116,22 @@ class Response extends BaseResponse {
         $this->sendStatusLine();
         $this->sendHeaders();
         parent::send();
+    }
+
+    protected function sendStatusLine(): void {
+        // @TODO: http_response_code
+        $this->sendHeader($this->statusLine());
+    }
+
+    protected function sendHeader(string $value): void {
+        header($value);
+    }
+
+    public function statusLine(): string {
+        if (null == $this->statusLine) {
+            $this->statusLine = $this->statusCodeToStatusLine($this->statusCode);
+        }
+        return $this->statusLine;
     }
 
     public function statusCodeToStatusLine(int $statusCode): string {
@@ -213,18 +218,9 @@ class Response extends BaseResponse {
         throw new RuntimeException("Unable to map the status code to the reason phrase");
     }
 
-    protected function sendStatusLine(): void {
-        // @TODO: http_response_code
-        $this->sendHeader($this->statusLine());
-    }
-
     protected function sendHeaders(): void {
         foreach ($this->headers() as $name => $value) {
             $this->sendHeader($name . ': ' . $value);
         }
-    }
-
-    protected function sendHeader(string $value): void {
-        header($value);
     }
 }

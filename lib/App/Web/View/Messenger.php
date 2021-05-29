@@ -33,8 +33,39 @@ class Messenger implements Countable, IteratorAggregate {
         $this->messageStorage->clear();
     }
 
+    protected function initMessageStorage(): void {
+        if (null === $this->messageStorage) {
+            $this->messageStorage = $this->mkMessageStorage();
+        }
+    }
+
+    protected function mkMessageStorage(): IMessageStorage {
+        return new SessionMessageStorage(__CLASS__);
+    }
+
     public function addSuccessMessage(string $text, array $args = null): void {
         $this->addMessage($text, $args, self::SUCCESS);
+    }
+
+    public function addMessage(string $text, array $args = null, $type = null): void {
+        if (null === $type) {
+            $type = self::SUCCESS;
+        }
+        $this->checkMessageType($type);
+        $this->initMessageStorage();
+        if (!isset($this->messageStorage[$type])) {
+            $this->messageStorage[$type] = [];
+        }
+        $this->messageStorage[$type][] = [
+            'text' => $text,
+            'args' => (array) $args,
+        ];
+    }
+
+    protected function checkMessageType($type): void {
+        if (!in_array($type, $this->allowedTypes)) {
+            throw new UnexpectedValueException();
+        }
     }
 
     public function addInfoMessage(string $text, array $args = null): void {
@@ -57,21 +88,6 @@ class Messenger implements Countable, IteratorAggregate {
         return isset($this->messageStorage[self::ERROR]) && count($this->messageStorage[self::ERROR]) > 0;
     }
 
-    public function addMessage(string $text, array $args = null, $type = null): void {
-        if (null === $type) {
-            $type = self::SUCCESS;
-        }
-        $this->checkMessageType($type);
-        $this->initMessageStorage();
-        if (!isset($this->messageStorage[$type])) {
-            $this->messageStorage[$type] = [];
-        }
-        $this->messageStorage[$type][] = [
-            'text' => $text,
-            'args' => (array) $args,
-        ];
-    }
-
     public function getIterator(): iterable {
         $this->initMessageStorage();
         return $this->messageStorage;
@@ -84,21 +100,5 @@ class Messenger implements Countable, IteratorAggregate {
 
     public function setMessageStorage(IMessageStorage $storage): void {
         $this->messageStorage = $storage;
-    }
-
-    protected function initMessageStorage(): void {
-        if (null === $this->messageStorage) {
-            $this->messageStorage = $this->mkMessageStorage();
-        }
-    }
-
-    protected function mkMessageStorage(): IMessageStorage {
-        return new SessionMessageStorage(__CLASS__);
-    }
-
-    protected function checkMessageType($type): void {
-        if (!in_array($type, $this->allowedTypes)) {
-            throw new UnexpectedValueException();
-        }
     }
 }

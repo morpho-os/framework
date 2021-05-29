@@ -27,15 +27,15 @@ class Result extends PDOStatement implements Countable {
         return $this->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    public function bool(): bool {
+        return (bool) $this->field();
+    }
+
     /**
      * @return mixed|false Returns false if the value is not found, and other non-false scalar otherwise.
      */
     public function field(): mixed {
         return $this->fetchColumn(0);
-    }
-
-    public function bool(): bool {
-        return (bool) $this->field();
     }
 
     public function dict(): array {

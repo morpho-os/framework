@@ -6,12 +6,14 @@
  */
 namespace Morpho\Tech\Php;
 
+use Stringable;
+
 use function debug_backtrace;
 use function dirname;
 use function implode;
 
-class Trace {
-    protected $frames = [];
+class Trace implements Stringable {
+    protected array $frames = [];
 
     public function __construct() {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -22,6 +24,23 @@ class Trace {
             }
             $this->frames[] = $this->normalizeFrame($frame);
         }
+    }
+
+    protected static function normalizeFrame(array $frame): Frame {
+        $function = null;
+        if (isset($frame['function'])) {
+            $function = $frame['function'] . '()';
+        }
+        if (isset($frame['class']) && isset($frame['type'])) {
+            $function = $frame['class'] . $frame['type'] . $function;
+        }
+        return new Frame(
+            [
+                'function' => $function,
+                'filePath' => isset($frame['file']) ? $frame['file'] : null,
+                'line'     => isset($frame['line']) ? $frame['line'] : null,
+            ]
+        );
     }
 
     public function __toString(): string {
@@ -35,28 +54,5 @@ class Trace {
 
     public function toArr(): array {
         return $this->frames;
-    }
-
-    /**
-     * @param array $frame
-     *
-     * @return Frame
-     */
-    protected static function normalizeFrame(array $frame) {
-        $function = null;
-        if (isset($frame['function'])) {
-            $function = $frame['function'] . '()';
-        }
-        if (isset($frame['class']) && isset($frame['type'])) {
-            $function = $frame['class'] . $frame['type'] . $function;
-        }
-
-        return new Frame(
-            [
-                'function' => $function,
-                'filePath' => isset($frame['file']) ? $frame['file'] : null,
-                'line'     => isset($frame['line']) ? $frame['line'] : null,
-            ]
-        );
     }
 }

@@ -24,9 +24,9 @@ use Morpho\App\Web\View\JsonResponseRenderer;
 use Morpho\App\Web\View\Messenger;
 use Morpho\App\Web\View\MessengerPlugin;
 use Morpho\App\Web\View\PhpTemplateEngine;
-use Morpho\Error\DumpListener;
-use Morpho\Error\LogListener;
-use Morpho\Error\NoDupsListener;
+use Morpho\Tech\Php\DumpListener;
+use Morpho\Tech\Php\LogListener;
+use Morpho\Tech\Php\NoDupsListener;
 use Morpho\Ioc\IHasServiceManager;
 use UnexpectedValueException;
 
@@ -61,6 +61,20 @@ class ServiceManager extends BaseServiceManager {
         return $logger;
     }
 
+    private function appendLogFileWriter(Logger $logger, int $logLevel): void {
+        $moduleIndex = $this['backendModuleIndex'];
+        $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
+        $handler = new StreamHandler($filePath, $logLevel);
+        $handler->setFormatter(
+            new LineFormatter(
+                LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n",
+                null,
+                true
+            )
+        );
+        $logger->pushHandler($handler);
+    }
+
     protected function mkTemplateEngineService() {
         $conf = $this->conf['templateEngine'];
         $conf['pluginFactory'] = $this['templateEnginePluginFactory'];
@@ -92,6 +106,10 @@ class ServiceManager extends BaseServiceManager {
         };
     }
 
+    /*    protected function mkAutoloaderService() {
+            return composerAutoloader();
+        }*/
+
     protected function mkActionResultRendererService() {
         return new ActionResultRenderer(
             function ($format) {
@@ -109,10 +127,6 @@ class ServiceManager extends BaseServiceManager {
             }
         );
     }
-
-    /*    protected function mkAutoloaderService() {
-            return composerAutoloader();
-        }*/
 
     protected function mkMessengerService() {
         return new Messenger();
@@ -178,19 +192,5 @@ class ServiceManager extends BaseServiceManager {
             $listeners[] = new DumpListener();
         }
         return new ErrorHandler($listeners);
-    }
-
-    private function appendLogFileWriter(Logger $logger, int $logLevel): void {
-        $moduleIndex = $this['backendModuleIndex'];
-        $filePath = $moduleIndex->module($this['site']->moduleName())->logDirPath() . '/' . $logger->getName() . '.log';
-        $handler = new StreamHandler($filePath, $logLevel);
-        $handler->setFormatter(
-            new LineFormatter(
-                LineFormatter::SIMPLE_FORMAT . "-------------------------------------------------------------------------------\n",
-                null,
-                true
-            )
-        );
-        $logger->pushHandler($handler);
     }
 }

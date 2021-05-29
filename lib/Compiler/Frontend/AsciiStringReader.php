@@ -31,6 +31,12 @@ class AsciiStringReader implements IStringReader {
         $this->reset();
     }
 
+    public function reset(): void {
+        $this->matched = null;
+        $this->offset = $this->prevOffset = 0;
+        $this->subgroups = null;
+    }
+
     public function input(): string {
         return $this->input;
     }
@@ -47,8 +53,8 @@ class AsciiStringReader implements IStringReader {
         return $this->offset;
     }
 
-    public function offsetInBytes(): int {
-        return $this->offset;
+    public function check(string $re): ?string {
+        return $this->read($re, false);
     }
 
     public function read(string $re, bool $advanceOffset = true, bool $returnStr = true): string|int|null {
@@ -68,8 +74,19 @@ class AsciiStringReader implements IStringReader {
         return $matched === null ? null : $this->strlen($matched);
     }
 
-    public function check(string $re): ?string {
-        return $this->read($re, false);
+    protected function re(string $re, bool $anchored = null): string {
+        if (null === $anchored) {
+            return $this->anchored ? $re . 'A' : $re;
+        }
+        return $anchored ? $re . 'A' : $re;
+    }
+
+    public function offsetInBytes(): int {
+        return $this->offset;
+    }
+
+    protected function strlen(mixed $s): int {
+        return strlen($s);
     }
 
     public function skip(string $re): ?int {
@@ -78,6 +95,10 @@ class AsciiStringReader implements IStringReader {
 
     public function look(string $re): ?int {
         return $this->read($re, false, false);
+    }
+
+    public function checkUntil(string $re): ?string {
+        return $this->readUntil($re, false);
     }
 
     public function readUntil(string $re, bool $advanceOffset = true, bool $returnStr = true): string|int|null {
@@ -102,8 +123,8 @@ class AsciiStringReader implements IStringReader {
         return $this->matched = null;
     }
 
-    public function checkUntil(string $re): ?string {
-        return $this->readUntil($re, false);
+    protected function substr(string $s, int $offset, ?int $length): string {
+        return substr($s, $offset, $length);
     }
 
     public function skipUntil(string $re): ?int {
@@ -147,12 +168,6 @@ class AsciiStringReader implements IStringReader {
         $this->matched = null;
         $this->subgroups = null;
         $this->offset = $this->strlen($this->input);
-    }
-
-    public function reset(): void {
-        $this->matched = null;
-        $this->offset = $this->prevOffset = 0;
-        $this->subgroups = null;
     }
 
     public function isLineStart(): bool {
@@ -211,20 +226,5 @@ class AsciiStringReader implements IStringReader {
 
     public function isAnchored(): bool {
         return $this->anchored;
-    }
-
-    protected function re(string $re, bool $anchored = null): string {
-        if (null === $anchored) {
-            return $this->anchored ? $re . 'A' : $re;
-        }
-        return $anchored ? $re . 'A' : $re;
-    }
-
-    protected function strlen(mixed $s): int {
-        return strlen($s);
-    }
-
-    protected function substr(string $s, int $offset, ?int $length): string {
-        return substr($s, $offset, $length);
     }
 }

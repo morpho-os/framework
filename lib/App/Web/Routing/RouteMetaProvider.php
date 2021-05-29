@@ -26,6 +26,7 @@ use const Morpho\App\CONTROLLER_SUFFIX;
 use const PREG_SET_ORDER;
 
 class RouteMetaProvider implements IFn {
+    private const CONTROLLER_CLASS_RE = '~(?P<controllerNs>.*?\\\\Web)\\\\(?P<controller>.*?)$~s';
     protected array $restActions = [
         'index'  => ['GET', null],        // GET    $entityType
         'list'   => ['GET', 'list'],      // GET    $entityType/list
@@ -36,8 +37,6 @@ class RouteMetaProvider implements IFn {
         'update' => ['PATCH', '{id}'],    // PATCH  $entityType/$entityId
         'delete' => ['DELETE', '{id}'],   // DELETE $entityType/$entityId
     ];
-
-    private const CONTROLLER_CLASS_RE = '~(?P<controllerNs>.*?\\\\Web)\\\\(?P<controller>.*?)$~s';
 
     public function __invoke($actionMetas): iterable {
         foreach ($actionMetas as $actionMeta) {

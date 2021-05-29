@@ -27,11 +27,6 @@ class Frontend extends ConfigurablePipe implements IFrontend {
         throw new UnexpectedValueException();
     }
 
-    public function count(): int {
-        // count([$this->parser(), $this->sema()])
-        return 2;
-    }
-
     /**
      * Returns parser. Parser may or may not include a lexer.
      * @return callable
@@ -45,5 +40,10 @@ class Frontend extends ConfigurablePipe implements IFrontend {
      */
     public function sema(): callable {
         throw new NotImplementedException();
+    }
+
+    public function count(): int {
+        // count([$this->parser(), $this->sema()])
+        return 2;
     }
 }

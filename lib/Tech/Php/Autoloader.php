@@ -20,6 +20,11 @@ abstract class Autoloader {
         return false;
     }
 
+    /**
+     * @return string|false The path of class (string) or false otherwise.
+     */
+    abstract public function filePath(string $class);
+
     public function register(bool $prepend = false): void {
         spl_autoload_register([$this, 'autoload'], true, $prepend);
     }
@@ -27,9 +32,4 @@ abstract class Autoloader {
     public function unregister(): void {
         spl_autoload_unregister([$this, 'autoload']);
     }
-
-    /**
-     * @return string|false The path of class (string) or false otherwise.
-     */
-    abstract public function filePath(string $class);
 }

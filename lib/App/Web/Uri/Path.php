@@ -31,10 +31,6 @@ class Path extends BasePath implements IUriComponent {
         return $this->path;
     }
 
-    public function startsWith(string $path): bool {
-        return str_starts_with($this->path, $path);
-    }
-
     public function endsWith(string $path): bool {
         return str_ends_with($this->path, $path);
     }
@@ -48,6 +44,10 @@ class Path extends BasePath implements IUriComponent {
             throw new RuntimeException('The base path is not at beginning of the path');
         }
         $this->basePath = $basePath;
+    }
+
+    public function startsWith(string $path): bool {
+        return str_starts_with($this->path, $path);
     }
 
     public function basePath(): ?string {

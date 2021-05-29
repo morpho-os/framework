@@ -192,6 +192,26 @@ class ActionMetaProviderTest extends TestCase {
         $this->assertEquals($expected, $actual);
     }
 
+    private function mkModule(string $name, $controllerFilePaths) {
+        return new class ($name, $controllerFilePaths) {
+            private string $name;
+            private array $controllerFilePaths;
+
+            public function __construct(string $name, string $controllerFilePaths) {
+                $this->name = $name;
+                $this->controllerFilePaths = (array) $controllerFilePaths;
+            }
+
+            public function name() {
+                return $this->name;
+            }
+
+            public function controllerFilePaths(): iterable {
+                return $this->controllerFilePaths;
+            }
+        };
+    }
+
     public function testInvoke_NoRoutesAnnotation() {
         $module = $this->mkModule('test/annotations', $this->getTestDirPath() . '/NoRoutesController.php');
         $this->assertSame([], \iterator_to_array($this->actionMetaProvider->__invoke([$module])));
@@ -211,25 +231,5 @@ class ActionMetaProviderTest extends TestCase {
             ],
             \iterator_to_array($this->actionMetaProvider->__invoke([$module]))
         );
-    }
-
-    private function mkModule(string $name, $controllerFilePaths) {
-        return new class ($name, $controllerFilePaths) {
-            private string $name;
-            private array $controllerFilePaths;
-
-            public function __construct(string $name, string $controllerFilePaths) {
-                $this->name = $name;
-                $this->controllerFilePaths = (array) $controllerFilePaths;
-            }
-
-            public function name() {
-                return $this->name;
-            }
-
-            public function controllerFilePaths(): iterable {
-                return $this->controllerFilePaths;
-            }
-        };
     }
 }

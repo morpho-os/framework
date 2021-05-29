@@ -13,7 +13,6 @@ use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\ISchema;
 use Morpho\Tech\Sql\Result;
 use PDOException;
-
 use Throwable;
 
 class DbClientTest extends DbTestCase {

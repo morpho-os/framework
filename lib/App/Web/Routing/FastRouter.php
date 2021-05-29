@@ -59,6 +59,14 @@ class FastRouter implements IHasServiceManager, IRouter {
         }
     }
 
+    protected function mkDispatcher(): IDispatcher {
+        if (!$this->cache->has($this->cacheKey)) {
+            $this->rebuildRoutes();
+        }
+        $dispatchData = $this->cache->get($this->cacheKey);
+        return new GroupCountBasedDispatcher($dispatchData);
+    }
+
     public function rebuildRoutes(): void {
         $routeCollector = new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
         foreach ($this->routesMeta() as $routeMeta) {
@@ -76,14 +84,6 @@ class FastRouter implements IHasServiceManager, IRouter {
         }
         $dispatchData = $routeCollector->getData();
         $this->cache->set($this->cacheKey, $dispatchData);
-    }
-
-    protected function mkDispatcher(): IDispatcher {
-        if (!$this->cache->has($this->cacheKey)) {
-            $this->rebuildRoutes();
-        }
-        $dispatchData = $this->cache->get($this->cacheKey);
-        return new GroupCountBasedDispatcher($dispatchData);
     }
 
     protected function routesMeta(): iterable {

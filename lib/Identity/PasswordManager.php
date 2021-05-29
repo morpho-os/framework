@@ -63,6 +63,17 @@ class PasswordManager {
     }
 
     /**
+     * @return string|null Returns null for PHP >= 7.4.0 && <= 7.4.2 and string for PHP >= 7.4.3
+     */
+    private static function algo(): ?string {
+        return \PASSWORD_DEFAULT;
+    }
+
+    private static function conf(): array {
+        return ['cost' => self::COST];
+    }
+
+    /**
      * @return string Password hash, 60 characters.
      */
     public static function passwordHash(string $plainPassword): string {
@@ -78,16 +89,5 @@ class PasswordManager {
 
     public static function isValidPassword(string $plainPassword, string $passwordHash): bool {
         return \password_verify($plainPassword, $passwordHash);
-    }
-
-    private static function conf(): array {
-        return ['cost' => self::COST];
-    }
-
-    /**
-     * @return string|null Returns null for PHP >= 7.4.0 && <= 7.4.2 and string for PHP >= 7.4.3
-     */
-    private static function algo(): ?string {
-        return \PASSWORD_DEFAULT;
     }
 }

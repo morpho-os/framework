@@ -17,6 +17,30 @@ class VfsRoot extends VfsDir {
         );
     }
 
+    private function forEachParentDir(string $uri, \Closure $current) {
+        $uriNoPrefix = Vfs::stripUriPrefix($uri);
+        if ($uriNoPrefix === '/') {
+            return $this;
+        }
+        $entry = $this;
+        $parts = \explode('/', \trim($uriNoPrefix, '/'));
+        $curUri = Vfs::prefixUri('');
+        $i = 0;
+        while (\count($parts)) {
+            $name = \array_shift($parts);
+            $curUri .= '/' . $name;
+            [$entry, $stop] = $current($entry, $name, $parts, $curUri);
+            if ($stop) {
+                return $entry;
+            }
+            $i++;
+        }
+        if ($i === 0) {
+            throw new \LogicException();
+        }
+        return $entry;
+    }
+
     public function dirByUri(string $uri): VfsDir {
         return $this->forEachParentDir(
             $uri,
@@ -100,29 +124,5 @@ class VfsRoot extends VfsDir {
                 }
             }
         );
-    }
-
-    private function forEachParentDir(string $uri, \Closure $current) {
-        $uriNoPrefix = Vfs::stripUriPrefix($uri);
-        if ($uriNoPrefix === '/') {
-            return $this;
-        }
-        $entry = $this;
-        $parts = \explode('/', \trim($uriNoPrefix, '/'));
-        $curUri = Vfs::prefixUri('');
-        $i = 0;
-        while (\count($parts)) {
-            $name = \array_shift($parts);
-            $curUri .= '/' . $name;
-            [$entry, $stop] = $current($entry, $name, $parts, $curUri);
-            if ($stop) {
-                return $entry;
-            }
-            $i++;
-        }
-        if ($i === 0) {
-            throw new \LogicException();
-        }
-        return $entry;
     }
 }

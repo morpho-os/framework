@@ -29,6 +29,12 @@ class ModuleIndex implements IteratorAggregate {
         return array_keys($this->index);
     }
 
+    private function init(): void {
+        if (null === $this->index) {
+            $this->index = $this->indexer->index();
+        }
+    }
+
     public function moduleExists(string $moduleName): bool {
         $this->init();
         return isset($this->index[$moduleName]);
@@ -45,19 +51,13 @@ class ModuleIndex implements IteratorAggregate {
         return $this->loaded[$moduleName] = $this->mkModule($moduleName, $this->index[$moduleName]);
     }
 
-    public function rebuild(): void {
-        $this->index = $this->loaded = null;
-        $this->indexer->clear();
-    }
-
     protected function mkModule(string $moduleName, $meta): Module {
         return new BackendModule($moduleName, $meta);
     }
 
-    private function init(): void {
-        if (null === $this->index) {
-            $this->index = $this->indexer->index();
-        }
+    public function rebuild(): void {
+        $this->index = $this->loaded = null;
+        $this->indexer->clear();
     }
 
     public function getIterator() {

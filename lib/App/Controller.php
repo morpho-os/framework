@@ -19,6 +19,12 @@ abstract class Controller implements IFn {
         return $request;
     }
 
+    /**
+     * Called before calling of any action.
+     */
+    protected function beforeEach(): void {
+    }
+
     protected function runAction(IRequest $request): void {
         $handler = $request->handler();
         $methodName = $handler['method'];
@@ -32,19 +38,13 @@ abstract class Controller implements IFn {
         }
     }
 
-    /**
-     * Called before calling of any action.
-     */
-    protected function beforeEach(): void {
+    protected function handleResult(mixed $actionResult): mixed {
+        return $actionResult;
     }
 
     /**
      * Called after calling of any action.
      */
     protected function afterEach(): void {
-    }
-
-    protected function handleResult(mixed $actionResult): mixed {
-        return $actionResult;
     }
 }

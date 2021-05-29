@@ -24,6 +24,19 @@ abstract class Enum {
     }
 
     /**
+     * Returns members of the enum - public constants.
+     */
+    public static function members(): array {
+        $members = [];
+        foreach ((new ReflectionClass(static::class))->getReflectionConstants() as $rConst) {
+            if ($rConst->isPublic()) {
+                $members[$rConst->getName()] = $rConst->getValue();
+            }
+        }
+        return $members;
+    }
+
+    /**
      * Return true if has a member with the given name.
      * @param string $name
      * @return bool
@@ -35,19 +48,6 @@ abstract class Enum {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns members of the enum - public constants.
-     */
-    public static function members(): array {
-        $members = [];
-        foreach ((new ReflectionClass(static::class))->getReflectionConstants() as $rConst) {
-            if ($rConst->isPublic()) {
-                $members[$rConst->getName()] = $rConst->getValue();
-            }
-        }
-        return $members;
     }
 
     public static function vals(): array {

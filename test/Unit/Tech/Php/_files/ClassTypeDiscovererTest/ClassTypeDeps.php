@@ -1,6 +1,16 @@
 <?php
 namespace Morpho\Test\Unit\Tech\Php\ClassTypeDiscovererTest;
 
+trait TFourth {
+    use Q_TraitUsesTrait;
+}
+
+function test(int $a, M_FunctionDefinitionHasParameterWithType $b): N_FunctionDefinitionHasReturnType {
+}
+
+interface IThird extends P_ExtendsInterfaceA, P_ExtendsInterfaceB {
+}
+
 class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImplementsB {
     use C_ClassUsesTrait;
 
@@ -60,6 +70,9 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
         $t::PING_PONG;
     }
 
+    public static function doSomething() {
+    }
+
     public function foo(
         int $a,
         K_MethodDefinitionHasParameterWithType $b,
@@ -71,22 +84,9 @@ class First extends A_ClassExtends implements B_ClassImplementsA, B_ClassImpleme
     public function bar(): string {
         return '123';
     }
-
-    public static function doSomething() {
-    }
-}
-
-function test(int $a, M_FunctionDefinitionHasParameterWithType $b): N_FunctionDefinitionHasReturnType {
 }
 
 class Second {
     public function __construct(string $a, O_ConstructorDefinitionHasParameterWithType $b) {
     }
-}
-
-interface IThird extends P_ExtendsInterfaceA, P_ExtendsInterfaceB {
-}
-
-trait TFourth {
-    use Q_TraitUsesTrait;
 }

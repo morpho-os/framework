@@ -105,16 +105,50 @@ class Dir extends Entry {
         return $targetDirPath;
     }
 
-    public static function copyContents($sourceDirPath, $targetDirPath): string {
-        foreach (new DirectoryIterator($sourceDirPath) as $item) {
-            if ($item->isDot()) {
-                continue;
-            }
-            $entryPath = $item->getPathname();
-            $relPath = Path::rel($entryPath, $sourceDirPath);
-            Entry::copy($entryPath, $targetDirPath . '/' . $relPath);
+    public static function mustExist(string $dirPath): string {
+        if ('' === $dirPath) {
+            throw new Exception("The directory path is empty");
         }
-        return $targetDirPath;
+        if (!is_dir($dirPath)) {
+            throw new Exception("The '$dirPath' directory does not exist");
+        }
+        return $dirPath;
+    }
+
+    /**
+     * @param string|array $dirPath
+     * @param int|null $mode
+     * @param bool $recursive
+     * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
+     * @TODO: Accept iterable
+     */
+    public static function create($dirPath, ?int $mode = Stat::DIR_MODE, bool $recursive = true) {
+        if (null === $mode) {
+            $mode = Stat::DIR_MODE;
+        }
+        if (is_array($dirPath)) {
+            $res = [];
+            foreach ($dirPath as $key => $path) {
+                $res[$key] = self::create($path, $mode, $recursive);
+            }
+            return $res;
+        } elseif (!is_string($dirPath)) {
+            throw new Exception('Invalid type of the argument');
+        }
+
+        if ('' === $dirPath) {
+            throw new Exception("The directory path is empty");
+        }
+
+        if (is_dir($dirPath)) {
+            return $dirPath;
+        }
+
+        if (!mkdir($dirPath, $mode, $recursive)) {
+            throw new RuntimeException("Unable to create the directory '$dirPath' with mode: $mode");
+        }
+
+        return $dirPath;
     }
 
     public static function paths(
@@ -182,136 +216,17 @@ class Dir extends Entry {
         }
     }
 
-    public static function names(
-        string|iterable $dirPath,
-        string|null|callable $processor = null,
-        array|bool|null $conf = null
-    ): Generator {
-        $conf = self::normalizeConf($conf);
-        if (null !== $processor) {
-            $processor = function ($path) use ($processor) {
-                $baseName = basename($path);
-                if (is_string($processor)) {
-                    if (preg_match($processor, $baseName)) {
-                        return $baseName;
-                    }
-                    return false;
-                } elseif (!$processor instanceof Closure) {
-                    throw new Exception("Invalid processor");
-                }
-                $res = $processor($baseName, $path);
-                if ($res === true) {
-                    return $baseName;
-                }
-                return $res;
-            };
-        } else {
-            $processor = function ($path) {
-                return basename($path);
-            };
-        }
-        return self::paths($dirPath, $processor, $conf);
-    }
-
-    /**
-     * Shortcut for the paths() with $conf['type'] == Stat::DIR option.
-     */
-    public static function dirPaths(
-        string|iterable $dirPath,
-        string|null|callable $processor = null,
-        array|bool|null $conf = null
-    ): Generator {
-        $conf = self::normalizeConf($conf);
-        $conf['type'] = Stat::DIR;
-        if (null !== $processor) {
-            $processor = function ($path) use ($processor) {
-                if (is_string($processor)) {
-                    return (bool) preg_match($processor, $path);
-                } elseif (!$processor instanceof Closure) {
-                    throw new Exception("Invalid processor");
-                }
-                return $processor($path, true);
-            };
-        }
-        return self::paths($dirPath, $processor, $conf);
-    }
-
-    public static function dirNames(
-        string|iterable $dirPath,
-        string|null|callable $processor = null,
-        array|bool|null $conf = null
-    ): Generator {
-        $conf = self::normalizeConf($conf);
-        if (!empty($conf['recursive'])) {
-            throw new LogicException("The 'recursive' conf param must be false");
-        }
-        $conf['type'] = Stat::DIR;
-        return self::names($dirPath, $processor, $conf);
-    }
-
-    /**
-     * Shortcut for the paths() with $conf['type'] == Stat::FILE option.
-     */
-    public static function filePaths(
-        string|iterable $dirPath,
-        string|null|callable $processor = null,
-        array|bool|null $conf = null
-    ): Generator {
-        $conf = self::normalizeConf($conf);
-        $conf['type'] = Stat::FILE;
-        return self::paths($dirPath, $processor, $conf);
-    }
-
-    public static function filePathsWithExt(
-        string|iterable $dirPath,
-        array $extensions,
-        array|bool|null $conf = null
-    ): Generator {
-        $conf = self::normalizeConf($conf);
-        foreach ($extensions as $k => $extension) {
-            $extensions[$k] = preg_quote($extension, '/');
-        }
-        return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $conf);
-    }
-
-    public static function fileNames(
-        string|iterable $dirPath,
-        string|null|callable $processor = null,
-        array|bool|null $conf = null
-    ): Generator {
-        $conf = self::normalizeConf($conf);
-        $conf['type'] = Stat::FILE;
-        return self::names($dirPath, $processor, $conf);
-    }
-
-    public static function linkPaths(string|iterable $dirPath, callable $filter): Generator {
-        foreach (Dir::paths($dirPath) as $path) {
-            if (is_link($path)) {
-                if ($filter) {
-                    if ($filter($path)) {
-                        yield $path;
-                    }
-                } else {
-                    yield $path;
-                }
+    private static function normalizeConf(null|array|bool $conf): array {
+        if (!is_array($conf)) {
+            if (null === $conf) {
+                $conf = [];
+            } elseif (is_bool($conf)) {
+                $conf = ['recursive' => $conf];
+            } else {
+                throw new InvalidArgumentException();
             }
         }
-    }
-
-    public static function brokenLinkPaths(string|iterable $dirPath): Generator {
-        return Dir::linkPaths($dirPath, [Link::class, 'isBroken']);
-    }
-
-    /**
-     * @param string $relDirPath
-     * @param int $mode
-     * @return Path to the created directory.
-     */
-    public static function createTmp(string $relDirPath, int $mode = Stat::DIR_MODE): string {
-        return self::create(
-            Path::combine(Env::tmpDirPath(), $relDirPath),
-            $mode
-        );
+        return $conf;
     }
 
     /**
@@ -329,150 +244,6 @@ class Dir extends Entry {
         } else {
             static::delete_($dirPath, $predicateFnOrFlag);
         }
-    }
-
-    public static function deleteIfExists(string|iterable $dirPath, bool|callable $predicate = true): void {
-        if (is_iterable($dirPath)) {
-            foreach ($dirPath as $path) {
-                if (is_dir($path)) {
-                    self::delete_($path, $predicate);
-                }
-            }
-        } else {
-            if (is_dir($dirPath)) {
-                self::delete_($dirPath, $predicate);
-            }
-        }
-    }
-
-    public static function emptyDirPaths(string|iterable $dirPath, callable $predicate = null): iterable {
-        if (is_string($dirPath)) {
-            $dirPath = [$dirPath];
-        }
-        foreach ($dirPath as $dPath) {
-            $it = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dPath, FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-            foreach ($it as $fileInfo) {
-                $path = $fileInfo->getPathname();
-                if (is_dir($path) && self::isEmpty($path)) {
-                    if ($predicate && !$predicate($path)) {
-                        continue;
-                    }
-                    yield $path;
-                }
-            }
-        }
-    }
-
-    public static function deleteEmptyDirs(string|iterable $dirPath, callable $predicate = null): void {
-        foreach (self::emptyDirPaths($dirPath, $predicate) as $dPath) {
-            self::delete($dPath);
-        }
-    }
-
-    public static function isEmpty(string|iterable $dirPath): bool {
-        foreach (self::paths($dirPath, null, ['recursive' => false]) as $_) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @param string|array $dirPath
-     * @param int $mode
-     * @param bool $recursive
-     * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
-     * @TODO: Accept iterable
-     */
-    public static function recreate($dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true) {
-        if (is_array($dirPath)) {
-            $res = [];
-            foreach ($dirPath as $key => $path) {
-                $res[$key] = self::recreate($path, $mode, $recursive);
-            }
-            return $res;
-        } elseif (!is_string($dirPath)) {
-            throw new Exception('Invalid type of the argument');
-        }
-        if (is_dir($dirPath)) {
-            self::delete($dirPath);
-        }
-        self::create($dirPath, $mode, $recursive);
-
-        return $dirPath;
-    }
-
-    /**
-     * @param string|array $dirPath
-     * @param int|null $mode
-     * @param bool $recursive
-     * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
-     * @TODO: Accept iterable
-     */
-    public static function create($dirPath, ?int $mode = Stat::DIR_MODE, bool $recursive = true) {
-        if (null === $mode) {
-            $mode = Stat::DIR_MODE;
-        }
-        if (is_array($dirPath)) {
-            $res = [];
-            foreach ($dirPath as $key => $path) {
-                $res[$key] = self::create($path, $mode, $recursive);
-            }
-            return $res;
-        } elseif (!is_string($dirPath)) {
-            throw new Exception('Invalid type of the argument');
-        }
-
-        if ('' === $dirPath) {
-            throw new Exception("The directory path is empty");
-        }
-
-        if (is_dir($dirPath)) {
-            return $dirPath;
-        }
-
-        if (!mkdir($dirPath, $mode, $recursive)) {
-            throw new RuntimeException("Unable to create the directory '$dirPath' with mode: $mode");
-        }
-
-        return $dirPath;
-    }
-
-    public static function mustExist(string $dirPath): string {
-        if ('' === $dirPath) {
-            throw new Exception("The directory path is empty");
-        }
-        if (!is_dir($dirPath)) {
-            throw new Exception("The '$dirPath' directory does not exist");
-        }
-        return $dirPath;
-    }
-
-    /**
-     * @param string $otherDirPath
-     * @param callable $fn
-     * @return mixed
-     */
-    public static function in(string $otherDirPath, callable $fn) {
-        $curDirPath = getcwd();
-        try {
-            chdir($otherDirPath);
-            $res = $fn($otherDirPath);
-        } finally {
-            chdir($curDirPath);
-        }
-        return $res;
-    }
-
-    /**
-     * Returns number of entries in the given directory.
-     * @param string $dirPath
-     * @return int
-     */
-    public static function numOfEntries(string $dirPath): int {
-        return iterator_count(static::paths($dirPath));
     }
 
     private static function delete_(string $dirPath, $predicateOrDeleteSelf) {
@@ -545,16 +316,245 @@ class Dir extends Entry {
         }
     }
 
-    private static function normalizeConf(null|array|bool $conf): array {
-        if (!is_array($conf)) {
-            if (null === $conf) {
-                $conf = [];
-            } elseif (is_bool($conf)) {
-                $conf = ['recursive' => $conf];
-            } else {
-                throw new InvalidArgumentException();
+    public static function copyContents($sourceDirPath, $targetDirPath): string {
+        foreach (new DirectoryIterator($sourceDirPath) as $item) {
+            if ($item->isDot()) {
+                continue;
+            }
+            $entryPath = $item->getPathname();
+            $relPath = Path::rel($entryPath, $sourceDirPath);
+            Entry::copy($entryPath, $targetDirPath . '/' . $relPath);
+        }
+        return $targetDirPath;
+    }
+
+    /**
+     * Shortcut for the paths() with $conf['type'] == Stat::DIR option.
+     */
+    public static function dirPaths(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
+        $conf = self::normalizeConf($conf);
+        $conf['type'] = Stat::DIR;
+        if (null !== $processor) {
+            $processor = function ($path) use ($processor) {
+                if (is_string($processor)) {
+                    return (bool) preg_match($processor, $path);
+                } elseif (!$processor instanceof Closure) {
+                    throw new Exception("Invalid processor");
+                }
+                return $processor($path, true);
+            };
+        }
+        return self::paths($dirPath, $processor, $conf);
+    }
+
+    public static function dirNames(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
+        $conf = self::normalizeConf($conf);
+        if (!empty($conf['recursive'])) {
+            throw new LogicException("The 'recursive' conf param must be false");
+        }
+        $conf['type'] = Stat::DIR;
+        return self::names($dirPath, $processor, $conf);
+    }
+
+    public static function names(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
+        $conf = self::normalizeConf($conf);
+        if (null !== $processor) {
+            $processor = function ($path) use ($processor) {
+                $baseName = basename($path);
+                if (is_string($processor)) {
+                    if (preg_match($processor, $baseName)) {
+                        return $baseName;
+                    }
+                    return false;
+                } elseif (!$processor instanceof Closure) {
+                    throw new Exception("Invalid processor");
+                }
+                $res = $processor($baseName, $path);
+                if ($res === true) {
+                    return $baseName;
+                }
+                return $res;
+            };
+        } else {
+            $processor = function ($path) {
+                return basename($path);
+            };
+        }
+        return self::paths($dirPath, $processor, $conf);
+    }
+
+    public static function filePathsWithExt(
+        string|iterable $dirPath,
+        array $extensions,
+        array|bool|null $conf = null
+    ): Generator {
+        $conf = self::normalizeConf($conf);
+        foreach ($extensions as $k => $extension) {
+            $extensions[$k] = preg_quote($extension, '/');
+        }
+        return self::filePaths($dirPath, '/\.(' . implode('|', $extensions) . ')$/si', $conf);
+    }
+
+    /**
+     * Shortcut for the paths() with $conf['type'] == Stat::FILE option.
+     */
+    public static function filePaths(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
+        $conf = self::normalizeConf($conf);
+        $conf['type'] = Stat::FILE;
+        return self::paths($dirPath, $processor, $conf);
+    }
+
+    public static function fileNames(
+        string|iterable $dirPath,
+        string|null|callable $processor = null,
+        array|bool|null $conf = null
+    ): Generator {
+        $conf = self::normalizeConf($conf);
+        $conf['type'] = Stat::FILE;
+        return self::names($dirPath, $processor, $conf);
+    }
+
+    public static function brokenLinkPaths(string|iterable $dirPath): Generator {
+        return Dir::linkPaths($dirPath, [Link::class, 'isBroken']);
+    }
+
+    public static function linkPaths(string|iterable $dirPath, callable $filter): Generator {
+        foreach (Dir::paths($dirPath) as $path) {
+            if (is_link($path)) {
+                if ($filter) {
+                    if ($filter($path)) {
+                        yield $path;
+                    }
+                } else {
+                    yield $path;
+                }
             }
         }
-        return $conf;
+    }
+
+    /**
+     * @param string $relDirPath
+     * @param int $mode
+     * @return Path to the created directory.
+     */
+    public static function createTmp(string $relDirPath, int $mode = Stat::DIR_MODE): string {
+        return self::create(
+            Path::combine(Env::tmpDirPath(), $relDirPath),
+            $mode
+        );
+    }
+
+    public static function deleteIfExists(string|iterable $dirPath, bool|callable $predicate = true): void {
+        if (is_iterable($dirPath)) {
+            foreach ($dirPath as $path) {
+                if (is_dir($path)) {
+                    self::delete_($path, $predicate);
+                }
+            }
+        } else {
+            if (is_dir($dirPath)) {
+                self::delete_($dirPath, $predicate);
+            }
+        }
+    }
+
+    public static function deleteEmptyDirs(string|iterable $dirPath, callable $predicate = null): void {
+        foreach (self::emptyDirPaths($dirPath, $predicate) as $dPath) {
+            self::delete($dPath);
+        }
+    }
+
+    public static function emptyDirPaths(string|iterable $dirPath, callable $predicate = null): iterable {
+        if (is_string($dirPath)) {
+            $dirPath = [$dirPath];
+        }
+        foreach ($dirPath as $dPath) {
+            $it = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dPath, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($it as $fileInfo) {
+                $path = $fileInfo->getPathname();
+                if (is_dir($path) && self::isEmpty($path)) {
+                    if ($predicate && !$predicate($path)) {
+                        continue;
+                    }
+                    yield $path;
+                }
+            }
+        }
+    }
+
+    public static function isEmpty(string|iterable $dirPath): bool {
+        foreach (self::paths($dirPath, null, ['recursive' => false]) as $_) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param string|array $dirPath
+     * @param int $mode
+     * @param bool $recursive
+     * @return string|array string if $dirPath is a string, an array if the $dirPath is an array
+     * @TODO: Accept iterable
+     */
+    public static function recreate($dirPath, int $mode = Stat::DIR_MODE, bool $recursive = true) {
+        if (is_array($dirPath)) {
+            $res = [];
+            foreach ($dirPath as $key => $path) {
+                $res[$key] = self::recreate($path, $mode, $recursive);
+            }
+            return $res;
+        } elseif (!is_string($dirPath)) {
+            throw new Exception('Invalid type of the argument');
+        }
+        if (is_dir($dirPath)) {
+            self::delete($dirPath);
+        }
+        self::create($dirPath, $mode, $recursive);
+
+        return $dirPath;
+    }
+
+    /**
+     * @param string $otherDirPath
+     * @param callable $fn
+     * @return mixed
+     */
+    public static function in(string $otherDirPath, callable $fn) {
+        $curDirPath = getcwd();
+        try {
+            chdir($otherDirPath);
+            $res = $fn($otherDirPath);
+        } finally {
+            chdir($curDirPath);
+        }
+        return $res;
+    }
+
+    /**
+     * Returns number of entries in the given directory.
+     * @param string $dirPath
+     * @return int
+     */
+    public static function numOfEntries(string $dirPath): int {
+        return iterator_count(static::paths($dirPath));
     }
 }

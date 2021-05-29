@@ -9,7 +9,7 @@ namespace Morpho\App;
 use Morpho\Base\Env;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
-use Morpho\Error\ErrorHandler;
+use Morpho\Tech\Php\ErrorHandler;
 use Morpho\Ioc\IServiceManager;
 use Throwable;
 
@@ -22,6 +22,10 @@ class App extends EventManager {
 
     public function __construct($conf = null) {
         $this->setConf($conf ?: []);
+    }
+
+    public function setConf($conf): void {
+        $this->conf = $conf;
     }
 
     public static function main($conf = null): int {
@@ -73,18 +77,14 @@ class App extends EventManager {
         return $serviceManager;
     }
 
-    public function setConf($conf): void {
-        $this->conf = $conf;
-    }
-
-    public function conf() {
-        return $this->conf;
-    }
-
     protected static function logErrorFallback(Throwable $e): void {
         if (ErrorHandler::isErrorLogEnabled()) {
             // @TODO: check how error logging works on PHP core level, remove unnecessary calls and checks.
             error_log(addslashes((string) $e));
         }
+    }
+
+    public function conf() {
+        return $this->conf;
     }
 }

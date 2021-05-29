@@ -4,14 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Error;
+namespace Morpho\Tech\Php;
 
-interface IExceptionHandler {
-    public function register(): void;
+interface IErrorHandler extends IExceptionHandler {
+    public function handleError($level, $message, $filePath, $line): void;
 
-    public function unregister(): void;
-
-    public function listeners(): \ArrayObject;
-
-    public function handleException(\Throwable $e): void;
+    public function handleFatalError(): void;
 }

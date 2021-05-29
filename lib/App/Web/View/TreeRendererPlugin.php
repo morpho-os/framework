@@ -36,9 +36,15 @@ class TreeRendererPlugin extends Plugin {
             . '</ul>';
     }
 
-    public function setInternalNodeRenderer(callable $renderer): self {
-        $this->internalNodeRenderer = $renderer;
-        return $this;
+    protected function renderInternalNode($node): string {
+        $render = $this->internalNodeRenderer();
+        $renderedChildren = '';
+        if (!empty($node['nodes'])) {
+            array_push($this->parents, $node);
+            $renderedChildren = $this->render($node['nodes']);
+            array_pop($this->parents);
+        }
+        return $render($node, $renderedChildren);
     }
 
     public function internalNodeRenderer(): callable {
@@ -53,9 +59,9 @@ class TreeRendererPlugin extends Plugin {
         return $this->internalNodeRenderer;
     }
 
-    public function setLeafNodeRenderer(callable $renderer): self {
-        $this->leafNodeRenderer = $renderer;
-        return $this;
+    protected function renderLeafNode($node): string {
+        $render = $this->leafNodeRenderer();
+        return $render($node);
     }
 
     public function leafNodeRenderer(): callable {
@@ -69,20 +75,14 @@ class TreeRendererPlugin extends Plugin {
         return $this->leafNodeRenderer;
     }
 
-    protected function renderLeafNode($node): string {
-        $render = $this->leafNodeRenderer();
-        return $render($node);
+    public function setInternalNodeRenderer(callable $renderer): self {
+        $this->internalNodeRenderer = $renderer;
+        return $this;
     }
 
-    protected function renderInternalNode($node): string {
-        $render = $this->internalNodeRenderer();
-        $renderedChildren = '';
-        if (!empty($node['nodes'])) {
-            array_push($this->parents, $node);
-            $renderedChildren = $this->render($node['nodes']);
-            array_pop($this->parents);
-        }
-        return $render($node, $renderedChildren);
+    public function setLeafNodeRenderer(callable $renderer): self {
+        $this->leafNodeRenderer = $renderer;
+        return $this;
     }
     /*
         protected function renderCheckbox(string $name, bool $isInternalNode): string {

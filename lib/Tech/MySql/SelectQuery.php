@@ -8,7 +8,6 @@ namespace Morpho\Tech\MySql;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
-use Stringable;
 
 class SelectQuery extends Query {
     protected array $columns = [];

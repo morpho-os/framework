@@ -7,8 +7,8 @@
 
 namespace Morpho\Test\Unit\Tech\MySql;
 
-use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\MySql\DeleteQuery;
+use Morpho\Tech\Sql\IQuery;
 use PDO;
 
 class DeleteQueryTest extends QueryTest {
@@ -25,6 +25,11 @@ class DeleteQueryTest extends QueryTest {
         $this->assertCount(0, $this->selectAllRows());
     }
 
+    private function selectAllRows() {
+        $stmt = $this->pdo->query('SELECT * FROM cars');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function testWithWhereClause() {
         $this->assertCount(3, $this->selectAllRows());
 
@@ -36,11 +41,6 @@ class DeleteQueryTest extends QueryTest {
             ],
             $this->selectAllRows()
         );
-    }
-
-    private function selectAllRows() {
-        $stmt = $this->pdo->query('SELECT * FROM cars');
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     protected function mkQuery(): IQuery {

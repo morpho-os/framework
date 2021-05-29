@@ -36,6 +36,20 @@ class FileReflectionTest extends TestCase {
         );
     }
 
+    private function checkClasses(string $method, int $expectedCount, \Closure $check) {
+        $filePath = $this->getTestDirPath() . '/classes.php';
+        $rFile = new FileReflection($filePath);
+        $i = 0;
+        foreach ($rFile->{$method}() as $rClass) {
+            /** @var $rClass ClassTypeReflection */
+            $this->assertInstanceOf(\ReflectionClass::class, $rClass);
+            $check($i, $rClass);
+            $this->assertSame(__CLASS__, $rClass->getNamespaceName());
+            $i++;
+        }
+        $this->assertSame($expectedCount, $i);
+    }
+
     public function testTraits() {
         $this->checkClasses(
             'traits',
@@ -73,6 +87,10 @@ class FileReflectionTest extends TestCase {
         $this->assertGenYields([], $rFile->namespaces());
     }
 
+    private function assertGenYields($expected, \Generator $gen) {
+        $this->assertEquals($expected, \iterator_to_array($gen, false));
+    }
+
     public function testNamespaces_GlobalNamespace() {
         $filePath = $this->getTestDirPath() . '/global-ns.php';
         $rFile = new FileReflection($filePath);
@@ -91,6 +109,42 @@ class FileReflectionTest extends TestCase {
             $i++;
         }
         $this->assertEquals(1, $i);
+    }
+
+    private function checkClassTypes(array $expectedClasses, string $filePath, NamespaceReflection $rNamespace) {
+        $j = 0;
+        foreach ($rNamespace->classTypes() as $rClass) {
+            $this->checkReflectionClass($expectedClasses[$j], $filePath, $rClass);
+            $j++;
+        }
+        $this->assertEquals(\count($expectedClasses), $j);
+    }
+
+    private function checkReflectionClass(
+        string $expectedClass,
+        string $expectedFilePath,
+        ClassTypeReflection $rClass
+    ) {
+        $this->assertEquals($expectedClass, $rClass->getName());
+        $this->assertEquals($expectedFilePath, $rClass->getFileName());
+    }
+
+    private function checkFunctions(array $expectedFns, string $filePath, NamespaceReflection $rNamespace) {
+        $j = 0;
+        foreach ($rNamespace->functions() as $rFunction) {
+            $this->checkReflectionFunction($expectedFns[$j], $filePath, $rFunction);
+            $j++;
+        }
+        $this->assertEquals(\count($expectedFns), $j);
+    }
+
+    private function checkReflectionFunction(
+        string $expectedFnName,
+        string $expectedFilePath,
+        ReflectionFunction $rFunction
+    ) {
+        $this->assertEquals($expectedFnName, $rFunction->getName());
+        $this->assertEquals($expectedFilePath, $rFunction->getFileName());
     }
 
     public function dataNamespaces_MultipleNamespaces() {
@@ -140,59 +194,5 @@ class FileReflectionTest extends TestCase {
             $i++;
         }
         $this->assertEquals(2, $i);
-    }
-
-    private function assertGenYields($expected, \Generator $gen) {
-        $this->assertEquals($expected, \iterator_to_array($gen, false));
-    }
-
-    private function checkClassTypes(array $expectedClasses, string $filePath, NamespaceReflection $rNamespace) {
-        $j = 0;
-        foreach ($rNamespace->classTypes() as $rClass) {
-            $this->checkReflectionClass($expectedClasses[$j], $filePath, $rClass);
-            $j++;
-        }
-        $this->assertEquals(\count($expectedClasses), $j);
-    }
-
-    private function checkFunctions(array $expectedFns, string $filePath, NamespaceReflection $rNamespace) {
-        $j = 0;
-        foreach ($rNamespace->functions() as $rFunction) {
-            $this->checkReflectionFunction($expectedFns[$j], $filePath, $rFunction);
-            $j++;
-        }
-        $this->assertEquals(\count($expectedFns), $j);
-    }
-
-    private function checkReflectionClass(
-        string $expectedClass,
-        string $expectedFilePath,
-        ClassTypeReflection $rClass
-    ) {
-        $this->assertEquals($expectedClass, $rClass->getName());
-        $this->assertEquals($expectedFilePath, $rClass->getFileName());
-    }
-
-    private function checkReflectionFunction(
-        string $expectedFnName,
-        string $expectedFilePath,
-        ReflectionFunction $rFunction
-    ) {
-        $this->assertEquals($expectedFnName, $rFunction->getName());
-        $this->assertEquals($expectedFilePath, $rFunction->getFileName());
-    }
-
-    private function checkClasses(string $method, int $expectedCount, \Closure $check) {
-        $filePath = $this->getTestDirPath() . '/classes.php';
-        $rFile = new FileReflection($filePath);
-        $i = 0;
-        foreach ($rFile->{$method}() as $rClass) {
-            /** @var $rClass ClassTypeReflection */
-            $this->assertInstanceOf(\ReflectionClass::class, $rClass);
-            $check($i, $rClass);
-            $this->assertSame(__CLASS__, $rClass->getNamespaceName());
-            $i++;
-        }
-        $this->assertSame($expectedCount, $i);
     }
 }

@@ -35,6 +35,10 @@ class UnitManager {
         );
     }
 
+    protected function sh(string $cmd, array $conf = null): ICommandResult {
+        return sh($cmd, $conf);
+    }
+
     public function disable(bool $stop, bool $canFail): self {
         $this->sh(
             'systemctl disable' . ($stop ? ' --now' : '') . ' ' . escapeshellarg(
@@ -48,9 +52,5 @@ class UnitManager {
     public function stop(bool $canFail): self {
         $this->sh('systemctl stop ' . escapeshellarg($this->unitName . '.' . $this->unitType), ['check' => !$canFail]);
         return $this;
-    }
-
-    protected function sh(string $cmd, array $conf = null): ICommandResult {
-        return sh($cmd, $conf);
     }
 }

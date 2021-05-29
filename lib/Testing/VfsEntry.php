@@ -8,15 +8,13 @@ namespace Morpho\Testing;
 
 abstract class VfsEntry implements IVfsEntry {
     /**
-     * @var string
-     */
-    private $uri;
-
-    /**
      * @var bool
      */
     protected $isOpen = false;
-
+    /**
+     * @var string
+     */
+    private $uri;
     private $stat;
 
     public function __construct(string $uri, VfsEntryStat $stat) {
@@ -47,6 +45,12 @@ abstract class VfsEntry implements IVfsEntry {
         $this->isOpen = false;
     }
 
+    protected function checkIsOpen(): void {
+        if (!$this->isOpen) {
+            throw new \LogicException('Entry has not been opened');
+        }
+    }
+
     public function isOpen(): bool {
         return $this->isOpen;
     }
@@ -59,12 +63,6 @@ abstract class VfsEntry implements IVfsEntry {
         // Preserve type of entry which is stored in bits [17..12].
         $oldMode = $this->stat['mode'] & 0770000;
         $this->stat['mode'] = $oldMode | $newMode;
-    }
-
-    protected function checkIsOpen(): void {
-        if (!$this->isOpen) {
-            throw new \LogicException('Entry has not been opened');
-        }
     }
 
     protected function normalizeStat(VfsEntryStat $stat): void {

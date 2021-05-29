@@ -34,6 +34,13 @@ class Must {
         return $n == 1 ? $args[0] : $args;
     }
 
+    public static function beTrue($result, string $errMessage = null): void {
+        $result = (bool) $result;
+        if (false === $result) {
+            throw new RuntimeException((string) $errMessage);
+        }
+    }
+
     /**
      * @return mixed
      */
@@ -105,13 +112,6 @@ class Must {
     public static function beNotNull($val) {
         self::beTrue($val !== null);
         return $val;
-    }
-
-    public static function beTrue($result, string $errMessage = null): void {
-        $result = (bool) $result;
-        if (false === $result) {
-            throw new RuntimeException((string) $errMessage);
-        }
     }
 
     /**

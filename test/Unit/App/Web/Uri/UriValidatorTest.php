@@ -94,11 +94,27 @@ class UriValidatorTest extends TestCase {
         yield ['//', true];
     }
 
+    private function validatePathSamples(): \Generator {
+        yield ['/', true];
+        yield ['/c=GB', true];
+        yield ['/over/there', true];
+        yield ['/базовый/путь', false];
+        yield ['/%D0%B1%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B9/%D0%BF%D1%83%D1%82%D1%8C', true];
+    }
+
     /**
      * @dataProvider dataValidatePath_WithAuthorityCase
      */
     public function testValidatePath_WithAuthorityCase(string $path, bool $isValid) {
         $this->validatePath($path, $isValid, true);
+    }
+
+    private function validatePath(string $path, bool $isValid, bool $hasAuthority): void {
+        if ($isValid) {
+            $this->assertTrue(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
+        } else {
+            $this->assertFalse(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
+        }
     }
 
     public function dataValidatePath_WithoutAuthorityCase() {
@@ -119,21 +135,5 @@ class UriValidatorTest extends TestCase {
      */
     public function testValidatePath_WithoutAuthorityCase(string $path, bool $isValid) {
         $this->validatePath($path, $isValid, false);
-    }
-
-    private function validatePath(string $path, bool $isValid, bool $hasAuthority): void {
-        if ($isValid) {
-            $this->assertTrue(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
-        } else {
-            $this->assertFalse(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
-        }
-    }
-
-    private function validatePathSamples(): \Generator {
-        yield ['/', true];
-        yield ['/c=GB', true];
-        yield ['/over/there', true];
-        yield ['/базовый/путь', false];
-        yield ['/%D0%B1%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B9/%D0%BF%D1%83%D1%82%D1%8C', true];
     }
 }

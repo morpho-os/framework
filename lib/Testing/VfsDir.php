@@ -19,6 +19,10 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
         $this->isOpen = true;
     }
 
+    public function rewind(): void {
+        \reset($this->entries);
+    }
+
     public function close(): void {
         parent::close();
         $this->index = 0;
@@ -31,16 +35,16 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
         return $this->entries[$name];
     }
 
+    /*public function entryExists(string $name): bool {
+        return isset($this->entries[$name]);
+    }*/
+
     /**
      * @return IVfsEntry|false
      */
     public function entryOrNone(string $name) {
         return isset($this->entries[$name]) ? $this->entries[$name] : false;
     }
-
-    /*public function entryExists(string $name): bool {
-        return isset($this->entries[$name]);
-    }*/
 
     public function dirExists(string $name): bool {
         return isset($this->entries[$name]) && $this->entries[$name] instanceof VfsDir;
@@ -54,6 +58,15 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
         $this->normalizeStat($stat);
         $dir = new VfsDir($uri, $stat);
         return $this->entries[$dir->name()] = $dir;
+    }
+
+    protected function normalizeStat(VfsEntryStat $stat): void {
+        parent::normalizeStat($stat);
+        if (!isset($stat['mode'])) {
+            $typeBits = Stat::DIR;
+            $permissionBits = Stat::DIR_BASE_MODE & ~\umask();
+            $stat['mode'] = $typeBits | $permissionBits;
+        }
     }
 
     public function deleteDir(string $name): void {
@@ -142,20 +155,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
         return $valid;
     }
 
-    public function rewind(): void {
-        \reset($this->entries);
-    }
-
     public function count(): int {
         return \count($this->entries);
-    }
-
-    protected function normalizeStat(VfsEntryStat $stat): void {
-        parent::normalizeStat($stat);
-        if (!isset($stat['mode'])) {
-            $typeBits = Stat::DIR;
-            $permissionBits = Stat::DIR_BASE_MODE & ~\umask();
-            $stat['mode'] = $typeBits | $permissionBits;
-        }
     }
 }

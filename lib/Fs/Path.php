@@ -96,10 +96,6 @@ class Path extends BasePath {
         return pathinfo($path, PATHINFO_EXTENSION);
     }
 
-    public static function nameWithoutExt(string $path): string {
-        return pathinfo($path, PATHINFO_FILENAME);
-    }
-
     public static function fileName(string $path): string {
         return pathinfo($path, PATHINFO_BASENAME);
     }
@@ -111,10 +107,6 @@ class Path extends BasePath {
             return $match[1] . dirname($match[2]);
         }
         return dirname($path);
-    }
-
-    public static function normalizeExt(string $ext): string {
-        return ltrim($ext, '.');
     }
 
     public static function dropExt(string $path): string {
@@ -138,6 +130,14 @@ class Path extends BasePath {
         return count($parts)
             ? implode('/', $parts) . '/' . $baseName . $newExt
             : $baseName . $newExt;
+    }
+
+    public static function normalizeExt(string $ext): string {
+        return ltrim($ext, '.');
+    }
+
+    public static function nameWithoutExt(string $path): string {
+        return pathinfo($path, PATHINFO_FILENAME);
     }
 
     /**

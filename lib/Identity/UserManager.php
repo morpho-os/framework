@@ -36,6 +36,12 @@ class UserManager {
         return $this->user;
     }
 
+    private function registeredUserById($id) {
+        $registeredUser = $this->repo->userById($id);
+        unset($registeredUser['passwordHash']);
+        return $registeredUser;
+    }
+
     public function isUserLoggedIn(): bool {
         return !empty($this->session->userId);
     }
@@ -80,11 +86,6 @@ class UserManager {
         return true;
     }
 
-    public function logOut() {
-        $this->user = null;
-        unset($this->session->userId);
-    }
-
     /**
      * This operation usually must be done in transaction.
      *
@@ -104,13 +105,12 @@ class UserManager {
         $this->repo->deleteUser($user);
     }
 
-    public function userInGroup(array $group): bool {
-        throw new NotImplementedException();
+    public function logOut() {
+        $this->user = null;
+        unset($this->session->userId);
     }
 
-    private function registeredUserById($id) {
-        $registeredUser = $this->repo->userById($id);
-        unset($registeredUser['passwordHash']);
-        return $registeredUser;
+    public function userInGroup(array $group): bool {
+        throw new NotImplementedException();
     }
 }

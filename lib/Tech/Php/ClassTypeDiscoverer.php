@@ -43,40 +43,6 @@ class ClassTypeDiscoverer {
         );
     }
 
-    public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $conf = null): array {
-        $conf = (array) $conf + ['recursive' => true];
-        $filePaths = Dir::filePaths($dirPaths, $regExp ?: Dir::PHP_FILE_RE, $conf);
-        $map = [];
-        $discoverStrategy = $this->discoverStrategy();
-        foreach ($filePaths as $filePath) {
-            foreach ($discoverStrategy->classTypesDefinedInFile($filePath) as $classType) {
-                if (isset($map[$classType])) {
-                    throw new RuntimeException(
-                        "Cannot redeclare the class|interface|trait '$classType' in '$filePath'"
-                    );
-                }
-                $map[$classType] = $filePath;
-            }
-        }
-        return $map;
-    }
-
-    public function classTypesDefinedInFile(string $filePath): array {
-        return $this->discoverStrategy()->classTypesDefinedInFile($filePath);
-    }
-
-    public function setDiscoverStrategy(IDiscoverStrategy $strategy): self {
-        $this->discoverStrategy = $strategy;
-        return $this;
-    }
-
-    public function discoverStrategy(): IDiscoverStrategy {
-        if (null === $this->discoverStrategy) {
-            $this->discoverStrategy = new TokenStrategy();
-        }
-        return $this->discoverStrategy;
-    }
-
     public static function classTypeFilePath(string $classType): string {
         return (new ReflectionClass($classType))->getFileName();
     }
@@ -96,6 +62,40 @@ class ClassTypeDiscoverer {
         return $excludeStdClasses
             ? (new StdClassTypeFilter())->__invoke($depsCollector->classTypes())
             : $depsCollector->classTypes();
+    }
+
+    public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $conf = null): array {
+        $conf = (array) $conf + ['recursive' => true];
+        $filePaths = Dir::filePaths($dirPaths, $regExp ?: Dir::PHP_FILE_RE, $conf);
+        $map = [];
+        $discoverStrategy = $this->discoverStrategy();
+        foreach ($filePaths as $filePath) {
+            foreach ($discoverStrategy->classTypesDefinedInFile($filePath) as $classType) {
+                if (isset($map[$classType])) {
+                    throw new RuntimeException(
+                        "Cannot redeclare the class|interface|trait '$classType' in '$filePath'"
+                    );
+                }
+                $map[$classType] = $filePath;
+            }
+        }
+        return $map;
+    }
+
+    public function discoverStrategy(): IDiscoverStrategy {
+        if (null === $this->discoverStrategy) {
+            $this->discoverStrategy = new TokenStrategy();
+        }
+        return $this->discoverStrategy;
+    }
+
+    public function classTypesDefinedInFile(string $filePath): array {
+        return $this->discoverStrategy()->classTypesDefinedInFile($filePath);
+    }
+
+    public function setDiscoverStrategy(IDiscoverStrategy $strategy): self {
+        $this->discoverStrategy = $strategy;
+        return $this;
     }
 }
 

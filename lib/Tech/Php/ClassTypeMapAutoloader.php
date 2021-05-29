@@ -54,13 +54,6 @@ class ClassTypeMapAutoloader extends Autoloader {
         return isset($this->map[$class]) ? $this->map[$class] : false;
     }
 
-    public function clearMap(): void {
-        $this->map = null;
-        if (null !== $this->cache) {
-            $this->cache->clear();
-        }
-    }
-
     protected function mkMap(): array {
         $classTypeDiscoverer = new ClassTypeDiscoverer();
         return $classTypeDiscoverer->classTypesDefinedInDir(
@@ -68,5 +61,12 @@ class ClassTypeMapAutoloader extends Autoloader {
             $this->processor,
             ['followLinks' => true]
         );
+    }
+
+    public function clearMap(): void {
+        $this->map = null;
+        if (null !== $this->cache) {
+            $this->cache->clear();
+        }
     }
 }

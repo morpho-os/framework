@@ -39,9 +39,9 @@ abstract class Pipe implements IPipe {
         return $this->index >= 0 && $this->index < $this->count();
     }
 
+    abstract public function count(): int;
+
     public function rewind(): void {
         $this->index = 0;
     }
-
-    abstract public function count(): int;
 }

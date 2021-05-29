@@ -44,10 +44,6 @@ class PhpFileHeaderFixer implements IFn {
         return $this;
     }
 
-    public function licenseComment(): ?string {
-        return $this->licenseComment;
-    }
-
     public function fixFiles(iterable $files, array $context, Result $prevResult = null): Result {
         if ($prevResult) {
             $stats = $prevResult->val();
@@ -172,6 +168,69 @@ class PhpFileHeaderFixer implements IFn {
         return $isValid ? new Ok($resultContext) : new Err($resultContext);
     }
 
+    private function checkNs(array $context): Result {
+        $relPath = Path::rel($context['filePath'], $context['baseDirPath']);
+        $expectedNs = rtrim($context['ns'], '\\');
+        $nsSuffix = init(str_replace('/', '\\', $relPath), '\\');
+        if ($nsSuffix !== '') {
+            $expectedNs .= '\\' . classify($nsSuffix);
+        }
+        foreach (self::namespaces($context['filePath']) as $ns) {
+            // We are checking only the first namespace.
+            if ($ns !== $expectedNs) {
+                return new Err(['expected' => $expectedNs, 'actual' => $ns]);
+            }
+            return new Ok(['expected' => $expectedNs, 'actual' => $ns]);
+        }
+        return new Err(['expected' => $expectedNs, 'actual' => null]);
+    }
+
+    /**
+     * @param string $filePath
+     * @return Traversable|string[]
+     */
+    private function namespaces(string $filePath): iterable {
+        $rFile = new FileReflection($filePath);
+        foreach ($rFile->namespaces() as $rNamespace) {
+            (yield $rNamespace->name());
+        }
+    }
+
+    private function checkClassType(array $context): Result {
+        $mustHaveClasses = ctype_upper(ltrim(basename($context['filePath'], '_'))[0]);
+        // Must have classes if filename starts with [A-Z]
+        $filePath = $context['filePath'];
+        $expectedClassName = Path::dropExt(basename($filePath));
+        foreach (self::classes($filePath) as $className) {
+            $shortClassName = last($className, '\\');
+            if ($shortClassName !== $expectedClassName) {
+                return new Err(['expected' => $expectedClassName, 'actual' => $shortClassName]);
+            }
+            // We are checking only the first class.
+            return new Ok(['expected' => $expectedClassName, 'actual' => $shortClassName]);
+        }
+        if ($mustHaveClasses) {
+            return new Err(['expected' => $expectedClassName, 'actual' => null]);
+        }
+        return new Ok(['expected' => null, 'actual' => null]);
+    }
+
+    /**
+     * @param string $filePath
+     * @return Traversable|string[]
+     */
+    private function classes(string $filePath): iterable {
+        return (new ClassTypeDiscoverer())->classTypesDefinedInFile($filePath);
+    }
+
+    public function licenseComment(): ?string {
+        return $this->licenseComment;
+    }
+
+    private function parse(array $context): array {
+        return isset($context['text']) ? parse($context['text']) : parseFile($context['filePath']);
+    }
+
     public function fix(array $context): Result {
         if (!$context['hasStmts']) {
             return new Err("The file " . q($context['filePath']) . ' does not have PHP statements');
@@ -209,6 +268,39 @@ class PhpFileHeaderFixer implements IFn {
         }
         $context = $this->fixLicenseComment($context);
         return new Ok($context);
+    }
+
+    private function addDeclare(array $context): array {
+        $nodes = $this->parse($context);
+        $offset = 0;
+        if (isset($nodes[0]) && isShebangNode($nodes[0])) {
+            $offset++;
+        }
+        array_splice(
+            $nodes,
+            $offset,
+            0,
+            [
+                new Node\Stmt\Declare_(
+                    [
+                        new Node\Stmt\DeclareDeclare(
+                            new Node\Identifier('strict_types'), new Node\Scalar\LNumber(1)
+                        ),
+                    ]
+                ),
+            ]
+        );
+        $context['text'] = $this->ppFile($nodes);
+        return $context;
+    }
+
+    private function ppFile(array $nodes): string {
+        $text = ppFile($nodes);
+        return preg_replace(
+            '~^(#![^\\n\\r]+[\\n\\r]*)?\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si',
+            '\\1<?php declare(strict_types=1);',
+            $text
+        );
     }
 
     private function fixNs(array $context): array {
@@ -258,81 +350,27 @@ class PhpFileHeaderFixer implements IFn {
         );
     }
 
-    private function checkNs(array $context): Result {
-        $relPath = Path::rel($context['filePath'], $context['baseDirPath']);
-        $expectedNs = rtrim($context['ns'], '\\');
-        $nsSuffix = init(str_replace('/', '\\', $relPath), '\\');
-        if ($nsSuffix !== '') {
-            $expectedNs .= '\\' . classify($nsSuffix);
-        }
-        foreach (self::namespaces($context['filePath']) as $ns) {
-            // We are checking only the first namespace.
-            if ($ns !== $expectedNs) {
-                return new Err(['expected' => $expectedNs, 'actual' => $ns]);
-            }
-            return new Ok(['expected' => $expectedNs, 'actual' => $ns]);
-        }
-        return new Err(['expected' => $expectedNs, 'actual' => null]);
-    }
-
-    private function checkClassType(array $context): Result {
-        $mustHaveClasses = ctype_upper(ltrim(basename($context['filePath'], '_'))[0]);
-        // Must have classes if filename starts with [A-Z]
-        $filePath = $context['filePath'];
-        $expectedClassName = Path::dropExt(basename($filePath));
-        foreach (self::classes($filePath) as $className) {
-            $shortClassName = last($className, '\\');
-            if ($shortClassName !== $expectedClassName) {
-                return new Err(['expected' => $expectedClassName, 'actual' => $shortClassName]);
-            }
-            // We are checking only the first class.
-            return new Ok(['expected' => $expectedClassName, 'actual' => $shortClassName]);
-        }
-        if ($mustHaveClasses) {
-            return new Err(['expected' => $expectedClassName, 'actual' => null]);
-        }
-        return new Ok(['expected' => null, 'actual' => null]);
-    }
-
     /**
-     * @param string $filePath
-     * @return Traversable|string[]
+     * @param array $context
+     * @param array $visitors
+     * @param callable|null $beforeVisit
+     * @param callable|null $afterVisit
+     * @return array Modified $context.
      */
-    private function namespaces(string $filePath): iterable {
-        $rFile = new FileReflection($filePath);
-        foreach ($rFile->namespaces() as $rNamespace) {
-            (yield $rNamespace->name());
-        }
-    }
-
-    /**
-     * @param string $filePath
-     * @return Traversable|string[]
-     */
-    private function classes(string $filePath): iterable {
-        return (new ClassTypeDiscoverer())->classTypesDefinedInFile($filePath);
-    }
-
-    private function addDeclare(array $context): array {
+    private function visit(
+        array $context,
+        array $visitors,
+        callable $beforeVisit = null,
+        callable $afterVisit = null
+    ): array {
         $nodes = $this->parse($context);
-        $offset = 0;
-        if (isset($nodes[0]) && isShebangNode($nodes[0])) {
-            $offset++;
+        if ($beforeVisit) {
+            $nodes = $beforeVisit($nodes, $visitors);
         }
-        array_splice(
-            $nodes,
-            $offset,
-            0,
-            [
-                new Node\Stmt\Declare_(
-                    [
-                        new Node\Stmt\DeclareDeclare(
-                            new Node\Identifier('strict_types'), new Node\Scalar\LNumber(1)
-                        ),
-                    ]
-                ),
-            ]
-        );
+        visit($nodes, $visitors);
+        if ($afterVisit) {
+            $nodes = $afterVisit($nodes, $visitors);
+        }
         $context['text'] = $this->ppFile($nodes);
         return $context;
     }
@@ -393,43 +431,5 @@ class PhpFileHeaderFixer implements IFn {
             }
         };
         return $this->visit($context, [$visitor]);
-    }
-
-    private function parse(array $context): array {
-        return isset($context['text']) ? parse($context['text']) : parseFile($context['filePath']);
-    }
-
-    /**
-     * @param array $context
-     * @param array $visitors
-     * @param callable|null $beforeVisit
-     * @param callable|null $afterVisit
-     * @return array Modified $context.
-     */
-    private function visit(
-        array $context,
-        array $visitors,
-        callable $beforeVisit = null,
-        callable $afterVisit = null
-    ): array {
-        $nodes = $this->parse($context);
-        if ($beforeVisit) {
-            $nodes = $beforeVisit($nodes, $visitors);
-        }
-        visit($nodes, $visitors);
-        if ($afterVisit) {
-            $nodes = $afterVisit($nodes, $visitors);
-        }
-        $context['text'] = $this->ppFile($nodes);
-        return $context;
-    }
-
-    private function ppFile(array $nodes): string {
-        $text = ppFile($nodes);
-        return preg_replace(
-            '~^(#![^\\n\\r]+[\\n\\r]*)?\\<\\?php\\s+declare\\s*\\(\\s*strict_types\\s*=\\s*1\\s*\\)\\s*;~si',
-            '\\1<?php declare(strict_types=1);',
-            $text
-        );
     }
 }

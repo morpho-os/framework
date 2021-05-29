@@ -30,6 +30,10 @@ abstract class Response extends Message implements IResponse {
         $this->sendBody();
     }
 
+    protected function sendBody(): void {
+        echo $this->body;
+    }
+
     public function setStatusCode(int $statusCode): void {
         $this->statusCode = $statusCode;
     }
@@ -44,15 +48,11 @@ abstract class Response extends Message implements IResponse {
         $this->resetBody();
     }
 
-    public function resetBody(): void {
-        $this->body = '';
-    }
-
     public function resetStatusCode(): void {
         $this->statusCode = 0;
     }
 
-    protected function sendBody(): void {
-        echo $this->body;
+    public function resetBody(): void {
+        $this->body = '';
     }
 }

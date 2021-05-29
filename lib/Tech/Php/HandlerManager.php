@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Error;
+namespace Morpho\Tech\Php;
 
 use InvalidArgumentException;
 use RuntimeException;
@@ -24,6 +24,55 @@ class HandlerManager {
 
     public static function isHandlerRegistered(string $handlerType, callable $callback): bool {
         return in_array($callback, self::handlersOfType($handlerType));
+    }
+
+    public static function handlersOfType(string $handlerType) {
+        self::checkHandlerType($handlerType);
+
+        $popHandler = 'restore_' . $handlerType . '_handler';
+        $pushHandler = 'set_' . $handlerType . '_handler';
+
+        $handlers = [];
+        do {
+            $handler = self::handlerOfType($handlerType);
+            $popHandler();
+            if (!$handler) {
+                break;
+            }
+            $handlers[] = $handler;
+        } while ($handler);
+
+        $handlers = array_reverse($handlers);
+
+        // Restore handlers back.
+        foreach ($handlers as $handler) {
+            $pushHandler($handler);
+        }
+
+        return $handlers;
+    }
+
+    private static function checkHandlerType(string $handlerType) {
+        if (!in_array($handlerType, [self::ERROR, self::EXCEPTION], true)) {
+            self::invalidHandlerTypeException($handlerType);
+        }
+    }
+
+    private static function invalidHandlerTypeException(string $handlerType) {
+        throw new InvalidArgumentException("Invalid handler type was provided '$handlerType'.");
+    }
+
+    /**
+     * @param string $handlerType
+     * @return callable|null
+     */
+    public static function handlerOfType(string $handlerType) {
+        self::checkHandlerType($handlerType);
+
+        $currentHandler = call_user_func('set_' . $handlerType . '_handler', [__CLASS__, __FUNCTION__]);
+        call_user_func('restore_' . $handlerType . '_handler');
+
+        return $currentHandler;
     }
 
     /**
@@ -99,54 +148,5 @@ class HandlerManager {
 
     public static function errorHandlers() {
         return self::handlersOfType(self::ERROR);
-    }
-
-    public static function handlersOfType(string $handlerType) {
-        self::checkHandlerType($handlerType);
-
-        $popHandler = 'restore_' . $handlerType . '_handler';
-        $pushHandler = 'set_' . $handlerType . '_handler';
-
-        $handlers = [];
-        do {
-            $handler = self::handlerOfType($handlerType);
-            $popHandler();
-            if (!$handler) {
-                break;
-            }
-            $handlers[] = $handler;
-        } while ($handler);
-
-        $handlers = array_reverse($handlers);
-
-        // Restore handlers back.
-        foreach ($handlers as $handler) {
-            $pushHandler($handler);
-        }
-
-        return $handlers;
-    }
-
-    /**
-     * @param string $handlerType
-     * @return callable|null
-     */
-    public static function handlerOfType(string $handlerType) {
-        self::checkHandlerType($handlerType);
-
-        $currentHandler = call_user_func('set_' . $handlerType . '_handler', [__CLASS__, __FUNCTION__]);
-        call_user_func('restore_' . $handlerType . '_handler');
-
-        return $currentHandler;
-    }
-
-    private static function checkHandlerType(string $handlerType) {
-        if (!in_array($handlerType, [self::ERROR, self::EXCEPTION], true)) {
-            self::invalidHandlerTypeException($handlerType);
-        }
-    }
-
-    private static function invalidHandlerTypeException(string $handlerType) {
-        throw new InvalidArgumentException("Invalid handler type was provided '$handlerType'.");
     }
 }

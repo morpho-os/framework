@@ -21,31 +21,6 @@ class DispatchErrorHandlerTest extends TestCase {
         $this->checkHandlesTheSameErrorOccurredTwice($dispatchErrorHandler, $handler, $exception, 500, true);
     }
 
-    public function testThrowErrorsAccessor() {
-        $this->checkBoolAccessor([new DispatchErrorHandler(), 'throwErrors'], false);
-    }
-
-    public function testHandleException_MustRethrowExceptionIfThrowErrorsIsSet() {
-        $exception = new \RuntimeException('Uncaught test');
-        //yield [, true];
-        $dispatchErrorHandler = new DispatchErrorHandler();
-        $request = new Request();
-        $request->isHandled(true);
-        $exceptionMessage = $exception->getMessage();
-        $dispatchErrorHandler->throwErrors(true);
-        $serviceManager = $this->mkServiceManagerWithLogger(true, $exception, 1);
-        $dispatchErrorHandler->setServiceManager($serviceManager);
-        try {
-            $dispatchErrorHandler->handleException($exception, $request);
-            $this->fail('Must throw an exception');
-        } catch (\RuntimeException $e) {
-            $this->assertSame([], $request->handler());
-            $this->assertSame($exception, $e);
-            $this->assertSame($exceptionMessage, $e->getMessage());
-            $this->assertTrue($request->isHandled()); // break the main loop
-        }
-    }
-
     private function checkHandlesTheSameErrorOccurredTwice(
         DispatchErrorHandler $dispatchErrorHandler,
         array $expectedHandler,
@@ -97,5 +72,30 @@ class DispatchErrorHandlerTest extends TestCase {
             ->with('errorLogger')
             ->willReturn($errorLogger);
         return $serviceManager;
+    }
+
+    public function testThrowErrorsAccessor() {
+        $this->checkBoolAccessor([new DispatchErrorHandler(), 'throwErrors'], false);
+    }
+
+    public function testHandleException_MustRethrowExceptionIfThrowErrorsIsSet() {
+        $exception = new \RuntimeException('Uncaught test');
+        //yield [, true];
+        $dispatchErrorHandler = new DispatchErrorHandler();
+        $request = new Request();
+        $request->isHandled(true);
+        $exceptionMessage = $exception->getMessage();
+        $dispatchErrorHandler->throwErrors(true);
+        $serviceManager = $this->mkServiceManagerWithLogger(true, $exception, 1);
+        $dispatchErrorHandler->setServiceManager($serviceManager);
+        try {
+            $dispatchErrorHandler->handleException($exception, $request);
+            $this->fail('Must throw an exception');
+        } catch (\RuntimeException $e) {
+            $this->assertSame([], $request->handler());
+            $this->assertSame($exception, $e);
+            $this->assertSame($exceptionMessage, $e->getMessage());
+            $this->assertTrue($request->isHandled()); // break the main loop
+        }
     }
 }

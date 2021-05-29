@@ -21,13 +21,6 @@ abstract class Rand {
     }
 
     /**
-     * Generate a random integer between $min and $max
-     */
-    public static function randInt(int $min, int $max): int {
-        return random_int($min, $max);
-    }
-
-    /**
      * Generate random float [0..1)
      * This function generates floats with platform-dependent precision
      *
@@ -71,5 +64,12 @@ abstract class Rand {
             $result .= $charlist[$pos];
         }
         return $result;
+    }
+
+    /**
+     * Generate a random integer between $min and $max
+     */
+    public static function randInt(int $min, int $max): int {
+        return random_int($min, $max);
     }
 }

@@ -27,23 +27,6 @@ class BrowserTestCase extends TestCase {
         $this->browser = $this->browser();
     }
 
-    public function tearDown(): void {
-        parent::tearDown();
-        if ($this->browser) {
-            $this->browser->quit();
-            $this->browser = null;
-        }
-    }
-
-    protected function checkLink(string $expectedUri, string $expectedText, WebDriverElement $el): void {
-        $this->assertEquals($expectedUri, $el->getAttribute('href'));
-        $this->assertEquals($expectedText, $el->getText());
-    }
-
-    protected function checkElValue(string $expectedText, By $elSelector): void {
-        $this->assertEquals($expectedText, $this->browser()->findElement($elSelector)->getAttribute('value'));
-    }
-
     protected function browser(): Browser {
         if (null === $this->browser) {
             $browser = $this->mkBrowser();
@@ -65,6 +48,23 @@ class BrowserTestCase extends TestCase {
 
     protected function configureBrowser($browser): void {
         // Can be overloaded in child classes.
+    }
+
+    public function tearDown(): void {
+        parent::tearDown();
+        if ($this->browser) {
+            $this->browser->quit();
+            $this->browser = null;
+        }
+    }
+
+    protected function checkLink(string $expectedUri, string $expectedText, WebDriverElement $el): void {
+        $this->assertEquals($expectedUri, $el->getAttribute('href'));
+        $this->assertEquals($expectedText, $el->getText());
+    }
+
+    protected function checkElValue(string $expectedText, By $elSelector): void {
+        $this->assertEquals($expectedText, $this->browser()->findElement($elSelector)->getAttribute('value'));
     }
 
     protected function uri(string $relUri = null): string {

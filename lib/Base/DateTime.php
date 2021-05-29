@@ -31,12 +31,38 @@ class DateTime extends DateTimeImmutable {
         return (new static(null, $timeZone))->mySqlDateTime();
     }
 
-    public function yearAsInt() {
-        return (int) $this->format('Y');
+    public function mySqlDateTime(): string {
+        return $this->format(self::MYSQL_DATETIME);
     }
 
-    public function year() {
-        return $this->format('Y');
+    /**
+     * Overridden to return self.
+     * @param string $format
+     * @param string $value
+     * @param null|string|\DateTimeZone $timeZone
+     * @return DateTimeImmutable|false|DateTime
+     */
+    public static function createFromFormat($format, $value, $timeZone = null): self {
+        return new static(
+            parent::createFromFormat($format, $value, $timeZone)->format(self::ISO8601)
+        );
+    }
+
+    /**
+     * @param string|int $value
+     * @return bool
+     */
+    public static function isTimestamp($value): bool {
+        $value = (string) $value;
+        return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
+    }
+
+    public static function mkFromTimestamp($timestamp): self {
+        return (new static())->setTimestamp($timestamp);
+    }
+
+    public function yearAsInt() {
+        return (int) $this->format('Y');
     }
 
     /**
@@ -44,10 +70,6 @@ class DateTime extends DateTimeImmutable {
      */
     public function monthAsInt() {
         return (int) $this->format('n');
-    }
-
-    public function month() {
-        return $this->format('m');
     }
 
     /**
@@ -79,6 +101,17 @@ class DateTime extends DateTimeImmutable {
         return (int) $this->stripLeadingZero($this->format('i'));
     }
 
+    /**
+     * @param string $val
+     * @return string
+     */
+    protected function stripLeadingZero($val) {
+        if (\strlen($val) > 1 && $val[0] == 0) {
+            $val = \substr($val, 1);
+        }
+        return $val;
+    }
+
     public function minute() {
         return $this->format('i');
     }
@@ -92,23 +125,6 @@ class DateTime extends DateTimeImmutable {
 
     public function second() {
         return $this->format('s');
-    }
-
-
-    public function isLeapYear() {
-        $year = $this->year();
-        return $year % 400 == 0 || ($year % 100 != 0 && $year % 4 == 0);
-    }
-
-    /**
-     * @param string $val
-     * @return string
-     */
-    protected function stripLeadingZero($val) {
-        if (\strlen($val) > 1 && $val[0] == 0) {
-            $val = \substr($val, 1);
-        }
-        return $val;
     }
 
     /**
@@ -126,38 +142,21 @@ class DateTime extends DateTimeImmutable {
         return $lastDays[$month - 1];
     }
 
-    /**
-     * Overridden to return self.
-     * @param string $format
-     * @param string $value
-     * @param null|string|\DateTimeZone $timeZone
-     * @return DateTimeImmutable|false|DateTime
-     */
-    public static function createFromFormat($format, $value, $timeZone = null): self {
-        return new static(
-            parent::createFromFormat($format, $value, $timeZone)->format(self::ISO8601)
-        );
+    public function month() {
+        return $this->format('m');
     }
 
-    public function mySqlDateTime(): string {
-        return $this->format(self::MYSQL_DATETIME);
+    public function isLeapYear() {
+        $year = $this->year();
+        return $year % 400 == 0 || ($year % 100 != 0 && $year % 4 == 0);
+    }
+
+    public function year() {
+        return $this->format('Y');
     }
 
     public function getTimestamp(): int {
         return PHP_INT_SIZE === 4 ? (int) $this->format('U') : parent::getTimestamp();
-    }
-
-    /**
-     * @param string|int $value
-     * @return bool
-     */
-    public static function isTimestamp($value): bool {
-        $value = (string) $value;
-        return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
-    }
-
-    public static function mkFromTimestamp($timestamp): self {
-        return (new static())->setTimestamp($timestamp);
     }
 
     public function __toString(): string {

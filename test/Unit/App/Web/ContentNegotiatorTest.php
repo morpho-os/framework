@@ -53,6 +53,23 @@ class ContentNegotiatorTest extends TestCase {
         ];
     }
 
+    private function mediaRanges(): array {
+        return [
+            ContentFormat::JSON => ['application/json'],
+            ContentFormat::HTML => ['text/html', 'application/xhtml+xml'],
+            ContentFormat::XML  => ['application/xml;q=0.9'],
+            ContentFormat::ANY  => ['*/*;q=0.8'],
+        ];
+    }
+
+    private function mkAcceptHeaderVal(array $mediaRanges): string {
+        foreach ($mediaRanges as &$mediaRange) {
+            $mediaRange = \implode(', ', $mediaRange);
+        }
+        unset($mediaRange);
+        return \implode(', ', $mediaRanges);
+    }
+
     /**
      * @dataProvider dataInvoke
      */
@@ -74,22 +91,5 @@ class ContentNegotiatorTest extends TestCase {
         $format = $negotiator->__invoke($request);
 
         $this->assertSame(ContentFormat::HTML, $format);
-    }
-
-    private function mkAcceptHeaderVal(array $mediaRanges): string {
-        foreach ($mediaRanges as &$mediaRange) {
-            $mediaRange = \implode(', ', $mediaRange);
-        }
-        unset($mediaRange);
-        return \implode(', ', $mediaRanges);
-    }
-
-    private function mediaRanges(): array {
-        return [
-            ContentFormat::JSON => ['application/json'],
-            ContentFormat::HTML => ['text/html', 'application/xhtml+xml'],
-            ContentFormat::XML  => ['application/xml;q=0.9'],
-            ContentFormat::ANY  => ['*/*;q=0.8'],
-        ];
     }
 }

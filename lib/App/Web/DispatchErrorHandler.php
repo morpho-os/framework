@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\Error\ErrorHandler;
+use Morpho\Tech\Php\ErrorHandler;
 use Morpho\Ioc\IHasServiceManager;
 use Morpho\Ioc\THasServiceManager;
 

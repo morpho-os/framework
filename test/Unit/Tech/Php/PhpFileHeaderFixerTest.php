@@ -59,6 +59,22 @@ class PhpFileHeaderFixerTest extends TestCase {
         $this->assertEquals(new Err("The file '{$context['filePath']}' does not have PHP statements"), $fixResult);
     }
 
+    private function checkContext(array $expectedContext, array $actualContext): void {
+        $this->checkCommonContextVals($expectedContext, $actualContext);
+        $this->assertSame($expectedContext['hasLicenseComment'], $actualContext['hasLicenseComment']);
+    }
+
+    private function checkCommonContextVals(array $expectedContext, array $actualContext): void {
+        $this->assertSame($expectedContext['filePath'], $actualContext['filePath']);
+        $this->assertSame($expectedContext['ns'], $actualContext['ns']);
+        $this->assertSame($expectedContext['baseDirPath'], $actualContext['baseDirPath']);
+        $this->assertSame($expectedContext['hasStmts'], $actualContext['hasStmts']);
+        $this->assertSame($expectedContext['hasDeclare'], $actualContext['hasDeclare']);
+        $this->assertSame($expectedContext['hasValidDeclare'], $actualContext['hasValidDeclare']);
+        $this->assertEquals($expectedContext['nsCheckResult'], $actualContext['nsCheckResult']);
+        $this->assertEquals($expectedContext['classTypeCheckResult'], $actualContext['classTypeCheckResult']);
+    }
+
     public function testCheckAndFix_DeclareAndNamespace_NoLicense() {
         $filePath = $this->getTestDirPath() . '/Foo.php';
         $context = ['filePath' => $filePath, 'baseDirPath' => dirname($filePath), 'ns' => self::class];
@@ -81,6 +97,42 @@ class PhpFileHeaderFixerTest extends TestCase {
         );
         $fixResult = $this->fixer->fix($resultContext);
         $this->checkFixResult($fixResult, $this->licenseComment());
+    }
+
+    private function checkFixResult(
+        Result $fixResult,
+        bool|string $licenseComment,
+        string $expectedNs = null,
+        bool $shebang = false
+    ): void {
+        $this->assertInstanceOf(Ok::class, $fixResult);
+        $resultContext = $fixResult->val();
+        $this->assertMatchesRegularExpression(
+            $this->fileHeaderRe($expectedNs ?? self::class, $licenseComment, $shebang),
+            $resultContext['text']
+        );
+        if ($licenseComment !== false) {
+            $this->assertSame(1, substr_count($resultContext['text'], 'This file is part of morpho-os/framework'));
+        }
+    }
+
+    private function fileHeaderRe(string $expectedNs, string|bool $licenseComment, bool $shebang = false): string {
+        return '~^'
+            . ($shebang ? '#!/usr/bin/env\\s+php\\n' : '')
+            . '\\<\\?php declare\\(strict_types=1\\);\\s+'
+            . ($licenseComment !== false ? preg_quote($licenseComment, '~') . "\\s+" : '')
+            . 'namespace ' . preg_quote($expectedNs, '~')
+            . '~si';
+    }
+
+    private function licenseComment(): string {
+        return <<<'OUT'
+/**
+ * This file is part of morpho-os/framework
+ * It is distributed under the 'Apache License Version 2.0' license.
+ * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
+ */
+OUT;
     }
 
     public function testCheckAndFix_DeclareAndLicense_NoNs() {
@@ -364,9 +416,9 @@ OUT
     public function testCheck_InvalidNs_NsDirWithHyphen() {
         $filePath = $this->getTestDirPath() . '/foo-bar/Some.php';
         $context = [
-            'filePath' => $filePath,
+            'filePath'    => $filePath,
             'baseDirPath' => dirname(dirname($filePath)),
-            'ns' => self::class
+            'ns'          => self::class,
         ];
 
         $checkResult = $this->fixer->check($context);
@@ -381,63 +433,13 @@ OUT
                     'hasDeclare'           => true,
                     'hasValidDeclare'      => true,
                     'hasLicenseComment'    => true,
-                    'nsCheckResult'        => new Err(['expected' => $context['ns'] . '\\FooBar', 'actual' => self::class . '\\SomeInvalidNs']),
+                    'nsCheckResult'        => new Err(
+                        ['expected' => $context['ns'] . '\\FooBar', 'actual' => self::class . '\\SomeInvalidNs']
+                    ),
                     'classTypeCheckResult' => new Ok(['expected' => 'Some', 'actual' => 'Some']),
                 ]
             ),
             $resultContext
         );
-    }
-
-    private function checkContext(array $expectedContext, array $actualContext): void {
-        $this->checkCommonContextVals($expectedContext, $actualContext);
-        $this->assertSame($expectedContext['hasLicenseComment'], $actualContext['hasLicenseComment']);
-    }
-
-    private function checkCommonContextVals(array $expectedContext, array $actualContext): void {
-        $this->assertSame($expectedContext['filePath'], $actualContext['filePath']);
-        $this->assertSame($expectedContext['ns'], $actualContext['ns']);
-        $this->assertSame($expectedContext['baseDirPath'], $actualContext['baseDirPath']);
-        $this->assertSame($expectedContext['hasStmts'], $actualContext['hasStmts']);
-        $this->assertSame($expectedContext['hasDeclare'], $actualContext['hasDeclare']);
-        $this->assertSame($expectedContext['hasValidDeclare'], $actualContext['hasValidDeclare']);
-        $this->assertEquals($expectedContext['nsCheckResult'], $actualContext['nsCheckResult']);
-        $this->assertEquals($expectedContext['classTypeCheckResult'], $actualContext['classTypeCheckResult']);
-    }
-
-    private function licenseComment(): string {
-        return <<<'OUT'
-/**
- * This file is part of morpho-os/framework
- * It is distributed under the 'Apache License Version 2.0' license.
- * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
- */
-OUT;
-    }
-
-    private function checkFixResult(
-        Result $fixResult,
-        bool|string $licenseComment,
-        string $expectedNs = null,
-        bool $shebang = false
-    ): void {
-        $this->assertInstanceOf(Ok::class, $fixResult);
-        $resultContext = $fixResult->val();
-        $this->assertMatchesRegularExpression(
-            $this->fileHeaderRe($expectedNs ?? self::class, $licenseComment, $shebang),
-            $resultContext['text']
-        );
-        if ($licenseComment !== false) {
-            $this->assertSame(1, substr_count($resultContext['text'], 'This file is part of morpho-os/framework'));
-        }
-    }
-
-    private function fileHeaderRe(string $expectedNs, string|bool $licenseComment, bool $shebang = false): string {
-        return '~^'
-            . ($shebang ? '#!/usr/bin/env\\s+php\\n' : '')
-            . '\\<\\?php declare\\(strict_types=1\\);\\s+'
-            . ($licenseComment !== false ? preg_quote($licenseComment, '~') . "\\s+" : '')
-            . 'namespace ' . preg_quote($expectedNs, '~')
-            . '~si';
     }
 }

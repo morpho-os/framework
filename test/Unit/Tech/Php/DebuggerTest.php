@@ -10,9 +10,6 @@ use Morpho\Base\Env;
 use Morpho\Tech\Php\Debugger;
 use Morpho\Testing\TestCase;
 
-use function ob_get_clean;
-use function ob_start;
-
 class DebuggerTest extends TestCase {
     private Debugger $debugger;
 
@@ -25,17 +22,19 @@ class DebuggerTest extends TestCase {
         $this->assertEquals("\nstring(3) \"<=>\"\n", $this->debugger->varToStr('<=>'));
     }
 
+    private function checkXdebug(): void {
+        if (Env::isXdebugEnabled() && Env::boolIniVal('xdebug.overload_var_dump')) {
+            $this->markTestIncomplete();
+        }
+    }
+
     public function testVarToStr() {
         $this->checkXdebug();
-
-        ob_start();
-        ?>
-
+        $expected = <<<'OUT'
         array(1) {
         ["foo"] => string(3) "bar"
         }
-        <?php
-        $expected = ob_get_clean();
+        OUT;
         $this->assertEquals($expected, $this->debugger->varToStr(['foo' => 'bar']));
     }
 
@@ -44,22 +43,11 @@ class DebuggerTest extends TestCase {
     }
 
     public function testCalledAt() {
-        ob_start();
-?>
-
-Debugger called at [<?= __FILE__ ?>:<?= __LINE__ + 3 ?>]
-<?php
-        $expected = ob_get_clean();
+        $expected = "\nDebugger called at [" . __FILE__ . ':' . __LINE__ + 1 . "]\n";
         $this->assertEquals($expected, $this->debugger->calledAt());
     }
 
     public function tearDown(): void {
         Debugger::resetState();
-    }
-
-    private function checkXdebug(): void {
-        if (Env::isXdebugEnabled() && Env::boolIniVal('xdebug.overload_var_dump')) {
-            $this->markTestIncomplete();
-        }
     }
 }

@@ -32,12 +32,9 @@ use function umask;
 class Vfs implements IFs {
     public const SCHEME = 'vfs';
     public const URI_PREFIX = self::SCHEME . '://';
-
-    private ?VfsDir $dir = null;
-
-    private ?VfsFile $file = null;
-
     private static ?VfsDir $root = null;
+    private ?VfsDir $dir = null;
+    private ?VfsFile $file = null;
 
     public static function register(): void {
         stream_wrapper_register(self::SCHEME, __CLASS__);
@@ -63,6 +60,23 @@ class Vfs implements IFs {
 
     // ------------------------------------------------------------------------
     // IFs interface
+
+    public function stream_close(): void {
+        if ($this->file) {
+            if ($this->file->isOpen()) {
+                $this->file->close();
+            }
+        }
+    }
+
+    public function dir_closedir(): bool {
+        if ($this->dir) {
+            if ($this->dir->isOpen()) {
+                $this->dir->close();
+            }
+        }
+        return true;
+    }
 
     /**
      * @param string $uri
@@ -105,12 +119,64 @@ class Vfs implements IFs {
         return true;
     }
 
-    public function stream_close(): void {
-        if ($this->file) {
-            if ($this->file->isOpen()) {
-                $this->file->close();
-            }
+    protected function checkUri(string $uri): void {
+        if (!str_starts_with($uri, self::URI_PREFIX)) {
+            throw new RuntimeException('Invalid URI');
         }
+        if (preg_match('~^(' . self::SCHEME . '://[^/]|://$)~si', $uri)) {
+            throw new RuntimeException('Relative URIs are not supported');
+        }
+    }
+
+    private function parentDir(string $uri): VfsDir {
+        return $this->root()->dirByUri(self::parentDirUri($uri));
+    }
+
+    protected function root(): VfsRoot {
+        if (null === self::$root) {
+            self::$root = new VfsRoot(self::URI_PREFIX . '/', new VfsEntryStat(['mode' => $this->dirMode()]));
+        }
+        return self::$root;
+    }
+
+    private function dirMode(int $mode = Stat::DIR_BASE_MODE): int {
+        return ($mode & ~umask()) | Stat::DIR;
+    }
+
+    public static function parentDirUri(string $uri): string {
+        $prefix = self::URI_PREFIX;
+        return $prefix . dirname(substr($uri, strlen($prefix)));
+    }
+
+    public static function entryName(string $uri): string {
+        if ($uri === '') {
+            throw new UnexpectedValueException('Empty URI');
+        }
+        $uriNoPrefix = self::stripUriPrefix($uri);
+        if ($uriNoPrefix === '' || $uriNoPrefix[0] !== '/') {
+            throw new UnexpectedValueException("Path must be not empty and must start with the '/'");
+        }
+        if ($uriNoPrefix === '/') {
+            throw new UnexpectedValueException('Unable to get name for the root');
+        }
+        return basename($uriNoPrefix);
+    }
+
+    public static function stripUriPrefix(string $uri): string {
+        $prefix = self::prefixUri();
+        if (!str_starts_with($uri, $prefix)) {
+            throw new UnexpectedValueException();
+        }
+        $uri = substr($uri, strlen($prefix));
+        return $uri;
+    }
+
+    public static function prefixUri(string $uri = ''): string {
+        return self::URI_PREFIX . $uri;
+    }
+
+    private function fileMode(int $mode = Stat::FILE_BASE_MODE): int {
+        return ($mode & ~umask()) | Stat::FILE;
     }
 
     public function stream_lock(int $operation): bool {
@@ -294,74 +360,5 @@ class Vfs implements IFs {
             $this->dir->rewind();
         }
         return true;
-    }
-
-    public function dir_closedir(): bool {
-        if ($this->dir) {
-            if ($this->dir->isOpen()) {
-                $this->dir->close();
-            }
-        }
-        return true;
-    }
-
-    public static function prefixUri(string $uri = ''): string {
-        return self::URI_PREFIX . $uri;
-    }
-
-    public static function stripUriPrefix(string $uri): string {
-        $prefix = self::prefixUri();
-        if (!str_starts_with($uri, $prefix)) {
-            throw new UnexpectedValueException();
-        }
-        $uri = substr($uri, strlen($prefix));
-        return $uri;
-    }
-
-    public static function parentDirUri(string $uri): string {
-        $prefix = self::URI_PREFIX;
-        return $prefix . dirname(substr($uri, strlen($prefix)));
-    }
-
-    public static function entryName(string $uri): string {
-        if ($uri === '') {
-            throw new UnexpectedValueException('Empty URI');
-        }
-        $uriNoPrefix = self::stripUriPrefix($uri);
-        if ($uriNoPrefix === '' || $uriNoPrefix[0] !== '/') {
-            throw new UnexpectedValueException("Path must be not empty and must start with the '/'");
-        }
-        if ($uriNoPrefix === '/') {
-            throw new UnexpectedValueException('Unable to get name for the root');
-        }
-        return basename($uriNoPrefix);
-    }
-
-    protected function checkUri(string $uri): void {
-        if (!str_starts_with($uri, self::URI_PREFIX)) {
-            throw new RuntimeException('Invalid URI');
-        }
-        if (preg_match('~^(' . self::SCHEME . '://[^/]|://$)~si', $uri)) {
-            throw new RuntimeException('Relative URIs are not supported');
-        }
-    }
-
-    protected function root(): VfsRoot {
-        if (null === self::$root) {
-            self::$root = new VfsRoot(self::URI_PREFIX . '/', new VfsEntryStat(['mode' => $this->dirMode()]));
-        }
-        return self::$root;
-    }
-
-    private function parentDir(string $uri): VfsDir {
-        return $this->root()->dirByUri(self::parentDirUri($uri));
-    }
-
-    private function fileMode(int $mode = Stat::FILE_BASE_MODE): int {
-        return ($mode & ~umask()) | Stat::FILE;
-    }
-
-    private function dirMode(int $mode = Stat::DIR_BASE_MODE): int {
-        return ($mode & ~umask()) | Stat::DIR;
     }
 }

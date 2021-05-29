@@ -14,9 +14,8 @@ use function preg_match;
 use function strtolower;
 
 class Env extends BaseEnvironment {
-    protected $startSession = false;
-
     public const HTTP_VERSION = 'HTTP/1.1';
+    protected $startSession = false;
 
     public static function clientIp(): array {
         return [
@@ -24,27 +23,6 @@ class Env extends BaseEnvironment {
             // http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header
             'realIp' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null,
         ];
-    }
-
-    public static function httpVersion(): string {
-        if (isset($_SERVER['SERVER_PROTOCOL'])) {
-            $protocol = $_SERVER['SERVER_PROTOCOL'];
-            if (preg_match('~^HTTP/\d\.\d$~si', $protocol)) {
-                return $protocol;
-            }
-        }
-        return self::HTTP_VERSION;
-    }
-
-    public static function httpHost(): string {
-        return isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
-    }
-
-    /**
-     * Note that referrer is correct spelling and the referer is incorrect.
-     */
-    public static function httpReferrer(): string {
-        return $_SERVER['HTTP_REFERER'] ?? '';
     }
 
     /**
@@ -77,5 +55,26 @@ class Env extends BaseEnvironment {
             'SERVER_SOFTWARE' => null,
             'HTTP_USER_AGENT' => null,
         ];
+    }
+
+    /**
+     * Note that referrer is correct spelling and the referer is incorrect.
+     */
+    public static function httpReferrer(): string {
+        return $_SERVER['HTTP_REFERER'] ?? '';
+    }
+
+    public static function httpVersion(): string {
+        if (isset($_SERVER['SERVER_PROTOCOL'])) {
+            $protocol = $_SERVER['SERVER_PROTOCOL'];
+            if (preg_match('~^HTTP/\d\.\d$~si', $protocol)) {
+                return $protocol;
+            }
+        }
+        return self::HTTP_VERSION;
+    }
+
+    public static function httpHost(): string {
+        return isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
     }
 }

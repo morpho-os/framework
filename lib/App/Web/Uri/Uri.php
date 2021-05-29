@@ -75,12 +75,19 @@ class Uri {
         }
     }
 
+    public function scheme() {
+        return $this->scheme;
+    }
+
     public function setScheme(string $scheme): void {
         $this->scheme = $scheme;
     }
 
-    public function scheme() {
-        return $this->scheme;
+    public function authority(): Authority {
+        if (null === $this->authority) {
+            $this->authority = new Authority();
+        }
+        return $this->authority;
     }
 
     /**
@@ -93,11 +100,11 @@ class Uri {
         $this->authority = $authority;
     }
 
-    public function authority(): Authority {
-        if (null === $this->authority) {
-            $this->authority = new Authority();
+    public function path(): Path {
+        if (null === $this->path) {
+            $this->path = new Path('');
         }
-        return $this->authority;
+        return $this->path;
     }
 
     /**
@@ -110,11 +117,11 @@ class Uri {
         $this->path = $path;
     }
 
-    public function path(): Path {
-        if (null === $this->path) {
-            $this->path = new Path('');
+    public function query(): Query {
+        if (null === $this->query) {
+            $this->query = new Query();
         }
-        return $this->path;
+        return $this->query;
     }
 
     /**
@@ -127,30 +134,12 @@ class Uri {
         $this->query = $query;
     }
 
-    public function query(): Query {
-        if (null === $this->query) {
-            $this->query = new Query();
-        }
-        return $this->query;
-    }
-
-    public function setFragment(?string $fragment): void {
-        $this->fragment = $fragment;
-    }
-
     public function fragment(): ?string {
         return $this->fragment;
     }
 
-    /**
-     * @param string|Uri $uri
-     * @return Uri
-     */
-    public static function parse($uri): self {
-        if ($uri instanceof self) {
-            return $uri;
-        }
-        return (new UriParser())->__invoke($uri);
+    public function setFragment(?string $fragment): void {
+        $this->fragment = $fragment;
     }
 
     /**
@@ -229,6 +218,17 @@ class Uri {
         $targetUri->setFragment($relUri->fragment());
 
         return $targetUri;
+    }
+
+    /**
+     * @param string|Uri $uri
+     * @return Uri
+     */
+    public static function parse($uri): self {
+        if ($uri instanceof self) {
+            return $uri;
+        }
+        return (new UriParser())->__invoke($uri);
     }
 
     public function toStr(?array $parts, bool $encode): string {

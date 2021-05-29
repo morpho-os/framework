@@ -60,6 +60,42 @@ class ScriptProcessor extends HtmlProcessor {
         return $tag;
     }
 
+    /**
+     * Includes a file for controller's action.
+     */
+    protected function actionScripts(string $jsModuleId): array {
+        $siteConf = $this->site->conf();
+        $shortModuleName = last($this->site->moduleName(), '/');
+        $fullJsModuleId = $shortModuleName . '/' . LIB_DIR_NAME . '/app/' . $jsModuleId;
+        $relFilePath = $fullJsModuleId . '.js';
+        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
+        $scripts = [];
+        if (file_exists($jsFilePath)) {
+            $jsConf = $this->jsConf();
+            $scripts[] = [
+                'src'      => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
+                '_tagName' => 'script',
+                '_text'    => '',
+            ];
+            $scripts[] = [
+                '_tagName' => 'script',
+                '_text'    => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode(
+                        $jsConf,
+                        JSON_UNESCAPED_SLASHES
+                    ) . '); });',
+            ];
+        }
+        return $scripts;
+    }
+
+    protected function jsConf(): array {
+        $request = $this->request;
+        if (isset($request['jsConf'])) {
+            return (array) $request['jsConf'];
+        }
+        return [];
+    }
+
     protected function sortScripts(array $scripts): array {
         $index = 0;
         foreach ($scripts as $key => $script) {
@@ -114,41 +150,5 @@ class ScriptProcessor extends HtmlProcessor {
             return false;  // remove the original tag, we will add it later.
         }
         return null;
-    }
-
-    /**
-     * Includes a file for controller's action.
-     */
-    protected function actionScripts(string $jsModuleId): array {
-        $siteConf = $this->site->conf();
-        $shortModuleName = last($this->site->moduleName(), '/');
-        $fullJsModuleId = $shortModuleName . '/' . LIB_DIR_NAME . '/app/' . $jsModuleId;
-        $relFilePath = $fullJsModuleId . '.js';
-        $jsFilePath = $siteConf['paths']['frontendModuleDirPath'] . '/' . $relFilePath;
-        $scripts = [];
-        if (file_exists($jsFilePath)) {
-            $jsConf = $this->jsConf();
-            $scripts[] = [
-                'src'      => '/' . $relFilePath, // Prepend with '/' to prepend base URI path later
-                '_tagName' => 'script',
-                '_text'    => '',
-            ];
-            $scripts[] = [
-                '_tagName' => 'script',
-                '_text'    => 'define(["require", "exports", "' . $fullJsModuleId . '"], function (require, exports, module) { module.main(window.app || {}, ' . json_encode(
-                        $jsConf,
-                        JSON_UNESCAPED_SLASHES
-                    ) . '); });',
-            ];
-        }
-        return $scripts;
-    }
-
-    protected function jsConf(): array {
-        $request = $this->request;
-        if (isset($request['jsConf'])) {
-            return (array) $request['jsConf'];
-        }
-        return [];
     }
 }

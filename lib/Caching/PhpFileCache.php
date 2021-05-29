@@ -35,6 +35,15 @@ class PhpFileCache extends FileCache {
         return $value['lifetime'] === 0 || $value['lifetime'] > time();
     }
 
+    private function includeFile(string $key): ?array {
+        $filePath = $this->cacheFilePath($key);
+        if (!is_file($filePath)) {
+            return null;
+        }
+        $value = requireFile($filePath);
+        return isset($value['lifetime']) ? $value : null;
+    }
+
     protected function fetch(string $key): array {
         $value = $this->includeFile($key);
 
@@ -70,14 +79,5 @@ class PhpFileCache extends FileCache {
         }
 
         return $this->writeFile($cacheFilePath, $code);
-    }
-
-    private function includeFile(string $key): ?array {
-        $filePath = $this->cacheFilePath($key);
-        if (!is_file($filePath)) {
-            return null;
-        }
-        $value = requireFile($filePath);
-        return isset($value['lifetime']) ? $value : null;
     }
 }

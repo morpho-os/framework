@@ -29,34 +29,6 @@ abstract class Env {
         return self::boolIniVal('xdebug.default_enable');
     }
 
-    public static function isX64Arch(): bool {
-        return PHP_INT_SIZE === 8;
-    }
-
-    public static function isX32Arch(): bool {
-        return PHP_INT_SIZE === 4;
-    }
-
-    public static function isCli(): bool {
-        return PHP_SAPI == 'cli';
-    }
-
-    public static function isWindows(): bool {
-        return defined('PHP_WINDOWS_VERSION_BUILD');//DIRECTORY_SEPARATOR == '\\';
-    }
-
-    public static function isUnix(): bool {
-        return DIRECTORY_SEPARATOR == '/';
-    }
-
-    public static function isLinux(): bool {
-        return self::isUnix() && !self::isMac();
-    }
-
-    public static function isMac(): bool {
-        return false !== strpos(php_uname('s'), 'Darwin');
-    }
-
     /**
      * Returns true if the ini setting with the $name can be interpreted as true.
      */
@@ -85,6 +57,34 @@ abstract class Env {
             '0'     => false,
         ];
         return $map[strtolower((string) $value)] ?? (bool) $value;
+    }
+
+    public static function isX64Arch(): bool {
+        return PHP_INT_SIZE === 8;
+    }
+
+    public static function isX32Arch(): bool {
+        return PHP_INT_SIZE === 4;
+    }
+
+    public static function isCli(): bool {
+        return PHP_SAPI == 'cli';
+    }
+
+    public static function isWindows(): bool {
+        return defined('PHP_WINDOWS_VERSION_BUILD');//DIRECTORY_SEPARATOR == '\\';
+    }
+
+    public static function isLinux(): bool {
+        return self::isUnix() && !self::isMac();
+    }
+
+    public static function isUnix(): bool {
+        return DIRECTORY_SEPARATOR == '/';
+    }
+
+    public static function isMac(): bool {
+        return false !== strpos(php_uname('s'), 'Darwin');
     }
 
     /**

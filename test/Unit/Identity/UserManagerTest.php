@@ -88,6 +88,15 @@ class UserManagerTest extends DbTestCase {
         $this->assertLoggedInUserThrowsUserNotLoggedInException();
     }
 
+    private function assertLoggedInUserThrowsUserNotLoggedInException() {
+        try {
+            $this->userManager->loggedInUser();
+            $this->fail();
+        } catch (\RuntimeException $e) {
+            $this->assertEquals('The user was not logged in', $e->getMessage());
+        }
+    }
+
     public function testRegister_TwiceThrowsException() {
         $user = ['login' => 'foo', 'password' => 'bar'];
         $this->userManager->registerUser($user);
@@ -140,14 +149,5 @@ class UserManagerTest extends DbTestCase {
             [UserManager::EMPTY_LOGIN_OR_PASSWORD],
             $this->userManager->logIn(['login' => $login, 'password' => $password])
         );
-    }
-
-    private function assertLoggedInUserThrowsUserNotLoggedInException() {
-        try {
-            $this->userManager->loggedInUser();
-            $this->fail();
-        } catch (\RuntimeException $e) {
-            $this->assertEquals('The user was not logged in', $e->getMessage());
-        }
     }
 }

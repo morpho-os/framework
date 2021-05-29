@@ -28,6 +28,10 @@ class MbStringReader extends AsciiStringReader {
         return strlen($this->substr($this->input, 0, $this->offset));
     }
 
+    protected function substr(string $s, int $offset, ?int $length): string {
+        return mb_substr($s, $offset, $length);
+    }
+
     protected function re(string $re, bool $anchored = null): string {
         if (null === $anchored) {
             return $this->anchored ? $re . 'Au' : $re;
@@ -37,9 +41,5 @@ class MbStringReader extends AsciiStringReader {
 
     protected function strlen(mixed $s): int {
         return mb_strlen($s, $this->encoding);
-    }
-
-    protected function substr(string $s, int $offset, ?int $length): string {
-        return mb_substr($s, $offset, $length);
     }
 }

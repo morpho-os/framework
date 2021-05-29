@@ -8,7 +8,6 @@ namespace Morpho\Tech\Sql;
 
 use Morpho\Tech\MySql\DbClient as MySqlClient;
 use Morpho\Tech\Sqlite\DbClient as SqliteClient;
-
 use UnexpectedValueException;
 
 const SQL_TRUE = 1;

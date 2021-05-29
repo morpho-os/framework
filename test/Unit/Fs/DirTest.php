@@ -137,6 +137,17 @@ class DirTest extends TestCase {
         $this->assertSame(['baz', 'foo'], $this->pathsInDir($tmpDirPath));
     }
 
+    private function pathsInDir(string $dirPath): array {
+        $paths = iterator_to_array(Dir::paths($dirPath, null, ['recursive' => true]), false);
+        $dirPath = str_replace('\\', '/', $dirPath);
+        sort($paths);
+        foreach ($paths as &$filePath) {
+            $filePath = preg_replace('{^' . preg_quote($dirPath) . '/}si', '', $filePath);
+        }
+        unset($filePath);
+        return $paths;
+    }
+
     public function testDelete_Predicate_Depth2() {
         $tmpDirPath = $this->createTmpDir();
         touch($tmpDirPath . '/foo');
@@ -656,6 +667,13 @@ class DirTest extends TestCase {
         $this->assertDirContentsEqual($sourceDirPath, $targetDirPath . '/' . basename($sourceDirPath));
     }
 
+    private function assertDirContentsEqual(string $dirPathExpectedContent, string $dirPathActualContent) {
+        $expected = $this->pathsInDir($dirPathExpectedContent);
+        $actual = $this->pathsInDir($dirPathActualContent);
+        $this->assertTrue(count($actual) > 0);
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testCopy_WithFiles_TargetDirNotExists() {
         $sourceDirPath = $this->createTmpDir();
         touch($sourceDirPath . '/file1.txt');
@@ -888,23 +906,5 @@ class DirTest extends TestCase {
             ],
             $filePaths
         );
-    }
-
-    private function assertDirContentsEqual(string $dirPathExpectedContent, string $dirPathActualContent) {
-        $expected = $this->pathsInDir($dirPathExpectedContent);
-        $actual = $this->pathsInDir($dirPathActualContent);
-        $this->assertTrue(count($actual) > 0);
-        $this->assertEquals($expected, $actual);
-    }
-
-    private function pathsInDir(string $dirPath): array {
-        $paths = iterator_to_array(Dir::paths($dirPath, null, ['recursive' => true]), false);
-        $dirPath = str_replace('\\', '/', $dirPath);
-        sort($paths);
-        foreach ($paths as &$filePath) {
-            $filePath = preg_replace('{^' . preg_quote($dirPath) . '/}si', '', $filePath);
-        }
-        unset($filePath);
-        return $paths;
     }
 }

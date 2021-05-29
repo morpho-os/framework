@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Error;
+namespace Morpho\Tech\Php;
 
 use Exception;
 use Morpho\Base\IFn;
@@ -35,19 +35,16 @@ use function unlink;
  * @link https://github.com/DmitryKoterov/debug_errorhook.
  */
 class NoDupsListener implements IFn {
-    const DEFAULT_PERIOD = 300;  // 5 min.
+    const DEFAULT_PERIOD = 300;
+    // 5 min.
     const ERROR_FILE_EXT = ".error";
     const GC_PROBABILITY = 0.01;
-
     /**
      * @var callable
      */
     protected $listener;
-
     protected string $lockFileDirPath;
-
     protected int $period;
-
     protected bool $gcExecuted = false;
 
     public function __construct(callable $listener, string $lockFileDirPath = null, int $periodSec = null) {
@@ -55,49 +52,8 @@ class NoDupsListener implements IFn {
             $lockFileDirPath = $this->defaultLockFileDirPath();
         }
         $this->lockFileDirPath = $this->initLockFileDir($lockFileDirPath);
-
         $this->period = null !== $periodSec ? $periodSec : self::DEFAULT_PERIOD;
         $this->listener = $listener;
-    }
-
-    /**
-     * @param Throwable $exception
-     */
-    public function __invoke(mixed $ex): mixed {
-        $id = $this->lockId($ex);
-
-        if ($this->isLockExpired($id, $ex)) {
-            ($this->listener)($ex);
-        }
-
-        // Touch always, even if we did not send anything. Else same errors will
-        // be mailed again and again after $period (e.g. once per 5 minutes).
-        $this->touch($id, $ex->getFile(), $ex->getLine());
-
-        return null;
-    }
-
-    protected function touch(string $id, string $errFilePath, int $errLine): void {
-        $filePath = $this->lockFilePath($id);
-        file_put_contents($filePath, "$errFilePath:$errLine");
-        @chmod($filePath, 0666);
-        $this->gc();
-    }
-
-    protected function lockId(Throwable $e): string {
-        $file = $e->getFile();
-        $line = $e->getLine();
-        $id = md5(
-            join(
-                ':',
-                [
-                    get_class($e),
-                    $file,
-                    $line,
-                ]
-            )
-        );
-        return $id;
     }
 
     protected function defaultLockFileDirPath(): string {
@@ -116,13 +72,41 @@ class NoDupsListener implements IFn {
         return $dirPath;
     }
 
+    /**
+     * @param Throwable $exception
+     */
+    public function __invoke(mixed $ex): mixed {
+        $id = $this->lockId($ex);
+        if ($this->isLockExpired($id, $ex)) {
+            ($this->listener)($ex);
+        }
+        // Touch always, even if we did not send anything. Else same errors will
+        // be mailed again and again after $period (e.g. once per 5 minutes).
+        $this->touch($id, $ex->getFile(), $ex->getLine());
+        return null;
+    }
+
+    protected function lockId(Throwable $e): string {
+        $file = $e->getFile();
+        $line = $e->getLine();
+        $id = md5(join(':', [get_class($e), $file, $line]));
+        return $id;
+    }
+
     protected function isLockExpired(string $id, Throwable $ex): bool {
         $filePath = $this->lockFilePath($id);
-        return !file_exists($filePath) || (filemtime($filePath) < time() - $this->period);
+        return !file_exists($filePath) || filemtime($filePath) < time() - $this->period;
     }
 
     protected function lockFilePath(string $id): string {
         return $this->lockFileDirPath . '/' . $id . self::ERROR_FILE_EXT;
+    }
+
+    protected function touch(string $id, string $errFilePath, int $errLine): void {
+        $filePath = $this->lockFilePath($id);
+        file_put_contents($filePath, "{$errFilePath}:{$errLine}");
+        @chmod($filePath, 0666);
+        $this->gc();
     }
 
     protected function gc(): void {

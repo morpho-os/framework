@@ -55,12 +55,12 @@ class ArrPipe implements IPipe {
         next($this->phases);
     }
 
-    public function key() {
-        return key($this->phases);
-    }
-
     public function valid(): bool {
         return isset($this->phases[$this->key()]);
+    }
+
+    public function key() {
+        return key($this->phases);
     }
 
     public function rewind(): void {

@@ -433,6 +433,12 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('foo__bar', underscore('foo__bar'));
     }
 
+    private function assertCommon($fn) {
+        $fn = 'Morpho\Base\\' . $fn;
+        $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
+        $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
+    }
+
     public function testDasherize() {
         $this->assertCommon('dasherize');
         $this->assertEquals('foo-bar', dasherize('foo-bar'));
@@ -541,6 +547,43 @@ class FunctionsTest extends TestCase {
 
     public function dataQ() {
         return $this->dataQ_("'");
+    }
+
+    private function dataQ_(string $quote) {
+        return [
+            [
+                "$quote$quote",
+                '',
+            ],
+            [
+                "{$quote}123{$quote}",
+                123,
+            ],
+            [
+                "{$quote}Hello{$quote}",
+                'Hello',
+            ],
+            [
+                [
+                    "{$quote}foo{$quote}",
+                    "{$quote}bar{$quote}",
+                ],
+                [
+                    'foo',
+                    'bar',
+                ],
+            ],
+            [
+                [
+                    'a' => "{$quote}foo{$quote}",
+                    'b' => "{$quote}bar{$quote}",
+                ],
+                [
+                    'a' => 'foo',
+                    'b' => 'bar',
+                ],
+            ],
+        ];
     }
 
     /**
@@ -1159,6 +1202,38 @@ OUT;
         $this->assertEquals($expected, $array);
     }
 
+    /*
+    public function testHash() {
+        $array = $this->_testArray();
+        $hash1 = hash($array);
+        $hash2 = hash($array);
+        $this->assertTrue(!empty($hash1) && !empty($hash2));
+        $this->assertEquals($hash1, $hash2);
+
+        $array['other'] = 'item';
+        $hash3 = hash($array);
+        $this->assertTrue(!empty($hash3));
+        $this->assertNotEquals($hash1, $hash3);
+    }
+    */
+
+    private function _testArray() {
+        return [
+            'foo'     => 'test',
+            'bar'     => [
+                'something',
+            ],
+            'unsetMe' => 1,
+            'baz'     => [
+                'test' => [
+                    'unsetMe' => [
+                        'unsetMe' => 'test',
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function testCamelizeKeys() {
         $array = [
             'foo-bar' => 'one',
@@ -1182,21 +1257,6 @@ OUT;
         ];
         $this->assertEquals($expected, underscoreKeys($array));
     }
-
-    /*
-    public function testHash() {
-        $array = $this->_testArray();
-        $hash1 = hash($array);
-        $hash2 = hash($array);
-        $this->assertTrue(!empty($hash1) && !empty($hash2));
-        $this->assertEquals($hash1, $hash2);
-
-        $array['other'] = 'item';
-        $hash3 = hash($array);
-        $this->assertTrue(!empty($hash3));
-        $this->assertNotEquals($hash1, $hash3);
-    }
-    */
 
     public function testUnion() {
         // todo: mixed keys: int, string
@@ -1501,65 +1561,5 @@ OUT;
      */
     public function testMerge(array $a, array $b, bool $resetIntKeys, array $expected) {
         $this->assertEquals($expected, merge($a, $b, $resetIntKeys));
-    }
-
-    private function _testArray() {
-        return [
-            'foo'     => 'test',
-            'bar'     => [
-                'something',
-            ],
-            'unsetMe' => 1,
-            'baz'     => [
-                'test' => [
-                    'unsetMe' => [
-                        'unsetMe' => 'test',
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    private function assertCommon($fn) {
-        $fn = 'Morpho\Base\\' . $fn;
-        $this->assertEquals('foobar', call_user_func($fn, 'foobar'));
-        $this->assertEquals('foobar', call_user_func($fn, "&\tf\no<>o\x00`bar"));
-    }
-
-    private function dataQ_(string $quote) {
-        return [
-            [
-                "$quote$quote",
-                '',
-            ],
-            [
-                "{$quote}123{$quote}",
-                123,
-            ],
-            [
-                "{$quote}Hello{$quote}",
-                'Hello',
-            ],
-            [
-                [
-                    "{$quote}foo{$quote}",
-                    "{$quote}bar{$quote}",
-                ],
-                [
-                    'foo',
-                    'bar',
-                ],
-            ],
-            [
-                [
-                    'a' => "{$quote}foo{$quote}",
-                    'b' => "{$quote}bar{$quote}",
-                ],
-                [
-                    'a' => 'foo',
-                    'b' => 'bar',
-                ],
-            ],
-        ];
     }
 }

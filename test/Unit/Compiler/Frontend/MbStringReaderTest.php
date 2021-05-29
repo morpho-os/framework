@@ -17,6 +17,10 @@ class MbStringReaderTest extends AsciiStringReaderTest {
         $this->assertInstanceOf(MbStringReader::class, $this->mkReader(''));
     }
 
+    protected function mkReader(string $input, bool $anchored = true, string $encoding = null): IStringReader {
+        return new MbStringReader($input, $encoding, $anchored);
+    }
+
     public function testRead() {
         parent::testRead();
         $reader = $this->mkReader('Привет Мир!');
@@ -116,9 +120,5 @@ class MbStringReaderTest extends AsciiStringReaderTest {
         $this->assertSame(11, $reader->restSize());
         $reader->read('/Привет/');
         $this->assertSame(5, $reader->restSize());
-    }
-
-    protected function mkReader(string $input, bool $anchored = true, string $encoding = null): IStringReader {
-        return new MbStringReader($input, $encoding, $anchored);
     }
 }
