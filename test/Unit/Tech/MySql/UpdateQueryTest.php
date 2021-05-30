@@ -8,12 +8,18 @@ namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\MySql\UpdateQuery;
 use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\IUpdateQuery;
 use Morpho\Tech\Sql\Result;
 
 class UpdateQueryTest extends QueryTest {
     public function setUp(): void {
         parent::setUp();
         $this->createCarsTable(true);
+    }
+
+    public function testInterface() {
+        parent::testInterface();
+        $this->assertInstanceOf(IUpdateQuery::class, $this->query);
     }
 
     public function testQuery() {

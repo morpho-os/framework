@@ -7,10 +7,16 @@
 namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\MySql\InsertQuery;
+use Morpho\Tech\Sql\IInsertQuery;
 use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\Result;
 
 class InsertQueryTest extends QueryTest {
+    public function testInterface() {
+        parent::testInterface();
+        $this->assertInstanceOf(IInsertQuery::class, $this->query);
+    }
+
     public function testQuery() {
         $insert = new InsertQuery($this->db);
 

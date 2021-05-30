@@ -9,14 +9,15 @@ namespace Morpho\Test\Unit\Tech\MySql;
 use Morpho\Tech\MySql\SelectQuery;
 use Morpho\Tech\Sql\Expr;
 use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\ISelectQuery;
 use UnexpectedValueException;
 
 class SelectQueryTest extends QueryTest {
     use TUsingNorthwind;
 
-    public function setUp(): void {
-        parent::setUp();
-        $this->query = new SelectQuery($this->db);
+    public function testInterface() {
+        parent::testInterface();
+        $this->assertInstanceOf(ISelectQuery::class, $this->query);
     }
 
     public function dataColumns() {

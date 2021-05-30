@@ -8,8 +8,12 @@ namespace Morpho\Tech\MySql;
 
 use Morpho\Base\Conf;
 use Morpho\Tech\Sql\DbClient as BaseDbClient;
-use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\IDeleteQuery;
+use Morpho\Tech\Sql\IInsertQuery;
+use Morpho\Tech\Sql\IReplaceQuery;
 use Morpho\Tech\Sql\ISchema;
+use Morpho\Tech\Sql\ISelectQuery;
+use Morpho\Tech\Sql\IUpdateQuery;
 use PDO;
 
 class DbClient extends BaseDbClient {
@@ -33,23 +37,23 @@ class DbClient extends BaseDbClient {
         $this->pdo = $pdo;
     }
 
-    public function insert(array $spec = null): IQuery {
+    public function insert(array $spec = null): IInsertQuery {
         return new InsertQuery($this, $spec);
     }
 
-    public function select(array $spec = null): IQuery {
+    public function select(array $spec = null): ISelectQuery {
         return new SelectQuery($this, $spec);
     }
 
-    public function update(array $spec = null): IQuery {
+    public function update(array $spec = null): IUpdateQuery {
         return new UpdateQuery($this, $spec);
     }
 
-    public function delete(array $spec = null): IQuery {
+    public function delete(array $spec = null): IDeleteQuery {
         return new DeleteQuery($this, $spec);
     }
 
-    public function replace(array $spec = null): IQuery {
+    public function replace(array $spec = null): IReplaceQuery {
         return new ReplaceQuery($this, $spec);
     }
 
@@ -64,9 +68,13 @@ class DbClient extends BaseDbClient {
 
     public function schema(): ISchema {
         if (null === $this->schema) {
-            $this->schema = new Schema($this);
+            $this->schema = $this->mkSchema();
         }
         return $this->schema;
+    }
+
+    protected function mkSchema(): ISchema {
+        return new Schema($this);
     }
 
     protected function checkConf(array $conf): array {

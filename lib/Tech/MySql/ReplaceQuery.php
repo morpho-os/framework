@@ -6,7 +6,9 @@
  */
 namespace Morpho\Tech\MySql;
 
-class ReplaceQuery extends Query {
+use Morpho\Tech\Sql\IReplaceQuery;
+
+class ReplaceQuery extends Query implements IReplaceQuery {
     /*    public function build(): array {
               throw new NotImplementedException();
           }*/

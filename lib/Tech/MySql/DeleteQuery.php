@@ -6,7 +6,9 @@
  */
 namespace Morpho\Tech\MySql;
 
-class DeleteQuery extends Query {
+use Morpho\Tech\Sql\IDeleteQuery;
+
+class DeleteQuery extends Query implements IDeleteQuery {
     //    public function build(): array {
     //        throw new NotImplementedException();
     //    }

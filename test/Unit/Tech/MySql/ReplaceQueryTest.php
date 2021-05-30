@@ -9,8 +9,14 @@ namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\MySql\ReplaceQuery;
 use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\IReplaceQuery;
 
 class ReplaceQueryTest extends QueryTest {
+    public function testInterface() {
+        parent::testInterface();
+        $this->assertInstanceOf(IReplaceQuery::class, $this->query);
+    }
+
     public function testQuery() {
         $this->markTestIncomplete();
     }

@@ -21,15 +21,15 @@ interface IDbClient {
 
     public function where(array|string $condition, array $args = null): array;
 
-    public function insert(array $spec = null): IQuery;
+    public function insert(array $spec = null): IInsertQuery;
 
-    public function select(array $spec = null): IQuery;
+    public function select(array $spec = null): ISelectQuery;
 
-    public function update(array $spec = null): IQuery;
+    public function update(array $spec = null): IUpdateQuery;
 
-    public function delete(array $spec = null): IQuery;
+    public function delete(array $spec = null): IDeleteQuery;
 
-    public function replace(array $spec = null): IQuery;
+    public function replace(array $spec = null): IReplaceQuery;
 
     public function exec(string $sql): int;
 

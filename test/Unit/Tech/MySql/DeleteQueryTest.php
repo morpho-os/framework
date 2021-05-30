@@ -9,12 +9,18 @@ namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\MySql\DeleteQuery;
 use Morpho\Tech\Sql\IQuery;
+use Morpho\Tech\Sql\IDeleteQuery;
 use PDO;
 
 class DeleteQueryTest extends QueryTest {
     public function setUp(): void {
         parent::setUp();
         $this->createCarsTable(true);
+    }
+
+    public function testInterface() {
+        parent::testInterface();
+        $this->assertInstanceOf(IDeleteQuery::class, $this->query);
     }
 
     public function testWithoutWhereClause() {

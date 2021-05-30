@@ -8,8 +8,9 @@ namespace Morpho\Tech\MySql;
 
 use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\Expr;
+use Morpho\Tech\Sql\ISelectQuery;
 
-class SelectQuery extends Query {
+class SelectQuery extends Query implements ISelectQuery {
     protected array $columns = [];
     protected array $join = [];
     protected array $groupBy = [];
