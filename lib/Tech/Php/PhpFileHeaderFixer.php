@@ -15,16 +15,11 @@ use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
-use Traversable;
 
-use function Morpho\App\Cli\errorLn;
-use function Morpho\App\Cli\showOk;
 use function Morpho\Base\classify;
-use function Morpho\Base\indent;
 use function Morpho\Base\init;
 use function Morpho\Base\last;
 use function Morpho\Base\q;
-use function Morpho\Base\showLn;
 
 class PhpFileHeaderFixer implements IFn {
     private ?string $licenseComment;
@@ -42,34 +37,6 @@ class PhpFileHeaderFixer implements IFn {
     public function setLicenseComment(?string $licenseComment): self {
         $this->licenseComment = $licenseComment;
         return $this;
-    }
-
-    public function fixFiles(iterable $files, array $context, Result $prevResult = null): Result {
-        if ($prevResult) {
-            $stats = $prevResult->val();
-            $ok = $prevResult->isOk();
-        } else {
-            $stats = [
-                'processed' => 0,
-                'fixed'     => 0,
-            ];
-            $ok = true;
-        }
-        foreach ($files as $filePath) {
-            showLn("Processing file " . q($filePath) . '...');
-            $result = $this->__invoke(array_merge($context, ['filePath' => $filePath]));
-            if (!$result->isOk()) {
-                errorLn("Unable to fix the file " . q($filePath) . "\n" . print_r($result, true));
-            }
-            if (isset($result->val()['text'])) {
-                showLn(indent($result->val()['text']));
-                $stats['fixed']++;
-            }
-            $stats['processed']++;
-            showOk();
-            $ok = $result->isOk() && $ok;
-        }
-        return $ok ? new Ok($stats) : new Err($stats);
     }
 
     /**
@@ -117,7 +84,7 @@ class PhpFileHeaderFixer implements IFn {
                 $this->licenseComment = $licenseComment;
             }
 
-            public function enterNode(Node $node) {
+            public function enterNode(Node $node): ?int {
                 if ($node instanceof Node\Stmt) {
                     if (!$this->hasStmts && isShebangNode($node)) {
                         return null;
@@ -187,7 +154,7 @@ class PhpFileHeaderFixer implements IFn {
 
     /**
      * @param string $filePath
-     * @return Traversable|string[]
+     * @return iterable
      */
     private function namespaces(string $filePath): iterable {
         $rFile = new FileReflection($filePath);
@@ -217,7 +184,7 @@ class PhpFileHeaderFixer implements IFn {
 
     /**
      * @param string $filePath
-     * @return Traversable|string[]
+     * @return iterable
      */
     private function classes(string $filePath): iterable {
         return (new ClassTypeDiscoverer())->classTypesDefinedInFile($filePath);
@@ -313,7 +280,7 @@ class PhpFileHeaderFixer implements IFn {
                 $this->fix = $fix;
             }
 
-            public function enterNode(Node $node) {
+            public function enterNode(Node $node): ?int {
                 if (!$this->fixed) {
                     if ($node instanceof Node\Stmt\Declare_) {
                         return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
@@ -387,7 +354,7 @@ class PhpFileHeaderFixer implements IFn {
             public function __construct(private string $licenseComment) {
             }
 
-            public function enterNode(Node $node) {
+            public function enterNode(Node $node): ?int {
                 if ($node instanceof Node\Stmt || $node instanceof Node\Expr) {
                     if (!$this->licenseCommentRemoved) {
                         $this->licenseCommentRemoved = $this->removeLicenseComment($node);
