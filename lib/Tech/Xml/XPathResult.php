@@ -7,19 +7,16 @@
 namespace Morpho\Tech\Xml;
 
 use Countable;
+use DOMNode;
+use DOMNodeList;
+use Iterator;
 
-class XPathResult implements \Iterator, Countable {
-    /**
-     * @var \DOMNodeList
-     */
-    protected $nodeList;
+class XPathResult implements Iterator, Countable {
+    protected DOMNodeList $nodeList;
 
-    /**
-     * @var int
-     */
-    protected $offset = 0;
+    protected int $offset = 0;
 
-    public function __construct(\DOMNodeList $nodeList) {
+    public function __construct(DOMNodeList $nodeList) {
         $this->nodeList = $nodeList;
     }
 
@@ -31,7 +28,7 @@ class XPathResult implements \Iterator, Countable {
         return $doc->saveHTML();
     }
 
-    public function head(): ?\DOMElement {
+    public function head(): ?DOMNode{
         return $this->nodeList->item(0);
     }
 
@@ -48,11 +45,11 @@ class XPathResult implements \Iterator, Countable {
         return $res;
     }
 
-    public function last(): ?\DOMElement {
+    public function last(): ?DOMNode {
         return $this->item($this->count() - 1);
     }
 
-    public function item(int $offset): ?\DOMElement {
+    public function item(int $offset): ?DOMNode {
         return $this->nodeList->item($offset);
     }
 

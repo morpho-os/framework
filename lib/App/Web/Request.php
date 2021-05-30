@@ -133,15 +133,15 @@ class Request extends BaseRequest implements IRequest {
      *     - connect()
      *     - propfind()
      */
-    public function args(string|array|null $names = null, bool $trim = true): mixed {
+    public function args(string|array|null $names = null, callable|bool $filter = true): mixed {
         $method = $this->method();
         switch ($method) {
             case HttpMethod::GET:
-                return $this->query($names, $trim);
+                return $this->query($names, $filter);
             case HttpMethod::POST:
-                return $this->post($names, $trim);
+                return $this->post($names, $filter);
             case HttpMethod::PATCH:
-                return $this->patch($names, $trim);
+                return $this->patch($names, $filter);
             default:
                 throw new BadRequestException();
         }
@@ -153,17 +153,17 @@ class Request extends BaseRequest implements IRequest {
             : $this->originalMethod;
     }
 
-    public function query($name = null, bool $trim = true): mixed {
+    public function query($name = null, callable|bool $filter = true): mixed {
         // NB: On change sync with data() and post()
         if (null === $name) {
-            return $trim ? trimMore($_GET) : $_GET;
+            return $filter ? trimMore($_GET) : $_GET;
         }
         if (is_array($name)) {
             $data = array_intersect_key($_GET, array_flip(array_values($name)));
             $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
+            return $filter ? trimMore($data) : $data;
         }
-        if ($trim) {
+        if ($filter) {
             return isset($_GET[$name])
                 ? trimMore($_GET[$name])
                 : null;
@@ -173,17 +173,17 @@ class Request extends BaseRequest implements IRequest {
             : null;
     }
 
-    public function post($name = null, bool $trim = true) {
+    public function post($name = null, callable|bool $filter = true) {
         // NB: On change sync with data() and query()
         if (null === $name) {
-            return $trim ? trimMore($_POST) : $_POST;
+            return $filter ? trimMore($_POST) : $_POST;
         }
         if (is_array($name)) {
             $data = array_intersect_key($_POST, array_flip(array_values($name)));
             $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
+            return $filter ? trimMore($data) : $data;
         }
-        if ($trim) {
+        if ($filter) {
             return isset($_POST[$name])
                 ? trimMore($_POST[$name])
                 : null;
@@ -196,25 +196,25 @@ class Request extends BaseRequest implements IRequest {
     /**
      * @return mixed @TODO Specify concrete types.
      */
-    public function patch($name = null, bool $trim = true) {
+    public function patch($name = null, callable|bool $filter = true) {
         if ($this->overwrittenMethod === HttpMethod::PATCH) {
-            return $this->post($name, $trim);
+            return $this->post($name, $filter);
         }
         // @TODO: read from php://input using resource up to 'post_max_size' and 'max_input_vars' php.ini values, check PHP sources for possible handling of the php://input and applying these settings already on PHP core level.
         throw new BadRequestException('Method not allowed');
     }
 
-    public function data(array $source, $name = null, bool $trim = true): mixed {
+    public function data(array $source, $name = null, callable|bool $filter = true): mixed {
         // NB: On change sync code with query() and post()
         if (null === $name) {
-            return $trim ? trimMore($source) : $source;
+            return $filter ? trimMore($source) : $source;
         }
         if (is_array($name)) {
             $data = array_intersect_key($source, array_flip(array_values($name)));
             $data += array_fill_keys($name, null);
-            return $trim ? trimMore($data) : $data;
+            return $filter ? trimMore($data) : $data;
         }
-        if ($trim) {
+        if ($filter) {
             return isset($source[$name])
                 ? trimMore($source[$name])
                 : null;

@@ -84,6 +84,10 @@ class PhpTemplateEngine extends ArrPipe {
         ];
     }
 
+    public static function e($text): string {
+        return htmlspecialchars((string) $text, ENT_QUOTES);
+    }
+
     /**
      * Opposite to e().
      */
@@ -307,10 +311,6 @@ class PhpTemplateEngine extends ArrPipe {
             self::$htmlIds[$htmlId] = 1;
         }
         return $this->e($htmlId);
-    }
-
-    public static function e($text): string {
-        return htmlspecialchars((string) $text, ENT_QUOTES);
     }
 
     public function textField(array $attribs): string {

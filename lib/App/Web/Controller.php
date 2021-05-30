@@ -28,16 +28,16 @@ abstract class Controller extends BaseController implements IHasServiceManager {
         return $this->request->response()->redirect($uri, $statusCode);
     }
 
-    protected function args($name = null, bool $trim = true) {
-        return $this->request->args($name, $trim);
+    protected function args($name = null, callable|bool $filter = true) {
+        return $this->request->args($name, $filter);
     }
 
-    protected function query($name = null, bool $trim = true) {
-        return $this->request->query($name, $trim);
+    protected function query($name = null, callable|bool $filter = true) {
+        return $this->request->query($name, $filter);
     }
 
-    protected function post($name, bool $trim = true) {
-        return $this->request->post($name, $trim);
+    protected function post($name, callable|bool $filter = true) {
+        return $this->request->post($name, $filter);
     }
 
     protected function jsConf(): ArrayObject {

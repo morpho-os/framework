@@ -6,13 +6,20 @@
  */
 namespace Morpho\Tech\Xml;
 
+use DOMDocument;
+use DOMNodeList;
+use DOMXPath;
 use Morpho\Base\NotImplementedException;
+
+use RuntimeException;
+
+use function call_user_func_array;
 
 class XPathQuery {
     private $xPath;
 
-    public function __construct(\DOMDocument $doc) {
-        $this->xPath = new \DOMXPath($doc);
+    public function __construct(DOMDocument $doc) {
+        $this->xPath = new DOMXPath($doc);
     }
 
     public static function formFields(): string {
@@ -22,8 +29,8 @@ class XPathQuery {
 
     public function select(string $xPath, $contextNode = null): XPathResult {
         $nodeList = $this->eval($xPath, $contextNode);
-        if (!$nodeList instanceof \DOMNodeList) {
-            throw new \RuntimeException('Unable to select DOMNodeList, consider to use the xPath() method instead.');
+        if (!$nodeList instanceof DOMNodeList) {
+            throw new RuntimeException('Unable to select DOMNodeList, consider to use the xPath() method instead.');
         }
         return new XPathResult($nodeList);
     }
@@ -38,7 +45,7 @@ class XPathQuery {
             $result = $this->xPath->evaluate($xPath);
         }
         if (false === $result) {
-            throw new \RuntimeException("The XPath expression '$xPath' is not valid.");
+            throw new RuntimeException("The XPath expression '$xPath' is not valid.");
         }
         return $result;
     }
@@ -71,6 +78,6 @@ class XPathQuery {
     }
 
     public function __call($method, $args) {
-        return \call_user_func_array([$this->xPath, $method], $args);
+        return call_user_func_array([$this->xPath, $method], $args);
     }
 }

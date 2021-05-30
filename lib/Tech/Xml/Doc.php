@@ -44,7 +44,7 @@ class Doc extends DOMDocument {
         'xmlStandalone'       => true,
         'xmlVersion'          => true,
     ];
-    private $xPath;
+    private ?XPathQuery $xPath = null;
 
     public static function parseFile(string $filePath, array $conf = null): Doc {
         if (!is_file($filePath) || !is_readable($filePath)) {
@@ -107,7 +107,7 @@ class Doc extends DOMDocument {
         return $doc;
     }
 
-    public function __call($method, $args) {
+    public function __call($method, $args): mixed {
         return call_user_func_array([$this->xPath(), $method], $args);
     }
 
@@ -118,7 +118,7 @@ class Doc extends DOMDocument {
         return $this->xPath;
     }
 
-    public function namespaces() {
+    public function namespaces(): iterable {
         $xpath = new DOMXPath($this);
         foreach ($xpath->query("namespace::*", $this->documentElement) as $node) {
             yield $node->localName => $node->nodeValue;
