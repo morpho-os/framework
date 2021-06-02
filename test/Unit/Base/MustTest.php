@@ -6,8 +6,12 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use InvalidArgumentException;
 use Morpho\Base\Must;
 use Morpho\Testing\TestCase;
+use RuntimeException;
+
+use function implode;
 
 class MustTest extends TestCase {
     public function testContain_String_Valid() {
@@ -16,7 +20,7 @@ class MustTest extends TestCase {
     }
 
     public function testContain_String_Invalid() {
-        $this->expectException(\RuntimeException::class, 'A haystack does not contain a needle');
+        $this->expectException(RuntimeException::class, 'A haystack does not contain a needle');
         Must::contain('foo-bar', '/');
     }
 
@@ -66,7 +70,7 @@ class MustTest extends TestCase {
      * @dataProvider dataContain_Array_Invalid
      */
     public function testContain_Array_Invalid($haystack, $needle) {
-        $this->expectException(\RuntimeException::class, 'A haystack does not contain a needle');
+        $this->expectException(RuntimeException::class, 'A haystack does not contain a needle');
         Must::contain($haystack, $needle);
     }
 
@@ -75,17 +79,17 @@ class MustTest extends TestCase {
     }
 
     public function testBeNotFalse_ThrowsExceptionIfFalse() {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         Must::beNotFalse(false);
     }
 
     public function testBeEmpty_SingleArg_ThrowsExceptionOnNonEmptyValue() {
-        $this->expectException(\RuntimeException::class, "The value must be empty");
+        $this->expectException(RuntimeException::class, "The value must be empty");
         Must::beEmpty('abc');
     }
 
     public function testBeEmpty_MultipleArgs_ThrowsExceptionOnNonEmptyValue() {
-        $this->expectException(\RuntimeException::class, "The value must be empty");
+        $this->expectException(RuntimeException::class, "The value must be empty");
         Must::beEmpty("", "abc");
     }
 
@@ -113,7 +117,7 @@ class MustTest extends TestCase {
     }
 
     public function testBeEmpty_ThrowsExceptionOnEmptyArgs() {
-        $this->expectException(\InvalidArgumentException::class, "Empty arguments");
+        $this->expectException(InvalidArgumentException::class, "Empty arguments");
         Must::beEmpty();
     }
 
@@ -134,12 +138,12 @@ class MustTest extends TestCase {
      * @dataProvider dataBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue
      */
     public function testBeNotEmpty_SingleArg_ThrowsExceptionOnEmptyValue($v) {
-        $this->expectException(\RuntimeException::class, "The value must be non empty");
+        $this->expectException(RuntimeException::class, "The value must be non empty");
         Must::beNotEmpty($v);
     }
 
     public function testBeNotEmpty_MultipleArgs_ThrowsExceptionOnEmptyValue() {
-        $this->expectException(\RuntimeException::class, "The value must be non empty");
+        $this->expectException(RuntimeException::class, "The value must be non empty");
         Must::beNotEmpty("abc", "");
     }
 
@@ -154,7 +158,7 @@ class MustTest extends TestCase {
     }
 
     public function testBeNotEmpty_ThrowsExceptionOnEmptyArgs() {
-        $this->expectException(\InvalidArgumentException::class, "Empty arguments");
+        $this->expectException(InvalidArgumentException::class, "Empty arguments");
         Must::beNotEmpty();
     }
 
@@ -229,7 +233,7 @@ class MustTest extends TestCase {
     public function testCheckAllowed_Invalid($actual, $allowedKeys, $notAllowedItems) {
         $this->expectException(
             '\RuntimeException',
-            'Not allowed items are present: ' . \implode(', ', $notAllowedItems)
+            'Not allowed items are present: ' . implode(', ', $notAllowedItems)
         );
         Must::haveOnlyKeys($actual, $allowedKeys);
     }

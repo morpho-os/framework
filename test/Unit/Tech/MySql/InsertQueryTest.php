@@ -10,6 +10,7 @@ use Morpho\Tech\MySql\InsertQuery;
 use Morpho\Tech\Sql\IInsertQuery;
 use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\Result;
+use PDO;
 
 class InsertQueryTest extends QueryTest {
     public function testInterface() {
@@ -20,7 +21,7 @@ class InsertQueryTest extends QueryTest {
     public function testQuery() {
         $insert = new InsertQuery($this->db);
 
-        $selectAllRows = fn () => $this->pdo->query('SELECT * FROM cars')->fetchAll(\PDO::FETCH_ASSOC);
+        $selectAllRows = fn () => $this->pdo->query('SELECT * FROM cars')->fetchAll(PDO::FETCH_ASSOC);
         $this->assertSame([], $selectAllRows());
 
         $insert = $insert->table('cars')->row(['color' => 'green', 'name' => 'Honda']);

@@ -6,12 +6,15 @@
  */
 namespace Morpho\Tech\Php;
 
+use ArrayObject;
+use Throwable;
+
 interface IExceptionHandler {
     public function register(): void;
 
     public function unregister(): void;
 
-    public function listeners(): \ArrayObject;
+    public function listeners(): ArrayObject;
 
-    public function handleException(\Throwable $e): void;
+    public function handleException(Throwable $e): void;
 }

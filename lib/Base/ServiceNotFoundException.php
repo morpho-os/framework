@@ -6,7 +6,9 @@
  */
 namespace Morpho\Base;
 
-class ServiceNotFoundException extends \Exception {
+use Exception;
+
+class ServiceNotFoundException extends Exception {
     public function __construct(string $id) {
         parent::__construct("The service with ID '{$id}' was not found");
     }

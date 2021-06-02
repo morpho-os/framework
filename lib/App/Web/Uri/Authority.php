@@ -6,6 +6,10 @@
  */
 namespace Morpho\App\Web\Uri;
 
+use function rawurlencode;
+use function strpos;
+use function substr;
+
 class Authority implements IUriComponent {
     /**
      * @var null|string
@@ -62,13 +66,13 @@ class Authority implements IUriComponent {
         $userInfo = (string) $this->userInfo;
         $authority = '';
         if ($encode && $userInfo !== '') {
-            $pos = \strpos($userInfo, ':');
+            $pos = strpos($userInfo, ':');
             if (false !== $pos) {
-                $login = \substr($userInfo, 0, $pos);
-                $password = \substr($userInfo, $pos + 1);
-                $authority .= \rawurlencode($login) . ':' . \rawurlencode($password);
+                $login = substr($userInfo, 0, $pos);
+                $password = substr($userInfo, $pos + 1);
+                $authority .= rawurlencode($login) . ':' . rawurlencode($password);
             } else {
-                $authority .= \rawurlencode($userInfo);
+                $authority .= rawurlencode($userInfo);
             }
         }
 
@@ -76,7 +80,7 @@ class Authority implements IUriComponent {
             $authority .= '@';
         }
 
-        $authority .= $encode ? \rawurlencode($this->host) : $this->host;
+        $authority .= $encode ? rawurlencode($this->host) : $this->host;
 
         if (null !== $this->port) {
             $authority .= ':' . (int) $this->port;

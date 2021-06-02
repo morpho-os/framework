@@ -6,7 +6,12 @@
  */
 namespace Morpho\Testing;
 
-class VfsEntryStat extends \ArrayObject {
+use ArrayObject;
+use UnexpectedValueException;
+
+use function array_merge;
+
+class VfsEntryStat extends ArrayObject {
     private $default = [
         'dev'     => 0,
         'ino'     => 0,
@@ -24,12 +29,12 @@ class VfsEntryStat extends \ArrayObject {
     ];
 
     public function __construct(array $values = []) {
-        parent::__construct(\array_merge($this->default, $values));
+        parent::__construct(array_merge($this->default, $values));
     }
 
     public function offsetSet($name, $value) {
         if (!isset($this->default[$name])) {
-            throw new \UnexpectedValueException();
+            throw new UnexpectedValueException();
         }
         parent::offsetSet($name, $value);
     }

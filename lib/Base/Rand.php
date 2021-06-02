@@ -6,6 +6,8 @@
  */
 namespace Morpho\Base;
 
+use InvalidArgumentException;
+
 /**
  * Pseudorandom number generator (PRNG)
  * Modified file from Zend Framework (http://framework.zend.com/)
@@ -46,7 +48,7 @@ abstract class Rand {
      */
     public static function randStr(int $length, string $charlist = null): string {
         if ($length < 1) {
-            throw new \InvalidArgumentException('Length should be >= 1');
+            throw new InvalidArgumentException('Length should be >= 1');
         }
         // charlist is empty or not provided
         if (empty($charlist)) {

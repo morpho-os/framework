@@ -28,7 +28,7 @@ class XPathResult implements Iterator, Countable {
         return $doc->saveHTML();
     }
 
-    public function head(): ?DOMNode{
+    public function head(): ?DOMNode {
         return $this->nodeList->item(0);
     }
 

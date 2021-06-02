@@ -8,8 +8,8 @@ namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Site;
 use Morpho\App\Web\AppInitializer;
-use Morpho\Tech\Php\IErrorHandler;
 use Morpho\Base\ServiceManager;
+use Morpho\Tech\Php\IErrorHandler;
 use Morpho\Testing\TestCase;
 use UnexpectedValueException;
 

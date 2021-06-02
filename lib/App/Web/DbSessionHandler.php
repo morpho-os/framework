@@ -7,8 +7,9 @@
 namespace Morpho\App\Web;
 
 use Morpho\Base\NotImplementedException;
+use SessionHandlerInterface;
 
-class DbSessionHandler implements \SessionHandlerInterface {
+class DbSessionHandler implements SessionHandlerInterface {
     public function close() {
         throw new NotImplementedException();
     }

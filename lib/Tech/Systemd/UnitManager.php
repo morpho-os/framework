@@ -23,7 +23,7 @@ class UnitManager {
         $this->unitType = $unitType;
         $this->unitName = $unitName;
         if (!str_ends_with($unitFilePath, '.' . $unitType)) {
-            throw new \UnexpectedValueException("The unit file must end with the '." . $unitType . "' extension");
+            throw new UnexpectedValueException("The unit file must end with the '." . $unitType . "' extension");
         }
         $this->unitFilePath = $unitFilePath;
     }

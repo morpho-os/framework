@@ -6,8 +6,13 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use JsonSerializable;
 use Morpho\Base\{Err, IFunctor, IMonad, Ok, Result};
 use Morpho\Testing\TestCase;
+use RuntimeException;
+
+use function strlen;
+use function substr;
 
 class ResultTest extends TestCase {
     public function dataInterface() {
@@ -96,7 +101,7 @@ class ResultTest extends TestCase {
             if ($req['email'] === '') {
                 return new Err('Email is empty.');
             }
-            if (\substr($req['email'], -\strlen('localhost')) === 'localhost') {
+            if (substr($req['email'], -strlen('localhost')) === 'localhost') {
                 return new Err("No email from localhost is allowed.");
             }
             return new Ok($req);
@@ -108,7 +113,7 @@ class ResultTest extends TestCase {
                 ->bind(
                     function ($val) use ($expected) {
                         if ($expected instanceof Err) {
-                            throw new \RuntimeException("Must not be called");
+                            throw new RuntimeException("Must not be called");
                         }
                         return new Ok($val);
                     }
@@ -185,11 +190,11 @@ class ResultTest extends TestCase {
         $val = ['foo' => 'bar'];
 
         $result = new Ok($val);
-        $this->assertInstanceOf(\JsonSerializable::class, $result);
+        $this->assertInstanceOf(JsonSerializable::class, $result);
         $this->assertJsonStringEqualsJsonString(json_encode(['ok' => $val]), json_encode($result));
 
         $result = new Err($val);
-        $this->assertInstanceOf(\JsonSerializable::class, $result);
+        $this->assertInstanceOf(JsonSerializable::class, $result);
         $this->assertJsonStringEqualsJsonString(json_encode(['err' => $val]), json_encode($result));
     }
 }

@@ -10,9 +10,12 @@ namespace Morpho\Test;
 
 use Morpho\Testing\Sut;
 
+use function date_default_timezone_set;
+use function is_file;
+
 use const Morpho\App\{AUTOLOAD_FILE_NAME, VENDOR_DIR_NAME};
 
-\date_default_timezone_set('UTC');
+date_default_timezone_set('UTC');
 
 (function () {
     /*
@@ -21,7 +24,7 @@ use const Morpho\App\{AUTOLOAD_FILE_NAME, VENDOR_DIR_NAME};
     */
     foreach (Sut::instance()->backendModuleIterator() as $moduleDirPath) {
         $autoloadFilePath = $moduleDirPath . '/' . VENDOR_DIR_NAME . '/' . AUTOLOAD_FILE_NAME;
-        if (\is_file($autoloadFilePath)) {
+        if (is_file($autoloadFilePath)) {
             require $autoloadFilePath;
         }
     }

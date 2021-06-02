@@ -6,7 +6,9 @@
  */
 namespace Morpho\Base;
 
-class ArrObj extends \ArrayObject {
+use ArrayObject;
+
+class ArrObj extends ArrayObject {
     public function append($val): self {
         parent::append($val);
         return $this;

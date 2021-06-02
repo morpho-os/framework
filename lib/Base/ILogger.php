@@ -6,6 +6,8 @@
  */
 namespace Morpho\Base;
 
+use InvalidArgumentException;
+
 /**
  * Based on https://github.com/php-fig/log/blob/master/Psr/Log/LoggerInterface.php
  */
@@ -62,7 +64,7 @@ interface ILogger {
 
     /**
      * Logs with an arbitrary level.
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function log(int|string $level, string $message, array $context = []): void;
 }

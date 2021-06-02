@@ -6,13 +6,15 @@
  */
 namespace Morpho\Test\Manual;
 
+use PDO;
+
 require __DIR__ . '/init.php';
 
 (function ($host, $user, $password, $dbName) {
     $dsn = 'mysql:dbname=' . $dbName . ';' . $host . ';charset=UTF8';
-    $db = new \PDO($dsn, $user, $password);
-    $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-    $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+    $db = new PDO($dsn, $user, $password);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     foreach ($db->query('SHOW TABLES') as $tableName) {
         echo array_shift($tableName) . "\n";
     }

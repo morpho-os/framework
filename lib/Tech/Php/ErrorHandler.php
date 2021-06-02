@@ -48,6 +48,32 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
         }
     }
 
+    public static function errorToException($severity, $message, $filePath, $lineNo): \ErrorException {
+        $class = self::exceptionClass($severity);
+        return new $class($message, 0, $severity, $filePath, $lineNo);
+    }
+
+    protected static function exceptionClass($severity): string {
+        $levels = [
+            E_ERROR             => 'ErrorException',
+            E_WARNING           => 'WarningException',
+            E_PARSE             => 'ParseException',
+            E_NOTICE            => 'NoticeException',
+            E_CORE_ERROR        => 'CoreErrorException',
+            E_CORE_WARNING      => 'CoreWarningException',
+            E_COMPILE_ERROR     => 'CompileErrorException',
+            E_COMPILE_WARNING   => 'CompileWarningException',
+            E_USER_ERROR        => 'UserErrorException',
+            E_USER_WARNING      => 'UserWarningException',
+            E_USER_NOTICE       => 'UserNoticeException',
+            E_STRICT            => 'StrictException',
+            E_RECOVERABLE_ERROR => 'RecoverableErrorException',
+            E_DEPRECATED        => 'DeprecatedException',
+            E_USER_DEPRECATED   => 'UserDeprecatedException',
+        ];
+        return __NAMESPACE__ . '\\' . $levels[$severity];
+    }
+
     public static function trackErrors(callable $fn): mixed {
         $handler = function ($severity, $message, $filePath, $lineNo) {
             if (!(error_reporting() & $severity)) {
@@ -114,32 +140,6 @@ class ErrorHandler extends ExceptionHandler implements IErrorHandler {
             $exception = self::errorToException($severity, $message, $filePath, $lineNo);
             throw $exception;
         }
-    }
-
-    public static function errorToException($severity, $message, $filePath, $lineNo): \ErrorException {
-        $class = self::exceptionClass($severity);
-        return new $class($message, 0, $severity, $filePath, $lineNo);
-    }
-
-    protected static function exceptionClass($severity): string {
-        $levels = [
-            E_ERROR             => 'ErrorException',
-            E_WARNING           => 'WarningException',
-            E_PARSE             => 'ParseException',
-            E_NOTICE            => 'NoticeException',
-            E_CORE_ERROR        => 'CoreErrorException',
-            E_CORE_WARNING      => 'CoreWarningException',
-            E_COMPILE_ERROR     => 'CompileErrorException',
-            E_COMPILE_WARNING   => 'CompileWarningException',
-            E_USER_ERROR        => 'UserErrorException',
-            E_USER_WARNING      => 'UserWarningException',
-            E_USER_NOTICE       => 'UserNoticeException',
-            E_STRICT            => 'StrictException',
-            E_RECOVERABLE_ERROR => 'RecoverableErrorException',
-            E_DEPRECATED        => 'DeprecatedException',
-            E_USER_DEPRECATED   => 'UserDeprecatedException',
-        ];
-        return __NAMESPACE__ . '\\' . $levels[$severity];
     }
 
     /**

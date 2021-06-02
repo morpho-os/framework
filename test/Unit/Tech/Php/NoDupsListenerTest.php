@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\Tech\Php;
 
+use Exception;
 use Morpho\Base\IFn;
 use Morpho\Tech\Php\NoDupsListener;
 use Morpho\Testing\TestCase;
@@ -24,7 +25,7 @@ class NoDupsListenerTest extends TestCase {
 
     public function testNoDupsOnException() {
         $listener = $this->createMock(IFn::class);
-        $ex = new \Exception();
+        $ex = new Exception();
         $listener->expects($this->once())->method('__invoke')->with($this->identicalTo($ex));
         $listener = new NoDupsListener($listener, $this->lockFileDirPath);
         $listener->__invoke($ex);

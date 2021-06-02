@@ -11,20 +11,22 @@ use Morpho\App\Web\DispatchErrorHandler;
 use Morpho\App\Web\Request;
 use Morpho\Base\ServiceManager;
 use Morpho\Testing\TestCase;
+use RuntimeException;
+use Throwable;
 
 class DispatchErrorHandlerTest extends TestCase {
     public function testHandleException_ThrowsExceptionWhenTheSameErrorOccursTwice() {
         $handler = ['morpho-os/system', 'SomeCtrl', 'foo'];
         $dispatchErrorHandler = new DispatchErrorHandler();
         $dispatchErrorHandler->setExceptionHandler($handler);
-        $exception = new \RuntimeException();
+        $exception = new RuntimeException();
         $this->checkHandlesTheSameErrorOccurredTwice($dispatchErrorHandler, $handler, $exception, 500, true);
     }
 
     private function checkHandlesTheSameErrorOccurredTwice(
         DispatchErrorHandler $dispatchErrorHandler,
         array $expectedHandler,
-        \Throwable $exception,
+        Throwable $exception,
         int $expectedStatusCode,
         bool $mustLogError
     ) {
@@ -45,7 +47,7 @@ class DispatchErrorHandlerTest extends TestCase {
         try {
             $dispatchErrorHandler->handleException($exception, $request);
             $this->fail('Exception was not thrown');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertEquals('Exception loop has been detected', $e->getMessage());
             $this->assertEquals($e->getPrevious(), $exception);
         }
@@ -53,7 +55,7 @@ class DispatchErrorHandlerTest extends TestCase {
 
     private function mkServiceManagerWithLogger(
         bool $mustLogError,
-        \Throwable $expectedException,
+        Throwable $expectedException,
         int $expectedNumberOfCalls
     ) {
         $errorLogger = $this->createMock(Logger::class);
@@ -79,7 +81,7 @@ class DispatchErrorHandlerTest extends TestCase {
     }
 
     public function testHandleException_MustRethrowExceptionIfThrowErrorsIsSet() {
-        $exception = new \RuntimeException('Uncaught test');
+        $exception = new RuntimeException('Uncaught test');
         //yield [, true];
         $dispatchErrorHandler = new DispatchErrorHandler();
         $request = new Request();
@@ -91,7 +93,7 @@ class DispatchErrorHandlerTest extends TestCase {
         try {
             $dispatchErrorHandler->handleException($exception, $request);
             $this->fail('Must throw an exception');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertSame([], $request->handler());
             $this->assertSame($exception, $e);
             $this->assertSame($exceptionMessage, $e->getMessage());

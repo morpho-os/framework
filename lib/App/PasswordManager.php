@@ -7,9 +7,7 @@
 namespace Morpho\App;
 
 use Morpho\Base\Rand;
-
 use RuntimeException;
-
 use UnexpectedValueException;
 
 use function password_hash;

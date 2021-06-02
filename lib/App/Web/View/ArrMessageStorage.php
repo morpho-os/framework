@@ -6,7 +6,9 @@
  */
 namespace Morpho\App\Web\View;
 
-class ArrMessageStorage extends \ArrayObject implements IMessageStorage {
+use ArrayObject;
+
+class ArrMessageStorage extends ArrayObject implements IMessageStorage {
     public function clear(): void {
     }
 }

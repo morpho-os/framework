@@ -6,13 +6,14 @@
  */
 namespace Morpho\Test\Unit\Base;
 
+use ArrayObject;
 use Morpho\Base\Conf;
 use Morpho\Base\InvalidConfException;
 use Morpho\Testing\TestCase;
 
 class ConfTest extends TestCase {
     public function testInterface() {
-        $this->assertInstanceOf(\ArrayObject::class, new Conf());
+        $this->assertInstanceOf(ArrayObject::class, new Conf());
     }
 
     public function testOnlyDefault() {

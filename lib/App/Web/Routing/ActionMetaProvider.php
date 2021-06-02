@@ -8,12 +8,13 @@ namespace Morpho\App\Web\Routing;
 
 use Morpho\App\ActionMetaProvider as BaseActionMetaProvider;
 use Morpho\App\Web\Controller;
+use ReflectionClass;
 
 class ActionMetaProvider extends BaseActionMetaProvider {
     public function controllerFilter(): callable {
         if (null === $this->controllerFilter) {
             $controllerFilter = parent::controllerFilter();
-            $this->controllerFilter = function (\ReflectionClass $rClass) use ($controllerFilter): bool {
+            $this->controllerFilter = function (ReflectionClass $rClass) use ($controllerFilter): bool {
                 if (!$controllerFilter($rClass)) {
                     return false;
                 }

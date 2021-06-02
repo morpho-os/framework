@@ -6,9 +6,15 @@
  */
 namespace Morpho\Test\Unit\App\Web;
 
+use ArrayObject;
 use Morpho\App\Web\Env;
 use Morpho\App\Web\Response;
 use Morpho\Testing\TestCase;
+
+use function array_merge;
+use function func_get_args;
+use function ob_get_clean;
+use function ob_start;
 
 class ResponseTest extends TestCase {
     /**
@@ -55,7 +61,7 @@ class ResponseTest extends TestCase {
 
     public function testHeadersAccessors() {
         $headers = $this->response->headers();
-        $this->assertInstanceOf(\ArrayObject::class, $headers);
+        $this->assertInstanceOf(ArrayObject::class, $headers);
         $headersToSet = [
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="sample.pdf"',
@@ -63,7 +69,7 @@ class ResponseTest extends TestCase {
         $headers->exchangeArray($headersToSet);
         $headers['Location'] = 'http://example.com';
         $this->assertSame(
-            \array_merge($headersToSet, ['Location' => 'http://example.com']),
+            array_merge($headersToSet, ['Location' => 'http://example.com']),
             $this->response->headers()->getArrayCopy()
         );
     }
@@ -123,7 +129,7 @@ class ResponseTest extends TestCase {
             public $called = [];
 
             protected function sendHeader(string $value): void {
-                $this->called[] = [__FUNCTION__, \func_get_args()];
+                $this->called[] = [__FUNCTION__, func_get_args()];
             }
         };
         $body = 'Such page does not exist';
@@ -134,9 +140,9 @@ class ResponseTest extends TestCase {
                 'Location' => 'http://example.com',
             ]
         );
-        \ob_start();
+        ob_start();
         $response->send();
-        $this->assertSame($body, \ob_get_clean());
+        $this->assertSame($body, ob_get_clean());
         $this->assertSame(
             [
                 ['sendHeader', [Env::httpVersion() . ' 404 Not Found']],

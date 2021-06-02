@@ -24,10 +24,10 @@ use Morpho\App\Web\View\JsonResponseRenderer;
 use Morpho\App\Web\View\Messenger;
 use Morpho\App\Web\View\MessengerPlugin;
 use Morpho\App\Web\View\PhpTemplateEngine;
+use Morpho\Base\IHasServiceManager;
 use Morpho\Tech\Php\DumpListener;
 use Morpho\Tech\Php\LogListener;
 use Morpho\Tech\Php\NoDupsListener;
-use Morpho\Base\IHasServiceManager;
 use UnexpectedValueException;
 
 use function Morpho\Base\classify;

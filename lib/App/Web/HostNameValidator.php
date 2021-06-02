@@ -7,6 +7,14 @@
 namespace Morpho\App\Web;
 
 use Morpho\App\IHostNameValidator;
+use RuntimeException;
+
+use function explode;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function strtolower;
+use function substr;
 
 class HostNameValidator implements IHostNameValidator {
     private array $allowedHostNames;
@@ -28,30 +36,30 @@ class HostNameValidator implements IHostNameValidator {
         }
 
         // @TODO: Unicode and internationalized domains, see https://tools.ietf.org/html/rfc5892
-        if (false !== ($startOff = \strpos($host, '['))) {
+        if (false !== ($startOff = strpos($host, '['))) {
             // IPv6 or later.
             if ($startOff !== 0) {
                 return false;
 //                throw new BadRequestException("Invalid value of the 'Host' field");
             }
-            $endOff = \strrpos($host, ']', 2);
+            $endOff = strrpos($host, ']', 2);
             if (false === $endOff) {
                 return false;
                 //throw new BadRequestException("Invalid value of the 'Host' field");
             }
-            $hostWithoutPort = \strtolower(\substr($host, 0, $endOff + 1));
+            $hostWithoutPort = strtolower(substr($host, 0, $endOff + 1));
         } else {
             // IPv4 or domain name
-            $hostWithoutPort = \explode(':', \strtolower((string) $host), 2)[0];
-            if (\substr($hostWithoutPort, 0, 4) === 'www.' && \strlen($hostWithoutPort) > 4) {
-                $hostWithoutPort = \substr($hostWithoutPort, 4);
+            $hostWithoutPort = explode(':', strtolower((string) $host), 2)[0];
+            if (substr($hostWithoutPort, 0, 4) === 'www.' && strlen($hostWithoutPort) > 4) {
+                $hostWithoutPort = substr($hostWithoutPort, 4);
             }
         }
         return $hostWithoutPort;
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function throwInvalidSiteError(): void {
         throw new BadRequestException("Invalid host or site");

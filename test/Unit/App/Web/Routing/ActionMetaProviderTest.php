@@ -10,6 +10,8 @@ use Morpho\App\Web\Routing\ActionMetaProvider;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
 
+use function iterator_to_array;
+
 class ActionMetaProviderTest extends TestCase {
     private ActionMetaProvider $actionMetaProvider;
 
@@ -188,7 +190,7 @@ class ActionMetaProviderTest extends TestCase {
     public function testInvoke($moduleMeta, $expected) {
         $module = $this->mkModule($moduleMeta[0], $moduleMeta[1]);
         /** @noinspection PhpParamsInspection */
-        $actual = \iterator_to_array($this->actionMetaProvider->__invoke([$module]), false);
+        $actual = iterator_to_array($this->actionMetaProvider->__invoke([$module]), false);
         $this->assertEquals($expected, $actual);
     }
 
@@ -214,7 +216,7 @@ class ActionMetaProviderTest extends TestCase {
 
     public function testInvoke_NoRoutesAnnotation() {
         $module = $this->mkModule('test/annotations', $this->getTestDirPath() . '/NoRoutesController.php');
-        $this->assertSame([], \iterator_to_array($this->actionMetaProvider->__invoke([$module])));
+        $this->assertSame([], iterator_to_array($this->actionMetaProvider->__invoke([$module])));
     }
 
     public function testInvoke_SkipsMagicAndUnderscoredMethods() {
@@ -229,7 +231,7 @@ class ActionMetaProviderTest extends TestCase {
                     'method'   => 'playMe',
                 ],
             ],
-            \iterator_to_array($this->actionMetaProvider->__invoke([$module]))
+            iterator_to_array($this->actionMetaProvider->__invoke([$module]))
         );
     }
 }

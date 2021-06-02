@@ -6,13 +6,14 @@
  */
 namespace Morpho\Test\Unit\App;
 
+use ArrayObject;
 use Morpho\App\Message;
 use Morpho\Testing\TestCase;
 
 abstract class MessageTest extends TestCase {
     public function testMessage() {
         $message = $this->mkMessage();
-        $this->assertInstanceOf(\ArrayObject::class, $message, 'Message is \\ArrayObject');
+        $this->assertInstanceOf(ArrayObject::class, $message, 'Message is \\ArrayObject');
 
         $message->test = '123';
         $message['foo'] = 'bar';

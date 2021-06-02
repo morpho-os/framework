@@ -9,8 +9,8 @@ namespace Morpho\App;
 use Morpho\Base\Env;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
-use Morpho\Tech\Php\ErrorHandler;
 use Morpho\Base\IServiceManager;
+use Morpho\Tech\Php\ErrorHandler;
 use Throwable;
 
 use function addslashes;

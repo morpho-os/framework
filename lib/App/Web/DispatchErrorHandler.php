@@ -6,9 +6,12 @@
  */
 namespace Morpho\App\Web;
 
-use Morpho\Tech\Php\ErrorHandler;
 use Morpho\Base\IHasServiceManager;
 use Morpho\Base\THasServiceManager;
+use Morpho\Tech\Php\ErrorHandler;
+use RuntimeException;
+use Throwable;
+use UnexpectedValueException;
 
 class DispatchErrorHandler implements IHasServiceManager {
     use THasServiceManager;
@@ -30,7 +33,7 @@ class DispatchErrorHandler implements IHasServiceManager {
         $this->exceptionHandler = $handler;
     }
 
-    public function handleException(\Throwable $exception, Request $request): void {
+    public function handleException(Throwable $exception, Request $request): void {
         $this->logError($exception);
 
         if ($this->throwErrors) {
@@ -39,12 +42,12 @@ class DispatchErrorHandler implements IHasServiceManager {
 
         $exceptionHandler = $this->exceptionHandler;
         if (!$exceptionHandler) {
-            throw new \UnexpectedValueException('Empty exception handler');
+            throw new UnexpectedValueException('Empty exception handler');
         }
 
         foreach ($this->thrownExceptions as $prevException) {
             if (ErrorHandler::hashId($prevException) === ErrorHandler::hashId($exception)) {
-                throw new \RuntimeException('Exception loop has been detected', 0, $exception);
+                throw new RuntimeException('Exception loop has been detected', 0, $exception);
             }
         }
         $this->thrownExceptions[] = $exception;
@@ -55,7 +58,7 @@ class DispatchErrorHandler implements IHasServiceManager {
         $request->response()->setStatusCode(Response::INTERNAL_SERVER_ERROR_STATUS_CODE);
     }
 
-    protected function logError(\Throwable $exception): void {
+    protected function logError(Throwable $exception): void {
         $errorLogger = $this->serviceManager['errorLogger'];
         $errorLogger->emergency($exception, ['exception' => $exception]);
     }

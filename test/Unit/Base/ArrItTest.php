@@ -8,6 +8,7 @@ namespace Morpho\Test\Unit\Base;
 
 use Morpho\Base\ArrIterator;
 use Morpho\Testing\TestCase;
+use stdClass;
 
 class ArrItTest extends TestCase {
     private $it;
@@ -31,7 +32,7 @@ class ArrItTest extends TestCase {
         $this->assertFalse($this->it->isEmpty());
         $this->assertEquals(1, $this->it->count());
 
-        $this->it->append(new \stdClass());
+        $this->it->append(new stdClass());
 
         $this->assertFalse($this->it->isEmpty());
         $this->assertEquals(2, $this->it->count());

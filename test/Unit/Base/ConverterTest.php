@@ -9,8 +9,10 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\Converter;
 use Morpho\Testing\TestCase;
 
+use function pow;
+
 class ConverterTest extends TestCase {
     public function testToBytes() {
-        $this->assertEquals(10 * \pow(2, 20), Converter::toBytes('10M'));
+        $this->assertEquals(10 * pow(2, 20), Converter::toBytes('10M'));
     }
 }

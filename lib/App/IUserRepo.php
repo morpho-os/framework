@@ -6,6 +6,8 @@
  */
 namespace Morpho\App;
 
+use LogicException;
+
 interface IUserRepo {
     /**
      * @return mixed
@@ -21,7 +23,7 @@ interface IUserRepo {
 
     /**
      * @param string|int $id
-     * @throws \LogicException if the User with the given ID is not found.
+     * @throws LogicException if the User with the given ID is not found.
      */
     public function userById($id): array;
 }

@@ -6,6 +6,12 @@
  */
 namespace Morpho\Testing;
 
+use UnexpectedValueException;
+
+use function in_array;
+use function str_replace;
+use function strchr;
+
 class VfsFileOpenMode {
     private const O_RDONLY = 00000000;
 
@@ -26,10 +32,10 @@ class VfsFileOpenMode {
 
     protected function parseMode(string $mode): int {
         // On *nix [there is difference between text and binary mode](https://stackoverflow.com/questions/2266992/no-o-binary-and-o-text-flags-in-linux)
-        $mode = \str_replace('b', '', $mode);
+        $mode = str_replace('b', '', $mode);
         $supported = ['r', 'r+', 'w', 'w+', 'a', 'a+'];
-        if (!\in_array($mode, $supported, true)) {
-            throw new \UnexpectedValueException();
+        if (!in_array($mode, $supported, true)) {
+            throw new UnexpectedValueException();
         }
         // Taken from PHP sources, main/streams/plain_wrapper.c file
         switch ($mode[0]) {
@@ -49,10 +55,10 @@ class VfsFileOpenMode {
                             $flags = self::O_CREAT;
 /*                            break;*/
             default:
-                throw new \UnexpectedValueException();
+                throw new UnexpectedValueException();
         }
 
-        if (\strchr($mode, '+')) {
+        if (strchr($mode, '+')) {
             $flags |= self::O_RDWR;
         } else {
             if ($flags) {

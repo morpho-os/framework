@@ -10,6 +10,10 @@ use Countable;
 use Morpho\DataProcessing\Page;
 use Morpho\DataProcessing\Pager;
 use Morpho\Testing\TestCase;
+use Traversable;
+
+use function gettype;
+use function range;
 
 class PagerTest extends TestCase {
     private Pager $pager;
@@ -20,7 +24,7 @@ class PagerTest extends TestCase {
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(\Traversable::class, $this->pager);
+        $this->assertInstanceOf(Traversable::class, $this->pager);
         $this->assertInstanceOf(Countable::class, $this->pager);
     }
 
@@ -46,7 +50,7 @@ class PagerTest extends TestCase {
         $this->assertCount(1, $this->pager);
         $this->assertEquals(1, $this->pager->count());
         $this->assertEquals(1, $this->pager->totalPagesCount());
-        $this->assertTrue(\gettype($this->pager->count()) == 'integer');
+        $this->assertTrue(gettype($this->pager->count()) == 'integer');
         $this->pager->setItems([]);
         $this->assertEquals(0, $this->pager->totalPagesCount());
         $pager = new Pager();
@@ -58,7 +62,7 @@ class PagerTest extends TestCase {
     public function testMkPageByNumber() {
         $totalItemsCount = 7;
         $this->pager->setPageSize(2);
-        $items = \range(0, $totalItemsCount - 1);
+        $items = range(0, $totalItemsCount - 1);
         $this->pager->setItems($items);
         $this->assertEquals([6], $this->pager->mkPageByNumber(4)->toArr());
         $this->assertEquals([4, 5], $this->pager->mkPageByNumber(3)->toArr());

@@ -10,7 +10,6 @@ use DOMDocument;
 use DOMNodeList;
 use DOMXPath;
 use Morpho\Base\NotImplementedException;
-
 use RuntimeException;
 
 use function call_user_func_array;

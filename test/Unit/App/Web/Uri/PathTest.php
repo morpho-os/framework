@@ -9,6 +9,9 @@ namespace Morpho\Test\Unit\App\Web\Uri;
 use Morpho\App\Web\Uri\IUriComponent;
 use Morpho\App\Web\Uri\Path;
 use Morpho\Testing\TestCase;
+use RuntimeException;
+
+use function rawurlencode;
 
 class PathTest extends TestCase {
     public function testInitialState() {
@@ -27,7 +30,7 @@ class PathTest extends TestCase {
         $pathComp2 = 'тест';
         $path = new Path($pathComp1 . '/' . $pathComp2);
         $this->assertSame(
-            \rawurlencode($pathComp1) . '/' . \rawurlencode($pathComp2),
+            rawurlencode($pathComp1) . '/' . rawurlencode($pathComp2),
             $path->toStr(true)
         );
     }
@@ -58,7 +61,7 @@ class PathTest extends TestCase {
 
     public function testThrowsExIfPathDoesNotStartWithBasePath() {
         $path = new Path('/foo/bar/baz');
-        $this->expectException(\RuntimeException::class, 'The base path is not at beginning of the path');
+        $this->expectException(RuntimeException::class, 'The base path is not at beginning of the path');
         $path->setBasePath('/base/path');
     }
 

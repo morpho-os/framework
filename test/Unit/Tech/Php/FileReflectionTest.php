@@ -6,11 +6,17 @@
  */
 namespace Morpho\Test\Unit\Tech\Php;
 
+use Closure;
+use Generator;
 use Morpho\Tech\Php\ClassTypeReflection;
 use Morpho\Tech\Php\FileReflection;
 use Morpho\Tech\Php\NamespaceReflection;
 use Morpho\Testing\TestCase;
+use ReflectionClass;
 use ReflectionFunction;
+
+use function count;
+use function iterator_to_array;
 
 class FileReflectionTest extends TestCase {
     public function testFilePath() {
@@ -36,13 +42,13 @@ class FileReflectionTest extends TestCase {
         );
     }
 
-    private function checkClasses(string $method, int $expectedCount, \Closure $check) {
+    private function checkClasses(string $method, int $expectedCount, Closure $check) {
         $filePath = $this->getTestDirPath() . '/classes.php';
         $rFile = new FileReflection($filePath);
         $i = 0;
         foreach ($rFile->{$method}() as $rClass) {
             /** @var $rClass ClassTypeReflection */
-            $this->assertInstanceOf(\ReflectionClass::class, $rClass);
+            $this->assertInstanceOf(ReflectionClass::class, $rClass);
             $check($i, $rClass);
             $this->assertSame(__CLASS__, $rClass->getNamespaceName());
             $i++;
@@ -87,8 +93,8 @@ class FileReflectionTest extends TestCase {
         $this->assertGenYields([], $rFile->namespaces());
     }
 
-    private function assertGenYields($expected, \Generator $gen) {
-        $this->assertEquals($expected, \iterator_to_array($gen, false));
+    private function assertGenYields($expected, Generator $gen) {
+        $this->assertEquals($expected, iterator_to_array($gen, false));
     }
 
     public function testNamespaces_GlobalNamespace() {
@@ -117,7 +123,7 @@ class FileReflectionTest extends TestCase {
             $this->checkReflectionClass($expectedClasses[$j], $filePath, $rClass);
             $j++;
         }
-        $this->assertEquals(\count($expectedClasses), $j);
+        $this->assertEquals(count($expectedClasses), $j);
     }
 
     private function checkReflectionClass(
@@ -135,7 +141,7 @@ class FileReflectionTest extends TestCase {
             $this->checkReflectionFunction($expectedFns[$j], $filePath, $rFunction);
             $j++;
         }
-        $this->assertEquals(\count($expectedFns), $j);
+        $this->assertEquals(count($expectedFns), $j);
     }
 
     private function checkReflectionFunction(

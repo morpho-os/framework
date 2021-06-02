@@ -9,6 +9,8 @@ namespace Morpho\Test\Unit\App\Web\View;
 use Morpho\App\Web\View\HtmlSemiParser;
 use Morpho\Testing\TestCase;
 
+use function trim;
+
 class HtmlSemiParserTest extends TestCase {
     private $parser;
 
@@ -135,7 +137,7 @@ class MyContainerHandler extends TagHandler {
     }
 
     public function text() {
-        return \trim($this->tag['_text']);
+        return trim($this->tag['_text']);
     }
 }
 

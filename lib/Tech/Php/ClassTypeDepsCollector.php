@@ -23,13 +23,20 @@ use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\Node\Stmt\TryCatch;
 use PhpParser\NodeVisitorAbstract;
 
+use RuntimeException;
+
+use function array_unique;
+use function implode;
+use function in_array;
+use function sort;
+
 class ClassTypeDepsCollector extends NodeVisitorAbstract {
     protected $classTypes = [];
 
     public function classTypes(): array {
         $classTypes = $this->classTypes;
-        if (\in_array('self', $classTypes) || \in_array('static', $classTypes) || \in_array('parent', $classTypes)) {
-            throw new \RuntimeException("self|static|parent should not be present as class type");
+        if (in_array('self', $classTypes) || in_array('static', $classTypes) || in_array('parent', $classTypes)) {
+            throw new RuntimeException("self|static|parent should not be present as class type");
         }
         return $classTypes;
     }
@@ -37,11 +44,11 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
     public function enterNode(Node $node) {
         if ($node instanceof Function_ || $node instanceof Closure) {
             if ($node->returnType && $node->returnType instanceof FullyQualified) {
-                $this->classTypes[] = \implode('\\', $node->returnType->parts);
+                $this->classTypes[] = implode('\\', $node->returnType->parts);
             }
         } elseif ($node instanceof ClassMethod) {
             if ($node->returnType && $node->returnType instanceof FullyQualified) {
-                $this->classTypes[] = \implode('\\', $node->returnType->parts);
+                $this->classTypes[] = implode('\\', $node->returnType->parts);
             }
         } elseif ($node instanceof Class_) {
             if (isset($node->extends)) {
@@ -62,7 +69,7 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
         } elseif ($node instanceof TryCatch) {
             foreach ($node->catches as $catchStmt) {
                 foreach ($catchStmt->types as $classType) {
-                    $this->classTypes[] = \implode('\\', $classType->parts);
+                    $this->classTypes[] = implode('\\', $classType->parts);
                 }
             }
         } elseif ($node instanceof TraitUse) {
@@ -72,7 +79,7 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
         } elseif ($node instanceof New_ && $node->class instanceof FullyQualified) {
             $this->classTypes[] = $node->class->toString();
         } elseif ($node instanceof Param && $node->type instanceof FullyQualified) {
-            $this->classTypes[] = \implode('\\', $node->type->parts);
+            $this->classTypes[] = implode('\\', $node->type->parts);
         } elseif ($node instanceof Instanceof_ && $node->class instanceof FullyQualified) {
             $this->classTypes[] = $node->class->toString();
         } elseif (($node instanceof StaticPropertyFetch || $node instanceof ClassConstFetch) && isset($node->class) && $node->class instanceof FullyQualified) {
@@ -92,7 +99,7 @@ class ClassTypeDepsCollector extends NodeVisitorAbstract {
 
     public function afterTraverse(array $nodes) {
         parent::afterTraverse($nodes);
-        \sort($this->classTypes);
-        $this->classTypes = \array_unique($this->classTypes);
+        sort($this->classTypes);
+        $this->classTypes = array_unique($this->classTypes);
     }
 }

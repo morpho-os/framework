@@ -7,6 +7,9 @@
 namespace Morpho\App\Cli;
 
 // See symfony/console
+use const STDERR;
+use const STDOUT;
+
 class Terminal {
     /**
      * @var resource
@@ -18,8 +21,8 @@ class Terminal {
     private $stderr;
 
     public function __construct() {
-        $this->stdout = \STDOUT ?? fopen('php://output', 'w');
-        $this->stderr = \STDERR ?? fopen('php://stderr', 'w');
+        $this->stdout = STDOUT ?? fopen('php://output', 'w');
+        $this->stderr = STDERR ?? fopen('php://stderr', 'w');
     }
 
     public function write(string $text, bool $newLn = true): void {

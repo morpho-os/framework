@@ -6,5 +6,7 @@
  */
 namespace Morpho\App\Web\Uri;
 
-class UriParseException extends \RuntimeException {
+use RuntimeException;
+
+class UriParseException extends RuntimeException {
 }

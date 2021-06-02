@@ -9,6 +9,8 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\Stack;
 use Morpho\Testing\TestCase;
 
+use function count;
+
 class StackTest extends TestCase {
     public function testInterface() {
         $this->assertInstanceOf('\SplStack', new Stack());
@@ -16,16 +18,16 @@ class StackTest extends TestCase {
 
     public function testClear() {
         $stack = new Stack();
-        $this->assertEquals(0, \count($stack));
+        $this->assertEquals(0, count($stack));
 
         $stack->push(1);
         $stack->push(2);
 
-        $this->assertEquals(2, \count($stack));
+        $this->assertEquals(2, count($stack));
 
         $stack->clear();
 
-        $this->assertEquals(0, \count($stack));
+        $this->assertEquals(0, count($stack));
     }
 
     public function testReplace() {

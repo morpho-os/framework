@@ -8,6 +8,9 @@ namespace Morpho\App;
 
 use Morpho\Base\IServiceManager;
 
+use function ini_set;
+use function is_array;
+
 abstract class AppInitializer {
     protected IServiceManager $serviceManager;
 
@@ -26,10 +29,10 @@ abstract class AppInitializer {
     protected function applyIniConf(array $iniConf, $parentName = null): void {
         foreach ($iniConf as $name => $value) {
             $settingName = $parentName ? $parentName . '.' . $name : $name;
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $this->applyIniConf($value, $settingName);
             } else {
-                \ini_set($settingName, $value);
+                ini_set($settingName, $value);
             }
         }
     }

@@ -6,7 +6,9 @@
  */
 namespace Morpho\Testing;
 
-interface IVfsEntry extends \Countable {
+use Countable;
+
+interface IVfsEntry extends Countable {
     public function close(): void;
 
     public function name(): string;

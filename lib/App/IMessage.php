@@ -6,6 +6,10 @@
  */
 namespace Morpho\App;
 
-interface IMessage extends \IteratorAggregate, \ArrayAccess, \Countable {
+use ArrayAccess;
+use Countable;
+use IteratorAggregate;
+
+interface IMessage extends IteratorAggregate, ArrayAccess, Countable {
     public function exchangeArray(object|array $arr);
 }

@@ -9,6 +9,8 @@ namespace Morpho\Test\Unit\Tech\Xml;
 use Morpho\Tech\Xml\Xml;
 use Morpho\Testing\TestCase;
 
+use function trim;
+
 class XmlTest extends TestCase {
     public function testArrayToDomDoc() {
         $data = [
@@ -58,6 +60,6 @@ class XmlTest extends TestCase {
   </student>
 </student_info>
 XML;
-        $this->assertEquals(\trim($expected), \trim(Xml::arrayToDomDoc($data)->saveXml()));
+        $this->assertEquals(trim($expected), trim(Xml::arrayToDomDoc($data)->saveXml()));
     }
 }

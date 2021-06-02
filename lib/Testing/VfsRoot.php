@@ -6,6 +6,14 @@
  */
 namespace Morpho\Testing;
 
+use Closure;
+use LogicException;
+
+use function array_shift;
+use function count;
+use function explode;
+use function trim;
+
 class VfsRoot extends VfsDir {
     public function createAllDirs(string $uri, VfsEntryStat $stat): VfsDir {
         return $this->forEachParentDir(
@@ -17,17 +25,17 @@ class VfsRoot extends VfsDir {
         );
     }
 
-    private function forEachParentDir(string $uri, \Closure $current) {
+    private function forEachParentDir(string $uri, Closure $current) {
         $uriNoPrefix = Vfs::stripUriPrefix($uri);
         if ($uriNoPrefix === '/') {
             return $this;
         }
         $entry = $this;
-        $parts = \explode('/', \trim($uriNoPrefix, '/'));
+        $parts = explode('/', trim($uriNoPrefix, '/'));
         $curUri = Vfs::prefixUri('');
         $i = 0;
-        while (\count($parts)) {
-            $name = \array_shift($parts);
+        while (count($parts)) {
+            $name = array_shift($parts);
             $curUri .= '/' . $name;
             [$entry, $stop] = $current($entry, $name, $parts, $curUri);
             if ($stop) {
@@ -36,7 +44,7 @@ class VfsRoot extends VfsDir {
             $i++;
         }
         if ($i === 0) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         return $entry;
     }
@@ -74,7 +82,7 @@ class VfsRoot extends VfsDir {
         return $this->forEachParentDir(
             $uri,
             function (VfsDir $dir, string $name, array $parts) {
-                if (!\count($parts)) { // last item?
+                if (!count($parts)) { // last item?
                     $file = $dir->fileOrNone($name);
                     return [$file, true];
                 }
@@ -93,8 +101,8 @@ class VfsRoot extends VfsDir {
             function (VfsDir $dir, string $name, array $parts) {
                 $childEntry = $dir->entry($name);
                 if ($childEntry instanceof VfsFile) {
-                    if (\count($parts)) {
-                        throw new \LogicException();
+                    if (count($parts)) {
+                        throw new LogicException();
                     }
                     return [$childEntry, true];
                 }
@@ -115,8 +123,8 @@ class VfsRoot extends VfsDir {
                     return [false, true];
                 }
                 if ($childEntry instanceof VfsFile) {
-                    if (\count($parts)) { // file in the middle of path
-                        throw new \LogicException();
+                    if (count($parts)) { // file in the middle of path
+                        throw new LogicException();
                     }
                     return [$childEntry, true];
                 } else {

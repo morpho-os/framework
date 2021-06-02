@@ -8,5 +8,7 @@ declare(strict_types=1);
  */
 namespace Morpho\Compiler\Frontend\Peg;
 
-class SyntaxError extends \RuntimeException {
+use RuntimeException;
+
+class SyntaxError extends RuntimeException {
 }

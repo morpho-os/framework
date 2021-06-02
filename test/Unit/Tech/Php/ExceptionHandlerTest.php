@@ -6,15 +6,17 @@
  */
 namespace Morpho\Test\Unit\Tech\Php;
 
+use ArrayObject;
 use Morpho\Base\IFn;
 use Morpho\Tech\Php\ExceptionHandler;
 use Morpho\Testing\TestCase;
+use RuntimeException;
 
 class ExceptionHandlerTest extends TestCase {
     public function testListeners() {
         $exceptionHandler = new ExceptionHandler();
         $listeners = $exceptionHandler->listeners();
-        $this->assertEquals(new \ArrayObject(), $listeners);
+        $this->assertEquals(new ArrayObject(), $listeners);
         $listeners->append(
             function () use (&$called) {
                 $called = true;
@@ -29,7 +31,7 @@ class ExceptionHandlerTest extends TestCase {
             }
         };
         $listeners->append($ifnListener);
-        $exceptionHandler->handleException(new \RuntimeException());
+        $exceptionHandler->handleException(new RuntimeException());
         $this->assertTrue($called);
         $this->assertTrue($ifnListener->called);
     }

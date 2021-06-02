@@ -7,16 +7,19 @@
 namespace Morpho\Testing;
 
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverElement;
 use Morpho\Net\Http\Browser;
+
+use function ltrim;
 
 /**
  * @TODO: Check the https://github.com/lmc-eu/steward/blob/master/src/Test/SyntaxSugarTrait.php
  */
 class BrowserTestCase extends TestCase {
     /**
-     * @var \Facebook\WebDriver\Remote\RemoteWebDriver
+     * @var RemoteWebDriver
      */
     protected $browser;
 
@@ -68,6 +71,6 @@ class BrowserTestCase extends TestCase {
     }
 
     protected function uri(string $relUri = null): string {
-        return $this->sut()->siteUri() . (null !== $relUri ? '/' . \ltrim($relUri, '/') : '');
+        return $this->sut()->siteUri() . (null !== $relUri ? '/' . ltrim($relUri, '/') : '');
     }
 }

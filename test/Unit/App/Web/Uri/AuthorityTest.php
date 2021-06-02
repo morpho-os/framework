@@ -10,6 +10,8 @@ use Morpho\App\Web\Uri\Authority;
 use Morpho\App\Web\Uri\IUriComponent;
 use Morpho\Testing\TestCase;
 
+use function rawurlencode;
+
 class AuthorityTest extends TestCase {
     public function testAuthority() {
         $authorityStr = 'foo:bar@example.com:80';
@@ -32,7 +34,7 @@ class AuthorityTest extends TestCase {
         $host = 'емаил.com';
         $authority = new Authority("$userInfo@$host:80");
         $this->assertSame(
-            \rawurlencode($login) . ':' . \rawurlencode($password) . '@' . \rawurlencode($host) . ':80',
+            rawurlencode($login) . ':' . rawurlencode($password) . '@' . rawurlencode($host) . ':80',
             $authority->toStr(true)
         );
     }

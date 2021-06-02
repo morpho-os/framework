@@ -8,5 +8,7 @@ declare(strict_types=1);
  */
 namespace Morpho\Compiler\Frontend;
 
-class Node extends \ArrayObject {
+use ArrayObject;
+
+class Node extends ArrayObject {
 }

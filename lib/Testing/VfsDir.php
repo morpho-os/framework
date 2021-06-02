@@ -6,10 +6,23 @@
  */
 namespace Morpho\Testing;
 
+use Countable;
+use Iterator;
+use LogicException;
 use Morpho\Base\NotImplementedException;
 use Morpho\Fs\Stat;
 
-class VfsDir extends VfsEntry implements \Iterator, \Countable {
+use RuntimeException;
+
+use function count;
+use function current;
+use function key;
+use function next;
+use function prev;
+use function reset;
+use function umask;
+
+class VfsDir extends VfsEntry implements Iterator, Countable {
     private $index = 0;
 
     private $entries = [];
@@ -20,7 +33,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     }
 
     public function rewind(): void {
-        \reset($this->entries);
+        reset($this->entries);
     }
 
     public function close(): void {
@@ -30,7 +43,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
 
     public function entry(string $name): IVfsEntry {
         if (!isset($this->entries[$name])) {
-            throw new \RuntimeException('Entry not found');
+            throw new RuntimeException('Entry not found');
         }
         return $this->entries[$name];
     }
@@ -64,18 +77,18 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
         parent::normalizeStat($stat);
         if (!isset($stat['mode'])) {
             $typeBits = Stat::DIR;
-            $permissionBits = Stat::DIR_BASE_MODE & ~\umask();
+            $permissionBits = Stat::DIR_BASE_MODE & ~umask();
             $stat['mode'] = $typeBits | $permissionBits;
         }
     }
 
     public function deleteDir(string $name): void {
         if (!isset($this->entries[$name])) {
-            throw new \RuntimeException('Directory not found');
+            throw new RuntimeException('Directory not found');
         }
         $dir = $this->entries[$name];
         if (!$dir instanceof VfsDir) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         //$dir->close();
         unset($this->entries[$name]);
@@ -87,7 +100,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     public function dirOrNone(string $name) {
         $dir = $this->entries[$name] ?? false;
         if ($dir && !$dir instanceof VfsDir) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         return $dir;
     }
@@ -102,7 +115,7 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     public function fileOrNone(string $name) {
         $file = $this->entries[$name] ?? false;
         if ($file && !$file instanceof VfsFile) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         return $file;
     }
@@ -115,11 +128,11 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
 
     public function deleteFile(string $name): void {
         if (!isset($this->entries[$name])) {
-            throw new \RuntimeException('File not found');
+            throw new RuntimeException('File not found');
         }
         $file = $this->entries[$name];
         if (!$file instanceof VfsFile) {
-            throw new \LogicException();
+            throw new LogicException();
         }
         //$file->close();
         unset($this->entries[$name]);
@@ -136,11 +149,11 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     }
 
     public function current() {
-        return \current($this->entries);
+        return current($this->entries);
     }
 
     public function next(): void {
-        \next($this->entries);
+        next($this->entries);
     }
 
     public function key() {
@@ -148,14 +161,14 @@ class VfsDir extends VfsEntry implements \Iterator, \Countable {
     }
 
     public function valid(): bool {
-        \next($this->entries);
-        $key = \key($this->entries);
+        next($this->entries);
+        $key = key($this->entries);
         $valid = $key !== null;
-        \prev($this->entries);
+        prev($this->entries);
         return $valid;
     }
 
     public function count(): int {
-        return \count($this->entries);
+        return count($this->entries);
     }
 }

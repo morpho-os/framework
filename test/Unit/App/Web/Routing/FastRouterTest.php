@@ -6,12 +6,13 @@
  */
 namespace Morpho\Test\Unit\App\Web\Routing;
 
+use ArrayObject;
 use FastRoute\Dispatcher as IDispatcher;
 use Morpho\App\IRequest;
 use Morpho\App\IResponse;
 use Morpho\App\Web\Routing\FastRouter;
-use Morpho\Caching\ICache;
 use Morpho\Base\IServiceManager;
+use Morpho\Caching\ICache;
 use Morpho\Testing\TestCase;
 
 class FastRouterTest extends TestCase {
@@ -81,7 +82,7 @@ class FastRouterTest extends TestCase {
                 };
             }
         };
-        $request = new class ($httpMethod, $uri) extends \ArrayObject implements IRequest {
+        $request = new class ($httpMethod, $uri) extends ArrayObject implements IRequest {
             private array $handler = [];
             private string $httpMethod;
             private $uri;

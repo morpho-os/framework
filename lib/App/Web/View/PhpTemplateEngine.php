@@ -84,10 +84,6 @@ class PhpTemplateEngine extends ArrPipe {
         ];
     }
 
-    public static function e($text): string {
-        return htmlspecialchars((string) $text, ENT_QUOTES);
-    }
-
     /**
      * Opposite to e().
      */
@@ -97,6 +93,10 @@ class PhpTemplateEngine extends ArrPipe {
 
     public function setRequest(IRequest $request): void {
         $this->request = $request;
+    }
+
+    public function request(): IRequest {
+        return $this->request;
     }
 
     /*
@@ -139,10 +139,6 @@ class PhpTemplateEngine extends ArrPipe {
         return $this->serviceManager['userManager']->loggedInUser();
     }
 */
-
-    public function request(): IRequest {
-        return $this->request;
-    }
 
     public function instance(): mixed {
         return $this->request->handler()['instance'];
@@ -311,6 +307,10 @@ class PhpTemplateEngine extends ArrPipe {
             self::$htmlIds[$htmlId] = 1;
         }
         return $this->e($htmlId);
+    }
+
+    public static function e($text): string {
+        return htmlspecialchars((string) $text, ENT_QUOTES);
     }
 
     public function textField(array $attribs): string {

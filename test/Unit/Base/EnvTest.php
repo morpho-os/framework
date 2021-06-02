@@ -9,17 +9,21 @@ namespace Morpho\Test\Unit\Base;
 use Morpho\Base\Env;
 use Morpho\Testing\TestCase;
 
+use function ini_set;
+use function strpos;
+use function strtoupper;
+
 class EnvTest extends TestCase {
     private $oldZendEnableGc;
 
     public function setUp(): void {
         parent::setUp();
-        $this->oldZendEnableGc = \ini_set('zend.enable_gc', '1'); // we change this setting below.
+        $this->oldZendEnableGc = ini_set('zend.enable_gc', '1'); // we change this setting below.
     }
 
     public function tearDown(): void {
         parent::tearDown();
-        \ini_set('zend.enable_gc', $this->oldZendEnableGc);
+        ini_set('zend.enable_gc', $this->oldZendEnableGc);
     }
 
     public function testIsCli() {
@@ -32,14 +36,14 @@ class EnvTest extends TestCase {
         $setting = 'zend.enable_gc';
         $this->assertTrue(Env::boolIniVal($setting));
 
-        \ini_set($setting, '0');
+        ini_set($setting, '0');
         $this->assertFalse(Env::boolIniVal($setting));
 
-        \ini_set($setting, '1');
+        ini_set($setting, '1');
         $this->assertTrue(Env::boolIniVal($setting));
 
         // Names are case sensitive, so such setting should not exist.
-        $this->assertFalse(Env::boolIniVal(\strtoupper($setting)));
+        $this->assertFalse(Env::boolIniVal(strtoupper($setting)));
 
         $this->assertFalse(Env::boolIniVal(__FUNCTION__));
     }
@@ -148,6 +152,6 @@ class EnvTest extends TestCase {
 
     public function testTmpDirPath() {
         $tmpDirPath = Env::tmpDirPath();
-        $this->assertNotEmpty($tmpDirPath && (false === \strpos($tmpDirPath, '\\')));
+        $this->assertNotEmpty($tmpDirPath && (false === strpos($tmpDirPath, '\\')));
     }
 }

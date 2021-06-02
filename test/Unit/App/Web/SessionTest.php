@@ -9,6 +9,8 @@ namespace Morpho\Test\Unit\App\Web;
 use Morpho\App\Web\Session;
 use Morpho\Testing\TestCase;
 
+use function uniqid;
+
 class SessionTest extends TestCase {
     private Session $session;
 
@@ -19,7 +21,7 @@ class SessionTest extends TestCase {
     }
 
     public function testStorageOfClosure() {
-        $uniqId = \uniqid();
+        $uniqId = uniqid();
         $closure = function () use ($uniqId) {
             return $uniqId;
         };

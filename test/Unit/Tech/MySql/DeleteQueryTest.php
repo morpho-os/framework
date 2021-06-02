@@ -8,8 +8,8 @@
 namespace Morpho\Test\Unit\Tech\MySql;
 
 use Morpho\Tech\MySql\DeleteQuery;
-use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\IDeleteQuery;
+use Morpho\Tech\Sql\IQuery;
 use PDO;
 
 class DeleteQueryTest extends QueryTest {

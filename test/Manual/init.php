@@ -6,6 +6,11 @@
  */
 namespace Morpho\Test\Manual;
 
+use ErrorException;
+use RuntimeException;
+
+use function ini_get;
+
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 set_error_handler(
@@ -13,11 +18,11 @@ set_error_handler(
         if (!(error_reporting() & $severity)) {
             return;
         }
-        throw new \ErrorException($message, 0, $severity, $filePath, $lineNo);
+        throw new ErrorException($message, 0, $severity, $filePath, $lineNo);
     }
 );
-if (\ini_get('zend.assertions') !== '1') {
-    throw new \RuntimeException("The 'zend.assertions' ini parameter must be set to 1 for expectations");
+if (ini_get('zend.assertions') !== '1') {
+    throw new RuntimeException("The 'zend.assertions' ini parameter must be set to 1 for expectations");
 }
 assert_options(ASSERT_ACTIVE, true);     // enable assert() evaluation?
 assert_options(

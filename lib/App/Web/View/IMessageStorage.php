@@ -6,6 +6,10 @@
  */
 namespace Morpho\App\Web\View;
 
-interface IMessageStorage extends \Countable, \Traversable, \ArrayAccess {
+use ArrayAccess;
+use Countable;
+use Traversable;
+
+interface IMessageStorage extends Countable, Traversable, ArrayAccess {
     public function clear(): void;
 }

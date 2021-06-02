@@ -9,6 +9,12 @@ namespace Morpho\Base;
 use DateTimeImmutable;
 use DateTimeZone;
 
+use function is_numeric;
+use function is_string;
+use function preg_match;
+use function strlen;
+use function substr;
+
 class DateTime extends DateTimeImmutable {
     public const MYSQL_DATETIME = 'Y-m-d H:i:s';
     public const MYSQL_DATETIME_RE = '~^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2}) (?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})$~s';
@@ -21,7 +27,7 @@ class DateTime extends DateTimeImmutable {
         if (null === $time) {
             $time = 'now';
         }
-        if (\is_string($timeZone)) {
+        if (is_string($timeZone)) {
             $timeZone = new DateTimeZone($timeZone);
         }
         parent::__construct($time, $timeZone);
@@ -39,7 +45,7 @@ class DateTime extends DateTimeImmutable {
      * Overridden to return self.
      * @param string $format
      * @param string $value
-     * @param null|string|\DateTimeZone $timeZone
+     * @param null|string|DateTimeZone $timeZone
      * @return DateTimeImmutable|false|DateTime
      */
     public static function createFromFormat($format, $value, $timeZone = null): self {
@@ -54,7 +60,7 @@ class DateTime extends DateTimeImmutable {
      */
     public static function isTimestamp($value): bool {
         $value = (string) $value;
-        return \is_numeric($value) && \preg_match('~^\d+$~s', $value) && \strlen($value) === 10;
+        return is_numeric($value) && preg_match('~^\d+$~s', $value) && strlen($value) === 10;
     }
 
     public static function mkFromTimestamp($timestamp): self {
@@ -106,8 +112,8 @@ class DateTime extends DateTimeImmutable {
      * @return string
      */
     protected function stripLeadingZero($val) {
-        if (\strlen($val) > 1 && $val[0] == 0) {
-            $val = \substr($val, 1);
+        if (strlen($val) > 1 && $val[0] == 0) {
+            $val = substr($val, 1);
         }
         return $val;
     }
@@ -132,8 +138,8 @@ class DateTime extends DateTimeImmutable {
      */
     public function numberOfDaysInMonth() {
         $month = $this->month();
-        if (\substr($month, 0, 1) == '0' && \strlen($month) == 2) {
-            $month = \substr($month, 1);
+        if (substr($month, 0, 1) == '0' && strlen($month) == 2) {
+            $month = substr($month, 1);
         }
         $lastDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
         if ($this->isLeapYear()) {

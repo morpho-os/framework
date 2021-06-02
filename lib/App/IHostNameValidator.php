@@ -6,9 +6,11 @@
  */
 namespace Morpho\App;
 
+use RuntimeException;
+
 interface IHostNameValidator {
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function throwInvalidSiteError(): void;
 

@@ -4,12 +4,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\App\Web;
+namespace Morpho\Test\Unit\App;
 
-use Morpho\App\Web\Session;
+use LogicException;
 use Morpho\App\IUserRepo;
 use Morpho\App\UserManager;
+use Morpho\App\Web\Session;
 use Morpho\Testing\DbTestCase;
+use RuntimeException;
 
 class UserManagerTest extends DbTestCase {
     private UserManager $userManager;
@@ -43,7 +45,7 @@ class UserManagerTest extends DbTestCase {
                         return $user;
                     }
                 }
-                throw new \LogicException();
+                throw new LogicException();
             }
         };
         $_SESSION = [];
@@ -81,7 +83,7 @@ class UserManagerTest extends DbTestCase {
         try {
             $this->userManager->loggedInUser();
             $this->fail();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertEquals('The user was not logged in', $e->getMessage());
         }
     }
@@ -89,7 +91,7 @@ class UserManagerTest extends DbTestCase {
     public function testRegister_TwiceThrowsException() {
         $user = ['login' => 'foo', 'password' => 'bar'];
         $this->userManager->registerUser($user);
-        $this->expectException(\LogicException::class, 'Such user already exists');
+        $this->expectException(LogicException::class, 'Such user already exists');
         $this->userManager->registerUser($user);
     }
 

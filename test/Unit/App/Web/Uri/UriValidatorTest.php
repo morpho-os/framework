@@ -6,8 +6,11 @@
  */
 namespace Morpho\Test\Unit\App\Web\Uri;
 
+use Generator;
 use Morpho\App\Web\Uri\UriValidator;
 use Morpho\Testing\TestCase;
+
+use function print_r;
 
 class UriValidatorTest extends TestCase {
     public function dataValidateScheme() {
@@ -94,7 +97,7 @@ class UriValidatorTest extends TestCase {
         yield ['//', true];
     }
 
-    private function validatePathSamples(): \Generator {
+    private function validatePathSamples(): Generator {
         yield ['/', true];
         yield ['/c=GB', true];
         yield ['/over/there', true];
@@ -111,9 +114,9 @@ class UriValidatorTest extends TestCase {
 
     private function validatePath(string $path, bool $isValid, bool $hasAuthority): void {
         if ($isValid) {
-            $this->assertTrue(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
+            $this->assertTrue(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . print_r($path, true));
         } else {
-            $this->assertFalse(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . \print_r($path, true));
+            $this->assertFalse(UriValidator::validatePath($path, $hasAuthority), 'Path: ' . print_r($path, true));
         }
     }
 

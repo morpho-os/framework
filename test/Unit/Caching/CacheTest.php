@@ -6,8 +6,12 @@
  */
 namespace Morpho\Test\Unit\Caching;
 
+use ArrayIterator;
 use Morpho\Caching\ICache;
 use Morpho\Testing\TestCase;
+use stdClass;
+
+use function is_object;
 
 abstract class CacheTest extends TestCase {
     public function dataCaching() {
@@ -17,7 +21,7 @@ abstract class CacheTest extends TestCase {
         yield [null];
         yield ['Hello World'];
         yield [3.14];
-        yield [new \ArrayIterator([])];
+        yield [new ArrayIterator([])];
     }
 
     /**
@@ -31,7 +35,7 @@ abstract class CacheTest extends TestCase {
         $this->assertNull($cache->get($key));
         $this->assertSame('abc', $cache->get($key, 'abc'));
         $this->assertTrue($cache->set('my-val', $data));
-        if (\is_object($data)) {
+        if (is_object($data)) {
             $this->assertEquals($data, $cache->get($key));
         } else {
             $this->assertSame($data, $cache->get($key));
@@ -39,7 +43,7 @@ abstract class CacheTest extends TestCase {
         $this->assertTrue($cache->delete($key));
         $this->assertFalse($cache->has($key));
         $this->assertNull($cache->get($key));
-        $def = new \stdClass();
+        $def = new stdClass();
         $this->assertSame($def, $cache->get($key, $def));
     }
 

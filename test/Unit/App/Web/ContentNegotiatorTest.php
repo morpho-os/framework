@@ -11,6 +11,8 @@ use Morpho\App\Web\ContentNegotiator;
 use Morpho\App\Web\Request;
 use Morpho\Testing\TestCase;
 
+use function implode;
+
 class ContentNegotiatorTest extends TestCase {
     public function dataInvoke() {
         $mediaRanges = $this->mediaRanges();
@@ -64,10 +66,10 @@ class ContentNegotiatorTest extends TestCase {
 
     private function mkAcceptHeaderVal(array $mediaRanges): string {
         foreach ($mediaRanges as &$mediaRange) {
-            $mediaRange = \implode(', ', $mediaRange);
+            $mediaRange = implode(', ', $mediaRange);
         }
         unset($mediaRange);
-        return \implode(', ', $mediaRanges);
+        return implode(', ', $mediaRanges);
     }
 
     /**

@@ -10,6 +10,7 @@ use Morpho\Tech\MySql\UpdateQuery;
 use Morpho\Tech\Sql\IQuery;
 use Morpho\Tech\Sql\IUpdateQuery;
 use Morpho\Tech\Sql\Result;
+use PDO;
 
 class UpdateQueryTest extends QueryTest {
     public function setUp(): void {
@@ -28,7 +29,7 @@ class UpdateQueryTest extends QueryTest {
         $selectRows = function () use ($modelName) {
             $stmt = $this->pdo->prepare('SELECT * FROM cars WHERE name = ?');
             $stmt->execute([$modelName]);
-            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         };
 
         $rows = $selectRows();

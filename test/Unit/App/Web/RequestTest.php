@@ -11,6 +11,9 @@ use Morpho\App\Web\Request;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\Testing\TestCase;
 
+use function array_merge;
+use function rawurlencode;
+
 class RequestTest extends TestCase {
     private Request $request;
 
@@ -234,12 +237,12 @@ class RequestTest extends TestCase {
             '',
         ];
         yield [
-            '/foo/bar/baz/abc?test=123&redirect=' . \rawurlencode(
+            '/foo/bar/baz/abc?test=123&redirect=' . rawurlencode(
                 'http://localhost/some/base/path/abc/def?three=qux&four=pizza'
             ) . '#toc',
             '/foo/bar',
             '/foo/bar',
-            '/baz/abc?test=123&redirect=' . \rawurlencode(
+            '/baz/abc?test=123&redirect=' . rawurlencode(
                 'http://localhost/some/base/path/abc/def?three=qux&four=pizza'
             ) . '#toc',
         ];
@@ -342,7 +345,7 @@ class RequestTest extends TestCase {
 
     public function testMappingPostToPatch() {
         $data = ['foo' => 'bar', 'baz' => 'abc'];
-        $_POST = \array_merge($data, ['_method' => HttpMethod::PATCH]);
+        $_POST = array_merge($data, ['_method' => HttpMethod::PATCH]);
         $request = new Request();
         $this->assertTrue($request->isPatchMethod());
         $this->assertSame($data, $request->patch());

@@ -10,6 +10,7 @@ use Morpho\App\Web\Routing\RouteMetaProvider;
 use Morpho\Base\IFn;
 use Morpho\Testing\TestCase;
 
+use function iterator_to_array;
 use function Morpho\Base\dasherize;
 
 class RouteMetaProviderTest extends TestCase {
@@ -81,7 +82,7 @@ class RouteMetaProviderTest extends TestCase {
             ],
         ];
         /** @noinspection PhpParamsInspection */
-        $actual = \iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
+        $actual = iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
 
         $expectedControllerPath = 'my/nested/very-simple';
         $expectedUri = '/' . explode(
@@ -118,7 +119,7 @@ class RouteMetaProviderTest extends TestCase {
             ],
         ];
         /** @noinspection PhpParamsInspection */
-        $actual = \iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
+        $actual = iterator_to_array($this->routeMetaProvider->__invoke($actionMetas));
         $this->assertEquals(
             [
                 [

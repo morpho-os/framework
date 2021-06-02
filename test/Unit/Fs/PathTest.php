@@ -10,6 +10,11 @@ use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\Path;
 use Morpho\Testing\TestCase;
 
+use function array_merge;
+use function basename;
+use function str_replace;
+use function touch;
+
 class PathTest extends TestCase {
     public function dataIsAbs() {
         return [
@@ -131,7 +136,7 @@ class PathTest extends TestCase {
         ];
         $isWin = $this->isWindows();
         if ($isWin) {
-            $dataSet = \array_merge(
+            $dataSet = array_merge(
                 $dataSet,
                 [
                     ['\foo\bar\baz'],
@@ -162,7 +167,7 @@ class PathTest extends TestCase {
             [__FILE__, __FILE__],
             ['', ''],
             [__DIR__, __DIR__ . '/_files/..'],
-            [__FILE__, __DIR__ . '/_files/../' . \basename(__FILE__)],
+            [__FILE__, __DIR__ . '/_files/../' . basename(__FILE__)],
             [__DIR__ . '/non-existing', __DIR__ . '/non-existing'],
         ];
     }
@@ -173,7 +178,7 @@ class PathTest extends TestCase {
     public function testAbs($expected, $path) {
         $actual = Path::abs($path);
         if (!$this->isWindows()) {
-            $expected = \str_replace('\\', '/', $expected);
+            $expected = str_replace('\\', '/', $expected);
         }
         $this->assertSame($expected, $actual);
     }
@@ -386,13 +391,13 @@ class PathTest extends TestCase {
     }
 
     public function testUnique_ExistingFileWithExt() {
-        $this->assertEquals(__DIR__ . '/' . \basename(__FILE__, '.php') . '-0.php', Path::unique(__FILE__));
+        $this->assertEquals(__DIR__ . '/' . basename(__FILE__, '.php') . '-0.php', Path::unique(__FILE__));
     }
 
     public function testUnique_ExistingFileWithoutExt() {
         $tmpDirPath = $this->createTmpDir();
         $tmpFilePath = $tmpDirPath . '/abc';
-        \touch($tmpFilePath);
+        touch($tmpFilePath);
         $this->assertEquals($tmpFilePath . '-0', Path::unique($tmpFilePath));
     }
 

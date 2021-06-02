@@ -6,6 +6,7 @@
  */
 namespace Morpho\Tech\Http;
 
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -30,7 +31,7 @@ class Browser extends RemoteWebDriver {
     private int $waitInterval = self::WAIT_INTERVAL;
 
     /**
-     * @param \Facebook\WebDriver\Remote\DesiredCapabilities|array $desiredCapabilities
+     * @param DesiredCapabilities|array $desiredCapabilities
      * @param string|null $webDriverUri
      * @return Browser
      */
@@ -77,7 +78,7 @@ class Browser extends RemoteWebDriver {
     }
 
     /**
-     * @param callable|\Facebook\WebDriver\WebDriverExpectedCondition $predicate
+     * @param callable|WebDriverExpectedCondition $predicate
      * @param string $message
      * @return mixed
      */

@@ -6,11 +6,14 @@
  */
 namespace Morpho\App\Web\View;
 
+use Countable;
 use Morpho\Base\{IHasServiceManager, IServiceManager};
 
 use function Morpho\Base\{dasherize, format};
+use function implode;
+use function nl2br;
 
-class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
+class MessengerPlugin extends Plugin implements Countable, IHasServiceManager {
     private $serviceManager;
 
     public function renderPageMessages(): string {
@@ -42,13 +45,13 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
             $renderedMessages[] = $this->renderMessageOfType($message, $type);
         }
         return '<div class="messages ' . $this->messageTypeToCssClass($type) . '">'
-            . \implode("\n", $renderedMessages)
+            . implode("\n", $renderedMessages)
             . '</div>';
     }
 
     protected function renderMessageOfType(array $message, string $type): string {
         $text = format(
-            \nl2br(PhpTemplateEngine::e($message['text'])),
+            nl2br(PhpTemplateEngine::e($message['text'])),
             $message['args'],
             function ($arg) {
                 return $arg;
@@ -69,7 +72,7 @@ class MessengerPlugin extends Plugin implements \Countable, IHasServiceManager {
     }
 
     protected function formatHtmlContainer(array $renderedMessages): string {
-        return '<div id="page-messages">' . \implode("\n", $renderedMessages) . '</div>';
+        return '<div id="page-messages">' . implode("\n", $renderedMessages) . '</div>';
     }
 
     public function setServiceManager(IServiceManager $serviceManager): self {

@@ -6,6 +6,8 @@
  */
 namespace Morpho\Tech\Systemd;
 
+use ReflectionClass;
+
 /**
  * Encapsulates meta information (knowledge) about latest (246) systemd version. Versions <= latest may not match the meta.
  */
@@ -65,7 +67,7 @@ class Meta {
      * Return known unit types. Can be got with the `systemctl --type=help --no-legend --no-pager`.
      */
     public static function knownUnitTypes(): array {
-        return (new \ReflectionClass(UnitType::class))->getConstants();
+        return (new ReflectionClass(UnitType::class))->getConstants();
     }
 
     /**
@@ -1127,7 +1129,7 @@ class Meta {
     }
 
     public static function knownActivationTypes(): array {
-        return (new \ReflectionClass(ActivationType::class))->getConstants();
+        return (new ReflectionClass(ActivationType::class))->getConstants();
     }
 
     /**

@@ -7,6 +7,10 @@
 namespace Morpho\Testing;
 
 use PHPUnit\Framework\TestSuite as BaseTestSuite;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
+use RegexIterator;
 
 abstract class TestSuite extends BaseTestSuite {
     protected string $testFileRegexp = '~((Test|TestSuite)\.php|\.phpt)$~s';
@@ -24,14 +28,14 @@ abstract class TestSuite extends BaseTestSuite {
         if ($class === self::class) {
             return [];
         }
-        $curDirPath = dirname((new \ReflectionClass($class))->getFileName());
+        $curDirPath = dirname((new ReflectionClass($class))->getFileName());
         return $this->testFilesInDir($curDirPath);
     }
 
     protected function testFilesInDir(string $dirPath): iterable {
-        return new \RegexIterator(
-            new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($dirPath)
+        return new RegexIterator(
+            new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dirPath)
             ),
             $this->testFileRegexp
         );

@@ -17,6 +17,8 @@ use function call_user_func;
 use function get_class_methods;
 use function set_error_handler;
 
+use const E_WARNING;
+
 require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
 class HandlerManagerTest extends BaseErrorHandlerTest {
@@ -42,7 +44,7 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         $callback = [$this, 'myHandler'];
         $this->assertEquals($this->prevErrorHandler, HandlerManager::registerHandler(HandlerManager::ERROR, $callback));
         echo $t;
-        $expected = [\E_WARNING, 'Undefined variable $t', __FILE__, __LINE__ - 1];
+        $expected = [E_WARNING, 'Undefined variable $t', __FILE__, __LINE__ - 1];
         $this->assertEquals($expected, $this->handlerArgs);
         $this->assertEquals($callback, HandlerManager::handlerOfType(HandlerManager::ERROR));
         HandlerManager::unregisterHandler(HandlerManager::ERROR, $callback);

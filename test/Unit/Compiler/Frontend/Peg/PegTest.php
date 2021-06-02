@@ -21,6 +21,7 @@ use Morpho\Compiler\Frontend\Peg\SyntaxError;
 use Morpho\Compiler\Frontend\Peg\TerminalSymbol;
 use Morpho\Compiler\Frontend\Peg\ZeroOrMoreRepetition;
 use Morpho\Testing\TestCase;
+use RuntimeException;
 
 class PegTest extends TestCase {
     public function setUp(): void {
@@ -137,7 +138,7 @@ class PegTest extends TestCase {
             }
 
             public function parse($input, Peg $peg) {
-                throw new \RuntimeException();
+                throw new RuntimeException();
             }
         };
     }

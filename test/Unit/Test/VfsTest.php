@@ -6,25 +6,62 @@
  */
 namespace Morpho\Test\Unit\Test;
 
+use Exception;
 use Morpho\Fs\IFs;
 use Morpho\Fs\Stat;
 use Morpho\Testing\Vfs;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use UnexpectedValueException;
+
+use function closedir;
+use function dirname;
+use function fclose;
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
+use function filesize;
+use function fopen;
+use function fread;
+use function fseek;
+use function fstat;
+use function ftell;
+use function ftruncate;
+use function fwrite;
+use function get_class;
+use function in_array;
+use function is_dir;
+use function is_file;
+use function mkdir;
+use function opendir;
+use function readdir;
+use function rename;
+use function rmdir;
+use function rtrim;
+use function stream_get_wrappers;
+use function stream_wrapper_unregister;
+use function strlen;
+use function strpos;
+use function substr;
+use function touch;
+use function umask;
+use function unlink;
 
 // NB: We extend the PHPUnit's TestCase intentionally, to allow to test the Vfs::register() and similar methods.
-class VfsTest extends \PHPUnit\Framework\TestCase {
+class VfsTest extends TestCase {
     private $umask;
 
     public function setUp(): void {
         parent::setUp();
-        $this->umask = \umask();
+        $this->umask = umask();
     }
 
     public function tearDown(): void {
         parent::tearDown();
-        \umask($this->umask);
+        umask($this->umask);
         Vfs::resetState();
-        if (\in_array(Vfs::SCHEME, \stream_get_wrappers())) {
-            \stream_wrapper_unregister(Vfs::SCHEME);
+        if (in_array(Vfs::SCHEME, stream_get_wrappers())) {
+            stream_wrapper_unregister(Vfs::SCHEME);
         }
     }
 
@@ -49,8 +86,8 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
         $uri1 = $prefix . '/foo';
         $uri2 = $prefix . '/bar';
 
-        $handle1 = \fopen($uri1, 'w');
-        $handle2 = \fopen($uri2, 'w');
+        $handle1 = fopen($uri1, 'w');
+        $handle2 = fopen($uri2, 'w');
         $this->assertSame(
             [
                 $uri1,
@@ -59,41 +96,41 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
             $this->paths($prefix . '/')
         );
 
-        $this->assertSame(0, \ftell($handle1));
+        $this->assertSame(0, ftell($handle1));
         $contents = 'Foo bar';
-        $this->assertSame(\strlen($contents), \fwrite($handle1, $contents));
-        $this->assertSame(\strlen($contents), \ftell($handle1));
+        $this->assertSame(strlen($contents), fwrite($handle1, $contents));
+        $this->assertSame(strlen($contents), ftell($handle1));
 
-        $this->assertSame(0, \ftell($handle2));
+        $this->assertSame(0, ftell($handle2));
 
-        $this->assertSame(0, \fseek($handle1, 2));
+        $this->assertSame(0, fseek($handle1, 2));
 
-        $this->assertSame(2, \ftell($handle1));
+        $this->assertSame(2, ftell($handle1));
 
-        $this->assertTrue(\unlink($uri2));
+        $this->assertTrue(unlink($uri2));
 
         $this->assertSame([$uri1], $this->paths($prefix . '/'));
 
-        $this->assertTrue(\fclose($handle2));
-        $this->assertTrue(\fclose($handle1));
+        $this->assertTrue(fclose($handle2));
+        $this->assertTrue(fclose($handle1));
 
-        $handle1 = \fopen($uri1, 'r');
-        $this->assertSame('Foo ', \fread($handle1, 4));
+        $handle1 = fopen($uri1, 'r');
+        $this->assertSame('Foo ', fread($handle1, 4));
 
-        $this->assertTrue(\fclose($handle1));
+        $this->assertTrue(fclose($handle1));
     }
 
     private function paths(string $dirPath): array {
-        $handle = \opendir($dirPath);
+        $handle = opendir($dirPath);
         $paths = [];
         $prefix = Vfs::URI_PREFIX;
-        if (0 === \strpos($dirPath, $prefix)) {
-            $dirPath = \substr($dirPath, \strlen($prefix));
+        if (0 === strpos($dirPath, $prefix)) {
+            $dirPath = substr($dirPath, strlen($prefix));
         }
-        while (false !== ($entry = \readdir($handle))) {
-            $paths[] = $prefix . \rtrim($dirPath, '\\/') . '/' . $entry;
+        while (false !== ($entry = readdir($handle))) {
+            $paths[] = $prefix . rtrim($dirPath, '\\/') . '/' . $entry;
         }
-        \closedir($handle);
+        closedir($handle);
         return $paths;
     }
 
@@ -104,23 +141,23 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     public function testTruncation_WithFtruncate() {
         Vfs::register();
         $uri = Vfs::prefixUri('/foo/bar');
-        \mkdir(\dirname($uri));
-        $handle = \fopen($uri, 'a');
+        mkdir(dirname($uri));
+        $handle = fopen($uri, 'a');
         $contents = 'Hello World';
-        $this->assertSame(\strlen($contents), \fwrite($handle, $contents));
+        $this->assertSame(strlen($contents), fwrite($handle, $contents));
 
-        $this->assertTrue(\file_exists($uri));
-        $this->assertTrue(\is_file($uri));
-        $offset = \ftell($handle);
-        $this->assertSame(\strlen($contents), $offset);
-        $this->assertSame(\strlen($contents), \filesize($uri));
+        $this->assertTrue(file_exists($uri));
+        $this->assertTrue(is_file($uri));
+        $offset = ftell($handle);
+        $this->assertSame(strlen($contents), $offset);
+        $this->assertSame(strlen($contents), filesize($uri));
 
         $truncateAndCheck = function ($newSize) use ($offset, $handle, $uri) {
-            $this->assertTrue(\ftruncate($handle, $newSize));
+            $this->assertTrue(ftruncate($handle, $newSize));
 
-            $this->assertSame($newSize, \filesize($uri));
+            $this->assertSame($newSize, filesize($uri));
             // The file pointer should not change.
-            $this->assertSame($offset, \ftell($handle));
+            $this->assertSame($offset, ftell($handle));
         };
 
         $truncateAndCheck(3);
@@ -130,30 +167,30 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     public function testDirApi() {
         Vfs::register();
         $uri = Vfs::prefixUri('/upload/blog/123');
-        $this->assertFalse(\is_dir($uri));
-        $this->assertTrue(\mkdir($uri, 0755, true));
-        $this->assertTrue(\is_dir($uri));
-        $this->assertTrue(\rmdir($uri));
-        $this->assertFalse(\is_dir($uri));
+        $this->assertFalse(is_dir($uri));
+        $this->assertTrue(mkdir($uri, 0755, true));
+        $this->assertTrue(is_dir($uri));
+        $this->assertTrue(rmdir($uri));
+        $this->assertFalse(is_dir($uri));
     }
 
     public function dataEntryName() {
         $prefix = Vfs::URI_PREFIX;
         yield [
             '',
-            new \UnexpectedValueException('Empty URI'),
+            new UnexpectedValueException('Empty URI'),
         ];
         yield [
             $prefix . '/',
-            new \UnexpectedValueException("Unable to get name for the root"),
+            new UnexpectedValueException("Unable to get name for the root"),
         ];
         yield [
             $prefix,
-            new \UnexpectedValueException("Path must be not empty and must start with the '/'"),
+            new UnexpectedValueException("Path must be not empty and must start with the '/'"),
         ];
         yield [
             $prefix . 'foo',
-            new \UnexpectedValueException("Path must be not empty and must start with the '/'"),
+            new UnexpectedValueException("Path must be not empty and must start with the '/'"),
         ];
         yield [
             $prefix . '/foo',
@@ -169,8 +206,8 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
      * @dataProvider dataEntryName
      */
     public function testEntryName(string $uri, $expectedNameOrException) {
-        if ($expectedNameOrException instanceof \Exception) {
-            $this->expectException(\get_class($expectedNameOrException));
+        if ($expectedNameOrException instanceof Exception) {
+            $this->expectException(get_class($expectedNameOrException));
             $this->expectExceptionMessage($expectedNameOrException->getMessage());
             Vfs::entryName($uri);
         } else {
@@ -181,19 +218,19 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     public function testOpenFileWithTheSameUriAsDir() {
         Vfs::register();
         $entryUri = Vfs::URI_PREFIX . '/foo/bar';
-        \mkdir($entryUri, 0755, true);
-        $this->expectException(\RuntimeException::class);
+        mkdir($entryUri, 0755, true);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unable to open file, entry is a directory');
-        \file_put_contents($entryUri, 'test');
+        file_put_contents($entryUri, 'test');
     }
 
     public function testMakeExistingDir() {
         Vfs::register();
         $entryUri = Vfs::URI_PREFIX . '/foo/bar';
-        \mkdir($entryUri, 0755, true);
-        $this->expectException(\RuntimeException::class);
+        mkdir($entryUri, 0755, true);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unable to create directory, such directory already exists');
-        \mkdir($entryUri, 0755, true);
+        mkdir($entryUri, 0755, true);
     }
 
     public function testStat() {
@@ -203,31 +240,31 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
 
         $contents = 'foo';
 
-        $handle = \fopen($fileUri, 'w');
-        \fwrite($handle, 'foo');
+        $handle = fopen($fileUri, 'w');
+        fwrite($handle, 'foo');
         // http://php.net/manual/en/function.stat.php
-        $stat = \fstat($handle);
-        \fclose($handle);
+        $stat = fstat($handle);
+        fclose($handle);
 
-        $this->assertSame((Stat::FILE_BASE_MODE & ~\umask()) | Stat::FILE, $stat['mode']);
-        $this->assertSame(\strlen($contents), $stat['size']);
+        $this->assertSame((Stat::FILE_BASE_MODE & ~umask()) | Stat::FILE, $stat['mode']);
+        $this->assertSame(strlen($contents), $stat['size']);
         $this->assertCount(13 * 2, $stat);
     }
 
     public function testUmask_File() {
         Vfs::register();
-        \umask(0266);
+        umask(0266);
         $fileUri = Vfs::URI_PREFIX . '/test';
-        \file_put_contents($fileUri, 'hello');
+        file_put_contents($fileUri, 'hello');
         $stat = \stat($fileUri);
         $this->assertSame(0400 | Stat::FILE, $stat['mode']);
     }
 
     public function testUmask_Dir() {
         Vfs::register();
-        \umask(0377);
+        umask(0377);
         $dirUri = Vfs::URI_PREFIX . '/test';
-        \mkdir($dirUri);
+        mkdir($dirUri);
         $stat = \stat($dirUri);
         $this->assertSame(0400 | Stat::DIR, $stat['mode']);
     }
@@ -247,8 +284,8 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
     public function testReadingAfterWriting(string $contents) {
         Vfs::register();
         $fileUri = Vfs::URI_PREFIX . '/foo';
-        \file_put_contents($fileUri, $contents);
-        $this->assertSame($contents, \file_get_contents($fileUri));
+        file_put_contents($fileUri, $contents);
+        $this->assertSame($contents, file_get_contents($fileUri));
     }
 
     public function testRename_File() {
@@ -256,17 +293,17 @@ class VfsTest extends \PHPUnit\Framework\TestCase {
 
         $oldDirUri = Vfs::URI_PREFIX . '/old';
         $oldFileUri = $oldDirUri . '/foo';
-        \mkdir($oldDirUri);
+        mkdir($oldDirUri);
 
         $newDirUri = Vfs::URI_PREFIX . '/new';
         $newFileUri = $newDirUri . '/bar';
-        \mkdir($newDirUri);
+        mkdir($newDirUri);
 
-        $this->assertTrue(\touch($oldFileUri));
+        $this->assertTrue(touch($oldFileUri));
         $this->assertFileExists($oldFileUri);
         $this->assertFileDoesNotExist($newFileUri);
 
-        $this->assertTrue(\rename($oldFileUri, $newFileUri));
+        $this->assertTrue(rename($oldFileUri, $newFileUri));
         $this->assertFileDoesNotExist($oldFileUri);
         $this->assertFileExists($newFileUri);
     }

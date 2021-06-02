@@ -6,6 +6,12 @@
  */
 namespace Morpho\Tech\Xml;
 
+use DOMNode;
+
+use function is_array;
+use function is_numeric;
+use function is_object;
+
 class Xml {
     public static function arrayToDomDoc(array $data, array $conf = []): Doc {
         $doc = Doc::mk($conf);
@@ -16,8 +22,8 @@ class Xml {
     private static function arrayToXml(array $data, Doc $doc, $currentNode = null) {
         $currentNode = $currentNode ?: $doc;
         foreach ($data as $key => $value) {
-            if (\is_array($value) || \is_object($value)) {
-                if (\is_numeric($key)) {
+            if (is_array($value) || is_object($value)) {
+                if (is_numeric($key)) {
                     self::arrayToXml($value, $doc, $currentNode);
                 } else {
                     $node = $currentNode->appendChild($doc->createElement($key));
@@ -29,7 +35,7 @@ class Xml {
         }
     }
 
-    public static function nodeToXml(\DOMNode $node): string {
+    public static function nodeToXml(DOMNode $node): string {
         return $node->ownerDocument->saveXML($node);
     }
 

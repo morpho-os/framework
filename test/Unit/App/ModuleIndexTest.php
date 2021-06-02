@@ -10,6 +10,10 @@ use Morpho\App\IModuleIndexer;
 use Morpho\App\Module;
 use Morpho\App\ModuleIndex;
 use Morpho\Testing\TestCase;
+use RuntimeException;
+use Traversable;
+
+use function in_array;
 
 class ModuleIndexTest extends TestCase {
     public function testRebuild() {
@@ -67,16 +71,16 @@ class ModuleIndexTest extends TestCase {
     public function testModule_ThrowsExceptionForNonExistentModule() {
         $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
         $moduleName = 'galaxy/foo';
-        $this->expectException(\RuntimeException::class, "The module '$moduleName' was not found in index");
+        $this->expectException(RuntimeException::class, "The module '$moduleName' was not found in index");
         $moduleIndex->module($moduleName);
     }
 
     public function testIter() {
         $moduleIndex = $this->mkModuleIndex($this->mkModuleIndexer());
-        $this->assertInstanceOf(\Traversable::class, $moduleIndex);
+        $this->assertInstanceOf(Traversable::class, $moduleIndex);
         $i = 0;
         foreach ($moduleIndex as $moduleName) {
-            $this->assertTrue(\in_array($moduleName, ['galaxy/neptune', 'galaxy/mars'], true));
+            $this->assertTrue(in_array($moduleName, ['galaxy/neptune', 'galaxy/mars'], true));
             $i++;
         }
         $this->assertSame(2, $i);

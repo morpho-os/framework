@@ -6,5 +6,7 @@
  */
 namespace Morpho\App;
 
-abstract class Message extends \ArrayObject implements IMessage {
+use ArrayObject;
+
+abstract class Message extends ArrayObject implements IMessage {
 }

@@ -13,9 +13,11 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\App\IRouter;
 use Morpho\Base\Arr;
-use Morpho\Caching\ICache;
 use Morpho\Base\IHasServiceManager;
 use Morpho\Base\IServiceManager;
+use Morpho\Caching\ICache;
+
+use UnexpectedValueException;
 
 use function Morpho\Base\compose;
 use function Morpho\Base\only;
@@ -55,7 +57,7 @@ class FastRouter implements IHasServiceManager, IRouter {
                 $request->setHandler(array_merge($handlerMeta, ['args' => $routeInfo[2] ?? []]));
                 break;
             default:
-                throw new \UnexpectedValueException();
+                throw new UnexpectedValueException();
         }
     }
 

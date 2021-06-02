@@ -9,6 +9,9 @@ namespace Morpho\Tech\MySql;
 use Morpho\Base\NotImplementedException;
 use Morpho\Tech\Sql\IInsertQuery;
 
+use function array_keys;
+use function implode;
+
 class InsertQuery extends Query implements IInsertQuery {
     protected array $rows = [];
 
@@ -59,9 +62,9 @@ class InsertQuery extends Query implements IInsertQuery {
         }
         $row = $this->rows[0];
         // todo: support multiple rows
-        return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tables[0]) . ' (' . \implode(
+        return 'INSERT INTO ' . $this->db->quoteIdentifier($this->tables[0]) . ' (' . implode(
                 ', ',
-                $this->db->quoteIdentifier(\array_keys($row))
-            ) . ') VALUES (' . \implode(', ', $this->db->positionalArgs($row)) . ')';
+                $this->db->quoteIdentifier(array_keys($row))
+            ) . ') VALUES (' . implode(', ', $this->db->positionalArgs($row)) . ')';
     }
 }

@@ -8,14 +8,17 @@ namespace Morpho\Test\Unit\App;
 
 use Morpho\App\Path;
 use Morpho\Testing\TestCase;
+use RuntimeException;
+
+use function str_replace;
 
 class PathTest extends TestCase {
     public function testToRel_ThrowsExceptionWhenBasePathNotContainedWithinPath() {
         $baseDirPath = '/foo/bar/baz/';
         $path = __DIR__;
         $this->expectException(
-            \RuntimeException::class,
-            "The path '" . \str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
+            RuntimeException::class,
+            "The path '" . str_replace('\\', '/', $path) . "' does not contain the base path '/foo/bar/baz'"
         );
         Path::rel($path, $baseDirPath);
     }

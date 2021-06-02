@@ -6,6 +6,7 @@
  */
 namespace Morpho\Test\Unit\App\Web\View;
 
+use ArrayObject;
 use Morpho\App\IResponse;
 use Morpho\App\Web\IRequest;
 use Morpho\App\Web\View\UriProcessor;
@@ -150,7 +151,7 @@ class UriProcessorTest extends TestCase {
      * @dataProvider dataProcessUrisInTags
      */
     public function testProcessUrisInTags(string $basePath, $expected, $tag) {
-        $request = new class ($basePath) extends \ArrayObject implements IRequest {
+        $request = new class ($basePath) extends ArrayObject implements IRequest {
             private $baseUriPath;
 
             public function __construct($baseUriPath) {

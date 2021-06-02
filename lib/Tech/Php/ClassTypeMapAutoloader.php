@@ -6,6 +6,7 @@
  */
 namespace Morpho\Tech\Php;
 
+use Closure;
 use Morpho\Caching\ICache;
 
 use function Morpho\Caching\cacheKey;
@@ -23,7 +24,7 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     /**
      * @param array|string|null $searchDirPaths
-     * @param string|\Closure $processor
+     * @param string|Closure $processor
      * @param ICache|null $cache
      */
     public function __construct($searchDirPaths = null, $processor = null, ICache $cache = null) {
