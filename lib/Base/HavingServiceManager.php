@@ -4,8 +4,8 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Ioc;
+namespace Morpho\Base;
 
-interface IHasServiceManager {
-    public function setServiceManager(IServiceManager $serviceManager): self;
+abstract class HavingServiceManager implements IHasServiceManager {
+    use THasServiceManager;
 }

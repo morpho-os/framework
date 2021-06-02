@@ -4,11 +4,11 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Identity;
+namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\Session;
-use Morpho\Identity\IUserRepo;
-use Morpho\Identity\UserManager;
+use Morpho\App\IUserRepo;
+use Morpho\App\UserManager;
 use Morpho\Testing\DbTestCase;
 
 class UserManagerTest extends DbTestCase {
@@ -16,10 +16,8 @@ class UserManagerTest extends DbTestCase {
 
     public function setUp(): void {
         parent::setUp();
-
         $userRepo = new class implements IUserRepo {
             private int $id = 0;
-
             private array $users = [];
 
             /**
@@ -54,19 +52,14 @@ class UserManagerTest extends DbTestCase {
 
     public function testRegistration() {
         $user = ['login' => 'foo', 'password' => 'bar'];
-
         $this->assertLoggedInUserThrowsUserNotLoggedInException();
         $this->assertFalse($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn($user));
-
         $this->userManager->registerUser($user);
-
         $this->assertTrue($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn($user));
         $this->assertLoggedInUserThrowsUserNotLoggedInException();
-
         $this->assertTrue($this->userManager->logIn($user));
-
         $this->assertTrue($this->userManager->isUserRegistered($user));
         $this->assertTrue($this->userManager->isUserLoggedIn());
         $loggedInUser = $this->userManager->loggedInUser();
@@ -74,15 +67,11 @@ class UserManagerTest extends DbTestCase {
         $this->assertEquals($user['password'], $loggedInUser['password']);
         $this->assertNotEmpty($loggedInUser['id']);
         $this->assertEquals($loggedInUser, $this->userManager->loggedInUser());
-
         $this->assertNull($this->userManager->logOut());
-
         $this->assertTrue($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn());
         $this->assertLoggedInUserThrowsUserNotLoggedInException();
-
         $this->userManager->deleteRegisteredUser($user);
-
         $this->assertFalse($this->userManager->isUserRegistered($user));
         $this->assertFalse($this->userManager->isUserLoggedIn());
         $this->assertLoggedInUserThrowsUserNotLoggedInException();
@@ -124,20 +113,7 @@ class UserManagerTest extends DbTestCase {
     }
 
     public function dataLogIn_EmptyLoginOrPasswordReturnsError() {
-        return [
-            [
-                'my-login',
-                '',
-            ],
-            [
-                '',
-                'my-password',
-            ],
-            [
-                '',
-                '',
-            ],
-        ];
+        return [['my-login', ''], ['', 'my-password'], ['', '']];
     }
 
     /**

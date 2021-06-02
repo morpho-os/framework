@@ -145,7 +145,7 @@ class PhpTemplateEngine extends ArrPipe {
     }
 
     public function instance(): mixed {
-        return $this['request']->handler()['instance'];
+        return $this->request->handler()['instance'];
     }
 
     public function forceCompile(bool $flag = null): bool {

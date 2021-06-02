@@ -10,7 +10,7 @@ use Morpho\Base\Env;
 use Morpho\Base\Event;
 use Morpho\Base\EventManager;
 use Morpho\Tech\Php\ErrorHandler;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IServiceManager;
 use Throwable;
 
 use function addslashes;

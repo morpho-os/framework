@@ -79,7 +79,7 @@ class SelectQueryTest extends QueryTest {
             ->leftJoin($join)
             ->where(['t.id' => 123])
             ->groupBy('t.id')
-            ->having('MAX(tL.endedAt)')
+            ->having($this->db->expr('MAX(tL.endedAt)'))
             ->orderBy('t.id')
             ->limit($numOfRows, $offset);
         $this->assertSqlEquals(

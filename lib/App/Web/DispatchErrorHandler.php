@@ -7,8 +7,8 @@
 namespace Morpho\App\Web;
 
 use Morpho\Tech\Php\ErrorHandler;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\THasServiceManager;
+use Morpho\Base\IHasServiceManager;
+use Morpho\Base\THasServiceManager;
 
 class DispatchErrorHandler implements IHasServiceManager {
     use THasServiceManager;

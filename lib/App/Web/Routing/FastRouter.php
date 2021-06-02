@@ -14,8 +14,8 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Morpho\App\IRouter;
 use Morpho\Base\Arr;
 use Morpho\Caching\ICache;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IHasServiceManager;
+use Morpho\Base\IServiceManager;
 
 use function Morpho\Base\compose;
 use function Morpho\Base\only;

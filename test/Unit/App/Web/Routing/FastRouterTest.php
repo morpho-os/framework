@@ -11,7 +11,7 @@ use Morpho\App\IRequest;
 use Morpho\App\IResponse;
 use Morpho\App\Web\Routing\FastRouter;
 use Morpho\Caching\ICache;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IServiceManager;
 use Morpho\Testing\TestCase;
 
 class FastRouterTest extends TestCase {

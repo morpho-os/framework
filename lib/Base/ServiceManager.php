@@ -4,7 +4,7 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Ioc;
+namespace Morpho\Base;
 
 use ArrayObject;
 use RuntimeException;
@@ -24,11 +24,8 @@ use function strtolower;
 class ServiceManager extends ArrayObject implements IServiceManager {
     protected const FACTORY_METHOD_PREFIX = 'mk';
     protected const FACTORY_METHOD_SUFFIX = 'Service';
-
     protected array $aliases = [];
-
     protected mixed $conf;
-
     private array $loading = [];
 
     public function __construct(array $services = null) {
@@ -59,7 +56,6 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         if (parent::offsetExists($id)) {
             return parent::offsetGet($id);
         }
-
         if (isset($this->loading[$id])) {
             throw new RuntimeException(
                 sprintf(
@@ -77,7 +73,6 @@ class ServiceManager extends ArrayObject implements IServiceManager {
             throw $e;
         }
         unset($this->loading[$id]);
-
         return $service;
     }
 
@@ -85,7 +80,7 @@ class ServiceManager extends ArrayObject implements IServiceManager {
         $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
         if (method_exists($this, $method)) {
             $this->beforeCreate($id);
-            $service = $this->$method();
+            $service = $this->{$method}();
             $this->afterCreate($id, $service);
             return $service;
         }
@@ -108,7 +103,6 @@ class ServiceManager extends ArrayObject implements IServiceManager {
             while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
                 $id = $this->aliases[$id];
             }
-
             if (parent::offsetExists($id)) {
                 parent::offsetUnset($id);
                 return;
@@ -119,15 +113,12 @@ class ServiceManager extends ArrayObject implements IServiceManager {
     public function offsetExists(mixed $id): bool {
         // Resolve alias:
         $id = strtolower($id);
-
         while (isset($this->aliases[$id]) && $this->aliases[$id] !== $id) {
             $id = $this->aliases[$id];
         }
-
         if (parent::offsetExists($id)) {
             return true;
         }
-
         $method = self::FACTORY_METHOD_PREFIX . $id . self::FACTORY_METHOD_SUFFIX;
         return method_exists($this, $method);
     }

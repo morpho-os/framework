@@ -6,7 +6,7 @@
  */
 namespace Morpho\App;
 
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IServiceManager;
 
 abstract class AppInitializer {
     protected IServiceManager $serviceManager;

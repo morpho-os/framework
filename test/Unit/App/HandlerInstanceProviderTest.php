@@ -10,7 +10,7 @@ use Morpho\App\BackendModule;
 use Morpho\App\HandlerInstanceProvider;
 use Morpho\App\ModuleIndex;
 use Morpho\App\Web\Request;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IServiceManager;
 use Morpho\Testing\TestCase;
 
 class HandlerInstanceProviderTest extends TestCase {

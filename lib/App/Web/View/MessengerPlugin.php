@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\View;
 
-use Morpho\Ioc\{IHasServiceManager, IServiceManager};
+use Morpho\Base\{IHasServiceManager, IServiceManager};
 
 use function Morpho\Base\{dasherize, format};
 

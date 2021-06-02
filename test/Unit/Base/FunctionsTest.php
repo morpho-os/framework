@@ -71,7 +71,7 @@ use function Morpho\Base\{all,
     unindent,
     union,
     uniqueName,
-    unsetMulti,
+    unsetMany,
     unsetOne,
     unsetRecursive,
     using,
@@ -1107,20 +1107,20 @@ OUT;
         $this->assertEquals(['one'], unsetOne(['one', 'two'], 'two'));
     }
 
-    public function testUnsetMulti_OneOccurrence() {
+    public function testUnsetMany_OneOccurrence() {
         $foo = $orig = ['abc', 'def', 'ghi'];
-        $this->assertSame(['abc'], unsetMulti($foo, ['def', 'ghi']));
+        $this->assertSame(['abc'], unsetMany($foo, ['def', 'ghi']));
         $this->assertSame($orig, $foo);
     }
 
-    public function testUnsetMulti_MultiOccurrences() {
+    public function testUnsetMany_MultiOccurrences() {
         $this->assertSame(
             ['bar', 3, 5, 2, 7],
-            unsetMulti(['foo', 'bar', 'foo', 1, 3, 5, 1, 2, 7], ['foo', 1], allOccur: true)
+            unsetMany(['foo', 'bar', 'foo', 1, 3, 5, 1, 2, 7], ['foo', 1], allOccur: true)
         );
         $this->assertSame(
             ['bar', 'foo', 3, 5, 1, 2, 7],
-            unsetMulti(['foo', 'bar', 'foo', 1, 3, 5, 1, 2, 7], ['foo', 1], allOccur: false)
+            unsetMany(['foo', 'bar', 'foo', 1, 3, 5, 1, 2, 7], ['foo', 1], allOccur: false)
         );
     }
 

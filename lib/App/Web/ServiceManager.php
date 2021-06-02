@@ -27,7 +27,7 @@ use Morpho\App\Web\View\PhpTemplateEngine;
 use Morpho\Tech\Php\DumpListener;
 use Morpho\Tech\Php\LogListener;
 use Morpho\Tech\Php\NoDupsListener;
-use Morpho\Ioc\IHasServiceManager;
+use Morpho\Base\IHasServiceManager;
 use UnexpectedValueException;
 
 use function Morpho\Base\classify;

@@ -11,8 +11,8 @@ use Morpho\App\Controller as BaseController;
 use Morpho\Base\Err;
 use Morpho\Base\Ok;
 use Morpho\Base\Result;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IHasServiceManager;
+use Morpho\Base\IServiceManager;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
     protected IServiceManager $serviceManager;

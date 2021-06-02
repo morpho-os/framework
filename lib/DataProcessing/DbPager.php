@@ -6,8 +6,8 @@
  */
 namespace Morpho\DataProcessing;
 
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IHasServiceManager;
+use Morpho\Base\IServiceManager;
 use Morpho\Tech\Sql\IDbClient;
 
 use function intval;

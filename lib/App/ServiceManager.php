@@ -8,7 +8,7 @@ namespace Morpho\App;
 
 use Morpho\Caching\ICache;
 use Morpho\Caching\VarExportFileCache;
-use Morpho\Ioc\ServiceManager as BaseServiceManager;
+use Morpho\Base\ServiceManager as BaseServiceManager;
 
 abstract class ServiceManager extends BaseServiceManager {
     protected function mkHandlerInstanceProviderService() {

@@ -8,7 +8,7 @@ namespace Morpho\App\Web;
 
 use Morpho\Base\Event;
 use Morpho\Base\EventManager as BaseEventManager;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IServiceManager;
 
 class EventManager extends BaseEventManager {
     protected IServiceManager $serviceManager;

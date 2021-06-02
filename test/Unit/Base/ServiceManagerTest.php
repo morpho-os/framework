@@ -4,14 +4,14 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Test\Unit\Ioc;
+namespace Morpho\Test\Unit\Base;
 
 use ArrayObject;
 use Closure;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
-use Morpho\Ioc\ServiceManager;
-use Morpho\Ioc\ServiceNotFoundException;
+use Morpho\Base\IHasServiceManager;
+use Morpho\Base\IServiceManager;
+use Morpho\Base\ServiceManager;
+use Morpho\Base\ServiceNotFoundException;
 use Morpho\Testing\TestCase;
 use RuntimeException;
 use stdClass;
@@ -21,7 +21,7 @@ class ServiceManagerTest extends TestCase {
 
     public function setUp(): void {
         parent::setUp();
-        $this->serviceManager = new MyServiceManager;
+        $this->serviceManager = new MyServiceManager();
     }
 
     public function testArrayAccess() {
@@ -38,10 +38,9 @@ class ServiceManagerTest extends TestCase {
 
     public function testUnsetNonExistingItem_MethodDoesNotExist() {
         $serviceManager = new class extends ServiceManager {
-
-
         };
-        unset($serviceManager['foo']); // should not throw an exception
+        unset($serviceManager['foo']);
+        // should not throw an exception
         $this->markTestAsNotRisky();
     }
 
@@ -51,7 +50,8 @@ class ServiceManagerTest extends TestCase {
                 return new stdClass();
             }
         };
-        unset($serviceManager['foo']); // should not throw an exception
+        unset($serviceManager['foo']);
+        // should not throw an exception
         $this->markTestAsNotRisky();
     }
 
@@ -59,7 +59,8 @@ class ServiceManagerTest extends TestCase {
         $serviceManager = new class extends ServiceManager {
         };
         $serviceManager['foobar'] = new stdClass();
-        unset($serviceManager['FOOBar']); // should not throw an exception
+        unset($serviceManager['FOOBar']);
+        // should not throw an exception
         $this->assertTrue(!isset($serviceManager['foobar']));
         $this->assertTrue(!isset($serviceManager['FOOBar']));
     }
@@ -88,10 +89,7 @@ class ServiceManagerTest extends TestCase {
     }
 
     public function testCanDetectCircularReference() {
-        $this->expectException(
-            RuntimeException::class,
-            "Circular reference detected for the service 'foo', path: 'foo -> bar -> foo'"
-        );
+        $this->expectException(RuntimeException::class, "Circular reference detected for the service 'foo', path: 'foo -> bar -> foo'");
         $this->serviceManager['foo'];
     }
 
@@ -99,7 +97,7 @@ class ServiceManagerTest extends TestCase {
         $obj1 = $this->serviceManager['obj'];
         $obj2 = $this->serviceManager['obj'];
         $this->assertSame($obj1, $obj2);
-        $this->assertInstanceOf('\stdClass', $obj1);
+        $this->assertInstanceOf('\\stdClass', $obj1);
     }
 
     public function testThrowsExceptionWhenServiceNotFound() {
@@ -111,7 +109,6 @@ class ServiceManagerTest extends TestCase {
         $closure = $this->serviceManager['myClosure'];
         $this->assertInstanceOf(Closure::class, $closure);
         $this->assertSame($closure, $this->serviceManager['myClosure']);
-
         $this->assertNull($this->serviceManager->closureCalledWith);
         $closure('my arg');
         $this->assertEquals('my arg', $this->serviceManager->closureCalledWith);

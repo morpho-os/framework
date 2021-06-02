@@ -4,10 +4,10 @@
  * It is distributed under the 'Apache License Version 2.0' license.
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
-namespace Morpho\Ioc;
+namespace Morpho\Base;
 
 class ServiceNotFoundException extends \Exception {
     public function __construct(string $id) {
-        parent::__construct("The service with ID '$id' was not found");
+        parent::__construct("The service with ID '{$id}' was not found");
     }
 }

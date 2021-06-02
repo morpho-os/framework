@@ -7,8 +7,8 @@
 namespace Morpho\App;
 
 use Morpho\Base\IFn;
-use Morpho\Ioc\IHasServiceManager;
-use Morpho\Ioc\IServiceManager;
+use Morpho\Base\IHasServiceManager;
+use Morpho\Base\IServiceManager;
 
 class HandlerInstanceProvider implements IFn {
     protected ModuleIndex $moduleIndex;

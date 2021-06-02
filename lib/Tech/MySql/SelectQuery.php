@@ -31,6 +31,9 @@ class SelectQuery extends Query implements ISelectQuery {
     public function sql(): string {
         $sql = [];
         $columns = [];
+
+        $quoteIdentifier = fn ($column) => $column instanceof Expr ? $column->val() : $this->db->quoteIdentifier($column);
+
         if ($this->columns) {
             foreach ($this->columns as $column) {
                 if (is_array($column)) {
@@ -38,7 +41,7 @@ class SelectQuery extends Query implements ISelectQuery {
                 } elseif ($column === '*') {
                     $columns[] = $column;
                 } else {
-                    $columns[] = $column instanceof Expr ? $column->val() : $this->db->quoteIdentifier($column);
+                    $columns[] = $quoteIdentifier($column);
                 }
             }
         }
@@ -53,13 +56,13 @@ class SelectQuery extends Query implements ISelectQuery {
             $sql[] = $this->whereStr();
         }
         if ($this->groupBy) {
-            $sql[] = 'GROUP BY ' . $this->db->quoteIdentifierStr($this->groupBy);
+            $sql[] = 'GROUP BY ' . implode(', ', array_map($quoteIdentifier, $this->groupBy));
         }
         if ($this->having) {
-            $sql[] = 'HAVING ' . implode(' AND ', $this->having);
+            $sql[] = 'HAVING ' . implode(' AND ', array_map($quoteIdentifier, $this->having));
         }
         if ($this->orderBy) {
-            $sql[] = 'ORDER BY ' . $this->db->quoteIdentifierStr($this->orderBy);
+            $sql[] = 'ORDER BY ' . implode(', ', array_map($quoteIdentifier, $this->orderBy));
         }
         if ($this->limit) {
             [$offset, $numOfRows] = $this->limit;
@@ -102,8 +105,12 @@ class SelectQuery extends Query implements ISelectQuery {
         return $this;
     }
 
-    public function orderBy(string|Expr $sql): self {
-        $this->orderBy[] = $sql;
+    public function orderBy(string|Expr|array $orderBy): self {
+        if (is_array($orderBy)) {
+            $this->orderBy = array_merge($this->orderBy, $orderBy);
+        } else {
+            $this->orderBy[] = $orderBy;
+        }
         return $this;
     }
 

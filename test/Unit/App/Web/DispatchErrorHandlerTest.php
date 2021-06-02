@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web;
 use Monolog\Logger;
 use Morpho\App\Web\DispatchErrorHandler;
 use Morpho\App\Web\Request;
-use Morpho\Ioc\ServiceManager;
+use Morpho\Base\ServiceManager;
 use Morpho\Testing\TestCase;
 
 class DispatchErrorHandlerTest extends TestCase {

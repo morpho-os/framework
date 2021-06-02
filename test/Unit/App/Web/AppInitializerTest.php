@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web;
 use Morpho\App\Site;
 use Morpho\App\Web\AppInitializer;
 use Morpho\Tech\Php\IErrorHandler;
-use Morpho\Ioc\ServiceManager;
+use Morpho\Base\ServiceManager;
 use Morpho\Testing\TestCase;
 use UnexpectedValueException;
 

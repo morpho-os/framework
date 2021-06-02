@@ -1354,14 +1354,14 @@ function unsetOne(array $arr, $val, bool $resetIntKeys = true, bool $allOccur = 
         : $arr;
 }
 
-function unsetMulti(
+function unsetMany(
     array $arr,
     iterable $val,
     bool $resetIntKeys = true,
     bool $allOccur = false,
     bool $strict = true
 ): array {
-    // NB: unsetMulti() can't merged with unsetOne() as $val in unsetOne() can be array (iterable), i.e. unsetOne() has to support unsetting arrays.
+    // NB: unsetMany() can't merged with unsetOne() as $val in unsetOne() can be array (iterable), i.e. unsetOne() has to support unsetting arrays.
     foreach ($val as $v) {
         while (true) {
             $key = array_search($v, $arr, $strict);

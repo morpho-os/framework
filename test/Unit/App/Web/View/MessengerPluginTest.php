@@ -10,7 +10,7 @@ use Morpho\App\Web\View\IMessageStorage;
 use Morpho\App\Web\View\Messenger;
 use Morpho\App\Web\View\MessengerPlugin;
 use Morpho\Base\ArrIterator;
-use Morpho\Ioc\ServiceManager;
+use Morpho\Base\ServiceManager;
 use Morpho\Testing\TestCase;
 
 class MessengerPluginTest extends TestCase {
