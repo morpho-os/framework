@@ -51,6 +51,9 @@ watch-js:
 css:
 	sass $(frontendDirPath)/localhost
 
+watch-css:
+	sass --watch $(frontendDirPath)/localhost
+
 clean-css:
 	find $(frontendDirPath)/localhost -mindepth 1 -name '*.css' -not -path '*/node_modules/*' -print -delete
 
@@ -76,4 +79,4 @@ setup:
 	npm install -g --save typescript@next concurrently
 
 .SILENT:
-.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css clean-css clean-js clean-assets clean update setup
+.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css watch-css clean-css clean-js clean-assets clean update setup
