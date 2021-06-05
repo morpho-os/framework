@@ -51,24 +51,24 @@ class PhpTemplateEngineTest extends TestCase {
     /**
      * @dataProvider dataEval
      */
-    public function testEval_DefaultPhases($expected, $source, $vars) {
+    public function testEval_DefaultSteps($expected, $source, $vars) {
         $compiled = $this->templateEngine->eval($source, $vars);
         $this->assertSame($expected, $compiled);
     }
 
-    public function testEval_WithoutPhases() {
+    public function testEval_WithoutSteps() {
         $code = '<?php echo "Hello $world";';
-        $this->templateEngine->setPhases([]);
-        $this->assertSame([], $this->templateEngine->phases());
+        $this->templateEngine->setSteps([]);
+        $this->assertSame([], $this->templateEngine->steps());
 
         $res = $this->templateEngine->eval($code, ['world' => 'World!']);
 
         $this->assertSame('Hello World!', $res);
     }
 
-    public function testEval_PrependCustomPhase() {
+    public function testEval_PrependCustomStep() {
         $code = '<?php echo ??;';
-        $this->templateEngine->prependPhase(
+        $this->templateEngine->prependStep(
             function ($context) {
                 $context['program'] = str_replace('??', '"<span>$smile</span>"', $context['program']);
                 return $context;

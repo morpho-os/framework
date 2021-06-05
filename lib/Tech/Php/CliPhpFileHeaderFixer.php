@@ -22,7 +22,7 @@ class CliPhpFileHeaderFixer implements IFn {
         $result = null;
         foreach ($conf['files'] as [$filePaths, $context]) {
             $context['dryRun'] = $conf['dryRun'];
-            $result = $this->fixFiles([$conf['constructArgs']], $filePaths, $context, $result);
+            $result = $this->fixFiles([$conf['constructArgs'] ?? null], $filePaths, $context, $result);
         }
         $this->showResult($result);
         return $result;

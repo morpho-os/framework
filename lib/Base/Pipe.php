@@ -7,7 +7,7 @@
 namespace Morpho\Base;
 
 /**
- * Pipe: Phase[], where Phase is callable
+ * Pipe: Step[], where Phase is callable
  */
 abstract class Pipe implements IPipe {
     protected int $index = 0;
@@ -20,7 +20,7 @@ abstract class Pipe implements IPipe {
     }
 
     /**
-     * Returns current phase
+     * Returns current step
      */
     abstract public function current(): callable;
 

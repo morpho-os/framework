@@ -15,7 +15,6 @@ use function json_encode;
 use function Morpho\Base\last;
 use function usort;
 
-use const Morpho\App\APP_DIR_NAME;
 use const Morpho\App\LIB_DIR_NAME;
 
 class ScriptProcessor extends HtmlProcessor {
@@ -49,11 +48,7 @@ class ScriptProcessor extends HtmlProcessor {
             $scripts = array_merge($this->scripts, $actionScripts);
         }
 
-        $scripts = $this->sortScripts($scripts);
-
-        $event = new Event('beforeRenderScripts', $scripts);
-        $this->trigger($event);
-        $scripts = $event->args;
+        $scripts = $this->changeBodyScripts($scripts);
 
         $html .= $this->renderScripts($scripts);
         $tag['_text'] = $html;
@@ -63,7 +58,7 @@ class ScriptProcessor extends HtmlProcessor {
     /**
      * Includes a file for controller's action.
      */
-    protected function actionScripts(string $jsModuleId): array {
+    public function actionScripts(string $jsModuleId): array {
         $siteConf = $this->site->conf();
         $shortModuleName = last($this->site->moduleName(), '/');
         $fullJsModuleId = $shortModuleName . '/' . LIB_DIR_NAME . '/app/' . $jsModuleId;
@@ -150,5 +145,15 @@ class ScriptProcessor extends HtmlProcessor {
             return false;  // remove the original tag, we will add it later.
         }
         return null;
+    }
+
+    private function changeBodyScripts(array $scripts): array {
+        $scripts = $this->sortScripts($scripts);
+
+        $event = new Event('beforeRenderScripts', $scripts);
+        $event->sender = $this;
+        $this->trigger($event);
+
+        return $event->args;
     }
 }

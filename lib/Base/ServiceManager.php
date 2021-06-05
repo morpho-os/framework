@@ -21,7 +21,7 @@ use function strtolower;
  *     1) DI/Dependency Injection - inject/push dependent objects to the objects but not inject self
  *     2) Service Locator - inject/push self to the object and allow to pull from self
  */
-class ServiceManager extends ArrayObject implements IServiceManager {
+class ServiceManager extends ArrayObject implements IServiceManager, IConfigurable {
     protected const FACTORY_METHOD_PREFIX = 'mk';
     protected const FACTORY_METHOD_SUFFIX = 'Service';
     protected array $aliases = [];
@@ -139,5 +139,5 @@ class ServiceManager extends ArrayObject implements IServiceManager {
 
     public function setAlias(string $alias, string $name): void {
         $this->aliases[$alias] = $name;
-    }
 }
+    }

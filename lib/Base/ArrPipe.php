@@ -7,10 +7,10 @@
 namespace Morpho\Base;
 
 class ArrPipe implements IPipe {
-    protected array $phases;
+    protected array $steps;
 
-    public function __construct(array $phases = null) {
-        $this->phases = (array) $phases;
+    public function __construct(array $steps = null) {
+        $this->steps = (array) $steps;
     }
 
     public function __invoke(mixed $val): mixed {
@@ -20,54 +20,54 @@ class ArrPipe implements IPipe {
         return $val;
     }
 
-    public function setPhases(array $phases): void {
-        $this->phases = $phases;
+    public function setSteps(array $steps): void {
+        $this->steps = $steps;
     }
 
-    public function prependPhase($phase): self {
-        array_unshift($this->phases, $phase);
+    public function prependStep($step): self {
+        array_unshift($this->steps, $step);
         return $this;
     }
 
-    public function appendPhase(callable $phase): self {
-        $this->phases[] = $phase;
+    public function appendStep(callable $step): self {
+        $this->steps[] = $step;
         return $this;
     }
 
-    public function deletePhase($index): void {
-        unset($this->phases[$index]);
-        $this->phases = array_values($this->phases);
+    public function deleteStep($index): void {
+        unset($this->steps[$index]);
+        $this->steps = array_values($this->steps);
     }
 
-    public function phases(): array {
-        return $this->phases;
+    public function steps(): array {
+        return $this->steps;
     }
 
-    public function phase(string|int $key): mixed {
-        return $this->phases[$key];
+    public function step(string|int $key): mixed {
+        return $this->steps[$key];
     }
 
     public function current(): callable {
-        return current($this->phases);
+        return current($this->steps);
     }
 
     public function next(): void {
-        next($this->phases);
+        next($this->steps);
     }
 
     public function valid(): bool {
-        return isset($this->phases[$this->key()]);
+        return isset($this->steps[$this->key()]);
     }
 
     public function key() {
-        return key($this->phases);
+        return key($this->steps);
     }
 
     public function rewind(): void {
-        reset($this->phases);
+        reset($this->steps);
     }
 
     public function count(): int {
-        return count($this->phases);
+        return count($this->steps);
     }
 }

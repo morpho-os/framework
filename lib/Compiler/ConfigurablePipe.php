@@ -6,16 +6,17 @@
  */
 namespace Morpho\Compiler;
 
+use Morpho\Base\IConfigurable;
 use Morpho\Base\Pipe;
 
-abstract class ConfigurablePipe extends Pipe {
+abstract class ConfigurablePipe extends Pipe implements IConfigurable {
     protected array $conf;
 
     public function __construct(array $conf = null) {
         $this->conf = (array) $conf;
     }
 
-    public function setConf(array $conf): self {
+    public function setConf(mixed $conf): self {
         $this->conf = $conf;
         return $this;
     }

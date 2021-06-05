@@ -20,8 +20,8 @@ class ArrPipeTest extends TestCase {
         $this->assertInstanceOf(Countable::class, $pipe);
     }
 
-    public function testInvoke_RunsAllPhases() {
-        $phases = [
+    public function testInvoke_RunsAllSteps() {
+        $steps = [
             function ($context) {
                 $context['counter']++;
                 return $context;
@@ -31,9 +31,9 @@ class ArrPipeTest extends TestCase {
                 return $context;
             },
         ];
-        $pipe = new ArrPipe($phases);
+        $pipe = new ArrPipe($steps);
 
-        $this->assertCount(2, $pipe->phases());
+        $this->assertCount(2, $pipe->steps());
         $context = ['counter' => 0];
 
         $context = $pipe->__invoke($context);
@@ -41,12 +41,12 @@ class ArrPipeTest extends TestCase {
         $this->assertSame(2, $context['counter']);
     }
 
-    public function testPhase() {
+    public function testStep() {
         $bar = function ($context) {
             $context['counter']++;
             return $context;
         };
-        $phases = [
+        $steps = [
             'foo' => function ($context) {
                 $context['counter']++;
                 return $context;
@@ -57,7 +57,7 @@ class ArrPipeTest extends TestCase {
                 return $context;
             },
         ];
-        $pipe = new ArrPipe($phases);
-        $this->assertSame($bar, $pipe->phase('bar'));
+        $pipe = new ArrPipe($steps);
+        $this->assertSame($bar, $pipe->step('bar'));
     }
 }

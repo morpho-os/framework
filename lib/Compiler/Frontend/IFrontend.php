@@ -6,7 +6,7 @@
  */
 namespace Morpho\Compiler\Frontend;
 
-use Morpho\Compiler\ICompilerPhase;
+use Morpho\Compiler\ICompilerStep;
 
-interface IFrontend extends ICompilerPhase {
+interface IFrontend extends ICompilerStep {
 }

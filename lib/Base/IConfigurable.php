@@ -6,10 +6,7 @@
  */
 namespace Morpho\Base;
 
-/**
- * Associativity
- *     x <> (y <> z) = (x <> y) <> z
- */
-interface ISemigroup {
-    public function mappend(mixed $x, mixed $y): mixed;
+interface IConfigurable {
+    public function setConf(mixed $conf) : self;
+    public function conf() : mixed;
 }

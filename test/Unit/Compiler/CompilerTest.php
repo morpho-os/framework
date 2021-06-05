@@ -12,7 +12,7 @@ use Morpho\Compiler\Backend\IBackend;
 use Morpho\Compiler\Backend\IInterpreter;
 use Morpho\Compiler\Compiler;
 use Morpho\Compiler\ICompiler;
-use Morpho\Compiler\ICompilerPhase;
+use Morpho\Compiler\ICompilerStep;
 use Morpho\Compiler\IMidend;
 use Morpho\Compiler\ITranslator;
 
@@ -23,14 +23,14 @@ class CompilerTest extends ConfigurablePipeTest {
         $this->assertInstanceOf(ICompiler::class, $compiler);
         $this->assertInstanceOf(Pipe::class, $compiler);
         $this->assertInstanceOf(
-            ICompilerPhase::class,
+            ICompilerStep::class,
             new class implements IMidend {
                 public function __invoke(mixed $val): mixed {
                 }
             }
         );
         $this->assertInstanceOf(
-            ICompilerPhase::class,
+            ICompilerStep::class,
             new class implements IBackend {
                 public function __invoke(mixed $val): mixed {
                 }
@@ -53,7 +53,7 @@ class CompilerTest extends ConfigurablePipeTest {
         ];
     }
 
-    public function testCustomPhasesViaConstructorConf() {
+    public function testCustomStepsViaConstructorConf() {
         $frontend = function ($v) {
             $v['frontend'] = 'frontend ok';
             return $v;
@@ -96,7 +96,7 @@ class CompilerTest extends ConfigurablePipeTest {
         $this->assertSame('backend ok', $context['backend']);
     }
 
-    public function dataPhasesAccessors() {
+    public function dataStepsAccessors() {
         yield [
             'frontend',
             'midend',
@@ -105,19 +105,19 @@ class CompilerTest extends ConfigurablePipeTest {
     }
 
     /**
-     * @dataProvider dataPhasesAccessors
+     * @dataProvider dataStepsAccessors
      */
-    public function testPhasesAccessors(string $method) {
+    public function testStepsAccessors(string $method) {
         $compiler = new Compiler($this->mkCompilerConf());
-        $oldPhase = $compiler->$method();
-        $this->assertIsCallable($oldPhase);
-        $newPhase = fn () => null;
-        $this->assertSame($compiler, $compiler->{'set' . $method}($newPhase));
-        $this->assertSame($newPhase, $compiler->$method());
-        $this->assertNotSame($newPhase, $oldPhase);
+        $oldStep = $compiler->$method();
+        $this->assertIsCallable($oldStep);
+        $newStep = fn () => null;
+        $this->assertSame($compiler, $compiler->{'set' . $method}($newStep));
+        $this->assertSame($newStep, $compiler->$method());
+        $this->assertNotSame($newStep, $oldStep);
     }
 
-    public function testDefaultPhases() {
+    public function testDefaultSteps() {
         $compiler = new Compiler($this->mkCompilerConf());
 
         $frontend = $compiler->frontend();

@@ -14,6 +14,7 @@ require __DIR__ . '/Web/autoload.php';
 
 const VENDOR = 'morpho-os';
 
+const APP_DIR_NAME = 'app'; // used in frontend modules
 const BIN_DIR_NAME = 'bin';
 const CACHE_DIR_NAME = 'cache';
 const FRONTEND_DIR_NAME = 'frontend';

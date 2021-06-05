@@ -62,7 +62,7 @@ class Compiler extends ConfigurablePipe implements ICompiler {
     }
 
     public function count(): int {
-        // Valid pipe phases are `[$this->frontend(), $this->midend(), $this->backend()]`, so the count is 3.
+        // Valid pipe steps are `[$this->frontend(), $this->midend(), $this->backend()]`, so the count is 3.
         return 3;
     }
 

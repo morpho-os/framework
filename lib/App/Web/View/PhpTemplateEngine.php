@@ -11,6 +11,7 @@ use Morpho\App\Web\IRequest;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\Base\ArrPipe;
 use Morpho\Base\Conf;
+use Morpho\Base\NotImplementedException;
 use Morpho\Fs\File;
 use Morpho\Fs\Path;
 use RuntimeException;
@@ -65,17 +66,17 @@ class PhpTemplateEngine extends ArrPipe {
         $this->pluginFactory = $conf['pluginFactory'] ?? function () {
             };
         $this->request = $conf['request'];
-        if (!isset($conf['phases'])) {
-            $conf['phases'] = self::mkDefaultPhases($conf);
+        if (!isset($conf['steps'])) {
+            $conf['steps'] = self::mkDefaultSteps($conf);
         }
-        parent::__construct($conf['phases']);
+        parent::__construct($conf['steps']);
     }
 
     private function init(): void {
         self::$htmlIds = [];
     }
 
-    public static function mkDefaultPhases(array $conf): array {
+    public static function mkDefaultSteps(array $conf): array {
         return [
             'phpProcessor'    => new PhpProcessor(),
             'formPersister'   => new FormPersister($conf['request']),
@@ -514,5 +515,22 @@ class PhpTemplateEngine extends ArrPipe {
             $this->plugins[$name] = ($this->pluginFactory)($name);
         }
         return $this->plugins[$name];
+    }
+
+    /**
+     * @param array|null $scripts If null then actions scripts will be added.
+     */
+    public function addJs(array $scripts = null): void {
+        if (null !== $scripts) {
+            throw new NotImplementedException('todo: append specified scripts');
+        }
+        // if null append actions scripts
+        $this->step('scriptProcessor')
+            ->on('beforeRenderScripts', function ($event) {
+                $event->args = array_merge(
+                    $event->args,
+                    $event->sender->actionScripts($this->request['view'])
+                );
+            });
     }
 }
