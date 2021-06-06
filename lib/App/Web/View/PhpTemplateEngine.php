@@ -314,16 +314,9 @@ class PhpTemplateEngine extends ArrPipe {
         return htmlspecialchars((string) $text, ENT_QUOTES);
     }
 
-    public function textField(array $attribs): string {
+    public function textControl(array $attribs): string {
         $attribs['type'] = 'text';
-        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
-    }
-
-    /**
-     * Can be used to wrap around any form field extra HTML.
-     */
-    protected function formEl(string $html): string {
-        return $html;
+        return $this->tag1('input', $this->addCommonAttribs($attribs));
     }
 
     public function tag1(string $tagName, array $attribs = null, array $conf = []): string {
@@ -384,30 +377,30 @@ class PhpTemplateEngine extends ArrPipe {
         return $attribs;
     }
 
-    public function textareaField(array $attribs): string {
+    public function textareaControl(array $attribs): string {
         $val = $attribs['value'];
         unset($attribs['value']);
-        return $this->formEl($this->tag('textarea', $val, $this->addCommonAttribs($attribs)));
+        return $this->tag('textarea', $val, $this->addCommonAttribs($attribs));
     }
 
-    public function checkboxField(array $attribs): string {
+    public function checkboxControl(array $attribs): string {
         $attribs['type'] = 'checkbox';
         if (!isset($attribs['value'])) {
             $attribs['value'] = 1;
         }
-        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
+        return $this->tag1('input', $this->addCommonAttribs($attribs));
     }
 
-    public function selectField(?iterable $options, mixed $selectedOption = null, array $attribs = null): string {
+    public function selectControl(?iterable $options, mixed $selectedOption = null, array $attribs = null): string {
         $html = $this->openTag('select', $this->addCommonAttribs((array) $attribs));
         if (null !== $options) {
-            $html .= $this->optionFields($options, $selectedOption);
+            $html .= $this->optionControls($options, $selectedOption);
         }
         $html .= '</select>';
-        return $this->formEl($html);
+        return $html;
     }
 
-    public function optionFields(iterable $options, mixed $selectedOption = null): string {
+    public function optionControls(iterable $options, mixed $selectedOption = null): string {
         $html = '';
         if (null === $selectedOption || is_scalar($selectedOption)) {
             $selectedVal = (string) $selectedOption;
@@ -436,16 +429,26 @@ class PhpTemplateEngine extends ArrPipe {
                     $value
                 ) . '"' . (isset($selectedOptions[$value]) ? ' selected' : '') . '>' . $this->e($text) . '</option>';
         }
-        return $this->formEl($html);
+        return $html;
     }
 
-    public function httpMethodField(string $method = null, array $attribs = null): string {
-        return $this->formEl($this->hiddenField(['name' => '_method', 'value' => $method] + (array) $attribs));
+    public function httpMethod(string $method = null, array $attribs = null): string {
+        return $this->hiddenControl(['name' => '_method', 'value' => $method] + (array) $attribs);
     }
 
-    public function hiddenField(array $attribs): string {
+    public function hiddenControl(array $attribs): string {
         $attribs['type'] = 'hidden';
-        return $this->formEl($this->tag1('input', $this->addCommonAttribs($attribs)));
+        return $this->tag1('input', $this->addCommonAttribs($attribs));
+    }
+
+    public function buttonControl(string $text, array $attribs = null): string {
+        return $this->tag('button', $text, $attribs);
+    }
+
+    public function submitControl(string $text, array $attribs = null): string {
+        $attribs = (array) $attribs;
+        $attribs['type'] = 'submit';
+        return $this->tag('button', $text, $attribs);
     }
 
     /**
