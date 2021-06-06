@@ -1,4 +1,24 @@
-<phpunit bootstrap="./bootstrap.php" colors="false" verbose="true" beStrictAboutTestsThatDoNotTestAnything="true" failOnRisky="true" failOnWarning="true">
+<phpunit bootstrap="./bootstrap.php"
+         colors="true"
+         verbose="true"
+         stopOnDefect="true"
+         stopOnError="true"
+         stopOnFailure="true"
+         stopOnWarning="true"
+         stopOnIncomplete="true"
+         stopOnRisky="true"
+         stopOnSkipped="false"
+         failOnEmptyTestSuite="true"
+         failOnIncomplete="true"
+         failOnRisky="true"
+         failOnSkipped="true"
+         failOnWarning="true"
+         beStrictAboutChangesToGlobalState="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutResourceUsageDuringSmallTests="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         beStrictAboutCoversAnnotation="true">
     <testsuites>
         <testsuite name="morpho-os/framework">
             <file>TestSuite.php</file>

@@ -10,24 +10,19 @@ all: test
 ################################################################################
 # Tests
 
-strictOpts := --stop-on-warning --stop-on-failure --stop-on-error --stop-on-skipped --stop-on-incomplete --stop-on-risky --fail-on-incomplete --fail-on-risky --fail-on-skipped --fail-on-warning
-looseOpts := --stop-on-warning --stop-on-failure --stop-on-error --stop-on-risky --fail-on-risky --fail-on-skipped --fail-on-warning
-# todo: switch to strictOpts after solving the #8
-testOpts := $(looseOpts)
-
 test:
-	bin/test $(testOpts)
+	bin/test
 
 # Unit tests
 unit-test:
-	bin/test $(testOpts) test/Unit/TestSuite.php
+	bin/test test/Unit/TestSuite.php
 
 integration-test:
-	bin/test $(testOpts) test/Integration/TestSuite.php
+	bin/test test/Integration/TestSuite.php
 
 backend-test: module-test
 module-test:
-	bin/test $(testOpts) $(backendDirPath)
+	bin/test $(backendDirPath)
 
 # todo: frontend tests
 frontend-test:
