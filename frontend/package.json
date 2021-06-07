@@ -11,16 +11,11 @@
     "bootstrap": "5.0.0-beta2",
     "imd": "github:morpho-os/imd",
     "jquery": "latest",
-    "keymaster": "^1.6.2",
-    "keymaster-patched": "^1.6.4",
     "toastify-js": "latest",
     "tslib": "latest"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.0.8",
-    "@types/jasmine": "latest",
-    "@types/jquery": "latest",
-    "@types/keymaster": "^1.6.28",
-    "jasmine-core": "^3.6.0"
+    "@types/jquery": "latest"
   }
 }

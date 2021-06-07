@@ -7,7 +7,7 @@
 
 import {ErrorMessage, renderMessage} from "./message";
 import {Widget, WidgetConf} from "./widget";
-import {redirectTo} from "./base";
+import {redirectTo} from "./http";
 
 type ResponseErrorMessage = Pick<ErrorMessage, "text" | "args">;
 export type ResponseError = ResponseErrorMessage[] | {[elName: string]: ResponseErrorMessage[]};

@@ -7,21 +7,27 @@
 ///<amd-module name="localhost/lib/base/widget" />
 
 import {EventManager} from "./event-manager";
+import {ResultResponse} from "./http";
+import {IDisposable} from "./base";
 
-export interface WidgetConf {
+export type WidgetConf = {
     el?: JQuery | string;
 }
 
-export abstract class Widget<TConf extends WidgetConf = WidgetConf> extends EventManager {
+export abstract class Widget<TConf extends WidgetConf = WidgetConf> extends EventManager implements IDisposable {
     protected el!: JQuery;
 
     protected conf: TConf;
 
-    public constructor(conf: TConf) {
+    public constructor(conf: TConf | JQuery) {
         super();
         this.conf = this.normalizeConf(conf);
         this.init();
         this.bindHandlers();
+    }
+
+    public dispose(): void {
+
     }
 
     protected init(): void {
@@ -33,8 +39,11 @@ export abstract class Widget<TConf extends WidgetConf = WidgetConf> extends Even
     protected bindHandlers(): void {
     }
 
-    protected normalizeConf(conf: TConf): TConf {
-        return conf;
+    protected normalizeConf(conf: TConf | JQuery): TConf {
+        if (<any>conf instanceof jQuery) {
+            return <TConf>{el: <JQuery>conf};
+        }
+        return <TConf>conf;
     }
 }
 /*
@@ -61,12 +70,19 @@ export function okToast(text: string): void {
     }).showToast();
 }
 
-export function errorToast(text: string | null = null): void {
+export function errorToast(text: string | undefined = undefined): void {
     Toastify({
-        text: text || 'Error',
+        text: text || 'Error.',
         backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
         className: "info",
     }).showToast();
 }
 
+export function showResponseErr(response: ResultResponse) {
+    if (response.err && typeof response.err == 'string') {
+        errorToast(response.err);
+    } else {
+        errorToast();
+    }
+}
 

@@ -14,7 +14,7 @@ build() {
         echo -n "Transpiling '""$(dirname "$tsConfigFilePath")/**.ts'..."
         tsc --build "$tsConfigFilePath"
         echo ' OK'
-    done < <(find "$frontendDirPath"/localhost -mindepth 3 -name tsconfig.json -type f -print0)
+    done < <(find "$frontendDirPath"/localhost -mindepth 2 -name tsconfig.json -type f -print0)
     find "$frontendDirPath"/localhost/lib/base -name '*.js' -not -name 'index.js' -delete
 }
 
@@ -22,7 +22,7 @@ watch() {
     local cmds=()
     while IFS= read -r -d '' tsConfigFilePath; do
         cmds+=("tsc --build $tsConfigFilePath --watch --preserveWatchOutput")
-    done < <(find "$frontendDirPath"/localhost -mindepth 3 -name tsconfig.json -type f -print0)
+    done < <(find "$frontendDirPath"/localhost -mindepth 2 -name tsconfig.json -type f -print0)
     # https://github.com/microsoft/TypeScript/issues/17611
     concurrently --raw -- "${cmds[@]}"
 }

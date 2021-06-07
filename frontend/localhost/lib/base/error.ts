@@ -12,7 +12,7 @@ export class Exception extends Error {
         super(message);
         this.name = 'Exception';
         this.message = message;
-        //        this.stack = (<any>new Error()).stack;
+        // this.stack = (<any>new Error()).stack;
     }
 
     public toString() {

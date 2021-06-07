@@ -40,6 +40,7 @@ String.prototype.e = function (this: string): string {
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
+        // tslint:disable-next-line:object-literal-sort-keys
         '"': '&quot;',
         "'": '&#39;'
     };

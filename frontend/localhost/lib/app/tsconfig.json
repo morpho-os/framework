@@ -8,8 +8,5 @@
         "**/*.ts",
         "../base/**/*.ts",
     ],
-    "exclude": [
-        "**/*.d.ts",
-        "../base/**/*.d.ts"
-    ]
+    "exclude": [],
 }

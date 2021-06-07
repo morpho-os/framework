@@ -1,4 +1,8 @@
 @import "../../../node_modules/bootstrap/scss/functions";
+
+$primary: #26BCE7;
+$navbar-dark-color: rgba(#fff, .80);
+
 @import "../../../node_modules/bootstrap/scss/variables";
 
 $card-color: $white;
@@ -42,7 +46,10 @@ $card-bg: $dark;
 
 @import "vars";
 
-/* https://keenthemes.com/keen/preview/demo5/index.html */
+a:hover {
+    color: tint-color($primary, 50%)
+}
+
 html, body {
     background: #252525;
     color: $white;
@@ -55,30 +62,35 @@ html, body {
 .nav, .navbar {
     background-color: #434856;
 }
+
 .navbar {
-//    padding-top: 0.2rem;
-//    padding-bottom: 0.2rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
 }
 
 .grid {
     td, th:first-child {
         cursor: pointer;
     }
+
     td, th {
         vertical-align: middle !important;
     }
+
     tr.selected {
         td {
             background: $grid-selected-row-bg-color;
             color: $grid-selected-row-text-color;
         }
     }
+
     tr.active {
         td {
             background: $grid-active-row-bg-color;
             color: $grid-active-row-text-color;
         }
     }
+
     tr.active.selected {
         td {
             background: $grid-active-row-bg-color;

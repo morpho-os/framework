@@ -50,10 +50,10 @@ watch-css:
 	sass --watch $(frontendDirPath)/localhost
 
 clean-css:
-	find $(frontendDirPath)/localhost -mindepth 1 -name '*.css' -not -path '*/node_modules/*' -print -delete
+	find $(frontendDirPath)/localhost -mindepth 1 -name '*.css' -or -name '*.css.map' -not -path '*/node_modules/*' -print -delete
 
 clean-js:
-	find $(frontendDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.d.ts' \) -and ! -name 'index.d.ts' -print -delete
+	find $(frontendDirPath)/localhost -mindepth 1 -not -path '*/node_modules/*' -and \( -name '*.js' -or -name '*.js.map' -or -name '*.tsbuildinfo' -or -name '*.d.ts' \) -not -path '*/lib/base/index.d.ts' -print -delete
 
 clean-assets: clean-css clean-js
 
@@ -72,6 +72,10 @@ setup:
 	test -e package.json || echo '{}' > package.json
 	npm install -g --save-dev @types/node
 	npm install -g --save typescript@next concurrently
+
+# `help` taken from [containerd](https://github.com/containerd/containerd/blob/master/Makefile)
+help: ## this help
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
 .SILENT:
 .PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css watch-css clean-css clean-js clean-assets clean update setup

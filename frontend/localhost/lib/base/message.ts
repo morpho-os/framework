@@ -4,7 +4,7 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 ///<amd-module name="localhost/lib/base/message" />
-/// <reference path="./index.d.ts" />
+///<reference path="./index.d.ts" />
 
 import {Widget} from "./widget";
 
@@ -24,9 +24,6 @@ declare const window: ExtendedWindow;
 /*interface MessageRenderer {
     (message: Message): string;
 }*/
-
-
-
 export class PageMessenger extends Widget {
     protected numberOfMessages(): number {
         return this.messageEls().length;

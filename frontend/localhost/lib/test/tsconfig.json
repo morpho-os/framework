@@ -7,7 +7,5 @@
     "include": [
         "**/*.ts",
     ],
-    "exclude": [
-        "**/*.d.ts"
-    ]
+    "exclude": [],
 }

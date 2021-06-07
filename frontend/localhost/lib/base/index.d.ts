@@ -109,8 +109,3 @@ interface Toastify {
 declare const Toastify: Toastify;
 
 type EntityId = string | number;
-
-type ResultResponse = {
-    ok?: any;
-    err?: any;
-}

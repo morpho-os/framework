@@ -5,12 +5,22 @@
  */
 ///<amd-module name="localhost/lib/base/base" />
 
-export function e(v: any): string {
-    return v.toString().e();
+export interface IDisposable {
+    dispose(): void;
 }
 
 export function id(value: any): any {
     return value;
+}
+
+export function lname(name: string): string {
+    name = name.replace('_', '-')
+    name = name.replace(/[a-z][A-Z]/, function camelizeNextCh(match: string/*match, p1, p2, p3, offset, inputString*/) {
+        return match[0] + '-' + match[1].toLowerCase();
+    })
+    name = name.replace(/[^-A-Za-z.0-9]/, '-')
+    name = name.replace(/-+/, '-')
+    return name;
 }
 
 export function isPromise(val: any): boolean {
@@ -19,10 +29,10 @@ export function isPromise(val: any): boolean {
 
 // found at Jasmine Testing framework, $.isDomNode
 export function isDomNode(obj: any): boolean {
-    return obj.nodeType > 0;
+    return obj && obj.nodeType > 0;
 }
 
-export function isGenerator(fn: Function) {
+export function isGenerator(fn: Function): boolean {
     return (<any>fn.constructor).name === 'GeneratorFunction';
 }
 
@@ -38,49 +48,6 @@ export function showUnknownError(message?: string): void {
     alert("Unknown error, please contact support");
 }
 
-export function redirectToSelf(): void {
-    //redirectTo(window.location.href);
-    window.location.reload();
-}
-
-export function redirectToHome(): void {
-    // @TODO:
-    // redirectTo(uri.prependBasePath('/'));
-    redirectTo('/');
-}
-
-export function redirectTo(uri: string, storePageInHistory = true): void {
-    if (storePageInHistory) {
-        window.location.href = uri;
-    } else {
-        window.location.replace(uri);
-    }
-}
-
-// queryArgs() based on https://github.com/unshiftio/querystringify/blob/master/index.js
-export function queryArgs(): JQuery.PlainObject {
-    const decode = (input: string): string => decodeURIComponent(input.replace(/\+/g, ' '));
-
-    const parser = /([^=?&]+)=?([^&]*)/g;
-    let queryArgs: JQuery.PlainObject = {},
-        part;
-
-    while (part = parser.exec(window.location.search)) {
-        let key = decode(part[1]),
-            value = decode(part[2]);
-
-        // Prevent overriding of existing properties. This ensures that build-in
-        // methods like `toString` or __proto__ are not overriden by malicious
-        // querystrings.
-        if (key in queryArgs) {
-            continue;
-        }
-        queryArgs[key] = value;
-    }
-
-    return queryArgs;
-}
-
 // https://stackoverflow.com/questions/1909441/how-to-delay-the-keyup-handler-until-the-user-stops-typing/19259625
 // https://github.com/dennyferra/TypeWatch/blob/master/jquery.typewatch.js
 export function delayedCallback(callback: Function, waitMs: number): (this: any, ...args: any[]) => void {
@@ -93,8 +60,4 @@ export function delayedCallback(callback: Function, waitMs: number): (this: any,
             callback.apply(self, args);
         }, waitMs);
     };
-}
-
-export function isErr(response: ResultResponse) {
-    return !response.ok;
 }
