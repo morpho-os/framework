@@ -38,8 +38,7 @@
         "willdurand/negotiation": "^3.0@dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5.0",
-        "php-webdriver/webdriver": "dev-main",
+        "phpunit/phpunit": "dev-master",
         "vimeo/psalm": "dev-master",
         "orklah/psalm-insane-comparison": "dev-master",
         "psalm/plugin-phpunit": "dev-master"
