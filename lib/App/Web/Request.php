@@ -7,7 +7,6 @@
 namespace Morpho\App\Web;
 
 use ArrayObject;
-use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 use Morpho\App\Web\Uri;
 use Morpho\Fs\Path;
@@ -42,7 +41,7 @@ use function ucwords;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest implements IRequest {
-    private static array $methods = [
+    protected array $knownMethods = [
         /*
         HttpMethod::CONNECT,
         */
@@ -62,6 +61,7 @@ class Request extends BaseRequest implements IRequest {
     private ?array $serverVars;
     private ?Uri\Uri $uri = null;
     private ?array $trustedProxyIps = null;
+    private ?IResponse $response = null;
 
     public function __construct(?array $serverVars = null) {
         parent::__construct([]);
@@ -71,52 +71,76 @@ class Request extends BaseRequest implements IRequest {
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
     }
 
-    protected function detectOriginalMethod(): ?string {
-        $httpMethod = $this->serverVar('REQUEST_METHOD');
-        if (null !== $httpMethod) {
-            $httpMethod = strtoupper((string) $httpMethod);
-            if ($this->isKnownMethod($httpMethod)) {
-                return $httpMethod;
-            }
-        }
-        return null;
+    public function setResponse(IResponse $response): void {
+        $this->response = $response;
     }
 
-    protected function serverVar(string $name, $default = null): mixed {
-        if (null !== $this->serverVars) {
-            return $this->serverVars[$name] ?? $default;
+    public function response(): IResponse {
+        if (null === $this->response) {
+            $this->response = $this->mkResponse();
         }
-        return $_SERVER[$name] ?? $default;
+        return $this->response;
+    }
+
+    /**
+     * NB: $method must not be taken from user input.
+     * @param string $method
+     */
+    public function setMethod(string $method): void {
+        $this->originalMethod = strtoupper($method);
+        $this->overwrittenMethod = null;
+    }
+
+    public function method(): string {
+        return null !== $this->overwrittenMethod
+            ? $this->overwrittenMethod
+            : $this->originalMethod;
+    }
+
+    public function isDeleteMethod(): bool {
+        return $this->method() === HttpMethod::DELETE;
+    }
+
+    public function isGetMethod(): bool {
+        return $this->method() === HttpMethod::GET;
+    }
+
+    public function isPatchMethod(): bool {
+        return $this->method() === HttpMethod::PATCH;
+    }
+
+    public function isPostMethod(): bool {
+        return $this->method() === HttpMethod::POST;
+    }
+
+    /*
+    public function isConnectMethod(): bool {
+        return $this->method() === self::CONNECT_METHOD;
+    }
+
+    public function isHeadMethod(): bool {
+        return $this->method() === self::HEAD_METHOD;
+    }
+
+     public function isOptionsMethod(): bool {
+         return $this->method() === self::OPTIONS_METHOD;
+     }
+
+    public function isPutMethod(): bool {
+        return $this->method() === self::PUT_METHOD;
+    }
+
+    public function isTraceMethod(): bool {
+        return $this->method() === self::TRACE_METHOD;
+    }
+    */
+
+    public function knownMethods(): array {
+        return $this->knownMethods;
     }
 
     public function isKnownMethod($method): bool {
-        return is_string($method) && in_array($method, self::$methods, true);
-    }
-
-    protected function detectOverwrittenMethod(): ?string {
-        $overwrittenMethod = null;
-        $httpMethod = $this->serverVar('HTTP_X_HTTP_METHOD_OVERRIDE');
-        if (null !== $httpMethod) {
-            $overwrittenMethod = (string) $httpMethod;
-        } elseif (isset($_GET['_method'])) {
-            // Allow to pass a method through the special '_method' item.
-            $overwrittenMethod = (string) $_GET['_method'];
-            unset($_GET['_method']);
-        } elseif (isset($_POST['_method'])) {
-            $overwrittenMethod = (string) $_POST['_method'];
-            unset($_POST['_method']);
-        }
-        if (null !== $overwrittenMethod) {
-            $overwrittenMethod = strtoupper($overwrittenMethod);
-            if ($this->isKnownMethod($overwrittenMethod)) {
-                return $overwrittenMethod;
-            }
-        }
-        return null;
-    }
-
-    public static function knownMethods(): array {
-        return self::$methods;
+        return is_string($method) && in_array($method, $this->knownMethods, true);
     }
 
     /**
@@ -147,12 +171,6 @@ class Request extends BaseRequest implements IRequest {
         }
     }
 
-    public function method(): string {
-        return null !== $this->overwrittenMethod
-            ? $this->overwrittenMethod
-            : $this->originalMethod;
-    }
-
     public function query($name = null, callable|bool $filter = true): mixed {
         // NB: On change sync with data() and post()
         if (null === $name) {
@@ -164,6 +182,7 @@ class Request extends BaseRequest implements IRequest {
             return $filter ? trimMore($data) : $data;
         }
         if ($filter) {
+            // todo: support custom $filter
             return isset($_GET[$name])
                 ? trimMore($_GET[$name])
                 : null;
@@ -173,7 +192,11 @@ class Request extends BaseRequest implements IRequest {
             : null;
     }
 
-    public function post($name = null, callable|bool $filter = true) {
+    public function hasQuery(string $name): bool {
+        return isset($_GET[$name]);
+    }
+
+    public function post($name = null, callable|bool $filter = true): mixed {
         // NB: On change sync with data() and query()
         if (null === $name) {
             return $filter ? trimMore($_POST) : $_POST;
@@ -184,6 +207,7 @@ class Request extends BaseRequest implements IRequest {
             return $filter ? trimMore($data) : $data;
         }
         if ($filter) {
+            // todo: support custom $filter
             return isset($_POST[$name])
                 ? trimMore($_POST[$name])
                 : null;
@@ -193,10 +217,11 @@ class Request extends BaseRequest implements IRequest {
             : null;
     }
 
-    /**
-     * @return mixed @TODO Specify concrete types.
-     */
-    public function patch($name = null, callable|bool $filter = true) {
+    public function hasPost(string $name): bool {
+        return isset($_POST[$name]);
+    }
+
+    public function patch($name = null, callable|bool $filter = true): mixed {
         if ($this->overwrittenMethod === HttpMethod::PATCH) {
             return $this->post($name, $filter);
         }
@@ -215,6 +240,7 @@ class Request extends BaseRequest implements IRequest {
             return $filter ? trimMore($data) : $data;
         }
         if ($filter) {
+            // todo: support custom $filter
             return isset($source[$name])
                 ? trimMore($source[$name])
                 : null;
@@ -224,21 +250,9 @@ class Request extends BaseRequest implements IRequest {
             : null;
     }
 
-    public function hasPost(string $name): bool {
-        return isset($_POST[$name]);
-    }
-
-    public function hasQuery(string $name): bool {
-        return isset($_GET[$name]);
-    }
-
-    /*    public function isConnectMethod(): bool {
-            return $this->method() === self::CONNECT_METHOD;
-        }*/
-
     public function isAjax(bool $flag = null): bool {
         if (null !== $flag) {
-            $this->isAjax = (bool) $flag;
+            $this->isAjax = $flag;
         }
         if (null !== $this->isAjax) {
             return $this->isAjax;
@@ -259,46 +273,16 @@ class Request extends BaseRequest implements IRequest {
         return $this->headers;
     }
 
-    /*    public function isHeadMethod(): bool {
-            return $this->method() === self::HEAD_METHOD;
-        }*/
-
-    /*    public function isOptionsMethod(): bool {
-            return $this->method() === self::OPTIONS_METHOD;
-        }*/
-
-    protected function initHeaders(): void {
-        $headers = [];
-        foreach (($this->serverVars ?: $_SERVER) as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
-                if (strpos($key, 'HTTP_COOKIE') === 0) {
-                    // Cookies are handled using the $_COOKIE superglobal
-                    continue;
-                }
-                $name = strtr(substr($key, 5), '_', ' ');
-                $name = strtr(ucwords(strtolower($name)), ' ', '-');
-            } elseif (strpos($key, 'CONTENT_') === 0) {
-                $name = substr($key, 8); // Content-
-                $name = 'Content-' . (($name == 'MD5') ? $name : ucfirst(strtolower($name)));
-            } else {
-                continue;
-            }
-            $headers[$name] = $value;
-        }
-        $this->headers = new ArrayObject($headers);
-    }
-
     public function setUri(Uri\Uri $uri): void {
         $this->uri = $uri;
     }
 
-    /*    public function isPutMethod(): bool {
-            return $this->method() === self::PUT_METHOD;
+    public function uri(): Uri\Uri {
+        if (null === $this->uri) {
+            $this->initUri();
         }
-
-        public function isTraceMethod(): bool {
-            return $this->method() === self::TRACE_METHOD;
-        }*/
+        return $this->uri;
+    }
 
     public function prependUriWithBasePath(string $uri): Uri\Uri {
         $uri = new Uri\Uri($uri);
@@ -315,11 +299,12 @@ class Request extends BaseRequest implements IRequest {
         return $uri;
     }
 
-    public function uri(): Uri\Uri {
-        if (null === $this->uri) {
-            $this->initUri();
-        }
-        return $this->uri;
+    public function setTrustedProxyIps(array $ips): void {
+        $this->trustedProxyIps = $ips;
+    }
+
+    public function trustedProxyIps(): ?array {
+        return $this->trustedProxyIps;
     }
 
     protected function initUri(): void {
@@ -349,6 +334,27 @@ class Request extends BaseRequest implements IRequest {
         }
 
         $this->uri = $uri;
+    }
+
+    protected function initHeaders(): void {
+        $headers = [];
+        foreach (($this->serverVars ?: $_SERVER) as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                if (strpos($key, 'HTTP_COOKIE') === 0) {
+                    // Cookies are handled using the $_COOKIE superglobal
+                    continue;
+                }
+                $name = strtr(substr($key, 5), '_', ' ');
+                $name = strtr(ucwords(strtolower($name)), ' ', '-');
+            } elseif (strpos($key, 'CONTENT_') === 0) {
+                $name = substr($key, 8); // Content-
+                $name = 'Content-' . (($name == 'MD5') ? $name : ucfirst(strtolower($name)));
+            } else {
+                continue;
+            }
+            $headers[$name] = $value;
+        }
+        $this->headers = new ArrayObject($headers);
     }
 
     /**
@@ -495,40 +501,47 @@ class Request extends BaseRequest implements IRequest {
         return '/' . $basePath;
     }
 
-    /**
-     * NB: $method must not be taken from user input.
-     * @param string $method
-     */
-    public function setMethod(string $method): void {
-        $this->originalMethod = strtoupper($method);
-        $this->overwrittenMethod = null;
-    }
-
-    public function isDeleteMethod(): bool {
-        return $this->method() === HttpMethod::DELETE;
-    }
-
-    public function isGetMethod(): bool {
-        return $this->method() === HttpMethod::GET;
-    }
-
-    public function isPatchMethod(): bool {
-        return $this->method() === HttpMethod::PATCH;
-    }
-
-    public function isPostMethod(): bool {
-        return $this->method() === HttpMethod::POST;
-    }
-
-    public function setTrustedProxyIps(array $ips): void {
-        $this->trustedProxyIps = $ips;
-    }
-
-    public function trustedProxyIps(): ?array {
-        return $this->trustedProxyIps;
-    }
-
     protected function mkResponse(): IResponse {
         return new Response();
+    }
+
+    protected function detectOverwrittenMethod(): ?string {
+        $overwrittenMethod = null;
+        $httpMethod = $this->serverVar('HTTP_X_HTTP_METHOD_OVERRIDE');
+        if (null !== $httpMethod) {
+            $overwrittenMethod = (string) $httpMethod;
+        } elseif (isset($_GET['_method'])) {
+            // Allow to pass a method through the special '_method' item.
+            $overwrittenMethod = (string) $_GET['_method'];
+            unset($_GET['_method']);
+        } elseif (isset($_POST['_method'])) {
+            $overwrittenMethod = (string) $_POST['_method'];
+            unset($_POST['_method']);
+        }
+        if (null !== $overwrittenMethod) {
+            $overwrittenMethod = strtoupper($overwrittenMethod);
+            if ($this->isKnownMethod($overwrittenMethod)) {
+                return $overwrittenMethod;
+            }
+        }
+        return null;
+    }
+
+    protected function detectOriginalMethod(): ?string {
+        $httpMethod = $this->serverVar('REQUEST_METHOD');
+        if (null !== $httpMethod) {
+            $httpMethod = strtoupper((string) $httpMethod);
+            if ($this->isKnownMethod($httpMethod)) {
+                return $httpMethod;
+            }
+        }
+        return null;
+    }
+
+    protected function serverVar(string $name, $default = null): mixed {
+        if (null !== $this->serverVars) {
+            return $this->serverVars[$name] ?? $default;
+        }
+        return $_SERVER[$name] ?? $default;
     }
 }

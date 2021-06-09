@@ -6,11 +6,27 @@
  */
 namespace Morpho\App\Cli;
 
-use Morpho\App\IResponse;
 use Morpho\App\Request as BaseRequest;
 
-class Request extends BaseRequest {
+class Request extends BaseRequest implements IRequest {
     protected ?array $args = null;
+
+    private ?IResponse $response = null;
+
+    public function setResponse(IResponse $response): void {
+        $this->response = $response;
+    }
+
+    public function response(): IResponse {
+        if (null === $this->response) {
+            $this->response = $this->mkResponse();
+        }
+        return $this->response;
+    }
+
+    protected function mkResponse(): IResponse {
+        return new Response();
+    }
 
     public function setArgs(array $args): void {
         $this->args = $args;
@@ -21,9 +37,5 @@ class Request extends BaseRequest {
             $this->args = $_SERVER['argv'];
         }
         return $this->args;
-    }
-
-    protected function mkResponse(): IResponse {
-        return new Response();
     }
 }

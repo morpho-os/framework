@@ -15,20 +15,33 @@ use Morpho\Base\Ok;
 use Morpho\Base\Result;
 
 abstract class Controller extends BaseController implements IHasServiceManager {
-    protected IServiceManager $serviceManager;
+    private IRequest $request;
 
-    protected $request;
+    protected IServiceManager $serviceManager;
 
     public function setServiceManager(IServiceManager $serviceManager): self {
         $this->serviceManager = $serviceManager;
         return $this;
     }
 
-    protected function redirect(string $uri = null, int $statusCode = null) {
+    public function __invoke(mixed $request): IRequest {
+        return parent::__invoke($request);
+    }
+
+    protected function beforeEach($request): void {
+        parent::beforeEach($request);
+        $this->request = $request;
+    }
+
+    protected function request(): IRequest {
+        return $this->request;
+    }
+
+    protected function redirect(string $uri = null, int $statusCode = null): IResponse {
         return $this->request->response()->redirect($uri, $statusCode);
     }
 
-    protected function args($name = null, callable|bool $filter = true) {
+    protected function args($name = null, callable|bool $filter = true): mixed {
         return $this->request->args($name, $filter);
     }
 

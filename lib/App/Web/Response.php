@@ -14,20 +14,13 @@ use function header;
 use function intval;
 use function is_string;
 
-/**
- * This class based on \Zend\Http\PhpEnvironment\Response class.
- * @see https://github.com/zendframework/zend-http for the canonical source repository
- * @copyright Copyright (c) 2005-2017 Zend Technologies USA Inc. (http://www.zend.com)
- * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
- */
-class Response extends BaseResponse {
+class Response extends BaseResponse implements IResponse {
     public const OK_STATUS_CODE = 200;
     public const MOVED_PERMANENTLY = 301;
     public const FOUND_STATUS_CODE = 302;
     public const NOT_MODIFIED_STATUS_CODE = 304;
     public const BAD_REQUEST_STATUS_CODE = 400;
 
-    // @TODO: Move to StatusCode::OK
     public const FORBIDDEN_STATUS_CODE = 403;
     public const NOT_FOUND_STATUS_CODE = 404;
     public const METHOD_NOT_ALLOWED = 405;
@@ -51,11 +44,7 @@ class Response extends BaseResponse {
         ];
     }
 
-    /**
-     * @param bool|null $flag
-     * @return bool|self
-     */
-    public function allowAjax(bool $flag = null) {
+    public function allowAjax(bool $flag = null): bool|self {
         if ($flag !== null) {
             $this->allowAjax = $flag;
             return $this;
@@ -116,15 +105,6 @@ class Response extends BaseResponse {
         $this->sendStatusLine();
         $this->sendHeaders();
         parent::send();
-    }
-
-    protected function sendStatusLine(): void {
-        // @TODO: http_response_code
-        $this->sendHeader($this->statusLine());
-    }
-
-    protected function sendHeader(string $value): void {
-        header($value);
     }
 
     public function statusLine(): string {
@@ -222,5 +202,14 @@ class Response extends BaseResponse {
         foreach ($this->headers() as $name => $value) {
             $this->sendHeader($name . ': ' . $value);
         }
+    }
+
+    protected function sendStatusLine(): void {
+        // @TODO: http_response_code
+        $this->sendHeader($this->statusLine());
+    }
+
+    protected function sendHeader(string $value): void {
+        header($value);
     }
 }

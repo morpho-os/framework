@@ -134,13 +134,6 @@ OUT
         sh('php -r "exit(' . $exitCode . ');"');
     }
 
-    public function testShellSu() {
-        if ($this->isWindows()) {
-            $this->markTestSkipped();
-        }
-        $this->markTestIncomplete();
-    }
-
     public function testShell_EnvVarsConfParam() {
         $var = 'v' . md5(__METHOD__);
         $val = 'hello';
@@ -161,10 +154,6 @@ OUT
     public function testEnvVarsStr_ThrowsExceptionForInvalidVarName() {
         $this->expectException(RuntimeException::class, 'Invalid variable name');
         envVarsStr(['&']);
-    }
-
-    public function testPipe() {
-        $this->markTestIncomplete();
     }
 
     public function testAskYesNo() {

@@ -7,13 +7,27 @@
 namespace Morpho\App\Cli;
 
 use Morpho\App\Controller as BaseController;
-use Morpho\App\IResponse;
 
 class Controller extends BaseController {
+    private IRequest $request;
+
+    public function __invoke(mixed $request): IRequest {
+        return parent::__invoke($request);
+    }
+
+    protected function beforeEach($request): void {
+        parent::beforeEach($request);
+        $this->request = $request;
+    }
+
     protected function handleResult(mixed $actionResult): IResponse {
-        $response = $this->request->response();
+        $response = $this->request()->response();
         $actionResult = (string) $actionResult;
         $response['result'] = $actionResult;
         return $response;
+    }
+
+    protected function request(): IRequest {
+        return $this->request;
     }
 }

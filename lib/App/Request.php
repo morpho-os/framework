@@ -11,8 +11,6 @@ abstract class Request extends Message implements IRequest {
 
     private bool $isHandled = false;
 
-    private ?IResponse $response = null;
-
     public function isHandled(bool $flag = null): bool {
         if ($flag !== null) {
             $this->isHandled = $flag;
@@ -27,17 +25,4 @@ abstract class Request extends Message implements IRequest {
     public function handler(): array {
         return $this->handler;
     }
-
-    public function setResponse(IResponse $response): void {
-        $this->response = $response;
-    }
-
-    public function response(): IResponse {
-        if (null === $this->response) {
-            $this->response = $this->mkResponse();
-        }
-        return $this->response;
-    }
-
-    abstract protected function mkResponse(): IResponse;
 }

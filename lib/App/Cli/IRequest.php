@@ -6,7 +6,12 @@
  */
 namespace Morpho\App\Cli;
 
-use Morpho\App\Response as BaseResponse;
+use Morpho\App\IRequest as IBaseRequest;
 
-class Response extends BaseResponse implements IResponse {
+interface IRequest extends IBaseRequest {
+    public function setResponse(IResponse $response): void;
+
+    public function response(): IResponse;
+
+    public function args(string|array|null $namesOrIndexes = null): mixed;
 }

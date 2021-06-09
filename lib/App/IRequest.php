@@ -13,9 +13,5 @@ interface IRequest extends IMessage {
 
     public function handler(): array;
 
-    public function setResponse(IResponse $response): void;
-
     public function response(): IResponse;
-
-    public function args(string|array|null $namesOrIndexes = null): mixed;
 }

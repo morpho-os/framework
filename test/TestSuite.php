@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * This file is part of morpho-os/framework
  * It is distributed under the 'Apache License Version 2.0' license.
@@ -8,7 +6,9 @@ declare(strict_types=1);
  */
 namespace Morpho\Test;
 
-class TestSuite extends \Morpho\Testing\TestSuite {
+use Morpho\Testing\TestSuite as BaseTestSuite;
+
+class TestSuite extends BaseTestSuite {
     public function testFilePaths(): iterable {
         (yield __DIR__ . '/ModuleTestSuite.php');
         (yield __DIR__ . '/Integration/TestSuite.php');

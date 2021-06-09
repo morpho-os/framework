@@ -9,23 +9,26 @@ namespace Morpho\App;
 use Morpho\Base\IFn;
 
 abstract class Controller implements IFn {
-    protected $request;
-
-    public function __invoke(mixed $request): IRequest {
-        $this->request = $request;
-        $this->beforeEach();
+    public function __invoke(mixed $request): mixed {
+        $this->beforeEach($request);
         $this->runAction($request);
-        $this->afterEach();
+        $this->afterEach($request);
         return $request;
     }
 
     /**
      * Called before calling of any action.
      */
-    protected function beforeEach(): void {
+    protected function beforeEach($request): void {
     }
 
-    protected function runAction(IRequest $request): void {
+    /**
+     * Called after calling of any action.
+     */
+    protected function afterEach($request): void {
+    }
+
+    protected function runAction($request): void {
         $handler = $request->handler();
         $methodName = $handler['method'];
         // @todo: ensure that is is safe to pass ...$args
@@ -33,7 +36,7 @@ abstract class Controller implements IFn {
         $actionResult = $this->$methodName(/*...array_values($args)*/);
         $result = $this->handleResult($actionResult);
         if (!$result instanceof IResponse) {
-            $response = $this->request->response();
+            $response = $this->request()->response();
             $response['result'] = $result;
         }
     }
@@ -42,9 +45,5 @@ abstract class Controller implements IFn {
         return $actionResult;
     }
 
-    /**
-     * Called after calling of any action.
-     */
-    protected function afterEach(): void {
-    }
+    abstract protected function request(): IRequest;
 }

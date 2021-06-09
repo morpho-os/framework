@@ -133,7 +133,7 @@ class RequestTest extends TestCase {
     }
 
     public function dataIsHttpMethod() {
-        foreach (Request::knownMethods() as $httpMethod) {
+        foreach ($this->request->knownMethods() as $httpMethod) {
             yield [$httpMethod];
         }
     }
