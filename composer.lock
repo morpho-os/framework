@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a1f1260deeea2e8328c908381eefd13d",
+    "content-hash": "a38232f12cb40cd7c64ff5f769bdf565",
     "packages": [
         {
             "name": "monolog/monolog",
@@ -1841,67 +1841,6 @@
                 }
             ],
             "time": "2021-06-08T06:49:46+00:00"
-        },
-        {
-            "name": "psalm/plugin-phpunit",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/psalm/psalm-plugin-phpunit.git",
-                "reference": "1ce1ef2c3fe8bed6ddaba1607c00b48a52145023"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-phpunit/zipball/1ce1ef2c3fe8bed6ddaba1607c00b48a52145023",
-                "reference": "1ce1ef2c3fe8bed6ddaba1607c00b48a52145023",
-                "shasum": ""
-            },
-            "require": {
-                "composer/package-versions-deprecated": "^1.10",
-                "composer/semver": "^1.4 || ^2.0 || ^3.0",
-                "ext-simplexml": "*",
-                "php": "^7.1 || ^8.0",
-                "vimeo/psalm": "dev-master || dev-4.x || ^4.5"
-            },
-            "conflict": {
-                "phpunit/phpunit": "<7.5"
-            },
-            "require-dev": {
-                "codeception/codeception": "^4.0.3",
-                "php": "^7.3 || ^8.0",
-                "phpunit/phpunit": "^7.5 || ^8.0 || ^9.0",
-                "squizlabs/php_codesniffer": "^3.3.1",
-                "weirdan/codeception-psalm-module": "^0.11.0",
-                "weirdan/prophecy-shim": "^1.0 || ^2.0"
-            },
-            "default-branch": true,
-            "type": "psalm-plugin",
-            "extra": {
-                "psalm": {
-                    "pluginClass": "Psalm\\PhpUnitPlugin\\Plugin"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psalm\\PhpUnitPlugin\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Matt Brown",
-                    "email": "github@muglug.com"
-                }
-            ],
-            "description": "Psalm plugin for PHPUnit",
-            "support": {
-                "issues": "https://github.com/psalm/psalm-plugin-phpunit/issues",
-                "source": "https://github.com/psalm/psalm-plugin-phpunit/tree/0.16.0"
-            },
-            "time": "2021-06-06T07:53:56+00:00"
         },
         {
             "name": "psr/container",
@@ -3971,10 +3910,9 @@
         "monolog/monolog": 20,
         "nikic/fast-route": 20,
         "willdurand/negotiation": 20,
-        "phpunit/phpunit": 20,
         "vimeo/psalm": 20,
         "orklah/psalm-insane-comparison": 20,
-        "psalm/plugin-phpunit": 20
+        "phpunit/phpunit": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

@@ -1,4 +1,7 @@
-<phpunit bootstrap="./bootstrap.php"
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="./bootstrap.php"
          colors="true"
          verbose="true"
          stopOnDefect="true"
@@ -15,13 +18,19 @@
          failOnWarning="true"
          beStrictAboutChangesToGlobalState="true"
          beStrictAboutOutputDuringTests="true"
-         beStrictAboutResourceUsageDuringSmallTests="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
-         beStrictAboutTodoAnnotatedTests="true"
-         beStrictAboutCoversAnnotation="true">
+         beStrictAboutCoversAnnotation="true"
+         cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="morpho-os/framework">
-            <file>TestSuite.php</file>
+            <!--<file>TestSuite.php</file>-->
+            <directory>Unit</directory>
+            <exclude>Unit/App/MessageTest.php</exclude>
+            <exclude>Unit/Caching/CacheTest.php</exclude>
+            <exclude>Unit/Tech/MySql/QueryTest.php</exclude>
+            <exclude>Unit/Tech/Php/BaseErrorHandlerTest.php</exclude>
+            <exclude>Unit/Tech/Php/DiscoverStrategyTest.php</exclude>
+            <exclude>Unit/Tech/Php/_files/ClassTypeDiscovererTest/Test.php</exclude>
         </testsuite>
     </testsuites>
 </phpunit>

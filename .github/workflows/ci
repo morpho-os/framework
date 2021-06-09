@@ -12,7 +12,6 @@ readonly frontendDirPath=$baseDirPath/frontend
 readonly testDb=test
 
 showFacts() {
-    echo --------------------------------------------------------------------------------
 #    env
     pwd
     ls -al "$baseDirPath"
@@ -20,7 +19,6 @@ showFacts() {
     cat /etc/os-release
     which -a php
     php --version
-    echo --------------------------------------------------------------------------------
 }
 
 installComposerPackages() {
@@ -76,6 +74,10 @@ prepareEnv() {
     mysql -u"$MORPHO_TEST_DB_USER" -p"$MORPHO_TEST_DB_PASSWORD" -e "SHOW DATABASES"
 }
 
+showSep() {
+    echo --------------------------------------------------------------------------------
+}
+
 runTests() {
     set +e
     make test
@@ -83,7 +85,7 @@ runTests() {
     set -e
     if [[ $exitCode -ne 0 ]]; then
         if [[ -d $backendDirPath/localhost/log ]]; then
-            echo --------------------------------------------------------------------------------
+            showSep
             echo "$backendDirPath/localhost/log/*"
             sudo sh -c "cat $backendDirPath/localhost/log/*"
         fi
@@ -110,7 +112,18 @@ deployResults() {
     ##    branch: master
 }
 
-showFacts
-prepareEnv
-runTests
-deployResults
+main() {
+    showSep
+    showFacts
+
+    showSep
+    prepareEnv
+
+    showSep
+    runTests
+
+    showSep
+    deployResults
+}
+
+main

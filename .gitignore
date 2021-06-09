@@ -8,7 +8,7 @@ selenium.log.*
 *.jar
 *.log
 geckodriver
-.phpunit.result.cache
+.phpunit*.cache
 *.tsbuildinfo
 /frontend/localhost/lib/base/*.js
 !/frontend/localhost/lib/base/index.js
