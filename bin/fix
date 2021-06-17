@@ -14,6 +14,8 @@ use Morpho\Base\Result;
 use Morpho\Fs\Dir;
 use Morpho\Tech\Php\CliPhpFileHeaderFixer;
 
+use Morpho\Testing\TestCase;
+
 use function Morpho\App\Cli\bootstrap;
 use function Morpho\App\Cli\showErrorLn;
 
@@ -81,7 +83,7 @@ function fixFileHeaders(bool $dryRun): Result {
             Dir::filePaths(
                 $baseDirPath . '/' . TEST_DIR_NAME,
                 fn ($filePath) => str_ends_with($filePath, '.php')
-                    && !str_contains($filePath, '/_files/')
+                    && !str_contains($filePath, '/' . TestCase::TEST_DIR . '/')
                     && !str_ends_with($filePath, '/' . TEST_DIR_NAME . '/Unit/Tech/Php/DebuggerTest.php'),
                 true
             ),

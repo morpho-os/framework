@@ -43,7 +43,7 @@ use function unlink;
 
 abstract class TestCase extends BaseTestCase {
     public const TIMEZONE = 'UTC';
-    private const TEST_DIR = 'test-data';
+    public const TEST_DIR = 'test-data';
 
     protected $backupGlobals = true;
     private array $tmpDirPaths = [];

@@ -84,6 +84,8 @@ define(__NAMESPACE__ . '\\INDENT', str_repeat(' ', INDENT_SIZE));
 const SHORTEN_TAIL = '...';
 const SHORTEN_LENGTH = 30;
 
+const TPL_FILE_EXT = '.php.tpl';
+
 // https://stackoverflow.com/questions/23837286/why-does-php-not-provide-an-epsilon-constant-for-floating-point-comparisons
 // Can be used in comparison operations with real numbers.
 const EPS = 0.00001;
