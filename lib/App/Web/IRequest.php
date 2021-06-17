@@ -11,6 +11,12 @@ use Morpho\App\IRequest as IBaseRequest;
 use Morpho\App\Web\Uri;
 
 interface IRequest extends IBaseRequest {
+    public function setServerVars(array $vars): void;
+
+    public function setServerVar(string $name, mixed $val): void;
+
+    public function serverVar(string $name, $default = null): mixed;
+
     public function setResponse(IResponse $response): void;
 
     public function response(): IResponse;
@@ -19,13 +25,17 @@ interface IRequest extends IBaseRequest {
 
     public function method(): string;
 
-    public function isDeleteMethod(): bool;
-
     public function isGetMethod(): bool;
+
+    public function isPostMethod(): bool;
+
+    public function isDeleteMethod(): bool;
 
     public function isPatchMethod(): bool;
 
-    public function isPostMethod(): bool;
+    public function isPutMethod(): bool;
+
+    public function isHeadMethod(): bool;
 
     public function knownMethods(): array;
 

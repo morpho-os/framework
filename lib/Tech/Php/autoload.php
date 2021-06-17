@@ -5,12 +5,12 @@
  * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.
  */
 namespace {
-
     use Morpho\Tech\Php\Debugger;
 
     require_once __DIR__ . '/Trace.php';
     require_once __DIR__ . '/Frame.php';
     require_once __DIR__ . '/Debugger.php';
+
     if (!function_exists('d')) {
         function d(...$args) {
             $debugger = Debugger::instance();
@@ -28,8 +28,8 @@ namespace {
         }
     }
 }
-namespace Morpho\Tech\Php {
 
+namespace Morpho\Tech\Php {
     require_once __DIR__ . '/PhpErrorException.php';
 
     const LICENSE_COMMENT = "/**\n * This file is part of morpho-os/framework\n * It is distributed under the 'Apache License Version 2.0' license.\n * See the https://github.com/morpho-os/framework/blob/master/LICENSE for the full license text.\n */";
@@ -39,6 +39,7 @@ namespace Morpho\Tech\Php {
     use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
     use PhpParser\Node\Stmt\Trait_ as TraitStmt;
     use PhpParser\NodeTraverser;
+    use PhpParser\NodeVisitorAbstract;
     use PhpParser\ParserFactory;
     use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
     use RuntimeException;
@@ -107,5 +108,43 @@ namespace Morpho\Tech\Php {
 
     function isShebangNode(Node $node): bool {
         return $node instanceof Node\Stmt\InlineHTML && substr($node->value, 0, 2) == '#!';
+    }
+
+    function varToStr(mixed $var, bool $removeNumericKeys = true): string {
+        $visitor = new class ($removeNumericKeys) extends NodeVisitorAbstract {
+            public function __construct(public $removeNumericKeys) {
+            }
+
+            public function enterNode(Node $node) {
+                if ($node instanceof Node\Expr\Array_) {
+                    $node->setAttribute('kind', Node\Expr\Array_::KIND_SHORT);
+                } elseif ($node instanceof Node\Expr\ArrayItem) {
+                    if ($this->removeNumericKeys && $node->key instanceof Node\Scalar\LNumber) {
+                        $node->key = null;
+                    }
+                }
+                return parent::enterNode($node);
+            }
+        };
+        $nodes = parse('<?php ' . var_export($var, true) . ';');
+        visit($nodes, [$visitor]);
+
+        return rtrim(pp($nodes), ';');
+    }
+
+    function removeComments(string $source): string {
+        $output = '';
+        foreach (token_get_all($source) as $token) {
+            if (is_string($token)) {
+                $output .= $token;
+            } elseif (!in_array($token[0], [T_COMMENT, T_DOC_COMMENT])) {
+                $output .= $token[1];
+            }
+        }
+
+        // replace multiple new lines with a newline
+        $output = preg_replace(['/\s+$/Sm', '/\n+/S'], "\n", $output);
+
+        return $output;
     }
 }

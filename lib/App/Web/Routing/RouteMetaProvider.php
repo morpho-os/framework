@@ -6,7 +6,7 @@
  */
 namespace Morpho\App\Web\Routing;
 
-use Morpho\App\Web\Request;
+use Morpho\App\Web\HttpMethod;
 use Morpho\Base\IFn;
 use Morpho\Fs\Path;
 use RuntimeException;
@@ -99,7 +99,7 @@ class RouteMetaProvider implements IFn {
     public static function parseDocComment(string $docComment): array {
         $parsed = [];
         if (false !== strpos($docComment, '@')) {
-            $httpMethodsRegexpPart = '(?:' . implode('|', Request::knownMethods()) . ')';
+            $httpMethodsRegexpPart = '(?:' . implode('|', HttpMethod::vals()) . ')';
             $routeRegExp = '~'
                 . '@(?<httpMethod>' . $httpMethodsRegexpPart . '(?:\|' . $httpMethodsRegexpPart . ')?)    # method (required)
                 (?:\s+(?<uri>[^*\s]+))?                                                                   # uri    (optional)

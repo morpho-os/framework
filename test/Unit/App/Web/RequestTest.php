@@ -7,6 +7,7 @@
 namespace Morpho\Test\Unit\App\Web;
 
 use Morpho\App\Web\HttpMethod;
+use Morpho\App\Web\IRequest;
 use Morpho\App\Web\Request;
 use Morpho\App\Web\Uri\Uri;
 use Morpho\Testing\TestCase;
@@ -15,11 +16,12 @@ use function array_merge;
 use function rawurlencode;
 
 class RequestTest extends TestCase {
-    private Request $request;
+    private IRequest $request;
 
     public function setUp(): void {
         parent::setUp();
-        $this->request = new Request();
+        $_GET = $_POST = $_REQUEST = $_COOKIE = [];
+        $this->request = $this->mkRequest([]);
     }
 
     public function testResponse_ReturnsTheSameInstance() {
@@ -121,19 +123,21 @@ class RequestTest extends TestCase {
 
     public function testUri_HasValidComponents() {
         $trustedProxyIp = '127.0.0.3';
-        $_SERVER['REMOTE_ADDR'] = $trustedProxyIp;
         $this->request->setTrustedProxyIps([$trustedProxyIp]);
-        $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
-        $_SERVER['HTTP_HOST'] = 'blog.example.com:8042';
-        $_SERVER['REQUEST_URI'] = '/top.htm?page=news&skip=10';
-        $_SERVER['QUERY_STRING'] = 'page=news&skip=10';
-        $_SERVER['SCRIPT_NAME'] = '/';
+        $this->request->setServerVars([
+            'REMOTE_ADDR' => $trustedProxyIp,
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTP_HOST' => 'blog.example.com:8042',
+            'REQUEST_URI' => '/top.htm?page=news&skip=10',
+            'QUERY_STRING' => 'page=news&skip=10',
+            'SCRIPT_NAME' => '/',
+        ]);
         $uri = $this->request->uri();
         $this->assertEquals('https://blog.example.com:8042/top.htm?page=news&skip=10', $uri->toStr(null, true));
     }
 
     public function dataIsHttpMethod() {
-        foreach ($this->request->knownMethods() as $httpMethod) {
+        foreach (HttpMethod::vals() as $httpMethod) {
             yield [$httpMethod];
         }
     }
@@ -359,7 +363,7 @@ class RequestTest extends TestCase {
     }
 
     public function dataMethod() {
-        foreach (Request::knownMethods() as $httpMethod) {
+        foreach (HttpMethod::vals() as $httpMethod) {
             yield [$httpMethod];
         }
     }
@@ -396,5 +400,9 @@ class RequestTest extends TestCase {
      */
     public function testMethod_Default($httpMethod) {
         $this->checkHttpMethod(['REQUEST_METHOD' => $httpMethod], $httpMethod);
+    }
+
+    private function mkRequest($serverVars): IRequest {
+        return new Request($serverVars);
     }
 }

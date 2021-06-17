@@ -39,6 +39,7 @@ use function Morpho\Base\{all,
     indent,
     index,
     isSubset,
+    isUtf8Text,
     last,
     lastPos,
     lines,
@@ -64,7 +65,7 @@ use function Morpho\Base\{all,
     toIt,
     toJson,
     tpl,
-    trimMore,
+    etrim,
     ucfirst,
     underscore,
     underscoreKeys,
@@ -374,7 +375,7 @@ class FunctionsTest extends TestCase {
         $this->assertEquals('a', deleteDups('aaa', 'a'));
     }
 
-    public function testTrimMore() {
+    public function testEtrim() {
         $t = [
             '  ff  ',
             ' foo ' => [
@@ -387,9 +388,9 @@ class FunctionsTest extends TestCase {
                 'bar',
             ],
         ];
-        $this->assertEquals($expected, trimMore($t, '-'));
+        $this->assertEquals($expected, etrim($t, '-'));
 
-        $this->assertEquals('ff', trimMore('__ ff  ', '_'));
+        $this->assertEquals('ff', etrim('__ ff  ', '_'));
     }
 
     public function testLast() {
@@ -1561,5 +1562,15 @@ OUT;
      */
     public function testMerge(array $a, array $b, bool $resetIntKeys, array $expected) {
         $this->assertEquals($expected, merge($a, $b, $resetIntKeys));
+    }
+
+    public function testIsUtf8Text() {
+        $this->assertTrue(isUtf8Text('123'));
+        $this->assertTrue(isUtf8Text("123\n"));
+        $this->assertTrue(isUtf8Text("\n"));
+        $this->assertTrue(isUtf8Text("  \n"));
+        $this->assertFalse(isUtf8Text("\xc3\x28"));
+        $this->assertTrue(isUtf8Text("\x00"));
+        $this->assertTrue(isUtf8Text("\x40"));
     }
 }

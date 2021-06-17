@@ -21,7 +21,7 @@ use function intval;
 use function is_array;
 use function is_string;
 use function ltrim;
-use function Morpho\Base\trimMore;
+use function Morpho\Base\etrim;
 use function preg_match;
 use function preg_replace;
 use function strlen;
@@ -41,19 +41,7 @@ use function ucwords;
  * @license https://github.com/zendframework/zend-http/blob/master/LICENSE.md New BSD License
  */
 class Request extends BaseRequest implements IRequest {
-    protected array $knownMethods = [
-        /*
-        HttpMethod::CONNECT,
-        */
-        HttpMethod::DELETE,
-        HttpMethod::GET,
-        //HttpMethod::HEAD,
-        //HttpMethod::OPTIONS,
-        HttpMethod::POST,
-        HttpMethod::PATCH,
-        //HttpMethod::PUT,
-        //HttpMethod::TRACE,
-    ];
+    protected array $knownMethods;
     protected ?ArrayObject $headers = null;
     protected ?string $originalMethod = null;
     protected string|bool|null $overwrittenMethod;
@@ -64,11 +52,35 @@ class Request extends BaseRequest implements IRequest {
     private ?IResponse $response = null;
 
     public function __construct(?array $serverVars = null) {
+        $this->knownMethods = HttpMethod::vals();
         parent::__construct([]);
         $this->serverVars = $serverVars;
         $method = $this->detectOriginalMethod();
         $this->originalMethod = null !== $method ? $method : HttpMethod::GET;
         $this->overwrittenMethod = $this->detectOverwrittenMethod();
+    }
+
+    public function setServerVars(array $vars): void {
+        if (null !== $this->serverVars) {
+            $this->serverVars = $vars;
+        } else {
+            $_SERVER = $vars;
+        }
+    }
+
+    public function setServerVar(string $name, mixed $val): void {
+        if (null !== $this->serverVars) {
+            $this->serverVars[$name] = $val;
+        } else {
+            $_SERVER[$name] = $val;
+        }
+    }
+
+    public function serverVar(string $name, $default = null): mixed {
+        if (null !== $this->serverVars) {
+            return $this->serverVars[$name] ?? $default;
+        }
+        return $_SERVER[$name] ?? $default;
     }
 
     public function setResponse(IResponse $response): void {
@@ -97,20 +109,28 @@ class Request extends BaseRequest implements IRequest {
             : $this->originalMethod;
     }
 
-    public function isDeleteMethod(): bool {
-        return $this->method() === HttpMethod::DELETE;
-    }
-
     public function isGetMethod(): bool {
         return $this->method() === HttpMethod::GET;
+    }
+
+    public function isPostMethod(): bool {
+        return $this->method() === HttpMethod::POST;
+    }
+
+    public function isDeleteMethod(): bool {
+        return $this->method() === HttpMethod::DELETE;
     }
 
     public function isPatchMethod(): bool {
         return $this->method() === HttpMethod::PATCH;
     }
 
-    public function isPostMethod(): bool {
-        return $this->method() === HttpMethod::POST;
+    public function isPutMethod(): bool {
+        return $this->method() === HttpMethod::PUT;
+    }
+
+    public function isHeadMethod(): bool {
+        return $this->method() === HttpMethod::HEAD;
     }
 
     /*
@@ -118,16 +138,8 @@ class Request extends BaseRequest implements IRequest {
         return $this->method() === self::CONNECT_METHOD;
     }
 
-    public function isHeadMethod(): bool {
-        return $this->method() === self::HEAD_METHOD;
-    }
-
-     public function isOptionsMethod(): bool {
-         return $this->method() === self::OPTIONS_METHOD;
-     }
-
-    public function isPutMethod(): bool {
-        return $this->method() === self::PUT_METHOD;
+    public function isOptionsMethod(): bool {
+        return $this->method() === self::OPTIONS_METHOD;
     }
 
     public function isTraceMethod(): bool {
@@ -174,17 +186,17 @@ class Request extends BaseRequest implements IRequest {
     public function query($name = null, callable|bool $filter = true): mixed {
         // NB: On change sync with data() and post()
         if (null === $name) {
-            return $filter ? trimMore($_GET) : $_GET;
+            return $filter ? etrim($_GET) : $_GET;
         }
         if (is_array($name)) {
             $data = array_intersect_key($_GET, array_flip(array_values($name)));
             $data += array_fill_keys($name, null);
-            return $filter ? trimMore($data) : $data;
+            return $filter ? etrim($data) : $data;
         }
         if ($filter) {
             // todo: support custom $filter
             return isset($_GET[$name])
-                ? trimMore($_GET[$name])
+                ? etrim($_GET[$name])
                 : null;
         }
         return isset($_GET[$name])
@@ -199,17 +211,17 @@ class Request extends BaseRequest implements IRequest {
     public function post($name = null, callable|bool $filter = true): mixed {
         // NB: On change sync with data() and query()
         if (null === $name) {
-            return $filter ? trimMore($_POST) : $_POST;
+            return $filter ? etrim($_POST) : $_POST;
         }
         if (is_array($name)) {
             $data = array_intersect_key($_POST, array_flip(array_values($name)));
             $data += array_fill_keys($name, null);
-            return $filter ? trimMore($data) : $data;
+            return $filter ? etrim($data) : $data;
         }
         if ($filter) {
             // todo: support custom $filter
             return isset($_POST[$name])
-                ? trimMore($_POST[$name])
+                ? etrim($_POST[$name])
                 : null;
         }
         return isset($_POST[$name])
@@ -232,17 +244,17 @@ class Request extends BaseRequest implements IRequest {
     public function data(array $source, $name = null, callable|bool $filter = true): mixed {
         // NB: On change sync code with query() and post()
         if (null === $name) {
-            return $filter ? trimMore($source) : $source;
+            return $filter ? etrim($source) : $source;
         }
         if (is_array($name)) {
             $data = array_intersect_key($source, array_flip(array_values($name)));
             $data += array_fill_keys($name, null);
-            return $filter ? trimMore($data) : $data;
+            return $filter ? etrim($data) : $data;
         }
         if ($filter) {
             // todo: support custom $filter
             return isset($source[$name])
-                ? trimMore($source[$name])
+                ? etrim($source[$name])
                 : null;
         }
         return isset($source[$name])
@@ -338,7 +350,7 @@ class Request extends BaseRequest implements IRequest {
 
     protected function initHeaders(): void {
         $headers = [];
-        foreach (($this->serverVars ?: $_SERVER) as $key => $value) {
+        foreach (null !== $this->serverVars ? $this->serverVars : $_SERVER as $key => $value) {
             if (strpos($key, 'HTTP_') === 0) {
                 if (strpos($key, 'HTTP_COOKIE') === 0) {
                     // Cookies are handled using the $_COOKIE superglobal
@@ -536,12 +548,5 @@ class Request extends BaseRequest implements IRequest {
             }
         }
         return null;
-    }
-
-    protected function serverVar(string $name, $default = null): mixed {
-        if (null !== $this->serverVars) {
-            return $this->serverVars[$name] ?? $default;
-        }
-        return $_SERVER[$name] ?? $default;
     }
 }

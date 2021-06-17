@@ -6,22 +6,23 @@
  */
 namespace Morpho\Test\Unit\Tech\Php;
 
-use Morpho\Tech\Php\Code;
 use Morpho\Testing\TestCase;
 
-class CodeTest extends TestCase {
+use function Morpho\Tech\Php\varToStr;
+
+class FunctionsTest extends TestCase {
     public function testVarToStr() {
         $this->assertSame(
             "['foo', 'bar']",
-            Code::varToStr(['foo', 'bar'])
+            varToStr(['foo', 'bar'])
         );
         $this->assertSame(
             "[0 => 'foo', 1 => 'bar']",
-            Code::varToStr(['foo', 'bar'], false)
+            varToStr(['foo', 'bar'], false)
         );
         $this->assertSame(
             "['foo' => 'bar']",
-            Code::varToStr(['foo' => 'bar'])
+            varToStr(['foo' => 'bar'])
         );
     }
 }

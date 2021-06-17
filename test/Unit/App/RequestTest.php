@@ -18,16 +18,8 @@ class RequestTest extends MessageTest {
     public function setUp(): void {
         parent::setUp();
         $this->request = new class extends Request {
-            protected function mkResponse(): IResponse {
-                throw new NotImplementedException(__METHOD__);
-            }
-
-            public function arg(string|int $nameOrIndex) {
-                throw new NotImplementedException(__METHOD__);
-            }
-
-            public function args($namesOrIndexes = null): mixed {
-                throw new NotImplementedException(__METHOD__);
+            public function response(): IResponse {
+                throw new NotImplementedException();
             }
         };
     }

@@ -280,7 +280,7 @@ function dasherize(string|Stringable|int $list, string $additionalChars = '', bo
         )
     );
     if ($trim) {
-        return trimMore($result, '-');
+        return etrim($result, '-');
     }
 
     return $result;
@@ -309,7 +309,7 @@ function underscore(Stringable|string $s, bool $trim = true) {
         )
     );
     if ($trim) {
-        return trimMore($result, '_');
+        return etrim($result, '_');
     }
 
     return $result;
@@ -412,13 +412,13 @@ function sanitize(string|Stringable|int $list, string $allowedCharacters, bool $
 }
 
 /**
- * Modified version of \trim() that removes all characters from the $chars and whitespaces until non of them will be present in the ends of the source string.
+ * extended trim/etrim: modified version of \trim() that removes all characters from the $chars and whitespaces until non of them will be present in the ends of the source string.
  */
-function trimMore(string|Stringable|iterable|int|float $list, string $chars = null): string|array {
+function etrim(string|Stringable|iterable|int|float $list, string $chars = null): string|array {
     if (is_array($list)) {
         $r = [];
         foreach ($list as $k => $v) {
-            $r[$k] = $v === null ? '' : trimMore($v, $chars);
+            $r[$k] = $v === null ? '' : etrim($v, $chars);
         }
         return $r;
     }
@@ -1461,3 +1461,6 @@ function compileRe(array $regexes, string $additionalModifiers = ''): string {
     return '~(' . str_replace('~', '\~', implode(')|(', $regexes)) . ')~A' . $additionalModifiers;
 }
 
+function isUtf8Text(string $text): bool {
+    return (bool) preg_match('/.*/us', $text); // [u/PCRE_UTF8](https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php)
+}
