@@ -46,6 +46,10 @@ Documentation does not exist yet.
 
 [![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
 
+## Third-party code
+
+* lib/Tech/Python uses code from [CPython project](https://www.python.org/)
+
 ## License
 
 [Apache-2.0](LICENSE)

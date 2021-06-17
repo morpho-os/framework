@@ -57,6 +57,12 @@ clean-js:
 
 clean-assets: clean-css clean-js
 
+###############################################################################
+# Docker
+
+build:
+	docker-compose build
+
 ################################################################################
 
 clean: clean-assets
@@ -67,15 +73,19 @@ update:
 	# We use `install` instead of `update` to run the [scripts](https://docs.npmjs.com/misc/scripts#description) defined in the package.json file.
 	cd public && npm install
 
-setup:
+init:
 	composer require --dev psalm/plugin-phpunit && vendor/bin/psalm-plugin enable psalm/plugin-phpunit
 	test -e package.json || echo '{}' > package.json
 	npm install -g --save-dev @types/node
 	npm install -g --save typescript@next concurrently
+
+pull-peg:
+	curl -sSfL https://raw.githubusercontent.com/python/cpython/main/Grammar/Tokens -o lib/Tech/Python/Tokens
+	curl -sSfL https://raw.githubusercontent.com/python/cpython/main/Grammar/python.gram -o lib/Tech/Python/python.gram
 
 # `help` taken from [containerd](https://github.com/containerd/containerd/blob/master/Makefile)
 help: ## this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
 .SILENT:
-.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css watch-css clean-css clean-js clean-assets clean update setup
+.PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css watch-css clean-css clean-js clean-assets build clean update init pull-peg help

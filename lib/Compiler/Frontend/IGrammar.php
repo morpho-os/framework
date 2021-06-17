@@ -8,5 +8,5 @@ namespace Morpho\Compiler\Frontend;
 
 // Defines ILanguage yielding set of strings which it consists of.
 interface IGrammar {
-    public function rules();
+    public function rules(): iterable;
 }

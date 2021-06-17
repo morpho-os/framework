@@ -42,7 +42,9 @@ use function uniqid;
 use function unlink;
 
 abstract class TestCase extends BaseTestCase {
-    const TIMEZONE = 'UTC';
+    public const TIMEZONE = 'UTC';
+    private const TEST_DIR = 'test-data';
+
     protected $backupGlobals = true;
     private array $tmpDirPaths = [];
     private array $tmpFilePaths = [];
@@ -204,7 +206,7 @@ abstract class TestCase extends BaseTestCase {
      */
     protected function getTestDirPath(): string {
         $classFilePath = $this->classFilePath();
-        return dirname($classFilePath) . '/_files/' . pathinfo($classFilePath, PATHINFO_FILENAME);
+        return dirname($classFilePath) . '/' . self::TEST_DIR . '/' . pathinfo($classFilePath, PATHINFO_FILENAME);
     }
 
     private function classFilePath(): string {
@@ -292,7 +294,7 @@ abstract class TestCase extends BaseTestCase {
     }
 
     protected function randomString(): string {
-        return md5(uniqid(microtime(true)));
+        return md5(uniqid((string) microtime(true)));
     }
 
     protected function markTestAsNotRisky(): void {

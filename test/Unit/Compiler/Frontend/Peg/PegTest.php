@@ -6,14 +6,19 @@
  */
 namespace Morpho\Test\Unit\Compiler\Frontend\Peg;
 
+use Morpho\Compiler\Frontend\IGrammar;
+use Morpho\Compiler\Frontend\Peg\Peg;
 use Morpho\Testing\TestCase;
 
 class PegTest extends TestCase {
+    private Peg $peg;
+
     public function setUp(): void {
         parent::setUp();
+        $this->peg = new Peg();
     }
 
-    public function testPeg() {
-        $this->markTestIncomplete();
+    public function testInterface() {
+        $this->assertInstanceOf(IGrammar::class, $this->peg);
     }
 }

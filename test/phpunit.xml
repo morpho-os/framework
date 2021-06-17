@@ -30,7 +30,7 @@
             <exclude>Unit/Tech/MySql/QueryTest.php</exclude>
             <exclude>Unit/Tech/Php/BaseErrorHandlerTest.php</exclude>
             <exclude>Unit/Tech/Php/DiscoverStrategyTest.php</exclude>
-            <exclude>Unit/Tech/Php/_files/ClassTypeDiscovererTest/Test.php</exclude>
+            <exclude>Unit/Tech/Php/test-data/ClassTypeDiscovererTest/Test.php</exclude>
         </testsuite>
     </testsuites>
 </phpunit>
