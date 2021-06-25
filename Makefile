@@ -80,8 +80,9 @@ init:
 	npm install -g --save typescript@next concurrently
 
 pull-peg:
-	curl -sSfL https://raw.githubusercontent.com/python/cpython/main/Grammar/Tokens -o lib/Tech/Python/Tokens
-	curl -sSfL https://raw.githubusercontent.com/python/cpython/main/Grammar/python.gram -o lib/Tech/Python/python.gram
+	dl 'https://raw.githubusercontent.com/python/cpython/main/Grammar/Tokens' 'lib/Tech/Python/Tokens'
+	dl 'https://raw.githubusercontent.com/python/cpython/main/Grammar/python.gram' 'lib/Tech/Python/python.peg'
+	dl 'https://raw.githubusercontent.com/python/cpython/main/Tools/peg_generator/pegen/metagrammar.gram' 'lib/Compiler/Frontend/Peg/peg.peg'
 
 # `help` taken from [containerd](https://github.com/containerd/containerd/blob/master/Makefile)
 help: ## this help
@@ -89,3 +90,7 @@ help: ## this help
 
 .SILENT:
 .PHONY: all test unit-test integration-test backend-test module-test frontend-test lint assets js watch-js css watch-css clean-css clean-js clean-assets build clean update init pull-peg help
+
+define dl
+	curl -sSfL $(1) -o $(2)
+endef

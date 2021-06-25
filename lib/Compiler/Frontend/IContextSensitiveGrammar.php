@@ -6,7 +6,5 @@
  */
 namespace Morpho\Compiler\Frontend;
 
-use RuntimeException;
-
-class SyntaxError extends RuntimeException {
+interface IContextSensitiveGrammar extends IGrammar {
 }

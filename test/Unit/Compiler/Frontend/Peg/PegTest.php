@@ -6,10 +6,9 @@
  */
 namespace Morpho\Test\Unit\Compiler\Frontend\Peg;
 
-use Morpho\Compiler\Frontend\IGrammar;
-use Morpho\Compiler\Frontend\ILexer;
-use Morpho\Compiler\Frontend\IParser;
+use Morpho\Compiler\Frontend\Peg\Grammar;
 use Morpho\Compiler\Frontend\Peg\Peg;
+use Morpho\Compiler\ICompiler;
 use Morpho\Testing\TestCase;
 
 class PegTest extends TestCase {
@@ -21,14 +20,12 @@ class PegTest extends TestCase {
     }
 
     public function testInterface() {
-        $this->assertInstanceOf(IGrammar::class, $this->peg);
+        $this->assertInstanceOf(ICompiler::class, $this->peg);
     }
 
-    public function testRegenParser() {
-        $this->assertInstanceOf(IParser::class, $this->peg->regenParser());
-    }
-
-    public function testRegenLexer() {
-        $this->assertInstanceOf(ILexer::class, $this->peg->regenLexer());
+    public function testInvoke() {
+        $context = ['grammar' => new Grammar()];
+        $result = $this->peg->__invoke($context);
+        $this->assertNotEmpty($result); // todo
     }
 }

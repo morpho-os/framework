@@ -24,6 +24,7 @@ use const Morpho\App\CONF_DIR_NAME;
 use const Morpho\App\LIB_DIR_NAME;
 use const Morpho\App\TEST_DIR_NAME;
 use const Morpho\Tech\Php\LICENSE_COMMENT;
+use const Morpho\Tech\Php\PHP_SHEBANG_FULL_RE;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -42,7 +43,7 @@ function fixFileHeaders(bool $dryRun): Result {
                 }
                 $fp = fopen($filePath, 'r');
                 $line = fgets($fp);
-                return (bool) preg_match('~^#!/usr/bin/env\\s+php$~', $line);
+                return (bool) preg_match(PHP_SHEBANG_FULL_RE, $line);
             },
             true,
         );
@@ -83,7 +84,7 @@ function fixFileHeaders(bool $dryRun): Result {
             Dir::filePaths(
                 $baseDirPath . '/' . TEST_DIR_NAME,
                 fn ($filePath) => str_ends_with($filePath, '.php')
-                    && !str_contains($filePath, '/' . TestCase::TEST_DIR . '/')
+                    && !str_contains($filePath, '/' . TestCase::TEST_DATA_DIR_NAME . '/')
                     && !str_ends_with($filePath, '/' . TEST_DIR_NAME . '/Unit/Tech/Php/DebuggerTest.php'),
                 true
             ),

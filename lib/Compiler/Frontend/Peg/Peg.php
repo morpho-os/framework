@@ -12,37 +12,31 @@
  */
 namespace Morpho\Compiler\Frontend\Peg;
 
-use Morpho\Base\NotImplementedException;
-use Morpho\Compiler\Frontend\IGrammar;
-use Morpho\Compiler\Frontend\ILexer;
-use Morpho\Compiler\Frontend\IParser;
-use Morpho\Compiler\Frontend\IProgram;
+use Morpho\Compiler\Frontend\IParserGen;
 
-class Peg implements IGrammar {
-    public function rules(): iterable {
-        throw new NotImplementedException(__METHOD__);
-    }
-
-    /**
-     * The name is inspired by Python's `make regen-token`
-     */
-    public function regenLexer(): ILexer {
-        return new class implements ILexer {
-            public function __invoke(mixed $context): mixed {
-                throw new NotImplementedException();
-            }
+class Peg implements IParserGen {
+    public function frontend(): callable {
+        return function (mixed $context): mixed {
+            $context = (new GrammarParser(new GrammarLexer()))($context);
+            return (new GrammarChecker())($context);
         };
     }
 
-    /**
-     * The name is inspired by Python's `make regen-pegen`
-     */
-    public function regenParser(): IParser {
-        return new class implements IParser {
-            public function __invoke($context): IProgram {
-                throw new NotImplementedException();
-            }
+    public function midend(): callable {
+        return function (mixed $context): mixed {
+            return $context;
         };
     }
 
+    public function backend(): callable {
+        return function (mixed $context): mixed {
+            return new ParserGen($context);
+        };
+    }
+
+    public function __invoke(mixed $context): mixed {
+        $context = $this->frontend()($context);
+        $context = $this->midend()($context);
+        return $this->backend()($context);
+    }
 }

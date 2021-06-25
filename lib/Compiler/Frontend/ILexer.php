@@ -6,12 +6,6 @@
  */
 namespace Morpho\Compiler\Frontend;
 
-use Morpho\Base\IFn;
-
-// Lexexical analyzer/Scanner/Tokenizer
-interface ILexer extends IFn {
-    /**
-     * Text => Stream<Token>
-     */
-    public function __invoke(mixed $context): mixed;
+// Lexical analyzer/Scanner/Tokenizer
+interface ILexer {
 }

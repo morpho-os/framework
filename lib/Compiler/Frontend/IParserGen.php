@@ -6,7 +6,11 @@
  */
 namespace Morpho\Compiler\Frontend;
 
-use RuntimeException;
+use Morpho\Compiler\ICompiler;
 
-class SyntaxError extends RuntimeException {
+/**
+ * Generates a parser by a grammar.
+ * Examples: PEG, Bison.
+ */
+interface IParserGen extends ICompiler {
 }

@@ -43,7 +43,7 @@ use function unlink;
 
 abstract class TestCase extends BaseTestCase {
     public const TIMEZONE = 'UTC';
-    public const TEST_DIR = 'test-data';
+    public const TEST_DATA_DIR_NAME = 'test-data';
 
     protected $backupGlobals = true;
     private array $tmpDirPaths = [];
@@ -206,7 +206,7 @@ abstract class TestCase extends BaseTestCase {
      */
     protected function getTestDirPath(): string {
         $classFilePath = $this->classFilePath();
-        return dirname($classFilePath) . '/' . self::TEST_DIR . '/' . pathinfo($classFilePath, PATHINFO_FILENAME);
+        return dirname($classFilePath) . '/' . self::TEST_DATA_DIR_NAME . '/' . pathinfo($classFilePath, PATHINFO_FILENAME);
     }
 
     private function classFilePath(): string {
