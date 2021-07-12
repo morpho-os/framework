@@ -8,22 +8,22 @@ use Morpho\App\Web\Controller;
  */
 class ErrorController extends Controller {
     public function badRequest() {
-        $this->request->response()->setStatusCode(400);
+        $this->request()->response()->setStatusCode(400);
     }
 
     public function forbidden() {
-        $this->request->response()->setStatusCode(403);
+        $this->request()->response()->setStatusCode(403);
     }
 
     public function notFound() {
-        $this->request->response()->setStatusCode(404);
+        $this->request()->response()->setStatusCode(404);
     }
 
     public function uncaught() {
-        $this->request->response()->setStatusCode(500);
+        $this->request()->response()->setStatusCode(500);
     }
 
     public function methodNotAllowed() {
-        $this->request->response()->setStatusCode(405);
+        $this->request()->response()->setStatusCode(405);
     }
 }

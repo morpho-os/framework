@@ -44,7 +44,7 @@ Documentation does not exist yet.
 
 ## CI status
 
-[![CI status](https://github.com/morpho-os/framework/workflows/CI/badge.svg)](https://github.com/morpho-os/framework/actions?query=workflow%3ACI)
+[![CI](https://github.com/morpho-os/framework/actions/workflows/main.yml/badge.svg)](https://github.com/morpho-os/framework/actions/workflows/main.yml)
 
 ## Third-party code
 
