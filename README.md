@@ -42,9 +42,9 @@ Only Linux, other OSs are not supported.
 
 Documentation does not exist yet.
 
-## CI status
+## Automation and QA
 
-[![CI](https://github.com/morpho-os/framework/actions/workflows/main.yml/badge.svg)](https://github.com/morpho-os/framework/actions/workflows/main.yml)
+[![main](https://github.com/morpho-os/framework/actions/workflows/main.yml/badge.svg)](https://github.com/morpho-os/framework/actions/workflows/main.yml)
 
 ## Third-party code
 
