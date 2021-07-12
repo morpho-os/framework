@@ -28,10 +28,7 @@ abstract class Pipe implements IPipe {
         ++$this->index;
     }
 
-    /**
-     * @return int|string
-     */
-    public function key() {
+    public function key(): int|string {
         return $this->index;
     }
 

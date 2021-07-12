@@ -10,7 +10,7 @@ use JsonSerializable;
 use UnexpectedValueException;
 
 /**
- * Useful for monadic error-handling code which can be composed. Inspired by F#, Haskell and Rust.
+ * Useful for monadic error-handling code which can be composed. Inspired by F#, Haskell (Maybe) and Rust.
  */
 abstract class Result extends Monad implements JsonSerializable {
     public function bind(callable $fn): Result {

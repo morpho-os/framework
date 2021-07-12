@@ -130,6 +130,7 @@ class File extends Entry {
         $defaultConf = [
             'skipEmptyLines' => true,
             'rtrim'          => true,
+            'ltrim'          => true,
         ];
         if ($filterOrConf) { // If a filter was specified, don't ignore empty lines.
             $defaultConf['skipEmptyLines'] = false;
@@ -140,8 +141,15 @@ class File extends Entry {
             throw new Exception("Unable to open the '$filePath' file for reading");
         }
         try {
+            $ltrim = $conf['ltrim'];
+            $rtrim = $conf['rtrim'];
+            $trim = $ltrim && $rtrim;
             while (false !== ($line = fgets($handle))) {
-                if ($conf['rtrim']) {
+                if ($trim) {
+                    $line = trim($line);
+                } elseif ($ltrim) {
+                    $line = ltrim($line);
+                } elseif ($rtrim) {
                     $line = rtrim($line);
                 }
                 if ($conf['skipEmptyLines']) {

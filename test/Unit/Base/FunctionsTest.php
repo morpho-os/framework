@@ -85,6 +85,8 @@ use function ob_get_clean;
 use function ob_start;
 use function property_exists;
 
+use const Morpho\Base\INDENT;
+
 class FunctionsTest extends TestCase {
     private $tmpHandle;
 
