@@ -2,7 +2,7 @@
 
 # [GitHub Actions Documentation](https://help.github.com/en/actions)
 
-set -euo pipefail
+set -eu
 
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
