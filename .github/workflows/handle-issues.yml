@@ -1,6 +1,7 @@
 # https://github.com/srggrs/assign-one-project-github-ac
 #name: handle-issues
 on:
+  workflow_dispatch:
   issues:
     types: [opened, labeled]
 #  pull_request:
