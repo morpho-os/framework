@@ -1,5 +1,4 @@
 # Based on https://github.com/shivammathur/test-setup-php/blob/master/.github/workflows/workflow.yml
-name: test
 on:
   workflow_dispatch:
   #  push:
