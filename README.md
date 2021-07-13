@@ -44,7 +44,8 @@ Documentation does not exist yet.
 
 ## Automation and QA
 
-[![main](https://github.com/morpho-os/framework/actions/workflows/main.yml/badge.svg)](https://github.com/morpho-os/framework/actions/workflows/main.yml)
+* [![.github/workflows/test.yml](https://github.com/morpho-os/framework/actions/workflows/test.yml/badge.svg)](https://github.com/morpho-os/framework/actions/workflows/test.yml)
+* [![.github/workflows/handle-issues.yml](https://github.com/morpho-os/framework/actions/workflows/handle-issues.yml/badge.svg)](https://github.com/morpho-os/framework/actions/workflows/handle-issues.yml)
 
 ## Third-party code
 
