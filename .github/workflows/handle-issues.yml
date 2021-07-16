@@ -1,4 +1,4 @@
-# https://github.com/srggrs/assign-one-project-github-ac
+# https://github.com/srggrs/assign-one-project-github-action
 #name: handle-issues
 on:
   workflow_dispatch:
