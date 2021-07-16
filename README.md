@@ -49,7 +49,7 @@ Documentation does not exist yet.
 
 ## Third-party code
 
-* lib/Tech/Python uses code from [CPython project](https://www.python.org/)
+* lib/Tech/Python uses code from [Python](https://www.python.org/)
 
 ## License
 
