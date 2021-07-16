@@ -70,22 +70,12 @@ class ServiceManagerTest extends TestCase {
         $this->assertTrue(isset($this->serviceManager['foo']));
     }
 
-    public function testConstructor_SetsServiceManagerIfServiceImplementsServiceManagerInterface() {
-        $service = new class implements IHasServiceManager {
-            private ?IServiceManager $serviceManager = null;
+    public function testConstructor_SetServicesViaConstructor() {
+        $service = new stdClass();
 
-            public function setServiceManager(IServiceManager $serviceManager): self {
-                $this->serviceManager = $serviceManager;
-                return $this;
-            }
+        $serviceManager = new ServiceManager(['foo' => $service]);
 
-            public function isServiceManagerSet(): bool {
-                return $this->serviceManager instanceof IServiceManager;
-            }
-        };
-        $this->assertFalse($service->isServiceManagerSet());
-        new ServiceManager(['foo' => $service]);
-        $this->assertTrue($service->isServiceManagerSet());
+        $this->assertSame($service, $serviceManager['foo']);
     }
 
     public function testCanDetectCircularReference() {

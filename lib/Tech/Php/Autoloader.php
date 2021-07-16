@@ -23,7 +23,7 @@ abstract class Autoloader {
     /**
      * @return string|false The path of class (string) or false otherwise.
      */
-    abstract public function filePath(string $class);
+    abstract public function filePath(string $class): string|false;
 
     public function register(bool $prepend = false): void {
         spl_autoload_register([$this, 'autoload'], true, $prepend);

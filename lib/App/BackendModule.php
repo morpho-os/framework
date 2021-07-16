@@ -11,26 +11,25 @@ use Morpho\Fs\Path;
 use RuntimeException;
 
 use function is_dir;
-
 use const PHP_SAPI;
 
 class BackendModule extends Module {
     /**
      * Detects and returns base directory path of the module.
-     * @param string $dirPath Any directory path within the module.
+     * @param string $scriptDirPath Any directory path within the module.
      * @param bool $throwEx
      * @return false|string
      */
-    public static function findModuleDir(string $dirPath, bool $throwEx = true): string|bool {
+    public static function findBaseDir(string $scriptDirPath, bool $throwEx = true): string|bool {
         $baseDirPath = false;
         do {
-            $path = $dirPath . '/vendor/composer/ClassLoader.php';
+            $path = $scriptDirPath . '/vendor/composer/ClassLoader.php';
             if (is_file($path)) {
-                $baseDirPath = $dirPath;
+                $baseDirPath = $scriptDirPath;
                 break;
             } else {
-                $chunks = explode(DIRECTORY_SEPARATOR, $dirPath, -1);
-                $dirPath = implode(DIRECTORY_SEPARATOR, $chunks);
+                $chunks = explode(DIRECTORY_SEPARATOR, $scriptDirPath, -1);
+                $scriptDirPath = implode(DIRECTORY_SEPARATOR, $chunks);
             }
         } while ($chunks);
         if (false === $baseDirPath) {

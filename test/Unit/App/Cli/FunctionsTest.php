@@ -25,6 +25,8 @@ use function proc_close;
 use function proc_open;
 use function stream_get_contents;
 
+use const Morpho\Test\BASE_DIR_PATH;
+
 class FunctionsTest extends TestCase {
     public function testShowOk() {
         ob_start();
@@ -43,12 +45,8 @@ class FunctionsTest extends TestCase {
      * @dataProvider dataWriteErrorAndWriteErrorLn
      */
     public function testWriteErrorAndWriteErrorLn($fn, $expectedMessage, $error) {
-        if (Env::isWindows()) {
-            $this->markTestSkipped();
-        }
-
         $tmpFilePath = $this->createTmpFile();
-        $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
+        $autoloadFilePath = BASE_DIR_PATH. '/vendor/autoload.php';
         file_put_contents(
             $tmpFilePath,
             <<<OUT
@@ -157,12 +155,8 @@ OUT
     }
 
     public function testAskYesNo() {
-        if ($this->isWindows()) {
-            $this->markTestSkipped();
-        }
-
         $tmpFilePath = $this->createTmpFile();
-        $autoloadFilePath = $this->sut()->baseDirPath() . '/vendor/autoload.php';
+        $autoloadFilePath = BASE_DIR_PATH . '/vendor/autoload.php';
         $question = "Do you want to play";
         file_put_contents(
             $tmpFilePath,

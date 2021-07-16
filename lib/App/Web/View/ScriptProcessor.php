@@ -9,6 +9,8 @@ namespace Morpho\App\Web\View;
 use Morpho\App\ISite;
 use Morpho\Base\Event;
 
+use Morpho\Uri\Uri;
+
 use function file_exists;
 use function implode;
 use function json_encode;
@@ -127,7 +129,7 @@ class ScriptProcessor extends HtmlProcessor {
         $html = [];
         foreach ($scripts as $tag) {
             if (isset($tag['src'])) {
-                $tag['src'] = $this->request->prependUriWithBasePath($tag['src'])->toStr(null, false);
+                $tag['src'] = $this->request->prependWithBasePath($tag['src'])->toStr(null, false);
             }
             unset($tag[self::INDEX_ATTR]);
             $html[] = $this->renderTag($tag);

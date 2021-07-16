@@ -59,11 +59,11 @@ abstract class Env {
         return $map[strtolower((string) $value)] ?? (bool) $value;
     }
 
-    public static function isX64Arch(): bool {
+    public static function is64BitCpu(): bool {
         return PHP_INT_SIZE === 8;
     }
 
-    public static function isX32Arch(): bool {
+    public static function is32BitCpu(): bool {
         return PHP_INT_SIZE === 4;
     }
 
@@ -71,11 +71,12 @@ abstract class Env {
         return PHP_SAPI == 'cli';
     }
 
-    public static function isWindows(): bool {
+    public static function isWin(): bool {
         return defined('PHP_WINDOWS_VERSION_BUILD');//DIRECTORY_SEPARATOR == '\\';
     }
 
     public static function isLinux(): bool {
+        // todo: improve detection
         return self::isUnix() && !self::isMac();
     }
 

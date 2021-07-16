@@ -8,7 +8,11 @@ namespace Morpho\Test\Unit\App\Web\View;
 
 use Morpho\App\ISite;
 use Morpho\App\Web\IRequest;
+use Morpho\App\Web\View\FormProcessor;
+use Morpho\App\Web\View\PhpProcessor;
 use Morpho\App\Web\View\PhpTemplateEngine;
+use Morpho\App\Web\View\ScriptProcessor;
+use Morpho\App\Web\View\UriProcessor;
 use Morpho\Base\IPipe;
 use Morpho\Testing\TestCase;
 
@@ -25,9 +29,17 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     private function templateEngineConf(): array {
+        $request = $this->createMock(IRequest::class);
+        $site = $this->createMock(ISite::class);
         return [
-            'request' => $this->createMock(IRequest::class),
-            'site'    => $this->createStub(ISite::class),
+            'request' => $request,
+            'site'    => $site,
+            'steps'   => [
+                'phpProcessor'    => new PhpProcessor(),
+                'uriProcessor'    => new UriProcessor($request),
+                'formPersister'   => new FormProcessor($request),
+                'scriptProcessor' => new ScriptProcessor($request, $site),
+            ],
         ];
     }
 
@@ -99,36 +111,36 @@ class PhpTemplateEngineTest extends TestCase {
         $this->checkBoolAccessor([$this->templateEngine, 'forceCompile'], false);
     }
 
-    public function testSelectField_Empty() {
-        $this->assertHtmlEquals("<select></select>", $this->templateEngine->selectField([]));
+    public function testSelectControl_Empty() {
+        $this->assertHtmlEquals("<select></select>", $this->templateEngine->selectControl([]));
     }
 
-    public function testSelectField_IndexedArrOptions_WithoutSelectedOption() {
+    public function testSelectControl_IndexedArrOptions_WithoutSelectedOption() {
         $options = ['foo', 'bar'];
-        $html = $this->templateEngine->selectField($options);
+        $html = $this->templateEngine->selectControl($options);
         $this->assertHtmlEquals('<select><option value="0">foo</option><option value="1">bar</option></select>', $html);
     }
 
-    public function testSelectField_IndexedArrOptions_WithSingleSelectedOption() {
+    public function testSelectControl_IndexedArrOptions_WithSingleSelectedOption() {
         $options = ['foo', 'bar'];
-        $html = $this->templateEngine->selectField($options, 1);
+        $html = $this->templateEngine->selectControl($options, 1);
         $this->assertHtmlEquals(
             '<select><option value="0">foo</option><option value="1" selected>bar</option></select>',
             $html
         );
     }
 
-    public function testSelectField_IndexedArrOptions_WithMultipleSelectedOptions() {
+    public function testSelectControl_IndexedArrOptions_WithMultipleSelectedOptions() {
         $options = ['foo', 'bar'];
-        $html = $this->templateEngine->selectField($options, [0, 1]);
+        $html = $this->templateEngine->selectControl($options, [0, 1]);
         $this->assertHtmlEquals(
             '<select><option value="0" selected>foo</option><option value="1" selected>bar</option></select>',
             $html
         );
     }
 
-    public function testSelectField_AddsIdAttribIfNotSpecifiedFromNameAttrib() {
-        $html = $this->templateEngine->selectField(null, null, ['name' => 'task[id]']);
+    public function testSelectControl_AddsIdAttribIfNotSpecifiedFromNameAttrib() {
+        $html = $this->templateEngine->selectControl(null, null, ['name' => 'task[id]']);
         $this->assertHtmlEquals('<select name="task[id]" id="task-id"></select>', $html);
     }
 
@@ -186,15 +198,15 @@ class PhpTemplateEngineTest extends TestCase {
     }
 
     public function testPageHtmlId() {
-        $request = $this->createConfiguredMock(
-            IRequest::class,
-            [
-                'handler' => [
+        $request = $this->createMock(IRequest::class);
+        $request->expects($this->any())
+            ->method('handler')
+            ->willReturn(
+                [
                     'controllerPath' => 'foo/bar',
                     'method'         => 'baz',
-                ],
-            ]
-        );
+                ]
+            );
         $this->templateEngine->setRequest($request);
 
         $this->assertSame('foo-bar-baz', $this->templateEngine->pageHtmlId());

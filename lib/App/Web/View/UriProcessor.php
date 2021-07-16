@@ -7,29 +7,39 @@
 namespace Morpho\App\Web\View;
 
 class UriProcessor extends HtmlProcessor {
-    protected function tagLink($tag) {
-        return $this->prependTagAttrWithBasePath($tag, 'href');
+    protected function tagLink(array $tag): array {
+        return $this->prependAttrWithBasePath($tag, 'href');
     }
 
-    protected function prependTagAttrWithBasePath(array $tag, string $attrName): array {
+    protected function tagA(array $tag): array {
+        return $this->prependAttrWithBasePath($tag, 'href');
+    }
+
+    protected function tagForm(array $tag): array {
+        return $this->prependAttrWithBasePath($tag, 'action');
+    }
+
+    protected function tagScript(array $tag): array {
+        return $this->prependAttrWithBasePath($tag, 'src');
+    }
+
+    private function prependAttrWithBasePath(array $tag, string $attrName): array {
         if (isset($tag[self::SKIP_ATTR])) {
             return $tag;
         }
-        if (isset($tag[$attrName]) && !str_starts_with($tag[$attrName], '<?')) {
-            $tag[$attrName] = $this->request->prependUriWithBasePath($tag[$attrName])->toStr(null, false);
+        if (isset($tag[$attrName])) {
+            $attrVal = $tag[$attrName];
+            $pos = strpos($attrVal, '<?');
+            if ($pos === 0) {
+                return $tag;
+            }
+            if (false !== $pos) {
+                $pre = substr($attrVal, 0, $pos);
+                $tag[$attrName] = $this->request->prependWithBasePath($pre)->toStr(null, false) . substr($attrVal, $pos);
+            } else {
+                $tag[$attrName] = $this->request->prependWithBasePath($attrVal)->toStr(null, false);
+            }
         }
         return $tag;
-    }
-
-    protected function tagA($tag) {
-        return $this->prependTagAttrWithBasePath($tag, 'href');
-    }
-
-    protected function tagForm($tag) {
-        return $this->prependTagAttrWithBasePath($tag, 'action');
-    }
-
-    protected function tagScript($tag) {
-        return $this->prependTagAttrWithBasePath($tag, 'src');
     }
 }

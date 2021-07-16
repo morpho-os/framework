@@ -6,8 +6,7 @@
  */
 namespace Morpho\Fs;
 
-use Morpho\App\Path as BasePath;
-use Morpho\Base\Env;
+use Morpho\Base\Path as BasePath;
 use Morpho\Base\NotImplementedException;
 use Morpho\Base\SecurityException;
 
@@ -19,77 +18,32 @@ use function file_exists;
 use function implode;
 use function is_file;
 use function ltrim;
-use function Morpho\Base\unpackArgs;
 use function pathinfo;
-use function str_replace;
 use function strlen;
 use function strpos;
 use function substr;
-use function trim;
 
 class Path extends BasePath {
     public static function isAbs(string $path): bool {
-        return $path !== ''
-            && $path[0] === '/'
-            || (isset($path[1]) && $path[1] === ':'); // preg_match('~^[a-zA-Z]+:~', $path);
+        return $path !== '' && $path[0] === '/' || self::isAbsWinPath($path);
     }
 
-    public static function assertSafe(string $path) {
-        if (false !== strpos($path, "\x00") || false !== strpos($path, '..')) {
+    public static function isAbsWinPath(string $path): bool {
+        return (strlen($path) >= 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === '/' || $path[2] === '\\'));
+    }
+
+    public static function assertSafe(string $path): string {
+        if (str_contains($path, "\x00") || str_contains($path, '..')) {
             throw new SecurityException("Invalid file path was detected.");
         }
+        return $path;
     }
 
-    public static function isNormalized(string $path): bool {
-        $isWindows = Env::isWindows();
-        if ($isWindows) {
-            if (false !== strpos($path, '\\')) {
-                return false;
-            }
+    public static function normalize(string $path, bool $removeDotSegments = true): string {
+        if (self::isAbsWinPath($path)) {
+            return str_replace('\\', '/', substr($path, 0, 3)) . parent::normalize(substr($path, 3));
         }
-        $last = substr($path, -1, 1);
-        return $last !== '/'
-            && (!$isWindows && $last !== '\\')
-            && false === strpos($path, '..');
-    }
-
-    public static function combine(...$paths): string {
-        $paths = unpackArgs($paths);
-
-        $result = [];
-        $i = 0;
-        $isWindows = Env::isWindows();
-        foreach ($paths as $path) {
-            $path = (string) $path;
-            if ($path === '') {
-                continue;
-            }
-
-            if ($isWindows) {
-                $path = str_replace('\\', '/', $path);
-            }
-
-            if (!$i) {
-                if ($path[0] === '/') {
-                    $result[] = '';
-                }
-            }
-            $i++;
-            $path = trim($path, '/');
-            if (empty($path)) {
-                continue;
-            }
-            $result[] = $path;
-        }
-
-        return (count($result) === 1 && $result[0] === '')
-            ? '/'
-            : implode('/', $result);
-    }
-
-    public static function abs(string $path, bool $normalize = true): string {
-        $absPath = self::removeDotSegments($path);
-        return $normalize ? self::normalize($absPath) : $absPath;
+        return parent::normalize($path, $removeDotSegments);
     }
 
     public static function ext(string $path): string {
@@ -142,6 +96,7 @@ class Path extends BasePath {
 
     /**
      * Returns unique path for a file system entry.
+     * NB: This is not safe if multiple threads (processes) can work with the same $path.
      */
     public static function unique(
         string $path,

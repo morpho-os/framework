@@ -16,9 +16,9 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Morpho\Network\Http\Browser;
 use Morpho\Network\Http\GeckoDriver;
-use Morpho\Testing\Sut;
+use Morpho\Testing\SutConf;
 
-$sut = Sut::instance();
+$sut = SutConf::instance();
 $uri = $sut->siteUri();
 
 function browsers() {

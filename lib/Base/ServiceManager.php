@@ -29,19 +29,16 @@ class ServiceManager extends ArrayObject implements IServiceManager, IConfigurab
     private array $loading = [];
 
     public function __construct(array $services = null) {
+        parent::__construct([]);
         if (null !== $services) {
             foreach ($services as $id => $service) {
                 $this->offsetSet($id, $service);
             }
         }
-        parent::__construct([]);
     }
 
     public function offsetSet(mixed $id, mixed $service): void {
         parent::offsetSet(strtolower($id), $service);
-        if ($service instanceof IHasServiceManager) {
-            $service->setServiceManager($this);
-        }
     }
 
     /**
@@ -139,5 +136,5 @@ class ServiceManager extends ArrayObject implements IServiceManager, IConfigurab
 
     public function setAlias(string $alias, string $name): void {
         $this->aliases[$alias] = $name;
-}
     }
+}

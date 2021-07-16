@@ -8,7 +8,7 @@ namespace Morpho\App\Web\View;
 
 use ArrayObject;
 use Morpho\App\Web\IRequest;
-use Morpho\App\Web\Uri\Uri;
+use Morpho\Uri\Uri;
 use Morpho\Base\ArrPipe;
 use Morpho\Base\Conf;
 use Morpho\Base\NotImplementedException;
@@ -66,23 +66,11 @@ class PhpTemplateEngine extends ArrPipe {
         $this->pluginFactory = $conf['pluginFactory'] ?? function () {
             };
         $this->request = $conf['request'];
-        if (!isset($conf['steps'])) {
-            $conf['steps'] = self::mkDefaultSteps($conf);
-        }
         parent::__construct($conf['steps']);
     }
 
     private function init(): void {
         self::$htmlIds = [];
-    }
-
-    public static function mkDefaultSteps(array $conf): array {
-        return [
-            'phpProcessor'    => new PhpProcessor(),
-            'formPersister'   => new FormPersister($conf['request']),
-            'uriProcessor'    => new UriProcessor($conf['request']),
-            'scriptProcessor' => new ScriptProcessor($conf['request'], $conf['site']),
-        ];
     }
 
     /**
@@ -459,7 +447,7 @@ class PhpTemplateEngine extends ArrPipe {
      * will return 'http://foo/bar?redirect=http://baz
      */
     public function uriWithRedirectToSelf(string|Uri $uri): string {
-        $newUri = $this->request->prependUriWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false));
+        $newUri = $this->request->prependWithBasePath(is_string($uri) ? $uri : $uri->toStr(null, false));
         $newUri->query()['redirect'] = $this->uri()->toStr(null, false);
         return $newUri->toStr(null, true);
     }
@@ -476,7 +464,7 @@ class PhpTemplateEngine extends ArrPipe {
      */
     public function link(string|Uri $uri, string $text, array $attribs = null, array $conf = null): string {
         $attribs = (array) $attribs;
-        $attribs['href'] = $this->request->prependUriWithBasePath(
+        $attribs['href'] = $this->request->prependWithBasePath(
             is_string($uri) ? $uri : $uri->toStr(null, false)
         )->toStr(null, false);
         return $this->tag('a', $text, $attribs, $conf);

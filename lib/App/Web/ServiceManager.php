@@ -14,16 +14,16 @@ use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-use Morpho\App\IRouter;
 use Morpho\App\ServiceManager as BaseServiceManager;
-use Morpho\App\Web\Logging\WebProcessor;
-use Morpho\App\Web\Routing\FastRouter;
-use Morpho\App\Web\Routing\RouteMetaProvider;
+use Morpho\App\Web\View\FormProcessor;
 use Morpho\App\Web\View\HtmlResponseRenderer;
 use Morpho\App\Web\View\JsonResponseRenderer;
 use Morpho\App\Web\View\Messenger;
 use Morpho\App\Web\View\MessengerPlugin;
+use Morpho\App\Web\View\PhpProcessor;
 use Morpho\App\Web\View\PhpTemplateEngine;
+use Morpho\App\Web\View\ScriptProcessor;
+use Morpho\App\Web\View\UriProcessor;
 use Morpho\Base\IHasServiceManager;
 use Morpho\Tech\Php\DumpListener;
 use Morpho\Tech\Php\LogListener;
@@ -34,7 +34,7 @@ use function Morpho\Base\classify;
 use function Morpho\Base\init;
 
 class ServiceManager extends BaseServiceManager {
-    protected function mkRouterService(): IRouter {
+    protected function mkRouterService() {
         //return new Router($this['db']);
         return new FastRouter();
     }
@@ -80,6 +80,12 @@ class ServiceManager extends BaseServiceManager {
         $conf['pluginFactory'] = $this['templateEnginePluginFactory'];
         $conf['request'] = $this['request'];
         $conf['site'] = $this['site'];
+        $conf['steps'] = [
+            'phpProcessor'    => new PhpProcessor(),
+            'uriProcessor'    => new UriProcessor($conf['request']),
+            'formPersister'   => new FormProcessor($conf['request']),
+            'scriptProcessor' => new ScriptProcessor($conf['request'], $conf['site']),
+        ];
         return new PhpTemplateEngine($conf);
     }
 
@@ -142,7 +148,7 @@ class ServiceManager extends BaseServiceManager {
 
     protected function mkErrorLoggerService() {
         $logger = (new Logger('error'))
-            ->pushProcessor(new WebProcessor())
+            ->pushProcessor(new LogRecordProcessor())
             ->pushProcessor(new MemoryUsageProcessor())
             ->pushProcessor(new MemoryPeakUsageProcessor())
             ->pushProcessor(new IntrospectionProcessor());

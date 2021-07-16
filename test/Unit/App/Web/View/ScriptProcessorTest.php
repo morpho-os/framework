@@ -7,9 +7,10 @@
 namespace Morpho\Test\Unit\App\Web\View;
 
 use ArrayObject;
-use Morpho\App\IResponse;
 use Morpho\App\ISite;
 use Morpho\App\Web\IRequest;
+use Morpho\App\Web\Request;
+use Morpho\Uri\Uri;
 use Morpho\App\Web\View\ScriptProcessor;
 use Morpho\Testing\TestCase;
 use RuntimeException;
@@ -23,64 +24,7 @@ class ScriptProcessorTest extends TestCase {
     public function setUp(): void {
         parent::setUp();
         $this->baseUriPath = '/base/path';
-        $this->processor = new ScriptProcessor($this->mkRequestStub('foo/bar'), $this->mkSiteStub('abc/efg'));
-    }
-
-    private function mkRequestStub(string $view) {
-        return new class (['view' => $view], $this->baseUriPath) extends ArrayObject implements IRequest {
-            private $baseUriPath;
-
-            public function __construct($array, $baseUriPath) {
-                parent::__construct($array);
-                $this->baseUriPath = $baseUriPath;
-            }
-
-            public function prependUriWithBasePath($uri) {
-                $mkUri = function ($uri) {
-                    return new class ($uri) {
-                        private $uri;
-
-                        public function __construct($uri) {
-                            $this->uri = $uri;
-                        }
-
-                        public function toStr() {
-                            return $this->uri;
-                        }
-                    };
-                };
-                if (strlen($uri) > 0) {
-                    if ($uri[0] === '/') {
-                        return $mkUri(rtrim($this->baseUriPath . $uri, '/'));
-                    }
-                }
-                return $mkUri($uri);
-            }
-
-            public function isHandled(bool $flag = null): bool {
-                // TODO: Implement isHandled() method.
-            }
-
-            public function setHandler(array $handler): void {
-                // TODO: Implement setHandler() method.
-            }
-
-            public function handler(): array {
-                // TODO: Implement handler() method.
-            }
-
-            public function setResponse(IResponse $response): void {
-                // TODO: Implement setResponse() method.
-            }
-
-            public function response(): IResponse {
-                // TODO: Implement response() method.
-            }
-
-            public function args(array|string|null $namesOrIndexes = null): mixed {
-                // TODO: Implement args() method.
-            }
-        };
+        $this->processor = new ScriptProcessor($this->mkRequest('foo/bar'), $this->mkSiteStub('abc/efg'));
     }
 
     private function mkSiteStub(string $siteModuleName): ISite {
@@ -186,7 +130,7 @@ OUT;
      * @dataProvider dataSkipAttribute
      */
     public function testSkipAttribute($tag) {
-        $processor = new class ($this->mkRequestStub('foo'), $this->mkSiteStub('abc/efg')) extends ScriptProcessor {
+        $processor = new class ($this->mkRequest('foo'), $this->mkSiteStub('abc/efg')) extends ScriptProcessor {
             protected function containerBody(array $tag): null|array|bool {
                 $res = parent::containerBody($tag);
                 if (isset($res['_skip'])) {
@@ -227,7 +171,7 @@ OUT;
      * @dataProvider dataAutoInclusionOfActionScripts_WithoutChildScripts
      */
     public function testAutoInclusionOfActionScripts_WithoutChildScripts($jsConf) {
-        $request = $this->mkRequestStub('cat/tail');
+        $request = $this->mkRequest('cat/tail');
         $request['jsConf'] = $jsConf;
 
         $processor = new ScriptProcessor($request, $this->mkSiteStub('some/blog'));
@@ -263,7 +207,7 @@ OUT;
     }
 
     public function testAutoInclusionOfActionScripts_WithChildScripts() {
-        $request = $this->mkRequestStub('cat/tail');
+        $request = $this->mkRequest('cat/tail');
 
         $processor = new ScriptProcessor($request, $this->mkSiteStub('some/blog'));
 
@@ -302,5 +246,13 @@ OUT;
             ]
         );
         $this->assertMatchesRegularExpression($re, $html);
+    }
+
+    private function mkRequest(string $view): IRequest {
+        $request = new Request(['view' => $view]);
+        $uri = new Uri('http://localhost' . $this->baseUriPath . '?one=123');
+        $uri->path()->setBasePath($this->baseUriPath);
+        $request->setUri($uri);
+        return $request;
     }
 }

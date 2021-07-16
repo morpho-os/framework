@@ -9,7 +9,6 @@ namespace Morpho\App\Cli;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\ErrorLogHandler as PhpErrorLogWriter;
 use Monolog\Logger;
-use Morpho\App\IRouter;
 use Morpho\App\ServiceManager as BaseServiceManager;
 use Morpho\Base\EventManager;
 use Morpho\Base\NotImplementedException;
@@ -58,7 +57,7 @@ class ServiceManager extends BaseServiceManager {
         return new Request();
     }
 
-    protected function mkRouterService(): IRouter {
+    protected function mkRouterService() {
         throw new NotImplementedException();
     }
 

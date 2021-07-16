@@ -8,8 +8,10 @@ namespace Morpho\App\Web;
 
 use ArrayObject;
 use Morpho\App\Request as BaseRequest;
-use Morpho\App\Web\Uri;
-use Morpho\Fs\Path;
+
+use Morpho\Uri\Authority;
+use Morpho\Uri\Path;
+use Morpho\Uri\Uri;
 
 use function array_fill_keys;
 use function array_flip;
@@ -47,13 +49,13 @@ class Request extends BaseRequest implements IRequest {
     protected string|bool|null $overwrittenMethod;
     protected ?bool $isAjax = null;
     private ?array $serverVars;
-    private ?Uri\Uri $uri = null;
+    private ?Uri $uri = null;
     private ?array $trustedProxyIps = null;
     private ?IResponse $response = null;
 
-    public function __construct(?array $serverVars = null) {
+    public function __construct(array $vals = null, ?array $serverVars = null) {
         $this->knownMethods = HttpMethod::vals();
-        parent::__construct([]);
+        parent::__construct((array) $vals);
         $this->serverVars = $serverVars;
         $method = $this->detectOriginalMethod();
         $this->originalMethod = null !== $method ? $method : HttpMethod::GET;
@@ -171,16 +173,12 @@ class Request extends BaseRequest implements IRequest {
      */
     public function args(string|array|null $names = null, callable|bool $filter = true): mixed {
         $method = $this->method();
-        switch ($method) {
-            case HttpMethod::GET:
-                return $this->query($names, $filter);
-            case HttpMethod::POST:
-                return $this->post($names, $filter);
-            case HttpMethod::PATCH:
-                return $this->patch($names, $filter);
-            default:
-                throw new BadRequestException();
-        }
+        return match ($method) {
+            HttpMethod::GET => $this->query($names, $filter),
+            HttpMethod::POST => $this->post($names, $filter),
+            HttpMethod::PATCH => $this->patch($names, $filter),
+            default => throw new BadRequestException(),
+        };
     }
 
     public function query($name = null, callable|bool $filter = true): mixed {
@@ -199,9 +197,7 @@ class Request extends BaseRequest implements IRequest {
                 ? etrim($_GET[$name])
                 : null;
         }
-        return isset($_GET[$name])
-            ? $_GET[$name]
-            : null;
+        return $_GET[$name] ?? null;
     }
 
     public function hasQuery(string $name): bool {
@@ -224,9 +220,7 @@ class Request extends BaseRequest implements IRequest {
                 ? etrim($_POST[$name])
                 : null;
         }
-        return isset($_POST[$name])
-            ? $_POST[$name]
-            : null;
+        return $_POST[$name] ?? null;
     }
 
     public function hasPost(string $name): bool {
@@ -257,9 +251,7 @@ class Request extends BaseRequest implements IRequest {
                 ? etrim($source[$name])
                 : null;
         }
-        return isset($source[$name])
-            ? $source[$name]
-            : null;
+        return $source[$name] ?? null;
     }
 
     public function isAjax(bool $flag = null): bool {
@@ -285,25 +277,25 @@ class Request extends BaseRequest implements IRequest {
         return $this->headers;
     }
 
-    public function setUri(Uri\Uri $uri): void {
+    public function setUri(Uri $uri): void {
         $this->uri = $uri;
     }
 
-    public function uri(): Uri\Uri {
+    public function uri(): Uri {
         if (null === $this->uri) {
             $this->initUri();
         }
         return $this->uri;
     }
 
-    public function prependUriWithBasePath(string $uri): Uri\Uri {
-        $uri = new Uri\Uri($uri);
+    public function prependWithBasePath(string $path): Uri {
+        $uri = new Uri($path);
         $basePath = $this->uri()->path()->basePath();
         if ($uri->authority()->isNull() && $uri->scheme() === '') {
             $path = $uri->path();
             if (!$path->isRel()) {
                 $uriStr = Path::combine($basePath, $uri->toStr(null, false));
-                $uri = new Uri\Uri($uriStr);
+                $uri = new Uri($uriStr);
                 $uri->path()->setBasePath($basePath);
                 return $uri;
             }
@@ -320,11 +312,11 @@ class Request extends BaseRequest implements IRequest {
     }
 
     protected function initUri(): void {
-        $uri = new Uri\Uri();
+        $uri = new Uri();
 
         $uri->setScheme($this->isSecure() ? 'https' : 'http');
 
-        $authority = new Uri\Authority();
+        $authority = new Authority();
         [$host, $port] = $this->detectHostAndPort();
         if ($host) {
             $authority->setHost($host);
@@ -334,9 +326,9 @@ class Request extends BaseRequest implements IRequest {
         }
         $uri->setAuthority($authority);
 
-        $detectedPath = Uri\Path::normalize($this->detectPath());
+        $detectedPath = Path::normalize($this->detectPath());
         $basePath = $this->detectBasePath($detectedPath);
-        $path = new Uri\Path($detectedPath);
+        $path = new Path($detectedPath);
         $path->setBasePath($basePath);
         $uri->setPath($path);
 
@@ -351,14 +343,14 @@ class Request extends BaseRequest implements IRequest {
     protected function initHeaders(): void {
         $headers = [];
         foreach (null !== $this->serverVars ? $this->serverVars : $_SERVER as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
-                if (strpos($key, 'HTTP_COOKIE') === 0) {
+            if (str_starts_with($key, 'HTTP_')) {
+                if (str_starts_with($key, 'HTTP_COOKIE')) {
                     // Cookies are handled using the $_COOKIE superglobal
                     continue;
                 }
                 $name = strtr(substr($key, 5), '_', ' ');
                 $name = strtr(ucwords(strtolower($name)), ' ', '-');
-            } elseif (strpos($key, 'CONTENT_') === 0) {
+            } elseif (str_starts_with($key, 'CONTENT_')) {
                 $name = substr($key, 8); // Content-
                 $name = 'Content-' . (($name == 'MD5') ? $name : ucfirst(strtolower($name)));
             } else {
@@ -414,7 +406,7 @@ class Request extends BaseRequest implements IRequest {
             $host = $this->headers()->offsetGet('Host');
 
             // works for regname, IPv4 & IPv6
-            if (preg_match('~\:(\d+)$~', $host, $matches)) {
+            if (preg_match('~:(\d+)$~', $host, $matches)) {
                 $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
                 $port = (int) $matches[1];
             }
@@ -441,7 +433,7 @@ class Request extends BaseRequest implements IRequest {
                 // Check for missinterpreted IPv6-Address
                 // Reported at least for Safari on Windows
                 $serverAddr = $this->serverVar('SERVER_ADDR');
-                if (isset($serverAddr) && preg_match('/^\[[0-9a-fA-F\:]+\]$/', $host)) {
+                if (isset($serverAddr) && preg_match('/^\[[0-9a-fA-F:]+\]$/', $host)) {
                     $host = '[' . $serverAddr . ']';
                     if ($port . ']' == substr($host, strrpos($host, ':') + 1)) {
                         // The last digit of the IPv6-Address has been taken as port
@@ -506,7 +498,7 @@ class Request extends BaseRequest implements IRequest {
         if ('' === $scriptName) {
             return '/';
         }
-        $basePath = ltrim(Uri\Path::normalize(dirname($scriptName)), '/');
+        $basePath = ltrim(Path::normalize(dirname($scriptName)), '/');
         /*        if (!Uri::validatePath($basePath)) {
                     throw new BadRequestException();
                 }*/

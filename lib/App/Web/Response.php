@@ -115,7 +115,7 @@ class Response extends BaseResponse implements IResponse {
     }
 
     public function statusCodeToStatusLine(int $statusCode): string {
-        return Env::httpVersion() . ' ' . intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
+        return Env::httpProto() . ' ' . intval($statusCode) . ' ' . $this->statusCodeToReason($statusCode);
     }
 
     public function statusCodeToReason(int $statusCode): string {

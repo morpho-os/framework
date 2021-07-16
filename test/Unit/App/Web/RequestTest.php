@@ -9,7 +9,7 @@ namespace Morpho\Test\Unit\App\Web;
 use Morpho\App\Web\HttpMethod;
 use Morpho\App\Web\IRequest;
 use Morpho\App\Web\Request;
-use Morpho\App\Web\Uri\Uri;
+use Morpho\Uri\Uri;
 use Morpho\Testing\TestCase;
 
 use function array_merge;
@@ -91,7 +91,7 @@ class RequestTest extends TestCase {
             $_SERVER = $serverVars;
             $request = new Request();
         } else {
-            $request = new Request($serverVars);
+            $request = new Request(null, $serverVars);
         }
         $this->assertSame($expectedHeaders, $request->headers()->getArrayCopy());
     }
@@ -211,7 +211,7 @@ class RequestTest extends TestCase {
 
     public function testUriInitialization_BasePath() {
         $basePath = '/foo/bar/baz';
-        $request = new Request(
+        $request = new Request(null,
             [
                 'REQUEST_URI' => $basePath . '/index.php/one/two',
                 'SCRIPT_NAME' => $basePath . '/index.php',
@@ -221,7 +221,13 @@ class RequestTest extends TestCase {
         $this->assertSame($basePath, $uri->path()->basePath());
     }
 
-    public function dataPrependUriWithBasePath() {
+    public function dataPrependWithBasePath() {
+        yield [
+            '/foo/news/',
+            '/foo',
+            '/foo',
+            '/news/',
+        ];
         yield [
             '',
             null,
@@ -283,16 +289,16 @@ class RequestTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataPrependUriWithBasePath
+     * @dataProvider dataPrependWithBasePath
      */
-    public function testPrependUriWithBasePath($expectedUri, $expectedBasePath, $basePath, $uriToPrepend) {
+    public function testPrependWithBasePath($expectedUri, $expectedBasePath, $basePath, $pathToPrepend) {
         $fullRequestUri = 'http://localhost/foo/bar/baz';
         $uri = new Uri($fullRequestUri);
         $uri->path()->setBasePath($basePath);
         $this->request->setUri($uri);
         $this->assertSame($basePath, $this->request->uri()->path()->basePath());
 
-        $prepended = $this->request->prependUriWithBasePath($uriToPrepend);
+        $prepended = $this->request->prependWithBasePath($pathToPrepend);
 
         $this->assertSame($expectedBasePath, $prepended->path()->basePath());
         $this->assertSame($expectedUri, $prepended->toStr(null, false));
@@ -318,7 +324,7 @@ class RequestTest extends TestCase {
     public function testUriInitialization_Scheme($isHttps, $serverVars) {
         $trustedProxyIp = '127.0.0.2';
         $serverVars['REMOTE_ADDR'] = $trustedProxyIp;
-        $request = new Request($serverVars);
+        $request = new Request(null, $serverVars);
         $request->setTrustedProxyIps([$trustedProxyIp]);
         if ($isHttps) {
             $this->assertSame('https', $request->uri()->scheme());
@@ -328,7 +334,7 @@ class RequestTest extends TestCase {
     }
 
     public function testUriInitialization_Query() {
-        $request = new Request(
+        $request = new Request(null,
             [
                 'REQUEST_URI'  => '/',
                 'SCRIPT_NAME'  => '/index.php',
@@ -377,7 +383,7 @@ class RequestTest extends TestCase {
     }
 
     private function checkHttpMethod(array $serverVars, string $httpMethod): void {
-        $request = new Request($serverVars);
+        $request = new Request(null, $serverVars);
         $this->assertSame($httpMethod, $request->method());
         $this->assertTrue($request->{'is' . $httpMethod . 'Method'}());
     }
@@ -403,6 +409,6 @@ class RequestTest extends TestCase {
     }
 
     private function mkRequest($serverVars): IRequest {
-        return new Request($serverVars);
+        return new Request(null, $serverVars);
     }
 }

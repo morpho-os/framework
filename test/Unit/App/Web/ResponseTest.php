@@ -17,10 +17,7 @@ use function ob_get_clean;
 use function ob_start;
 
 class ResponseTest extends TestCase {
-    /**
-     * @var Response
-     */
-    private $response;
+    private Response $response;
 
     public function setUp(): void {
         parent::setUp();
@@ -50,10 +47,10 @@ class ResponseTest extends TestCase {
 
     public function testStatusLineAccessors() {
         $this->assertSame(
-            Env::httpVersion() . ' ' . Response::OK_STATUS_CODE . ' OK',
+            Env::httpProto() . ' ' . Response::OK_STATUS_CODE . ' OK',
             $this->response->statusLine()
         );
-        $newStatusLine = Env::httpVersion() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
+        $newStatusLine = Env::httpProto() . ' ' . Response::NOT_FOUND_STATUS_CODE . ' Not Found';
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $this->assertNull($this->response->setStatusLine($newStatusLine));
         $this->assertSame($newStatusLine, $this->response->statusLine());
@@ -119,7 +116,7 @@ class ResponseTest extends TestCase {
     public function testStatusCodeToStatusLine(int $statusCode, string $expectedReasonPhrase) {
         $this->response->setStatusCode($statusCode);
         $this->assertSame(
-            Env::HTTP_VERSION . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
+            Env::HTTP_PROTO . ' ' . $statusCode . ' ' . $expectedReasonPhrase,
             $this->response->statusLine()
         );
     }
@@ -145,7 +142,7 @@ class ResponseTest extends TestCase {
         $this->assertSame($body, ob_get_clean());
         $this->assertSame(
             [
-                ['sendHeader', [Env::httpVersion() . ' 404 Not Found']],
+                ['sendHeader', [Env::httpProto() . ' 404 Not Found']],
                 ['sendHeader', ['Location: http://example.com']],
             ],
             $response->called

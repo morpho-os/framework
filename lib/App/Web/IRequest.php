@@ -8,7 +8,7 @@ namespace Morpho\App\Web;
 
 use ArrayObject;
 use Morpho\App\IRequest as IBaseRequest;
-use Morpho\App\Web\Uri;
+use Morpho\Uri\Uri;
 
 interface IRequest extends IBaseRequest {
     public function setServerVars(array $vars): void;
@@ -59,11 +59,11 @@ interface IRequest extends IBaseRequest {
 
     public function headers(): ArrayObject;
 
-    public function setUri(Uri\Uri $uri): void;
+    public function setUri(Uri $uri): void;
 
-    public function prependUriWithBasePath(string $uri): Uri\Uri;
+    public function uri(): Uri;
 
-    public function uri(): Uri\Uri;
+    public function prependWithBasePath(string $path): Uri;
 
     public function setTrustedProxyIps(array $ips): void;
 

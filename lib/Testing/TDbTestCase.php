@@ -49,8 +49,8 @@ trait TDbTestCase {
     }
 
     protected function dbConf(): array {
-        return $this->sut()->dbConf();
+        return $this->sutConf()->dbConf();
     }
 
-    abstract protected function sut(): mixed;
+    abstract protected function sutConf(): mixed;
 }

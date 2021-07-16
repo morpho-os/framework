@@ -14,8 +14,8 @@ use function preg_match;
 use function strtolower;
 
 class Env extends BaseEnvironment {
-    public const HTTP_VERSION = 'HTTP/1.1';
-    protected $startSession = false;
+    public const HTTP_PROTO = 'HTTP/1.1';
+    protected bool $startSession = false;
 
     public static function clientIp(): array {
         return [
@@ -30,7 +30,7 @@ class Env extends BaseEnvironment {
      *
      * @return int|string Returns max upload file size in bytes or as string with suffix.
      */
-    public static function maxUploadFileSize(bool $asBytes = true) {
+    public static function maxUploadFileSize(bool $asBytes = true): int|string {
         $maxSizeIni = ini_get('post_max_size');
         $maxSize = Converter::toBytes($maxSizeIni);
         $uploadMaxSizeIni = ini_get('upload_max_filesize');
@@ -45,7 +45,7 @@ class Env extends BaseEnvironment {
     public static function init(): void {
         parent::init();
         $_SERVER['HTTP_REFERER'] = self::httpReferrer();
-        $_SERVER['SERVER_PROTOCOL'] = self::httpVersion();
+        $_SERVER['SERVER_PROTOCOL'] = self::httpProto();
         $_SERVER['HTTP_HOST'] = self::httpHost();
         $_SERVER += [
             'SCRIPT_NAME'     => null,
@@ -64,14 +64,14 @@ class Env extends BaseEnvironment {
         return $_SERVER['HTTP_REFERER'] ?? '';
     }
 
-    public static function httpVersion(): string {
+    public static function httpProto(): string {
         if (isset($_SERVER['SERVER_PROTOCOL'])) {
-            $protocol = $_SERVER['SERVER_PROTOCOL'];
-            if (preg_match('~^HTTP/\d\.\d$~si', $protocol)) {
-                return $protocol;
+            $proto = $_SERVER['SERVER_PROTOCOL'];
+            if (preg_match('~^HTTP/\d\.\d$~si', $proto)) {
+                return $proto;
             }
         }
-        return self::HTTP_VERSION;
+        return self::HTTP_PROTO;
     }
 
     public static function httpHost(): string {

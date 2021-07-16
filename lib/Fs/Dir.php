@@ -270,8 +270,7 @@ class Dir extends Entry {
      * @param callable|null $predicate Predicate selects entries which will be deleted.
      */
     private static function delete__(string $dirPath, ?callable $predicate): void {
-        self::mustExist($dirPath);
-        $absPath = Path::abs($dirPath, true);
+        $absPath = Path::normalize(self::mustExist($dirPath));
         $it = new DirectoryIterator($absPath);
         foreach ($it as $entry) {
             if ($entry->isDot()) {

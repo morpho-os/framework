@@ -12,26 +12,11 @@ use Morpho\Testing\TestCase;
 use function trim;
 
 class HtmlSemiParserTest extends TestCase {
-    private $parser;
+    private HtmlSemiParser $parser;
 
     public function setUp(): void {
         parent::setUp();
         $this->parser = new HtmlSemiParser();
-    }
-
-    public function testStringWithPhpInFormTag() {
-        $this->markTestIncomplete();
-        /*
-        $called = null;
-        $handler = function ($tag) use (&$called) {
-            d($tag);
-        };
-        $this->parser->attachTagHandler('form', $handler);
-        $html = '<form method="post"<?= isset($provider) ? \'\' : \'\' ?>></form>';
-        $processed = $this->parser->__invoke($html);
-        $this->assertTrue($called);
-        $this->assertEquals('!!!!', $processed);
-        */
     }
 
     public function testCallsTagHandler() {

@@ -6,16 +6,16 @@
  */
 namespace Morpho\Test;
 
-use Morpho\Testing\Sut;
+use Morpho\Testing\Env;
+use Morpho\Testing\TestSuite;
 
 use function is_dir;
 
 use const Morpho\App\TEST_DIR_NAME;
 
-class ModuleTestSuite extends \Morpho\Testing\TestSuite {
+class ModuleTestSuite extends TestSuite {
     public function testFilePaths(): iterable {
-        $sut = Sut::instance();
-        foreach ($sut->backendModuleIterator() as $dirPath) {
+        foreach (Env::instance()->backendModuleDir() as $dirPath) {
             $testDirPath = $dirPath . '/' . TEST_DIR_NAME;
             if (is_dir($testDirPath)) {
                 foreach ($this->testFilesInDir($testDirPath) as $file) {

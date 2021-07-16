@@ -6,7 +6,6 @@
  */
 namespace Morpho\Test\Unit\Fs;
 
-use Morpho\Base\Env;
 use Morpho\Fs\Stat;
 use Morpho\Testing\TestCase;
 
@@ -16,13 +15,9 @@ use function posix_mknod;
 use function touch;
 
 class StatTest extends TestCase {
-    private $oldUmask;
+    private int $oldUmask;
 
     public function setUp(): void {
-        if (Env::isWindows()) {
-            // @TODO: Check on windows.
-            $this->markTestIncomplete();
-        }
         parent::setUp();
         $this->oldUmask = umask();
     }
@@ -43,7 +38,7 @@ class StatTest extends TestCase {
     public function testIsBlockDev() {
         //$this->assertTrue(posix_mknod($tmpDirPath . '/block-dev', POSIX_S_IFBLK | $mode, $dev[0], $dev[1]));
         // /dev/loop0 requires `loop` kernel module: `lsmod | grep loop`, if it is missing and the kernel module is loaded run the `sudo losetup -f`.
-        $path = $this->sut()->isCi() ? '/tmp/block-dev-test' : '/dev/loop0';
+        $path = $this->env()->isCi() ? '/tmp/block-dev-test' : '/dev/loop0';
         $this->assertTrue(Stat::isEntry($path));
         $this->assertTrue(Stat::isBlockDev($path));
         $this->assertFalse(Stat::isCharDev($path));

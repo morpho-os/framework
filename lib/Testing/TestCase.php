@@ -42,10 +42,8 @@ use function uniqid;
 use function unlink;
 
 abstract class TestCase extends BaseTestCase {
-    public const TIMEZONE = 'UTC';
-    public const TEST_DATA_DIR_NAME = 'test-data';
+    private const TEST_DATA_DIR_NAME = 'test-data';
 
-    protected $backupGlobals = true;
     private array $tmpDirPaths = [];
     private array $tmpFilePaths = [];
     private string $classFilePath;
@@ -197,8 +195,12 @@ abstract class TestCase extends BaseTestCase {
         }
     }
 
-    protected function sut(): mixed {
-        return Sut::instance();
+    protected function env(): mixed {
+        return Env::instance();
+    }
+
+    protected function sutConf(): mixed {
+        return SutConf::instance();
     }
 
     /**
@@ -290,7 +292,7 @@ abstract class TestCase extends BaseTestCase {
 
     protected function setDefaultTimezone(): void {
         $this->prevTimezone = @date_default_timezone_get();
-        date_default_timezone_set(self::TIMEZONE);
+        date_default_timezone_set($this->sutConf()['timezone']);
     }
 
     protected function randomString(): string {
@@ -300,9 +302,5 @@ abstract class TestCase extends BaseTestCase {
     protected function markTestAsNotRisky(): void {
         $this->addToAssertionCount(1);
         // $this->assertTrue(true) may work too.
-    }
-
-    protected function isWindows(): bool {
-        return defined('PHP_WINDOWS_VERSION_BUILD');
     }
 }

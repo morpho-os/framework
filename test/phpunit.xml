@@ -16,15 +16,16 @@
          failOnRisky="true"
          failOnSkipped="true"
          failOnWarning="true"
+         forceCoversAnnotation="false"
          beStrictAboutChangesToGlobalState="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutCoversAnnotation="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
-        <testsuite name="morpho-os/framework">
+        <testsuite name="lib">
             <!--<file>TestSuite.php</file>-->
-            <directory>Unit</directory>
+            <directory>.</directory>
             <exclude>Unit/App/MessageTest.php</exclude>
             <exclude>Unit/Caching/CacheTest.php</exclude>
             <exclude>Unit/Tech/MySql/QueryTest.php</exclude>
@@ -32,5 +33,13 @@
             <exclude>Unit/Tech/Php/DiscoverStrategyTest.php</exclude>
             <exclude>Unit/Tech/Php/test-data/ClassTypeDiscovererTest/Test.php</exclude>
         </testsuite>
+        <testsuite name="module">
+            <directory>../backend/localhost/test</directory>
+        </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">lib</directory>
+        </include>
+    </coverage>
 </phpunit>

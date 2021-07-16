@@ -6,13 +6,13 @@
  */
 namespace Morpho\Test\Unit\Fs;
 
+use Morpho\Base\SecurityException;
 use Morpho\Fs\Exception as FsException;
 use Morpho\Fs\Path;
+use Morpho\Test\Unit\Base\PathTest as BasePathTest;
 use Morpho\Testing\TestCase;
 
-use function array_merge;
 use function basename;
-use function str_replace;
 use function touch;
 
 class PathTest extends TestCase {
@@ -72,7 +72,17 @@ class PathTest extends TestCase {
         $isAbs ? $this->assertTrue(Path::isAbs($path)) : $this->assertFalse(Path::isAbs($path));
     }
 
-    public function dataAssertSafe() {
+    public function testIsAbsWinPath() {
+        $this->assertFalse(Path::isAbsWinPath(''));
+        $this->assertFalse(Path::isAbsWinPath('/'));
+        $this->assertFalse(Path::isAbsWinPath('C'));
+        $this->assertFalse(Path::isAbsWinPath('C:'));
+        $this->assertFalse(Path::isAbsWinPath('CD:\\'));
+        $this->assertTrue(Path::isAbsWinPath('C:\\'));
+        $this->assertTrue(Path::isAbsWinPath('C:/'));
+    }
+
+    public function dataAssertSafe_NotSafePath() {
         return [
             ['..'],
             ['C:/foo/../bar'],
@@ -84,16 +94,18 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataAssertSafe
+     * @dataProvider dataAssertSafe_NotSafePath
      */
-    public function testAssertSafeThrowsExceptionForNotSafePath($path) {
-        $this->expectException('\Morpho\Base\SecurityException', 'Invalid file path was detected.');
+    public function testAssertSafe_NotSafePath($path) {
+        $this->expectException(SecurityException::class, 'Invalid file path was detected.');
         Path::assertSafe($path);
     }
 
-    public function dataAssertSafeDoesNotThrowExceptionForSafePath() {
+    public function dataAssertSafe_SafePath() {
         return [
             [
+                '',
+                '.',
                 'C:/foo/bar',
                 'C:\foo\bar',
                 'foo/bar',
@@ -103,215 +115,77 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @dataProvider dataAssertSafeDoesNotThrowExceptionForSafePath
+     * @dataProvider dataAssertSafe_SafePath
      */
-    public function testAssertSafe_DoesNotThrowExceptionForSafePath($path) {
-        Path::assertSafe($path);
-        $this->markTestAsNotRisky();
+    public function testAssertSafe_SafePath($path) {
+        $this->assertSame($path, Path::assertSafe($path));
     }
 
-    public function dataIsNormalizedInvalid() {
-        $dataSet = [
-            ['\foo\bar\baz\\'],
-            ['\foo\bar\baz/'],
-
-            ['\foo\..\baz\\'],
-            ['\foo\..\baz/'],
-
-            ['\foo\..\baz'],
-            ['/foo/../baz'],
-            ['/foo/../baz\\'],
-            ['/foo/../baz/'],
-
-            ['C:\foo\bar\baz\\'],
-            ['C:\foo\bar\baz/'],
-
-            ['C:\foo\..\baz'],
-            ['C:\foo\..\baz\\'],
-            ['C:\foo\..\baz/'],
-
-            ['C:/foo/../baz'],
-            ['C:/foo/../baz\\'],
-            ['C:/foo/../baz/'],
+    public function dataNormalize() {
+        yield from (new BasePathTest(__METHOD__))->dataNormalize();
+        $fixSlashes = fn ($path) => str_replace('\\', '/', $path);
+        $data = [
+            ['C:/', 'C:/'],
+            ['C:/', 'C:\\'],
+            ['C:/foo/bar', 'C:/foo/bar'],
+            ['C:/foo/bar', 'C:\\foo\\bar'],
+            [$fixSlashes(__DIR__), __DIR__],
+            [$fixSlashes(__FILE__), __FILE__],
+            [$fixSlashes(__DIR__), __DIR__ . '/_files/..'],
+            [$fixSlashes(__FILE__), __DIR__ . '/_files/../' . basename(__FILE__)],
+            [$fixSlashes(__DIR__ . '/non-existing'), __DIR__ . '/non-existing'],
+            ['vfs://some/path', 'vfs://some/path'],
         ];
-        $isWin = $this->isWindows();
-        if ($isWin) {
-            $dataSet = array_merge(
-                $dataSet,
-                [
-                    ['\foo\bar\baz'],
-                    ['C:\foo\bar\baz'],
-                ]
-            );
+        foreach ([true, false] as $isWin) {
+            foreach ($data as $sample) {
+                yield [
+                    $sample[0],
+                    $isWin ? str_replace('/', '\\', $sample[1]) : $sample[1],
+                ];
+            }
         }
-        return $dataSet;
     }
 
     /**
-     * @dataProvider dataIsNormalizedInvalid
+     * @dataProvider dataNormalize
      */
-    public function testIsNormalizedInvalid($invalid) {
-        $this->assertFalse(Path::isNormalized($invalid));
+    public function testNormalize(string $expected, string $path) {
+        $this->assertSame($expected, Path::normalize($path));
     }
 
-    public function testIsNormalizedValid() {
-        $this->assertTrue(Path::isNormalized('/foo/bar/baz'));
-        $this->assertTrue(Path::isNormalized('foo/bar/baz'));
-        $this->assertTrue(Path::isNormalized('C:/foo/bar/baz'));
-    }
-
-    public function dataAbs() {
-        return [
-            ['/', '/',],
-            [__DIR__, __DIR__],
-            [__FILE__, __FILE__],
-            ['', ''],
-            [__DIR__, __DIR__ . '/_files/..'],
-            [__FILE__, __DIR__ . '/_files/../' . basename(__FILE__)],
-            [__DIR__ . '/non-existing', __DIR__ . '/non-existing'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataAbs
-     */
-    public function testAbs($expected, $path) {
-        $actual = Path::abs($path);
-        if (!$this->isWindows()) {
-            $expected = str_replace('\\', '/', $expected);
-        }
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testToAbs_VfsPath() {
-        $dirPath = 'vfs://some/path';
-        $this->assertSame($dirPath, Path::abs($dirPath));
-    }
-
-    public function testCombine_UnixPaths() {
-        if ($this->isWindows()) {
-            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', 'baz'));
-            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', '/baz'));
-            $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar', 'baz'));
-            $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar', '/baz'));
-            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar/', '/baz'));
-            $this->assertEquals('/foo/bar/baz', Path::combine('/foo\\bar/', '/baz'));
-        } else {
-            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', 'baz'));
-            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', '/baz'));
-            $this->assertEquals('/foo\\bar/baz', Path::combine('/foo\\bar', 'baz'));
-            $this->assertEquals('/foo\\bar/baz', Path::combine('/foo\\bar', '/baz'));
-            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar/', '/baz'));
-            $this->assertEquals('/foo\\bar/baz', Path::combine('/foo\\bar/', '/baz'));
-        }
-    }
-
-    public function testCombine_WinPaths() {
-        if ($this->isWindows()) {
-            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', 'baz'));
-            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar', '/baz'));
-            $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar', 'baz'));
-            $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar', '/baz'));
-            $this->assertEquals('foo/bar/baz', Path::combine('foo\\bar/', '/baz'));
-            $this->assertEquals('C:/foo/bar/baz', Path::combine('C:/foo\\bar/', '/baz'));
-        } else {
-            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', 'baz'));
-            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar', '/baz'));
-            $this->assertEquals('C:/foo\\bar/baz', Path::combine('C:/foo\\bar', 'baz'));
-            $this->assertEquals('C:/foo\\bar/baz', Path::combine('C:/foo\\bar', '/baz'));
-            $this->assertEquals('foo\\bar/baz', Path::combine('foo\\bar/', '/baz'));
-            $this->assertEquals('C:/foo\\bar/baz', Path::combine('C:/foo\\bar/', '/baz'));
-        }
-    }
-
-    public function testCombine_WithRootSlash() {
-        $this->assertEquals('/foo/bar', Path::combine('/', '/foo', '/bar'));
-        $this->assertEquals('/foo/bar', Path::combine('/', 'foo', 'bar'));
-        $this->assertEquals('/', Path::combine('/'));
-        $this->assertEquals('/', Path::combine('/', '', null));
-        $this->assertEquals('', Path::combine(null, '', null));
-        $this->assertEquals('/', Path::combine('', '/'));
-        $this->assertEquals('/foo/bar', Path::combine('', '/foo/bar'));
-    }
-
-    public function testCombine_ArraySyntax() {
-        $this->assertEquals('foo/bar/baz', Path::combine(['foo', 'bar', null, 'baz']));
-    }
-
-    public function testCombineEmpty() {
-        $this->assertSame('', Path::combine(['', '', '']));
-    }
-
-    public function dataCombine_AbsUri() {
-        return [
+    public function dataCombine() {
+        yield from (new BasePathTest(__METHOD__))->dataCombine();
+        // https://docs.microsoft.com/en-us/dotnet/standard/io/file-path-formats
+        yield from [
             [
-                'http://foo/bar',
-                'http://foo/',
-                '/',
-                '/bar',
+                '\\\\', '\\\\',
             ],
             [
-                'http://localhost/foo',
-                'http://localhost',
-                '/foo',
+                'C:/foo\\bar/baz', 'C:/foo\\bar', 'baz'
             ],
             [
-                'http://localhost/foo/bar',
-                'http://localhost/foo/',
-                '/bar/',
+                'C:/foo\\bar/baz', 'C:/foo\\bar', '/baz'
             ],
             [
-                'http://localhost/foo',
-                'http://localhost',
-                'foo',
+                'C:/foo\\bar/baz', 'C:/foo\\bar/', '/baz'
             ],
             [
-                'https://localhost/foo/bar/baz',
-                'https://localhost',
-                'foo',
-                '/bar/baz',
+                'C:/', 'C:/', '', '/'
+            ],
+            [
+                'C:\\', 'C:\\', '', '\\', '',
+            ],
+            [
+                '\\\\127.0.0.1', '\\\\', '127.0.0.1', '\\',
             ],
         ];
     }
 
     /**
-     * @dataProvider dataCombine_AbsUri
+     * @dataProvider dataCombine
      */
-    public function testCombine_AbsUri($expected, $uri, $path1, $path2 = null) {
-        $this->assertEquals($expected, Path::combine($uri, $path1, $path2));
-    }
-
-    public function testNormalize() {
-        if ($this->isWindows()) {
-            $this->assertEquals('foo/bar/baz', Path::normalize('foo\\bar\\baz/'));
-            $this->assertEquals('/foo/bar/baz', Path::normalize('/foo\\bar\\baz/'));
-            $this->assertEquals('/foo/bar/baz', Path::normalize('/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo/bar/baz', Path::normalize('C:/foo\\bar\\baz\\'));
-        } else {
-            // In Linux the `\` character is allowed for file name.
-            $this->assertEquals('foo\\bar\\baz', Path::normalize('foo\\bar\\baz/'));
-            $this->assertEquals('/foo\\bar\\baz', Path::normalize('/foo\\bar\\baz/'));
-            $this->assertEquals('/foo\\bar\\baz', Path::normalize('/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz/'));
-            $this->assertEquals('C:/foo\\bar\\baz', Path::normalize('C:/foo\\bar\\baz\\'));
-        }
-        $this->assertEquals('/', Path::normalize('/'));
-        $this->assertEquals('', Path::normalize(''));
-    }
-
-    public function testNormalize_RelBetween() {
-        $this->assertEquals('/foo/bar/setosa/versicolor', Path::normalize('/foo/bar/baz/../setosa/versicolor'));
-    }
-
-    public function testRel() {
-        $baseDirPath = __DIR__ . '/../../..';
-        $this->assertEquals(Path::rel($baseDirPath . '/module/foo/bar', $baseDirPath), 'module/foo/bar');
-        $this->assertSame(Path::rel($baseDirPath, $baseDirPath), '');
-        $this->assertSame(Path::rel($baseDirPath . '/', $baseDirPath), '');
-        $this->assertSame(Path::rel($baseDirPath . '/index.php', $baseDirPath), 'index.php');
+    public function testCombine(string $expected, ...$paths) {
+        $this->assertSame($expected, Path::combine(...$paths));
     }
 
     public function testNameWithoutExt() {
@@ -371,11 +245,7 @@ class PathTest extends TestCase {
     }
 
     public function testDropExt() {
-        if ($this->isWindows()) {
-            $this->assertEquals('C:/foo/bar/test', Path::dropExt('C:\\foo\\bar\\test'));
-        } else {
-            $this->assertEquals('C:\\foo\\bar\\test', Path::dropExt('C:\\foo\\bar\\test'));
-        }
+        $this->assertEquals('C:/foo/bar/test', Path::dropExt('C:\\foo\\bar\\test'));
         $this->assertEquals('/foo/bar/test', Path::dropExt('/foo/bar/test.php'));
         $this->assertEquals('test', Path::dropExt('test.php'));
     }
