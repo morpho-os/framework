@@ -8,7 +8,8 @@ Not ready. API is not stable.
 
 ## Used technologies
 
-For development:
+### For development
+
 * Server-side/Backend:
   * Nginx
   * PHP
@@ -24,7 +25,8 @@ For development:
   * GNU Bash
   * GNU Make
 
-For production:
+### For production
+
 * Server-side/Backend:
   * Nginx
   * PHP
