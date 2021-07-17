@@ -38,8 +38,6 @@
         "willdurand/negotiation": "^3.0@dev"
     },
     "require-dev": {
-        "vimeo/psalm": "dev-master",
-        "orklah/psalm-insane-comparison": "dev-master",
         "phpunit/phpunit": "dev-master"
     },
     "autoload": {
