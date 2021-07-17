@@ -1,7 +1,7 @@
 # Based on https://github.com/shivammathur/test-setup-php/blob/master/.github/workflows/workflow.yml
 on:
   workflow_dispatch:
-  #  push:
+  push:
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
