@@ -17,6 +17,7 @@ class GrammarParserTest extends TestCase {
 
     public function setUp(): void {
         parent::setUp();
+        $this->markTestIncomplete();
         $this->parser = new GrammarParser(new GrammarLexer(GrammarLexer::genTokens()));
     }
 

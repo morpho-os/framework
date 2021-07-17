@@ -42,7 +42,7 @@ use function uniqid;
 use function unlink;
 
 abstract class TestCase extends BaseTestCase {
-    private const TEST_DATA_DIR_NAME = 'test-data';
+    protected const TEST_DATA_DIR_NAME = 'test-data';
 
     private array $tmpDirPaths = [];
     private array $tmpFilePaths = [];

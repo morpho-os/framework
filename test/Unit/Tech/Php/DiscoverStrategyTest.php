@@ -42,7 +42,7 @@ abstract class DiscoverStrategyTest extends TestCase {
      * @dataProvider dataClassTypesDefinedInFile
      */
     public function testClassTypesDefinedInFile(array $expected, string $relFilePath) {
-        $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/' . $relFilePath);
+        $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/' . self::TEST_DATA_DIR_NAME . '/DiscoverStrategyTest/' . $relFilePath);
         $this->assertEquals($expected, $actual);
     }
 }

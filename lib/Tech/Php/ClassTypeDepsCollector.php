@@ -31,7 +31,7 @@ use function in_array;
 use function sort;
 
 class ClassTypeDepsCollector extends NodeVisitorAbstract {
-    protected $classTypes = [];
+    protected array $classTypes = [];
 
     public function classTypes(): array {
         $classTypes = $this->classTypes;

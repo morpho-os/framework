@@ -27,6 +27,7 @@ use function Morpho\Base\{all,
     appendFn,
     camelize,
     camelizeKeys,
+    capture,
     cartesianProduct,
     classify,
     compose,
@@ -544,10 +545,6 @@ class FunctionsTest extends TestCase {
         $this->assertSame($expected, compose($f, $g)('test'));
     }
 
-    public function testRequireFile() {
-        $this->markTestIncomplete();
-    }
-
     public function dataQ() {
         return $this->dataQ_("'");
     }
@@ -686,7 +683,9 @@ class FunctionsTest extends TestCase {
     }
 
     public function testCapture() {
-        $this->markTestIncomplete();
+        $this->assertSame('capture works', capture(function () {
+            echo 'capture works';
+        }));
     }
 
     public function testTpl() {

@@ -6,7 +6,6 @@
  */
 namespace Morpho\Tech\Php;
 
-use Closure;
 use Morpho\Caching\ICache;
 
 use function Morpho\Caching\cacheKey;
@@ -14,7 +13,7 @@ use function Morpho\Caching\cacheKey;
 class ClassTypeMapAutoloader extends Autoloader {
     protected $processor;
 
-    protected $searchDirPaths;
+    protected string|iterable $searchDirPaths;
 
     protected ?array $map = null;
 
@@ -22,23 +21,14 @@ class ClassTypeMapAutoloader extends Autoloader {
 
     protected string $cacheKey;
 
-    /**
-     * @param array|string|null $searchDirPaths
-     * @param string|Closure $processor
-     * @param ICache|null $cache
-     */
-    public function __construct($searchDirPaths = null, $processor = null, ICache $cache = null) {
+    public function __construct(string|iterable $searchDirPaths, string|callable $processor = null, ICache $cache = null) {
         $this->searchDirPaths = $searchDirPaths;
         $this->processor = $processor;
         $this->cache = $cache;
         $this->cacheKey = cacheKey($this, __FUNCTION__);
     }
 
-    /**
-     * @param string $class
-     * @return string|false
-     */
-    public function filePath(string $class) {
+    public function filePath(string $class): string|false {
         if (null === $this->map) {
             $useCache = null !== $this->cache;
             if ($useCache) {
@@ -52,7 +42,7 @@ class ClassTypeMapAutoloader extends Autoloader {
                 $this->map = $this->mkMap();
             }
         }
-        return isset($this->map[$class]) ? $this->map[$class] : false;
+        return $this->map[$class] ?? false;
     }
 
     protected function mkMap(): array {

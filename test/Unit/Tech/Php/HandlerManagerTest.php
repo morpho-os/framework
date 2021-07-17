@@ -8,11 +8,10 @@ namespace Morpho\Test\Unit\Tech\Php;
 
 use InvalidArgumentException;
 use Morpho\Tech\Php\HandlerManager;
-use PHPUnit\Util\ErrorHandler;
+use PHPUnit\Util\Error\Handler as PHPUnitErrorHandler;
 use RuntimeException;
 
 use function array_diff;
-use function array_shift;
 use function call_user_func;
 use function get_class_methods;
 use function set_error_handler;
@@ -23,9 +22,8 @@ require_once __DIR__ . '/BaseErrorHandlerTest.php';
 
 class HandlerManagerTest extends BaseErrorHandlerTest {
     public function testIsHandlerRegistered() {
-        $callback = [$this, 'myHandler'];
-        $handlerTypes = [HandlerManager::ERROR, HandlerManager::EXCEPTION];
-        foreach ($handlerTypes as $handlerType) {
+        $callback = function () {};
+        foreach ([HandlerManager::ERROR, HandlerManager::EXCEPTION] as $handlerType) {
             $this->assertFalse(HandlerManager::isHandlerRegistered($handlerType, $callback));
             HandlerManager::registerHandler($handlerType, $callback);
             $this->assertTrue(HandlerManager::isHandlerRegistered($handlerType, $callback));
@@ -33,22 +31,24 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
     }
 
     public function testHandlersOfType_DoesNotChangeCurrentHandlers() {
-        $this->assertCount(1, HandlerManager::handlersOfType(HandlerManager::ERROR));
+        $this->assertCount(1, HandlerManager::handlersOfType(HandlerManager::ERROR), "Only PHPUnit's error handler is registered");
         $this->assertCount(0, HandlerManager::handlersOfType(HandlerManager::EXCEPTION));
-        $this->assertCount(1, HandlerManager::handlersOfType(HandlerManager::ERROR));
+        $this->assertCount(1, HandlerManager::handlersOfType(HandlerManager::ERROR), "Only PHPUnit's error handler is registered");
         $this->assertCount(0, HandlerManager::handlersOfType(HandlerManager::EXCEPTION));
     }
 
     public function testRegisterAndUnregisterHandler() {
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
-        $callback = [$this, 'myHandler'];
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::registerHandler(HandlerManager::ERROR, $callback));
+        $this->assertSame($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
+        $callback = function () use (&$handlerArgs) {
+            $handlerArgs = func_get_args();
+        };
+        $this->assertSame($this->prevErrorHandler, HandlerManager::registerHandler(HandlerManager::ERROR, $callback));
         echo $t;
         $expected = [E_WARNING, 'Undefined variable $t', __FILE__, __LINE__ - 1];
-        $this->assertEquals($expected, $this->handlerArgs);
-        $this->assertEquals($callback, HandlerManager::handlerOfType(HandlerManager::ERROR));
+        $this->assertSame($expected, $handlerArgs);
+        $this->assertSame($callback, HandlerManager::handlerOfType(HandlerManager::ERROR));
         HandlerManager::unregisterHandler(HandlerManager::ERROR, $callback);
-        $this->assertEquals($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
+        $this->assertSame($this->prevErrorHandler, HandlerManager::handlerOfType(HandlerManager::ERROR));
     }
 
     public function testUnregisterErrorHandler_OnlySecondHandler() {
@@ -84,25 +84,29 @@ class HandlerManagerTest extends BaseErrorHandlerTest {
         }
     }
 
-    private function errorHandlers() {
-        $handlers = HandlerManager::handlersOfType(HandlerManager::ERROR);
-        if (isset($handlers[0]) && $handlers[0] instanceof ErrorHandler) {
-            array_shift($handlers);
-        }
-        return $handlers;
-    }
-
     public function testThrowsExceptionIfInvalidHandlerTypeProvided() {
         $class = HandlerManager::class;
         $methods = array_diff(get_class_methods($class), ['exceptionHandlers', 'errorHandlers', 'exceptionHandler', 'errorHandler']);
-        $callback = [$this, 'myHandler'];
+        $callback = function () {};
         foreach ($methods as $method) {
             try {
                 call_user_func([$class, $method], 'invalid-type', $callback);
                 $this->fail($class . '::' . $method . '() does not throw \\InvalidArgumentException');
             } catch (InvalidArgumentException $e) {
-                $this->assertEquals("Invalid handler type was provided 'invalid-type'.", $e->getMessage());
+                $this->assertSame("Invalid handler type was provided 'invalid-type'.", $e->getMessage());
             }
         }
+    }
+
+    private function errorHandlers(): array {
+        $handlers = HandlerManager::handlersOfType(HandlerManager::ERROR);
+        $errorHandlers = [];
+        foreach ($handlers as $handler) {
+            if ($handler instanceof PHPUnitErrorHandler) {
+                continue;
+            }
+            $errorHandlers[] = $handler;
+        }
+        return $errorHandlers;
     }
 }

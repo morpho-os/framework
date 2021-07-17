@@ -23,7 +23,7 @@ use function get_declared_traits;
 use function substr;
 
 class ClassTypeDiscoverer {
-    private $discoverStrategy;
+    private ?IDiscoverStrategy $discoverStrategy = null;
 
     public static function definedClassTypes(): array {
         return array_merge(
@@ -64,7 +64,7 @@ class ClassTypeDiscoverer {
             : $depsCollector->classTypes();
     }
 
-    public function classTypesDefinedInDir($dirPaths, string $regExp = null, array $conf = null): array {
+    public function classTypesDefinedInDir(string|iterable $dirPaths, string $regExp = null, array $conf = null): array {
         $conf = (array) $conf + ['recursive' => true];
         $filePaths = Dir::filePaths($dirPaths, $regExp ?: Dir::PHP_FILE_RE, $conf);
         $map = [];

@@ -134,7 +134,7 @@ class ClassTypeAutoloader extends Autoloader {
         return $this;
     }
 
-    public function filePath(string $class) {
+    public function filePath(string $class): string|false {
         // class map lookup
         if (isset($this->classToFileMap[$class])) {
             return $this->classToFileMap[$class];

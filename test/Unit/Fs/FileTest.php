@@ -401,9 +401,9 @@ class FileTest extends TestCase {
 OUT
         );
         $expected = [
-            '    First',
-            '   Second',
-            '     Third',
+            'First',
+            'Second',
+            'Third',
         ];
         $this->assertEquals($expected, iterator_to_array(File::readLines($tmpFilePath), false));
     }
@@ -427,10 +427,10 @@ OUT
 OUT
         );
         $expected = [
-            '    First',
+            'First',
             '',
-            '   Second',
-            '     Third',
+            'Second',
+            'Third',
             '',
         ];
         $this->assertEquals(

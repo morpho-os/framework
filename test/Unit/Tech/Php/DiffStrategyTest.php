@@ -15,7 +15,7 @@ class DiffStrategyTest extends DiscoverStrategyTest {
      * @dataProvider dataClassTypesDefinedInFile
      */
     public function testClassTypesDefinedInFile(array $expected, string $relFilePath) {
-        $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/_files/DiscoverStrategyTest/' . $relFilePath);
+        $actual = $this->strategy->classTypesDefinedInFile(__DIR__ . '/' . self::TEST_DATA_DIR_NAME . '/DiscoverStrategyTest/' . $relFilePath);
         // @todo: fix sorting
         sort($expected);
         sort($actual);

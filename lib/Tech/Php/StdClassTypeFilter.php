@@ -11,6 +11,10 @@ use Morpho\Base\IFn;
 use function array_diff;
 use function array_values;
 
+/**
+ * @todo: remove this class and refactor classes using it
+ * @deprecated
+ */
 class StdClassTypeFilter implements IFn {
     public static array $stdClasses = [
         'AppendIterator',
